@@ -1,0 +1,9 @@
+# rename the file to profile.properties
+
+URL = snowflake.url:8080
+USER = myuser
+PASSWORD = mypassword
+DB = mydatabase
+WAREHOUSE = mywarehouse
+SCHEMA = myschema
+SSL = off

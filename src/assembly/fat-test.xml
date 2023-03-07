@@ -1,0 +1,30 @@
+<assembly xmlns="http://maven.apache.org/ASSEMBLY/2.1.0"
+          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+          xsi:schemaLocation="http://maven.apache.org/ASSEMBLY/2.1.0 http://maven.apache.org/xsd/assembly-2.1.0.xsd">
+    <id>fat-test</id>
+    <formats>
+        <format>jar</format>
+    </formats>
+    <includeBaseDirectory>false</includeBaseDirectory>
+   <fileSets>
+     <fileSet>
+      <directory>${project.build.directory}/test-classes</directory>
+      <outputDirectory>/</outputDirectory>
+    </fileSet>
+  </fileSets>
+    <dependencySets>
+        <dependencySet>
+            <outputDirectory>/</outputDirectory>
+            <useProjectArtifact>true</useProjectArtifact>
+            <unpack>true</unpack>
+            <scope>test</scope>
+            <excludes>
+                <!--This fat jar excludes jdbc and scala because they already available in XP classpath-->
+                <exclude>net.snowflake:snowflake-jdbc</exclude>
+                <exclude>org.scala-lang:scala-library</exclude>
+                <exclude>org.scala-lang:scala-reflect</exclude>
+                <exclude>org.scala-lang:scala-compiler</exclude>
+            </excludes> 
+        </dependencySet>
+    </dependencySets>
+</assembly>

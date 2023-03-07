@@ -1,0 +1,24 @@
+name: precommit test - fips release
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: '**'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v2
+      - name: Install Java
+        uses: actions/setup-java@v1
+        with:
+          java-version: 1.8
+      - name: Decrypt profile.properties
+        run: .github/scripts/decrypt_profile.sh
+        env:
+          PROFILE_PASSWORD: ${{ secrets.PROFILE_PASSWORD_2 }}
+      - name: Run test
+        # only compile and run some simple tests here.
+        run: mvn -Dgpg.skip -f fips-pom.xml test -DargLine="-DFIPS_TEST=true" -Dsuites="com.snowflake.snowpark_test.SessionSuite"
