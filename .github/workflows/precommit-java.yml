@@ -18,6 +18,6 @@ jobs:
       - name: Decrypt profile.properties
         run: .github/scripts/decrypt_profile.sh
         env:
-          PROFILE_PASSWORD: ${{ secrets.PROFILE_PASSWORD_2 }}
+          PROFILE_PASSWORD: ${{ secrets.PROFILE_PASSWORD }}
       - name: Run test
         run: mvn -Dgpg.skip -DtagsToInclude=com.snowflake.snowpark.JavaAPITest test

@@ -18,7 +18,7 @@ jobs:
       - name: Decrypt profile.properties
         run: .github/scripts/decrypt_profile.sh
         env:
-          PROFILE_PASSWORD: ${{ secrets.PROFILE_PASSWORD_2 }}
+          PROFILE_PASSWORD: ${{ secrets.PROFILE_PASSWORD }}
       - name: Run test
         # only compile and run some simple tests here.
         run: mvn -Dgpg.skip -f fips-pom.xml test -DargLine="-DFIPS_TEST=true" -Dsuites="com.snowflake.snowpark_test.SessionSuite"

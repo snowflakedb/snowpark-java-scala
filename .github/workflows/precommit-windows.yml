@@ -18,7 +18,7 @@ jobs:
       - name: Decrypt profile.properties
         shell: bash
         env:
-          PROFILE_PASSWORD: ${{ secrets.PROFILE_PASSWORD_2 }}
+          PROFILE_PASSWORD: ${{ secrets.PROFILE_PASSWORD }}
         run: .github/scripts/decrypt_profile.sh
       - name: Run test on windows
         run: mvn --% -D"gpg.skip" -DscalaPluginVersion="4.5.4" -DtagsToExclude="UnstableTest,com.snowflake.snowpark.PerfTest,com.snowflake.snowpark.JavaAPITest,com.snowflake.snowpark.UDFTest,com.snowflake.snowpark.UDFPackageTest,com.snowflake.snowpark.CodeVerification" test
