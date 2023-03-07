@@ -2,7 +2,7 @@ name: snyk-pr
 on:
   pull_request:
     branches:
-      - master
+      - main
 jobs:
   whitesource:
     runs-on: ubuntu-latest

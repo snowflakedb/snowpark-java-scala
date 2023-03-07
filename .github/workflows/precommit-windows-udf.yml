@@ -1,7 +1,7 @@
 name: precommit test - windows udf
 on:
   push:
-    branches: [ master ]
+    branches: [ main ]
   pull_request:
     branches: '**'
 

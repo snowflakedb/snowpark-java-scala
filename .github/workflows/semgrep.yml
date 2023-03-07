@@ -3,7 +3,7 @@ name: Run semgrep checks
 
 on:
   pull_request:
-    branches: [master]
+    branches: [main]
 
 permissions:
   contents: read
