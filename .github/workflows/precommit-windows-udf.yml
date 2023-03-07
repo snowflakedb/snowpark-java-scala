@@ -1,0 +1,24 @@
+name: precommit test - windows udf
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: '**'
+
+jobs:
+  build:
+    runs-on: windows-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v2
+      - name: Install Java
+        uses: actions/setup-java@v1
+        with:
+          java-version: 1.8
+      - name: Decrypt profile.properties
+        shell: bash
+        env:
+          PROFILE_PASSWORD: ${{ secrets.PROFILE_PASSWORD }}
+        run: .github/scripts/decrypt_profile.sh
+      - name: Run test on windows
+        run: mvn --% -D"gpg.skip" -DscalaPluginVersion="4.5.4" -DtagsToInclude="com.snowflake.snowpark.UDFTest" -DtagsToExclude="UnstableTest" test
