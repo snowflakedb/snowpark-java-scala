@@ -32,7 +32,7 @@ jobs:
         with:
           project: SNOW
           issuetype: Bug
-          summary: '${{ github.event.issue.title }}'
+          summary: '${{ github.event.issue.title }} (snowflakedb/snowpark-java-scala)'
           description: |
             ${{ github.event.issue.body }} \\ \\ _Created from GitHub Action_ for ${{ github.event.issue.html_url }}
           fields: '{"customfield_11401":{"id":"14586"},"assignee":{"id":"6360642413f37118d727c8ce"},"components":[{"id":"16408"},{"id":"16407"}]}'
