@@ -27,7 +27,7 @@ if [ -z $pr_code_coverage ];
         echo "For master"
 	/usr/local/sonar-scanner-cli/bin/sonar-scanner \
     	-Dsonar.host.url=https://sonarqube.int.snowflakecomputing.com \
-    	-Dsonar.projectBaseDir=/mnt/jenkins${WORKSPACE}/snowpark-java-scala \
+    	-Dsonar.projectBaseDir=${PWD} \
     	-Dsonar.projectVersion=1.8.0 \
     	-Dsonar.scala.coverage.reportPaths=target/scoverage.xml \
     	-Dsonar.coverage.jacoco.xmlReportPaths=target/site/jacoco/jacoco.xml \
@@ -43,7 +43,7 @@ else
         echo "For Pull Request"
 	/usr/local/sonar-scanner-cli/bin/sonar-scanner \
         -Dsonar.host.url=https://sonarqube.int.snowflakecomputing.com \
-        -Dsonar.projectBaseDir=/mnt/jenkins${WORKSPACE}/snowpark-java-scala \
+        -Dsonar.projectBaseDir=${PWD} \
         -Dsonar.projectVersion=1.8.0 \
         -Dsonar.scala.coverage.reportPaths=target/scoverage.xml \
         -Dsonar.coverage.jacoco.xmlReportPaths=target/site/jacoco/jacoco.xml \
