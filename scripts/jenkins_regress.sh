@@ -28,7 +28,7 @@ if [ -z $pr_code_coverage ];
 	/usr/local/sonar-scanner-cli/bin/sonar-scanner \
     	-Dsonar.host.url=https://sonarqube.int.snowflakecomputing.com \
     	-Dsonar.projectBaseDir=${PWD} \
-    	-Dsonar.projectVersion=1.8.0 \
+    	-Dsonar.projectVersion=1.9.0 \
     	-Dsonar.scala.coverage.reportPaths=target/scoverage.xml \
     	-Dsonar.coverage.jacoco.xmlReportPaths=target/site/jacoco/jacoco.xml \
     	-Dsonar.sources=src/main \
@@ -44,7 +44,7 @@ else
 	/usr/local/sonar-scanner-cli/bin/sonar-scanner \
         -Dsonar.host.url=https://sonarqube.int.snowflakecomputing.com \
         -Dsonar.projectBaseDir=${PWD} \
-        -Dsonar.projectVersion=1.8.0 \
+        -Dsonar.projectVersion=1.9.0 \
         -Dsonar.scala.coverage.reportPaths=target/scoverage.xml \
         -Dsonar.coverage.jacoco.xmlReportPaths=target/site/jacoco/jacoco.xml \
         -Dsonar.sources=src/main \
