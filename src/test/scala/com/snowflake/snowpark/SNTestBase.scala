@@ -82,9 +82,6 @@ trait SNTestBase extends FunSuite with BeforeAndAfterAll with SFTestUtils with S
     TestUtils.tryToLoadFipsProvider()
     val session = Session.builder
       .configFile(defaultProfile)
-      // It is used to be default system configuration,
-      // hard code it now to prevent test failures.
-      .config("APPROX_PERCENTILE_EXACT_IF_POSSIBLE", "false")
       .create
     // trigger this lazy parameter to make some tests more stable
     // e.g. count queries
@@ -301,9 +298,6 @@ trait LazySession extends SNTestBase {
     Session.builder
       .configFile(defaultProfile)
       .config(SnowparkLazyAnalysis, "true")
-      // It is used to be default system configuration,
-      // hard code it now to prevent test failures.
-      .config("APPROX_PERCENTILE_EXACT_IF_POSSIBLE", "false")
       .create
 }
 
@@ -312,9 +306,6 @@ trait EagerSession extends SNTestBase {
     Session.builder
       .configFile(defaultProfile)
       .config(SnowparkLazyAnalysis, "false")
-      // It is used to be default system configuration,
-      // hard code it now to prevent test failures.
-      .config("APPROX_PERCENTILE_EXACT_IF_POSSIBLE", "false")
       .create
 }
 
@@ -323,9 +314,6 @@ trait AlwaysCleanSession extends SNTestBase {
     Session.builder
       .configFile(defaultProfile)
       .config(ParameterUtils.SnowparkEnableClosureCleaner, "always")
-      // It is used to be default system configuration,
-      // hard code it now to prevent test failures.
-      .config("APPROX_PERCENTILE_EXACT_IF_POSSIBLE", "false")
       .create
 }
 
@@ -336,9 +324,6 @@ trait NeverCleanSession extends SNTestBase {
     Session.builder
       .configFile(defaultProfile)
       .config(ParameterUtils.SnowparkEnableClosureCleaner, "never")
-      // It is used to be default system configuration,
-      // hard code it now to prevent test failures.
-      .config("APPROX_PERCENTILE_EXACT_IF_POSSIBLE", "false")
       .create
 }
 
