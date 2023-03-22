@@ -82,7 +82,8 @@ trait SNTestBase extends FunSuite with BeforeAndAfterAll with SFTestUtils with S
     TestUtils.tryToLoadFipsProvider()
     val session = Session.builder
       .configFile(defaultProfile)
-      // used to be default system configuration
+      // It is used to be default system configuration,
+      // hard code it now to prevent test failures.
       .config("APPROX_PERCENTILE_EXACT_IF_POSSIBLE", "false")
       .create
     // trigger this lazy parameter to make some tests more stable
@@ -300,7 +301,8 @@ trait LazySession extends SNTestBase {
     Session.builder
       .configFile(defaultProfile)
       .config(SnowparkLazyAnalysis, "true")
-      // used to be default system configuration
+      // It is used to be default system configuration,
+      // hard code it now to prevent test failures.
       .config("APPROX_PERCENTILE_EXACT_IF_POSSIBLE", "false")
       .create
 }
@@ -310,7 +312,8 @@ trait EagerSession extends SNTestBase {
     Session.builder
       .configFile(defaultProfile)
       .config(SnowparkLazyAnalysis, "false")
-      // used to be default system configuration
+      // It is used to be default system configuration,
+      // hard code it now to prevent test failures.
       .config("APPROX_PERCENTILE_EXACT_IF_POSSIBLE", "false")
       .create
 }
@@ -320,7 +323,8 @@ trait AlwaysCleanSession extends SNTestBase {
     Session.builder
       .configFile(defaultProfile)
       .config(ParameterUtils.SnowparkEnableClosureCleaner, "always")
-      // used to be default system configuration
+      // It is used to be default system configuration,
+      // hard code it now to prevent test failures.
       .config("APPROX_PERCENTILE_EXACT_IF_POSSIBLE", "false")
       .create
 }
@@ -332,7 +336,8 @@ trait NeverCleanSession extends SNTestBase {
     Session.builder
       .configFile(defaultProfile)
       .config(ParameterUtils.SnowparkEnableClosureCleaner, "never")
-      // used to be default system configuration
+      // It is used to be default system configuration,
+      // hard code it now to prevent test failures.
       .config("APPROX_PERCENTILE_EXACT_IF_POSSIBLE", "false")
       .create
 }
