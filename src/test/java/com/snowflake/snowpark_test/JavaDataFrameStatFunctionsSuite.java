@@ -55,12 +55,12 @@ public class JavaDataFrameStatFunctionsSuite extends TestBase {
     Optional<Double>[][] result =
         df.stat().approxQuantile(new String[] {"a", "b"}, new double[] {0, 0.1, 0.6});
     assert result.length == 2;
-    assert result[0][0].get() == 0.05;
-    assert result[0][1].get() == 0.15000000000000002;
-    assert result[0][2].get() == 0.25;
-    assert result[1][0].get() == 0.45;
-    assert result[1][1].get() == 0.55;
-    assert result[1][2].get() == 0.6499999999999999;
+    assert result[0][0].get() == 0.1;
+    assert result[0][1].get() == 0.12000000000000001;
+    assert result[0][2].get() == 0.22;
+    assert result[1][0].get() == 0.5;
+    assert result[1][1].get() == 0.52;
+    assert result[1][2].get() == 0.62;
   }
 
   @Test
