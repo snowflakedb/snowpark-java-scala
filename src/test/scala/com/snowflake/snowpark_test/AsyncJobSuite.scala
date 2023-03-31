@@ -10,6 +10,24 @@ import scala.concurrent.Future
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.util.{Failure, Random, Success}
 
+object TestScalaSP {
+  def asyncBasic(session: com.snowflake.snowpark.Session, count: Int, seconds: Int): String = {
+    val asyncJobs = new scala.collection.mutable.ArrayBuffer[AsyncJob]()
+    var index = 0
+    // Kick-off many async jobs
+    while (index < count) {
+      val df = session.sql(
+        s"select count(*) from table(generator(timeLimit => ${seconds + index}))")
+      asyncJobs.append(df.async.collect())
+      index += 1
+    }
+    // wait for async jobs done, and get result
+    asyncJobs.map { asyncJob =>
+      asyncJob.getRows()(0).getLong(0)
+    }.mkString("[ ", ", ", " ]")
+  }
+}
+
 class AsyncJobSuite extends TestData with BeforeAndAfterEach {
   val tmpStageName: String = randomStageName()
   val targetStageName = randomStageName()
@@ -50,6 +68,10 @@ class AsyncJobSuite extends TestData with BeforeAndAfterEach {
     dropTable(tableName2)
 
     super.afterAll()
+  }
+
+  test("test 10 jobs") {
+    println(TestScalaSP.asyncBasic(session, 10, 5))
   }
 
   test("async DataFrame collect(): common case") {
