@@ -32,20 +32,20 @@ Add the Snowpark SDK to your build file:
     <dependency>
         <groupId>com.snowflake</groupId>
         <artifactId>snowpark</artifactId>
-        <version>1.7.0</version>
+        <version>1.8.0</version>
     </dependency>
     ```
 
 - Gradle
 
     ```groovy
-    implementation 'com.snowflake:snowpark:1.7.0'
+    implementation 'com.snowflake:snowpark:1.8.0'
     ```
 
 - sbt
 
     ```scala
-    libraryDependencies += "com.snowflake" % "snowpark" % "1.7.1"
+    libraryDependencies += "com.snowflake" % "snowpark" % "1.8.0"
     ```
 
 ### Create a session and start querying
