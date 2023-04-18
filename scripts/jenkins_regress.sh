@@ -24,10 +24,10 @@ version=`git rev-parse HEAD`
 
 if [ -z $pr_code_coverage ];
  then
-        echo "For master"
+        echo "For main"
 	/usr/local/sonar-scanner-cli/bin/sonar-scanner \
-    	-Dsonar.host.url=https://sonarqube.int.snowflakecomputing.com \
-    	-Dsonar.projectBaseDir=${PWD} \
+    	-Dsonar.host.url=https://sonarqube-eng.int.snowflakecomputing.com \
+    	-Dsonar.projectBaseDir=/mnt/jenkins/home/jenkins/workspace/SnowparkClientRegressRunner/thundersnow \
     	-Dsonar.projectVersion=1.9.0 \
     	-Dsonar.scala.coverage.reportPaths=target/scoverage.xml \
     	-Dsonar.coverage.jacoco.xmlReportPaths=target/site/jacoco/jacoco.xml \
@@ -42,8 +42,8 @@ if [ -z $pr_code_coverage ];
 else
         echo "For Pull Request"
 	/usr/local/sonar-scanner-cli/bin/sonar-scanner \
-        -Dsonar.host.url=https://sonarqube.int.snowflakecomputing.com \
-        -Dsonar.projectBaseDir=${PWD} \
+        -Dsonar.host.url=https://sonarqube-eng.int.snowflakecomputing.com \
+        -Dsonar.projectBaseDir=/mnt/jenkins/home/jenkins/workspace/SnowparkClientRegressRunner/thundersnow \
         -Dsonar.projectVersion=1.9.0 \
         -Dsonar.scala.coverage.reportPaths=target/scoverage.xml \
         -Dsonar.coverage.jacoco.xmlReportPaths=target/site/jacoco/jacoco.xml \
@@ -57,5 +57,5 @@ else
         -Dsonar.scm.provider=git \
         -Dsonar.pullrequest.key=${PR_KEY} \
         -Dsonar.pullrequest.branch=${PR_ID} \
-        -Dsonar.pullrequest.base=master
+        -Dsonar.pullrequest.base=main
 fi
