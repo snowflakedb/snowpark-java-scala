@@ -3,6 +3,9 @@ name: Jira closure
 on:
   issues:
     types: [closed, deleted]
+    
+permissions:
+  issues: write
 
 jobs:
   close-issue:
