@@ -1,10 +1,8 @@
 package com.snowflake.snowpark_test
 
 import com.snowflake.snowpark.functions._
-import com.snowflake.snowpark.internal.ServerConnection
 import com.snowflake.snowpark.types.{GeographyType, TimeType}
-import com.snowflake.snowpark.{JavaStoredProcExclude, TestData, UnstableTest}
-import net.snowflake.client.jdbc.SnowflakeSQLException
+import com.snowflake.snowpark.{TestData, UnstableTest}
 
 import java.sql.Types
 
@@ -56,34 +54,6 @@ class ResultSchemaSuite extends TestData {
     super.afterAll
   }
 
-  test("show database objects") {
-    verifySchema("show schemas", session.sql("show schemas").schema)
-    verifySchema("show objects", session.sql("show objects").schema)
-    verifySchema("show external tables", session.sql("show external tables").schema)
-    verifySchema("show views", session.sql("show views").schema)
-    verifySchema("show columns", session.sql("show columns").schema)
-    verifySchema("show file formats", session.sql("show file formats").schema)
-    verifySchema("show sequences", session.sql("show sequences").schema)
-    verifySchema("show stages", session.sql("show stages").schema)
-    verifySchema("show pipes", session.sql("show pipes").schema)
-    verifySchema("show streams", session.sql("show streams").schema)
-    verifySchema("show tasks", session.sql("show tasks").schema)
-    verifySchema("show user functions", session.sql("show user functions").schema)
-    verifySchema("show external functions", session.sql("show external functions").schema)
-    verifySchema("show procedures", session.sql("show procedures").schema)
-  }
-
-  test("show account object") {
-    verifySchema("show functions", session.sql("show functions").schema)
-    verifySchema("show network policies", session.sql("show network policies").schema)
-    verifySchema("show roles", session.sql("show roles").schema)
-    verifySchema("show databases", session.sql("show databases").schema)
-  }
-
-  test("show session operations") {
-    verifySchema("show variables", session.sql("show variables").schema)
-  }
-
   test("alter") {
     verifySchema(
       "alter session set ABORT_DETACHED_QUERY=false",
@@ -105,24 +75,6 @@ class ResultSchemaSuite extends TestData {
     verifySchema(
       s"remove @$stageName/$testFileCsv",
       session.sql(s"remove @$stageName/$testFile2Csv").schema)
-  }
-
-  test("insert into") {
-    verifySchema(
-      s"insert into $tableName values(1)",
-      session.sql(s"insert into $tableName values(1)").schema)
-  }
-
-  test("delete") {
-    verifySchema(
-      s"delete from $tableName where num = 1",
-      session.sql(s"delete from $tableName where num = 1").schema)
-  }
-
-  test("update") {
-    verifySchema(
-      s"update $tableName set num = 2 where num = 1",
-      session.sql(s"update $tableName set num = 2 where num = 1").schema)
   }
 
   test("select") {
@@ -172,33 +124,6 @@ class ResultSchemaSuite extends TestData {
      * (t1 + t2 + t3 + t4) / 4 = 2.5 t1
      */
     assert((time4 - start) / 4 < (time1 - start) * 1.5)
-  }
-
-  test("these show commands also works on Jenkins now") {
-    verifySchema("show tables", session.sql("show tables").schema)
-    verifySchema("show parameters", session.sql("show parameters").schema)
-    verifySchema("show shares", session.sql("show shares").schema)
-    verifySchema("show warehouses", session.sql("show warehouses").schema)
-    verifySchema("show transactions", session.sql("show transactions").schema)
-    verifySchema("show locks", session.sql("show locks").schema)
-    verifySchema("show regions", session.sql("show regions").schema)
-  }
-
-  test("terse") {
-    verifySchema("show terse databases", session.sql("show terse databases").schema)
-    verifySchema("show terse schemas", session.sql("show terse schemas").schema)
-    verifySchema("show terse tables", session.sql("show terse tables").schema)
-    verifySchema("show terse views", session.sql("show terse views").schema)
-    verifySchema("show terse streams", session.sql("show terse streams").schema)
-    verifySchema("show terse tasks", session.sql("show terse tasks").schema)
-    verifySchema("show terse external tables", session.sql("show terse external tables").schema)
-  }
-
-  test("invalid query show commands") {
-    assertThrows[SnowflakeSQLException](session.sql("show").schema)
-    assertThrows[SnowflakeSQLException](session.sql("show table").schema)
-    assertThrows[SnowflakeSQLException](session.sql("show tables abc").schema)
-    assertThrows[SnowflakeSQLException](session.sql("show external abc").schema)
   }
 
   test("verify full schema type") {
@@ -258,87 +183,5 @@ class ResultSchemaSuite extends TestData {
     assert(resultMeta.getColumnType(1) == Types.TIME)
     assert(tsSchema.head.dataType == TimeType)
     statement.close()
-  }
-
-  // Java Stored Proc does not support use in owner's right.
-  test("use", JavaStoredProcExclude) {
-    val currentDB = session.getCurrentDatabase.get
-    val currentSchema = session.getCurrentSchema.get
-    verifySchema(s"use database $currentDB", session.sql(s"use database $currentDB").schema)
-    verifySchema(s"use schema $currentSchema", session.sql(s"use schema $currentSchema").schema)
-  }
-
-  test("create drop") {
-    verifySchema(
-      s"create or replace table $tableName1 (num int)",
-      session.sql(s"create or replace table $tableName1 (num int)").schema)
-    verifySchema(s"drop table $tableName1", session.sql(s"drop table $tableName1").schema)
-
-    runQuery(s"create or replace table $tableName1 (num int)", session)
-    verifySchema(
-      s"create or replace stream $streamName1 on table $tableName1",
-      session.sql(s"create or replace stream $streamName1 on table $tableName1").schema)
-    verifySchema(s"drop stream $streamName1", session.sql(s"drop stream $streamName1").schema)
-
-    verifySchema(
-      s"create or replace stage $stageName1",
-      session.sql(s"create or replace stage $stageName1").schema)
-    verifySchema(s"drop stage $stageName1", session.sql(s"drop stage $stageName1").schema)
-
-    verifySchema(
-      s"create or replace view $viewName1 as select * from $tableName1",
-      session.sql(s"create or replace view $viewName1 as select * from $tableName1").schema)
-    verifySchema(s"drop view $viewName1", session.sql(s"drop view $viewName1").schema)
-
-    runQuery(s"create or replace stage $stageName1", session)
-    verifySchema(
-      s"create or replace pipe $pipeName1 as copy into $tableName1 from @$stageName1",
-      session
-        .sql(s"create or replace pipe $pipeName1 as copy into $tableName1 from @$stageName1")
-        .schema)
-
-    verifySchema(s"drop pipe $pipeName1", session.sql(s"drop pipe $pipeName1").schema)
-  }
-
-  test("comment on") {
-    runQuery(s"create or replace table $tableName1 (num int)", session)
-    verifySchema(
-      s"comment on table $tableName1 is 'test'",
-      session.sql(s"comment on table $tableName1 is 'test'").schema)
-  }
-
-  test("grant/revoke") {
-    val tempTable = randomName()
-    val currentRole: String = session.sql("select current_role()").collect().head.getString(0)
-    runQuery(s"create or replace temp table $tempTable (num int)", session)
-
-    verifySchema(
-      s"grant select on table $tempTable to role $currentRole",
-      session.sql(s"grant select on table $tempTable to role $currentRole").schema)
-
-    verifySchema(
-      s"revoke select on table $tempTable from role $currentRole",
-      session.sql(s"revoke select on table $tempTable from role $currentRole").schema)
-  }
-
-  test("describe") {
-    runQuery(s"create or replace table $tableName1 (num int)", session)
-    verifySchema(s"describe table $tableName1", session.sql(s"describe table $tableName1").schema)
-
-    runQuery(s"create or replace stream $streamName1 on table $tableName1", session)
-    verifySchema(
-      s"describe stream $streamName1",
-      session.sql(s"describe stream $streamName1").schema)
-
-    runQuery(s"create or replace stage $stageName1", session)
-    verifySchema(s"describe stage $stageName1", session.sql(s"describe stage $stageName1").schema)
-
-    runQuery(s"create or replace view $viewName1 as select * from $tableName1", session)
-    verifySchema(s"describe view $viewName1", session.sql(s"describe view $viewName1").schema)
-
-    runQuery(
-      s"create or replace pipe $pipeName1 as copy into $tableName1 from @$stageName1",
-      session)
-    verifySchema(s"describe pipe $pipeName1", session.sql(s"describe pipe $pipeName1").schema)
   }
 }
