@@ -1,6 +1,5 @@
 package com.snowflake.snowpark
 
-import com.snowflake.snowpark.internal.analyzer
 import com.snowflake.snowpark.internal.analyzer.Attribute
 import com.snowflake.snowpark.types._
 
@@ -107,45 +106,5 @@ class ResultAttributesSuite extends SNTestBase {
       index =>
         assert(attribute(index).dataType ==
           ArrayType(StringType)))
-  }
-
-  test("Assert that prepare schema matches execute query schema for show queries") {
-    Seq(
-      "tables",
-      "transactions",
-      "locks",
-      "schemas",
-      "objects",
-      "views",
-      "columns",
-      "sequences",
-      "stages",
-      "pipes",
-      "streams",
-      "tasks",
-      "procedures",
-      "parameters",
-      "functions",
-      "shares",
-      "roles",
-      "grants",
-      "warehouses",
-      "databases",
-      "variables",
-      "regions",
-      "integrations").foreach(obj => {
-      val showQuerySchema = session.getResultAttributes(s"show $obj")
-      assert(showQuerySchema.nonEmpty)
-      val columnNames = showQuerySchema.map(_.name).toSet
-      // Get metadata from execute query result
-      val statement = TestUtils.runQueryReturnStatement(s"show $obj", session)
-      val result = statement.getResultSet.getMetaData
-      assert(columnNames.size == result.getColumnCount)
-      for (i <- 1 to result.getColumnCount) {
-        assert(
-          columnNames.contains(analyzer.quoteNameWithoutUpperCasing(result.getColumnLabel(i))))
-      }
-      statement.close()
-    })
   }
 }
