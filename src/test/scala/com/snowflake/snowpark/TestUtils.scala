@@ -276,7 +276,10 @@ object TestUtils extends Logging {
   def checkResult(result: Array[Row], expected: Seq[Row], sort: Boolean = true): Unit = {
     val sorted = if (sort) result.sortBy(_.toString) else result
     val sortedExpected = if (sort) expected.sortBy(_.toString) else expected
-    assert(compare(sorted, sortedExpected.toArray[Row]))
+    assert(
+      compare(sorted, sortedExpected.toArray[Row]),
+      s" ${sorted.map(_.toString).mkString("[", ", ", "]")} != " +
+        s" ${sortedExpected.map(_.toString).mkString("[", ", ", "]")}")
   }
 
   def checkResult(result: Array[Row], expected: java.util.List[Row], sort: Boolean): Unit =
