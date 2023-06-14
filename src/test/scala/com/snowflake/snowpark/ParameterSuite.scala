@@ -3,6 +3,10 @@ package com.snowflake.snowpark
 import com.snowflake.snowpark.internal.{ParameterUtils, ServerConnection}
 import net.snowflake.client.core.SFSessionProperty
 
+import java.security.{KeyFactory, KeyPairGenerator}
+import java.security.spec.{PKCS8EncodedKeySpec, RSAPrivateCrtKeySpec}
+import java.util.Base64
+
 class ParameterSuite extends SNTestBase {
 
   val options: Map[String, String] = Session.loadConfFromFile(defaultProfile)
@@ -64,5 +68,20 @@ class ParameterSuite extends SNTestBase {
     assertThrows[Exception](
       ParameterUtils
         .jdbcConfig(optionWithoutKey + ("privatekey" -> "wrong key"), isScalaAPI = true))
+  }
+
+  test("enable to read PKCS#8 private keys") {
+    // no need to verify PKCS#1 format key additionally,
+    // since all Github Action tests use PKCS#1 key to authenticate with Snowflake server.
+    ParameterUtils.parsePrivateKey(generatePKCS8Key())
+  }
+
+  private def generatePKCS8Key(): String = {
+    val keyPairGenerator = KeyPairGenerator.getInstance("RSA")
+    keyPairGenerator.initialize(2048)
+    val keyPair = keyPairGenerator.generateKeyPair()
+    val privateKey = keyPair.getPrivate
+    val encodedKeySpec = new PKCS8EncodedKeySpec(privateKey.getEncoded)
+    Base64.getEncoder.encodeToString(encodedKeySpec.getEncoded)
   }
 }
