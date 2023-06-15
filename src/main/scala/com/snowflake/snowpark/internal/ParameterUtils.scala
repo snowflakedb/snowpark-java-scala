@@ -104,8 +104,8 @@ private[snowpark] object ParameterUtils extends Logging {
   }
 
   private[snowpark] def parsePrivateKey(key: String): PrivateKey = {
-    // try parse pkcs#8 format first,
-    // if it fails, try to parse pkcs#1 format.
+    // try to parse pkcs#8 format first,
+    // if it fails, then try to parse pkcs#1 format.
     try {
       val decoded = Base64.decodeBase64(key)
       val kf = KeyFactory.getInstance("RSA")
