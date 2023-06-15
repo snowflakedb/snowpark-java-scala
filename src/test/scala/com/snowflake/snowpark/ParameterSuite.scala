@@ -3,8 +3,8 @@ package com.snowflake.snowpark
 import com.snowflake.snowpark.internal.{ParameterUtils, ServerConnection}
 import net.snowflake.client.core.SFSessionProperty
 
-import java.security.{KeyFactory, KeyPairGenerator}
-import java.security.spec.{PKCS8EncodedKeySpec, RSAPrivateCrtKeySpec}
+import java.security.KeyPairGenerator
+import java.security.spec.PKCS8EncodedKeySpec
 import java.util.Base64
 
 class ParameterSuite extends SNTestBase {
@@ -65,9 +65,12 @@ class ParameterSuite extends SNTestBase {
       // scalastyle:on
     }
 
-    assertThrows[Exception](
+    val ex = intercept[SnowparkClientException] {
       ParameterUtils
-        .jdbcConfig(optionWithoutKey + ("privatekey" -> "wrong key"), isScalaAPI = true))
+        .jdbcConfig(optionWithoutKey + ("privatekey" -> "wrong key"), isScalaAPI = true)
+    }
+    assert(ex.message.contains("Failed to parse PKCS#8 RSA Private key"))
+    assert(ex.message.contains("Failed to parse PKCS#1 RSA Private key"))
   }
 
   test("enable to read PKCS#8 private keys") {

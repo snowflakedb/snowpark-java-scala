@@ -104,13 +104,15 @@ private[snowpark] object ParameterUtils extends Logging {
   }
 
   private[snowpark] def parsePrivateKey(key: String): PrivateKey = {
+    // try parse pkcs#8 format first,
+    // if it fails, try to parse pkcs#1 format.
     try {
       val decoded = Base64.decodeBase64(key)
       val kf = KeyFactory.getInstance("RSA")
       val keySpec = new PKCS8EncodedKeySpec(decoded)
       kf.generatePrivate(keySpec)
     } catch {
-      case e: Exception =>
+      case pkcs8Exception: Exception =>
         // try to read PKCS#1 key
         try {
           val decoded = Base64.decodeBase64(key)
@@ -142,8 +144,14 @@ private[snowpark] object ParameterUtils extends Logging {
           val keyFactory = KeyFactory.getInstance("RSA")
           keyFactory.generatePrivate(keySpec)
         } catch {
-          case e: Exception =>
-            throw ErrorMessage.MISC_INVALID_RSA_PRIVATE_KEY(e.getMessage)
+          case pkcs1Exception: Exception =>
+            val errorMessage =
+              s"""Failed to parse PKCS#8 RSA Private key
+                |${pkcs8Exception.getMessage}
+                |Failed to parse PKCS#1 RSA Private key
+                |${pkcs1Exception.getMessage}
+                |""".stripMargin
+            throw ErrorMessage.MISC_INVALID_RSA_PRIVATE_KEY(errorMessage)
         }
     }
   }
