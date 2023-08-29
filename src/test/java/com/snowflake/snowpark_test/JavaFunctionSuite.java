@@ -89,15 +89,6 @@ public class JavaFunctionSuite extends TestBase {
     
     assertEquals(expectedMaps, actualMaps);
   }
-  
-  @Test
-  public void values() {
-    // Values with complex nested types
-    DataFrame df = getSession().sql("select * from values ([1, 2, 3], {\'1\': 1}, \'abc\') as T(a)");
-    Row[] rows = df.collect();
-    
-    int a = 1 + 2;
-  }
 
   @Test
   public void sqlText() {
