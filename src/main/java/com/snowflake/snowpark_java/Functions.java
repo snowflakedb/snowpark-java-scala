@@ -79,7 +79,7 @@ public final class Functions {
    * @return The result column
    */
   public static Column lit(Object literal) {
-    return new Column(com.snowflake.snowpark.functions.lit(literal));
+    return new Column(com.snowflake.snowpark.functions.lit(JavaUtils.toScala(literal)));
   }
 
   /**
