@@ -303,7 +303,7 @@ class APIInternalSuite extends TestData {
    */
   test("Test that all params are correctly propagated to JDBC session") {
     val session2 = Session.builder.configFile(defaultProfile).config("ROLE", "PUBLIC").create
-    val jdbcSession = session2.conn.connection.getSfSession
+    val jdbcSession = session2.conn.connection.getSFBaseSession
     val propertySet = jdbcSession.getConnectionPropertiesMap.keySet()
     assert(propertySet.contains(SFSessionProperty.DATABASE))
     assert(propertySet.contains(SFSessionProperty.SCHEMA))
