@@ -37,7 +37,7 @@
         <scala.version>2.12.11</scala.version>
         <scala.compat.version>2.12</scala.compat.version>
         <spec2.version>4.2.0</spec2.version>
-        <snowflake.jdbc.version>3.13.32</snowflake.jdbc.version>
+        <snowflake.jdbc.version>3.14.1</snowflake.jdbc.version>
         <version.scala.binary>${scala.compat.version}</version.scala.binary>
         <doctitle>Snowpark ${project.version}</doctitle>
         <bouncycastle.version>1.64</bouncycastle.version>
@@ -45,16 +45,6 @@
         <jackson.version>2.13.2</jackson.version>
         <jackson.databind.version>2.13.4.2</jackson.databind.version>
     </properties>
-
-    <repositories>
-        <repository>
-            <id>osgeo</id>
-            <name>OSGeo Release Repository</name>
-            <url>https://repo.osgeo.org/repository/release/</url>
-            <snapshots><enabled>false</enabled></snapshots>
-            <releases><enabled>true</enabled></releases>
-        </repository>
-    </repositories>
 
     <dependencies>
         <dependency>
