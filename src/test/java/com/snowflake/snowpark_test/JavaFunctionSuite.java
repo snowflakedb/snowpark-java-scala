@@ -1448,6 +1448,19 @@ public class JavaFunctionSuite extends TestBase {
   }
 
   @Test
+  public void regexp_replace() {
+    DataFrame df = getSession().sql("select * from values('cat'),('dog'),('mouse') as T(a)");
+    Column pattern = Functions.lit("^ca|^[m|d]o");
+    Row[] expected = {Row.create("t"), Row.create("g"), Row.create("use")};
+    checkAnswer(df.select(Functions.regexp_replace(df.col("a"), pattern)), expected, false);
+
+    Column replacement = Functions.lit("ch");
+    Row[] expected1 = {Row.create("cht"), Row.create("chg"), Row.create("chuse")};
+    checkAnswer(
+            df.select(Functions.regexp_replace(df.col("a"), pattern, replacement)), expected1, false);
+  }
+
+  @Test
   public void replace() {
     DataFrame df = getSession().sql("select * from values('apple'),('banana'),('peach') as T(a)");
     Row[] expected = {Row.create("zpple"), Row.create("bznznz"), Row.create("pezch")};
