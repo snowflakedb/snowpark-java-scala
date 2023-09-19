@@ -1797,6 +1797,28 @@ object functions {
     builtin("regexp_count")(strExpr, pattern)
 
   /**
+   * Returns the subject with the specified pattern (or all occurrences of the pattern) removed.
+   * If no matches are found, returns the original subject.
+   *
+   * @group str_func
+   * @since 1.9.0
+   */
+  def regexp_replace(strExpr: Column, pattern: Column): Column =
+    builtin("regexp_replace")(strExpr, pattern)
+
+  /**
+   * Returns the subject with the specified pattern (or all occurrences of the pattern)
+   * replaced by a replacement string. If no matches are found,
+   * returns the original subject.
+   *
+   * @group str_func
+   * @since 1.9.0
+   */
+  def regexp_replace(strExpr: Column, pattern: Column, replacement: Column): Column =
+    builtin("regexp_replace")(strExpr, pattern, replacement)
+
+
+  /**
    * Removes all occurrences of a specified strExpr,
    * and optionally replaces them with replacement.
    *

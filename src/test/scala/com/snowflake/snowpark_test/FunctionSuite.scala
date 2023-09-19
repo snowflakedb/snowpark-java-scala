@@ -2144,6 +2144,20 @@ trait FunctionSuite extends TestData {
       Seq(Row("1'2'3'4'5")))
   }
 
+  test("regexp_replace") {
+    val data = Seq("cat", "dog", "mouse").toDF("a")
+    val pattern = lit("^ca|^[m|d]o")
+    var expected = Seq(Row("t"), Row("g"), Row("use"))
+    checkAnswer(data.select(regexp_replace(data("a"), pattern)), expected, sort = false)
+
+    val replacement = lit("ch")
+    expected = Seq(Row("cht"), Row("chg"), Row("chuse"))
+    checkAnswer(
+      data.select(regexp_replace(data("a"), pattern, replacement)),
+      expected,
+      sort = false)
+  }
+
 }
 
 class EagerFunctionSuite extends FunctionSuite with EagerSession
