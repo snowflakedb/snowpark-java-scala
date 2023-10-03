@@ -14,7 +14,7 @@ import scala.collection.mutable.ArrayBuffer
 import scala.util.Random
 
 object Utils extends Logging {
-  val Version: String = "1.9.0"
+  val Version: String = "1.9.1"
   // Package name of snowpark on server side
   val SnowparkPackageName = "com.snowflake:snowpark"
   val PackageNameDelimiter = ":"
