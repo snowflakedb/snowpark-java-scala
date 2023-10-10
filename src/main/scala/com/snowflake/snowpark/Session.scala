@@ -1424,6 +1424,16 @@ object Session extends Logging {
       createInternal(None)
     }
 
+    /**
+     * If there is an already existing session return it or create
+     * a new one and return it.
+     *
+     * @return A [[Session]]
+     */
+    def getOrCreate: Session = {
+      Session.getActiveSession.getOrElse(create)
+    }
+
     private[snowpark] def createInternal(conn: Option[SnowflakeConnectionV1]): Session = {
       conn match {
         case Some(_) =>

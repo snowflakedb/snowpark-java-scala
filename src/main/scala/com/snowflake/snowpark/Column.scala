@@ -718,6 +718,196 @@ case class Column private[snowpark] (private[snowpark] val expr: Expression) ext
   }
 
   protected def withExpr(newExpr: Expression): Column = Column(newExpr)
+
+  /**
+   * Function that validates if the value of the column is
+   * within the list of strings from parameter.
+   * @param strings List of strings to compare with the value.
+   * @return Column object.
+   */
+  def isin(strings: String*): Column = {
+    in(strings)
+  }
+
+  /**
+   * Function that validates if the values
+   * of the column are not null.
+   * @return Column object.
+   */
+  def isNotNull(): Column =
+    is_not_null
+
+  /**
+   * Function that validates if the values
+   * of the column are null.
+   * @return Column object.
+   */
+  def isNull(): Column =
+    is_null
+
+  /**
+   * Function that validates if the values of the column start
+   * with the parameter expression.
+   * @param expr Expression to validate with the column's values.
+   * @return Column object.
+   */
+  def startsWith(expr: String): Column =
+    com.snowflake.snowpark.functions.startswith(self, lit(expr))
+
+  /**
+   * Function that validates if the values of the column contain
+   * the value from the paratemer expression.
+   * @param expr Expression to validate with the column's values.
+   * @return Column object.
+   */
+  def contains(expr: String): Column =
+    builtin("contains")(self, expr)
+
+  /**
+   * Function that replaces column's values according to the regex
+   * pattern and replacement value parameters.
+   * @param pattern Regex pattern to replace.
+   * @param replacement Value to replace matches with.
+   * @return Column object.
+   */
+  def regexp_replace(pattern: String, replacement: String): Column =
+    builtin("regexp_replace")(self, pattern, replacement)
+
+  /**
+   * Function that gives the column an alias using a symbol.
+   * @param symbol Symbol name.
+   * @return Column object.
+   */
+  def as(symbol: Symbol): Column =
+    as(symbol.name)
+
+  /**
+   * Function that returns True if the current expression is NaN.
+   * @return Column object.
+   */
+  def isNaN(): Column = equal_nan
+
+  /**
+   * Function that returns the portion of the string or binary value str,
+   * starting from the character/byte specified by pos, with limited length.
+   * @param pos Start position.
+   * @param len Length of the substring.
+   * @return Column object.
+   */
+  def substr(pos: Column, len: Column): Column =
+    substring(self, pos, len)
+
+  /**
+   * Function that returns the portion of the string or binary value str,
+   * starting from the character/byte specified by pos, with limited length.
+   * @param pos Start position.
+   * @param len Length of the substring.
+   * @return Column object.
+   */
+  def substr(pos: Int, len: Int): Column =
+    substring(self, lit(pos), lit(len))
+
+  /**
+   * Function that returns the result of the comparison of two columns.
+   * @param other Column to compare.
+   * @return Column object.
+   */
+  def notEqual(other: Any): Column =
+    not_equal(lit(other))
+
+  /**
+   * Function that returns a boolean column based on a match.
+   * @param literal expresion to match.
+   * @return Column object.
+   */
+  def like(literal: String): Column =
+    like(lit(literal))
+
+  /**
+   * Function that returns a boolean column based on a regex match.
+   * @param literal Regex expresion to match.
+   * @return Column object.
+   */
+  def rlike(literal: String): Column =
+    regexp(lit(literal))
+
+  /**
+   * Function that computes bitwise AND of this expression with another expression.
+   * @param other Expression to match.
+   * @return Column object.
+   */
+  def bitwiseAND(other: Any): Column =
+    bitand(lit(other))
+
+  /**
+   * Function that computes bitwise OR of this expression with another expression.
+   * @param other Expression to match.
+   * @return Column object.
+   */
+  def bitwiseOR(other: Any): Column =
+    bitor(lit(other))
+
+  /**
+   * Function that computes bitwise XOR of this expression with another expression.
+   * @param other Expression to match.
+   * @return Column object.
+   */
+  def bitwiseXOR(other: Any): Column =
+    bitxor(lit(other))
+
+  /**
+   * Function that gets an item at position ordinal out of an array,
+   * or gets a value by key in a object.
+   * NOTE: The function returns a Variant type. You might need to add a cast
+   * @param key Key element to get.
+   * @return Column object.
+   */
+  def getItem(key: Any): Column =
+    builtin("get")(self, key)
+
+  /**
+   * Function that gets a value by field name or key in a object.
+   * NOTE: The function returns a Variant type you might need to add a cast
+   * @param fieldName Field name.
+   * @return Column object.
+   */
+  def getField(fieldName: String): Column =
+    builtin("get")(self, fieldName)
+
+  /**
+   * Function that casts the column to a different data type,
+   * using the canonical string representation of the type.
+   * The supported types are: string, boolean, byte, short, int,
+   * long, float, double, decimal, date, timestamp.
+   * NOTE: If cast is not possible returns null
+   * @param to String representation of the type.
+   * @return Column object.
+   */
+  def cast(to: String): Column = {
+    to match {
+      case "string" => c.try_cast(StringType)
+      case "boolean" => c.try_cast(BooleanType)
+      case "byte" => c.try_cast(ByteType)
+      case "short" => c.try_cast(ShortType)
+      case "int" => c.try_cast(IntegerType)
+      case "long" => c.try_cast(LongType)
+      case "float" => c.try_cast(FloatType)
+      case "double" => c.try_cast(DoubleType)
+      case "decimal" => c.try_cast(DecimalType(38, 0))
+      case "date" => c.try_cast(DateType)
+      case "timestamp" => c.try_cast(TimestampType)
+      case _ => lit(null)
+    }
+  }
+
+  /**
+   * Function that performs quality test that is safe for null values.
+   * @param other Value to compare
+   * @return Column object.
+   */
+  def eqNullSafe(other: Any): Column =
+    c.equal_null(lit(other))
+
 }
 
 private[snowpark] object Column {
@@ -735,8 +925,10 @@ private[snowpark] object Column {
  * [[https://docs.snowflake.com/en/sql-reference/functions/case.html CASE]] expression.
  *
  * To construct this object for a CASE expression, call the
- * [[com.snowflake.snowpark.functions.when functions.when]]. specifying a condition and the
- * corresponding result for that condition. Then, call the [[when]] and [[otherwise]] methods to
+ * [[com.snowflake.snowpark.functions.when functions.when]].
+ * specifying a condition and the
+ * corresponding result for that condition. Then,
+ * call the [[when]] and [[otherwise]] methods to
  * specify additional conditions and results.
  *
  * For example:
@@ -759,16 +951,54 @@ class CaseExpr private[snowpark] (branches: Seq[(Expression, Expression)])
    *
    * @since 0.2.0
    */
-  def when(condition: Column, value: Column): CaseExpr =
-    new CaseExpr(branches :+ ((condition.expr, value.expr)))
+  def when(condition: Column, value: Any): CaseExpr = {
+    value match {
+      case columnValue: Column => new CaseExpr(branches :+ ((condition.expr, columnValue.expr)))
+      case intValue: Int => new CaseExpr(branches :+ ((condition.expr, lit(intValue).expr)))
+      case stringValue: String =>
+        new CaseExpr(branches :+ ((condition.expr, lit(stringValue).expr)))
+      case booleanValue: Boolean =>
+        new CaseExpr(branches :+ ((condition.expr, lit(booleanValue).expr)))
+      case floatValue: Float => new CaseExpr(branches :+ ((condition.expr, lit(floatValue).expr)))
+      case doubleValue: Double =>
+        new CaseExpr(branches :+ ((condition.expr, lit(doubleValue).expr)))
+      case _ => throw new IllegalArgumentException("Unsupported value type")
+    }
+  }
 
   /**
    * Sets the default result for this CASE expression.
    *
    * @since 0.2.0
    */
-  def otherwise(value: Column): Column = withExpr {
-    CaseWhen(branches, Option(value.expr))
+  def otherwise(value: Any): Column = {
+    value match {
+      case columnValue: Column =>
+        withExpr {
+          CaseWhen(branches, Option(columnValue.expr))
+        }
+      case intValue: Int =>
+        withExpr {
+          CaseWhen(branches, Option(lit(intValue).expr))
+        }
+      case stringValue: String =>
+        withExpr {
+          CaseWhen(branches, Option(lit(stringValue).expr))
+        }
+      case booleanValue: Boolean =>
+        withExpr {
+          CaseWhen(branches, Option(lit(booleanValue).expr))
+        }
+      case floatValue: Float =>
+        withExpr {
+          CaseWhen(branches, Option(lit(floatValue).expr))
+        }
+      case doubleValue: Double =>
+        withExpr {
+          CaseWhen(branches, Option(lit(doubleValue).expr))
+        }
+      case _ => throw new IllegalArgumentException("Unsupported value type")
+    }
   }
 
   /**
@@ -776,5 +1006,15 @@ class CaseExpr private[snowpark] (branches: Seq[(Expression, Expression)])
    *
    * @since 0.2.0
    */
-  def `else`(value: Column): Column = otherwise(value)
+  def `else`(value: Any): Column = {
+    value match {
+      case columnValue: Column => otherwise(columnValue)
+      case intValue: Int => otherwise(intValue)
+      case stringValue: String => otherwise(stringValue)
+      case booleanValue: Boolean => otherwise(booleanValue)
+      case floatValue: Float => otherwise(floatValue)
+      case doubleValue: Double => otherwise(doubleValue)
+      case _ => throw new IllegalArgumentException("Unsupported value type")
+    }
+  }
 }
