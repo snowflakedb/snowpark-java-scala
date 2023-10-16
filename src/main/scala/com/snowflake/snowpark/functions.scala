@@ -3710,6 +3710,7 @@ object functions {
 
   /**
    * Function to convert a string into an SQL expression.
+   * @since 1.10.0
    * @param s SQL Expression as text.
    * @return Converted SQL Expression.
    */
@@ -3717,6 +3718,7 @@ object functions {
 
   /**
    * Function to convert column name into column and order in a descending manner.
+   * @since 1.10.0
    * @param c Column name.
    * @return Column object ordered in a descending manner.
    */
@@ -3724,6 +3726,7 @@ object functions {
 
   /**
    * Function to convert column name into column and order in an ascending manner.
+   * @since 1.10.0
    * @param colname Column name.
    * @return Column object ordered in an ascending manner.
    */
@@ -3731,6 +3734,7 @@ object functions {
 
   /**
    * Wrapper for Snowflake built-in size function. Gets the size of array column.
+   * @since 1.10.0
    * @param c Column to get the size.
    * @return Size of array column.
    */
@@ -3738,6 +3742,7 @@ object functions {
 
   /**
    * Wrapper for Snowflake built-in array function. Create array from columns.
+   * @since 1.10.0
    * @param c Columns to build the array.
    * @return The array.
    */
@@ -3745,6 +3750,7 @@ object functions {
 
   /**
    * Wrapper for Snowflake built-in date_format function. Converts a date into a string using the specified format.
+   * @since 1.10.0
    * @param c Column to convert to string.
    * @param s Date format.
    * @return Column object.
@@ -3755,6 +3761,7 @@ object functions {
   /**
    * Wrapper for Snowflake built-in last function. Gets the last value of a column according to its grouping.
    * Functional difference with windows, In Snowpark is needed the order by. SQL doesn't guarantee the order.
+   * @since 1.10.0
    * @param c Column to obtain last value.
    * @return Column object.
    */
@@ -3763,7 +3770,7 @@ object functions {
 
   /**
    * Formats the arguments in printf-style and returns the result as a string column.
-   *
+   * @since 1.10.0
    * @note this function requires the format_string UDF to be previosly created
    * @param format the printf-style format
    * @param arguments arguments for the formatting string
@@ -3777,7 +3784,7 @@ object functions {
    * Locate the position of the first occurrence of substr in a string column, after position pos.
    * @note The position is not zero based, but 1 based index. returns 0 if substr
    * could not be found in str. This function is just leverages the SF POSITION builtin
-   *
+   * @since 1.10.0
    * @param substr string to search
    * @param str value where string will be searched
    * @param pos index for starting the search
@@ -3789,6 +3796,7 @@ object functions {
   /**
    *
    * Locate the position of the first occurrence of substr in a string column, after position pos.
+   * @since 1.10.0
    * @note The position is not zero based, but 1 based index. returns 0 if substr
    * could not be found in str. This function is just leverages the SF POSITION builtin
    * @param substr string to search
@@ -3801,25 +3809,23 @@ object functions {
 
   /**
    * Computes the logarithm of the given column in base 10.
-   *
+   * @since 1.10.0
    * @param expr Column to apply this mathematical operation
-   *
    * @return log2 of the given column
    */
   def log10(expr: Column): Column = builtin("LOG")(10, expr)
 
   /**
    * Computes the logarithm of the given column in base 10.
-   *
+   * @since 1.10.0
    * @param columnName Column to apply this mathematical operation
-   *
    * @return log2 of the given column
    */
   def log10(columnName: String): Column = builtin("LOG")(10, col(columnName))
 
   /**
    * Computes the natural logarithm of the given value plus one.
-   *
+   * @since 1.10.0
    * @param columnName the value to use
    * @return the natural logarithm of the given value plus one.
    */
@@ -3827,7 +3833,7 @@ object functions {
 
   /**
    * Computes the natural logarithm of the given value plus one.
-   *
+   * @since 1.10.0
    * @param col the value to use
    * @return the natural logarithm of the given value plus one.
    */
@@ -3835,6 +3841,7 @@ object functions {
 
   /**
    * Returns expr1 if it is not NaN, or expr2 if expr1 is NaN.
+   * @since 1.10.0
    * @param expr1 expression when value is NaN
    * @param expr2 expression when value is not NaN
    */
@@ -3843,7 +3850,7 @@ object functions {
 
   /**
    * Computes the BASE64 encoding of a column
-   *
+   * @since 1.10.0
    * @param col
    * @return the encoded column
    */
@@ -3851,6 +3858,7 @@ object functions {
 
   /**
    * Decodes a BASE64 encoded string
+   * @since 1.10.0
    * @param col
    * @return the decoded column
    */
@@ -3862,6 +3870,7 @@ object functions {
    * quarter will get 2, the third quarter will get 3, and the last quarter will get 4.
    *
    * This is equivalent to the NTILE function in SQL.
+   * @since 1.10.0
    * @param n number of groups
    * @return retyr
    */
@@ -3869,6 +3878,7 @@ object functions {
 
   /**
    * Alias for bitshiftleft
+   * @since 1.10.0
    * @param c Column to modify.
    * @param numBits Number of bits to shift.
    * @return Column object.
@@ -3878,6 +3888,7 @@ object functions {
 
   /**
    * Alias for bitshiftright.
+   * @since 1.10.0
    * @param c Column to modify.
    * @param numBits Number of bits to shift.
    * @return Column object.
@@ -3887,6 +3898,7 @@ object functions {
 
   /**
    * Wrapper for Snowflake built-in hex_encode function. Returns the hexadecimal representation of a string.
+   * @since 1.10.0
    * @param c Column to encode.
    * @return Encoded string.
    */
@@ -3896,6 +3908,7 @@ object functions {
   /**
    * Wrapper for Snowflake built-in hex_decode_string function. Returns the string representation of a hexadecimal value.
    * @param c Column to encode.
+   * @since 1.10.0
    * @return Encoded string.
    */
   def unhex(c: Column): Column =
@@ -3904,6 +3917,7 @@ object functions {
   /**
    * Return a call to the Snowflake RANDOM function.
    * NOTE: Snowflake returns integers of 17-19 digits.
+   * @since 1.10.0
    * @return Random number.
    */
   def randn(): Column =
@@ -3912,6 +3926,7 @@ object functions {
   /**
    * Calls to the Snowflake RANDOM function.
    * NOTE: Snowflake returns integers of 17-19 digits.
+   * @since 1.10.0
    * @param seed Seed to use in the random function.
    * @return Random number.
    */
@@ -3958,6 +3973,7 @@ object functions {
    * |CR             |5     |Jose  |29    |Mobilize  |
    * -------------------------------------------------
    * </pre>
+   * @since 1.10.0
    * @param json Column containing the JSON string text.
    * @param fields Fields to pull from the JSON file.
    * @return Column sequence with the specified strings.
@@ -3972,6 +3988,7 @@ object functions {
 
   /**
    *  Used to calculate the cubic root of a number.
+   * @since 1.10.0
    * @param column Column to calculate the cubic root.
    * @return Column object.
    */
@@ -3981,6 +3998,7 @@ object functions {
 
   /**
    * Used to calculate the cubic root of a number. There were slight differences found:
+   * @since 1.10.0
    * @param column Column to calculate the cubic root.
    * @return Column object.
    */
@@ -4021,6 +4039,7 @@ object functions {
    * |532161  |17     |873513    |47         |
    * -----------------------------------------
    * </pre>
+   * @since 1.10.0
    * @param e String column to convert to variant.
    * @return Column object.
    */
@@ -4032,7 +4051,7 @@ object functions {
    * This function receives a date or timestamp, as well as a properly formatted string and subtracts the specified
    * amount of days from it. If receiving a string, this string is casted to date using try_cast and if it's not possible to cast, returns null. If receiving
    * a timestamp it will be casted to date (removing its time).
-   *
+   * @since 1.10.0
    * @param start Date, Timestamp or String column to subtract days from.
    * @param days Days to subtract.
    * @return Column object.
@@ -4049,7 +4068,7 @@ object functions {
    * If these flags need to be applied, use `builtin("REGEXP_SUBSTR")` instead and apply the desired flags.
    *
    * Note: non-greedy tokens such as `.*?` are not supported
-   *
+   * @since 1.10.0
    * @param colName Column to apply regex.
    * @param exp Regex expression to apply.
    * @param grpIdx Group to extract.
@@ -4068,7 +4087,7 @@ object functions {
    * NaN, -1 for negative and null for null.
    * NOTE: if string values are provided snowflake will attempts to cast. If it casts correctly, returns the calculation,
    *  if not an error will be thrown
-   *
+   * @since 1.10.0
    * @param e Column to calculate the sign.
    * @return Column object.
    */
@@ -4081,7 +4100,7 @@ object functions {
    * NaN, -1 for negative and null for null.
    * NOTE: if string values are provided snowflake will attempts to cast. If it casts correctly, returns the calculation,
    *  if not an error will be thrown
-   *
+   * @since 1.10.0
    * @param columnName Name of the column to calculate the sign.
    * @return Column object.
    */
@@ -4106,6 +4125,7 @@ object functions {
 
   /**
    * Wrapper for Snowflake built-in array function. Create array from columns names.
+   * @since 1.10.0
    * @param s Columns names to build the array.
    * @return The array.
    */
@@ -4114,6 +4134,7 @@ object functions {
 
   /**
    * Wrapper for Snowflake built-in collect_list function. Get the values of array column.
+   * @since 1.10.0
    * @param c Column to be collect.
    * @return The array.
    */
@@ -4121,6 +4142,7 @@ object functions {
 
   /**
    * Wrapper for Snowflake built-in collect_list function. Get the values of array column.
+   * @since 1.10.0
    * @param s Column name to be collected.
    * @return The array.
    */
@@ -4128,6 +4150,7 @@ object functions {
 
   /**
    * Wrapper for Snowflake built-in reverse function. Gets the reversed string.
+   * @since 1.10.0
    * @param c Column to be reverse.
    * @return Column object.
    */
@@ -4136,6 +4159,7 @@ object functions {
 
   /**
    * Wrapper for Snowflake built-in isnull function. Gets a boolean depending if value is NULL or not.
+   * @since 1.10.0
    * @param c Column to qnalize if it is null value.
    * @return Column object.
    */
@@ -4143,6 +4167,7 @@ object functions {
 
   /**
    * Wrapper for Snowflake built-in last function. Gets the last value of a column according to its grouping.
+   * @since 1.10.0
    * @param c Column to obtain last value.
    * @return Column object.
    */
@@ -4151,6 +4176,7 @@ object functions {
 
   /**
    * Wrapper for Snowflake built-in conv function. Convert number with from and to base.
+   * @since 1.10.0
    * @param c Column to be converted.
    * @param fromBase Column from base format.
    * @param toBase Column to base format.
@@ -4162,6 +4188,7 @@ object functions {
   /**
    * Wrapper for Snowflake built-in last function. Gets the last value of a column according to its grouping.
    * Functional difference with windows, In Snowpark is needed the order by. SQL doesn't guarantee the order.
+   * @since 1.10.0
    * @param s Column name to get last value.
    * @param nulls Consider null values or not.
    * @return Column object.
@@ -4177,6 +4204,7 @@ object functions {
   /**
    * Wrapper for Snowflake built-in last function. Gets the last value of a column according to its grouping.
    * Functional difference with windows, In Snowpark is needed the order by. SQL doesn't guarantee the order.
+   * @since 1.10.0
    * @param c Column to get last value.
    * @param nulls Consider null values or not.
    * @return Column object.
@@ -4191,6 +4219,7 @@ object functions {
 
   /**
    * Wrapper for Snowflake built-in first function. Gets the first value of a column according to its grouping.
+   * @since 1.10.0
    * @param c Column to obtain first value.
    * @return Column object.
    */
@@ -4199,6 +4228,7 @@ object functions {
 
   /**
    * Wrapper for Snowflake built-in first function. Gets the first value of a column according to its grouping.
+   * @since 1.10.0
    * @param s Column name to get first value.
    * @param nulls Consider null values or not.
    * @return Column object.
@@ -4213,6 +4243,7 @@ object functions {
 
   /**
    * Wrapper for Snowflake built-in last function. Gets the last value of a column according to its grouping.
+   * @since 1.10.0
    * @param c Column to get last value.
    * @param nulls Consider null values or not.
    * @return Column object.
@@ -4227,7 +4258,7 @@ object functions {
 
   /**
    * Returns the current Unix timestamp (in seconds) as a long.
-   *
+   * @since 1.10.0
    * @note All calls of `unix_timestamp` within the same query return the same value
    */
   def unix_timestamp(): Column = {
@@ -4237,7 +4268,7 @@ object functions {
   /**
    * Converts time string in format yyyy-MM-dd HH:mm:ss to Unix timestamp (in seconds),
    * using the default timezone and the default locale.
-   *
+   * @since 1.10.0
    * @param s A date, timestamp or string. If a string, the data must be in the
    *          `yyyy-MM-dd HH:mm:ss` format
    * @return A long, or null if the input was a string not of the correct format
@@ -4248,7 +4279,7 @@ object functions {
 
   /**
    * Converts time string with given pattern to Unix timestamp (in seconds).
-   *
+   * @since 1.10.0
    * @param s A date, timestamp or string. If a string, the data must be in a format that can be
    *          cast to a date, such as `yyyy-MM-dd` or `yyyy-MM-dd HH:mm:ss.SSSS`
    * @param p A date time pattern detailing the format of `s` when `s` is a string
@@ -4261,6 +4292,7 @@ object functions {
 
   /**
    * Wrapper for Snowflake built-in regexp_replace function. Replaces parts of a string with the specified replacement value, based on a regular expression.
+   * @since 1.10.0
    * @param strExpr String to apply replacement.
    * @param pattern Regex pattern to find in the expression.
    * @param replacement Column to replace within the string.
@@ -4271,6 +4303,7 @@ object functions {
 
   /**
    * Wrapper for Snowflake built-in regexp_replace function. Replaces parts of a string with the specified replacement value, based on a regular expression.
+   * @since 1.10.0
    * @param strExpr String to apply replacement.
    * @param pattern Regex pattern to find in the expression.
    * @param replacement Column to replace within the string.
@@ -4282,7 +4315,7 @@ object functions {
 
   /**
    * Returns the date that is `days` days after `start`
-   *
+   * @since 1.10.0
    * @param start A date, timestamp or string. If a string, the data must be in a format that
    *              can be cast to a date, such as `yyyy-MM-dd` or `yyyy-MM-dd HH:mm:ss.SSSS`
    * @param days  The number of days to add to `start`, can be negative to subtract days
@@ -4292,7 +4325,7 @@ object functions {
 
   /**
    * Returns the date that is `days` days after `start`
-   *
+   * @since 1.10.0
    * @param start A date, timestamp or string. If a string, the data must be in a format that
    *              can be cast to a date, such as `yyyy-MM-dd` or `yyyy-MM-dd HH:mm:ss.SSSS`
    * @param days  The number of days to add to `start`, can be negative to subtract days
@@ -4302,7 +4335,7 @@ object functions {
 
   /**
    * Aggregate function: returns a set of objects with duplicate elements eliminated.
-   *
+   * @since 1.10.0
    * @param e The column to collect the list values
    * @return A list with unique values
    */
@@ -4310,7 +4343,7 @@ object functions {
 
   /**
    * Aggregate function: returns a set of objects with duplicate elements eliminated.
-   *
+   * @since 1.10.0
    * @param e The column to collect the list values
    * @return A list with unique values
    */
@@ -4320,7 +4353,7 @@ object functions {
    * Converts the number of seconds from unix epoch (1970-01-01 00:00:00 UTC) to a string
    * representing the timestamp of that moment in the current system time zone in the
    * yyyy-MM-dd HH:mm:ss format.
-   *
+   * @since 1.10.0
    * @param ut A number of a type that is castable to a long, such as string or integer. Can be
    *           negative for timestamps before the unix epoch
    * @return A string, or null if the input was a string that could not be cast to a long
@@ -4332,7 +4365,7 @@ object functions {
    * Converts the number of seconds from unix epoch (1970-01-01 00:00:00 UTC) to a string
    * representing the timestamp of that moment in the current system time zone in the given
    * format.
-   *
+   * @since 1.10.0
    * @param ut A number of a type that is castable to a long, such as string or integer. Can be
    *           negative for timestamps before the unix epoch
    * @param f  A date time pattern that the input will be formatted to
@@ -4344,6 +4377,7 @@ object functions {
 
   /**
    * A column expression that generates monotonically increasing 64-bit integers.
+   * @since 1.10.0
    */
   def monotonically_increasing_id(): Column = builtin("seq8")()
 
@@ -4359,7 +4393,7 @@ object functions {
    * months_between("2017-01-01", "2017-01-10")  // returns 0.29032258
    * months_between("2017-06-01", "2017-06-16 12:00:00")  // returns -0.5
    * }}}
-   *
+   * @since 1.10.0
    * @param end   A date, timestamp or string. If a string, the data must be in a format that can
    *              be cast to a timestamp, such as `yyyy-MM-dd` or `yyyy-MM-dd HH:mm:ss.SSSS`
    * @param start A date, timestamp or string. If a string, the data must be in a format that can
@@ -4372,7 +4406,7 @@ object functions {
   /**
    * Locate the position of the first occurrence of substr column in the given string.
    * Returns null if either of the arguments are null.
-   *
+   * @since 1.10.0
    * @note The position is not zero based, but 1 based index. Returns 0 if substr
    * could not be found in str.
    */
@@ -4382,7 +4416,7 @@ object functions {
    * Given a timestamp like '2017-07-14 02:40:00.0', interprets it as a time in UTC, and renders
    * that time as a timestamp in the given time zone. For example, 'GMT+1' would yield
    * '2017-07-14 03:40:00.0'.
-   *
+   * @since 1.10.0
    * @param ts A date, timestamp or string. If a string, the data must be in a format that can be
    *           cast to a timestamp, such as `yyyy-MM-dd` or `yyyy-MM-dd HH:mm:ss.SSSS`
    * @param tz A string detailing the time zone ID that the input should be adjusted to. It should
@@ -4401,7 +4435,7 @@ object functions {
    * Given a timestamp like '2017-07-14 02:40:00.0', interprets it as a time in UTC, and renders
    * that time as a timestamp in the given time zone. For example, 'GMT+1' would yield
    * '2017-07-14 03:40:00.0'.
-   *
+   * @since 1.10.0
    * @param ts A date, timestamp or string. If a string, the data must be in a format that can be
    *           cast to a timestamp, such as `yyyy-MM-dd` or `yyyy-MM-dd HH:mm:ss.SSSS`
    * @param tz A string detailing the time zone ID that the input should be adjusted to. It should
@@ -4420,7 +4454,7 @@ object functions {
    * Given a timestamp like '2017-07-14 02:40:00.0', interprets it as a time in the given time
    * zone, and renders that time as a timestamp in UTC. For example, 'GMT+1' would yield
    * '2017-07-14 01:40:00.0'.
-   *
+   * @since 1.10.0
    * @param ts A date, timestamp or string. If a string, the data must be in a format that can be
    *           cast to a timestamp, such as `yyyy-MM-dd` or `yyyy-MM-dd HH:mm:ss.SSSS`
    * @param tz A string detailing the time zone ID that the input should be adjusted to. It should
@@ -4438,7 +4472,7 @@ object functions {
    * Given a timestamp like '2017-07-14 02:40:00.0', interprets it as a time in the given time
    * zone, and renders that time as a timestamp in UTC. For example, 'GMT+1' would yield
    * '2017-07-14 01:40:00.0'.
-   *
+   * @since 1.10.0
    * @param ts A date, timestamp or string. If a string, the data must be in a format that can be
    *           cast to a timestamp, such as `yyyy-MM-dd` or `yyyy-MM-dd HH:mm:ss.SSSS`
    * @param tz A string detailing the time zone ID that the input should be adjusted to. It should
@@ -4455,7 +4489,7 @@ object functions {
   /**
    * Formats numeric column x to a format like '#,###,###.##', rounded to d decimal places
    * with HALF_EVEN round mode, and returns the result as a string column.
-   *
+   * @since 1.10.0
    * If d is 0, the result has no decimal point or fractional part.
    * If d is less than 0, the result will be null.
    *
@@ -4474,9 +4508,8 @@ object functions {
 
   /**
    * Computes the logarithm of the given column in base 2.
-   *
+   * @since 1.10.0
    * @param expr Column to apply this mathematical operation
-   *
    * @return log2 of the given column
    */
   def log2(expr: Column): Column = builtin("LOG")(2, expr)

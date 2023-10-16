@@ -539,6 +539,7 @@ class DataFrame private[snowpark] (
    * expressions specified. They could either be
    * column names, or calls to other functions such as conversions,
    * case expressions, among others.
+   * @since 1.10.0
    * @param exprs Expressions to apply to select from the DataFrame.
    * @return DataFrame with the selected expressions as columns.
    * Unspecified columns are not included.
@@ -849,7 +850,7 @@ class DataFrame private[snowpark] (
    * }}}
    *
    * @group transform
-   * @since 0.1.0
+   * @since 1.10.0
    * @param condition Filter condition defined as a SQL expression
    * @return A filtered [[DataFrame]]
    */
@@ -1359,6 +1360,7 @@ class DataFrame private[snowpark] (
    * considered to calculate duplicates. For rows with different
    * values on unspecified columns, it will return the first row.
    * @param columns List of columns to group by to detect the duplicates.
+   * @since 1.10.0
    * @return DataFrame without duplicates on the specified columns.
    */
   def dropDuplicates(columns: Seq[String]): DataFrame = {
@@ -2827,6 +2829,7 @@ class DataFrame private[snowpark] (
 
   /**
    * Function that returns the dataframe with a column renamed.
+   * @since 1.10.0
    * @param existingName Name of the column to rename.
    * @param newName New name to give to the column.
    * @return DataFrame with the column renamed.
@@ -2837,6 +2840,7 @@ class DataFrame private[snowpark] (
 
   /**
    * Transforms the DataFrame according to the function from the parameter.
+   * @since 1.10.0
    * @param func Function to apply to the DataFrame.
    * @return DataFrame with the transformation applied.
    */
@@ -2845,12 +2849,14 @@ class DataFrame private[snowpark] (
   /**
    * Returns the first row. Since this is an Option element, a `.get`
    * is required to get the actual row.
+   * @since 1.10.0
    * @return The first row of the DataFrame.
    */
   def head(): Option[Row] = first()
 
   /**
    * Returns the first N rows.
+   * @since 1.10.0
    * @param n Amount of rows to return.
    * @return Array with the amount of rows specified in the parameter.
    */
@@ -2858,20 +2864,23 @@ class DataFrame private[snowpark] (
 
   /**
    * Returns the first N rows.
+   * @since 1.10.0
    * @param n Amount of rows to return.
    * @return Array with the amount of rows specified in the parameter.
    */
-  def take(n: Int): Array[Row] = df.first(n)
+  def take(n: Int): Array[Row] = first(n)
 
   /**
    * Caches the result of the DataFrame and creates a new Dataframe,
    * whose operations won't affect the original DataFrame.
+   * @since 1.10.0
    * @return New cached DataFrame.
    */
   def cache(): DataFrame = cacheResult()
 
   /**
    * Alias for sort function. Receives columns or column expressions.
+   * @since 1.10.0
    * @param sortExprs Column expressions to order the dataset by.
    * @return Returns the dataset ordered by the specified expressions
    */
@@ -2879,6 +2888,7 @@ class DataFrame private[snowpark] (
 
   /**
    * Alias for sort function. Receives column names
+   * @since 1.10.0
    * @param sortCol Column name 1
    * @param sortCols Variable column names
    * @return DataFrame filtered on the variable names.
@@ -2890,16 +2900,19 @@ class DataFrame private[snowpark] (
    * This is a shortcut to schema.printTreeString(). Prints the schema
    * of the DataFrame in a tree format.
    * Includes column names, data types and if they're nullable or not.
+   * @since 1.10.0
    */
   def printSchema(): Unit = schema.printTreeString()
 
   /**
    * Converts each row into a JSON object and returns a DataFrame with a single column.
+   * @since 1.10.0
    * @return DataFrame with 1 column whose value corresponds to a JSON object of the row.
    */
   def toJSON: DataFrame = select(object_construct(col("*")).cast(StringType).as("value"))
 
   /**
+   * @since 1.10.0
    * Collects the DataFrame and converts it to a java.util.List[Row] object.
    * @return A java.util.List[Row] representation of the DataFrame.
    */

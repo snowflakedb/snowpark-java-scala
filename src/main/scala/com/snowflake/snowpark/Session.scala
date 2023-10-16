@@ -1427,7 +1427,7 @@ object Session extends Logging {
     /**
      * If there is an already existing session return it or create
      * a new one and return it.
-     *
+     * @since 1.10.0
      * @return A [[Session]]
      */
     def getOrCreate: Session = {
