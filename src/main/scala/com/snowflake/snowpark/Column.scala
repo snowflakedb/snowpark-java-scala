@@ -722,6 +722,7 @@ case class Column private[snowpark] (private[snowpark] val expr: Expression) ext
   /**
    * Function that validates if the value of the column is
    * within the list of strings from parameter.
+   * @since 1.10.0
    * @param strings List of strings to compare with the value.
    * @return Column object.
    */
@@ -732,6 +733,7 @@ case class Column private[snowpark] (private[snowpark] val expr: Expression) ext
   /**
    * Function that validates if the values
    * of the column are not null.
+   * @since 1.10.0
    * @return Column object.
    */
   def isNotNull(): Column =
@@ -740,6 +742,7 @@ case class Column private[snowpark] (private[snowpark] val expr: Expression) ext
   /**
    * Function that validates if the values
    * of the column are null.
+   * @since 1.10.0
    * @return Column object.
    */
   def isNull(): Column =
@@ -748,6 +751,7 @@ case class Column private[snowpark] (private[snowpark] val expr: Expression) ext
   /**
    * Function that validates if the values of the column start
    * with the parameter expression.
+   * @since 1.10.0
    * @param expr Expression to validate with the column's values.
    * @return Column object.
    */
@@ -757,6 +761,7 @@ case class Column private[snowpark] (private[snowpark] val expr: Expression) ext
   /**
    * Function that validates if the values of the column contain
    * the value from the paratemer expression.
+   * @since 1.10.0
    * @param expr Expression to validate with the column's values.
    * @return Column object.
    */
@@ -766,6 +771,7 @@ case class Column private[snowpark] (private[snowpark] val expr: Expression) ext
   /**
    * Function that replaces column's values according to the regex
    * pattern and replacement value parameters.
+   * @since 1.10.0
    * @param pattern Regex pattern to replace.
    * @param replacement Value to replace matches with.
    * @return Column object.
@@ -775,6 +781,7 @@ case class Column private[snowpark] (private[snowpark] val expr: Expression) ext
 
   /**
    * Function that gives the column an alias using a symbol.
+   * @since 1.10.0
    * @param symbol Symbol name.
    * @return Column object.
    */
@@ -783,6 +790,7 @@ case class Column private[snowpark] (private[snowpark] val expr: Expression) ext
 
   /**
    * Function that returns True if the current expression is NaN.
+   * @since 1.10.0
    * @return Column object.
    */
   def isNaN(): Column = equal_nan
@@ -790,6 +798,7 @@ case class Column private[snowpark] (private[snowpark] val expr: Expression) ext
   /**
    * Function that returns the portion of the string or binary value str,
    * starting from the character/byte specified by pos, with limited length.
+   * @since 1.10.0
    * @param pos Start position.
    * @param len Length of the substring.
    * @return Column object.
@@ -800,6 +809,7 @@ case class Column private[snowpark] (private[snowpark] val expr: Expression) ext
   /**
    * Function that returns the portion of the string or binary value str,
    * starting from the character/byte specified by pos, with limited length.
+   * @since 1.10.0
    * @param pos Start position.
    * @param len Length of the substring.
    * @return Column object.
@@ -809,6 +819,7 @@ case class Column private[snowpark] (private[snowpark] val expr: Expression) ext
 
   /**
    * Function that returns the result of the comparison of two columns.
+   * @since 1.10.0
    * @param other Column to compare.
    * @return Column object.
    */
@@ -817,6 +828,7 @@ case class Column private[snowpark] (private[snowpark] val expr: Expression) ext
 
   /**
    * Function that returns a boolean column based on a match.
+   * @since 1.10.0
    * @param literal expresion to match.
    * @return Column object.
    */
@@ -825,6 +837,7 @@ case class Column private[snowpark] (private[snowpark] val expr: Expression) ext
 
   /**
    * Function that returns a boolean column based on a regex match.
+   * @since 1.10.0
    * @param literal Regex expresion to match.
    * @return Column object.
    */
@@ -833,6 +846,7 @@ case class Column private[snowpark] (private[snowpark] val expr: Expression) ext
 
   /**
    * Function that computes bitwise AND of this expression with another expression.
+   * @since 1.10.0
    * @param other Expression to match.
    * @return Column object.
    */
@@ -841,6 +855,7 @@ case class Column private[snowpark] (private[snowpark] val expr: Expression) ext
 
   /**
    * Function that computes bitwise OR of this expression with another expression.
+   * @since 1.10.0
    * @param other Expression to match.
    * @return Column object.
    */
@@ -848,7 +863,8 @@ case class Column private[snowpark] (private[snowpark] val expr: Expression) ext
     bitor(lit(other))
 
   /**
-   * Function that computes bitwise XOR of this expression with another expression.
+   * Function that computes bitwise XOR of this expression with another expression.]
+   * @since 1.10.0
    * @param other Expression to match.
    * @return Column object.
    */
@@ -859,6 +875,7 @@ case class Column private[snowpark] (private[snowpark] val expr: Expression) ext
    * Function that gets an item at position ordinal out of an array,
    * or gets a value by key in a object.
    * NOTE: The function returns a Variant type. You might need to add a cast
+   * @since 1.10.0
    * @param key Key element to get.
    * @return Column object.
    */
@@ -868,6 +885,7 @@ case class Column private[snowpark] (private[snowpark] val expr: Expression) ext
   /**
    * Function that gets a value by field name or key in a object.
    * NOTE: The function returns a Variant type you might need to add a cast
+   * @since 1.10.0
    * @param fieldName Field name.
    * @return Column object.
    */
@@ -880,6 +898,7 @@ case class Column private[snowpark] (private[snowpark] val expr: Expression) ext
    * The supported types are: string, boolean, byte, short, int,
    * long, float, double, decimal, date, timestamp.
    * NOTE: If cast is not possible returns null
+   * @since 1.10.0
    * @param to String representation of the type.
    * @return Column object.
    */
@@ -902,6 +921,7 @@ case class Column private[snowpark] (private[snowpark] val expr: Expression) ext
 
   /**
    * Function that performs quality test that is safe for null values.
+   * @since 1.10.0
    * @param other Value to compare
    * @return Column object.
    */
