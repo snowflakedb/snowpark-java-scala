@@ -56,8 +56,7 @@ trait ComplexDataFrameSuite extends SNTestBase {
 
     checkAnswer(
       df1.filter($"a" < 6).join(df2, "a").union(df2.filter($"a" > 5)),
-      (1 to 10).map(i => Row(i, s"test$i")),
-      false)
+      (1 to 10).map(i => Row(i, s"test$i")))
   }
 
   test("join on top of unions") {
