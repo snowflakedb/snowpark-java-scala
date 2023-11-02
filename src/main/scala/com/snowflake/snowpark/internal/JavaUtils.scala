@@ -414,21 +414,15 @@ object JavaUtils {
     }
   }
 
-  def toScala(x: Any): Any = {
+  def toScala(element: Any): Any = {
     import collection.JavaConverters._
-    x match {
-      case y: java.util.Map[_, _] =>
-        mapAsScalaMap(y).map {
-          case (d, v) => toScala(d) -> toScala(v)
-        }.toMap
-      case y: java.lang.Iterable[_] =>
-        iterableAsScalaIterable(y).toList.map {
-          item: Any => toScala(item)
-        }
-      case y: java.util.Iterator[_] =>
-        toScala(y)
-      case _ =>
-        x
+    element match {
+      case map: java.util.Map[_, _] => mapAsScalaMap(map).map {
+        case (k, v) => toScala(k) -> toScala(v)
+      }.toMap
+      case iterable: java.lang.Iterable[_] => iterableAsScalaIterable(iterable).map(toScala)
+      case iterator: java.util.Iterator[_] => asScalaIterator(iterator).map(toScala)
+      case _ => element
     }
   }
 }
