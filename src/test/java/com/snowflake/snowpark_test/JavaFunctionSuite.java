@@ -1457,7 +1457,7 @@ public class JavaFunctionSuite extends TestBase {
     Column replacement = Functions.lit("ch");
     Row[] expected1 = {Row.create("cht"), Row.create("chg"), Row.create("chuse")};
     checkAnswer(
-            df.select(Functions.regexp_replace(df.col("a"), pattern, replacement)), expected1, false);
+        df.select(Functions.regexp_replace(df.col("a"), pattern, replacement)), expected1, false);
   }
 
   @Test

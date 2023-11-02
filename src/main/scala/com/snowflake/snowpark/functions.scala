@@ -1817,7 +1817,6 @@ object functions {
   def regexp_replace(strExpr: Column, pattern: Column, replacement: Column): Column =
     builtin("regexp_replace")(strExpr, pattern, replacement)
 
-
   /**
    * Removes all occurrences of a specified strExpr,
    * and optionally replaces them with replacement.
