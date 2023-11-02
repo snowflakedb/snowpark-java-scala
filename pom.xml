@@ -443,19 +443,6 @@
                     </execution>
                 </executions>
             </plugin>
-<!--            <plugin>-->
-<!--                <groupId>org.scoverage</groupId>-->
-<!--                <artifactId>scoverage-maven-plugin</artifactId>-->
-<!--                <version>${scoverage.plugin.version}</version>-->
-<!--                <executions>-->
-<!--                    <execution>-->
-<!--                        <goals>-->
-<!--                            <goal>check</goal> &lt;!&ndash; or integration-check &ndash;&gt;-->
-<!--                        </goals>-->
-<!--                        <phase>prepare-package</phase> &lt;!&ndash; or any other phase &ndash;&gt;-->
-<!--                    </execution>-->
-<!--                </executions>-->
-<!--            </plugin>-->
             <plugin>
               <groupId>org.apache.maven.plugins</groupId>
               <artifactId>maven-gpg-plugin</artifactId>
@@ -506,6 +493,29 @@
     </build>
 
     <profiles>
+        <profile>
+            <id>test-coverage</id>
+            <properties>
+                <scala.version>2.12.15</scala.version>
+            </properties>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.scoverage</groupId>
+                        <artifactId>scoverage-maven-plugin</artifactId>
+                        <version>${scoverage.plugin.version}</version>
+                        <executions>
+                            <execution>
+                                <goals>
+                                    <goal>check</goal> <!-- or integration-check -->
+                                </goals>
+                                <phase>prepare-package</phase> <!-- or any other phase -->
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
         <profile>
           <id>ossrh-deploy</id>
           <activation>
