@@ -479,6 +479,12 @@
 
     <profiles>
         <profile>
+            <id>test-coverage</id>
+            <properties>
+                <scala.version>2.12.15</scala.version>
+            </properties>
+        </profile>
+        <profile>
           <id>ossrh-deploy</id>
           <activation>
               <property>
