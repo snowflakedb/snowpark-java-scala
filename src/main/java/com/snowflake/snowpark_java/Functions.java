@@ -2365,14 +2365,13 @@ public final class Functions {
    */
   public static Column regexp_replace(Column strExpr, Column pattern) {
     return new Column(
-            com.snowflake.snowpark.functions.regexp_replace(
-                    strExpr.toScalaColumn(), pattern.toScalaColumn()));
+        com.snowflake.snowpark.functions.regexp_replace(
+            strExpr.toScalaColumn(), pattern.toScalaColumn()));
   }
 
   /**
-   * Returns the subject with the specified pattern (or all occurrences of the pattern)
-   * replaced by a replacement string. If no matches are found, returns the original
-   * subject.
+   * Returns the subject with the specified pattern (or all occurrences of the pattern) replaced by
+   * a replacement string. If no matches are found, returns the original subject.
    *
    * @param strExpr The input string
    * @param pattern The pattern
@@ -2382,8 +2381,8 @@ public final class Functions {
    */
   public static Column regexp_replace(Column strExpr, Column pattern, Column replacement) {
     return new Column(
-            com.snowflake.snowpark.functions.regexp_replace(
-                    strExpr.toScalaColumn(), pattern.toScalaColumn(), replacement.toScalaColumn()));
+        com.snowflake.snowpark.functions.regexp_replace(
+            strExpr.toScalaColumn(), pattern.toScalaColumn(), replacement.toScalaColumn()));
   }
 
   /**
