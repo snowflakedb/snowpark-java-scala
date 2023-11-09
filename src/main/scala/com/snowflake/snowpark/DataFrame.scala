@@ -1905,8 +1905,13 @@ class DataFrame private[snowpark] (
 
   def join(func: Column): DataFrame = withPlan {
     func.expr match {
-      case tf: TableFunction => null
-      case _ => null
+      case tf: TableFunctionExpression =>
+        TableFunctionJoin(
+          this.plan,
+          tf,
+          None
+        )
+      case _ => throw ErrorMessage.DF_JOIN_WITH_WRONG_ARGUMENT()
     }
   }
 

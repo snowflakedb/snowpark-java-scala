@@ -55,7 +55,7 @@ object tableFunctions {
    *
    * @since 0.4.0
    */
-  def split_to_table(): TableFunction = TableFunction("split_to_table")
+  lazy val split_to_table: TableFunction = TableFunction("split_to_table")
 
   /**
    * Flattens (explodes) compound values into multiple rows.
@@ -105,9 +105,9 @@ object tableFunctions {
    *
    * @since 0.4.0
    */
-  def flatten(): TableFunction = TableFunction("flatten")
+  lazy val flatten: TableFunction = TableFunction("flatten")
 
-  def flatten(input: Column): Column = Column(flatten().apply(input))
+  def flatten(input: Column): Column = Column(flatten.apply(input))
 
 //  def flatten(input: Column, path: String, outer: Boolean, recursive: Boolean): Column = null
 }
