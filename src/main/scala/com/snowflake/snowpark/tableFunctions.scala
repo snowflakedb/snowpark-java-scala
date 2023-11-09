@@ -106,4 +106,8 @@ object tableFunctions {
    * @since 0.4.0
    */
   def flatten(): TableFunction = TableFunction("flatten")
+
+  def flatten(input: Column): Column = Column(flatten().apply(input))
+
+//  def flatten(input: Column, path: String, outer: Boolean, recursive: Boolean): Column = null
 }

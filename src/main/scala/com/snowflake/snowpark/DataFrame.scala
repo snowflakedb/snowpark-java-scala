@@ -1903,6 +1903,13 @@ class DataFrame private[snowpark] (
       Some(Window.partitionBy(partitionBy: _*).orderBy(orderBy: _*).getWindowSpecDefinition))
   }
 
+  def join(func: Column): DataFrame = withPlan {
+    func.expr match {
+      case tf: TableFunction => null
+      case _ => null
+    }
+  }
+
   /**
    * Performs a cross join, which returns the cartesian product of the current DataFrame and
    * another DataFrame (`right`).
