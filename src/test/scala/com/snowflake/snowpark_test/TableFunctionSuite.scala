@@ -182,4 +182,11 @@ class TableFunctionSuite extends TestData {
      |----------------------------------------
      |""".stripMargin)
   }
+
+  test("Argument in table function") {
+    val df = Seq((1, Array(1, 2, 3), Map("a" -> "b", "c" -> "d")),
+      (2, Array(11, 22, 33), Map("a1" -> "b1", "c1" -> "d1"))).toDF("idx", "arr", "map")
+
+    df.join(tableFunctions.flatten, df("arr")).show()
+  }
 }
