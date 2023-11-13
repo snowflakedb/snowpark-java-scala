@@ -1,8 +1,9 @@
 package com.snowflake.snowpark_test
 
 import com.snowflake.snowpark.functions._
-import com.snowflake.snowpark._
+import com.snowflake.snowpark.{Row, _}
 
+import scala.collection.Seq
 
 class TableFunctionSuite extends TestData {
   import session.implicits._
@@ -184,12 +185,36 @@ class TableFunctionSuite extends TestData {
      |""".stripMargin)
   }
 
-  test("Argument in table function") {
-    val df = Seq((1, Array(1, 2, 3), Map("a" -> "b", "c" -> "d")),
+  test("Argument in table function: flatten") {
+    val df = Seq(
+      (1, Array(1, 2, 3), Map("a" -> "b", "c" -> "d")),
       (2, Array(11, 22, 33), Map("a1" -> "b1", "c1" -> "d1"))).toDF("idx", "arr", "map")
     checkAnswer(
       df.join(tableFunctions.flatten(df("arr")))
         .select("value"),
       Seq(Row("1"), Row("2"), Row("3"), Row("11"), Row("22"), Row("33")))
+    // error if it is not a table function
+    val error1 = intercept[SnowparkClientException] { df.join(lit("dummy")) }
+    assert(
+      error1.message.contains("Unsupported join operations, Dataframes can join " +
+        "with other Dataframes or TableFunctions only"))
+  }
+
+  test("Argument in table function: flatten2") {
+    val df1 = Seq("{\"a\":1, \"b\":[77, 88]}").toDF("col")
+    checkAnswer(
+      df1.join(tableFunctions.flatten(input = parse_json(df1("col")),
+        path = "b", outer = true, recursive = true)).select("value"),
+      Seq(Row("77"), Row("88")))
+
+    val df2 = Seq("[]").toDF("col")
+    checkAnswer(df2.join(tableFunctions.flatten(input = parse_json(df1("col")),
+      path = "", outer = true, recursive = true)).select("value"),
+      Seq(Row(null)))
+
+    assert(df1.join(tableFunctions.flatten(input = parse_json(df1("col")),
+      path = "", outer = true, recursive = true)).count() == 4)
+    assert(df1.join(tableFunctions.flatten(input = parse_json(df1("col")),
+      path = "", outer = true, recursive = false)).count() == 2)
   }
 }

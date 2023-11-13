@@ -1,5 +1,7 @@
 package com.snowflake.snowpark
 
+import com.snowflake.snowpark.functions.lit
+
 // scalastyle:off
 /**
  * Provides utility functions that generate table function expressions that can be
@@ -109,5 +111,12 @@ object tableFunctions {
 
   def flatten(input: Column): Column = Column(flatten.apply(input))
 
-//  def flatten(input: Column, path: String, outer: Boolean, recursive: Boolean): Column = null
+  def flatten(input: Column, path: String, outer: Boolean, recursive: Boolean): Column =
+    Column(
+      flatten.apply(
+        Map(
+          "input" -> input,
+          "path" -> lit(path),
+          "outer" -> lit(outer),
+          "recursive" -> lit(recursive))))
 }

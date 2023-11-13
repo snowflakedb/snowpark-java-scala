@@ -290,9 +290,10 @@ class ErrorMessageSuite extends FunSuite {
     val ex = ErrorMessage.DF_JOIN_WITH_WRONG_ARGUMENT()
     assert(ex.telemetryMessage.equals(ErrorMessage.getMessage("0130")))
     assert(
-      ex.message.startsWith("Error Code: 0130, Error message: " +
-        "Unsupported join operations, Dataframes can join with other Dataframes" +
-        " or TableFunctions only"))
+      ex.message.startsWith(
+        "Error Code: 0130, Error message: " +
+          "Unsupported join operations, Dataframes can join with other Dataframes" +
+          " or TableFunctions only"))
   }
 
   test("UDF_INCORRECT_ARGS_NUMBER") {
