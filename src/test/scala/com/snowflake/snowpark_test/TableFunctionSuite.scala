@@ -4,6 +4,7 @@ import com.snowflake.snowpark.functions._
 import com.snowflake.snowpark.{Row, _}
 
 import scala.collection.Seq
+import scala.collection.immutable.Map
 
 class TableFunctionSuite extends TestData {
   import session.implicits._
@@ -220,5 +221,20 @@ class TableFunctionSuite extends TestData {
       path = "", outer = true, recursive = true, mode = "array")).count() == 1)
     assert(df1.join(tableFunctions.flatten(input = parse_json(df1("col")),
       path = "", outer = true, recursive = true, mode = "object")).count() == 2)
+  }
+
+  test("Argument in table function: flatten - session") {
+    val df = Seq(
+      (1, Array(1, 2, 3), Map("a" -> "b", "c" -> "d")),
+      (2, Array(11, 22, 33), Map("a1" -> "b1", "c1" -> "d1"))).toDF("idx", "arr", "map")
+    checkAnswer(session.tableFunction(tableFunctions.flatten(df("arr"))).select("value"),
+      Seq(Row("1"), Row("2"), Row("3"), Row("11"), Row("22"), Row("33")))
+    // error if it is not a table function
+    val error1 = intercept[SnowparkClientException] {
+      session.tableFunction(lit("dummy"))
+    }
+    assert(
+      error1.message.contains("Invalid input argument, " +
+        "Session.tableFunction only supports table function arguments"))
   }
 }
