@@ -204,30 +204,78 @@ class TableFunctionSuite extends TestData {
   test("Argument in table function: flatten2") {
     val df1 = Seq("{\"a\":1, \"b\":[77, 88]}").toDF("col")
     checkAnswer(
-      df1.join(tableFunctions.flatten(input = parse_json(df1("col")),
-        path = "b", outer = true, recursive = true, mode = "both")).select("value"),
+      df1
+        .join(
+          tableFunctions.flatten(
+            input = parse_json(df1("col")),
+            path = "b",
+            outer = true,
+            recursive = true,
+            mode = "both"))
+        .select("value"),
       Seq(Row("77"), Row("88")))
 
     val df2 = Seq("[]").toDF("col")
-    checkAnswer(df2.join(tableFunctions.flatten(input = parse_json(df1("col")),
-      path = "", outer = true, recursive = true, mode = "both")).select("value"),
+    checkAnswer(
+      df2
+        .join(
+          tableFunctions.flatten(
+            input = parse_json(df1("col")),
+            path = "",
+            outer = true,
+            recursive = true,
+            mode = "both"))
+        .select("value"),
       Seq(Row(null)))
 
-    assert(df1.join(tableFunctions.flatten(input = parse_json(df1("col")),
-      path = "", outer = true, recursive = true, mode = "both")).count() == 4)
-    assert(df1.join(tableFunctions.flatten(input = parse_json(df1("col")),
-      path = "", outer = true, recursive = false, mode = "both")).count() == 2)
-    assert(df1.join(tableFunctions.flatten(input = parse_json(df1("col")),
-      path = "", outer = true, recursive = true, mode = "array")).count() == 1)
-    assert(df1.join(tableFunctions.flatten(input = parse_json(df1("col")),
-      path = "", outer = true, recursive = true, mode = "object")).count() == 2)
+    assert(
+      df1
+        .join(
+          tableFunctions.flatten(
+            input = parse_json(df1("col")),
+            path = "",
+            outer = true,
+            recursive = true,
+            mode = "both"))
+        .count() == 4)
+    assert(
+      df1
+        .join(
+          tableFunctions.flatten(
+            input = parse_json(df1("col")),
+            path = "",
+            outer = true,
+            recursive = false,
+            mode = "both"))
+        .count() == 2)
+    assert(
+      df1
+        .join(
+          tableFunctions.flatten(
+            input = parse_json(df1("col")),
+            path = "",
+            outer = true,
+            recursive = true,
+            mode = "array"))
+        .count() == 1)
+    assert(
+      df1
+        .join(
+          tableFunctions.flatten(
+            input = parse_json(df1("col")),
+            path = "",
+            outer = true,
+            recursive = true,
+            mode = "object"))
+        .count() == 2)
   }
 
   test("Argument in table function: flatten - session") {
     val df = Seq(
       (1, Array(1, 2, 3), Map("a" -> "b", "c" -> "d")),
       (2, Array(11, 22, 33), Map("a1" -> "b1", "c1" -> "d1"))).toDF("idx", "arr", "map")
-    checkAnswer(session.tableFunction(tableFunctions.flatten(df("arr"))).select("value"),
+    checkAnswer(
+      session.tableFunction(tableFunctions.flatten(df("arr"))).select("value"),
       Seq(Row("1"), Row("2"), Row("3"), Row("11"), Row("22"), Row("33")))
     // error if it is not a table function
     val error1 = intercept[SnowparkClientException] {
@@ -236,5 +284,20 @@ class TableFunctionSuite extends TestData {
     assert(
       error1.message.contains("Invalid input argument, " +
         "Session.tableFunction only supports table function arguments"))
+  }
+
+  test("Argument in table function: flatten - session 2") {
+    val df1 = Seq("{\"a\":1, \"b\":[77, 88]}").toDF("col")
+    checkAnswer(
+      session
+        .tableFunction(
+          tableFunctions.flatten(
+            input = parse_json(df1("col")),
+            path = "b",
+            outer = true,
+            recursive = true,
+            mode = "both"))
+        .select("value"),
+      Seq(Row("77"), Row("88")))
   }
 }

@@ -111,8 +111,12 @@ object tableFunctions {
 
   def flatten(input: Column): Column = Column(flatten.apply(input))
 
-  def flatten(input: Column,
-              path: String, outer: Boolean, recursive: Boolean, mode: String): Column =
+  def flatten(
+      input: Column,
+      path: String,
+      outer: Boolean,
+      recursive: Boolean,
+      mode: String): Column =
     Column(
       flatten.apply(
         Map(

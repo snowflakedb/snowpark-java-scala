@@ -7,7 +7,11 @@ import com.snowflake.snowpark.internal.{Logging, Utils}
 import com.snowflake.snowpark.internal.analyzer._
 import com.snowflake.snowpark.types._
 import com.github.vertical_blank.sqlformatter.SqlFormatter
-import com.snowflake.snowpark.internal.Utils.{TempObjectType, getTableFunctionExpression, randomNameForTempObject}
+import com.snowflake.snowpark.internal.Utils.{
+  TempObjectType,
+  getTableFunctionExpression,
+  randomNameForTempObject
+}
 
 import javax.xml.bind.DatatypeConverter
 import scala.collection.JavaConverters._
@@ -1909,7 +1913,9 @@ class DataFrame private[snowpark] (
 
   // todo: add test with UDTF
   def join(func: Column, partitionBy: Seq[Column], orderBy: Seq[Column]): DataFrame = withPlan {
-    TableFunctionJoin(this.plan, getTableFunctionExpression(func),
+    TableFunctionJoin(
+      this.plan,
+      getTableFunctionExpression(func),
       Some(Window.partitionBy(partitionBy: _*).orderBy(orderBy: _*).getWindowSpecDefinition))
   }
 

@@ -819,8 +819,7 @@ class ErrorMessageSuite extends FunSuite {
     val ex = ErrorMessage.MISC_INVALID_TABLE_FUNCTION_INPUT()
     assert(ex.telemetryMessage.equals(ErrorMessage.getMessage("0423")))
     assert(
-      ex.message.startsWith(
-        "Error Code: 0423, Error message: Invalid input argument, " +
-          "Session.tableFunction only supports table function arguments"))
+      ex.message.startsWith("Error Code: 0423, Error message: Invalid input argument, " +
+        "Session.tableFunction only supports table function arguments"))
   }
 }
