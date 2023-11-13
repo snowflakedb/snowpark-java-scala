@@ -7,7 +7,7 @@ import com.snowflake.snowpark.internal.{Logging, Utils}
 import com.snowflake.snowpark.internal.analyzer._
 import com.snowflake.snowpark.types._
 import com.github.vertical_blank.sqlformatter.SqlFormatter
-import com.snowflake.snowpark.internal.Utils.{TempObjectType, randomNameForTempObject}
+import com.snowflake.snowpark.internal.Utils.{TempObjectType, getTableFunctionExpression, randomNameForTempObject}
 
 import javax.xml.bind.DatatypeConverter
 import scala.collection.JavaConverters._
@@ -1904,11 +1904,7 @@ class DataFrame private[snowpark] (
   }
 
   def join(func: Column): DataFrame = withPlan {
-    func.expr match {
-      case tf: TableFunctionExpression =>
-        TableFunctionJoin(this.plan, tf, None)
-      case _ => throw ErrorMessage.DF_JOIN_WITH_WRONG_ARGUMENT()
-    }
+    TableFunctionJoin(this.plan, getTableFunctionExpression(func), None)
   }
 
   /**
