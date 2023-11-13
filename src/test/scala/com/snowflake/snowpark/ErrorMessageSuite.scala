@@ -814,4 +814,13 @@ class ErrorMessageSuite extends FunSuite {
         "Error Code: 0422, Error message: Internal error: Server fetching is disabled" +
           " for the parameter someParameter and there is no default value for it."))
   }
+
+  test("MISC_INVALID_TABLE_FUNCTION_INPUT") {
+    val ex = ErrorMessage.MISC_INVALID_TABLE_FUNCTION_INPUT()
+    assert(ex.telemetryMessage.equals(ErrorMessage.getMessage("0423")))
+    assert(
+      ex.message.startsWith(
+        "Error Code: 0423, Error message: Invalid input argument, " +
+          "Session.tableFunction only supports table function arguments"))
+  }
 }

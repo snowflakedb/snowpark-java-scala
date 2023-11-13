@@ -7,18 +7,12 @@ import java.util.{Properties, Map => JMap, Set => JSet}
 import java.util.concurrent.{ConcurrentHashMap, ForkJoinPool, ForkJoinWorkerThread}
 import com.snowflake.snowpark.internal.analyzer._
 import com.snowflake.snowpark.internal._
+import com.snowflake.snowpark.internal.analyzer.{TableFunction => TFunction}
 import com.snowflake.snowpark.types._
 import com.snowflake.snowpark.functions._
-import com.snowflake.snowpark.internal.ErrorMessage.{
-  UDF_CANNOT_ACCEPT_MANY_DF_COLS,
-  UDF_UNEXPECTED_COLUMN_ORDER
-}
+import com.snowflake.snowpark.internal.ErrorMessage.{UDF_CANNOT_ACCEPT_MANY_DF_COLS, UDF_UNEXPECTED_COLUMN_ORDER}
 import com.snowflake.snowpark.internal.ParameterUtils.ClosureCleanerMode
-import com.snowflake.snowpark.internal.Utils.{
-  TempObjectNamePattern,
-  TempObjectType,
-  randomNameForTempObject
-}
+import com.snowflake.snowpark.internal.Utils.{TempObjectNamePattern, TempObjectType, getTableFunctionExpression, randomNameForTempObject}
 import net.snowflake.client.jdbc.{SnowflakeConnectionV1, SnowflakeDriver, SnowflakeSQLException}
 
 import scala.concurrent.{ExecutionContext, Future}
@@ -575,6 +569,18 @@ class Session private (private[snowpark] val conn: ServerConnection) extends Log
       val df = sourceDFs.head
       val result = df.join(func, args)
       tableFunctionResultOnly(df, result)
+    }
+  }
+
+  def tableFunction(func: Column): DataFrame = {
+    func.expr match {
+      case TFunction(funcName, args) =>
+        tableFunction(TableFunction(funcName), args.map(Column(_)))
+      case NamedArgumentsTableFunction(funcName, argMap) =>
+        tableFunction(TableFunction(funcName), argMap.map {
+          case (key, value) => key -> Column(value)
+        })
+      case _ => throw ErrorMessage.MISC_INVALID_TABLE_FUNCTION_INPUT()
     }
   }
 

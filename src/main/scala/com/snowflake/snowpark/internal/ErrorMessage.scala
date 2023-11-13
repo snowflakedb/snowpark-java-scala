@@ -151,7 +151,8 @@ private[snowpark] object ErrorMessage {
     "0419" -> "%s exceeds the maximum allowed time: %d second(s).",
     "0420" -> "Invalid RSA private key. The error is: %s",
     "0421" -> "Invalid stage location: %s. Reason: %s.",
-    "0422" -> "Internal error: Server fetching is disabled for the parameter %s and there is no default value for it.")
+    "0422" -> "Internal error: Server fetching is disabled for the parameter %s and there is no default value for it.",
+    "0423" -> "Invalid input argument, Session.tableFunction only supports table function arguments")
   // scalastyle:on
 
   /*
@@ -384,6 +385,9 @@ private[snowpark] object ErrorMessage {
   def MISC_NO_SERVER_VALUE_NO_DEFAULT_FOR_PARAMETER(
       parameterName: String): SnowparkClientException =
     createException("0422", parameterName)
+
+  def MISC_INVALID_TABLE_FUNCTION_INPUT(): SnowparkClientException =
+    createException("0423")
 
   /**
    * Create Snowpark client Exception.

@@ -204,17 +204,21 @@ class TableFunctionSuite extends TestData {
     val df1 = Seq("{\"a\":1, \"b\":[77, 88]}").toDF("col")
     checkAnswer(
       df1.join(tableFunctions.flatten(input = parse_json(df1("col")),
-        path = "b", outer = true, recursive = true)).select("value"),
+        path = "b", outer = true, recursive = true, mode = "both")).select("value"),
       Seq(Row("77"), Row("88")))
 
     val df2 = Seq("[]").toDF("col")
     checkAnswer(df2.join(tableFunctions.flatten(input = parse_json(df1("col")),
-      path = "", outer = true, recursive = true)).select("value"),
+      path = "", outer = true, recursive = true, mode = "both")).select("value"),
       Seq(Row(null)))
 
     assert(df1.join(tableFunctions.flatten(input = parse_json(df1("col")),
-      path = "", outer = true, recursive = true)).count() == 4)
+      path = "", outer = true, recursive = true, mode = "both")).count() == 4)
     assert(df1.join(tableFunctions.flatten(input = parse_json(df1("col")),
-      path = "", outer = true, recursive = false)).count() == 2)
+      path = "", outer = true, recursive = false, mode = "both")).count() == 2)
+    assert(df1.join(tableFunctions.flatten(input = parse_json(df1("col")),
+      path = "", outer = true, recursive = true, mode = "array")).count() == 1)
+    assert(df1.join(tableFunctions.flatten(input = parse_json(df1("col")),
+      path = "", outer = true, recursive = true, mode = "object")).count() == 2)
   }
 }
