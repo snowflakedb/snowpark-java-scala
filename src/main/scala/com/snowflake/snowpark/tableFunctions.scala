@@ -59,6 +59,9 @@ object tableFunctions {
    */
   lazy val split_to_table: TableFunction = TableFunction("split_to_table")
 
+  def split_to_table(str: Column, delimiter: String): Column =
+    Column(split_to_table.apply(str, lit(delimiter)))
+
   /**
    * Flattens (explodes) compound values into multiple rows.
    *

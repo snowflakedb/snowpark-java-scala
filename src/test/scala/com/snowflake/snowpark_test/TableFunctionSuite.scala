@@ -300,4 +300,18 @@ class TableFunctionSuite extends TestData {
         .select("value"),
       Seq(Row("77"), Row("88")))
   }
+
+  test("Argument in table function: split_to_table") {
+    val df = Seq("1,2", "3,4").toDF("data")
+
+    checkAnswer(
+      df.join(tableFunctions.split_to_table(df("data"), ",")).select("value"),
+      Seq(Row("1"), Row("2"), Row("3"), Row("4")))
+
+    checkAnswer(
+      session
+        .tableFunction(tableFunctions.split_to_table(df("data"), ","))
+        .select("value"),
+      Seq(Row("1"), Row("2"), Row("3"), Row("4")))
+  }
 }
