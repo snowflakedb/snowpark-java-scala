@@ -314,4 +314,27 @@ class TableFunctionSuite extends TestData {
         .select("value"),
       Seq(Row("1"), Row("2"), Row("3"), Row("4")))
   }
+
+  test("Argument in table function: table function") {
+    val df = Seq("1,2", "3,4").toDF("data")
+
+    checkAnswer(
+      df.join(TableFunction("split_to_table")(df("data"), lit(",")))
+        .select("value"),
+      Seq(Row("1"), Row("2"), Row("3"), Row("4")))
+
+    val df1 = Seq("{\"a\":1, \"b\":[77, 88]}").toDF("col")
+    checkAnswer(
+      session
+        .tableFunction(
+          TableFunction("flatten")(Map(
+            "input" -> parse_json(df1("col")),
+            "path" -> lit("b"),
+            "outer" -> lit(true),
+            "recursive" -> lit(true),
+            "mode" -> lit("both")
+          )))
+        .select("value"),
+      Seq(Row("77"), Row("88")))
+  }
 }
