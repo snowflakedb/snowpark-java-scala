@@ -1907,6 +1907,12 @@ class DataFrame private[snowpark] (
     TableFunctionJoin(this.plan, getTableFunctionExpression(func), None)
   }
 
+  // todo: add test with UDTF
+  def join(func: Column, partitionBy: Seq[Column], orderBy: Seq[Column]): DataFrame = withPlan {
+    TableFunctionJoin(this.plan, getTableFunctionExpression(func),
+      Some(Window.partitionBy(partitionBy: _*).orderBy(orderBy: _*).getWindowSpecDefinition))
+  }
+
   /**
    * Performs a cross join, which returns the cartesian product of the current DataFrame and
    * another DataFrame (`right`).
