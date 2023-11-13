@@ -1789,7 +1789,7 @@ class DataFrame private[snowpark] (
    * @param args A list of arguments to pass to the specified table function.
    */
   def join(func: TableFunction, args: Seq[Column]): DataFrame = withPlan {
-    TableFunctionJoin(this.plan, func(args: _*), None)
+    TableFunctionJoin(this.plan, func.call(args: _*), None)
   }
 
   /**
@@ -1825,7 +1825,7 @@ class DataFrame private[snowpark] (
       orderBy: Seq[Column]): DataFrame = withPlan {
     TableFunctionJoin(
       this.plan,
-      func(args: _*),
+      func.call(args: _*),
       Some(Window.partitionBy(partitionBy: _*).orderBy(orderBy: _*).getWindowSpecDefinition))
   }
 
@@ -1860,7 +1860,7 @@ class DataFrame private[snowpark] (
    *              Use this map to specify the parameter names and their corresponding values.
    */
   def join(func: TableFunction, args: Map[String, Column]): DataFrame = withPlan {
-    TableFunctionJoin(this.plan, func(args), None)
+    TableFunctionJoin(this.plan, func.call(args), None)
   }
 
   /**
@@ -1903,7 +1903,7 @@ class DataFrame private[snowpark] (
       orderBy: Seq[Column]): DataFrame = withPlan {
     TableFunctionJoin(
       this.plan,
-      func(args),
+      func.call(args),
       Some(Window.partitionBy(partitionBy: _*).orderBy(orderBy: _*).getWindowSpecDefinition))
   }
 

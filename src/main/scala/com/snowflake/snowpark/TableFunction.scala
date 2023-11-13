@@ -32,11 +32,15 @@ import com.snowflake.snowpark.internal.analyzer.{
  * @since 0.4.0
  */
 case class TableFunction(funcName: String) {
-  private[snowpark] def apply(args: Column*): TableFunctionExpression =
+  private[snowpark] def call(args: Column*): TableFunctionExpression =
     analyzer.TableFunction(funcName, args.map(_.expr))
 
-  private[snowpark] def apply(args: Map[String, Column]): TableFunctionExpression =
+  private[snowpark] def call(args: Map[String, Column]): TableFunctionExpression =
     NamedArgumentsTableFunction(funcName, args.map {
       case (key, value) => key -> value.expr
     })
+
+  def apply(args: Column*): Column = Column(this.call(args: _*))
+
+  def apply(args: Map[String, Column]): Column = Column(this.call(args))
 }
