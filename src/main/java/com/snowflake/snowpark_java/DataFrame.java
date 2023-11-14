@@ -1312,10 +1312,73 @@ public class DataFrame extends Logging implements Cloneable {
             JavaUtils.columnArrayToSeq(Column.toScalaColumnArray(orderBy))));
   }
 
+  /**
+   * Joins the current DataFrame with the output of the specified table function `func`.
+   *
+   * <p> Pre-defined table functions can be found in `TableFunctions` class.
+   *
+   * <p> For example:
+   *
+   * <pre>{@code
+   * df.join(TableFunctions.flatten(
+   *   Functions.parse_json(df.col("col")),
+   *   "path", true, true, "both"
+   * ));
+   * }</pre>
+   *
+   * <p> Or load any Snowflake builtin table function via TableFunction Class.
+   *
+   * <pre>{@code
+   * Map<String, Column> args = new HashMap<>();
+   * args.put("input", Functions.parse_json(df.col("a")));
+   * df.join(new TableFunction("flatten").call(args));
+   * }</pre>
+   *
+   * @since 1.10.0
+   * @param func Column object, which can be one of the values in the TableFunctions class or
+   *     an object that you create from the `new TableFunction("name").call()`.
+   * @return The result DataFrame
+   */
   public DataFrame join(Column func) {
     return new DataFrame(this.df.join(func.toScalaColumn()));
   }
 
+  /**
+   * Joins the current DataFrame with the output of the specified table function `func`.
+   *
+   * <p>To specify a PARTITION BY or ORDER BY clause, use the `partitionBy` and `orderBy` arguments.
+   *
+   * <p> Pre-defined table functions can be found in `TableFunctions` class.
+   *
+   * <p> For example:
+   *
+   * <pre>{@code
+   * df.join(TableFunctions.flatten(
+   *     Functions.parse_json(df.col("col1")),
+   *     "path", true, true, "both"
+   *   ),
+   *   new Column[] {df.col("col2")},
+   *   new Column[] {df.col("col1")}
+   * );
+   * }</pre>
+   *
+   * <p> Or load any Snowflake builtin table function via TableFunction Class.
+   *
+   * <pre>{@code
+   * Map<String, Column> args = new HashMap<>();
+   * args.put("input", Functions.parse_json(df.col("col1")));
+   * df.join(new TableFunction("flatten").call(args),
+   * new Column[] {df.col("col2")},
+   * new Column[] {df.col("col1")});
+   * }</pre>
+   *
+   * @since 1.10.0
+   * @param func Column object, which can be one of the values in the TableFunctions class or
+   *     an object that you create from the `new TableFunction("name").call()`.
+   * @param partitionBy An array of columns partitioned by.
+   * @param orderBy An array of columns ordered by.
+   * @return The result DataFrame
+   */
   public DataFrame join(Column func, Column[] partitionBy, Column[] orderBy) {
     return new DataFrame(
         this.df.join(

@@ -566,6 +566,23 @@ public class Session {
             func.getScalaTableFunction(), JavaUtils.javaStringColumnMapToScala(scalaArgs)));
   }
 
+  /**
+   * Creates a new DataFrame from the given table function and arguments.
+   *
+   * <p>Example
+   *
+   * <pre>{@code
+   * session.tableFunction(TableFunctions.flatten(
+   *   Functions.parse_json(df.col("col")),
+   *   "path", true, true, "both"
+   * ));
+   * }</pre>
+   *
+   * @since 1.10.0
+   * @param func Column object, which can be one of the values in the TableFunctions class or
+   *     an object that you create from the `new TableFunction("name").call()`.
+   * @return The result DataFrame
+   */
   public DataFrame tableFunction(Column func) {
     return new DataFrame(session.tableFunction(func.toScalaColumn()));
   }
