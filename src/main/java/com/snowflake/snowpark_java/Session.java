@@ -566,6 +566,10 @@ public class Session {
             func.getScalaTableFunction(), JavaUtils.javaStringColumnMapToScala(scalaArgs)));
   }
 
+  public DataFrame tableFunction(Column func) {
+    return new DataFrame(session.tableFunction(func.toScalaColumn()));
+  }
+
   /**
    * Returns a SProcRegistration object that you can use to register Stored Procedures.
    *

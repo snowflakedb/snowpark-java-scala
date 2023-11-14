@@ -327,13 +327,13 @@ class TableFunctionSuite extends TestData {
     checkAnswer(
       session
         .tableFunction(
-          TableFunction("flatten")(Map(
-            "input" -> parse_json(df1("col")),
-            "path" -> lit("b"),
-            "outer" -> lit(true),
-            "recursive" -> lit(true),
-            "mode" -> lit("both")
-          )))
+          TableFunction("flatten")(
+            Map(
+              "input" -> parse_json(df1("col")),
+              "path" -> lit("b"),
+              "outer" -> lit(true),
+              "recursive" -> lit(true),
+              "mode" -> lit("both"))))
         .select("value"),
       Seq(Row("77"), Row("88")))
   }
