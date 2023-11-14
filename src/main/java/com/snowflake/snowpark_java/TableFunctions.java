@@ -54,7 +54,7 @@ public class TableFunctions {
    * @since 1.10.0
    * @param str Text to be split.
    * @param delimiter Text to split string by.
-   * @return The result TableFunction reference
+   * @return The result Column reference
    */
   public static Column split_to_table(Column str, String delimiter) {
     return new Column(
@@ -123,7 +123,7 @@ public class TableFunctions {
    *     expansion is performed for all sub-elements recursively. Default: FALSE
    * @param mode ("object", "array", or "both") Specifies whether only objects, arrays, or both
    *     should be flattened.
-   * @return The result TableFunction reference
+   * @return The result Column reference
    */
   public static Column flatten(
       Column input, String path, boolean outer, boolean recursive, String mode) {
@@ -145,7 +145,7 @@ public class TableFunctions {
    * @since 1.10.0
    * @param input The expression that will be unseated into rows. The expression must be of data
    *     type VariantType, MapType or ArrayType.
-   * @return The result TableFunction reference
+   * @return The result Column reference
    */
   public static Column flatten(Column input) {
     return new Column(com.snowflake.snowpark.tableFunctions.flatten(input.toScalaColumn()));

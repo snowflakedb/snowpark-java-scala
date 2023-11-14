@@ -580,6 +580,23 @@ class Session private (private[snowpark] val conn: ServerConnection) extends Log
     }
   }
 
+  /**
+   * Creates a new DataFrame from the given table function.
+   *
+   * Example
+   * {{{
+   *    import com.snowflake.snowpark.functions._
+   *    import com.snowflake.snowpark.tableFunctions._
+   *
+   *    session.tableFunction(
+   *      flatten(parse_json(lit("[1,2]")))
+   *    )
+   * }}}
+   *
+   * @since 1.10.0
+   * @param func Table function object, can be created from TableFunction class or
+   *             referred from the built-in list from tableFunctions.
+   */
   def tableFunction(func: Column): DataFrame = {
     func.expr match {
       case TFunction(funcName, args) =>
