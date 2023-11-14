@@ -1315,9 +1315,9 @@ public class DataFrame extends Logging implements Cloneable {
   /**
    * Joins the current DataFrame with the output of the specified table function `func`.
    *
-   * <p> Pre-defined table functions can be found in `TableFunctions` class.
+   * <p>Pre-defined table functions can be found in `TableFunctions` class.
    *
-   * <p> For example:
+   * <p>For example:
    *
    * <pre>{@code
    * df.join(TableFunctions.flatten(
@@ -1326,7 +1326,7 @@ public class DataFrame extends Logging implements Cloneable {
    * ));
    * }</pre>
    *
-   * <p> Or load any Snowflake builtin table function via TableFunction Class.
+   * <p>Or load any Snowflake builtin table function via TableFunction Class.
    *
    * <pre>{@code
    * Map<String, Column> args = new HashMap<>();
@@ -1335,8 +1335,8 @@ public class DataFrame extends Logging implements Cloneable {
    * }</pre>
    *
    * @since 1.10.0
-   * @param func Column object, which can be one of the values in the TableFunctions class or
-   *     an object that you create from the `new TableFunction("name").call()`.
+   * @param func Column object, which can be one of the values in the TableFunctions class or an
+   *     object that you create from the `new TableFunction("name").call()`.
    * @return The result DataFrame
    */
   public DataFrame join(Column func) {
@@ -1348,9 +1348,9 @@ public class DataFrame extends Logging implements Cloneable {
    *
    * <p>To specify a PARTITION BY or ORDER BY clause, use the `partitionBy` and `orderBy` arguments.
    *
-   * <p> Pre-defined table functions can be found in `TableFunctions` class.
+   * <p>Pre-defined table functions can be found in `TableFunctions` class.
    *
-   * <p> For example:
+   * <p>For example:
    *
    * <pre>{@code
    * df.join(TableFunctions.flatten(
@@ -1362,7 +1362,7 @@ public class DataFrame extends Logging implements Cloneable {
    * );
    * }</pre>
    *
-   * <p> Or load any Snowflake builtin table function via TableFunction Class.
+   * <p>Or load any Snowflake builtin table function via TableFunction Class.
    *
    * <pre>{@code
    * Map<String, Column> args = new HashMap<>();
@@ -1373,8 +1373,8 @@ public class DataFrame extends Logging implements Cloneable {
    * }</pre>
    *
    * @since 1.10.0
-   * @param func Column object, which can be one of the values in the TableFunctions class or
-   *     an object that you create from the `new TableFunction("name").call()`.
+   * @param func Column object, which can be one of the values in the TableFunctions class or an
+   *     object that you create from the `new TableFunction("name").call()`.
    * @param partitionBy An array of columns partitioned by.
    * @param orderBy An array of columns ordered by.
    * @return The result DataFrame

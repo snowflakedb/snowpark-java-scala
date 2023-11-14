@@ -579,8 +579,8 @@ public class Session {
    * }</pre>
    *
    * @since 1.10.0
-   * @param func Column object, which can be one of the values in the TableFunctions class or
-   *     an object that you create from the `new TableFunction("name").call()`.
+   * @param func Column object, which can be one of the values in the TableFunctions class or an
+   *     object that you create from the `new TableFunction("name").call()`.
    * @return The result DataFrame
    */
   public DataFrame tableFunction(Column func) {

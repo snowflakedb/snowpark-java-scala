@@ -58,7 +58,7 @@ public class TableFunction {
    * Create a Column reference by passing arguments in the TableFunction object.
    *
    * @param args function arguments map of the given table function. Some functions, like flatten,
-   *             have named parameters. use this map to assign values to the corresponding parameters.
+   *     have named parameters. use this map to assign values to the corresponding parameters.
    * @return A Column reference
    * @since 1.10.0
    */

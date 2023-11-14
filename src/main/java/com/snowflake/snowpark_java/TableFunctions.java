@@ -40,6 +40,22 @@ public class TableFunctions {
     return new TableFunction(com.snowflake.snowpark.tableFunctions.split_to_table());
   }
 
+  /**
+   * This table function splits a string (based on a specified delimiter) and flattens the results
+   * into rows.
+   *
+   * <p>Example
+   *
+   * <pre>{@code
+   * session.tableFunction(TableFunctions.split_to_table(,
+   *   Functions.lit("split by space"), Functions.lit(" ")));
+   * }</pre>
+   *
+   * @since 1.10.0
+   * @param str Text to be split.
+   * @param delimiter Text to split string by.
+   * @return The result TableFunction reference
+   */
   public static Column split_to_table(Column str, String delimiter) {
     return new Column(
         com.snowflake.snowpark.tableFunctions.split_to_table(str.toScalaColumn(), delimiter));
@@ -83,10 +99,55 @@ public class TableFunctions {
     return new TableFunction(com.snowflake.snowpark.tableFunctions.flatten());
   }
 
+  /**
+   * Flattens (explodes) compound values into multiple rows.
+   *
+   * <p>Example
+   *
+   * <pre>{@code
+   * df.join(TableFunctions.flatten(
+   *   Functions.parse_json(df.col("col")), "path", true, true, "both"));
+   * }</pre>
+   *
+   * @since 1.10.0
+   * @param input The expression that will be unseated into rows. The expression must be of data
+   *     type VariantType, MapType or ArrayType.
+   * @param path The path to the element within a VariantType data structure which needs to be
+   *     flattened. Can be a zero-length string (i.e. empty path) if the outermost element is to be
+   *     flattened. Default: Zero-length string (i.e. empty path)
+   * @param outer If FALSE, any input rows that cannot be expanded, either because they cannot be
+   *     accessed in the path or because they have zero fields or entries, are completely omitted
+   *     from the output. If TRUE, exactly one row is generated for zero-row expansions (with NULL
+   *     in the KEY, INDEX, and VALUE columns).
+   * @param recursive If FALSE, only the element referenced by PATH is expanded. If TRUE, the
+   *     expansion is performed for all sub-elements recursively. Default: FALSE
+   * @param mode ("object", "array", or "both") Specifies whether only objects, arrays, or both
+   *     should be flattened.
+   * @return The result TableFunction reference
+   */
   public static Column flatten(
       Column input, String path, boolean outer, boolean recursive, String mode) {
     return new Column(
         com.snowflake.snowpark.tableFunctions.flatten(
             input.toScalaColumn(), path, outer, recursive, mode));
+  }
+
+  /**
+   * Flattens (explodes) compound values into multiple rows.
+   *
+   * <p>Example
+   *
+   * <pre>{@code
+   * df.join(TableFunctions.flatten(
+   *   Functions.parse_json(df.col("col"))));
+   * }</pre>
+   *
+   * @since 1.10.0
+   * @param input The expression that will be unseated into rows. The expression must be of data
+   *     type VariantType, MapType or ArrayType.
+   * @return The result TableFunction reference
+   */
+  public static Column flatten(Column input) {
+    return new Column(com.snowflake.snowpark.tableFunctions.flatten(input.toScalaColumn()));
   }
 }

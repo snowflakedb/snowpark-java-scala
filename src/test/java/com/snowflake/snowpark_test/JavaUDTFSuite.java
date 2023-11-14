@@ -346,11 +346,12 @@ public class JavaUDTFSuite extends UDFTestBase {
     DataFrame result4 = df.join(tf, map, new Column[] {}, new Column[] {});
     result4.show();
 
-    DataFrame result5 = df.join(tf.call(map), new Column[] {df.col("a")}, new Column[] {df.col("b")});
+    DataFrame result5 =
+        df.join(tf.call(map), new Column[] {df.col("a")}, new Column[] {df.col("b")});
     checkAnswer(
-            result5,
-            new Row[] {Row.create("a", null, "{b=2, c=1}"), Row.create("d", null, "{e=1}")},
-            true);
+        result5,
+        new Row[] {Row.create("a", null, "{b=2, c=1}"), Row.create("d", null, "{e=1}")},
+        true);
   }
 }
 

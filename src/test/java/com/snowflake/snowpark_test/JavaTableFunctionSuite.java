@@ -114,5 +114,11 @@ public class JavaTableFunctionSuite extends TestBase {
                     Functions.parse_json(df.col("col")), "b", true, true, "both"))
             .select("value"),
         new Row[] {Row.create("77"), Row.create("88")});
+
+    checkAnswer(
+        getSession()
+            .tableFunction(TableFunctions.flatten(Functions.parse_json(Functions.lit("[1,2]"))))
+            .select("value"),
+        new Row[] {Row.create("1"), Row.create("2")});
   }
 }
