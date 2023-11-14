@@ -88,4 +88,31 @@ public class JavaTableFunctionSuite extends TestBase {
         getSession().tableFunction(new TableFunction("flatten").call(args)).select("value"),
         new Row[] {Row.create("77"), Row.create("88")});
   }
+
+  @Test
+  public void argumentInSplitToTable() {
+    DataFrame df =
+        getSession()
+            .createDataFrame(
+                new Row[] {Row.create("split by space")},
+                StructType.create(new StructField("col", DataTypes.StringType)));
+    checkAnswer(
+        df.join(TableFunctions.split_to_table(df.col("col"), " ")).select("value"),
+        new Row[] {Row.create("split"), Row.create("by"), Row.create("space")});
+  }
+
+  @Test
+  public void argumentInFlatten() {
+    DataFrame df =
+        getSession()
+            .createDataFrame(
+                new Row[] {Row.create("{\"a\":1, \"b\":[77, 88]}")},
+                StructType.create(new StructField("col", DataTypes.StringType)));
+    checkAnswer(
+        df.join(
+                TableFunctions.flatten(
+                    Functions.parse_json(df.col("col")), "b", true, true, "both"))
+            .select("value"),
+        new Row[] {Row.create("77"), Row.create("88")});
+  }
 }

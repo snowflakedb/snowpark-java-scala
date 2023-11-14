@@ -1312,6 +1312,18 @@ public class DataFrame extends Logging implements Cloneable {
             JavaUtils.columnArrayToSeq(Column.toScalaColumnArray(orderBy))));
   }
 
+  public DataFrame join(Column func) {
+    return new DataFrame(this.df.join(func.toScalaColumn()));
+  }
+
+  public DataFrame join(Column func, Column[] partitionBy, Column[] orderBy) {
+    return new DataFrame(
+        this.df.join(
+            func.toScalaColumn(),
+            JavaUtils.columnArrayToSeq(Column.toScalaColumnArray(partitionBy)),
+            JavaUtils.columnArrayToSeq(Column.toScalaColumnArray(orderBy))));
+  }
+
   com.snowflake.snowpark.DataFrame getScalaDataFrame() {
     return this.df;
   }

@@ -41,7 +41,8 @@ public class TableFunctions {
   }
 
   public static Column split_to_table(Column str, String delimiter) {
-    return new Column(com.snowflake.snowpark.tableFunctions.split_to_table(str.toScalaColumn(), delimiter));
+    return new Column(
+        com.snowflake.snowpark.tableFunctions.split_to_table(str.toScalaColumn(), delimiter));
   }
 
   /**
@@ -80,5 +81,12 @@ public class TableFunctions {
    */
   public static TableFunction flatten() {
     return new TableFunction(com.snowflake.snowpark.tableFunctions.flatten());
+  }
+
+  public static Column flatten(
+      Column input, String path, boolean outer, boolean recursive, String mode) {
+    return new Column(
+        com.snowflake.snowpark.tableFunctions.flatten(
+            input.toScalaColumn(), path, outer, recursive, mode));
   }
 }
