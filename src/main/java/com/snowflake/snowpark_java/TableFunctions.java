@@ -40,6 +40,10 @@ public class TableFunctions {
     return new TableFunction(com.snowflake.snowpark.tableFunctions.split_to_table());
   }
 
+  public static Column split_to_table(Column str, String delimiter) {
+    return new Column(com.snowflake.snowpark.tableFunctions.split_to_table(str.toScalaColumn(), delimiter));
+  }
+
   /**
    * Flattens (explodes) compound values into multiple rows.
    *

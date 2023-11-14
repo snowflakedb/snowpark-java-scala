@@ -1911,7 +1911,6 @@ class DataFrame private[snowpark] (
     TableFunctionJoin(this.plan, getTableFunctionExpression(func), None)
   }
 
-  // todo: add test with UDTF
   def join(func: Column, partitionBy: Seq[Column], orderBy: Seq[Column]): DataFrame = withPlan {
     TableFunctionJoin(
       this.plan,
