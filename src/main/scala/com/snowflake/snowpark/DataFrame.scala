@@ -561,6 +561,8 @@ class DataFrame private[snowpark] (
       "Provide at least one column expression for select(). " +
         s"This DataFrame has column names (${output.length}): " +
         s"${output.map(_.name).mkString(", ")}\n")
+    // todo: error message
+    require(columns.count(_.expr.isInstanceOf[TableFunctionExpression]) <= 1, "error")
 
     val resultDF = withPlan { Project(columns.map(_.named), plan) }
     // do not rename back if this project contains internal alias.
