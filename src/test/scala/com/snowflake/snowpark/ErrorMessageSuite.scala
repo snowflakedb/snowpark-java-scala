@@ -300,9 +300,8 @@ class ErrorMessageSuite extends FunSuite {
     val ex = ErrorMessage.DF_MORE_THAN_ONE_TF_IN_SELECT()
     assert(ex.telemetryMessage.equals(ErrorMessage.getMessage("0131")))
     assert(
-      ex.message.startsWith(
-        "Error Code: 0131, Error message: " +
-          "At most one table function can be called inside select() function"))
+      ex.message.startsWith("Error Code: 0131, Error message: " +
+        "At most one table function can be called inside select() function"))
   }
 
   test("UDF_INCORRECT_ARGS_NUMBER") {

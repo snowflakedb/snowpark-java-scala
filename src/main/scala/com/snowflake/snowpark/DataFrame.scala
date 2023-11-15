@@ -562,19 +562,34 @@ class DataFrame private[snowpark] (
         s"This DataFrame has column names (${output.length}): " +
         s"${output.map(_.name).mkString(", ")}\n")
     // todo: error message
-    require(columns.count(_.expr.isInstanceOf[TableFunctionExpression]) <= 1, "error")
-
-    val resultDF = withPlan { Project(columns.map(_.named), plan) }
-    // do not rename back if this project contains internal alias.
-    // because no named duplicated if just renamed.
-    val hasInternalAlias: Boolean = columns.map(_.expr).exists {
-      case Alias(_, _, true) => true
-      case _ => false
-    }
-    if (hasInternalAlias) {
-      resultDF
-    } else {
-      renameBackIfDeduped(resultDF)
+    val tf = columns.filter(_.expr.isInstanceOf[TableFunctionExpression])
+    tf.size match {
+      case 0 =>
+        val resultDF = withPlan {
+          Project(columns.map(_.named), plan)
+        }
+        // do not rename back if this project contains internal alias.
+        // because no named duplicated if just renamed.
+        val hasInternalAlias: Boolean = columns.map(_.expr).exists {
+          case Alias(_, _, true) => true
+          case _ => false
+        }
+        if (hasInternalAlias) {
+          resultDF
+        } else {
+          renameBackIfDeduped(resultDF)
+        }
+      case 1 =>
+        val base = this.join(tf.head)
+        val baseColumns = base.schema.map(field => base(field.name))
+        val inputDFColumnSize = this.schema.size
+        val tfColumns = baseColumns.splitAt(inputDFColumnSize)._2
+        val (beforeTf, afterTf) = columns.span(_ != tf.head)
+        val resultColumns = beforeTf ++ tfColumns ++ afterTf.tail
+        base.select(resultColumns)
+      case _ =>
+        // more than 1 TF
+        throw ErrorMessage.DF_MORE_THAN_ONE_TF_IN_SELECT()
     }
   }
 
