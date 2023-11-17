@@ -1,6 +1,7 @@
 package com.snowflake.snowpark.internal
 
-import com.snowflake.snowpark.internal.analyzer.{Attribute, singleQuote}
+import com.snowflake.snowpark.Column
+import com.snowflake.snowpark.internal.analyzer.{Attribute, TableFunctionExpression, singleQuote}
 
 import java.io.{File, FileInputStream}
 import java.lang.invoke.SerializedLambda
@@ -418,5 +419,12 @@ object Utils extends Logging {
           .get(att.name)
           .map(newName => Attribute(newName, att.dataType, att.nullable, att.exprId))
           .getOrElse(att))
+  }
+
+  private[snowpark] def getTableFunctionExpression(col: Column): TableFunctionExpression = {
+    col.expr match {
+      case tf: TableFunctionExpression => tf
+      case _ => throw ErrorMessage.DF_JOIN_WITH_WRONG_ARGUMENT()
+    }
   }
 }

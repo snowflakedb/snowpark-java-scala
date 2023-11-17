@@ -354,7 +354,7 @@ class JavaScalaAPISuite extends FunSuite {
       ClassUtils.containsSameFunctionNames(
         classOf[JavaTableFunction],
         classOf[ScalaTableFunction],
-        class1Only = Set(),
+        class1Only = Set("call"), // `call` in Scala is `apply`
         class2Only = Set("funcName") ++ scalaCaseClassFunctions))
   }
 

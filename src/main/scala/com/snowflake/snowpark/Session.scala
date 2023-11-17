@@ -7,6 +7,7 @@ import java.util.{Properties, Map => JMap, Set => JSet}
 import java.util.concurrent.{ConcurrentHashMap, ForkJoinPool, ForkJoinWorkerThread}
 import com.snowflake.snowpark.internal.analyzer._
 import com.snowflake.snowpark.internal._
+import com.snowflake.snowpark.internal.analyzer.{TableFunction => TFunction}
 import com.snowflake.snowpark.types._
 import com.snowflake.snowpark.functions._
 import com.snowflake.snowpark.internal.ErrorMessage.{
@@ -17,6 +18,7 @@ import com.snowflake.snowpark.internal.ParameterUtils.ClosureCleanerMode
 import com.snowflake.snowpark.internal.Utils.{
   TempObjectNamePattern,
   TempObjectType,
+  getTableFunctionExpression,
   randomNameForTempObject
 }
 import net.snowflake.client.jdbc.{SnowflakeConnectionV1, SnowflakeDriver, SnowflakeSQLException}
@@ -527,7 +529,7 @@ class Session private (private[snowpark] val conn: ServerConnection) extends Log
     // Use df.join to apply function result if args contains a DF column
     val sourceDFs = args.flatMap(_.expr.sourceDFs)
     if (sourceDFs.isEmpty) {
-      DataFrame(this, TableFunctionRelation(func(args: _*)))
+      DataFrame(this, TableFunctionRelation(func.call(args: _*)))
     } else if (sourceDFs.toSet.size > 1) {
       throw UDF_CANNOT_ACCEPT_MANY_DF_COLS()
     } else {
@@ -568,13 +570,42 @@ class Session private (private[snowpark] val conn: ServerConnection) extends Log
     // Use df.join to apply function result if args contains a DF column
     val sourceDFs = args.values.flatMap(_.expr.sourceDFs)
     if (sourceDFs.isEmpty) {
-      DataFrame(this, TableFunctionRelation(func(args)))
+      DataFrame(this, TableFunctionRelation(func.call(args)))
     } else if (sourceDFs.toSet.size > 1) {
       throw UDF_CANNOT_ACCEPT_MANY_DF_COLS()
     } else {
       val df = sourceDFs.head
       val result = df.join(func, args)
       tableFunctionResultOnly(df, result)
+    }
+  }
+
+  /**
+   * Creates a new DataFrame from the given table function.
+   *
+   * Example
+   * {{{
+   *    import com.snowflake.snowpark.functions._
+   *    import com.snowflake.snowpark.tableFunctions._
+   *
+   *    session.tableFunction(
+   *      flatten(parse_json(lit("[1,2]")))
+   *    )
+   * }}}
+   *
+   * @since 1.10.0
+   * @param func Table function object, can be created from TableFunction class or
+   *             referred from the built-in list from tableFunctions.
+   */
+  def tableFunction(func: Column): DataFrame = {
+    func.expr match {
+      case TFunction(funcName, args) =>
+        tableFunction(TableFunction(funcName), args.map(Column(_)))
+      case NamedArgumentsTableFunction(funcName, argMap) =>
+        tableFunction(TableFunction(funcName), argMap.map {
+          case (key, value) => key -> Column(value)
+        })
+      case _ => throw ErrorMessage.MISC_INVALID_TABLE_FUNCTION_INPUT()
     }
   }
 

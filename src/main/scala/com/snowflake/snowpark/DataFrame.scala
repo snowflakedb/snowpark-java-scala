@@ -7,7 +7,11 @@ import com.snowflake.snowpark.internal.{Logging, Utils}
 import com.snowflake.snowpark.internal.analyzer._
 import com.snowflake.snowpark.types._
 import com.github.vertical_blank.sqlformatter.SqlFormatter
-import com.snowflake.snowpark.internal.Utils.{TempObjectType, randomNameForTempObject}
+import com.snowflake.snowpark.internal.Utils.{
+  TempObjectType,
+  getTableFunctionExpression,
+  randomNameForTempObject
+}
 
 import javax.xml.bind.DatatypeConverter
 import scala.collection.JavaConverters._
@@ -1785,7 +1789,7 @@ class DataFrame private[snowpark] (
    * @param args A list of arguments to pass to the specified table function.
    */
   def join(func: TableFunction, args: Seq[Column]): DataFrame = withPlan {
-    TableFunctionJoin(this.plan, func(args: _*), None)
+    TableFunctionJoin(this.plan, func.call(args: _*), None)
   }
 
   /**
@@ -1821,7 +1825,7 @@ class DataFrame private[snowpark] (
       orderBy: Seq[Column]): DataFrame = withPlan {
     TableFunctionJoin(
       this.plan,
-      func(args: _*),
+      func.call(args: _*),
       Some(Window.partitionBy(partitionBy: _*).orderBy(orderBy: _*).getWindowSpecDefinition))
   }
 
@@ -1856,7 +1860,7 @@ class DataFrame private[snowpark] (
    *              Use this map to specify the parameter names and their corresponding values.
    */
   def join(func: TableFunction, args: Map[String, Column]): DataFrame = withPlan {
-    TableFunctionJoin(this.plan, func(args), None)
+    TableFunctionJoin(this.plan, func.call(args), None)
   }
 
   /**
@@ -1899,7 +1903,58 @@ class DataFrame private[snowpark] (
       orderBy: Seq[Column]): DataFrame = withPlan {
     TableFunctionJoin(
       this.plan,
-      func(args),
+      func.call(args),
+      Some(Window.partitionBy(partitionBy: _*).orderBy(orderBy: _*).getWindowSpecDefinition))
+  }
+
+  /**
+   * Joins the current DataFrame with the output of the specified table function `func`.
+   *
+   *
+   * For example:
+   * {{{
+   *   // The following example uses the flatten function to explode compound values from
+   *   // column 'a' in this DataFrame into multiple columns.
+   *
+   *   import com.snowflake.snowpark.functions._
+   *   import com.snowflake.snowpark.tableFunctions._
+   *
+   *   df.join(
+   *     tableFunctions.flatten(parse_json(df("a")))
+   *   )
+   * }}}
+   *
+   * @group transform
+   * @since 1.10.0
+   * @param func [[TableFunction]] object, which can be one of the values in the [[tableFunctions]]
+   *             object or an object that you create from the [[TableFunction.apply()]].
+   */
+  def join(func: Column): DataFrame = withPlan {
+    TableFunctionJoin(this.plan, getTableFunctionExpression(func), None)
+  }
+
+  /**
+   * Joins the current DataFrame with the output of the specified user-defined table function
+   * (UDTF) `func`.
+   *
+   * To specify a PARTITION BY or ORDER BY clause, use the `partitionBy` and `orderBy` arguments.
+   *
+   * For example:
+   * {{{
+   *   val tf = session.udtf.registerTemporary(TableFunc1)
+   *   df.join(tf(Map("arg1" -> df("col1")),Seq(df("col2")), Seq(df("col1"))))
+   * }}}
+   *
+   * @group transform
+   * @since 1.10.0
+   * @param func        [[TableFunction]] object that represents a user-defined table function.
+   * @param partitionBy A list of columns partitioned by.
+   * @param orderBy     A list of columns ordered by.
+   */
+  def join(func: Column, partitionBy: Seq[Column], orderBy: Seq[Column]): DataFrame = withPlan {
+    TableFunctionJoin(
+      this.plan,
+      getTableFunctionExpression(func),
       Some(Window.partitionBy(partitionBy: _*).orderBy(orderBy: _*).getWindowSpecDefinition))
   }
 
