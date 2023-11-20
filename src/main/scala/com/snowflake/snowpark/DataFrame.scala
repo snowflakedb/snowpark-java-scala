@@ -1975,7 +1975,7 @@ class DataFrame private[snowpark] (
     val resultSchema = originalResult.schema
     val columnNames = resultSchema.map(_.name)
     // duplicated names
-    val dup = columnNames.diff(columnNames.distinct).distinct
+    val dup = columnNames.diff(columnNames.distinct).distinct.map(quoteName)
     // guarantee no duplicated names in the result
     if (dup.nonEmpty) {
       val dfPrefix = DataFrame.generatePrefix('o')
