@@ -1981,7 +1981,9 @@ class DataFrame private[snowpark] (
       val dfPrefix = DataFrame.generatePrefix('o')
       val renamedDf =
         this.select(this.output.map(_.name).map(aliasIfNeeded(this, _, dfPrefix, dup.toSet)))
-      renamedDf.joinTableFunction(func, partitionByOrderBy)
+      withPlan {
+        TableFunctionJoin(renamedDf.plan, func, partitionByOrderBy)
+      }
     } else {
       originalResult
     }

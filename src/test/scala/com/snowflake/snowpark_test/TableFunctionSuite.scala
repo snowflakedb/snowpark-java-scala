@@ -365,4 +365,9 @@ class TableFunctionSuite extends TestData {
       result4,
       Seq(Row(1, 1, "1", 101), Row(1, 2, "2", 101), Row(2, 1, "3", 102), Row(2, 2, "4", 102)))
   }
+
+  test("table function join with duplicated column name") {
+    val df = Seq((1, "1,2"), (2, "3,4")).toDF("idx", "value")
+    df.show()
+  }
 }
