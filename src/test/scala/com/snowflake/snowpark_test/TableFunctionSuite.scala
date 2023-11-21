@@ -337,4 +337,53 @@ class TableFunctionSuite extends TestData {
         .select("value"),
       Seq(Row("77"), Row("88")))
   }
+
+  test("table function in select") {
+    val df = Seq((1, "1,2"), (2, "3,4")).toDF("idx", "data")
+    // only tf
+    val result1 = df.select(tableFunctions.split_to_table(df("data"), ","))
+    assert(result1.schema.map(_.name) == Seq("SEQ", "INDEX", "VALUE"))
+    checkAnswer(result1, Seq(Row(1, 1, "1"), Row(1, 2, "2"), Row(2, 1, "3"), Row(2, 2, "4")))
+
+    // columns + tf
+    val result2 = df.select(df("idx"), tableFunctions.split_to_table(df("data"), ","))
+    assert(result2.schema.map(_.name) == Seq("IDX", "SEQ", "INDEX", "VALUE"))
+    checkAnswer(
+      result2,
+      Seq(Row(1, 1, 1, "1"), Row(1, 1, 2, "2"), Row(2, 2, 1, "3"), Row(2, 2, 2, "4")))
+
+    // columns + tf + columns
+    val result3 = df.select(df("idx"), tableFunctions.split_to_table(df("data"), ","), df("idx"))
+    assert(result3.schema.map(_.name) == Seq("IDX", "SEQ", "INDEX", "VALUE", "IDX"))
+    checkAnswer(
+      result3,
+      Seq(Row(1, 1, 1, "1", 1), Row(1, 1, 2, "2", 1), Row(2, 2, 1, "3", 2), Row(2, 2, 2, "4", 2)))
+
+    // tf + other express
+    val result4 = df.select(tableFunctions.split_to_table(df("data"), ","), df("idx") + 100)
+    checkAnswer(
+      result4,
+      Seq(Row(1, 1, "1", 101), Row(1, 2, "2", 101), Row(2, 1, "3", 102), Row(2, 2, "4", 102)))
+  }
+
+  test("table function join with duplicated column name") {
+    val df = Seq((1, "1,2"), (2, "3,4")).toDF("idx", "value")
+    val result = df.join(tableFunctions.split_to_table(df("value"), lit(",")))
+    // only one VALUE in the result
+    checkAnswer(result.select("value"), Seq(Row("1"), Row("2"), Row("3"), Row("4")))
+    checkAnswer(result.select(result("value")), Seq(Row("1"), Row("2"), Row("3"), Row("4")))
+    checkAnswer(result.select(df("value")), Seq(Row("1,2"), Row("1,2"), Row("3,4"), Row("3,4")))
+  }
+
+  test("table function select with duplicated column name") {
+    val df = Seq((1, "1,2"), (2, "3,4")).toDF("idx", "value")
+    val result1 = df.select(tableFunctions.split_to_table(df("value"), lit(",")))
+    checkAnswer(result1, Seq(Row(1, 1, "1"), Row(1, 2, "2"), Row(2, 1, "3"), Row(2, 2, "4")))
+    val result = df.select(df("value"), tableFunctions.split_to_table(df("value"), lit(",")))
+    // only one VALUE in the result
+    checkAnswer(result.select("value"), Seq(Row("1"), Row("2"), Row("3"), Row("4")))
+    checkAnswer(result.select(result("value")), Seq(Row("1"), Row("2"), Row("3"), Row("4")))
+    checkAnswer(result.select(df("value")), Seq(Row("1,2"), Row("1,2"), Row("3,4"), Row("3,4")))
+  }
+
 }
