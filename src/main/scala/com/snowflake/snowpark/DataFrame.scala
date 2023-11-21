@@ -564,7 +564,7 @@ class DataFrame private[snowpark] (
     // todo: error message
     val tf = columns.filter(_.expr.isInstanceOf[TableFunctionExpression])
     tf.size match {
-      case 0 =>
+      case 0 => // no table function
         val resultDF = withPlan {
           Project(columns.map(_.named), plan)
         }
@@ -579,7 +579,7 @@ class DataFrame private[snowpark] (
         } else {
           renameBackIfDeduped(resultDF)
         }
-      case 1 =>
+      case 1 => // 1 table function
         val base = this.join(tf.head)
         val baseColumns = base.schema.map(field => base(field.name))
         val inputDFColumnSize = this.schema.size
