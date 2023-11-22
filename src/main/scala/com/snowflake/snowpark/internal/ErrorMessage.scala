@@ -68,6 +68,7 @@ private[snowpark] object ErrorMessage {
     "0128" -> "DataFrameWriter doesn't support to set option '%s' as '%s' in '%s' mode when writing to a %s.",
     "0129" -> "DataFrameWriter doesn't support mode '%s' when writing to a %s.",
     "0130" -> "Unsupported join operations, Dataframes can join with other Dataframes or TableFunctions only",
+    "0131" -> "At most one table function can be called inside select() function",
     // Begin to define UDF related messages
     "0200" -> "Incorrect number of arguments passed to the UDF: Expected: %d, Found: %d",
     "0201" -> "Attempted to call an unregistered UDF. You must register the UDF before calling it.",
@@ -243,6 +244,9 @@ private[snowpark] object ErrorMessage {
 
   def DF_JOIN_WITH_WRONG_ARGUMENT(): SnowparkClientException =
     createException("0130")
+
+  def DF_MORE_THAN_ONE_TF_IN_SELECT(): SnowparkClientException =
+    createException("0131")
 
   /*
    * 2NN: UDF error code

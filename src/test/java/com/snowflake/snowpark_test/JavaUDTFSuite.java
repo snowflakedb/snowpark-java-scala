@@ -46,7 +46,7 @@ public class JavaUDTFSuite extends UDFTestBase {
         "create or replace temp table "
             + tableName
             + "(i1 smallint, i2 int, l1 bigint, f1 float, d1 double, "
-            + "decimal number(38, 18), b boolean, s string, bi binary)";
+            + "de number(38, 18), b boolean, s string, bi binary)";
     runQuery(crt);
     String insert =
         "insert into "
@@ -68,7 +68,7 @@ public class JavaUDTFSuite extends UDFTestBase {
                 col("l1"),
                 col("f1"),
                 col("d1"),
-                col("decimal"),
+                col("de"),
                 col("b"),
                 col("s"),
                 col("bi"));
@@ -82,7 +82,7 @@ public class JavaUDTFSuite extends UDFTestBase {
             .append("|--L1: Long (nullable = true)")
             .append("|--F1: Double (nullable = true)")
             .append("|--D1: Double (nullable = true)")
-            .append("|--DECIMAL: Decimal(38, 18) (nullable = true)")
+            .append("|--DE: Decimal(38, 18) (nullable = true)")
             .append("|--B: Boolean (nullable = true)")
             .append("|--S: String (nullable = true)")
             .append("|--BI: Binary (nullable = true)")
