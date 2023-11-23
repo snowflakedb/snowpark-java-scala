@@ -84,9 +84,9 @@ public class JavaSessionSuite extends TestBase {
   @Test
   public void getOrCreate()
   {
-    String expectedSession = getSession().getSessionInfo();
-    String actualSession = Session.builder().getOrCreate().getSessionInfo();
-    assert(expectedSession.equals(actualSession));
+    String expectedSessionInfo = getSession().getSessionInfo();
+    String actualSessionInfo = Session.builder().getOrCreate().getSessionInfo();
+    assert(actualSessionInfo.equals(expectedSessionInfo));
   }
 
   @Test
