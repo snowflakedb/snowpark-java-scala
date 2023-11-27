@@ -386,4 +386,13 @@ class TableFunctionSuite extends TestData {
     checkAnswer(result.select(df("value")), Seq(Row("1,2"), Row("1,2"), Row("3,4"), Row("3,4")))
   }
 
+  test("explode with array column") {
+    val df = Seq("[1, 2]").toDF("a")
+    val df1 = df.select(parse_json(df("a")).cast(types.ArrayType(types.IntegerType)).as("a"))
+    checkAnswer(
+      df1.select(lit(1), tableFunctions.explode(df1("a")), df1("a")(1)),
+      Seq(Row(1, "1", "2"), Row(1, "2", "2")))
+
+  }
+
 }

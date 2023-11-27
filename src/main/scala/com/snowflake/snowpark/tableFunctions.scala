@@ -197,4 +197,7 @@ object tableFunctions {
         "outer" -> lit(outer),
         "recursive" -> lit(recursive),
         "mode" -> lit(mode)))
+
+  def explode(expr: Column): Column = TableFunction("explode").apply(expr)
+
 }
