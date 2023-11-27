@@ -7,7 +7,6 @@ import com.fasterxml.jackson.databind.JsonNode
 import java.io.File
 import java.net.{URI, URLClassLoader}
 import com.snowflake.snowpark.Session
-import sun.net.www.ParseUtil
 
 object UDFClassPath extends Logging {
 
@@ -94,13 +93,7 @@ object UDFClassPath extends Logging {
       if (path.contains(":")) {
         path = path.substring(path.indexOf(":") + 1)
       }
-      /*
-       * The URL in class loader is encoded, so we have to decode it to read the
-       * local file.
-       */
-      path = ParseUtil.decode(path)
-      // Creating a File fixes the separator based on OS
-      new File(path).getPath
+      new URI(path).getPath
     }
   }
 
@@ -111,9 +104,7 @@ object UDFClassPath extends Logging {
        * The URL in CodeSource location is encoded, so we have to decode it to read the
        * local file.
        */
-      val parsed = ParseUtil.decode(codeSource.getLocation.getPath)
-      // Creating a File fixes the separator based on OS
-      Some(new File(parsed).getPath)
+      Some(new URI(codeSource.getLocation.getPath).getPath)
     } else {
       None
     }
