@@ -392,7 +392,18 @@ class TableFunctionSuite extends TestData {
     checkAnswer(
       df1.select(lit(1), tableFunctions.explode(df1("a")), df1("a")(1)),
       Seq(Row(1, "1", "2"), Row(1, "2", "2")))
+  }
 
+  test("explode with map column") {
+    val df = Seq("""{"a":1, "b": 2}""").toDF("a")
+    val df1 = df.select(
+      parse_json(df("a"))
+        .cast(types.MapType(types.StringType, types.IntegerType))
+        .as("a"))
+    df1.select(tableFunctions.explode(df1("a"))).show()
+    checkAnswer(
+      df1.select(lit(1), tableFunctions.explode(df1("a")), df1("a")("a")),
+      Seq(Row(1, "a", "1", "1"), Row(1, "b", "2", "1")))
   }
 
 }

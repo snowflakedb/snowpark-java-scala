@@ -2008,7 +2008,10 @@ class DataFrame private[snowpark] (
         joinTableFunction(
           tableFunctions.flatten.call(Map("input" -> Column(expr), "mode" -> lit("array"))),
           partitionByOrderBy).select(columns :+ Column("VALUE"))
-      case _: MapType => null
+      case _: MapType =>
+        joinTableFunction(
+          tableFunctions.flatten.call(Map("input" -> Column(expr), "mode" -> lit("object"))),
+          partitionByOrderBy).select(columns ++ Seq(Column("KEY"), Column("VALUE")))
       case _ => null
     }
   }
