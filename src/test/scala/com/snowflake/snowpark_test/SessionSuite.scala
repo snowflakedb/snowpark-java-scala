@@ -49,6 +49,12 @@ class SessionSuite extends SNTestBase {
     t2.run()
   }
 
+  test("Test for get or create session") {
+    val session1 = Session.builder.getOrCreate
+    val session2 = Session.builder.getOrCreate
+    assert(session1 == session2)
+  }
+
   test("Test for invalid configs") {
     val badSessionBuilder = Session.builder
       .configFile(defaultProfile)
