@@ -70,4 +70,14 @@ public class SessionBuilder {
     this.builder.config("snowpark_enable_closure_cleaner", "never");
     return new Session(builder.create());
   }
+
+  /**
+   * Returns the existing session if already exists or create it if not.
+   *
+   * @return A {@code Session} object
+   * @since 1.10.0
+   */
+  public Session getOrCreate() {
+    return new Session(this.builder.getOrCreate());
+  }
 }

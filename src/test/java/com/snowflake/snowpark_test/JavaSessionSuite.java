@@ -82,6 +82,14 @@ public class JavaSessionSuite extends TestBase {
   }
 
   @Test
+  public void getOrCreate()
+  {
+    String expectedSessionInfo = getSession().getSessionInfo();
+    String actualSessionInfo = Session.builder().getOrCreate().getSessionInfo();
+    assert(actualSessionInfo.equals(expectedSessionInfo));
+  }
+
+  @Test
   public void getSessionInfo() {
     String result = getSession().getSessionInfo();
     assert result.contains("snowpark.version");
