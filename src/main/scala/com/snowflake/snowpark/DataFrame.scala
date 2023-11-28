@@ -2012,7 +2012,8 @@ class DataFrame private[snowpark] (
         joinTableFunction(
           tableFunctions.flatten.call(Map("input" -> Column(expr), "mode" -> lit("object"))),
           partitionByOrderBy).select(columns ++ Seq(Column("KEY"), Column("VALUE")))
-      case _ => null
+      case otherType =>
+        throw ErrorMessage.MISC_INVALID_EXPLODE_ARGUMENT_TYPE(otherType.typeName)
     }
   }
 
