@@ -413,10 +413,34 @@ class TableFunctionSuite extends TestData {
     assert(
       error.message.contains(
         "the input argument type of Explode function should be either Map or Array types"))
-    assert(
-      error.message.contains(
-        "The input argument type: Variant"))
+    assert(error.message.contains("The input argument type: Variant"))
   }
 
+  test("explode with DataFrame.join") {
+    val df = Seq("[1, 2]").toDF("a")
+    val df1 = df.select(parse_json(df("a")).cast(types.ArrayType(types.IntegerType)).as("a"))
+    checkAnswer(
+      df1.join(tableFunctions.explode(df1("a"))).select("VALUE"),
+      Seq(Row("1"), Row("2")))
+  }
+
+  test("explode with session.tableFunction") {
+    // with dataframe column
+    val df = Seq("""{"a":1, "b": 2}""").toDF("a")
+    val df1 = df.select(
+      parse_json(df("a"))
+        .cast(types.MapType(types.StringType, types.IntegerType))
+        .as("a"))
+    checkAnswer(
+      session.tableFunction(tableFunctions.explode(df1("a"))),
+      Seq(Row("a", "1"), Row("b", "2")))
+
+    // with literal value
+    checkAnswer(
+      session.tableFunction(
+        tableFunctions
+          .explode(parse_json(lit("[1, 2]")).cast(types.ArrayType(types.IntegerType)))),
+      Seq(Row("1"), Row("2")))
+  }
 
 }

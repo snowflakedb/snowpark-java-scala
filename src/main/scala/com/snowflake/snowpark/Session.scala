@@ -529,7 +529,9 @@ class Session private (private[snowpark] val conn: ServerConnection) extends Log
     // Use df.join to apply function result if args contains a DF column
     val sourceDFs = args.flatMap(_.expr.sourceDFs)
     if (sourceDFs.isEmpty) {
-      DataFrame(this, TableFunctionRelation(func.call(args: _*)))
+      if (func.funcName.trim.toLowerCase() == "explode") {
+        callExplode(args.head)
+      } else DataFrame(this, TableFunctionRelation(func.call(args: _*)))
     } else if (sourceDFs.toSet.size > 1) {
       throw UDF_CANNOT_ACCEPT_MANY_DF_COLS()
     } else {
@@ -578,6 +580,14 @@ class Session private (private[snowpark] val conn: ServerConnection) extends Log
       val result = df.join(func, args)
       tableFunctionResultOnly(df, result)
     }
+  }
+
+  // process explode function with literal values
+  private def callExplode(input: Column): DataFrame = {
+    import this.implicits._
+    val dummyDF = Seq(1).toDF("a")
+    val sourceDF = dummyDF.withColumn("b", input)
+    sourceDF.select(tableFunctions.explode(sourceDF("b")))
   }
 
   /**
