@@ -1,6 +1,5 @@
 package com.snowflake.snowpark_java;
 
-
 /**
  * Provides utility functions that generate table function expressions that can be passed to
  * DataFrame join method and Session tableFunction method.
@@ -159,13 +158,22 @@ public class TableFunctions {
    * <p>Example
    *
    * <pre>{@code
-   * df.join(TableFunctions.flatten(
-   *   Functions.parse_json(df.col("col"))));
+   * DataFrame df =
+   *   getSession()
+   *     .createDataFrame(
+   *       new Row[] {Row.create("{\"a\":1, \"b\":2}")},
+   *       StructType.create(new StructField("col", DataTypes.StringType)));
+   * DataFrame df1 =
+   *   df.select(
+   *     Functions.parse_json(df.col("col"))
+   *       .cast(DataTypes.createMapType(DataTypes.StringType, DataTypes.IntegerType))
+   *       .as("col"));
+   * df1.select(TableFunctions.explode(df1.col("col"))).show()
    * }</pre>
    *
    * @since 1.10.0
-   * @param input The expression that will be unseated into rows. The expression must be MapType or
-   *     ArrayType data.
+   * @param input The expression that will be unseated into rows. The expression must be either
+   *     MapType or ArrayType data.
    * @return The result Column reference
    */
   public static Column explode(Column input) {
