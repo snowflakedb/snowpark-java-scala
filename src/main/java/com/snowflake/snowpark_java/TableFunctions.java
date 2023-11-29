@@ -1,5 +1,6 @@
 package com.snowflake.snowpark_java;
 
+
 /**
  * Provides utility functions that generate table function expressions that can be passed to
  * DataFrame join method and Session tableFunction method.
@@ -149,5 +150,25 @@ public class TableFunctions {
    */
   public static Column flatten(Column input) {
     return new Column(com.snowflake.snowpark.tableFunctions.flatten(input.toScalaColumn()));
+  }
+
+  /**
+   * Flattens a given array or map type column into individual rows. The output column(s) in case of
+   * array input column is `VALUE`, and are `KEY` and `VALUE` in case of amp input column.
+   *
+   * <p>Example
+   *
+   * <pre>{@code
+   * df.join(TableFunctions.flatten(
+   *   Functions.parse_json(df.col("col"))));
+   * }</pre>
+   *
+   * @since 1.10.0
+   * @param input The expression that will be unseated into rows. The expression must be MapType or
+   *     ArrayType data.
+   * @return The result Column reference
+   */
+  public static Column explode(Column input) {
+    return new Column(com.snowflake.snowpark.tableFunctions.explode(input.toScalaColumn()));
   }
 }

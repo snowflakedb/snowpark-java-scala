@@ -216,7 +216,8 @@ object tableFunctions {
    * }}}
    *
    * @since 1.10.0
-   * @param input an array or map column
+   * @param input The expression that will be unseated into rows.
+   *              The expression must be MapType or ArrayType data.
    * @return The result Column reference
    */
   def explode(input: Column): Column = TableFunction("explode").apply(input)
