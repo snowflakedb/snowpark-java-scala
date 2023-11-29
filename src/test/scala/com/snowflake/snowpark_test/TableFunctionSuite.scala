@@ -3,9 +3,6 @@ package com.snowflake.snowpark_test
 import com.snowflake.snowpark.functions._
 import com.snowflake.snowpark.{Row, _}
 
-import scala.collection.Seq
-import scala.collection.immutable.Map
-
 class TableFunctionSuite extends TestData {
   import session.implicits._
 
