@@ -529,6 +529,7 @@ class Session private (private[snowpark] val conn: ServerConnection) extends Log
     // Use df.join to apply function result if args contains a DF column
     val sourceDFs = args.flatMap(_.expr.sourceDFs)
     if (sourceDFs.isEmpty) {
+      // explode function requires a special handling since it is a client side function.
       if (func.funcName.trim.toLowerCase() == "explode") {
         callExplode(args.head)
       } else DataFrame(this, TableFunctionRelation(func.call(args: _*)))
@@ -585,6 +586,10 @@ class Session private (private[snowpark] val conn: ServerConnection) extends Log
   // process explode function with literal values
   private def callExplode(input: Column): DataFrame = {
     import this.implicits._
+    // to reuse the DataFrame.join function, the input column has to be converted to
+    // a DataFrame column. The best the solution is to create an empty dataframe and
+    // then append this column via withColumn function. However, Snowpark doesn't support
+    // empty DataFrame, therefore creating a dummy dataframe instead.
     val dummyDF = Seq(1).toDF("a")
     val sourceDF = dummyDF.withColumn("b", input)
     sourceDF.select(tableFunctions.explode(sourceDF("b")))
