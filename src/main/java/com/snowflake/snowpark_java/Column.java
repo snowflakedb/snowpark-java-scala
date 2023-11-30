@@ -237,6 +237,16 @@ public class Column {
   }
 
   /**
+   * Wrapper for is_null function.
+   *
+   * @return The result column object
+   * @since 1.10.0
+   */
+  public Column isNull() {
+    return is_null();
+  }
+
+  /**
    * Is not null.
    *
    * @return The result column object
