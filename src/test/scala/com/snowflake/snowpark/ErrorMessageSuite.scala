@@ -830,4 +830,15 @@ class ErrorMessageSuite extends FunSuite {
       ex.message.startsWith("Error Code: 0423, Error message: Invalid input argument, " +
         "Session.tableFunction only supports table function arguments"))
   }
+
+  test("MISC_INVALID_EXPLODE_ARGUMENT_TYPE") {
+    val ex = ErrorMessage.MISC_INVALID_EXPLODE_ARGUMENT_TYPE(types.IntegerType.typeName)
+    assert(ex.telemetryMessage.equals(ErrorMessage.getMessage("0424")))
+    assert(
+      ex.message.startsWith(
+        "Error Code: 0424, Error message: " +
+          "Invalid input argument type, the input argument type of " +
+          "Explode function should be either Map or Array types.\n" +
+          "The input argument type: Integer"))
+  }
 }

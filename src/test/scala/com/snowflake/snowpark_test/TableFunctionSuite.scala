@@ -3,9 +3,6 @@ package com.snowflake.snowpark_test
 import com.snowflake.snowpark.functions._
 import com.snowflake.snowpark.{Row, _}
 
-import scala.collection.Seq
-import scala.collection.immutable.Map
-
 class TableFunctionSuite extends TestData {
   import session.implicits._
 
@@ -384,6 +381,66 @@ class TableFunctionSuite extends TestData {
     checkAnswer(result.select("value"), Seq(Row("1"), Row("2"), Row("3"), Row("4")))
     checkAnswer(result.select(result("value")), Seq(Row("1"), Row("2"), Row("3"), Row("4")))
     checkAnswer(result.select(df("value")), Seq(Row("1,2"), Row("1,2"), Row("3,4"), Row("3,4")))
+  }
+
+  test("explode with array column") {
+    val df = Seq("[1, 2]").toDF("a")
+    val df1 = df.select(parse_json(df("a")).cast(types.ArrayType(types.IntegerType)).as("a"))
+    checkAnswer(
+      df1.select(lit(1), tableFunctions.explode(df1("a")), df1("a")(1)),
+      Seq(Row(1, "1", "2"), Row(1, "2", "2")))
+  }
+
+  test("explode with map column") {
+    val df = Seq("""{"a":1, "b": 2}""").toDF("a")
+    val df1 = df.select(
+      parse_json(df("a"))
+        .cast(types.MapType(types.StringType, types.IntegerType))
+        .as("a"))
+    checkAnswer(
+      df1.select(lit(1), tableFunctions.explode(df1("a")), df1("a")("a")),
+      Seq(Row(1, "a", "1", "1"), Row(1, "b", "2", "1")))
+  }
+
+  test("explode with other column") {
+    val df = Seq("""{"a":1, "b": 2}""").toDF("a")
+    val df1 = df.select(
+      parse_json(df("a"))
+        .as("a"))
+    val error = intercept[SnowparkClientException] {
+      df1.select(tableFunctions.explode(df1("a"))).show()
+    }
+    assert(
+      error.message.contains(
+        "the input argument type of Explode function should be either Map or Array types"))
+    assert(error.message.contains("The input argument type: Variant"))
+  }
+
+  test("explode with DataFrame.join") {
+    val df = Seq("[1, 2]").toDF("a")
+    val df1 = df.select(parse_json(df("a")).cast(types.ArrayType(types.IntegerType)).as("a"))
+    checkAnswer(
+      df1.join(tableFunctions.explode(df1("a"))).select("VALUE"),
+      Seq(Row("1"), Row("2")))
+  }
+
+  test("explode with session.tableFunction") {
+    // with dataframe column
+    val df = Seq("""{"a":1, "b": 2}""").toDF("a")
+    val df1 = df.select(
+      parse_json(df("a"))
+        .cast(types.MapType(types.StringType, types.IntegerType))
+        .as("a"))
+    checkAnswer(
+      session.tableFunction(tableFunctions.explode(df1("a"))),
+      Seq(Row("a", "1"), Row("b", "2")))
+
+    // with literal value
+    checkAnswer(
+      session.tableFunction(
+        tableFunctions
+          .explode(parse_json(lit("[1, 2]")).cast(types.ArrayType(types.IntegerType)))),
+      Seq(Row("1"), Row("2")))
   }
 
 }

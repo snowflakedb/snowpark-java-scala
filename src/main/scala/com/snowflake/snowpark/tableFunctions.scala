@@ -197,4 +197,29 @@ object tableFunctions {
         "outer" -> lit(outer),
         "recursive" -> lit(recursive),
         "mode" -> lit(mode)))
+
+  /**
+   * Flattens a given array or map type column into individual rows.
+   * The output column(s) in case of array input column is `VALUE`,
+   * and are `KEY` and `VALUE` in case of amp input column.
+   *
+   * Example
+   * {{{
+   * import com.snowflake.snowpark.functions._
+   *
+   * val df = Seq("""{"a":1, "b": 2}""").toDF("a")
+   * val df1 = df.select(
+   *   parse_json(df("a"))
+   *   .cast(types.MapType(types.StringType, types.IntegerType))
+   *   .as("a"))
+   * df1.select(lit(1), tableFunctions.explode(df1("a")), df1("a")("a")).show()
+   * }}}
+   *
+   * @since 1.10.0
+   * @param input The expression that will be unseated into rows.
+   *              The expression must be either MapType or ArrayType data.
+   * @return The result Column reference
+   */
+  def explode(input: Column): Column = TableFunction("explode").apply(input)
+
 }

@@ -121,4 +121,63 @@ public class JavaTableFunctionSuite extends TestBase {
             .select("value"),
         new Row[] {Row.create("1"), Row.create("2")});
   }
+
+  @Test
+  public void explodeWithDataFrame() {
+    // select
+    DataFrame df =
+        getSession()
+            .createDataFrame(
+                new Row[] {Row.create("{\"a\":1, \"b\":2}")},
+                StructType.create(new StructField("col", DataTypes.StringType)));
+    DataFrame df1 =
+        df.select(
+            Functions.parse_json(df.col("col"))
+                .cast(DataTypes.createMapType(DataTypes.StringType, DataTypes.IntegerType))
+                .as("col"));
+    checkAnswer(
+        df1.select(TableFunctions.explode(df1.col("col"))),
+        new Row[] {Row.create("a", "1"), Row.create("b", "2")});
+    // join
+    df =
+        getSession()
+            .createDataFrame(
+                new Row[] {Row.create("[1, 2]")},
+                StructType.create(new StructField("col", DataTypes.StringType)));
+    df1 =
+        df.select(
+            Functions.parse_json(df.col("col"))
+                .cast(DataTypes.createArrayType(DataTypes.IntegerType))
+                .as("col"));
+    checkAnswer(
+        df1.join(TableFunctions.explode(df1.col("col"))).select("VALUE"),
+        new Row[] {Row.create("1"), Row.create("2")});
+  }
+
+  @Test
+  public void explodeWithSession() {
+    DataFrame df =
+        getSession()
+            .createDataFrame(
+                new Row[] {Row.create("{\"a\":1, \"b\":2}")},
+                StructType.create(new StructField("col", DataTypes.StringType)));
+    DataFrame df1 =
+        df.select(
+            Functions.parse_json(df.col("col"))
+                .cast(DataTypes.createMapType(DataTypes.StringType, DataTypes.IntegerType))
+                .as("col"));
+    checkAnswer(
+        getSession().tableFunction(TableFunctions.explode(df1.col("col"))).select("KEY", "VALUE"),
+        new Row[] {Row.create("a", "1"), Row.create("b", "2")});
+
+    checkAnswer(
+        getSession()
+            .tableFunction(
+                TableFunctions.explode(
+                    Functions.parse_json(Functions.lit("{\"a\":1, \"b\":2}"))
+                        .cast(
+                            DataTypes.createMapType(DataTypes.StringType, DataTypes.IntegerType))))
+            .select("KEY", "VALUE"),
+        new Row[] {Row.create("a", "1"), Row.create("b", "2")});
+  }
 }
