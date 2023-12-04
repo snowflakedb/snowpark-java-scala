@@ -117,6 +117,7 @@ public class JavaColumnSuite extends TestBase {
     DataFrame data = getSession().sql("select * from values(1),(null) as T(a)");
     Row[] expected = {Row.create(false, true), Row.create(true, false)};
     checkAnswer(data.select(data.col("a").is_null(), data.col("a").is_not_null()), expected, false);
+    checkAnswer(data.select(data.col("a").isNull(), data.col("a").is_not_null()), expected, false);
   }
 
   @Test
