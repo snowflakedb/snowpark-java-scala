@@ -153,7 +153,11 @@ private[snowpark] object ErrorMessage {
     "0420" -> "Invalid RSA private key. The error is: %s",
     "0421" -> "Invalid stage location: %s. Reason: %s.",
     "0422" -> "Internal error: Server fetching is disabled for the parameter %s and there is no default value for it.",
-    "0423" -> "Invalid input argument, Session.tableFunction only supports table function arguments")
+    "0423" -> "Invalid input argument, Session.tableFunction only supports table function arguments",
+    "0424" ->
+      """Invalid input argument type, the input argument type of Explode function should be either Map or Array types.
+        |The input argument type: %s
+        |""".stripMargin)
   // scalastyle:on
 
   /*
@@ -392,6 +396,9 @@ private[snowpark] object ErrorMessage {
 
   def MISC_INVALID_TABLE_FUNCTION_INPUT(): SnowparkClientException =
     createException("0423")
+
+  def MISC_INVALID_EXPLODE_ARGUMENT_TYPE(argumentType: String): SnowparkClientException =
+    createException("0424", argumentType)
 
   /**
    * Create Snowpark client Exception.

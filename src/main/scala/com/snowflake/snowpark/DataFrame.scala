@@ -2,11 +2,13 @@ package com.snowflake.snowpark
 
 import scala.reflect.ClassTag
 import scala.util.Random
+import com.snowflake.snowpark.internal.analyzer.{TableFunction => TF}
 import com.snowflake.snowpark.internal.ErrorMessage
 import com.snowflake.snowpark.internal.{Logging, Utils}
 import com.snowflake.snowpark.internal.analyzer._
 import com.snowflake.snowpark.types._
 import com.github.vertical_blank.sqlformatter.SqlFormatter
+import com.snowflake.snowpark.functions.lit
 import com.snowflake.snowpark.internal.Utils.{
   TempObjectType,
   getTableFunctionExpression,
@@ -1969,23 +1971,49 @@ class DataFrame private[snowpark] (
   private def joinTableFunction(
       func: TableFunctionExpression,
       partitionByOrderBy: Option[WindowSpecDefinition]): DataFrame = {
-    val originalResult = withPlan {
-      TableFunctionJoin(this.plan, func, partitionByOrderBy)
+    func match {
+      // explode is a client side function
+      case TF(funcName, args) if funcName.toLowerCase().trim.equals("explode") =>
+        // explode has only one argument
+        joinWithExplode(args.head, partitionByOrderBy)
+      case _ =>
+        val originalResult = withPlan {
+          TableFunctionJoin(this.plan, func, partitionByOrderBy)
+        }
+        val resultSchema = originalResult.schema
+        val columnNames = resultSchema.map(_.name)
+        // duplicated names
+        val dup = columnNames.diff(columnNames.distinct).distinct.map(quoteName)
+        // guarantee no duplicated names in the result
+        if (dup.nonEmpty) {
+          val dfPrefix = DataFrame.generatePrefix('o')
+          val renamedDf =
+            this.select(this.output.map(_.name).map(aliasIfNeeded(this, _, dfPrefix, dup.toSet)))
+          withPlan {
+            TableFunctionJoin(renamedDf.plan, func, partitionByOrderBy)
+          }
+        } else {
+          originalResult
+        }
     }
-    val resultSchema = originalResult.schema
-    val columnNames = resultSchema.map(_.name)
-    // duplicated names
-    val dup = columnNames.diff(columnNames.distinct).distinct.map(quoteName)
-    // guarantee no duplicated names in the result
-    if (dup.nonEmpty) {
-      val dfPrefix = DataFrame.generatePrefix('o')
-      val renamedDf =
-        this.select(this.output.map(_.name).map(aliasIfNeeded(this, _, dfPrefix, dup.toSet)))
-      withPlan {
-        TableFunctionJoin(renamedDf.plan, func, partitionByOrderBy)
-      }
-    } else {
-      originalResult
+  }
+
+  private def joinWithExplode(
+      expr: Expression,
+      partitionByOrderBy: Option[WindowSpecDefinition]): DataFrame = {
+    val columns: Seq[Column] = this.output.map(attr => col(attr.name))
+    // check the column type of input column
+    this.select(Column(expr)).schema.head.dataType match {
+      case _: ArrayType =>
+        joinTableFunction(
+          tableFunctions.flatten.call(Map("input" -> Column(expr), "mode" -> lit("array"))),
+          partitionByOrderBy).select(columns :+ Column("VALUE"))
+      case _: MapType =>
+        joinTableFunction(
+          tableFunctions.flatten.call(Map("input" -> Column(expr), "mode" -> lit("object"))),
+          partitionByOrderBy).select(columns ++ Seq(Column("KEY"), Column("VALUE")))
+      case otherType =>
+        throw ErrorMessage.MISC_INVALID_EXPLODE_ARGUMENT_TYPE(otherType.typeName)
     }
   }
 

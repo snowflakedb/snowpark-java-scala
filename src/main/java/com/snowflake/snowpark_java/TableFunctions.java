@@ -150,4 +150,33 @@ public class TableFunctions {
   public static Column flatten(Column input) {
     return new Column(com.snowflake.snowpark.tableFunctions.flatten(input.toScalaColumn()));
   }
+
+  /**
+   * Flattens a given array or map type column into individual rows. The output column(s) in case of
+   * array input column is `VALUE`, and are `KEY` and `VALUE` in case of amp input column.
+   *
+   * <p>Example
+   *
+   * <pre>{@code
+   * DataFrame df =
+   *   getSession()
+   *     .createDataFrame(
+   *       new Row[] {Row.create("{\"a\":1, \"b\":2}")},
+   *       StructType.create(new StructField("col", DataTypes.StringType)));
+   * DataFrame df1 =
+   *   df.select(
+   *     Functions.parse_json(df.col("col"))
+   *       .cast(DataTypes.createMapType(DataTypes.StringType, DataTypes.IntegerType))
+   *       .as("col"));
+   * df1.select(TableFunctions.explode(df1.col("col"))).show()
+   * }</pre>
+   *
+   * @since 1.10.0
+   * @param input The expression that will be unseated into rows. The expression must be either
+   *     MapType or ArrayType data.
+   * @return The result Column reference
+   */
+  public static Column explode(Column input) {
+    return new Column(com.snowflake.snowpark.tableFunctions.explode(input.toScalaColumn()));
+  }
 }
