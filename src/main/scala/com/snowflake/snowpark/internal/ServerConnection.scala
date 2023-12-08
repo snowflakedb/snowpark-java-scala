@@ -251,9 +251,24 @@ private[snowpark] class ServerConnection(
     buff.result()
   }
 
-  private[snowpark] def resultSetToIterator(
+   private[snowpark] def resultSetToIterator(
+      queryId: String): (CloseableIterator[Row], StructType) =
+    withValidConnection {
+        val resultSet = connection.createResultSet(queryId)
+        resultSetToIterator(resultSet)
+    }
+
+   private[snowpark] def resultSetToIterator(
       statement: Statement): (CloseableIterator[Row], StructType) =
     withValidConnection {
+        val resultSet = statement.getResultSet
+        resultSetToIterator(resultSet)
+    }
+
+  private[snowpark] def resultSetToIterator(
+      resultSet: ResultSet): (CloseableIterator[Row], StructType) =
+    withValidConnection {
+
       val data = statement.getResultSet
       val schema = ServerConnection.convertResultMetaToAttribute(data.getMetaData)
 
@@ -842,23 +857,32 @@ private[snowpark] class ServerConnection(
       plan: Option[SnowflakePlan]): (Iterator[Row], StructType) =
     withValidConnection {
       SnowflakePlan.wrapException(plan.toSeq: _*) {
-        val statement = connection.createStatement()
-        setStatementParameters(statement, getStatementParameters())
+        val statament = null
+        if (!isStoredProc) {
+          val statement = connection.createStatement()
+          setStatementParameters(statement, getStatementParameters())
+        }
         // get last result set
         try {
           // Wait for the query done.
           waitForQueryDone(queryID, maxWaitTimeInSecond)
           val queryIDs = connection.getChildQueryIds(queryID)
           val lastQueryId = queryIDs.last
-          statement.executeQuery(Query.resultScanQuery(lastQueryId).sql)
-          val placeholders = mutable.HashMap.empty[String, String]
-          plan.foreach(_.postActions.foreach(_.runQuery(this, placeholders)))
-          resultSetToIterator(statement)
+          if (isStoredProc) {
+            resultSetToIterator(lastQueryId)
+          } else {
+            statement.executeQuery(Query.resultScanQuery(lastQueryId).sql)
+            val placeholders = mutable.HashMap.empty[String, String]
+            plan.foreach(_.postActions.foreach(_.runQuery(this, placeholders)))
+            resultSetToIterator(statement)
+          }
         } catch {
           case t: Throwable =>
             val details = if (plan.nonEmpty) s" The plan is: ${plan.get}" else ""
             logError(s"Fail to get the async query result for $queryID.$details", t)
-            statement.close()
+            if (!isStoredProc) {
+              statement.close()
+            }
             throw t
         }
       }
