@@ -37,7 +37,7 @@
         <scala.version>2.12.18</scala.version>
         <scala.compat.version>2.12</scala.compat.version>
         <spec2.version>4.2.0</spec2.version>
-        <snowflake.jdbc.version>3.14.1</snowflake.jdbc.version>
+        <snowflake.jdbc.version>3.14.4</snowflake.jdbc.version>
         <version.scala.binary>${scala.compat.version}</version.scala.binary>
         <doctitle>Snowpark ${project.version}</doctitle>
         <scoverage.plugin.version>1.4.11</scoverage.plugin.version>
@@ -296,7 +296,7 @@
             <plugin>
                 <groupId>org.scalatest</groupId>
                 <artifactId>scalatest-maven-plugin</artifactId>
-                <version>2.0.0</version>
+                <version>2.2.0</version>
                 <configuration>
                     <reportsDirectory>${project.build.directory}/surefire-reports
                     </reportsDirectory>
@@ -546,7 +546,7 @@
                  </plugin>
                   <plugin>
                       <artifactId>maven-jar-plugin</artifactId>
-                      <version>3.1.0</version>
+                      <version>3.3.0</version>
                       <executions>
                           <execution>
                               <id>empty-javadoc-jar</id>
@@ -590,7 +590,30 @@
                   </plugin>
               </plugins>
           </build>
-      </profile>
+        </profile>
+        <profile>
+            <id>java-9</id>
+            <activation>
+                <jdk>(9,)</jdk>
+            </activation>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.scalatest</groupId>
+                        <artifactId>scalatest-maven-plugin</artifactId>
+                        <configuration>
+                            <argLine>--add-opens=java.base/java.io=ALL-UNNAMED --add-opens=java.base/java.nio=ALL-UNNAMED --add-opens=java.base/java.lang=ALL-UNNAMED --add-opens=java.base/java.lang.reflect=ALL-UNNAMED --add-opens=java.base/java.util=ALL-UNNAMED --add-exports=java.base/sun.nio.ch=ALL-UNNAMED --add-exports=jdk.unsupported/sun.misc=ALL-UNNAMED</argLine>
+                        </configuration>
+                    </plugin>
+                    <plugin>
+                        <artifactId>maven-surefire-plugin</artifactId>
+                        <configuration>
+                            <argLine>--add-opens=java.base/java.io=ALL-UNNAMED --add-opens=java.base/java.nio=ALL-UNNAMED --add-opens=java.base/java.lang=ALL-UNNAMED --add-opens=java.base/java.lang.reflect=ALL-UNNAMED --add-opens=java.base/java.util=ALL-UNNAMED --add-exports=java.base/sun.nio.ch=ALL-UNNAMED --add-exports=jdk.unsupported/sun.misc=ALL-UNNAMED</argLine>
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
     </profiles>
 
     <reporting>
