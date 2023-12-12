@@ -983,7 +983,8 @@ class UDXRegistrationHandler(session: Session) extends Logging {
     } else ""
     val createUdfQuery = s"CREATE $tempType " +
       s"FUNCTION $udfName($sqlFunctionArgs) RETURNS " +
-      s"$returnSqlType LANGUAGE JAVA $importSql HANDLER='$className.$methodName' " +
+      s"$returnSqlType LANGUAGE JAVA $getRuntimeVersion" +
+      s"$importSql HANDLER='$className.$methodName' " +
       s"target_path='$targetJarStageLocation' " + packageSql +
       "AS $$ \n" + code + "\n$$"
     logDebug(s"""
@@ -1154,6 +1155,17 @@ class UDXRegistrationHandler(session: Session) extends Logging {
       } else {
         throw readError.get
       }
+    }
+  }
+
+  private def getRuntimeVersion: String = {
+    val version = Utils.JavaVersion
+    if (version.startsWith("17")) {
+      "runtime_version = '17'"
+    } else {
+      // for any other version of JVM, let's use the default jvm, which is java 11.
+      // it is current behavior.
+      ""
     }
   }
 }
