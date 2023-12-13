@@ -2,14 +2,7 @@
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
     <modelVersion>4.0.0</modelVersion>
-
-    <parent>
-        <groupId>com.snowflake</groupId>
-        <artifactId>snowpark-parent</artifactId>
-        <version>1.10.0-SNAPSHOT</version>
-        <relativePath>./parent-pom.xml</relativePath>
-    </parent>
-
+    <groupId>com.snowflake</groupId>
     <artifactId>snowpark-fips</artifactId>
     <version>1.10.0-SNAPSHOT</version>
     <name>${project.artifactId}</name>
@@ -18,8 +11,8 @@
     <inceptionYear>2018</inceptionYear>
     <licenses>
         <license>
-            <name>The Apache Software License, Version 2.0</name>
-            <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+            <name>Snowflake License</name>
+            <url>https://www.snowflake.com/legal/</url>
         </license>
     </licenses>
 
@@ -33,16 +26,65 @@
     </developers>
 
     <scm>
-        <connection>scm:git:git://github.com/snowflakedb/snowpark-java-scala</connection>
-        <url>https://github.com/snowflakedb/snowpark-java-scala/tree/main</url>
+      <connection>scm:git:git://github.com/snowflakedb/snowpark</connection>
+      <url>http://github.com/snowflakedb/snowpark/tree/master</url>
     </scm>
 
     <properties>
-        <bc.fips.version>1.0.2.1</bc.fips.version>
-        <bcpkix.fips.version>1.0.5</bcpkix.fips.version>
+        <maven.compiler.source>1.8</maven.compiler.source>
+        <maven.compiler.target>1.8</maven.compiler.target>
+        <encoding>UTF-8</encoding>
+        <scala.version>2.12.18</scala.version>
+        <scala.compat.version>2.12</scala.compat.version>
+        <spec2.version>4.2.0</spec2.version>
+        <snowflake.jdbc.version>3.14.4</snowflake.jdbc.version>
+        <version.scala.binary>${scala.compat.version}</version.scala.binary>
+        <doctitle>Snowpark ${project.version}</doctitle>
+        <bouncycastle.version>1.64</bouncycastle.version>
+        <scalaPluginVersion>4.3.0</scalaPluginVersion>
+        <jackson.version>2.13.2</jackson.version>
+        <jackson.databind.version>2.13.4.2</jackson.databind.version>
     </properties>
 
     <dependencies>
+        <dependency>
+            <groupId>org.scala-lang</groupId>
+            <artifactId>scala-library</artifactId>
+            <version>${scala.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.scala-lang</groupId>
+            <artifactId>scala-compiler</artifactId>
+            <version>${scala.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>commons-io</groupId>
+            <artifactId>commons-io</artifactId>
+            <version>2.11.0</version>
+        </dependency>
+        <dependency>
+            <groupId>javax.xml.bind</groupId>
+            <artifactId>jaxb-api</artifactId>
+            <version>2.2.2</version>
+        </dependency>
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-api</artifactId>
+            <version>1.7.32</version>
+        </dependency>
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-simple</artifactId>
+            <version>1.7.32</version>
+        </dependency>
+        <dependency>
+            <groupId>commons-codec</groupId>
+            <artifactId>commons-codec</artifactId>
+            <version>1.15</version>
+        </dependency>
+
+
+        <!-- https://mvnrepository.com/artifact/net.snowflake/snowflake-jdbc -->
         <dependency>
             <groupId>net.snowflake</groupId>
             <artifactId>snowflake-jdbc-fips</artifactId>
@@ -51,13 +93,70 @@
         <dependency>
             <groupId>org.bouncycastle</groupId>
             <artifactId>bc-fips</artifactId>
-            <version>${bc.fips.version}</version>
+            <version>1.0.2.1</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.bouncycastle</groupId>
             <artifactId>bcpkix-fips</artifactId>
-            <version>${bcpkix.fips.version}</version>
+            <version>1.0.5</version>
+            <scope>test</scope>
+        </dependency>
+        <!-- SQL formatter-->
+        <dependency>
+            <groupId>com.github.vertical-blank</groupId>
+            <artifactId>sql-formatter</artifactId>
+            <version>1.0.2</version>
+        </dependency>
+
+
+        <!-- Dependency for Variant UDF -->
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-databind</artifactId>
+            <version>${jackson.databind.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-core</artifactId>
+            <version>${jackson.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-annotations</artifactId>
+            <version>${jackson.version}</version>
+        </dependency>
+
+        <!-- Test -->
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <version>4.13.1</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.mockito</groupId>
+            <artifactId>mockito-core</artifactId>
+            <version>2.23.0</version>
+            <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.scalatest</groupId>
+            <artifactId>scalatest_${scala.compat.version}</artifactId>
+            <version>3.0.5</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.specs2</groupId>
+            <artifactId>specs2-core_${scala.compat.version}</artifactId>
+            <version>${spec2.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.specs2</groupId>
+            <artifactId>specs2-junit_${scala.compat.version}</artifactId>
+            <version>${spec2.version}</version>
             <scope>test</scope>
         </dependency>
     </dependencies>
@@ -74,7 +173,7 @@
             <plugin>
                 <groupId>org.antipathy</groupId>
                 <artifactId>mvn-scalafmt_${version.scala.binary}</artifactId>
-                <version>${mvn.scalafmt.version}</version>
+                <version>1.0.2</version>
                 <configuration>
                     <configLocation>${project.basedir}/.scalafmt.conf</configLocation>
                     <skipTestSources>false</skipTestSources>
@@ -101,7 +200,7 @@
             <plugin>
                 <groupId>com.coveo</groupId>
                 <artifactId>fmt-maven-plugin</artifactId>
-                <version>${fmt.maven.plugin.version}</version>
+                <version>2.9.1</version>
                 <executions>
                     <execution>
                         <phase>compile</phase>
@@ -114,7 +213,7 @@
             <plugin>
                 <groupId>org.scalastyle</groupId>
                 <artifactId>scalastyle-maven-plugin</artifactId>
-                <version>${scalastyle.maven.plugin.version}</version>
+                <version>1.0.0</version>
                 <configuration>
                     <verbose>false</verbose>
                     <failOnViolation>true</failOnViolation>
@@ -185,7 +284,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
-                <version>${maven.compiler.version}</version>
+                <version>3.8.1</version>
                 <configuration>
                     <source>${java.version}</source>
                     <target>${java.version}</target>
@@ -196,7 +295,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
-                <version>${maven.surefire.version}</version>
+                <version>2.21.0</version>
                 <configuration>
                     <skip>true</skip>
                     <includes>
@@ -207,7 +306,7 @@
             <plugin>
                 <groupId>org.scalatest</groupId>
                 <artifactId>scalatest-maven-plugin</artifactId>
-                <version>${scalatest.maven.plugin.version}</version>
+                <version>2.0.0</version>
                 <configuration>
                     <reportsDirectory>${project.build.directory}/surefire-reports
                     </reportsDirectory>
@@ -264,7 +363,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-assembly-plugin</artifactId>
-                <version>${maven.assembly.version}</version>
+                <version>3.3.0</version>
                 <executions>
                     <!-- We are building three packages with the following executions:
                          1. snowpark-version.jar                     - snowpark + udf dependency jars
@@ -332,7 +431,7 @@
             <plugin>
               <groupId>org.apache.maven.plugins</groupId>
               <artifactId>maven-gpg-plugin</artifactId>
-              <version>${maven.gpg.version}</version>
+              <version>1.6</version>
                 <executions>
                   <execution>
                     <id>sign-deploy-artifacts</id>
@@ -346,7 +445,7 @@
             <plugin>
                 <groupId>net.nicoulaj.maven.plugins</groupId>
                 <artifactId>checksum-maven-plugin</artifactId>
-                <version>${checksum.maven.version}</version>
+                <version>1.10</version>
                 <executions>
                     <execution>
                         <phase>package</phase>
@@ -380,108 +479,85 @@
 
     <profiles>
         <profile>
-            <id>java-9</id>
-            <activation>
-                <jdk>(9,)</jdk>
-            </activation>
-            <build>
-                <plugins>
-                    <plugin>
-                        <groupId>org.scalatest</groupId>
-                        <artifactId>scalatest-maven-plugin</artifactId>
-                        <configuration>
-                            <argLine>--add-opens=java.base/java.io=ALL-UNNAMED --add-opens=java.base/java.nio=ALL-UNNAMED --add-opens=java.base/java.lang=ALL-UNNAMED --add-opens=java.base/java.lang.reflect=ALL-UNNAMED --add-opens=java.base/java.util=ALL-UNNAMED --add-exports=java.base/sun.nio.ch=ALL-UNNAMED --add-exports=jdk.unsupported/sun.misc=ALL-UNNAMED</argLine>
-                        </configuration>
-                    </plugin>
-                    <plugin>
-                        <artifactId>maven-surefire-plugin</artifactId>
-                        <configuration>
-                            <argLine>--add-opens=java.base/java.io=ALL-UNNAMED --add-opens=java.base/java.nio=ALL-UNNAMED --add-opens=java.base/java.lang=ALL-UNNAMED --add-opens=java.base/java.lang.reflect=ALL-UNNAMED --add-opens=java.base/java.util=ALL-UNNAMED --add-exports=java.base/sun.nio.ch=ALL-UNNAMED --add-exports=jdk.unsupported/sun.misc=ALL-UNNAMED</argLine>
-                        </configuration>
-                    </plugin>
-                </plugins>
-            </build>
-        </profile>
-        <profile>
             <id>test-coverage</id>
             <properties>
                 <scala.version>2.12.15</scala.version>
             </properties>
         </profile>
         <profile>
-            <id>ossrh-deploy</id>
-            <activation>
-                <property>
-                    <name>ossrh-deploy</name>
-                </property>
-            </activation>
-            <build>
-                <plugins>
-                    <plugin>
-                        <groupId>org.apache.maven.plugins</groupId>
-                        <artifactId>maven-assembly-plugin</artifactId>
-                        <version>${maven.assembly.version}</version>
-                        <executions>
-                            <execution>
-                                <id>generate-tar-zip</id>
-                                <phase>none</phase>
-                            </execution>
-                            <execution>
-                                <id>with-dependencies</id>
-                                <phase>none</phase>
-                            </execution>
-                            <execution>
-                                <id>fat-test</id>
-                                <phase>none</phase>
-                            </execution>
-                        </executions>
-                    </plugin>
-                    <plugin>
-                        <artifactId>maven-jar-plugin</artifactId>
-                        <version>${maven.jar.version}</version>
-                        <executions>
-                            <execution>
-                                <id>empty-javadoc-jar</id>
-                                <phase>package</phase>
-                                <goals>
-                                    <goal>jar</goal>
-                                </goals>
-                                <configuration>
-                                    <classifier>javadoc</classifier>
-                                    <classesDirectory>${basedir}/javadoc</classesDirectory>
-                                </configuration>
-                            </execution>
-                        </executions>
-                    </plugin>
-                    <plugin>
-                        <groupId>org.apache.maven.plugins</groupId>
-                        <artifactId>maven-gpg-plugin</artifactId>
-                        <version>${maven.gpg.version}</version>
-                        <executions>
-                            <execution>
-                                <id>sign-deploy-artifacts</id>
-                                <phase>none</phase>
-                            </execution>
-                            <execution>
-                                <id>sign-and-deploy-file</id>
-                                <phase>deploy</phase>
-                                <goals>
-                                    <goal>sign-and-deploy-file</goal>
-                                </goals>
-                                <configuration>
-                                    <file>target/${project.artifactId}-${project.version}.jar</file>
-                                    <repositoryId>ossrh</repositoryId>
-                                    <url>https://oss.sonatype.org/service/local/staging/deploy/maven2</url>
-                                    <pomFile>fips-pom.xml</pomFile>
-                                    <javadoc>target/${project.artifactId}-${project.version}-javadoc.jar</javadoc>
-                                    <keyname>${env.GPG_KEY_ID}</keyname>
-                                    <passphrase>${env.GPG_KEY_PASSPHRASE}</passphrase>
-                                </configuration>
-                            </execution>
-                        </executions>
-                    </plugin>
-                </plugins>
-            </build>
-        </profile>
+          <id>ossrh-deploy</id>
+          <activation>
+              <property>
+                  <name>ossrh-deploy</name>
+              </property>
+          </activation>
+          <build>
+              <plugins>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-assembly-plugin</artifactId>
+                    <version>3.3.0</version>
+                    <executions>
+                        <execution>
+                            <id>generate-tar-zip</id>
+                            <phase>none</phase>
+                        </execution>
+                        <execution>
+                            <id>with-dependencies</id>
+                            <phase>none</phase>
+                        </execution>
+                        <execution>
+                            <id>fat-test</id>
+                            <phase>none</phase>
+                        </execution>
+                    </executions>
+                 </plugin>
+                  <plugin>
+                      <artifactId>maven-jar-plugin</artifactId>
+                      <version>3.1.0</version>
+                      <executions>
+                          <execution>
+                              <id>empty-javadoc-jar</id>
+                              <phase>package</phase>
+                              <goals>
+                                  <goal>jar</goal>
+                              </goals>
+                              <configuration>
+                                  <classifier>javadoc</classifier>
+                                  <classesDirectory>${basedir}/javadoc</classesDirectory>
+                              </configuration>
+                          </execution>
+                      </executions>
+                  </plugin>
+                  <plugin>
+                      <groupId>org.apache.maven.plugins</groupId>
+                      <artifactId>maven-gpg-plugin</artifactId>
+                      <version>1.6</version>
+                      <executions>
+                          <execution>
+                            <id>sign-deploy-artifacts</id>
+                            <phase>none</phase>
+                          </execution>
+                          <execution>
+                              <id>sign-and-deploy-file</id>
+                              <phase>deploy</phase>
+                              <goals>
+                                  <goal>sign-and-deploy-file</goal>
+                              </goals>
+                              <configuration>
+                                  <file>target/${project.artifactId}-${project.version}.jar</file>
+                                  <repositoryId>ossrh</repositoryId>
+                                  <url>https://oss.sonatype.org/service/local/staging/deploy/maven2</url>
+                                  <pomFile>fips-pom.xml</pomFile>
+                                  <javadoc>target/${project.artifactId}-${project.version}-javadoc.jar</javadoc>
+                                  <keyname>${env.GPG_KEY_ID}</keyname>
+                                  <passphrase>${env.GPG_KEY_PASSPHRASE}</passphrase>
+                              </configuration>
+                          </execution>
+                      </executions>
+                  </plugin>
+              </plugins>
+          </build>
+      </profile>
     </profiles>
 </project>
