@@ -983,7 +983,7 @@ class UDXRegistrationHandler(session: Session) extends Logging {
     } else ""
     val createUdfQuery = s"CREATE $tempType " +
       s"FUNCTION $udfName($sqlFunctionArgs) RETURNS " +
-      s"$returnSqlType LANGUAGE JAVA $getRuntimeVersion" +
+      s"$returnSqlType LANGUAGE JAVA $getRuntimeVersion " +
       s"$importSql HANDLER='$className.$methodName' " +
       s"target_path='$targetJarStageLocation' " + packageSql +
       "AS $$ \n" + code + "\n$$"
