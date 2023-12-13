@@ -67,6 +67,8 @@ private[snowpark] object ErrorMessage {
     "0127" -> "DataFrameWriter doesn't support to set option '%s' as '%s' when writing to a %s.",
     "0128" -> "DataFrameWriter doesn't support to set option '%s' as '%s' in '%s' mode when writing to a %s.",
     "0129" -> "DataFrameWriter doesn't support mode '%s' when writing to a %s.",
+    "0130" -> "Unsupported join operations, Dataframes can join with other Dataframes or TableFunctions only",
+    "0131" -> "At most one table function can be called inside select() function",
     // Begin to define UDF related messages
     "0200" -> "Incorrect number of arguments passed to the UDF: Expected: %d, Found: %d",
     "0201" -> "Attempted to call an unregistered UDF. You must register the UDF before calling it.",
@@ -150,7 +152,12 @@ private[snowpark] object ErrorMessage {
     "0419" -> "%s exceeds the maximum allowed time: %d second(s).",
     "0420" -> "Invalid RSA private key. The error is: %s",
     "0421" -> "Invalid stage location: %s. Reason: %s.",
-    "0422" -> "Internal error: Server fetching is disabled for the parameter %s and there is no default value for it.")
+    "0422" -> "Internal error: Server fetching is disabled for the parameter %s and there is no default value for it.",
+    "0423" -> "Invalid input argument, Session.tableFunction only supports table function arguments",
+    "0424" ->
+      """Invalid input argument type, the input argument type of Explode function should be either Map or Array types.
+        |The input argument type: %s
+        |""".stripMargin)
   // scalastyle:on
 
   /*
@@ -238,6 +245,12 @@ private[snowpark] object ErrorMessage {
     createException("0128", name, value, mode, target)
   def DF_WRITER_INVALID_MODE(mode: String, target: String): SnowparkClientException =
     createException("0129", mode, target)
+
+  def DF_JOIN_WITH_WRONG_ARGUMENT(): SnowparkClientException =
+    createException("0130")
+
+  def DF_MORE_THAN_ONE_TF_IN_SELECT(): SnowparkClientException =
+    createException("0131")
 
   /*
    * 2NN: UDF error code
@@ -380,6 +393,12 @@ private[snowpark] object ErrorMessage {
   def MISC_NO_SERVER_VALUE_NO_DEFAULT_FOR_PARAMETER(
       parameterName: String): SnowparkClientException =
     createException("0422", parameterName)
+
+  def MISC_INVALID_TABLE_FUNCTION_INPUT(): SnowparkClientException =
+    createException("0423")
+
+  def MISC_INVALID_EXPLODE_ARGUMENT_TYPE(argumentType: String): SnowparkClientException =
+    createException("0424", argumentType)
 
   /**
    * Create Snowpark client Exception.

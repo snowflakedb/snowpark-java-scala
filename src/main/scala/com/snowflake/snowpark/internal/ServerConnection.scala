@@ -801,7 +801,7 @@ private[snowpark] class ServerConnection(
     }
 
   private[snowpark] def isDone(queryID: String): Boolean =
-    !QueryStatus.isStillRunning(connection.getSfSession.getQueryStatus(queryID))
+    !QueryStatus.isStillRunning(connection.getSFBaseSession.getQueryStatus(queryID))
 
   private[snowpark] def waitForQueryDone(
       queryID: String,
@@ -812,7 +812,7 @@ private[snowpark] class ServerConnection(
     val retryPattern = Array(1, 1, 2, 3, 4, 8, 10)
     def getSeepTime(retry: Int) = retryPattern(retry.min(retryPattern.length - 1)) * 500
 
-    val session = connection.getSfSession
+    val session = connection.getSFBaseSession
     var qs = session.getQueryStatus(queryID)
     var retry = 0
     var lastLogTime = 0

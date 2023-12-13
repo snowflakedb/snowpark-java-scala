@@ -441,7 +441,7 @@ trait DataFrameSuite extends TestData with BeforeAndAfterEach {
     assert(double2.stat.cov("a", "b").get == 0.010000000000000037)
   }
 
-  test("df.stat.approxQuantile") {
+  test("df.stat.approxQuantile", JavaStoredProcExclude) {
     assert(approxNumbers.stat.approxQuantile("a", Array(0.5))(0).get == 4.5)
     assert(
       approxNumbers.stat.approxQuantile("a", Array(0, 0.1, 0.4, 0.6, 1)).deep ==

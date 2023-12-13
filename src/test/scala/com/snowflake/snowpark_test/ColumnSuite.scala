@@ -123,6 +123,7 @@ class ColumnSuite extends TestData {
 
     assert(df.where(df("A").equal_nan).collect() sameElements Array[Row](Row(Double.NaN, 3)))
     assert(df.where(df("A").is_null).collect() sameElements Array[Row](Row(null, 2)))
+    assert(df.where(df("A").isNull).collect() sameElements Array[Row](Row(null, 2)))
     assert(
       df.where(df("A").is_not_null).collect() sameElements Array[Row](
         Row(1.1, 1),

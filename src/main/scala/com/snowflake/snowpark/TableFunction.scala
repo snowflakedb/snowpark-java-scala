@@ -32,11 +32,31 @@ import com.snowflake.snowpark.internal.analyzer.{
  * @since 0.4.0
  */
 case class TableFunction(funcName: String) {
-  private[snowpark] def apply(args: Column*): TableFunctionExpression =
+  private[snowpark] def call(args: Column*): TableFunctionExpression =
     analyzer.TableFunction(funcName, args.map(_.expr))
 
-  private[snowpark] def apply(args: Map[String, Column]): TableFunctionExpression =
+  private[snowpark] def call(args: Map[String, Column]): TableFunctionExpression =
     NamedArgumentsTableFunction(funcName, args.map {
       case (key, value) => key -> value.expr
     })
+
+  /**
+   * Create a Column reference by passing arguments in the TableFunction object.
+   *
+   * @param args A list of Column objects representing the arguments of the given table function
+   * @return A Column reference
+   * @since 1.10.0
+   */
+  def apply(args: Column*): Column = Column(this.call(args: _*))
+
+  /**
+   * Create a Column reference by passing arguments in the TableFunction object.
+   *
+   * @param args function arguments map of the given table function. Some functions, like flatten,
+   *             have named parameters. use this map to assign values to the corresponding
+   *             parameters.
+   * @return A Column reference
+   * @since 1.10.0
+   */
+  def apply(args: Map[String, Column]): Column = Column(this.call(args))
 }

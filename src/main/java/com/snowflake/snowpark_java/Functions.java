@@ -2355,6 +2355,37 @@ public final class Functions {
   }
 
   /**
+   * Returns the subject with the specified pattern (or all occurrences of the pattern) removed. If
+   * no matches are found, returns the original subject.
+   *
+   * @param strExpr The input string
+   * @param pattern The pattern
+   * @return The result column
+   * @since 1.9.0
+   */
+  public static Column regexp_replace(Column strExpr, Column pattern) {
+    return new Column(
+        com.snowflake.snowpark.functions.regexp_replace(
+            strExpr.toScalaColumn(), pattern.toScalaColumn()));
+  }
+
+  /**
+   * Returns the subject with the specified pattern (or all occurrences of the pattern) replaced by
+   * a replacement string. If no matches are found, returns the original subject.
+   *
+   * @param strExpr The input string
+   * @param pattern The pattern
+   * @param replacement The replacement string
+   * @return The result column
+   * @since 1.9.0
+   */
+  public static Column regexp_replace(Column strExpr, Column pattern, Column replacement) {
+    return new Column(
+        com.snowflake.snowpark.functions.regexp_replace(
+            strExpr.toScalaColumn(), pattern.toScalaColumn(), replacement.toScalaColumn()));
+  }
+
+  /**
    * Removes all occurrences of a specified strExpr, and optionally replaces them with replacement.
    *
    * @since 0.11.0

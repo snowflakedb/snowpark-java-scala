@@ -5,7 +5,6 @@ import com.snowflake.snowpark.internal.Utils.clientPackageName
 import java.io.{BufferedOutputStream, File, FileOutputStream}
 import java.nio.file.{Files, NoSuchFileException}
 import com.snowflake.snowpark.internal.{JavaUtils, UDFClassPath}
-import sun.net.www.ParseUtil
 
 import scala.reflect.internal.util.BatchSourceFile
 import scala.reflect.io.{AbstractFile, VirtualDirectory}
@@ -21,11 +20,6 @@ class UDFRegistrationSuite extends SNTestBase with FileUtils {
   override def beforeAll(): Unit = {
     super.beforeAll()
     session.runQuery(s"create or replace temporary stage $tempStage")
-  }
-
-  test("Test URL encoding") {
-    val inputs = Seq("dbiufwhronr==", "fdeswfirn--", "bsdij++", "sb#i", "bxsj%i@9h(nb)")
-    inputs.foreach(str => assert(ParseUtil.decode(ParseUtil.encodePath(str)) == str))
   }
 
   test("Test that jar files are uploaded to stage correctly") {

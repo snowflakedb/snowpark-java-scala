@@ -110,19 +110,7 @@ class UDFClasspathSuite extends SNTestBase {
 
   test("Test for getPathForClass") {
     val clazz = classOf[scala.StringBuilder]
-    val expectedUrl = if (Utils.isWindows) {
-      // On windows, the directory format is gotten from getCodeSource() is like:
-      // /C:/Users/runneradmin/.../scala-library-2.12.11.jar
-      // The directory gotten with UDFClassPath.getPathForClass(clazz) is like:
-      // C:\Users\runneradmin\...\scala-library-2.12.11.jar
-      // So, need format conversion for result comparison.
-      clazz.getProtectionDomain.getCodeSource.getLocation.getPath
-        .substring(1)
-        .replace("/", "\\")
-    } else {
-      clazz.getProtectionDomain.getCodeSource.getLocation.getPath
-    }
-
+    val expectedUrl = clazz.getProtectionDomain.getCodeSource.getLocation.getPath
     val result = UDFClassPath.getPathForClass(clazz)
     assert(result.isDefined && result.get.equals(expectedUrl))
   }
@@ -138,7 +126,18 @@ class UDFClasspathSuite extends SNTestBase {
     val foundJarPath = UDFClassPath.getPathUsingClassLoader(classToLoad)
     assert(foundJarPath.nonEmpty)
     assert(new File(foundJarPath.get).exists())
-    assert(foundJarPath.get.equals(jarFilePath))
+
+    val expectedUrl = if (Utils.isWindows) {
+      // On windows, the directory format is gotten from getCodeSource() is like:
+      // /C:/Users/runneradmin/.../scala-library-2.12.11.jar
+      // The directory gotten with UDFClassPath.getPathForClass(clazz) is like:
+      // C:\Users\runneradmin\...\scala-library-2.12.11.jar
+      // So, need format conversion for result comparison.
+      "/" + jarFilePath.replace("\\", "/")
+    } else {
+      jarFilePath
+    }
+    assert(foundJarPath.get.equals(expectedUrl))
     assert(foundJarPath.get.contains(prefix))
   }
 

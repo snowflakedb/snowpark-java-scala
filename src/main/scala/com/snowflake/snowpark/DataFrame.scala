@@ -2,12 +2,18 @@ package com.snowflake.snowpark
 
 import scala.reflect.ClassTag
 import scala.util.Random
+import com.snowflake.snowpark.internal.analyzer.{TableFunction => TF}
 import com.snowflake.snowpark.internal.ErrorMessage
 import com.snowflake.snowpark.internal.{Logging, Utils}
 import com.snowflake.snowpark.internal.analyzer._
 import com.snowflake.snowpark.types._
 import com.github.vertical_blank.sqlformatter.SqlFormatter
-import com.snowflake.snowpark.internal.Utils.{TempObjectType, randomNameForTempObject}
+import com.snowflake.snowpark.functions.lit
+import com.snowflake.snowpark.internal.Utils.{
+  TempObjectType,
+  getTableFunctionExpression,
+  randomNameForTempObject
+}
 
 import javax.xml.bind.DatatypeConverter
 import scala.collection.JavaConverters._
@@ -557,18 +563,35 @@ class DataFrame private[snowpark] (
       "Provide at least one column expression for select(). " +
         s"This DataFrame has column names (${output.length}): " +
         s"${output.map(_.name).mkString(", ")}\n")
-
-    val resultDF = withPlan { Project(columns.map(_.named), plan) }
-    // do not rename back if this project contains internal alias.
-    // because no named duplicated if just renamed.
-    val hasInternalAlias: Boolean = columns.map(_.expr).exists {
-      case Alias(_, _, true) => true
-      case _ => false
-    }
-    if (hasInternalAlias) {
-      resultDF
-    } else {
-      renameBackIfDeduped(resultDF)
+    // todo: error message
+    val tf = columns.filter(_.expr.isInstanceOf[TableFunctionExpression])
+    tf.size match {
+      case 0 => // no table function
+        val resultDF = withPlan {
+          Project(columns.map(_.named), plan)
+        }
+        // do not rename back if this project contains internal alias.
+        // because no named duplicated if just renamed.
+        val hasInternalAlias: Boolean = columns.map(_.expr).exists {
+          case Alias(_, _, true) => true
+          case _ => false
+        }
+        if (hasInternalAlias) {
+          resultDF
+        } else {
+          renameBackIfDeduped(resultDF)
+        }
+      case 1 => // 1 table function
+        val base = this.join(tf.head)
+        val baseColumns = base.schema.map(field => base(field.name))
+        val inputDFColumnSize = this.schema.size
+        val tfColumns = baseColumns.splitAt(inputDFColumnSize)._2
+        val (beforeTf, afterTf) = columns.span(_ != tf.head)
+        val resultColumns = beforeTf ++ tfColumns ++ afterTf.tail
+        base.select(resultColumns)
+      case _ =>
+        // more than 1 TF
+        throw ErrorMessage.DF_MORE_THAN_ONE_TF_IN_SELECT()
     }
   }
 
@@ -1784,9 +1807,8 @@ class DataFrame private[snowpark] (
    *   object or an object that you create from the [[TableFunction]] class.
    * @param args A list of arguments to pass to the specified table function.
    */
-  def join(func: TableFunction, args: Seq[Column]): DataFrame = withPlan {
-    TableFunctionJoin(this.plan, func(args: _*), None)
-  }
+  def join(func: TableFunction, args: Seq[Column]): DataFrame =
+    joinTableFunction(func.call(args: _*), None)
 
   /**
    * Joins the current DataFrame with the output of the specified user-defined table
@@ -1818,12 +1840,10 @@ class DataFrame private[snowpark] (
       func: TableFunction,
       args: Seq[Column],
       partitionBy: Seq[Column],
-      orderBy: Seq[Column]): DataFrame = withPlan {
-    TableFunctionJoin(
-      this.plan,
-      func(args: _*),
+      orderBy: Seq[Column]): DataFrame =
+    joinTableFunction(
+      func.call(args: _*),
       Some(Window.partitionBy(partitionBy: _*).orderBy(orderBy: _*).getWindowSpecDefinition))
-  }
 
   /**
    * Joins the current DataFrame with the output of the specified table function `func` that takes
@@ -1855,9 +1875,8 @@ class DataFrame private[snowpark] (
    *              Some functions, like `flatten`, have named parameters.
    *              Use this map to specify the parameter names and their corresponding values.
    */
-  def join(func: TableFunction, args: Map[String, Column]): DataFrame = withPlan {
-    TableFunctionJoin(this.plan, func(args), None)
-  }
+  def join(func: TableFunction, args: Map[String, Column]): DataFrame =
+    joinTableFunction(func.call(args), None)
 
   /**
    * Joins the current DataFrame with the output of the specified user-defined table function
@@ -1896,11 +1915,106 @@ class DataFrame private[snowpark] (
       func: TableFunction,
       args: Map[String, Column],
       partitionBy: Seq[Column],
-      orderBy: Seq[Column]): DataFrame = withPlan {
-    TableFunctionJoin(
-      this.plan,
-      func(args),
+      orderBy: Seq[Column]): DataFrame =
+    joinTableFunction(
+      func.call(args),
       Some(Window.partitionBy(partitionBy: _*).orderBy(orderBy: _*).getWindowSpecDefinition))
+
+  /**
+   * Joins the current DataFrame with the output of the specified table function `func`.
+   *
+   *
+   * For example:
+   * {{{
+   *   // The following example uses the flatten function to explode compound values from
+   *   // column 'a' in this DataFrame into multiple columns.
+   *
+   *   import com.snowflake.snowpark.functions._
+   *   import com.snowflake.snowpark.tableFunctions._
+   *
+   *   df.join(
+   *     tableFunctions.flatten(parse_json(df("a")))
+   *   )
+   * }}}
+   *
+   * @group transform
+   * @since 1.10.0
+   * @param func [[TableFunction]] object, which can be one of the values in the [[tableFunctions]]
+   *             object or an object that you create from the [[TableFunction.apply()]].
+   */
+  def join(func: Column): DataFrame =
+    joinTableFunction(getTableFunctionExpression(func), None)
+
+  /**
+   * Joins the current DataFrame with the output of the specified user-defined table function
+   * (UDTF) `func`.
+   *
+   * To specify a PARTITION BY or ORDER BY clause, use the `partitionBy` and `orderBy` arguments.
+   *
+   * For example:
+   * {{{
+   *   val tf = session.udtf.registerTemporary(TableFunc1)
+   *   df.join(tf(Map("arg1" -> df("col1")),Seq(df("col2")), Seq(df("col1"))))
+   * }}}
+   *
+   * @group transform
+   * @since 1.10.0
+   * @param func        [[TableFunction]] object that represents a user-defined table function.
+   * @param partitionBy A list of columns partitioned by.
+   * @param orderBy     A list of columns ordered by.
+   */
+  def join(func: Column, partitionBy: Seq[Column], orderBy: Seq[Column]): DataFrame =
+    joinTableFunction(
+      getTableFunctionExpression(func),
+      Some(Window.partitionBy(partitionBy: _*).orderBy(orderBy: _*).getWindowSpecDefinition))
+
+  private def joinTableFunction(
+      func: TableFunctionExpression,
+      partitionByOrderBy: Option[WindowSpecDefinition]): DataFrame = {
+    func match {
+      // explode is a client side function
+      case TF(funcName, args) if funcName.toLowerCase().trim.equals("explode") =>
+        // explode has only one argument
+        joinWithExplode(args.head, partitionByOrderBy)
+      case _ =>
+        val originalResult = withPlan {
+          TableFunctionJoin(this.plan, func, partitionByOrderBy)
+        }
+        val resultSchema = originalResult.schema
+        val columnNames = resultSchema.map(_.name)
+        // duplicated names
+        val dup = columnNames.diff(columnNames.distinct).distinct.map(quoteName)
+        // guarantee no duplicated names in the result
+        if (dup.nonEmpty) {
+          val dfPrefix = DataFrame.generatePrefix('o')
+          val renamedDf =
+            this.select(this.output.map(_.name).map(aliasIfNeeded(this, _, dfPrefix, dup.toSet)))
+          withPlan {
+            TableFunctionJoin(renamedDf.plan, func, partitionByOrderBy)
+          }
+        } else {
+          originalResult
+        }
+    }
+  }
+
+  private def joinWithExplode(
+      expr: Expression,
+      partitionByOrderBy: Option[WindowSpecDefinition]): DataFrame = {
+    val columns: Seq[Column] = this.output.map(attr => col(attr.name))
+    // check the column type of input column
+    this.select(Column(expr)).schema.head.dataType match {
+      case _: ArrayType =>
+        joinTableFunction(
+          tableFunctions.flatten.call(Map("input" -> Column(expr), "mode" -> lit("array"))),
+          partitionByOrderBy).select(columns :+ Column("VALUE"))
+      case _: MapType =>
+        joinTableFunction(
+          tableFunctions.flatten.call(Map("input" -> Column(expr), "mode" -> lit("object"))),
+          partitionByOrderBy).select(columns ++ Seq(Column("KEY"), Column("VALUE")))
+      case otherType =>
+        throw ErrorMessage.MISC_INVALID_EXPLODE_ARGUMENT_TYPE(otherType.typeName)
+    }
   }
 
   /**

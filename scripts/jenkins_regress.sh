@@ -18,7 +18,7 @@ exit_code_decorator(){
 gpg --quiet --batch --yes --decrypt --passphrase="$GPG_KEY" --output profile.properties scripts/profile.properties.gpg
 
 exit_code_decorator "mvn clean compile"
-exit_code_decorator "mvn -Dgpg.skip -DtagsToExclude=com.snowflake.snowpark.PerfTest -e scoverage:report"
+exit_code_decorator "mvn -Dgpg.skip -DtagsToExclude=com.snowflake.snowpark.PerfTest -e scoverage:report -P test-coverage"
 
 version=`git rev-parse HEAD`
 
@@ -28,7 +28,7 @@ if [ -z $pr_code_coverage ];
 	/usr/local/sonar-scanner-cli/bin/sonar-scanner \
     	-Dsonar.host.url=https://sonarqube-eng.int.snowflakecomputing.com \
     	-Dsonar.projectBaseDir=/mnt/jenkins/home/jenkins/workspace/SnowparkClientRegressRunner/thundersnow \
-    	-Dsonar.projectVersion=1.9.0 \
+    	-Dsonar.projectVersion=1.10.0 \
     	-Dsonar.scala.coverage.reportPaths=target/scoverage.xml \
     	-Dsonar.coverage.jacoco.xmlReportPaths=target/site/jacoco/jacoco.xml \
     	-Dsonar.sources=src/main \
@@ -44,7 +44,7 @@ else
 	/usr/local/sonar-scanner-cli/bin/sonar-scanner \
         -Dsonar.host.url=https://sonarqube-eng.int.snowflakecomputing.com \
         -Dsonar.projectBaseDir=/mnt/jenkins/home/jenkins/workspace/SnowparkClientRegressRunner/thundersnow \
-        -Dsonar.projectVersion=1.9.0 \
+        -Dsonar.projectVersion=1.10.0 \
         -Dsonar.scala.coverage.reportPaths=target/scoverage.xml \
         -Dsonar.coverage.jacoco.xmlReportPaths=target/site/jacoco/jacoco.xml \
         -Dsonar.sources=src/main \

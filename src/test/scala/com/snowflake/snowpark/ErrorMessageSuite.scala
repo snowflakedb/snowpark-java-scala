@@ -286,6 +286,24 @@ class ErrorMessageSuite extends FunSuite {
         "DataFrameWriter doesn't support mode 'Append' when writing to a file."))
   }
 
+  test("DF_JOIN_WITH_WRONG_ARGUMENT") {
+    val ex = ErrorMessage.DF_JOIN_WITH_WRONG_ARGUMENT()
+    assert(ex.telemetryMessage.equals(ErrorMessage.getMessage("0130")))
+    assert(
+      ex.message.startsWith(
+        "Error Code: 0130, Error message: " +
+          "Unsupported join operations, Dataframes can join with other Dataframes" +
+          " or TableFunctions only"))
+  }
+
+  test("DF_MORE_THAN_ONE_TF_IN_SELECT") {
+    val ex = ErrorMessage.DF_MORE_THAN_ONE_TF_IN_SELECT()
+    assert(ex.telemetryMessage.equals(ErrorMessage.getMessage("0131")))
+    assert(
+      ex.message.startsWith("Error Code: 0131, Error message: " +
+        "At most one table function can be called inside select() function"))
+  }
+
   test("UDF_INCORRECT_ARGS_NUMBER") {
     val ex = ErrorMessage.UDF_INCORRECT_ARGS_NUMBER(1, 2)
     assert(ex.telemetryMessage.equals(ErrorMessage.getMessage("0200")))
@@ -803,5 +821,24 @@ class ErrorMessageSuite extends FunSuite {
       ex.message.startsWith(
         "Error Code: 0422, Error message: Internal error: Server fetching is disabled" +
           " for the parameter someParameter and there is no default value for it."))
+  }
+
+  test("MISC_INVALID_TABLE_FUNCTION_INPUT") {
+    val ex = ErrorMessage.MISC_INVALID_TABLE_FUNCTION_INPUT()
+    assert(ex.telemetryMessage.equals(ErrorMessage.getMessage("0423")))
+    assert(
+      ex.message.startsWith("Error Code: 0423, Error message: Invalid input argument, " +
+        "Session.tableFunction only supports table function arguments"))
+  }
+
+  test("MISC_INVALID_EXPLODE_ARGUMENT_TYPE") {
+    val ex = ErrorMessage.MISC_INVALID_EXPLODE_ARGUMENT_TYPE(types.IntegerType.typeName)
+    assert(ex.telemetryMessage.equals(ErrorMessage.getMessage("0424")))
+    assert(
+      ex.message.startsWith(
+        "Error Code: 0424, Error message: " +
+          "Invalid input argument type, the input argument type of " +
+          "Explode function should be either Map or Array types.\n" +
+          "The input argument type: Integer"))
   }
 }

@@ -30,12 +30,13 @@ class AsyncJobSuite extends TestData with BeforeAndAfterEach {
     super.beforeAll()
     // create temporary stage to store the file
     runQuery(s"CREATE TEMPORARY STAGE $tmpStageName", session)
-    runQuery(s"CREATE TEMPORARY STAGE $tmpStageName", newSession)
     // Create temp target stage for writing DF to file test.
     runQuery(s"CREATE TEMPORARY STAGE $targetStageName", session)
     // upload the file to stage
     uploadFileToStage(tmpStageName, testFileCsv, compress = false)
     if (!isStoredProc(session)) {
+      // create temporary stage to store the file
+      runQuery(s"CREATE TEMPORARY STAGE $tmpStageName", newSession)
       TestUtils.addDepsToClassPath(session, Some(tmpStageName))
       // In stored procs mode, there is only one session
       TestUtils.addDepsToClassPath(newSession, Some(tmpStageName))
@@ -45,7 +46,9 @@ class AsyncJobSuite extends TestData with BeforeAndAfterEach {
   override def afterAll(): Unit = {
     // drop the temporary stages
     runQuery(s"DROP STAGE IF EXISTS $tmpStageName", session)
-    runQuery(s"DROP STAGE IF EXISTS $tmpStageName", newSession)
+    if (!isStoredProc(session)) {
+      runQuery(s"DROP STAGE IF EXISTS $tmpStageName", newSession)
+    }
     dropTable(tableName)
     dropTable(tableName1)
     dropTable(tableName2)

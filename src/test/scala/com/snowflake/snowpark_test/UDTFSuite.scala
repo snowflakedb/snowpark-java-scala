@@ -1,19 +1,18 @@
 package com.snowflake.snowpark_test
 
 import java.math.RoundingMode
-
 import com.snowflake.snowpark.TestUtils._
 import com.snowflake.snowpark.functions._
+
 import java.nio.file._
 import java.sql.{Date, Time, Timestamp}
 import java.util.TimeZone
-
-import com.snowflake.snowpark._
+import com.snowflake.snowpark.{Row, _}
 import com.snowflake.snowpark.internal._
 import com.snowflake.snowpark.types._
 import com.snowflake.snowpark.udtf._
 
-import scala.collection.mutable
+import scala.collection.{Seq, mutable}
 
 @UDFTest
 class UDTFSuite extends TestData {
@@ -2128,6 +2127,10 @@ class UDTFSuite extends TestData {
 
     checkAnswer(
       df.join(tf, Map("arg1" -> df("b")), Seq(df("a")), Seq(df("b"))),
+      Seq(Row("a", null, "Map(b -> 2, c -> 1)"), Row("d", null, "Map(e -> 1)")))
+
+    checkAnswer(
+      df.join(tf(Map("arg1" -> df("b"))), Seq(df("a")), Seq(df("b"))),
       Seq(Row("a", null, "Map(b -> 2, c -> 1)"), Row("d", null, "Map(e -> 1)")))
 
     checkAnswer(

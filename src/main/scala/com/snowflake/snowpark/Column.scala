@@ -391,6 +391,14 @@ case class Column private[snowpark] (private[snowpark] val expr: Expression) ext
   def is_null: Column = withExpr(IsNull(expr))
 
   /**
+   * Wrapper for is_null function.
+   *
+   * @group op
+   * @since 1.10.0
+   */
+  def isNull: Column = is_null
+
+  /**
    * Is not null.
    * @group op
    * @since 0.1.0
