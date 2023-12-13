@@ -17,17 +17,17 @@
     </licenses>
 
     <developers>
-      <developer>
-        <name>Snowflake Support Team</name>
-        <email>snowflake-java@snowflake.net</email>
-        <organization>Snowflake Computing</organization>
-        <organizationUrl>https://www.snowflake.com</organizationUrl>
-      </developer>
+        <developer>
+            <name>Snowflake Support Team</name>
+            <email>snowflake-java@snowflake.net</email>
+            <organization>Snowflake Computing</organization>
+            <organizationUrl>https://www.snowflake.com</organizationUrl>
+        </developer>
     </developers>
 
     <scm>
-      <connection>scm:git:git://github.com/snowflakedb/snowpark-java-scala</connection>
-      <url>https://github.com/snowflakedb/snowpark-java-scala/tree/main</url>
+        <connection>scm:git:git://github.com/snowflakedb/snowpark-java-scala</connection>
+        <url>https://github.com/snowflakedb/snowpark-java-scala/tree/main</url>
     </scm>
 
     <properties>
@@ -444,17 +444,17 @@
                 </executions>
             </plugin>
             <plugin>
-              <groupId>org.apache.maven.plugins</groupId>
-              <artifactId>maven-gpg-plugin</artifactId>
-              <version>1.6</version>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-gpg-plugin</artifactId>
+                <version>1.6</version>
                 <executions>
-                  <execution>
-                    <id>sign-deploy-artifacts</id>
-                    <phase>package</phase>
-                    <goals>
-                      <goal>sign</goal>
-                    </goals>
-                  </execution>
+                    <execution>
+                        <id>sign-deploy-artifacts</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>sign</goal>
+                        </goals>
+                    </execution>
                 </executions>
             </plugin>
             <plugin>
@@ -517,79 +517,79 @@
             </build>
         </profile>
         <profile>
-          <id>ossrh-deploy</id>
-          <activation>
-              <property>
-                  <name>ossrh-deploy</name>
-              </property>
-          </activation>
-          <build>
-              <plugins>
-                <plugin>
-                    <groupId>org.apache.maven.plugins</groupId>
-                    <artifactId>maven-assembly-plugin</artifactId>
-                    <version>3.3.0</version>
-                    <executions>
-                        <execution>
-                            <id>generate-tar-zip</id>
-                            <phase>none</phase>
-                        </execution>
-                        <execution>
-                            <id>with-dependencies</id>
-                            <phase>none</phase>
-                        </execution>
-                        <execution>
-                            <id>fat-test</id>
-                            <phase>none</phase>
-                        </execution>
-                    </executions>
-                 </plugin>
-                  <plugin>
-                      <artifactId>maven-jar-plugin</artifactId>
-                      <version>3.3.0</version>
-                      <executions>
-                          <execution>
-                              <id>empty-javadoc-jar</id>
-                              <phase>package</phase>
-                              <goals>
-                                  <goal>jar</goal>
-                              </goals>
-                              <configuration>
-                                  <classifier>javadoc</classifier>
-                                  <classesDirectory>${basedir}/javadoc</classesDirectory>
-                              </configuration>
-                          </execution>
-                      </executions>
-                  </plugin>
-                  <plugin>
-                      <groupId>org.apache.maven.plugins</groupId>
-                      <artifactId>maven-gpg-plugin</artifactId>
-                      <version>1.6</version>
-                      <executions>
-                          <execution>
-                            <id>sign-deploy-artifacts</id>
-                            <phase>none</phase>
-                          </execution>
-                          <execution>
-                              <id>sign-and-deploy-file</id>
-                              <phase>deploy</phase>
-                              <goals>
-                                  <goal>sign-and-deploy-file</goal>
-                              </goals>
-                              <configuration>
-                                  <file>target/${project.artifactId}-${project.version}.jar</file>
-                                  <repositoryId>ossrh</repositoryId>
-                                  <url>https://oss.sonatype.org/service/local/staging/deploy/maven2</url>
-                                  <pomFile>pom.xml</pomFile>
-                                  <javadoc>target/${project.artifactId}-${project.version}-javadoc.jar</javadoc>
-                                  <keyname>${env.GPG_KEY_ID}</keyname>
-                                  <passphrase>${env.GPG_KEY_PASSPHRASE}</passphrase>
-                              </configuration>
-                          </execution>
-                      </executions>
-                  </plugin>
-              </plugins>
-          </build>
+            <id>ossrh-deploy</id>
+            <activation>
+                <property>
+                    <name>ossrh-deploy</name>
+                </property>
+            </activation>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-assembly-plugin</artifactId>
+                        <version>3.3.0</version>
+                        <executions>
+                            <execution>
+                                <id>generate-tar-zip</id>
+                                <phase>none</phase>
+                            </execution>
+                            <execution>
+                                <id>with-dependencies</id>
+                                <phase>none</phase>
+                            </execution>
+                            <execution>
+                                <id>fat-test</id>
+                                <phase>none</phase>
+                            </execution>
+                        </executions>
+                    </plugin>
+                    <plugin>
+                        <artifactId>maven-jar-plugin</artifactId>
+                        <version>3.3.0</version>
+                        <executions>
+                            <execution>
+                                <id>empty-javadoc-jar</id>
+                                <phase>package</phase>
+                                <goals>
+                                    <goal>jar</goal>
+                                </goals>
+                                <configuration>
+                                    <classifier>javadoc</classifier>
+                                    <classesDirectory>${basedir}/javadoc</classesDirectory>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-gpg-plugin</artifactId>
+                        <version>1.6</version>
+                        <executions>
+                            <execution>
+                                <id>sign-deploy-artifacts</id>
+                                <phase>none</phase>
+                            </execution>
+                            <execution>
+                                <id>sign-and-deploy-file</id>
+                                <phase>deploy</phase>
+                                <goals>
+                                    <goal>sign-and-deploy-file</goal>
+                                </goals>
+                                <configuration>
+                                    <file>target/${project.artifactId}-${project.version}.jar</file>
+                                    <repositoryId>ossrh</repositoryId>
+                                    <url>https://oss.sonatype.org/service/local/staging/deploy/maven2</url>
+                                    <pomFile>pom.xml</pomFile>
+                                    <javadoc>target/${project.artifactId}-${project.version}-javadoc.jar</javadoc>
+                                    <keyname>${env.GPG_KEY_ID}</keyname>
+                                    <passphrase>${env.GPG_KEY_PASSPHRASE}</passphrase>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
         </profile>
         <profile>
             <id>java-9</id>
@@ -602,13 +602,25 @@
                         <groupId>org.scalatest</groupId>
                         <artifactId>scalatest-maven-plugin</artifactId>
                         <configuration>
-                            <argLine>--add-opens=java.base/java.io=ALL-UNNAMED --add-opens=java.base/java.nio=ALL-UNNAMED --add-opens=java.base/java.lang=ALL-UNNAMED --add-opens=java.base/java.lang.reflect=ALL-UNNAMED --add-opens=java.base/java.util=ALL-UNNAMED --add-exports=java.base/sun.nio.ch=ALL-UNNAMED --add-exports=jdk.unsupported/sun.misc=ALL-UNNAMED</argLine>
+                            <argLine>--add-opens=java.base/java.io=ALL-UNNAMED
+                                --add-opens=java.base/java.nio=ALL-UNNAMED --add-opens=java.base/java.lang=ALL-UNNAMED
+                                --add-opens=java.base/java.lang.reflect=ALL-UNNAMED
+                                --add-opens=java.base/java.util=ALL-UNNAMED
+                                --add-exports=java.base/sun.nio.ch=ALL-UNNAMED
+                                --add-exports=jdk.unsupported/sun.misc=ALL-UNNAMED
+                            </argLine>
                         </configuration>
                     </plugin>
                     <plugin>
                         <artifactId>maven-surefire-plugin</artifactId>
                         <configuration>
-                            <argLine>--add-opens=java.base/java.io=ALL-UNNAMED --add-opens=java.base/java.nio=ALL-UNNAMED --add-opens=java.base/java.lang=ALL-UNNAMED --add-opens=java.base/java.lang.reflect=ALL-UNNAMED --add-opens=java.base/java.util=ALL-UNNAMED --add-exports=java.base/sun.nio.ch=ALL-UNNAMED --add-exports=jdk.unsupported/sun.misc=ALL-UNNAMED</argLine>
+                            <argLine>--add-opens=java.base/java.io=ALL-UNNAMED
+                                --add-opens=java.base/java.nio=ALL-UNNAMED --add-opens=java.base/java.lang=ALL-UNNAMED
+                                --add-opens=java.base/java.lang.reflect=ALL-UNNAMED
+                                --add-opens=java.base/java.util=ALL-UNNAMED
+                                --add-exports=java.base/sun.nio.ch=ALL-UNNAMED
+                                --add-exports=jdk.unsupported/sun.misc=ALL-UNNAMED
+                            </argLine>
                         </configuration>
                     </plugin>
                 </plugins>
