@@ -203,8 +203,8 @@ private object SqlGenerator extends Logging {
       case UnspecifiedFrame => ""
       case SpecialFrameBoundaryExtractor(str) => str
 
-      case Literal(value, dataType) =>
-        DataTypeMapper.toSql(value, dataType)
+      case l: TLiteral =>
+        DataTypeMapper.toSql(l)
       case attr: Attribute => quoteName(attr.name)
       // unresolved expression
       case UnresolvedAttribute(name) => name
