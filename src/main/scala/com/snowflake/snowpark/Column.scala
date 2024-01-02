@@ -732,7 +732,7 @@ private[snowpark] object Column {
   def apply(name: String): Column =
     new Column(name match {
       case "*" => Star(Seq.empty)
-      case c if c.contains(".") => DfAliasAttribute(name)
+      case c if c.contains(".") => UnresolvedDFAliasAttribute(name)
       case _ => UnresolvedAttribute(quoteName(name))
     })
 

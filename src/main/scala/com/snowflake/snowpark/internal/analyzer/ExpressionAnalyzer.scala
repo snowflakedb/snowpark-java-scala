@@ -6,15 +6,15 @@ import scala.collection.mutable.{Map => MMap}
 
 private[snowpark] object ExpressionAnalyzer {
   def apply(aliasMap: Map[ExprId, String],
-            dfAliasMap: MMap[String, Seq[Attribute]]): ExpressionAnalyzer =
+            dfAliasMap: Map[String, Seq[Attribute]]): ExpressionAnalyzer =
     new ExpressionAnalyzer(aliasMap, dfAliasMap)
 
-  def apply(dfAliasMap: MMap[String, Seq[Attribute]]): ExpressionAnalyzer =
-    new ExpressionAnalyzer(Map.empty, dfAliasMap)
+  def apply(): ExpressionAnalyzer =
+    new ExpressionAnalyzer(Map.empty, Map.empty)
 
   // create new analyzer by combining two alias maps
   def apply(map1: Map[ExprId, String], map2: Map[ExprId, String],
-            dfAliasMap: MMap[String, Seq[Attribute]]): ExpressionAnalyzer = {
+            dfAliasMap: Map[String, Seq[Attribute]]): ExpressionAnalyzer = {
     val common = map1.keySet & map2.keySet
     val result = (map1 ++ map2).filter {
       // remove common column, let (df1.join(df2))
@@ -25,15 +25,15 @@ private[snowpark] object ExpressionAnalyzer {
   }
 
   def apply(maps: Seq[Map[ExprId, String]],
-            dfAliasMap: MMap[String, Seq[Attribute]]): ExpressionAnalyzer = {
-    maps.foldLeft(ExpressionAnalyzer(dfAliasMap)) {
+            dfAliasMap: Map[String, Seq[Attribute]]): ExpressionAnalyzer = {
+    maps.foldLeft(ExpressionAnalyzer()) {
       case (expAnalyzer, map) => ExpressionAnalyzer(expAnalyzer.getAliasMap, map, dfAliasMap)
     }
   }
 }
 
 private[snowpark] class ExpressionAnalyzer(aliasMap: Map[ExprId, String],
-                                           dfAliasMap: MMap[String, Seq[Attribute]]) {
+                                           dfAliasMap: Map[String, Seq[Attribute]]) {
   private val generatedAliasMap: MMap[ExprId, String] = MMap.empty
 
   def analyze(ex: Expression): Expression = ex match {
@@ -58,7 +58,7 @@ private[snowpark] class ExpressionAnalyzer(aliasMap: Map[ExprId, String],
     // removed useless alias
     case Alias(child: NamedExpression, name, _) if quoteName(child.name) == quoteName(name) =>
       child
-    case DfAliasAttribute(name) =>
+    case UnresolvedDFAliasAttribute(name) =>
       val colNameSplit = name.split("\\.", 2)
       if (colNameSplit.length > 1 && dfAliasMap.contains(colNameSplit(0))) {
         val aliasOutput = dfAliasMap(colNameSplit(0))

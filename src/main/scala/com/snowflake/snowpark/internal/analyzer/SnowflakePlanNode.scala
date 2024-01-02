@@ -19,9 +19,9 @@ private[snowpark] trait LogicalPlan {
     (analyzedPlan, analyzer.getAliasMap)
   }
 
-  var dfAliasMap: MMap[String, Seq[Attribute]] = MMap.empty
+  var dfAliasMap: Map[String, Seq[Attribute]] = Map.empty
 
-  protected def addToDataframeAliasMap(map: MMap[String, Seq[Attribute]]): Unit = {
+  protected def addToDataframeAliasMap(map: Map[String, Seq[Attribute]]): Unit = {
     val duplicatedAlias = dfAliasMap.keySet.intersect(map.keySet)
     if (duplicatedAlias.nonEmpty) {
       throw ErrorMessage.DF_ALIAS_DUPLICATES(duplicatedAlias)
@@ -79,7 +79,7 @@ private[snowpark] trait LogicalPlan {
 
 private[snowpark] trait LeafNode extends LogicalPlan {
   // create ExpressionAnalyzer with empty alias map
-  override protected val analyzer: ExpressionAnalyzer = ExpressionAnalyzer(dfAliasMap)
+  override protected val analyzer: ExpressionAnalyzer = ExpressionAnalyzer()
 
   // leaf node doesn't have child
   override def updateChildren(func: LogicalPlan => LogicalPlan): LogicalPlan = this
