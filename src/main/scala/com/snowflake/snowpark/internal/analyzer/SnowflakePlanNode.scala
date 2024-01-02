@@ -21,14 +21,6 @@ private[snowpark] trait LogicalPlan {
 
   var dfAliasMap: MMap[String, Seq[Attribute]] = MMap.empty
 
-  // map from df alias string to snowflakePlan.output
-  // add to map when DataframeAlias node is createdFromChild
-  // merge map when analyze is called on leafNode, unaryNode, multiChildrenNode
-  // report conflict if there is merge collision
-  // New expression dataframeAttribute when input has .
-  // Expression analizer -> see dataframeAttribute -> split and search map
-  // if map does not contain the key, then treat as normal column name
-  // else search for Attribute with the name in the attribute list
   protected def addToDataframeAliasMap(map: MMap[String, Seq[Attribute]]): Unit = {
     val duplicatedAlias = dfAliasMap.keySet.intersect(map.keySet)
     if (duplicatedAlias.nonEmpty) {
