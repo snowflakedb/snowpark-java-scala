@@ -11,13 +11,14 @@ private[snowpark] trait MultiChildrenNode extends LogicalPlan {
 
   protected def updateChildren(newChildren: Seq[LogicalPlan]): MultiChildrenNode
 
+  children.foreach(child => addToDataframeAliasMap(child.dfAliasMap))
   override protected def analyze: LogicalPlan =
     createFromAnalyzedChildren(children.map(_.analyzed))
 
   protected def createFromAnalyzedChildren: Seq[LogicalPlan] => MultiChildrenNode
 
   override protected def analyzer: ExpressionAnalyzer =
-    ExpressionAnalyzer(children.map(_.aliasMap))
+    ExpressionAnalyzer(children.map(_.aliasMap), dfAliasMap)
 
   lazy override val internalRenamedColumns: Map[String, String] =
     children.map(_.internalRenamedColumns).reduce(_ ++ _)

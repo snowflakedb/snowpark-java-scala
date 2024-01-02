@@ -106,7 +106,7 @@ class SnowflakePlan(
     sourcePlan.map(_.analyzed).getOrElse(this)
 
   override protected def analyzer: ExpressionAnalyzer =
-    ExpressionAnalyzer(sourcePlan.map(_.aliasMap).getOrElse(Map.empty))
+    ExpressionAnalyzer(sourcePlan.map(_.aliasMap).getOrElse(Map.empty), dfAliasMap)
 
   override def getSnowflakePlan: Option[SnowflakePlan] = Some(this)
 

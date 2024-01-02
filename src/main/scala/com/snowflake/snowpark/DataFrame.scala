@@ -519,6 +519,23 @@ class DataFrame private[snowpark] (
   }
 
   /**
+   * Returns the current DataFrame aliased as the input alias name.
+   *
+   * For example:
+   *
+   * {{{
+   *   val df2 = df.alias("A")
+   *   df2.select(df2.col("A.num"))
+   * }}}
+   *
+   * @group basic
+   * @since 1.10.0
+   * @param alias The alias name of the dataframe
+   * @return a [[DataFrame]]
+   */
+  def alias(alias: String): DataFrame = withPlan(DataframeAlias(alias, plan))
+
+  /**
    * Returns a new DataFrame with the specified Column expressions as output (similar to SELECT in
    * SQL). Only the Columns specified as arguments will be present in the resulting DataFrame.
    *
@@ -2791,7 +2808,8 @@ class DataFrame private[snowpark] (
 
   // utils
   private[snowpark] def resolve(colName: String): NamedExpression = {
-    val normalizedColName = quoteName(colName)
+    val (aliasColName, aliasOutput) = resolveAlias(colName, output)
+    val normalizedColName = quoteName(aliasColName)
     def isDuplicatedName: Boolean = {
       if (session.conn.hideInternalAlias) {
         this.plan.internalRenamedColumns.values.exists(_ == normalizedColName)
@@ -2800,13 +2818,23 @@ class DataFrame private[snowpark] (
       }
     }
     val col =
-      output.filter(attr => attr.name.equals(normalizedColName))
+      aliasOutput.filter(attr => attr.name.equals(normalizedColName))
     if (col.length == 1) {
       col.head.withName(normalizedColName).withSourceDF(this)
     } else if (isDuplicatedName) {
-      throw ErrorMessage.PLAN_JDBC_REPORT_JOIN_AMBIGUOUS(colName, colName)
+      throw ErrorMessage.PLAN_JDBC_REPORT_JOIN_AMBIGUOUS(aliasColName, aliasColName)
     } else {
-      throw ErrorMessage.DF_CANNOT_RESOLVE_COLUMN_NAME(colName, output.map(_.name))
+      throw ErrorMessage.DF_CANNOT_RESOLVE_COLUMN_NAME(aliasColName, aliasOutput.map(_.name))
+    }
+  }
+
+  // Handle dataframe alias by redirecting output and column name resolution
+  private def resolveAlias(colName: String, output: Seq[Attribute]): (String, Seq[Attribute]) = {
+    val colNameSplit = colName.split("\\.", 2)
+    if (colNameSplit.length > 1 && plan.dfAliasMap.contains(colNameSplit(0))) {
+      (colNameSplit(1), plan.dfAliasMap(colNameSplit(0)))
+    } else {
+      (colName, output)
     }
   }
 

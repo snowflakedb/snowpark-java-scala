@@ -304,6 +304,14 @@ class ErrorMessageSuite extends FunSuite {
         "At most one table function can be called inside select() function"))
   }
 
+  test("DF_ALIAS_DUPLICATES") {
+    val ex = ErrorMessage.DF_ALIAS_DUPLICATES(Set("a", "b"))
+    assert(ex.telemetryMessage.equals(ErrorMessage.getMessage("0132")))
+    assert(
+      ex.message.startsWith("Error Code: 0132, Error message: " +
+        "Duplicated dataframe alias defined: a, b"))
+  }
+
   test("UDF_INCORRECT_ARGS_NUMBER") {
     val ex = ErrorMessage.UDF_INCORRECT_ARGS_NUMBER(1, 2)
     assert(ex.telemetryMessage.equals(ErrorMessage.getMessage("0200")))

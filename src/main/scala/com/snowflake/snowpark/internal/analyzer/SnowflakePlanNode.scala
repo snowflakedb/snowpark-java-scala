@@ -2,6 +2,7 @@ package com.snowflake.snowpark.internal.analyzer
 
 import com.snowflake.snowpark.internal.ErrorMessage
 import com.snowflake.snowpark.Row
+import scala.collection.mutable.{Map => MMap}
 
 private[snowpark] trait LogicalPlan {
   def children: Seq[LogicalPlan] = Seq.empty
@@ -18,6 +19,23 @@ private[snowpark] trait LogicalPlan {
     (analyzedPlan, analyzer.getAliasMap)
   }
 
+  var dfAliasMap: MMap[String, Seq[Attribute]] = MMap.empty
+
+  // map from df alias string to snowflakePlan.output
+  // add to map when DataframeAlias node is createdFromChild
+  // merge map when analyze is called on leafNode, unaryNode, multiChildrenNode
+  // report conflict if there is merge collision
+  // New expression dataframeAttribute when input has .
+  // Expression analizer -> see dataframeAttribute -> split and search map
+  // if map does not contain the key, then treat as normal column name
+  // else search for Attribute with the name in the attribute list
+  protected def addToDataframeAliasMap(map: MMap[String, Seq[Attribute]]): Unit = {
+    val duplicatedAlias = dfAliasMap.keySet.intersect(map.keySet)
+    if (duplicatedAlias.nonEmpty) {
+      throw ErrorMessage.DF_ALIAS_DUPLICATES(duplicatedAlias)
+    }
+    dfAliasMap ++= map
+  }
   protected def analyze: LogicalPlan
   protected def analyzer: ExpressionAnalyzer
 
@@ -69,7 +87,7 @@ private[snowpark] trait LogicalPlan {
 
 private[snowpark] trait LeafNode extends LogicalPlan {
   // create ExpressionAnalyzer with empty alias map
-  override protected val analyzer: ExpressionAnalyzer = ExpressionAnalyzer()
+  override protected val analyzer: ExpressionAnalyzer = ExpressionAnalyzer(dfAliasMap)
 
   // leaf node doesn't have child
   override def updateChildren(func: LogicalPlan => LogicalPlan): LogicalPlan = this
@@ -138,8 +156,9 @@ private[snowpark] trait UnaryNode extends LogicalPlan {
   lazy protected val analyzedChild: LogicalPlan = child.analyzed
   // create expression analyzer from child's alias map
   lazy override protected val analyzer: ExpressionAnalyzer =
-    ExpressionAnalyzer(child.aliasMap)
+    ExpressionAnalyzer(child.aliasMap, dfAliasMap)
 
+  addToDataframeAliasMap(child.dfAliasMap)
   override protected def analyze: LogicalPlan = createFromAnalyzedChild(analyzedChild)
 
   protected def createFromAnalyzedChild: LogicalPlan => LogicalPlan
@@ -190,6 +209,17 @@ private[snowpark] case class Sort(order: Seq[SortOrder], child: LogicalPlan) ext
 
   override protected def updateChild: LogicalPlan => LogicalPlan =
     Sort(order, _)
+}
+
+private[snowpark] case class DataframeAlias(alias: String, child: LogicalPlan)
+  extends UnaryNode {
+  dfAliasMap += (alias -> child.getSnowflakePlan.get.output)
+  override protected def createFromAnalyzedChild: LogicalPlan => LogicalPlan = child => {
+    DataframeAlias(alias, child)
+  }
+
+  override protected def updateChild: LogicalPlan => LogicalPlan =
+    createFromAnalyzedChild
 }
 
 private[snowpark] case class Aggregate(

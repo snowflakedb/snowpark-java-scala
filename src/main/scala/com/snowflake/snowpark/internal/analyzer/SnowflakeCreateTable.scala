@@ -10,7 +10,7 @@ case class SnowflakeCreateTable(tableName: String, mode: SaveMode, query: Option
     SnowflakeCreateTable(tableName, mode, query.map(_.analyzed))
 
   override protected val analyzer: ExpressionAnalyzer =
-    ExpressionAnalyzer(query.map(_.aliasMap).getOrElse(Map.empty))
+    ExpressionAnalyzer(query.map(_.aliasMap).getOrElse(Map.empty), dfAliasMap)
 
   override def updateChildren(func: LogicalPlan => LogicalPlan): LogicalPlan = {
     val newQuery = query.map(func)
