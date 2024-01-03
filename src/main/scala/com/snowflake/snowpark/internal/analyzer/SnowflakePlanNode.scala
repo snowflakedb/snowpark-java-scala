@@ -21,12 +21,15 @@ private[snowpark] trait LogicalPlan {
 
   var dfAliasMap: Map[String, Seq[Attribute]] = Map.empty
 
-  protected def addToDataframeAliasMap(map: Map[String, Seq[Attribute]]): Unit = {
-    val duplicatedAlias = dfAliasMap.keySet.intersect(map.keySet)
-    if (duplicatedAlias.nonEmpty) {
-      throw ErrorMessage.DF_ALIAS_DUPLICATES(duplicatedAlias)
+  protected def addToDataframeAliasMap(child: LogicalPlan): Unit = {
+    if (child != null) {
+      val map = child.dfAliasMap
+      val duplicatedAlias = dfAliasMap.keySet.intersect(map.keySet)
+      if (duplicatedAlias.nonEmpty) {
+        throw ErrorMessage.DF_ALIAS_DUPLICATES(duplicatedAlias)
+      }
+      dfAliasMap ++= map
     }
-    dfAliasMap ++= map
   }
   protected def analyze: LogicalPlan
   protected def analyzer: ExpressionAnalyzer
@@ -150,7 +153,7 @@ private[snowpark] trait UnaryNode extends LogicalPlan {
   lazy override protected val analyzer: ExpressionAnalyzer =
     ExpressionAnalyzer(child.aliasMap, dfAliasMap)
 
-  addToDataframeAliasMap(child.dfAliasMap)
+  addToDataframeAliasMap(child)
   override protected def analyze: LogicalPlan = createFromAnalyzedChild(analyzedChild)
 
   protected def createFromAnalyzedChild: LogicalPlan => LogicalPlan

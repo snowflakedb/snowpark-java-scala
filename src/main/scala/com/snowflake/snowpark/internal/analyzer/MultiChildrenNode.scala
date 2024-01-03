@@ -11,7 +11,7 @@ private[snowpark] trait MultiChildrenNode extends LogicalPlan {
 
   protected def updateChildren(newChildren: Seq[LogicalPlan]): MultiChildrenNode
 
-  children.foreach(child => addToDataframeAliasMap(child.dfAliasMap))
+  children.foreach(child => addToDataframeAliasMap(child))
   override protected def analyze: LogicalPlan =
     createFromAnalyzedChildren(children.map(_.analyzed))
 
