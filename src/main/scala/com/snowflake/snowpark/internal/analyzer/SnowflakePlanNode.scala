@@ -73,8 +73,6 @@ private[snowpark] trait LeafNode extends LogicalPlan {
   // create ExpressionAnalyzer with empty alias map
   override protected val analyzer: ExpressionAnalyzer = ExpressionAnalyzer()
 
-  override lazy val dfAliasMap: Map[String, Seq[Attribute]] = Map.empty
-
   // leaf node doesn't have child
   override def updateChildren(func: LogicalPlan => LogicalPlan): LogicalPlan = this
 
@@ -202,9 +200,8 @@ private[snowpark] case class DataframeAlias(alias: String, child: LogicalPlan)
 
   override lazy val dfAliasMap: Map[String, Seq[Attribute]] =
     Utils.addToDataframeAliasMap(Map(alias -> child.getSnowflakePlan.get.output), child)
-  override protected def createFromAnalyzedChild: LogicalPlan => LogicalPlan = child => {
-    DataframeAlias(alias, child)
-  }
+  override protected def createFromAnalyzedChild: LogicalPlan => LogicalPlan =
+    DataframeAlias(alias, _)
 
   override protected def updateChild: LogicalPlan => LogicalPlan =
     createFromAnalyzedChild
