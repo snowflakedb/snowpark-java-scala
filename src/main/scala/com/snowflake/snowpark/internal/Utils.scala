@@ -1,7 +1,7 @@
 package com.snowflake.snowpark.internal
 
 import com.snowflake.snowpark.Column
-import com.snowflake.snowpark.internal.analyzer.{Attribute, TableFunctionExpression, singleQuote}
+import com.snowflake.snowpark.internal.analyzer.{Attribute, LogicalPlan, TableFunctionExpression, singleQuote}
 
 import java.io.{File, FileInputStream}
 import java.lang.invoke.SerializedLambda
@@ -97,6 +97,20 @@ object Utils extends Logging {
       }
     }
     lastInternalLine + "\n" + stackTrace.take(stackDepth).mkString("\n")
+  }
+
+  def addToDataframeAliasMap(result: Map[String, Seq[Attribute]], child: LogicalPlan)
+  : Map[String, Seq[Attribute]] = {
+    if (child != null) {
+      val map = child.dfAliasMap
+      val duplicatedAlias = result.keySet.intersect(map.keySet)
+      if (duplicatedAlias.nonEmpty) {
+        throw ErrorMessage.DF_ALIAS_DUPLICATES(duplicatedAlias)
+      }
+      result ++ map
+    } else {
+      result
+    }
   }
 
   def logTime[T](f: => T, funcDescription: String): T = {

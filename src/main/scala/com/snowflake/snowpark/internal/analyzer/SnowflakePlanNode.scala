@@ -1,8 +1,7 @@
 package com.snowflake.snowpark.internal.analyzer
 
-import com.snowflake.snowpark.internal.ErrorMessage
+import com.snowflake.snowpark.internal.{ErrorMessage, Utils}
 import com.snowflake.snowpark.Row
-import scala.collection.mutable.{Map => MMap}
 
 private[snowpark] trait LogicalPlan {
   def children: Seq[LogicalPlan] = Seq.empty
@@ -19,18 +18,8 @@ private[snowpark] trait LogicalPlan {
     (analyzedPlan, analyzer.getAliasMap)
   }
 
-  var dfAliasMap: Map[String, Seq[Attribute]] = Map.empty
+  lazy val dfAliasMap: Map[String, Seq[Attribute]] = Map.empty
 
-  protected def addToDataframeAliasMap(child: LogicalPlan): Unit = {
-    if (child != null) {
-      val map = child.dfAliasMap
-      val duplicatedAlias = dfAliasMap.keySet.intersect(map.keySet)
-      if (duplicatedAlias.nonEmpty) {
-        throw ErrorMessage.DF_ALIAS_DUPLICATES(duplicatedAlias)
-      }
-      dfAliasMap ++= map
-    }
-  }
   protected def analyze: LogicalPlan
   protected def analyzer: ExpressionAnalyzer
 
@@ -83,6 +72,8 @@ private[snowpark] trait LogicalPlan {
 private[snowpark] trait LeafNode extends LogicalPlan {
   // create ExpressionAnalyzer with empty alias map
   override protected val analyzer: ExpressionAnalyzer = ExpressionAnalyzer()
+
+  override lazy val dfAliasMap: Map[String, Seq[Attribute]] = Map.empty
 
   // leaf node doesn't have child
   override def updateChildren(func: LogicalPlan => LogicalPlan): LogicalPlan = this
@@ -153,7 +144,7 @@ private[snowpark] trait UnaryNode extends LogicalPlan {
   lazy override protected val analyzer: ExpressionAnalyzer =
     ExpressionAnalyzer(child.aliasMap, dfAliasMap)
 
-  addToDataframeAliasMap(child)
+  override lazy val dfAliasMap: Map[String, Seq[Attribute]] = child.dfAliasMap
   override protected def analyze: LogicalPlan = createFromAnalyzedChild(analyzedChild)
 
   protected def createFromAnalyzedChild: LogicalPlan => LogicalPlan
@@ -208,7 +199,9 @@ private[snowpark] case class Sort(order: Seq[SortOrder], child: LogicalPlan) ext
 
 private[snowpark] case class DataframeAlias(alias: String, child: LogicalPlan)
   extends UnaryNode {
-  dfAliasMap += (alias -> child.getSnowflakePlan.get.output)
+
+  override lazy val dfAliasMap: Map[String, Seq[Attribute]] =
+    Utils.addToDataframeAliasMap(Map(alias -> child.getSnowflakePlan.get.output), child)
   override protected def createFromAnalyzedChild: LogicalPlan => LogicalPlan = child => {
     DataframeAlias(alias, child)
   }
