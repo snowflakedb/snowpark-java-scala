@@ -14,11 +14,10 @@ private[snowpark] trait MultiChildrenNode extends LogicalPlan {
   protected def updateChildren(newChildren: Seq[LogicalPlan]): MultiChildrenNode
 
 
-  override lazy val dfAliasMap: Map[String, Seq[Attribute]] = {
-    var result: Map[String, Seq[Attribute]] = Map.empty
-    children.foreach(child => result = Utils.addToDataframeAliasMap(result, child))
-    result
-  }
+  override lazy val dfAliasMap: Map[String, Seq[Attribute]] =
+    children.foldLeft(Map.empty[String, Seq[Attribute]]) {
+      case (map, child) => Utils.addToDataframeAliasMap(map, child)
+    }
 
   override protected def analyze: LogicalPlan =
     createFromAnalyzedChildren(children.map(_.analyzed))

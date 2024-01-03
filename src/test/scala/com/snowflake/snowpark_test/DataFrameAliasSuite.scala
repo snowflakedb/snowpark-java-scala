@@ -38,6 +38,15 @@ class DataFrameAliasSuite extends TestData with BeforeAndAfterEach with EagerSes
     checkAnswer(df1.select($"B.num"), Seq(Row(1), Row(2), Row(3)))
   }
 
+  test("Test for alias with dot in column name") {
+    createTable(tableName1, "\"num.col\" int")
+    runQuery(s"insert into $tableName1 values(1),(2),(3)", session)
+    val df = session.table(tableName1).alias("A")
+    checkAnswer(df.select(df.col("A.num.col")), Seq(Row(1), Row(2), Row(3)))
+    checkAnswer(df.select(col("A.num.col")), Seq(Row(1), Row(2), Row(3)))
+    checkAnswer(df.select($"A.num.col"), Seq(Row(1), Row(2), Row(3)))
+  }
+
   test("Test for alias with join") {
     createTable(tableName1, "id1 int, num1 int")
     createTable(tableName2, "id2 int, num2 int")
