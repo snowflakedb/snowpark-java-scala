@@ -1,5 +1,7 @@
 package com.snowflake.snowpark.internal.analyzer
 
+import com.snowflake.snowpark.internal.Utils
+
 private[snowpark] trait MultiChildrenNode extends LogicalPlan {
   override def updateChildren(func: LogicalPlan => LogicalPlan): LogicalPlan = {
     val newChildren: Seq[LogicalPlan] = children.map(func)
@@ -11,13 +13,19 @@ private[snowpark] trait MultiChildrenNode extends LogicalPlan {
 
   protected def updateChildren(newChildren: Seq[LogicalPlan]): MultiChildrenNode
 
+
+  override lazy val dfAliasMap: Map[String, Seq[Attribute]] =
+    children.foldLeft(Map.empty[String, Seq[Attribute]]) {
+      case (map, child) => Utils.addToDataframeAliasMap(map, child)
+    }
+
   override protected def analyze: LogicalPlan =
     createFromAnalyzedChildren(children.map(_.analyzed))
 
   protected def createFromAnalyzedChildren: Seq[LogicalPlan] => MultiChildrenNode
 
   override protected def analyzer: ExpressionAnalyzer =
-    ExpressionAnalyzer(children.map(_.aliasMap))
+    ExpressionAnalyzer(children.map(_.aliasMap), dfAliasMap)
 
   lazy override val internalRenamedColumns: Map[String, String] =
     children.map(_.internalRenamedColumns).reduce(_ ++ _)

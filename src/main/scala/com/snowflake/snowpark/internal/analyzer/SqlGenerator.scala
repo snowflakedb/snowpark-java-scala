@@ -157,6 +157,7 @@ private object SqlGenerator extends Logging {
           .transformations(transformations)
           .options(options)
           .createSnowflakePlan()
+      case DataframeAlias(_, child) => resolveChild(child)
     }
   }
 

@@ -1,6 +1,6 @@
 package com.snowflake.snowpark.internal.analyzer
 
-import com.snowflake.snowpark.internal.ErrorMessage
+import com.snowflake.snowpark.internal.{ErrorMessage, Utils}
 import com.snowflake.snowpark.Row
 
 private[snowpark] trait LogicalPlan {
@@ -17,6 +17,8 @@ private[snowpark] trait LogicalPlan {
     analyzedPlan.setSourcePlan(this)
     (analyzedPlan, analyzer.getAliasMap)
   }
+
+  lazy val dfAliasMap: Map[String, Seq[Attribute]] = Map.empty
 
   protected def analyze: LogicalPlan
   protected def analyzer: ExpressionAnalyzer
@@ -138,8 +140,9 @@ private[snowpark] trait UnaryNode extends LogicalPlan {
   lazy protected val analyzedChild: LogicalPlan = child.analyzed
   // create expression analyzer from child's alias map
   lazy override protected val analyzer: ExpressionAnalyzer =
-    ExpressionAnalyzer(child.aliasMap)
+    ExpressionAnalyzer(child.aliasMap, dfAliasMap)
 
+  override lazy val dfAliasMap: Map[String, Seq[Attribute]] = child.dfAliasMap
   override protected def analyze: LogicalPlan = createFromAnalyzedChild(analyzedChild)
 
   protected def createFromAnalyzedChild: LogicalPlan => LogicalPlan
@@ -190,6 +193,18 @@ private[snowpark] case class Sort(order: Seq[SortOrder], child: LogicalPlan) ext
 
   override protected def updateChild: LogicalPlan => LogicalPlan =
     Sort(order, _)
+}
+
+private[snowpark] case class DataframeAlias(alias: String, child: LogicalPlan)
+  extends UnaryNode {
+
+  override lazy val dfAliasMap: Map[String, Seq[Attribute]] =
+    Utils.addToDataframeAliasMap(Map(alias -> child.getSnowflakePlan.get.output), child)
+  override protected def createFromAnalyzedChild: LogicalPlan => LogicalPlan =
+    DataframeAlias(alias, _)
+
+  override protected def updateChild: LogicalPlan => LogicalPlan =
+    createFromAnalyzedChild
 }
 
 private[snowpark] case class Aggregate(

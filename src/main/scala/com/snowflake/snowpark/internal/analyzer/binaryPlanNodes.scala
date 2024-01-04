@@ -1,8 +1,7 @@
 package com.snowflake.snowpark.internal.analyzer
 
 import java.util.Locale
-
-import com.snowflake.snowpark.internal.ErrorMessage
+import com.snowflake.snowpark.internal.{ErrorMessage, Utils}
 
 private[snowpark] abstract class BinaryNode extends LogicalPlan {
   def left: LogicalPlan
@@ -14,7 +13,11 @@ private[snowpark] abstract class BinaryNode extends LogicalPlan {
   lazy protected val analyzedRight: LogicalPlan = right.analyzed
 
   lazy override protected val analyzer: ExpressionAnalyzer =
-    ExpressionAnalyzer(left.aliasMap, right.aliasMap)
+    ExpressionAnalyzer(left.aliasMap, right.aliasMap, dfAliasMap)
+
+
+  override lazy val dfAliasMap: Map[String, Seq[Attribute]] =
+    Utils.addToDataframeAliasMap(Utils.addToDataframeAliasMap(Map.empty, left), right)
 
   override def analyze: LogicalPlan =
     createFromAnalyzedChildren(analyzedLeft, analyzedRight)

@@ -14,7 +14,7 @@ case class TableDelete(
     TableDelete(tableName, condition.map(_.analyze(analyzer.analyze)), sourceData.map(_.analyzed))
 
   override protected def analyzer: ExpressionAnalyzer =
-    ExpressionAnalyzer(sourceData.map(_.aliasMap).getOrElse(Map.empty))
+    ExpressionAnalyzer(sourceData.map(_.aliasMap).getOrElse(Map.empty), dfAliasMap)
 
   override def updateChildren(func: LogicalPlan => LogicalPlan): LogicalPlan = {
     val newSource = sourceData.map(func)

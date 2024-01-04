@@ -803,6 +803,25 @@ public class DataFrame extends Logging implements Cloneable {
   }
 
   /**
+   * Returns the current DataFrame aliased as the input alias name.
+   *
+   * For example:
+   *
+   * {{{
+   *   val df2 = df.alias("A")
+   *   df2.select(df2.col("A.num"))
+   * }}}
+   *
+   * @group basic
+   * @since 1.10.0
+   * @param alias The alias name of the dataframe
+   * @return a [[DataFrame]]
+   */
+  public DataFrame alias(String alias) {
+    return new DataFrame(this.df.alias(alias));
+  }
+
+  /**
    * Executes the query representing this DataFrame and returns the result as an array of Row
    * objects.
    *

@@ -75,6 +75,16 @@ private[snowpark] case class Alias(child: Expression, name: String, isInternal: 
   override protected val createAnalyzedUnary: Expression => Expression = Alias(_, name)
 }
 
+private[snowpark] case class DfAlias(child: Expression, name: String)
+  extends UnaryExpression
+    with NamedExpression {
+  override def sqlOperator: String = ""
+  override def operatorFirst: Boolean = false
+  override def toString: String = ""
+
+  override protected val createAnalyzedUnary: Expression => Expression = DfAlias(_, name)
+}
+
 private[snowpark] case class UnresolvedAlias(
     child: Expression,
     aliasFunc: Option[Expression => String] = None)

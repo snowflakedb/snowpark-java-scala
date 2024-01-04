@@ -69,6 +69,7 @@ private[snowpark] object ErrorMessage {
     "0129" -> "DataFrameWriter doesn't support mode '%s' when writing to a %s.",
     "0130" -> "Unsupported join operations, Dataframes can join with other Dataframes or TableFunctions only",
     "0131" -> "At most one table function can be called inside select() function",
+    "0132" -> "Duplicated dataframe alias defined: %s",
     // Begin to define UDF related messages
     "0200" -> "Incorrect number of arguments passed to the UDF: Expected: %d, Found: %d",
     "0201" -> "Attempted to call an unregistered UDF. You must register the UDF before calling it.",
@@ -251,6 +252,9 @@ private[snowpark] object ErrorMessage {
 
   def DF_MORE_THAN_ONE_TF_IN_SELECT(): SnowparkClientException =
     createException("0131")
+
+  def DF_ALIAS_DUPLICATES(duplicatedAlias: scala.collection.Set[String]): SnowparkClientException =
+    createException("0132", duplicatedAlias.mkString(", "))
 
   /*
    * 2NN: UDF error code

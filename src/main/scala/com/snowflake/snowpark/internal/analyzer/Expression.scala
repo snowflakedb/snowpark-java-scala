@@ -390,6 +390,19 @@ private[snowpark] case class UnresolvedAttribute(override val name: String)
     this
 }
 
+private[snowpark] case class UnresolvedDFAliasAttribute(override val name: String)
+  extends Expression with NamedExpression {
+  override def sql: String = ""
+
+  override def children: Seq[Expression] = Seq.empty
+
+  // can't analyze
+  override lazy val dependentColumnNames: Option[Set[String]] = None
+
+  override protected def createAnalyzedExpression(analyzedChildren: Seq[Expression]): Expression =
+    this
+}
+
 private[snowpark] case class ListAgg(col: Expression, delimiter: String, isDistinct: Boolean)
     extends Expression {
   override def children: Seq[Expression] = Seq(col)
