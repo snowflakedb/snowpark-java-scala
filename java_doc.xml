@@ -68,9 +68,7 @@
                 <version>3.3.1</version>
                 <configuration>
                     <additionalOptions>--allow-script-in-comments</additionalOptions>
-                    <bottom>&#169; {currentYear} Snowflake Inc. All Rights Reserved</bottom>
-                    <doctitle>Snowpark Java API Reference ${project.version}</doctitle>
-                    <footer>
+                    <bottom>&#169; {currentYear} Snowflake Inc. All Rights Reserved
                      <![CDATA[
                        <!-- Google Analytics Code -->
                        <script>
@@ -98,7 +96,8 @@
                        }
                        </script>
                      ]]>
-                    </footer>
+                     </bottom>
+                    <doctitle>Snowpark Java API Reference ${project.version}</doctitle>
                     <header>
                       <![CDATA[
                         <div style="margin-top: 14px"><strong>

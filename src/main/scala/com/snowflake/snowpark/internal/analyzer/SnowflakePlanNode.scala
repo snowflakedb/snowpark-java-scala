@@ -195,8 +195,7 @@ private[snowpark] case class Sort(order: Seq[SortOrder], child: LogicalPlan) ext
     Sort(order, _)
 }
 
-private[snowpark] case class DataframeAlias(alias: String, child: LogicalPlan)
-  extends UnaryNode {
+private[snowpark] case class DataframeAlias(alias: String, child: LogicalPlan) extends UnaryNode {
 
   override lazy val dfAliasMap: Map[String, Seq[Attribute]] =
     Utils.addToDataframeAliasMap(Map(alias -> child.getSnowflakePlan.get.output), child)
