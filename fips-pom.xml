@@ -577,6 +577,7 @@
                                 --add-exports=java.base/sun.nio.ch=ALL-UNNAMED
                                 --add-exports=jdk.unsupported/sun.misc=ALL-UNNAMED
                                 --add-opens=java.base/sun.security.util=ALL-UNNAMED
+                                -DFIPS_TEST=true
                             </argLine>
                         </configuration>
                     </plugin>
@@ -590,6 +591,7 @@
                                 --add-exports=java.base/sun.nio.ch=ALL-UNNAMED
                                 --add-exports=jdk.unsupported/sun.misc=ALL-UNNAMED
                                 --add-opens=java.base/sun.security.util=ALL-UNNAMED
+                                -DFIPS_TEST=true
                             </argLine>
                         </configuration>
                     </plugin>
