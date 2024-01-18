@@ -253,7 +253,8 @@ private[snowpark] object ErrorMessage {
   def DF_MORE_THAN_ONE_TF_IN_SELECT(): SnowparkClientException =
     createException("0131")
 
-  def DF_ALIAS_DUPLICATES(duplicatedAlias: scala.collection.Set[String]): SnowparkClientException =
+  def DF_ALIAS_DUPLICATES(
+      duplicatedAlias: scala.collection.Set[String]): SnowparkClientException =
     createException("0132", duplicatedAlias.mkString(", "))
 
   /*

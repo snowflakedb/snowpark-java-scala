@@ -54,15 +54,27 @@ class DataFrameAliasSuite extends TestData with BeforeAndAfterEach with EagerSes
     runQuery(s"insert into $tableName2 values(1, 7),(2, 8),(3, 9)", session)
     val df1 = session.table(tableName1).alias("A")
     val df2 = session.table(tableName2).alias("B")
-    checkAnswer(df1.join(df2, $"id1" === $"id2")
-      .select(df1.col("A.num1")), Seq(Row(4), Row(5), Row(6)))
-    checkAnswer(df1.join(df2, $"id1" === $"id2")
-      .select(df2.col("B.num2")), Seq(Row(7), Row(8), Row(9)))
+    checkAnswer(
+      df1
+        .join(df2, $"id1" === $"id2")
+        .select(df1.col("A.num1")),
+      Seq(Row(4), Row(5), Row(6)))
+    checkAnswer(
+      df1
+        .join(df2, $"id1" === $"id2")
+        .select(df2.col("B.num2")),
+      Seq(Row(7), Row(8), Row(9)))
 
-    checkAnswer(df1.join(df2, $"id1" === $"id2")
-      .select($"A.num1"), Seq(Row(4), Row(5), Row(6)))
-    checkAnswer(df1.join(df2, $"id1" === $"id2")
-      .select($"B.num2"), Seq(Row(7), Row(8), Row(9)))
+    checkAnswer(
+      df1
+        .join(df2, $"id1" === $"id2")
+        .select($"A.num1"),
+      Seq(Row(4), Row(5), Row(6)))
+    checkAnswer(
+      df1
+        .join(df2, $"id1" === $"id2")
+        .select($"B.num2"),
+      Seq(Row(7), Row(8), Row(9)))
   }
 
   test("Test for alias with join with column renaming") {
@@ -72,16 +84,23 @@ class DataFrameAliasSuite extends TestData with BeforeAndAfterEach with EagerSes
     runQuery(s"insert into $tableName2 values(1, 7),(2, 8),(3, 9)", session)
     val df1 = session.table(tableName1).alias("A")
     val df2 = session.table(tableName2).alias("B")
-    checkAnswer(df1.join(df2, df1.col("id") === df2.col("id"))
-      .select(df1.col("A.num")), Seq(Row(4), Row(5), Row(6)))
-    checkAnswer(df1.join(df2, df1.col("id") === df2.col("id"))
-      .select(df2.col("B.num")), Seq(Row(7), Row(8), Row(9)))
+    checkAnswer(
+      df1
+        .join(df2, df1.col("id") === df2.col("id"))
+        .select(df1.col("A.num")),
+      Seq(Row(4), Row(5), Row(6)))
+    checkAnswer(
+      df1
+        .join(df2, df1.col("id") === df2.col("id"))
+        .select(df2.col("B.num")),
+      Seq(Row(7), Row(8), Row(9)))
 
     // The following use case is out of the scope of supporting alias
     // We still follow the old ambiguity resolving policy and require DF to be used
     assertThrows[SnowparkClientException](
-      df1.join(df2, df1.col("id") === df2.col("id"))
-      .select($"A.num"))
+      df1
+        .join(df2, df1.col("id") === df2.col("id"))
+        .select($"A.num"))
   }
 
   test("Test for alias conflict") {
@@ -90,7 +109,8 @@ class DataFrameAliasSuite extends TestData with BeforeAndAfterEach with EagerSes
     val df1 = session.table(tableName1).alias("A")
     val df2 = session.table(tableName2).alias("A")
     assertThrows[SnowparkClientException](
-      df1.join(df2, df1.col("id") === df2.col("id"))
-      .select(df1.col("A.num")))
+      df1
+        .join(df2, df1.col("id") === df2.col("id"))
+        .select(df1.col("A.num")))
   }
 }
