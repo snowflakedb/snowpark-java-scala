@@ -1,7 +1,12 @@
 package com.snowflake.snowpark.internal
 
 import com.snowflake.snowpark.Column
-import com.snowflake.snowpark.internal.analyzer.{Attribute, LogicalPlan, TableFunctionExpression, singleQuote}
+import com.snowflake.snowpark.internal.analyzer.{
+  Attribute,
+  LogicalPlan,
+  TableFunctionExpression,
+  singleQuote
+}
 
 import java.io.{File, FileInputStream}
 import java.lang.invoke.SerializedLambda
@@ -15,7 +20,7 @@ import scala.collection.mutable.ArrayBuffer
 import scala.util.Random
 
 object Utils extends Logging {
-  val Version: String = "1.10.0-SNAPSHOT"
+  val Version: String = "1.11.0-SNAPSHOT"
   // Package name of snowpark on server side
   val SnowparkPackageName = "com.snowflake:snowpark"
   val PackageNameDelimiter = ":"
@@ -99,8 +104,9 @@ object Utils extends Logging {
     lastInternalLine + "\n" + stackTrace.take(stackDepth).mkString("\n")
   }
 
-  def addToDataframeAliasMap(result: Map[String, Seq[Attribute]], child: LogicalPlan)
-  : Map[String, Seq[Attribute]] = {
+  def addToDataframeAliasMap(
+      result: Map[String, Seq[Attribute]],
+      child: LogicalPlan): Map[String, Seq[Attribute]] = {
     if (child != null) {
       val map = child.dfAliasMap
       val duplicatedAlias = result.keySet.intersect(map.keySet)

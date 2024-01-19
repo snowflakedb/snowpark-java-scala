@@ -15,7 +15,6 @@ private[snowpark] abstract class BinaryNode extends LogicalPlan {
   lazy override protected val analyzer: ExpressionAnalyzer =
     ExpressionAnalyzer(left.aliasMap, right.aliasMap, dfAliasMap)
 
-
   override lazy val dfAliasMap: Map[String, Seq[Attribute]] =
     Utils.addToDataframeAliasMap(Utils.addToDataframeAliasMap(Map.empty, left), right)
 

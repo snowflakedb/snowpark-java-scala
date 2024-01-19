@@ -391,7 +391,8 @@ private[snowpark] case class UnresolvedAttribute(override val name: String)
 }
 
 private[snowpark] case class UnresolvedDFAliasAttribute(override val name: String)
-  extends Expression with NamedExpression {
+    extends Expression
+    with NamedExpression {
   override def sql: String = ""
 
   override def children: Seq[Expression] = Seq.empty

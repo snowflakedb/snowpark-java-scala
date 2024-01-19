@@ -61,7 +61,7 @@ public class DataFrameWriter {
   /**
    * Sets the specified option in the DataFrameWriter.
    *
-   * <h2>Sets the specified option for saving data to a table</h2>
+   * <p><b>Sets the specified option for saving data to a table</b>
    *
    * <p>Use this method to configure options:
    *
@@ -70,7 +70,7 @@ public class DataFrameWriter {
    *       and the target table exists.
    * </ul>
    *
-   * <h2>Sets the specified option for saving data to a file on a stage</h2>
+   * <b>Sets the specified option for saving data to a file on a stage</b>
    *
    * <p>Use this method to configure options:
    *
@@ -117,7 +117,7 @@ public class DataFrameWriter {
   /**
    * Sets multiple specified options in the DataFrameWriter.
    *
-   * <h2>Sets the specified option for saving data to a table</h2>
+   * <p><b>Sets the specified option for saving data to a table</b>
    *
    * <p>Use this method to configure options:
    *
@@ -126,7 +126,7 @@ public class DataFrameWriter {
    *       and the target table exists.
    * </ul>
    *
-   * <h2>Sets the specified option for saving data to a file on a stage</h2>
+   * <b>Sets the specified option for saving data to a file on a stage</b>
    *
    * <p>Use this method to configure options:
    *

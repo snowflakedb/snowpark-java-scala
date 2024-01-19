@@ -76,7 +76,7 @@ private[snowpark] case class Alias(child: Expression, name: String, isInternal: 
 }
 
 private[snowpark] case class DfAlias(child: Expression, name: String)
-  extends UnaryExpression
+    extends UnaryExpression
     with NamedExpression {
   override def sqlOperator: String = ""
   override def operatorFirst: Boolean = false
