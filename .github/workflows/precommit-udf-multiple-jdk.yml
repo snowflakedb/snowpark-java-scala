@@ -24,4 +24,4 @@ jobs:
         env:
           PROFILE_PASSWORD: ${{ secrets.PROFILE_PASSWORD }}
       - name: Run test
-        run: mvn -Dgpg.skip test -Dsuites="com.snowflake.snowpark_test.UDTFSuite,com.snowflake.snowpark_test.AlwaysCleanUDFSuite"
+        run: mvn -Dgpg.skip test -Dsuites="com.snowflake.snowpark_test.UDTFSuite,com.snowflake.snowpark_test.AlwaysCleanUDFSuite,com.snowflake.snowpark_test.StoredProcedureSuite"
