@@ -938,7 +938,7 @@ class UDXRegistrationHandler(session: Session) extends Logging {
          |CREATE $tempType PROCEDURE $spName($sqlFunctionArgs)
          |RETURNS $returnSqlType
          |LANGUAGE JAVA
-         |RUNTIME_VERSION = '11'
+         |$getRuntimeVersion
          |$packageSql
          |$importSql
          |target_path='$targetJarStageLocation'
