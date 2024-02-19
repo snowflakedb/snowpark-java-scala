@@ -373,6 +373,17 @@ public final class Functions {
   }
 
   /**
+   * Returns the sum of non-NULL records in a group. You can use the DISTINCT keyword to compute the
+   * sum of unique non-null values. If all records inside a group are NULL, the function returns
+   * NULL.
+   *
+   * @since 0.9.0
+   * @param str The input string
+   * @return The result column
+   */
+  public static Column sum(String str) { return sum(col(str)); }
+
+  /**
    * Returns the sum of non-NULL distinct records in a group. You can use the DISTINCT keyword to
    * compute the sum of unique non-null values. If all records inside a group are NULL, the function
    * returns NULL.

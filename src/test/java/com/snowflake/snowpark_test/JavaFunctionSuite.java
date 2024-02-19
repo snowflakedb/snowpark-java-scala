@@ -195,6 +195,8 @@ public class JavaFunctionSuite extends TestBase {
 
     checkAnswer(df.groupBy(df.col("a")).agg(Functions.sum(df.col("a"))), expected, false);
 
+    checkAnswer(df.groupBy(df.col("a")).agg(Functions.sum("a")), expected, false);
+
     Row[] expected1 = {Row.create(3, 3), Row.create(2, 2), Row.create(1, 1)};
     checkAnswer(df.groupBy(df.col("a")).agg(Functions.sum_distinct(df.col("a"))), expected1, false);
   }
