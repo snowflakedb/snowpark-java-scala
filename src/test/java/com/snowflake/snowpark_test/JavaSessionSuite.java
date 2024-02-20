@@ -89,6 +89,14 @@ public class JavaSessionSuite extends TestBase {
   }
 
   @Test
+  public void appName() {
+    String appName = "my-app";
+    String expectedAppName = String.format("APPNAME=%s", appName);
+    Session session = Session.builder().configFile(defaultProfile).appName(appName).create();
+    assert (expectedAppName.equals(session.getQueryTag().get()));
+  }
+
+  @Test
   public void getSessionInfo() {
     String result = getSession().getSessionInfo();
     assert result.contains("snowpark.version");
