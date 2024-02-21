@@ -82,7 +82,8 @@ public class SessionBuilder {
   }
 
   /**
-   * Adds the app name to set in the query_tag after session creation
+   * Adds the app name to set in the query_tag after session creation.
+   * The query tag will be set with this format 'APPNAME=${appName}'.
    *
    * @param appName Name of the app.
    * @return A {@code SessionBuilder} object
