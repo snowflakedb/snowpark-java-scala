@@ -85,7 +85,7 @@ public class SessionBuilder {
    * Adds the app name to set in the query_tag after session creation
    *
    * @param appName Name of the app.
-   * @return A {@code Session} object
+   * @return A {@code SessionBuilder} object
    * @since 1.11.0
    */
   public SessionBuilder appName(String appName) {

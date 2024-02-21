@@ -1483,7 +1483,7 @@ object Session extends Logging {
     def create: Session = {
       val session = createInternal(None)
       val appName = this.appName
-      if(appName.isDefined) {
+      if (appName.isDefined) {
         session.setQueryTag(s"APPNAME=${appName.get}")
       }
       session
