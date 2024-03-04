@@ -80,4 +80,17 @@ public class SessionBuilder {
   public Session getOrCreate() {
     return new Session(this.builder.getOrCreate());
   }
+
+  /**
+   * Adds the app name to set in the query_tag after session creation.
+   * The query tag will be set with this format 'APPNAME=${appName}'.
+   *
+   * @param appName Name of the app.
+   * @return A {@code SessionBuilder} object
+   * @since 1.12.0
+   */
+  public SessionBuilder appName(String appName) {
+    this.builder.appName(appName);
+    return this;
+  }
 }

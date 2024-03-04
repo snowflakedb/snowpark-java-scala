@@ -251,6 +251,18 @@ class SessionSuite extends SNTestBase {
 
   }
 
+  test("Set an app name in the query tag") {
+    val appName = "my_app"
+    val expectedAppName = s"APPNAME=$appName"
+    val newSession = Session.builder.appName(appName).configFile(defaultProfile).create
+    assert(getParameterValue("query_tag", newSession) == expectedAppName)
+  }
+
+  test("The app name is not defined") {
+    val newSession = Session.builder.configFile(defaultProfile).create
+    assert(getParameterValue("query_tag", newSession) == "")
+  }
+
   test("generator") {
     checkAnswer(
       session.generator(3, Seq(lit(1).as("a"), lit(2).as("b"))),
