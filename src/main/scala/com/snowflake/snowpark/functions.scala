@@ -1017,6 +1017,46 @@ object functions {
 
   /**
    * Splits a given string with a given separator and returns the result in an array of strings.
+   * To specify a string separator, use the lit() function.
+   *
+   * Example 1:
+   * {{{
+   *   val df = session.createDataFrame(
+   *                  Seq(("many-many-words", "-"), ("hello--hello", "--"))).toDF("V", "D")
+   *   df.select(split(col("V"), col("D"))).show()
+   * }}}
+   *   -------------------------
+   *   |"SPLIT(""V"", ""D"")"  |
+   *   -------------------------
+   *   |[                      |
+   *   |  "many",              |
+   *   |  "many",              |
+   *   |  "words"              |
+   *   |]                      |
+   *   |[                      |
+   *   |  "hello",             |
+   *   |  "hello"              |
+   *   |]                      |
+   *   -------------------------
+   *
+   * Example 2:
+   * {{{
+   *   val df = session.createDataFrame(Seq("many-many-words", "hello-hi-hello")).toDF("V")
+   *   df.select(split(col("V"), lit("-"))).show()
+   * }}}
+   *   -------------------------
+   *   |"SPLIT(""V"", ""D"")"  |
+   *   -------------------------
+   *   |[                      |
+   *   |  "many",              |
+   *   |  "many",              |
+   *   |  "words"              |
+   *   |]                      |
+   *   |[                      |
+   *   |  "hello",             |
+   *   |  "hello"              |
+   *   |]                      |
+   *   -------------------------
    *
    * @group str_func
    * @since 0.1.0
