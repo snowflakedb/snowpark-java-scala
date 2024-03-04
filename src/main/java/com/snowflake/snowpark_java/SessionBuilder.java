@@ -87,7 +87,7 @@ public class SessionBuilder {
    *
    * @param appName Name of the app.
    * @return A {@code SessionBuilder} object
-   * @since 1.11.0
+   * @since 1.12.0
    */
   public SessionBuilder appName(String appName) {
     this.builder.appName(appName);

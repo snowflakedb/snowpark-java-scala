@@ -1415,7 +1415,7 @@ object Session extends Logging {
      *
      * @param appName Name of the app.
      * @return A [[SessionBuilder]]
-     * @since 1.11.0
+     * @since 1.12.0
      */
     def appName(appName: String): SessionBuilder = {
       this.appName = Some(appName)
