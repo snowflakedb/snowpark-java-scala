@@ -377,11 +377,11 @@ public final class Functions {
    * sum of unique non-null values. If all records inside a group are NULL, the function returns
    * NULL.
    *
-   * @since 0.9.0
-   * @param str The input string
+   * @since 1.12.0
+   * @param colName The input column name
    * @return The result column
    */
-  public static Column sum(String str) { return sum(col(str)); }
+  public static Column sum(String colName) { return sum(col(colName)); }
 
   /**
    * Returns the sum of non-NULL distinct records in a group. You can use the DISTINCT keyword to
