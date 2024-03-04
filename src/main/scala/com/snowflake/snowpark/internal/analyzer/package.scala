@@ -3,7 +3,7 @@ package com.snowflake.snowpark.internal
 import com.snowflake.snowpark.FileOperationCommand._
 import com.snowflake.snowpark.Row
 import com.snowflake.snowpark.internal.Utils.{TempObjectType, randomNameForTempObject}
-import com.snowflake.snowpark.types.{DataType, convertToSFType}
+import com.snowflake.snowpark.types.{ArrayType, DataType, MapType, convertToSFType}
 
 package object analyzer {
   // constant string
@@ -446,7 +446,9 @@ package object analyzer {
     val types = output.map(_.dataType)
     val rows = data.map { row =>
       val cells = row.toSeq.zip(types).map {
-        case (v, dType) => DataTypeMapper.toSql(v, Option(dType))
+        case (v: Seq[Any], _: ArrayType) => DataTypeMapper.toSql(ArrayLiteral(v))
+        case (v: Map[Any, Any], _: MapType) => DataTypeMapper.toSql(MapLiteral(v))
+        case (v, dType) => DataTypeMapper.toSql(Literal(v, Option(dType)))
       }
       cells.mkString(_LeftParenthesis, _Comma, _RightParenthesis)
     }
