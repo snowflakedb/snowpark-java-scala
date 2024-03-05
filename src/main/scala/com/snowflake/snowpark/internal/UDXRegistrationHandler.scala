@@ -829,6 +829,8 @@ class UDXRegistrationHandler(session: Session) extends Logging {
         case ArrayType(VariantType) => s"JavaUtils.stringArrayToJavaVariantArray(${arg.name})"
         case GeographyType if isScalaUDF => s"JavaUtils.stringToGeography(${arg.name})"
         case GeographyType => s"JavaUtils.stringToJavaGeography(${arg.name})"
+        case GeometryType if isScalaUDF => s"JavaUtils.stringToGeometry(${arg.name})"
+        case GeometryType => s"JavaUtils.stringToJavaGeometry(${arg.name})"
         case VariantType if isScalaUDF => s"JavaUtils.stringToVariant(${arg.name})"
         case VariantType => s"JavaUtils.stringToJavaVariant(${arg.name})"
         case _ => arg.name
@@ -850,6 +852,7 @@ class UDXRegistrationHandler(session: Session) extends Logging {
   private def convertReturnValue(returnValue: UdfColumnSchema, value: String): String = {
     returnValue.dataType match {
       case GeographyType => s"JavaUtils.geographyToString($value)"
+      case GeometryType => s"JavaUtils.geometryToString($value)"
       case VariantType => s"JavaUtils.variantToString($value)"
       case MapType(_, VariantType) => s"JavaUtils.javaVariantMapToStringMap($value)"
       case ArrayType(VariantType) => s"JavaUtils.variantArrayToStringArray($value)"

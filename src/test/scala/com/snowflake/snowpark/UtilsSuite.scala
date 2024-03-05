@@ -135,6 +135,7 @@ class UtilsSuite extends SNTestBase {
         BooleanType))
     assert(TypeToSchemaConverter.inferSchema[Variant]().head.dataType == VariantType)
     assert(TypeToSchemaConverter.inferSchema[Geography]().head.dataType == GeographyType)
+    assert(TypeToSchemaConverter.inferSchema[Geometry]().head.dataType == GeometryType)
 
     // tuple
     assert(

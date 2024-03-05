@@ -76,7 +76,8 @@ trait SNTestBase extends FunSuite with BeforeAndAfterAll with SFTestUtils with S
     TypeMap("variant", "variant", Types.VARCHAR, VariantType),
     TypeMap("object", "object", Types.VARCHAR, MapType(StringType, StringType)),
     TypeMap("array", "array", Types.VARCHAR, ArrayType(StringType)),
-    TypeMap("geography", "geography", Types.VARCHAR, GeographyType))
+    TypeMap("geography", "geography", Types.VARCHAR, GeographyType),
+    TypeMap("geometry", "geometry", Types.VARCHAR, GeometryType))
 
   implicit lazy val session: Session = {
     TestUtils.tryToLoadFipsProvider()

@@ -84,6 +84,7 @@ object TypeToSchemaConverter {
 
       case t if t =:= typeOf[Variant] => (VariantType, true)
       case t if t =:= typeOf[Geography] => (GeographyType, true)
+      case t if t =:= typeOf[Geometry] => (GeometryType, true)
       case t if t =:= typeOf[Date] => (DateType, true)
       case t if t =:= typeOf[Timestamp] => (TimestampType, true)
       case t if t =:= typeOf[Time] => (TimeType, true)

@@ -30,8 +30,8 @@ object DataTypeMapper {
       case None => "NULL"
       case Some(dt) =>
         (value, dt) match {
-          case (_, _: ArrayType | _: MapType | _: StructType | GeographyType) if value == null =>
-            "NULL"
+          case (_, _: ArrayType | _: MapType | _: StructType | GeographyType| GeometryType)
+            if value == null => "NULL"
           case (_, IntegerType) if value == null => "NULL :: int"
           case (_, ShortType) if value == null => "NULL :: smallint"
           case (_, ByteType) if value == null => "NULL :: tinyint"
@@ -88,6 +88,7 @@ object DataTypeMapper {
     if (isNullable) {
       dataType match {
         case GeographyType => "TRY_TO_GEOGRAPHY(NULL)"
+        case GeometryType => "TRY_TO_GEOMETRY(NULL)"
         case ArrayType(_) => "PARSE_JSON('NULL')::ARRAY"
         case _ => "NULL :: " + convertToSFType(dataType)
       }
@@ -104,6 +105,7 @@ object DataTypeMapper {
         case _: MapType => "to_object(parse_json('0'))"
         case VariantType => "to_variant(0)"
         case GeographyType => "to_geography('POINT(-122.35 37.55)')"
+        case GeographyType => "to_geometry('POINT(-122.35 37.55)')"
         case _ =>
           throw new UnsupportedOperationException(s"Unsupported data type: ${dataType.typeName}")
       }
