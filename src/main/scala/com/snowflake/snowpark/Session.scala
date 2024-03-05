@@ -1394,6 +1394,7 @@ object Session extends Logging {
     private var options: Map[String, String] = Map()
 
     private var isScalaAPI: Boolean = true
+    private var appName: Option[String] = None
 
     // used by Java API only
     private[snowpark] def setJavaAPI(): SessionBuilder = {
@@ -1404,6 +1405,20 @@ object Session extends Logging {
     // Used only for tests
     private[snowpark] def removeConfig(key: String): SessionBuilder = {
       options -= key
+      this
+    }
+
+
+    /**
+     * Adds the app name to set in the query_tag after session creation.
+     * The query tag will be set with this format 'APPNAME=${appName}'.
+     *
+     * @param appName Name of the app.
+     * @return A [[SessionBuilder]]
+     * @since 1.12.0
+     */
+    def appName(appName: String): SessionBuilder = {
+      this.appName = Some(appName)
       this
     }
 
@@ -1467,7 +1482,12 @@ object Session extends Logging {
      * @since 0.1.0
      */
     def create: Session = {
-      createInternal(None)
+      val session = createInternal(None)
+      val appName = this.appName
+      if (appName.isDefined) {
+        session.setQueryTag(s"APPNAME=${appName.get}")
+      }
+      session
     }
 
     /**
