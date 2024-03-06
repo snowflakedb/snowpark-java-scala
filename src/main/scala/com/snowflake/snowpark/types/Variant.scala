@@ -64,6 +64,7 @@ private[snowpark] object Variant {
     obj match {
       case v: Variant => v.value
       case g: Geography => new Variant(g.asGeoJSON()).value
+      case g: Geometry => new Variant(g.toString).value
       case _ => MAPPER.valueToTree(obj)
     }
   }

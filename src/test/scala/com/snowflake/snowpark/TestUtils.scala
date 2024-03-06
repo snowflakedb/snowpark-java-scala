@@ -260,6 +260,8 @@ object TestUtils extends Logging {
       case (a: Geography, b: Geography) =>
         // todo: improve Geography.equals method
         a.asGeoJSON().replaceAll("\\s", "").equals(b.asGeoJSON().replaceAll("\\s", ""))
+      case (a: Geometry, b: Geometry) =>
+        a.toString.replaceAll("\\s", "").equals(b.toString.replaceAll("\\s", ""))
       case (a, b) => a == b
     }
     if (!res) {

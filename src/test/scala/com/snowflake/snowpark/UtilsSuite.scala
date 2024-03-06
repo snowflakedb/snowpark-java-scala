@@ -224,7 +224,8 @@ class UtilsSuite extends SNTestBase {
           Geography,
           Date,
           Time,
-          Timestamp)]()
+          Timestamp,
+          Geometry)]()
       .treeString(0) ==
       """root
           | |--_1: Integer (nullable = true)
@@ -244,6 +245,7 @@ class UtilsSuite extends SNTestBase {
           | |--_15: Date (nullable = true)
           | |--_16: Time (nullable = true)
           | |--_17: Timestamp (nullable = true)
+          | |--_18: Geometry (nullable = true)
           |""".stripMargin
   }
 

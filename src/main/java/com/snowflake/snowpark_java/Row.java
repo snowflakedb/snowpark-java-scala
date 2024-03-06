@@ -139,7 +139,7 @@ public class Row implements Serializable, Cloneable {
     } else if (result instanceof com.snowflake.snowpark.types.Geography) {
       return Geography.fromGeoJSON(((com.snowflake.snowpark.types.Geography) result).asGeoJSON());
     } else if (result instanceof com.snowflake.snowpark.types.Geometry) {
-      return Geometry.fromGeoJSON(((com.snowflake.snowpark.types.Geometry) result).toString());
+      return Geometry.fromGeoJSON(result.toString());
     } else if (result instanceof com.snowflake.snowpark.types.Variant[]) {
       com.snowflake.snowpark.types.Variant[] scalaVariantArray =
           (com.snowflake.snowpark.types.Variant[]) result;
