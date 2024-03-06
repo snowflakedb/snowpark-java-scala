@@ -2,30 +2,10 @@ package com.snowflake.snowpark.internal
 
 import com.fasterxml.jackson.databind.JsonNode
 import com.snowflake.snowpark.Session.SessionBuilder
-import com.snowflake.snowpark.{
-  Column,
-  DataFrame,
-  DataFrameNaFunctions,
-  DataFrameStatFunctions,
-  GroupingSets,
-  MatchedClauseBuilder,
-  MergeBuilder,
-  NotMatchedClauseBuilder,
-  SProcRegistration,
-  Session,
-  StoredProcedure,
-  TableFunction,
-  TypedAsyncJob,
-  UDFRegistration,
-  UDTFRegistration,
-  Updatable,
-  UpdatableAsyncActor,
-  UpdateResult,
-  UserDefinedFunction
-}
+import com.snowflake.snowpark.{Column, DataFrame, DataFrameNaFunctions, DataFrameStatFunctions, GroupingSets, MatchedClauseBuilder, MergeBuilder, NotMatchedClauseBuilder, SProcRegistration, Session, StoredProcedure, TableFunction, TypedAsyncJob, UDFRegistration, UDTFRegistration, Updatable, UpdatableAsyncActor, UpdateResult, UserDefinedFunction}
 
 import java.io._
-import com.snowflake.snowpark.types.{Geography, Variant}
+import com.snowflake.snowpark.types.{Geography, Geometry, Variant}
 import com.snowflake.snowpark_java.types.InternalUtils
 import com.snowflake.snowpark_java.udtf._
 
@@ -180,8 +160,13 @@ object JavaUtils {
 
   def geographyToString(g: Geography): String = if (g == null) null else g.asGeoJSON()
 
+  def geometryToString(g: Geometry): String = if (g == null) null else g.toString()
+
   def geographyToString(g: com.snowflake.snowpark_java.types.Geography): String =
     if (g == null) null else g.asGeoJSON()
+
+  def geometryToString(g: com.snowflake.snowpark_java.types.Geometry): String =
+    if (g == null) null else g.toString
 
   def stringToGeography(g: String): Geography = if (g == null) null else Geography.fromGeoJSON(g)
 
