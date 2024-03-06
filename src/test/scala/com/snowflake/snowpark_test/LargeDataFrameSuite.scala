@@ -171,7 +171,8 @@ class LargeDataFrameSuite extends TestData {
         StructField("array", ArrayType(null)),
         StructField("map", MapType(null, null)),
         StructField("variant", VariantType),
-        StructField("geography", GeographyType)))
+        StructField("geography", GeographyType),
+        StructField("geometry", GeometryType)))
 
     val rowCount = 350
     val largeData = new ArrayBuffer[Row]()
@@ -182,7 +183,8 @@ class LargeDataFrameSuite extends TestData {
           Array("'", 2),
           Map("'" -> 1),
           new Variant(1),
-          Geography.fromGeoJSON("POINT(30 10)")))
+          Geography.fromGeoJSON("POINT(30 10)"),
+          Geometry.fromGeoJSON("POINT(20 40)")))
     }
     largeData.append(Row(rowCount, null, null, null, null, null))
 
@@ -195,6 +197,7 @@ class LargeDataFrameSuite extends TestData {
           | |--MAP: Map (nullable = true)
           | |--VARIANT: Variant (nullable = true)
           | |--GEOGRAPHY: Geography (nullable = true)
+          | |--GEOMETRY: Geometry (nullable = true)
           |""".stripMargin)
 
     val expected = new ArrayBuffer[Row]()
@@ -211,9 +214,17 @@ class LargeDataFrameSuite extends TestData {
                                   |    10
                                   |  ],
                                   |  "type": "Point"
-                                  |}""".stripMargin)))
+                                  |}""".stripMargin),
+            Geometry.fromGeoJSON(
+          """{
+            |  "coordinates": [
+            |    2.000000000000000e+01,
+            |    4.000000000000000e+01
+            |  ],
+            |  "type": "Point"
+            |}""".stripMargin)))
     }
-    expected.append(Row(rowCount, null, null, null, null))
+    expected.append(Row(rowCount, null, null, null, null, null))
     checkAnswer(df.sort(col("id")), expected, sort = false)
   }
 

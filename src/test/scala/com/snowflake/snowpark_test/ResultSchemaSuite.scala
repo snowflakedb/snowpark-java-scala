@@ -1,7 +1,7 @@
 package com.snowflake.snowpark_test
 
 import com.snowflake.snowpark.functions._
-import com.snowflake.snowpark.types.{GeographyType, TimeType}
+import com.snowflake.snowpark.types.{GeographyType, Geometry, GeometryType, TimeType}
 import com.snowflake.snowpark.{TestData, UnstableTest}
 
 import java.sql.Types
@@ -145,7 +145,7 @@ class ResultSchemaSuite extends TestData {
     statement.close()
   }
 
-  test("verify Geometry schema type") {
+  test("verify Geography schema type") {
     try {
       runQuery(s"alter session set GEOGRAPHY_OUTPUT_FORMAT='GeoJSON'", session)
       var statement = runQueryReturnStatement(s"select geography from $fullTypesTable2", session)
@@ -173,6 +173,37 @@ class ResultSchemaSuite extends TestData {
     } finally {
       // Assign output format to the default value
       runQuery(s"alter session set GEOGRAPHY_OUTPUT_FORMAT='GeoJSON'", session)
+    }
+  }
+
+  test("verify Geometry schema type") {
+    try {
+      runQuery(s"alter session set GEOMETRY_OUTPUT_FORMAT='GeoJSON'", session)
+      var statement = runQueryReturnStatement(s"select geometry from $fullTypesTable2", session)
+      var resultMeta = statement.getResultSet.getMetaData
+      var tsSchema = session.table(fullTypesTable2).select(col("geometry")).schema
+      assert(resultMeta.getColumnType(1) == Types.VARCHAR)
+      assert(tsSchema.head.dataType == GeometryType)
+      statement.close()
+
+      runQuery(s"alter session set GEOMETRY_OUTPUT_FORMAT='WKT'", session)
+      statement = runQueryReturnStatement(s"select geometry from $fullTypesTable2", session)
+      resultMeta = statement.getResultSet.getMetaData
+      tsSchema = session.table(fullTypesTable2).select(col("geometry")).schema
+      assert(resultMeta.getColumnType(1) == Types.VARCHAR)
+      assert(tsSchema.head.dataType == GeometryType)
+      statement.close()
+
+      runQuery(s"alter session set GEOMETRY_OUTPUT_FORMAT='WKB'", session)
+      statement = runQueryReturnStatement(s"select geometry from $fullTypesTable2", session)
+      resultMeta = statement.getResultSet.getMetaData
+      tsSchema = session.table(fullTypesTable2).select(col("geometry")).schema
+      assert(resultMeta.getColumnType(1) == Types.BINARY)
+      assert(tsSchema.head.dataType == GeometryType)
+      statement.close()
+    } finally {
+      // Assign output format to the default value
+      runQuery(s"alter session set GEOMETRY_OUTPUT_FORMAT='GeoJSON'", session)
     }
   }
 

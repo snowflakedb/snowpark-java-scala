@@ -1289,7 +1289,7 @@ trait DataFrameSuite extends TestData with BeforeAndAfterEach {
     val data = Seq(
       Row(Array("'", 2), Map("'" -> 1), new Variant(1), Geography.fromGeoJSON("POINT(30 10)"),
         Geometry.fromGeoJSON("POINT(20 40)")),
-      Row(null, null, null, null, null, null))
+      Row(null, null, null, null, null))
 
     val df = session.createDataFrame(data, schema)
     assert(
