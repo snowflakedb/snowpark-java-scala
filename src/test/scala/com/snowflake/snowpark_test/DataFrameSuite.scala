@@ -1418,7 +1418,8 @@ trait DataFrameSuite extends TestData with BeforeAndAfterEach {
 
     // case class
     val df3 =
-      session.createDataFrame(Seq(Table1(new Variant(1), Geography.fromGeoJSON("point(10 10)"))))
+      session.createDataFrame(Seq(Table1(new Variant(1), Geography.fromGeoJSON("point(10 10)"),
+        Geometry.fromGeoJSON("point(20 40)"))))
     df3.schema.printTreeString()
     checkAnswer(
       df3,
@@ -1431,10 +1432,18 @@ trait DataFrameSuite extends TestData with BeforeAndAfterEach {
                                   |    10
                                   |  ],
                                   |  "type": "Point"
-                                  |}""".stripMargin))))
+                                  |}""".stripMargin),
+          Geometry.fromGeoJSON(
+            """{
+              |  "coordinates": [
+              |    2.000000000000000e+01,
+              |    4.000000000000000e+01
+              |  ],
+              |  "type": "Point"
+              |}""".stripMargin))))
   }
 
-  case class Table1(variant: Variant, geography: Geography)
+  case class Table1(variant: Variant, geography: Geography, geometry: Geometry)
 
   test("create nullable dataFrame with schema inference") {
     val df = Seq((1, Some(1), None), (2, Some(3), Some(true)))
