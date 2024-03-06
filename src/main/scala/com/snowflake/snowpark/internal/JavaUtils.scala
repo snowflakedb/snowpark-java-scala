@@ -2,7 +2,27 @@ package com.snowflake.snowpark.internal
 
 import com.fasterxml.jackson.databind.JsonNode
 import com.snowflake.snowpark.Session.SessionBuilder
-import com.snowflake.snowpark.{Column, DataFrame, DataFrameNaFunctions, DataFrameStatFunctions, GroupingSets, MatchedClauseBuilder, MergeBuilder, NotMatchedClauseBuilder, SProcRegistration, Session, StoredProcedure, TableFunction, TypedAsyncJob, UDFRegistration, UDTFRegistration, Updatable, UpdatableAsyncActor, UpdateResult, UserDefinedFunction}
+import com.snowflake.snowpark.{
+  Column,
+  DataFrame,
+  DataFrameNaFunctions,
+  DataFrameStatFunctions,
+  GroupingSets,
+  MatchedClauseBuilder,
+  MergeBuilder,
+  NotMatchedClauseBuilder,
+  SProcRegistration,
+  Session,
+  StoredProcedure,
+  TableFunction,
+  TypedAsyncJob,
+  UDFRegistration,
+  UDTFRegistration,
+  Updatable,
+  UpdatableAsyncActor,
+  UpdateResult,
+  UserDefinedFunction
+}
 
 import java.io._
 import com.snowflake.snowpark.types.{Geography, Geometry, Variant}

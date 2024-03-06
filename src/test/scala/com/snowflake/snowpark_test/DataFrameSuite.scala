@@ -1418,8 +1418,12 @@ trait DataFrameSuite extends TestData with BeforeAndAfterEach {
 
     // case class
     val df3 =
-      session.createDataFrame(Seq(Table1(new Variant(1), Geography.fromGeoJSON("point(10 10)"),
-        Geometry.fromGeoJSON("point(20 40)"))))
+      session.createDataFrame(
+        Seq(
+          Table1(
+            new Variant(1),
+            Geography.fromGeoJSON("point(10 10)"),
+            Geometry.fromGeoJSON("point(20 40)"))))
     df3.schema.printTreeString()
     checkAnswer(
       df3,
@@ -1433,8 +1437,7 @@ trait DataFrameSuite extends TestData with BeforeAndAfterEach {
                                   |  ],
                                   |  "type": "Point"
                                   |}""".stripMargin),
-          Geometry.fromGeoJSON(
-            """{
+          Geometry.fromGeoJSON("""{
               |  "coordinates": [
               |    2.000000000000000e+01,
               |    4.000000000000000e+01

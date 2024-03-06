@@ -452,18 +452,14 @@ trait UDFSuite extends TestData {
     checkAnswer(
       df.select(geometryUDF(col("g"))),
       Seq(
-        Row(
-          Geometry.fromGeoJSON(
-            """{
+        Row(Geometry.fromGeoJSON("""{
               |  "coordinates": [
               |    2.000000000000000e+01,
               |    4.000000000000000e+01
               |  ],
               |  "type": "Point"
               |}""".stripMargin)),
-        Row(
-          Geometry.fromGeoJSON(
-            """{
+        Row(Geometry.fromGeoJSON("""{
               |  "coordinates": [
               |    3.000000000000000e+01,
               |    1.000000000000000e+01
