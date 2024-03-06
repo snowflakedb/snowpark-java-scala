@@ -30,8 +30,9 @@ object DataTypeMapper {
       case None => "NULL"
       case Some(dt) =>
         (value, dt) match {
-          case (_, _: ArrayType | _: MapType | _: StructType | GeographyType| GeometryType)
-            if value == null => "NULL"
+          case (_, _: ArrayType | _: MapType | _: StructType | GeographyType | GeometryType)
+              if value == null =>
+            "NULL"
           case (_, IntegerType) if value == null => "NULL :: int"
           case (_, ShortType) if value == null => "NULL :: smallint"
           case (_, ByteType) if value == null => "NULL :: tinyint"

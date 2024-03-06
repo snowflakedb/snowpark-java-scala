@@ -81,6 +81,13 @@ public final class DataTypes {
   public static final GeographyType GeographyType = new GeographyType();
 
   /**
+   * Retrieves the GeometryType object.
+   *
+   * @since 1.12.0
+   */
+  public static final GeometryType GeometryType = new GeometryType();
+
+  /**
    * Retrieves the StringType object.
    *
    * @since 0.9.0

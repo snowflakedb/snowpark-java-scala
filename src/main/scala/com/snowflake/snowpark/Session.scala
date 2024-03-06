@@ -733,8 +733,8 @@ class Session private (private[snowpark] val conn: ServerConnection) extends Log
     val spAttrs = schema.map { field =>
       {
         val sfType = field.dataType match {
-          case _ @(VariantType | _: ArrayType | _: MapType | GeographyType | GeometryType | TimeType
-                   | DateType | TimestampType) =>
+          case _ @(VariantType | _: ArrayType | _: MapType | GeographyType | GeometryType |
+              TimeType | DateType | TimestampType) =>
             StringType
           case other => other
         }
