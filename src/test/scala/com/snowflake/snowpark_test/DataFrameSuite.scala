@@ -1284,10 +1284,12 @@ trait DataFrameSuite extends TestData with BeforeAndAfterEach {
         StructField("array", ArrayType(null)),
         StructField("map", MapType(null, null)),
         StructField("variant", VariantType),
-        StructField("geography", GeographyType)))
+        StructField("geography", GeographyType),
+        StructField("geometry", GeometryType)))
     val data = Seq(
-      Row(Array("'", 2), Map("'" -> 1), new Variant(1), Geography.fromGeoJSON("POINT(30 10)")),
-      Row(null, null, null, null, null))
+      Row(Array("'", 2), Map("'" -> 1), new Variant(1), Geography.fromGeoJSON("POINT(30 10)"),
+        Geometry.fromGeoJSON("POINT(20 40)")),
+      Row(null, null, null, null, null, null))
 
     val df = session.createDataFrame(data, schema)
     assert(
@@ -1297,6 +1299,7 @@ trait DataFrameSuite extends TestData with BeforeAndAfterEach {
           | |--MAP: Map (nullable = true)
           | |--VARIANT: Variant (nullable = true)
           | |--GEOGRAPHY: Geography (nullable = true)
+          | |--GEOMETRY: Geometry (nullable = true)
           |""".stripMargin)
     df.show()
     val expected =
@@ -1311,8 +1314,16 @@ trait DataFrameSuite extends TestData with BeforeAndAfterEach {
                                   |    10
                                   |  ],
                                   |  "type": "Point"
-                                  |}""".stripMargin)),
-        Row(null, null, null, null))
+                                  |}""".stripMargin),
+          Geometry.fromGeoJSON(
+            """{
+              |  "coordinates": [
+              |    2.000000000000000e+01,
+              |    4.000000000000000e+01
+              |  ],
+              |  "type": "Point"
+              |}""".stripMargin)),
+        Row(null, null, null, null, null))
     checkAnswer(df, expected, sort = false)
   }
 

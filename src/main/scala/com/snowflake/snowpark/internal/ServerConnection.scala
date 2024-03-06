@@ -259,6 +259,7 @@ private[snowpark] class ServerConnection(
       val schema = ServerConnection.convertResultMetaToAttribute(data.getMetaData)
 
       lazy val geographyOutputFormat = getParameterValue(ParameterUtils.GeographyOutputFormat)
+      lazy val geometryOutputFormat = getParameterValue(ParameterUtils.GeometryOutputFormat)
 
       val iterator = new CloseableIterator[Row] {
         private var _currentRow: Row = _
@@ -301,11 +302,11 @@ private[snowpark] class ServerConnection(
                             geographyOutputFormat)
                       }
                     case GeometryType =>
-                      geographyOutputFormat match {
+                      geometryOutputFormat match {
                         case "GeoJSON" => Geometry.fromGeoJSON(data.getString(resultIndex))
                         case _ =>
                           throw ErrorMessage.MISC_UNSUPPORTED_GEOGRAPHY_FORMAT(
-                            geographyOutputFormat)
+                            geometryOutputFormat)
                       }
                     case _ =>
                       // ArrayType, StructType, MapType

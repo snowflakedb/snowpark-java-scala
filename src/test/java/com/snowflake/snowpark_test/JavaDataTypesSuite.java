@@ -31,6 +31,8 @@ public class JavaDataTypesSuite {
         .equals(com.snowflake.snowpark.types.DateType$.MODULE$);
     assert JavaDataTypeUtils.javaTypeToScalaType(DataTypes.GeographyType)
         .equals(com.snowflake.snowpark.types.GeographyType$.MODULE$);
+    assert JavaDataTypeUtils.javaTypeToScalaType(DataTypes.GeometryType)
+        .equals(com.snowflake.snowpark.types.GeometryType$.MODULE$);
     assert JavaDataTypeUtils.javaTypeToScalaType(DataTypes.StringType)
         .equals(com.snowflake.snowpark.types.StringType$.MODULE$);
     assert JavaDataTypeUtils.javaTypeToScalaType(DataTypes.TimestampType)
@@ -100,6 +102,9 @@ public class JavaDataTypesSuite {
     assert JavaDataTypeUtils.scalaTypeToJavaType(
             com.snowflake.snowpark.types.GeographyType$.MODULE$)
         .equals(DataTypes.GeographyType);
+    assert JavaDataTypeUtils.scalaTypeToJavaType(
+                    com.snowflake.snowpark.types.GeometryType$.MODULE$)
+            .equals(DataTypes.GeometryType);
     assert JavaDataTypeUtils.scalaTypeToJavaType(com.snowflake.snowpark.types.StringType$.MODULE$)
         .equals(DataTypes.StringType);
     assert JavaDataTypeUtils.scalaTypeToJavaType(

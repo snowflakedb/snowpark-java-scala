@@ -106,7 +106,7 @@ object DataTypeMapper {
         case _: MapType => "to_object(parse_json('0'))"
         case VariantType => "to_variant(0)"
         case GeographyType => "to_geography('POINT(-122.35 37.55)')"
-        case GeographyType => "to_geometry('POINT(-122.35 37.55)')"
+        case GeometryType => "to_geometry('POINT(-122.35 37.55)')"
         case _ =>
           throw new UnsupportedOperationException(s"Unsupported data type: ${dataType.typeName}")
       }
