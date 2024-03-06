@@ -33,6 +33,12 @@ class JavaUtilsSuite extends FunSuite {
     assert(stringToJavaGeography(data).isInstanceOf[com.snowflake.snowpark_java.types.Geography])
   }
 
+  test("string to geometry") {
+    val data = "{\"type\":\"Point\",\"coordinates\":[125.6, 10.1]}"
+    assert(stringToGeometry(data).isInstanceOf[com.snowflake.snowpark.types.Geometry])
+    assert(stringToJavaGeometry(data).isInstanceOf[com.snowflake.snowpark_java.types.Geometry])
+  }
+
   test("variant to string") {
     assert(variantToString(new com.snowflake.snowpark.types.Variant(1)) == "1")
     assert(variantToString(new com.snowflake.snowpark_java.types.Variant(1)) == "1")

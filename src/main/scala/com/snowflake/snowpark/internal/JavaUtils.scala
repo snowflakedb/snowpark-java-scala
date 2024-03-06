@@ -170,8 +170,13 @@ object JavaUtils {
 
   def stringToGeography(g: String): Geography = if (g == null) null else Geography.fromGeoJSON(g)
 
+  def stringToGeometry(g: String): Geometry = if (g == null) null else Geometry.fromGeoJSON(g)
+
   def stringToJavaGeography(g: String): com.snowflake.snowpark_java.types.Geography =
     if (g == null) null else com.snowflake.snowpark_java.types.Geography.fromGeoJSON(g)
+
+  def stringToJavaGeometry(g: String): com.snowflake.snowpark_java.types.Geometry =
+    if (g == null) null else com.snowflake.snowpark_java.types.Geometry.fromGeoJSON(g)
 
   def variantToString(v: Variant): String = if (v == null) null else v.asJsonString()
 

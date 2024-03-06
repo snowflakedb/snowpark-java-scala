@@ -140,7 +140,7 @@ class UtilsSuite extends SNTestBase {
     // tuple
     assert(
       TypeToSchemaConverter
-        .inferSchema[(Int, Boolean, Double, Geography, Map[String, Boolean])]()
+        .inferSchema[(Int, Boolean, Double, Geography, Map[String, Boolean], Geometry)]()
         .treeString(0) ==
         """root
       | |--_1: Integer (nullable = false)
@@ -148,6 +148,7 @@ class UtilsSuite extends SNTestBase {
       | |--_3: Double (nullable = false)
       | |--_4: Geography (nullable = true)
       | |--_5: Map (nullable = true)
+      | |--_6: Geometry (nullable = true)
       |""".stripMargin)
 
     // case class

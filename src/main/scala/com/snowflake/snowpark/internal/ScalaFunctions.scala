@@ -55,6 +55,7 @@ object ScalaFunctions {
     case t if t =:= typeOf[scala.collection.mutable.Map[String, String]] => true
     case t if t =:= typeOf[scala.collection.mutable.Map[String, Variant]] => true
     case t if t =:= typeOf[Geography] => true
+    case t if t =:= typeOf[Geometry] => true
     case t if t =:= typeOf[Variant] => true
     case t if t <:< typeOf[scala.collection.Iterable[_]] =>
       throw new UnsupportedOperationException(

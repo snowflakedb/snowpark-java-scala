@@ -1,9 +1,8 @@
 package com.snowflake.snowpark
 
 import java.sql.{Date, Time, Timestamp}
-
 import com.snowflake.snowpark.internal.ErrorMessage
-import com.snowflake.snowpark.types.{Geography, Variant}
+import com.snowflake.snowpark.types.{Geography, Geometry, Variant}
 
 import scala.util.hashing.MurmurHash3
 
@@ -300,6 +299,14 @@ class Row private (values: Array[Any]) extends Serializable {
    * @group getter
    */
   def getGeography(index: Int): Geography = getAs[Geography](index)
+
+  /**
+   * Returns the value of the column at the given index as Geometry class
+   *
+   * @since 1.12.0
+   * @group getter
+   */
+  def getGeometry(index: Int): Geometry = getAs[Geometry](index)
 
   /**
    * Returns the value of the column at the given index as a Seq of Variant
