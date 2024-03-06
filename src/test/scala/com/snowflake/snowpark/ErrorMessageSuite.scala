@@ -849,4 +849,14 @@ class ErrorMessageSuite extends FunSuite {
           "Explode function should be either Map or Array types.\n" +
           "The input argument type: Integer"))
   }
+
+  test("MISC_UNSUPPORTED_GEOMETRY_FORMAT") {
+    val ex = ErrorMessage.MISC_UNSUPPORTED_GEOMETRY_FORMAT("KWT")
+    assert(ex.telemetryMessage.equals(ErrorMessage.getMessage("0425")))
+    assert(
+      ex.message.startsWith(
+        "Error Code: 0425, Error message: " +
+          "Unsupported Geometry output format: KWT." +
+          " Please set session parameter GEOMETRY_OUTPUT_FORMAT to GeoJSON."))
+  }
 }

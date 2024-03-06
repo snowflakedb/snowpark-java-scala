@@ -305,7 +305,7 @@ private[snowpark] class ServerConnection(
                       geometryOutputFormat match {
                         case "GeoJSON" => Geometry.fromGeoJSON(data.getString(resultIndex))
                         case _ =>
-                          throw ErrorMessage.MISC_UNSUPPORTED_GEOGRAPHY_FORMAT(
+                          throw ErrorMessage.MISC_UNSUPPORTED_GEOMETRY_FORMAT(
                             geometryOutputFormat)
                       }
                     case _ =>

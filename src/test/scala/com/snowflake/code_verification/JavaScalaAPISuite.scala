@@ -552,6 +552,15 @@ class JavaScalaAPISuite extends FunSuite {
         .containsSameFunctionNames(classOf[JavaGeographyType], ScalaGeograhyType.getClass))
   }
 
+  test("Geometry") {
+    import com.snowflake.snowpark_java.types.{Geometry => JavaGeometry}
+    import com.snowflake.snowpark.types.{Geometry => ScalaGeometry}
+    assert(
+      ClassUtils.containsSameFunctionNames(
+        classOf[JavaGeometry],
+        classOf[ScalaGeometry]))
+  }
+
   test("GeometryType") {
     import com.snowflake.snowpark_java.types.{GeometryType => JavaGeometryType}
     import com.snowflake.snowpark.types.{GeometryType => ScalaGeometryType}
