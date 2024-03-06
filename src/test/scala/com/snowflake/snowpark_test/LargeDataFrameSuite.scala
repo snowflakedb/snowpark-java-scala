@@ -215,8 +215,7 @@ class LargeDataFrameSuite extends TestData {
                                   |  ],
                                   |  "type": "Point"
                                   |}""".stripMargin),
-            Geometry.fromGeoJSON(
-          """{
+          Geometry.fromGeoJSON("""{
             |  "coordinates": [
             |    2.000000000000000e+01,
             |    4.000000000000000e+01

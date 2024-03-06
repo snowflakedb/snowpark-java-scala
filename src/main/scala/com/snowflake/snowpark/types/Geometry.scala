@@ -2,7 +2,6 @@ package com.snowflake.snowpark.types
 
 import java.io.{IOException, UncheckedIOException}
 
-
 /**
  * Companion object of Geometry class.
  * @since 1.12.0

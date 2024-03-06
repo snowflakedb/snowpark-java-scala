@@ -102,9 +102,8 @@ public class JavaDataTypesSuite {
     assert JavaDataTypeUtils.scalaTypeToJavaType(
             com.snowflake.snowpark.types.GeographyType$.MODULE$)
         .equals(DataTypes.GeographyType);
-    assert JavaDataTypeUtils.scalaTypeToJavaType(
-                    com.snowflake.snowpark.types.GeometryType$.MODULE$)
-            .equals(DataTypes.GeometryType);
+    assert JavaDataTypeUtils.scalaTypeToJavaType(com.snowflake.snowpark.types.GeometryType$.MODULE$)
+        .equals(DataTypes.GeometryType);
     assert JavaDataTypeUtils.scalaTypeToJavaType(com.snowflake.snowpark.types.StringType$.MODULE$)
         .equals(DataTypes.StringType);
     assert JavaDataTypeUtils.scalaTypeToJavaType(

@@ -2,6 +2,7 @@ package com.snowflake.snowpark_java;
 
 import com.snowflake.snowpark.internal.JavaUtils;
 import com.snowflake.snowpark_java.types.Geography;
+import com.snowflake.snowpark_java.types.Geometry;
 import com.snowflake.snowpark_java.types.InternalUtils;
 import com.snowflake.snowpark_java.types.Variant;
 import java.io.Serializable;
@@ -53,6 +54,9 @@ public class Row implements Serializable, Cloneable {
       } else if (result[i] instanceof Geography) {
         result[i] =
             com.snowflake.snowpark.types.Geography.fromGeoJSON(((Geography) result[i]).asGeoJSON());
+      } else if (result[i] instanceof Geometry) {
+        result[i] =
+            com.snowflake.snowpark.types.Geometry.fromGeoJSON(((Geometry) result[i]).toString());
       }
     }
     return result;
@@ -134,6 +138,8 @@ public class Row implements Serializable, Cloneable {
       return InternalUtils.createVariant((com.snowflake.snowpark.types.Variant) result);
     } else if (result instanceof com.snowflake.snowpark.types.Geography) {
       return Geography.fromGeoJSON(((com.snowflake.snowpark.types.Geography) result).asGeoJSON());
+    } else if (result instanceof com.snowflake.snowpark.types.Geometry) {
+      return Geometry.fromGeoJSON(((com.snowflake.snowpark.types.Geometry) result).toString());
     } else if (result instanceof com.snowflake.snowpark.types.Variant[]) {
       com.snowflake.snowpark.types.Variant[] scalaVariantArray =
           (com.snowflake.snowpark.types.Variant[]) result;

@@ -2,6 +2,7 @@ package com.snowflake.snowpark_test;
 
 import com.snowflake.snowpark_java.Row;
 import com.snowflake.snowpark_java.types.Geography;
+import com.snowflake.snowpark_java.types.Geometry;
 import com.snowflake.snowpark_java.types.Variant;
 import java.math.BigDecimal;
 import java.sql.Date;
@@ -132,10 +133,13 @@ public class JavaRowSuite {
         Row.create(
             new com.snowflake.snowpark.types.Variant(1),
             com.snowflake.snowpark.types.Geography.fromGeoJSON(
-                "{\"type\":\"Point\",\"coordinates\":[30,10]}"));
+                "{\"type\":\"Point\",\"coordinates\":[30,10]}"),
+            com.snowflake.snowpark.types.Geometry.fromGeoJSON(
+                "{\"coordinates\": [2.000000000000000e+01,4.000000000000000e+01],\"type\": \"Point\"}"));
 
     assert row.get(0) instanceof Variant;
     assert row.get(1) instanceof Geography;
+    assert row.get(2) instanceof Geometry;
   }
 
   @Test

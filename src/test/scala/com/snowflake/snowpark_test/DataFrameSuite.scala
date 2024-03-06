@@ -1287,7 +1287,11 @@ trait DataFrameSuite extends TestData with BeforeAndAfterEach {
         StructField("geography", GeographyType),
         StructField("geometry", GeometryType)))
     val data = Seq(
-      Row(Array("'", 2), Map("'" -> 1), new Variant(1), Geography.fromGeoJSON("POINT(30 10)"),
+      Row(
+        Array("'", 2),
+        Map("'" -> 1),
+        new Variant(1),
+        Geography.fromGeoJSON("POINT(30 10)"),
         Geometry.fromGeoJSON("POINT(20 40)")),
       Row(null, null, null, null, null))
 
@@ -1315,8 +1319,7 @@ trait DataFrameSuite extends TestData with BeforeAndAfterEach {
                                   |  ],
                                   |  "type": "Point"
                                   |}""".stripMargin),
-          Geometry.fromGeoJSON(
-            """{
+          Geometry.fromGeoJSON("""{
               |  "coordinates": [
               |    2.000000000000000e+01,
               |    4.000000000000000e+01
