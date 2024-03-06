@@ -244,6 +244,7 @@ class Row private (values: Array[Any]) extends Serializable {
     get(index) match {
       case variant: Variant => variant.toString
       case geo: Geography => geo.toString
+      case geo: Geometry => geo.toString
       case array: Array[_] => new Variant(array).toString
       case seq: Seq[_] => new Variant(seq).toString
       case map: Map[_, _] => new Variant(map).toString

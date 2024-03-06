@@ -332,6 +332,17 @@ public class Row implements Serializable, Cloneable {
   }
 
   /**
+   * Retrieves the value of the column at the given index as a Geometry value.
+   *
+   * @param index The index of target column
+   * @return The Geometry value of the column at the given index
+   * @since 1.12.0
+   */
+  public Geometry getGeometry(int index) {
+    return Geometry.fromGeoJSON(scalaRow.getGeometry(index).toString());
+  }
+
+  /**
    * Retrieves the value of the column at the given index as a list of Variant.
    *
    * @param index The index of target column

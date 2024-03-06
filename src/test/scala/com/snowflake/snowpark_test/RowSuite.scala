@@ -1,6 +1,6 @@
 package com.snowflake.snowpark_test
 
-import com.snowflake.snowpark.types.{Geography, Variant}
+import com.snowflake.snowpark.types.{Geography, Geometry, Variant}
 import com.snowflake.snowpark.{Row, SNTestBase, SnowparkClientException}
 
 import java.sql.{Date, Timestamp}
@@ -55,9 +55,11 @@ class RowSuite extends SNTestBase {
       Map("a" -> "b"),
       Row(1, 2, 3),
       Array[Byte](1, 9),
-      Geography.fromGeoJSON("{\"type\":\"Point\",\"coordinates\":[30,10]}"))
+      Geography.fromGeoJSON("{\"type\":\"Point\",\"coordinates\":[30,10]}"),
+      Geometry.fromGeoJSON(
+        "{\"coordinates\": [3.000000000000000e+01,1.000000000000000e+01],\"type\": \"Point\"}"))
 
-    assert(row.length == 19)
+    assert(row.length == 20)
     assert(row.isNullAt(0))
     assert(row.getBoolean(1))
     assert(row.getByte(2) == 1.toByte)
@@ -79,6 +81,13 @@ class RowSuite extends SNTestBase {
         Geography.fromGeoJSON("{\"type\":\"Point\",\"coordinates\":[30,10]}"))
     assertThrows[ClassCastException](row.getBinary(18))
     assert(row.getString(18) == "{\"type\":\"Point\",\"coordinates\":[30,10]}")
+    assert(
+      row.getGeometry(19) ==
+        Geometry.fromGeoJSON(
+          "{\"coordinates\": [3.000000000000000e+01,1.000000000000000e+01],\"type\": \"Point\"}"))
+    assert(
+      row.getString(19) ==
+        "{\"coordinates\": [3.000000000000000e+01,1.000000000000000e+01],\"type\": \"Point\"}")
   }
 
   test("number getters") {
