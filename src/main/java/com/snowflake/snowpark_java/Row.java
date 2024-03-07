@@ -55,8 +55,7 @@ public class Row implements Serializable, Cloneable {
         result[i] =
             com.snowflake.snowpark.types.Geography.fromGeoJSON(((Geography) result[i]).asGeoJSON());
       } else if (result[i] instanceof Geometry) {
-        result[i] =
-            com.snowflake.snowpark.types.Geometry.fromGeoJSON(((Geometry) result[i]).toString());
+        result[i] = com.snowflake.snowpark.types.Geometry.fromGeoJSON(result[i].toString());
       }
     }
     return result;

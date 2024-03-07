@@ -88,17 +88,24 @@ public class JavaRowSuite {
             binary,
             new Variant(3),
             Geography.fromGeoJSON("{\"type\":\"Point\",\"coordinates\":[30,10]}"),
-            new BigDecimal(12345));
+            new BigDecimal(12345),
+            Geometry.fromGeoJSON(
+                "{\"coordinates\": [3.000000000000000e+01,1.000000000000000e+01],\"type\": \"Point\"}"));
 
-    assert row.size() == 4;
+    assert row.size() == 5;
     assert Arrays.equals(row.getBinary(0), binary);
     assert row.getVariant(1).equals(new Variant(3));
     assert row.getGeography(2)
         .equals(Geography.fromGeoJSON("{\"type\":\"Point\",\"coordinates\":[30,10]}"));
     assert row.getDecimal(3).equals(new BigDecimal(12345));
+    assert row.getGeometry(4)
+        .equals(
+            Geometry.fromGeoJSON(
+                "{\"coordinates\": [3.000000000000000e+01,1.000000000000000e+01],\"type\": \"Point\"}"));
 
     assert row.toString()
-        .equals("Row[Binary(1,2),3,{\"type\":\"Point\",\"coordinates\":[30,10]},12345]");
+        .equals(
+            "Row[Binary(1,2),3,{\"type\":\"Point\",\"coordinates\":[30,10]},12345,{\"coordinates\": [3.000000000000000e+01,1.000000000000000e+01],\"type\": \"Point\"}]");
   }
 
   @Test
