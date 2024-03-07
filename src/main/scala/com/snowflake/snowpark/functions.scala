@@ -361,7 +361,7 @@ object functions {
    * the function returns NULL.
    *
    * @group agg_func
-   * @since 12.1.0
+   * @since 1.12.0
    * @param colName The input column name
    * @return The result column
    */
