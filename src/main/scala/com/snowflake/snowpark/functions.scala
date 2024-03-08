@@ -348,14 +348,24 @@ object functions {
   def stddev_pop(e: Column): Column = builtin("stddev_pop")(e)
 
   /**
-   * Returns the sum of non-NULL records in a group. You can use the DISTINCT keyword to compute
-   * the sum of unique non-null values. If all records inside a group are NULL,
+   * Returns the sum of non-NULL records in a group. If all records inside a group are NULL,
    * the function returns NULL.
    *
    * @group agg_func
    * @since 0.1.0
    */
   def sum(e: Column): Column = builtin("sum")(e)
+
+  /**
+   * Returns the sum of non-NULL records in a group. If all records inside a group are NULL,
+   * the function returns NULL.
+   *
+   * @group agg_func
+   * @since 1.12.0
+   * @param colName The input column name
+   * @return The result column
+   */
+  def sum(colName: String): Column = sum(col(colName))
 
   /**
    * Returns the sum of non-NULL distinct records in a group. You can use the DISTINCT keyword to
