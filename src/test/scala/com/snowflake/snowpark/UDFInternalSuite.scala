@@ -29,10 +29,16 @@ class UDFInternalSuite extends TestData {
     super.afterAll
   }
 
-  test("Test temp udf not failing back to upload jar", JavaStoredProcExclude) {
+  // todo: re-enable in SNOW-1227362
+  // The new Geometry data type introduced in the release 1.12.0.
+  // The package suites use the latest Snowpark package on the server side,
+  // which doesn't have Geometry type, then, all package suites will fail
+  // before the server side release. So we have to temporarily disable those test suite
+  // until Snowpark 1.12.0 release.
+  ignore("Test temp udf not failing back to upload jar", JavaStoredProcExclude) {
     val newSession = Session.builder.configFile(defaultProfile).create
     val mockSession = spy(newSession)
-    TestUtils.addDepsToClassPath(mockSession, None, usePackages = true)
+    TestUtils.addDepsToClassPath(mockSession, None)
     val path = UDFClassPath.getPathForClass(classOf[com.snowflake.snowpark.Session]).get
 
     val doubleUDF = mockSession.udf.registerTemporary((x: Int) => x + x)
