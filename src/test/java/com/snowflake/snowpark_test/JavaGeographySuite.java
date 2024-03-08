@@ -17,7 +17,7 @@ public class JavaGeographySuite {
     assert (Geography.fromGeoJSON(testData).asGeoJSON().equals(testData));
     assert (Geography.fromGeoJSON(testData).toString().equals(testData));
 
-    assert (Geometry.fromGeoJSON(testData2).toString().equals(testData));
+    assert (Geometry.fromGeoJSON(testData2).toString().equals(testData2));
   }
 
   @Test
