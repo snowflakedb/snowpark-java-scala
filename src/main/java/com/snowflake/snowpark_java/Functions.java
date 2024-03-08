@@ -360,8 +360,7 @@ public final class Functions {
   }
 
   /**
-   * Returns the sum of non-NULL records in a group. You can use the DISTINCT keyword to compute the
-   * sum of unique non-null values. If all records inside a group are NULL, the function returns
+   * Returns the sum of non-NULL records in a group. If all records inside a group are NULL, the function returns
    * NULL.
    *
    * @since 0.9.0
@@ -371,6 +370,16 @@ public final class Functions {
   public static Column sum(Column col) {
     return new Column(com.snowflake.snowpark.functions.sum(col.toScalaColumn()));
   }
+
+  /**
+   * Returns the sum of non-NULL records in a group. If all records inside a group are NULL, the function returns
+   * NULL.
+   *
+   * @since 1.12.0
+   * @param colName The input column name
+   * @return The result column
+   */
+  public static Column sum(String colName) { return sum(col(colName)); }
 
   /**
    * Returns the sum of non-NULL distinct records in a group. You can use the DISTINCT keyword to
