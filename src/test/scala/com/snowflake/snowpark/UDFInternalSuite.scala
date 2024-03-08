@@ -179,6 +179,13 @@ class UDFInternalSuite extends TestData {
   }
 }
 
+// todo: re-enable in SNOW-1227362
+// The new Geometry data type introduced in the release 1.12.0.
+// The package suites use the latest Snowpark package on the server side,
+// which doesn't have Geometry type, then, all package suites will fail
+// before the server side release. So we have to temporarily disable those test suite
+// until Snowpark 1.12.0 release.
+/*
 @UDFPackageTest
 class PackageUDFSuite extends UDFSuite {
   override def beforeAll: Unit = {
@@ -214,3 +221,4 @@ class PackageUDTFSuite extends UDTFSuite {
     super.afterAll()
   }
 }
+ */

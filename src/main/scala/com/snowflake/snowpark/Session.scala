@@ -1410,7 +1410,6 @@ object Session extends Logging {
       this
     }
 
-
     /**
      * Adds the app name to set in the query_tag after session creation.
      * The query tag will be set with this format 'APPNAME=${appName}'.
