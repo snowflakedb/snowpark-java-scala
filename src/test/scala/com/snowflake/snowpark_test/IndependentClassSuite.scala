@@ -15,7 +15,10 @@ class IndependentClassSuite extends FunSuite {
 
     checkDependencies(
       "target/classes/com/snowflake/snowpark/types/Variant$.class",
-      Seq("com.snowflake.snowpark.types.Variant", "com.snowflake.snowpark.types.Geography"))
+      Seq(
+        "com.snowflake.snowpark.types.Variant",
+        "com.snowflake.snowpark.types.Geography",
+        "com.snowflake.snowpark.types.Geometry"))
   }
 
   test("java variant") {
@@ -40,6 +43,22 @@ class IndependentClassSuite extends FunSuite {
     checkDependencies(
       "target/classes/com/snowflake/snowpark_java/types/Geography.class",
       Seq("com.snowflake.snowpark_java.types.Geography"))
+  }
+
+  test("scala geometry") {
+    checkDependencies(
+      "target/classes/com/snowflake/snowpark/types/Geometry.class",
+      Seq("com.snowflake.snowpark.types.Geometry"))
+
+    checkDependencies(
+      "target/classes/com/snowflake/snowpark/types/Geometry$.class",
+      Seq("com.snowflake.snowpark.types.Geometry"))
+  }
+
+  test("java geometry") {
+    checkDependencies(
+      "target/classes/com/snowflake/snowpark_java/types/Geometry.class",
+      Seq("com.snowflake.snowpark_java.types.Geometry"))
   }
 
   // negative test, to make sure this test method works

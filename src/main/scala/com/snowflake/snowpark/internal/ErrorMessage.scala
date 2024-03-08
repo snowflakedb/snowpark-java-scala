@@ -158,7 +158,8 @@ private[snowpark] object ErrorMessage {
     "0424" ->
       """Invalid input argument type, the input argument type of Explode function should be either Map or Array types.
         |The input argument type: %s
-        |""".stripMargin)
+        |""".stripMargin,
+    "0425" -> "Unsupported Geometry output format: %s. Please set session parameter GEOMETRY_OUTPUT_FORMAT to GeoJSON.")
   // scalastyle:on
 
   /*
@@ -404,6 +405,9 @@ private[snowpark] object ErrorMessage {
 
   def MISC_INVALID_EXPLODE_ARGUMENT_TYPE(argumentType: String): SnowparkClientException =
     createException("0424", argumentType)
+
+  def MISC_UNSUPPORTED_GEOMETRY_FORMAT(typeName: String): SnowparkClientException =
+    createException("0425", typeName)
 
   /**
    * Create Snowpark client Exception.

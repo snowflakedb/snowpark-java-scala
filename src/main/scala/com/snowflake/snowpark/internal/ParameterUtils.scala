@@ -19,6 +19,7 @@ private[snowpark] object ParameterUtils extends Logging {
   // client parameters
   private[snowpark] val SnowparkLazyAnalysis: String = "snowpark_lazy_analysis"
   private[snowpark] val GeographyOutputFormat: String = "geography_output_format"
+  private[snowpark] val GeometryOutputFormat: String = "geometry_output_format"
   private[snowpark] val SnowparkUseScopedTempObjects: String = "snowpark_use_scoped_temp_objects"
   private[snowpark] val SnowparkEnableClosureCleaner: String = "snowpark_enable_closure_cleaner"
   private[snowpark] val SnowparkRequestTimeoutInSeconds: String =

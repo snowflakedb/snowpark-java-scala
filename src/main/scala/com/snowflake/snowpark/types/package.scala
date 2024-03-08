@@ -27,6 +27,7 @@ package object types {
       case ArrayType(StringType) => "String[]"
       case MapType(StringType, StringType) => "java.util.Map<String,String>"
       case GeographyType => "Geography"
+      case GeometryType => "Geometry"
       case VariantType => "Variant"
       // StructType is only used for defining schema
       // case StructType(_) => // Not Supported
@@ -40,6 +41,7 @@ package object types {
   private[snowpark] def toUDFArgumentType(datatype: DataType): String =
     datatype match {
       case GeographyType => classOf[java.lang.String].getCanonicalName
+      case GeometryType => classOf[java.lang.String].getCanonicalName
       case VariantType => classOf[java.lang.String].getCanonicalName
       case ArrayType(VariantType) => "String[]"
       case MapType(StringType, VariantType) => "java.util.Map<String,String>"
@@ -65,6 +67,7 @@ package object types {
       case MapType(_, _) => "OBJECT"
       case VariantType => "VARIANT"
       case GeographyType => "GEOGRAPHY"
+      case GeometryType => "GEOMETRY"
       case _ =>
         throw new UnsupportedOperationException(s"Unsupported data type: ${dataType.typeName}")
     }

@@ -13,6 +13,7 @@ import com.snowflake.snowpark_java.types.{
   DoubleType => JDoubleType,
   FloatType => JFloatType,
   GeographyType => JGeographyType,
+  GeometryType => JGeometryType,
   IntegerType => JIntegerType,
   LongType => JLongType,
   MapType => JMapType,
@@ -36,6 +37,7 @@ object JavaDataTypeUtils {
       case DoubleType => JDataTypes.DoubleType
       case FloatType => JDataTypes.FloatType
       case GeographyType => JDataTypes.GeographyType
+      case GeometryType => JDataTypes.GeometryType
       case IntegerType => JDataTypes.IntegerType
       case LongType => JDataTypes.LongType
       case MapType(keyType, valueType) =>
@@ -58,6 +60,7 @@ object JavaDataTypeUtils {
       case _: JDoubleType => DoubleType
       case _: JFloatType => FloatType
       case _: JGeographyType => GeographyType
+      case _: JGeometryType => GeometryType
       case _: JIntegerType => IntegerType
       case _: JLongType => LongType
       case mp: JMapType =>

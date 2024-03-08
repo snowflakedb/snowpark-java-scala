@@ -733,8 +733,8 @@ class Session private (private[snowpark] val conn: ServerConnection) extends Log
     val spAttrs = schema.map { field =>
       {
         val sfType = field.dataType match {
-          case _ @(VariantType | _: ArrayType | _: MapType | GeographyType | TimeType | DateType |
-              TimestampType) =>
+          case _ @(VariantType | _: ArrayType | _: MapType | GeographyType | GeometryType |
+              TimeType | DateType | TimestampType) =>
             StringType
           case other => other
         }
@@ -764,6 +764,7 @@ class Session private (private[snowpark] val conn: ServerConnection) extends Log
         case (value, _: AtomicType) => value
         case (value: Variant, VariantType) => value.asJsonString()
         case (value: Geography, GeographyType) => value.asGeoJSON()
+        case (value: Geometry, GeometryType) => value.toString
         case (value: Array[_], _: ArrayType) =>
           new Variant(value.toSeq).asJsonString()
         case (value: Map[_, _], _: MapType) => new Variant(value).asJsonString()
@@ -784,6 +785,7 @@ class Session private (private[snowpark] val conn: ServerConnection) extends Log
         case TimestampType => callUDF("to_timestamp", column(field.name)).as(field.name)
         case VariantType => to_variant(parse_json(column(field.name))).as(field.name)
         case GeographyType => callUDF("to_geography", column(field.name)).as(field.name)
+        case GeometryType => callUDF("to_geometry", column(field.name)).as(field.name)
         case _: ArrayType => to_array(parse_json(column(field.name))).as(field.name)
         case _: MapType => to_object(parse_json(column(field.name))).as(field.name)
         case _ => column(field.name)
@@ -1407,7 +1409,6 @@ object Session extends Logging {
       options -= key
       this
     }
-
 
     /**
      * Adds the app name to set in the query_tag after session creation.

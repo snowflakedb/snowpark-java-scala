@@ -80,6 +80,7 @@ private[snowpark] object ServerConnection {
       case "VARIANT" => VariantType
       case "OBJECT" => MapType(StringType, StringType)
       case "GEOGRAPHY" => GeographyType
+      case "GEOMETRY" => GeometryType
       case _ => getTypeFromJDBCType(sqlType, precision, scale, signed)
     }
   }
@@ -258,6 +259,7 @@ private[snowpark] class ServerConnection(
       val schema = ServerConnection.convertResultMetaToAttribute(data.getMetaData)
 
       lazy val geographyOutputFormat = getParameterValue(ParameterUtils.GeographyOutputFormat)
+      lazy val geometryOutputFormat = getParameterValue(ParameterUtils.GeometryOutputFormat)
 
       val iterator = new CloseableIterator[Row] {
         private var _currentRow: Row = _
@@ -298,6 +300,13 @@ private[snowpark] class ServerConnection(
                         case _ =>
                           throw ErrorMessage.MISC_UNSUPPORTED_GEOGRAPHY_FORMAT(
                             geographyOutputFormat)
+                      }
+                    case GeometryType =>
+                      geometryOutputFormat match {
+                        case "GeoJSON" => Geometry.fromGeoJSON(data.getString(resultIndex))
+                        case _ =>
+                          throw ErrorMessage.MISC_UNSUPPORTED_GEOMETRY_FORMAT(
+                            geometryOutputFormat)
                       }
                     case _ =>
                       // ArrayType, StructType, MapType

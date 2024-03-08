@@ -25,7 +25,7 @@ import com.snowflake.snowpark.{
 }
 
 import java.io._
-import com.snowflake.snowpark.types.{Geography, Variant}
+import com.snowflake.snowpark.types.{Geography, Geometry, Variant}
 import com.snowflake.snowpark_java.types.InternalUtils
 import com.snowflake.snowpark_java.udtf._
 
@@ -180,13 +180,23 @@ object JavaUtils {
 
   def geographyToString(g: Geography): String = if (g == null) null else g.asGeoJSON()
 
+  def geometryToString(g: Geometry): String = if (g == null) null else g.toString()
+
   def geographyToString(g: com.snowflake.snowpark_java.types.Geography): String =
     if (g == null) null else g.asGeoJSON()
 
+  def geometryToString(g: com.snowflake.snowpark_java.types.Geometry): String =
+    if (g == null) null else g.toString
+
   def stringToGeography(g: String): Geography = if (g == null) null else Geography.fromGeoJSON(g)
+
+  def stringToGeometry(g: String): Geometry = if (g == null) null else Geometry.fromGeoJSON(g)
 
   def stringToJavaGeography(g: String): com.snowflake.snowpark_java.types.Geography =
     if (g == null) null else com.snowflake.snowpark_java.types.Geography.fromGeoJSON(g)
+
+  def stringToJavaGeometry(g: String): com.snowflake.snowpark_java.types.Geometry =
+    if (g == null) null else com.snowflake.snowpark_java.types.Geometry.fromGeoJSON(g)
 
   def variantToString(v: Variant): String = if (v == null) null else v.asJsonString()
 

@@ -546,6 +546,7 @@ class UDXRegistrationHandler(session: Session) extends Logging {
       s"""
          |import com.snowflake.snowpark.internal.JavaUtils;
          |import com.snowflake.snowpark.types.Geography;
+         |import com.snowflake.snowpark.types.Geometry;
          |import com.snowflake.snowpark.types.Variant;
          |import com.snowflake.snowpark.Row;
          |import java.util.Spliterator;
@@ -589,6 +590,7 @@ class UDXRegistrationHandler(session: Session) extends Logging {
       s"""
          |import com.snowflake.snowpark.internal.JavaUtils;
          |import com.snowflake.snowpark_java.types.Geography;
+         |import com.snowflake.snowpark_java.types.Geometry;
          |import com.snowflake.snowpark_java.types.Variant;
          |import com.snowflake.snowpark_java.Row;
          |import java.util.stream.Stream;
@@ -693,6 +695,7 @@ class UDXRegistrationHandler(session: Session) extends Logging {
       s"""
          |import com.snowflake.snowpark.internal.JavaUtils;
          |import com.snowflake.snowpark.types.Geography;
+         |import com.snowflake.snowpark.types.Geometry;
          |import com.snowflake.snowpark.types.Variant;
          |import scala.collection.JavaConverters;
          |import com.snowflake.snowpark.Session;
@@ -717,6 +720,7 @@ class UDXRegistrationHandler(session: Session) extends Logging {
       s"""
          |import com.snowflake.snowpark.internal.JavaUtils;
          |import com.snowflake.snowpark_java.types.Geography;
+         |import com.snowflake.snowpark_java.types.Geometry;
          |import com.snowflake.snowpark_java.types.Variant;
          |import com.snowflake.snowpark_java.Session;
          |import com.snowflake.snowpark_java.sproc.JavaSProc${numArgs - 1};
@@ -773,6 +777,7 @@ class UDXRegistrationHandler(session: Session) extends Logging {
       s"""
          |import com.snowflake.snowpark.internal.JavaUtils;
          |import com.snowflake.snowpark.types.Geography;
+         |import com.snowflake.snowpark.types.Geometry;
          |import com.snowflake.snowpark.types.Variant;
          |import scala.collection.JavaConverters;
          |
@@ -794,6 +799,7 @@ class UDXRegistrationHandler(session: Session) extends Logging {
       s"""
          |import com.snowflake.snowpark.internal.JavaUtils;
          |import com.snowflake.snowpark_java.types.Geography;
+         |import com.snowflake.snowpark_java.types.Geometry;
          |import com.snowflake.snowpark_java.types.Variant;
          |import com.snowflake.snowpark_java.udf.*;
          |
@@ -829,6 +835,8 @@ class UDXRegistrationHandler(session: Session) extends Logging {
         case ArrayType(VariantType) => s"JavaUtils.stringArrayToJavaVariantArray(${arg.name})"
         case GeographyType if isScalaUDF => s"JavaUtils.stringToGeography(${arg.name})"
         case GeographyType => s"JavaUtils.stringToJavaGeography(${arg.name})"
+        case GeometryType if isScalaUDF => s"JavaUtils.stringToGeometry(${arg.name})"
+        case GeometryType => s"JavaUtils.stringToJavaGeometry(${arg.name})"
         case VariantType if isScalaUDF => s"JavaUtils.stringToVariant(${arg.name})"
         case VariantType => s"JavaUtils.stringToJavaVariant(${arg.name})"
         case _ => arg.name
@@ -850,6 +858,7 @@ class UDXRegistrationHandler(session: Session) extends Logging {
   private def convertReturnValue(returnValue: UdfColumnSchema, value: String): String = {
     returnValue.dataType match {
       case GeographyType => s"JavaUtils.geographyToString($value)"
+      case GeometryType => s"JavaUtils.geometryToString($value)"
       case VariantType => s"JavaUtils.variantToString($value)"
       case MapType(_, VariantType) => s"JavaUtils.javaVariantMapToStringMap($value)"
       case ArrayType(VariantType) => s"JavaUtils.variantArrayToStringArray($value)"

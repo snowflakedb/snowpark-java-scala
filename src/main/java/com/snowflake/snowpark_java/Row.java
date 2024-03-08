@@ -2,6 +2,7 @@ package com.snowflake.snowpark_java;
 
 import com.snowflake.snowpark.internal.JavaUtils;
 import com.snowflake.snowpark_java.types.Geography;
+import com.snowflake.snowpark_java.types.Geometry;
 import com.snowflake.snowpark_java.types.InternalUtils;
 import com.snowflake.snowpark_java.types.Variant;
 import java.io.Serializable;
@@ -53,6 +54,8 @@ public class Row implements Serializable, Cloneable {
       } else if (result[i] instanceof Geography) {
         result[i] =
             com.snowflake.snowpark.types.Geography.fromGeoJSON(((Geography) result[i]).asGeoJSON());
+      } else if (result[i] instanceof Geometry) {
+        result[i] = com.snowflake.snowpark.types.Geometry.fromGeoJSON(result[i].toString());
       }
     }
     return result;
@@ -134,6 +137,8 @@ public class Row implements Serializable, Cloneable {
       return InternalUtils.createVariant((com.snowflake.snowpark.types.Variant) result);
     } else if (result instanceof com.snowflake.snowpark.types.Geography) {
       return Geography.fromGeoJSON(((com.snowflake.snowpark.types.Geography) result).asGeoJSON());
+    } else if (result instanceof com.snowflake.snowpark.types.Geometry) {
+      return Geometry.fromGeoJSON(result.toString());
     } else if (result instanceof com.snowflake.snowpark.types.Variant[]) {
       com.snowflake.snowpark.types.Variant[] scalaVariantArray =
           (com.snowflake.snowpark.types.Variant[]) result;
@@ -323,6 +328,17 @@ public class Row implements Serializable, Cloneable {
    */
   public Geography getGeography(int index) {
     return Geography.fromGeoJSON(scalaRow.getGeography(index).asGeoJSON());
+  }
+
+  /**
+   * Retrieves the value of the column at the given index as a Geometry value.
+   *
+   * @param index The index of target column
+   * @return The Geometry value of the column at the given index
+   * @since 1.12.0
+   */
+  public Geometry getGeometry(int index) {
+    return Geometry.fromGeoJSON(scalaRow.getGeometry(index).toString());
   }
 
   /**

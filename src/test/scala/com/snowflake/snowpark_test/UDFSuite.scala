@@ -2,7 +2,7 @@ package com.snowflake.snowpark_test
 
 import com.snowflake.snowpark._
 import com.snowflake.snowpark.functions.{col, _}
-import com.snowflake.snowpark.types.{Geography, Variant}
+import com.snowflake.snowpark.types.{Geography, Geometry, Variant}
 
 import java.io.{NotSerializableException, Serializable}
 import java.sql.{Date, Time, Timestamp}
@@ -428,6 +428,44 @@ trait UDFSuite extends TestData {
         Row(
           Geography.fromGeoJSON(
             "{\n  \"coordinates\": [\n    50,\n    60\n  ],\n  \"type\": \"Point\"\n}")),
+        Row(null)))
+  }
+
+  test("Test for Geometry data type") {
+    createTable(tableName, "g geometry")
+    runQuery(s"insert into $tableName values ('POINT(20 40)'), ('POINT(50 60)'), (null)", session)
+    val df = session.table(tableName)
+
+    val geometryUDF = udf((g: Geometry) => {
+      if (g == null) {
+        null
+      } else {
+        if (g.toString.contains("2.000000000000000e+01")) {
+          Geometry.fromGeoJSON(g.toString)
+        } else {
+          Geometry.fromGeoJSON(
+            "{\"coordinates\": [3.000000000000000e+01,1.000000000000000e+01],\"type\": \"Point\"}")
+        }
+      }
+    })
+
+    checkAnswer(
+      df.select(geometryUDF(col("g"))),
+      Seq(
+        Row(Geometry.fromGeoJSON("""{
+              |  "coordinates": [
+              |    2.000000000000000e+01,
+              |    4.000000000000000e+01
+              |  ],
+              |  "type": "Point"
+              |}""".stripMargin)),
+        Row(Geometry.fromGeoJSON("""{
+              |  "coordinates": [
+              |    3.000000000000000e+01,
+              |    1.000000000000000e+01
+              |  ],
+              |  "type": "Point"
+              |}""".stripMargin)),
         Row(null)))
   }
 

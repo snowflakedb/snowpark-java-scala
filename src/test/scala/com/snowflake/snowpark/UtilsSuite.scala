@@ -135,11 +135,12 @@ class UtilsSuite extends SNTestBase {
         BooleanType))
     assert(TypeToSchemaConverter.inferSchema[Variant]().head.dataType == VariantType)
     assert(TypeToSchemaConverter.inferSchema[Geography]().head.dataType == GeographyType)
+    assert(TypeToSchemaConverter.inferSchema[Geometry]().head.dataType == GeometryType)
 
     // tuple
     assert(
       TypeToSchemaConverter
-        .inferSchema[(Int, Boolean, Double, Geography, Map[String, Boolean])]()
+        .inferSchema[(Int, Boolean, Double, Geography, Map[String, Boolean], Geometry)]()
         .treeString(0) ==
         """root
       | |--_1: Integer (nullable = false)
@@ -147,6 +148,7 @@ class UtilsSuite extends SNTestBase {
       | |--_3: Double (nullable = false)
       | |--_4: Geography (nullable = true)
       | |--_5: Map (nullable = true)
+      | |--_6: Geometry (nullable = true)
       |""".stripMargin)
 
     // case class
@@ -222,7 +224,8 @@ class UtilsSuite extends SNTestBase {
           Geography,
           Date,
           Time,
-          Timestamp)]()
+          Timestamp,
+          Geometry)]()
       .treeString(0) ==
       """root
           | |--_1: Integer (nullable = true)
@@ -242,6 +245,7 @@ class UtilsSuite extends SNTestBase {
           | |--_15: Date (nullable = true)
           | |--_16: Time (nullable = true)
           | |--_17: Timestamp (nullable = true)
+          | |--_18: Geometry (nullable = true)
           |""".stripMargin
   }
 

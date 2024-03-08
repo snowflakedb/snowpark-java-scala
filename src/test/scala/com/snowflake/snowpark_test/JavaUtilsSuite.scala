@@ -19,10 +19,23 @@ class JavaUtilsSuite extends FunSuite {
       geographyToString(com.snowflake.snowpark_java.types.Geography.fromGeoJSON(data)) == data)
   }
 
+  test("geometry to string") {
+    val data =
+      "{\"coordinates\": [2.000000000000000e+01,4.000000000000000e+01],\"type\": \"Point\"}"
+    assert(geometryToString(com.snowflake.snowpark.types.Geometry.fromGeoJSON(data)) == data)
+    assert(geometryToString(com.snowflake.snowpark_java.types.Geometry.fromGeoJSON(data)) == data)
+  }
+
   test("string to geography") {
     val data = "{\"type\":\"Point\",\"coordinates\":[125.6, 10.1]}"
     assert(stringToGeography(data).isInstanceOf[com.snowflake.snowpark.types.Geography])
     assert(stringToJavaGeography(data).isInstanceOf[com.snowflake.snowpark_java.types.Geography])
+  }
+
+  test("string to geometry") {
+    val data = "{\"type\":\"Point\",\"coordinates\":[125.6, 10.1]}"
+    assert(stringToGeometry(data).isInstanceOf[com.snowflake.snowpark.types.Geometry])
+    assert(stringToJavaGeometry(data).isInstanceOf[com.snowflake.snowpark_java.types.Geometry])
   }
 
   test("variant to string") {

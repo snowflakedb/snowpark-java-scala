@@ -55,6 +55,7 @@ object ScalaFunctions {
     case t if t =:= typeOf[scala.collection.mutable.Map[String, String]] => true
     case t if t =:= typeOf[scala.collection.mutable.Map[String, Variant]] => true
     case t if t =:= typeOf[Geography] => true
+    case t if t =:= typeOf[Geometry] => true
     case t if t =:= typeOf[Variant] => true
     case t if t <:< typeOf[scala.collection.Iterable[_]] =>
       throw new UnsupportedOperationException(
@@ -97,6 +98,7 @@ object ScalaFunctions {
     case t if t =:= typeOf[scala.collection.mutable.Map[String, Variant]] =>
       UdfColumnSchema(MapType(StringType, VariantType))
     case t if t =:= typeOf[Geography] => UdfColumnSchema(GeographyType)
+    case t if t =:= typeOf[Geometry] => UdfColumnSchema(GeometryType)
     case t if t =:= typeOf[Variant] => UdfColumnSchema(VariantType)
     case t => throw new UnsupportedOperationException(s"Unsupported type $t")
   }
