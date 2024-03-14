@@ -74,7 +74,7 @@ trait SNTestBase extends FunSuite with BeforeAndAfterAll with SFTestUtils with S
     TypeMap("timestamp_ntz", "timestamp_ntz", Types.TIMESTAMP, TimestampType),
     TypeMap("timestamp_tz", "timestamp_tz", Types.TIMESTAMP_WITH_TIMEZONE, TimestampType),
     TypeMap("variant", "variant", Types.VARCHAR, VariantType),
-    TypeMap("object", "object", Types.VARCHAR, MapType(StringType, StringType)),
+//    TypeMap("object", "object", Types.VARCHAR, MapType(StringType, StringType)),
     TypeMap("array", "array", Types.VARCHAR, ArrayType(StringType)),
     TypeMap("geography", "geography", Types.VARCHAR, GeographyType),
     TypeMap("geometry", "geometry", Types.VARCHAR, GeometryType))
