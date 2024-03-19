@@ -34,9 +34,9 @@
         <maven.compiler.source>1.8</maven.compiler.source>
         <maven.compiler.target>1.8</maven.compiler.target>
         <encoding>UTF-8</encoding>
-        <scala.version>2.12.18</scala.version>
-        <scala.compat.version>2.12</scala.compat.version>
-        <spec2.version>4.2.0</spec2.version>
+        <scala.version>2.13.13</scala.version>
+        <scala.compat.version>2.13</scala.compat.version>
+        <spec2.version>4.20.5</spec2.version>
         <snowflake.jdbc.version>3.16.0</snowflake.jdbc.version>
         <version.scala.binary>${scala.compat.version}</version.scala.binary>
         <doctitle>Snowpark ${project.version}</doctitle>
@@ -134,7 +134,7 @@
         <dependency>
             <groupId>org.scalatest</groupId>
             <artifactId>scalatest_${scala.compat.version}</artifactId>
-            <version>3.0.5</version>
+            <version>3.2.18</version>
             <scope>test</scope>
         </dependency>
         <dependency>
@@ -496,7 +496,7 @@
         <profile>
             <id>test-coverage</id>
             <properties>
-                <scala.version>2.12.15</scala.version>
+                <scala.version>2.13.13</scala.version>
             </properties>
             <build>
                 <plugins>

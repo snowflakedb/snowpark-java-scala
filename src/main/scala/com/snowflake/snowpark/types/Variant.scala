@@ -6,6 +6,7 @@ import com.fasterxml.jackson.databind.node.{ArrayNode, JsonNodeFactory, ObjectNo
 import java.math.{BigDecimal => JavaBigDecimal, BigInteger => JavaBigInteger}
 import java.sql.{Date, Time, Timestamp}
 import java.util.{List => JavaList, Map => JavaMap}
+import scala.jdk.FunctionConverters._
 import scala.collection.JavaConverters._
 import Variant._
 import org.apache.commons.codec.binary.{Base64, Hex}
@@ -225,7 +226,7 @@ class Variant private[snowpark] (
    *
    * @since 0.2.0
    */
-  def this(list: JavaList[Object]) = this(list.asScala)
+  def this(list: JavaList[Object]) = this(list.asScala.toSeq)
 
   /**
    * Creates a Variant from array
@@ -244,7 +245,11 @@ class Variant private[snowpark] (
       {
         def mapToNode(map: JavaMap[Object, Object]): ObjectNode = {
           val result = MAPPER.createObjectNode()
-          map.keySet().forEach(key => result.set(key.toString, objectToJsonNode(map.get(key))))
+          val consumer =
+            (key: Object) => result.set(key.toString, objectToJsonNode(map.get(key)))
+          map
+            .keySet()
+            .forEach(consumer.asJavaConsumer)
           result
         }
         obj match {

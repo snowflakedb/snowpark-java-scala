@@ -1797,7 +1797,10 @@ class DataFrame private[snowpark] (
    * @param firstArg The first argument to pass to the specified table function.
    * @param remaining A list of any additional arguments for the specified table function.
    */
-  def join(func: TableFunction, firstArg: Column, remaining: Column*): DataFrame =
+  def join(
+      func: com.snowflake.snowpark.TableFunction,
+      firstArg: Column,
+      remaining: Column*): DataFrame =
     join(func, firstArg +: remaining)
 
   /**
@@ -1824,7 +1827,7 @@ class DataFrame private[snowpark] (
    *   object or an object that you create from the [[TableFunction]] class.
    * @param args A list of arguments to pass to the specified table function.
    */
-  def join(func: TableFunction, args: Seq[Column]): DataFrame =
+  def join(func: com.snowflake.snowpark.TableFunction, args: Seq[Column]): DataFrame =
     joinTableFunction(func.call(args: _*), None)
 
   /**
@@ -1854,7 +1857,7 @@ class DataFrame private[snowpark] (
    * @param orderBy A list of columns ordered by.
    */
   def join(
-      func: TableFunction,
+      func: com.snowflake.snowpark.TableFunction,
       args: Seq[Column],
       partitionBy: Seq[Column],
       orderBy: Seq[Column]): DataFrame =
@@ -1892,7 +1895,7 @@ class DataFrame private[snowpark] (
    *              Some functions, like `flatten`, have named parameters.
    *              Use this map to specify the parameter names and their corresponding values.
    */
-  def join(func: TableFunction, args: Map[String, Column]): DataFrame =
+  def join(func: com.snowflake.snowpark.TableFunction, args: Map[String, Column]): DataFrame =
     joinTableFunction(func.call(args), None)
 
   /**
@@ -1929,7 +1932,7 @@ class DataFrame private[snowpark] (
    * @param orderBy A list of columns ordered by.
    */
   def join(
-      func: TableFunction,
+      func: com.snowflake.snowpark.TableFunction,
       args: Map[String, Column],
       partitionBy: Seq[Column],
       orderBy: Seq[Column]): DataFrame =
@@ -2366,7 +2369,7 @@ class DataFrame private[snowpark] (
           }
       }
       lines.append(value.substring(startIndex))
-      lines
+      lines.toSeq
     }
 
     def convertValueToString(value: Any): String =
@@ -2501,7 +2504,7 @@ class DataFrame private[snowpark] (
    *                            and view name.
    */
   def createOrReplaceView(multipartIdentifier: java.util.List[String]): Unit =
-    createOrReplaceView(multipartIdentifier.asScala)
+    createOrReplaceView(multipartIdentifier.asScala.toSeq)
 
   /**
    * Creates a temporary view that returns the same results as this DataFrame.
@@ -2564,7 +2567,7 @@ class DataFrame private[snowpark] (
    *                            view name.
    */
   def createOrReplaceTempView(multipartIdentifier: java.util.List[String]): Unit =
-    createOrReplaceTempView(multipartIdentifier.asScala)
+    createOrReplaceTempView(multipartIdentifier.asScala.toSeq)
 
   private def doCreateOrReplaceView(viewName: String, viewType: ViewType): Unit = {
     session.conn.telemetry.reportActionCreateOrReplaceView()
