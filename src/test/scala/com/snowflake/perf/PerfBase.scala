@@ -77,6 +77,7 @@ trait PerfBase extends SNTestBase {
       test(testName) {
         try {
           writeResult(testName, timer(func))
+          succeed
         } catch {
           case ex: Exception =>
             writeResult(testName, -1.0) // -1.0 if failed
@@ -84,7 +85,10 @@ trait PerfBase extends SNTestBase {
         }
       }
     } else {
-      ignore(testName)(func)
+      ignore(testName) {
+        func
+        succeed
+      }
     }
   }
 }

@@ -250,6 +250,7 @@ class ExpressionAndPlanNodeSuite extends SNTestBase {
     emptyChecker(CurrentRow)
     emptyChecker(UnspecifiedFrame)
     binaryChecker(SpecifiedWindowFrame(RowFrame, _, _))
+    succeed
   }
 
   test("star children and dependent columns") {
@@ -475,6 +476,7 @@ class ExpressionAndPlanNodeSuite extends SNTestBase {
     leafAnalyzerChecker(CurrentRow)
     leafAnalyzerChecker(UnspecifiedFrame)
     binaryAnalyzerChecker(SpecifiedWindowFrame(RowFrame, _, _))
+    succeed
   }
 
   test("star - analyze") {
@@ -489,6 +491,7 @@ class ExpressionAndPlanNodeSuite extends SNTestBase {
     assert(exp.analyze(x => x) == exp)
     assert(exp.analyze(_ => att2) == att2)
     leafAnalyzerChecker(Star(Seq.empty))
+    succeed
   }
 
   test("WindowSpecDefinition - analyze") {
@@ -988,6 +991,7 @@ class ExpressionAndPlanNodeSuite extends SNTestBase {
         assert(key.name == "\"COL3\"")
         assert(value.name == "\"COL3\"")
     }
+    succeed
   }
 
   test("TableDelete - Analyzer") {
@@ -1125,5 +1129,6 @@ class ExpressionAndPlanNodeSuite extends SNTestBase {
     leafSimplifierChecker(
       SnowflakePlan(Seq.empty, "222", session, None, supportAsyncMode = false))
 
+    succeed
   }
 }

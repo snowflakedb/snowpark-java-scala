@@ -105,6 +105,7 @@ class DataFrameRangeSuite extends SNTestBase {
         assert(res.head.getLong(1) == expSum)
       }
     }
+    succeed
   }
 
   test("Session range with Max and Min") {

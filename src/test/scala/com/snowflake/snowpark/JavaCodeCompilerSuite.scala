@@ -1,7 +1,7 @@
 package com.snowflake.snowpark
 
 import com.snowflake.snowpark.internal.{InMemoryClassObject, JavaCodeCompiler, UDFClassPath}
-import org.scalatest.FunSuite
+import org.scalatest.funsuite.{AnyFunSuite => FunSuite}
 
 class JavaCodeCompilerSuite extends FunSuite {
 

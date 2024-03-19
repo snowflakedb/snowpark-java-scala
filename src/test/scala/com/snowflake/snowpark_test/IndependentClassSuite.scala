@@ -1,6 +1,6 @@
 package com.snowflake.snowpark_test
 
-import org.scalatest.FunSuite
+import org.scalatest.funsuite.{AnyFunSuite => FunSuite}
 import org.scalatest.exceptions.TestFailedException
 
 import scala.language.postfixOps

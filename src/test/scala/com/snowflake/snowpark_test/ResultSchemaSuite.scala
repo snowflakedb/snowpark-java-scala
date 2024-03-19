@@ -58,6 +58,7 @@ class ResultSchemaSuite extends TestData {
     verifySchema(
       "alter session set ABORT_DETACHED_QUERY=false",
       session.sql("alter session set ABORT_DETACHED_QUERY=false").schema)
+    succeed
   }
 
   test("list, remove file") {
@@ -75,10 +76,12 @@ class ResultSchemaSuite extends TestData {
     verifySchema(
       s"remove @$stageName/$testFileCsv",
       session.sql(s"remove @$stageName/$testFile2Csv").schema)
+    succeed
   }
 
   test("select") {
     verifySchema(s"select * from  $tableName", session.sql(s"select * from  $tableName").schema)
+    succeed
   }
 
   test("analyze schema") {
@@ -90,6 +93,7 @@ class ResultSchemaSuite extends TestData {
     verifySchema(
       s"""select string, "int", array, "date" from $fullTypesTable where \"int\" > 0""",
       df2.schema)
+    succeed
   }
 
   // ignore it for now since we are modifying the analyzer system.
@@ -146,6 +150,7 @@ class ResultSchemaSuite extends TestData {
         assert(tsSchema(index).dataType == typeMap(index).tsType)
       })
     statement.close()
+    succeed
   }
 
   test("verify Geography schema type") {
@@ -173,6 +178,7 @@ class ResultSchemaSuite extends TestData {
       assert(resultMeta.getColumnType(1) == Types.BINARY)
       assert(tsSchema.head.dataType == GeographyType)
       statement.close()
+      succeed
     } finally {
       // Assign output format to the default value
       runQuery(s"alter session set GEOGRAPHY_OUTPUT_FORMAT='GeoJSON'", session)
@@ -204,6 +210,7 @@ class ResultSchemaSuite extends TestData {
       assert(resultMeta.getColumnType(1) == Types.BINARY)
       assert(tsSchema.head.dataType == GeometryType)
       statement.close()
+      succeed
     } finally {
       // Assign output format to the default value
       runQuery(s"alter session set GEOMETRY_OUTPUT_FORMAT='GeoJSON'", session)
@@ -217,5 +224,6 @@ class ResultSchemaSuite extends TestData {
     assert(resultMeta.getColumnType(1) == Types.TIME)
     assert(tsSchema.head.dataType == TimeType)
     statement.close()
+    succeed
   }
 }

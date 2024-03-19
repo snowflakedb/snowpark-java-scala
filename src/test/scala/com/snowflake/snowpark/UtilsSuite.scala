@@ -23,6 +23,8 @@ import java.lang.{
   Short => JavaShort
 }
 import net.snowflake.client.jdbc.SnowflakeSQLException
+import org.scalatest.Assertion
+import org.scalatest.Assertions.succeed
 
 import scala.collection.mutable.ArrayBuffer
 
@@ -40,7 +42,7 @@ class UtilsSuite extends SNTestBase {
     Seq("random.jar", "snow-0.3.0.jar", "snowpark", "snowpark.tar.gz").foreach(jarName => {
       assert(!Utils.isSnowparkJar(jarName))
     })
-
+    succeed
   }
 
   test("Logging") {
@@ -50,6 +52,7 @@ class UtilsSuite extends SNTestBase {
   test("utils.version") {
     // Stored Proc jdbc relies on Utils.Version. This test will prevent changes to this method.
     Utils.getClass.getMethod("Version")
+    succeed
   }
 
   test("test mask secrets") {
@@ -191,10 +194,11 @@ class UtilsSuite extends SNTestBase {
       double: java.lang.Double)
 
   test("Non-nullable types") {
-    TypeToSchemaConverter
-      .inferSchema[(Boolean, Byte, Short, Int, Long, Float, Double)]()
-      .treeString(0) ==
-      """root
+    assert(
+      TypeToSchemaConverter
+        .inferSchema[(Boolean, Byte, Short, Int, Long, Float, Double)]()
+        .treeString(0) ==
+        """root
         | |--_1: Boolean (nullable = false)
         | |--_2: Byte (nullable = false)
         | |--_3: Short (nullable = false)
@@ -202,32 +206,33 @@ class UtilsSuite extends SNTestBase {
         | |--_5: Long (nullable = false)
         | |--_6: Float (nullable = false)
         | |--_7: Double (nullable = false)
-        |""".stripMargin
+        |""".stripMargin)
   }
 
   test("Nullable types") {
-    TypeToSchemaConverter
-      .inferSchema[(
-          Option[Int],
-          JavaBoolean,
-          JavaByte,
-          JavaShort,
-          JavaInteger,
-          JavaLong,
-          JavaFloat,
-          JavaDouble,
-          Array[Boolean],
-          Map[String, Double],
-          JavaBigDecimal,
-          BigDecimal,
-          Variant,
-          Geography,
-          Date,
-          Time,
-          Timestamp,
-          Geometry)]()
-      .treeString(0) ==
-      """root
+    assert(
+      TypeToSchemaConverter
+        .inferSchema[(
+            Option[Int],
+            JavaBoolean,
+            JavaByte,
+            JavaShort,
+            JavaInteger,
+            JavaLong,
+            JavaFloat,
+            JavaDouble,
+            Array[Boolean],
+            Map[String, Double],
+            JavaBigDecimal,
+            BigDecimal,
+            Variant,
+            Geography,
+            Date,
+            Time,
+            Timestamp,
+            Geometry)]()
+        .treeString(0) ==
+        """root
           | |--_1: Integer (nullable = true)
           | |--_2: Boolean (nullable = true)
           | |--_3: Byte (nullable = true)
@@ -246,7 +251,7 @@ class UtilsSuite extends SNTestBase {
           | |--_16: Time (nullable = true)
           | |--_17: Timestamp (nullable = true)
           | |--_18: Geometry (nullable = true)
-          |""".stripMargin
+          |""".stripMargin)
   }
 
   test("normalizeStageLocation") {
@@ -414,6 +419,7 @@ class UtilsSuite extends SNTestBase {
       // println(s"test: $name")
       Utils.validateObjectName(name)
     }
+    succeed
   }
 
   test("test Utils.getUDFUploadPrefix()") {
@@ -432,6 +438,7 @@ class UtilsSuite extends SNTestBase {
       // println(s"test: $name")
       assert(Utils.getUDFUploadPrefix(name).matches("[\\w]+"))
     }
+    succeed
   }
 
   test("negative test Utils.validateObjectName()") {
@@ -484,6 +491,7 @@ class UtilsSuite extends SNTestBase {
       val ex = intercept[SnowparkClientException] { Utils.validateObjectName(name) }
       assert(ex.getMessage.replaceAll("\n", "").matches(".*The object name .* is invalid."))
     }
+    succeed
   }
 
   test("os name") {
@@ -506,6 +514,7 @@ class UtilsSuite extends SNTestBase {
     testItems.foreach { item =>
       assert(Utils.convertWindowsPathToLinux(item._1).equals(item._2))
     }
+    succeed
   }
 
   test("Utils.version matches pom version") {
@@ -533,6 +542,7 @@ class UtilsSuite extends SNTestBase {
       val sleep7 = Utils.retrySleepTimeInMS(7)
       assert(sleep7 >= 30000 && sleep7 <= 60000)
     }
+    succeed
   }
 
   test("Utils.isRetryable") {
@@ -675,7 +685,7 @@ class UtilsSuite extends SNTestBase {
 }
 
 object LoggingTester extends Logging {
-  def test(): Unit = {
+  def test(): Assertion = {
     // no error report
     val password = "failed_error_log_password"
     logInfo(s"info PASSWORD=$password")
@@ -692,5 +702,6 @@ object LoggingTester extends Logging {
     logWarning(s"warning PASSWORD=$password", exception)
     logError(s"error PASSWORD=$password", exception)
 
+    succeed
   }
 }

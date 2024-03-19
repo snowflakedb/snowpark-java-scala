@@ -222,6 +222,7 @@ trait DataFrameJoinSuite extends SNTestBase {
       assert(ex2.getMessage.contains("INTCOL"))
       assert(ex2.getMessage().contains("ambiguous"))
     }
+    succeed
   }
 
   test("join -- expressions on ambiguous columns") {
@@ -304,7 +305,7 @@ trait DataFrameJoinSuite extends SNTestBase {
         lhs.join(rhs, Seq("intcol"), joinType).select(lhs("negcol"), rhs("negcol")),
         Row(-1, -10) :: Row(-2, -20) :: Nil)
     }
-
+    succeed
   }
 
   test("Columns with and without quotes") {
@@ -400,6 +401,7 @@ trait DataFrameJoinSuite extends SNTestBase {
         assert(ex.message.contains(msg))
       }
     }
+    succeed
   }
 
   test("clone can help these self joins") {
@@ -616,6 +618,7 @@ trait DataFrameJoinSuite extends SNTestBase {
     val dfOne = df.select(lit(1).as("a"))
     val dfTwo = session.range(10).select(lit(2).as("b"))
     dfOne.join(dfTwo, $"a" === $"b", "left").collect()
+    succeed
   }
 
   test("name alias in multiple join") {
@@ -645,6 +648,7 @@ trait DataFrameJoinSuite extends SNTestBase {
           df_end_stations("station_name"),
           df_trips("starttime"))
         .collect()
+      succeed
 
     } finally {
       dropTable(tableTrips)
@@ -679,6 +683,7 @@ trait DataFrameJoinSuite extends SNTestBase {
           df_end_stations("station%name"),
           df_trips("starttime"))
         .collect()
+      succeed
 
     } finally {
       dropTable(tableTrips)
@@ -806,6 +811,7 @@ trait DataFrameJoinSuite extends SNTestBase {
           |-------------------
           |""".stripMargin)
     df.select(dfRight("*"), dfRight("c")).show()
+    succeed
   }
 
   test("select columns on join result with conflict name", JavaStoredProcExclude) {

@@ -10,6 +10,7 @@ import scala.reflect.internal.util.BatchSourceFile
 import scala.reflect.io.{AbstractFile, VirtualDirectory}
 import scala.tools.nsc.GenericRunnerSettings
 import scala.tools.nsc.interpreter.IMain
+import scala.tools.nsc.interpreter.shell.ReplReporterImpl
 import scala.util.Random
 
 @UDFTest
@@ -107,7 +108,7 @@ class UDFRegistrationSuite extends SNTestBase with FileUtils {
       val targetDir = Files.createTempDirectory(s"snowpark_test_target_")
       settings.Yreploutdir.value = targetDir.toFile.getAbsolutePath
     }
-    val interpreter: IMain = new IMain(settings)
+    val interpreter: IMain = new IMain(settings, new ReplReporterImpl(settings))
     interpreter.compileSources(new BatchSourceFile(AbstractFile.getFile(new File(fileName))))
 
     interpreter.classLoader.loadClass(s"$packageName.$className")
@@ -123,6 +124,7 @@ class UDFRegistrationSuite extends SNTestBase with FileUtils {
     val onDiskName = s"DynamicCompile${Random.nextInt().abs}"
     val onDiskClass = generateDynamicClass(packageName, onDiskName, false)
     session.udf.handler.addClassToDependencies(onDiskClass)
+    succeed
   }
 
   test("ls file") {

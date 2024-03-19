@@ -111,6 +111,7 @@ class PermanentUDFSuite extends TestData {
       checkAnswer(df.select(callUDF(permFuncName, df("a"))), Seq(Row(2), Row(3)))
       runQuery(s"drop function $tempFuncName(INT)", session)
       runQuery(s"drop function $permFuncName(INT)", session)
+      succeed
     } finally {
       runQuery(s"drop function if exists $tempFuncName(INT)", session)
       runQuery(s"drop function if exists $permFuncName(INT)", session)
@@ -153,6 +154,7 @@ class PermanentUDFSuite extends TestData {
       }
       assert(ex.getMessage.matches(".*The object name .* is invalid."))
     }
+    succeed
   }
 
   test("Clean up uploaded jar files if UDF registration fails", JavaStoredProcExclude) {

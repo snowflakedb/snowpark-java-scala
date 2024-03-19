@@ -4,6 +4,7 @@ import com.snowflake.snowpark.functions._
 import com.snowflake.snowpark.types.IntegerType
 import com.snowflake.snowpark.{Column, Row, SnowparkClientException, TestData}
 import net.snowflake.client.jdbc.SnowflakeSQLException
+import org.scalatest.Assertion
 
 import java.sql.{Date, Timestamp}
 
@@ -11,7 +12,7 @@ class DataFrameSetOperationsSuite extends TestData {
   import session.implicits._
 
   test("Union with filters") {
-    def check(newCol: Column, filter: Column, result: Seq[Row]): Unit = {
+    def check(newCol: Column, filter: Column, result: Seq[Row]): Assertion = {
       val df1 = session.createDataFrame(Seq((1, 1))).toDF("a", "b").withColumn("c", newCol)
 
       val df2 = df1.union(df1).withColumn("d", lit(100)).filter(filter)
@@ -27,7 +28,7 @@ class DataFrameSetOperationsSuite extends TestData {
   }
 
   test("Union All with filters") {
-    def check(newCol: Column, filter: Column, result: Seq[Row]): Unit = {
+    def check(newCol: Column, filter: Column, result: Seq[Row]): Assertion = {
       val df1 = session.createDataFrame(Seq((1, 1))).toDF("a", "b").withColumn("c", newCol)
 
       val df2 = df1.unionAll(df1).withColumn("d", lit(100)).filter(filter)
@@ -161,7 +162,7 @@ class DataFrameSetOperationsSuite extends TestData {
 
     df1 = Seq((1, 2, 3)).toDF("a", "b", "c")
     df2 = Seq((4, 5, 6)).toDF("a", "c", "d")
-    intercept[SnowparkClientException] {
+    assertThrows[SnowparkClientException] {
       df1.unionByName(df2)
     }
   }
@@ -182,7 +183,7 @@ class DataFrameSetOperationsSuite extends TestData {
 
     df1 = Seq((1, 2, 3)).toDF("a", "b", "c")
     df2 = Seq((4, 5, 6)).toDF("a", "c", "d")
-    intercept[SnowparkClientException] {
+    assertThrows[SnowparkClientException] {
       df1.unionAllByName(df2)
     }
   }
@@ -196,7 +197,7 @@ class DataFrameSetOperationsSuite extends TestData {
 
     df1 = Seq((1, 2, 3)).toDF(""""a"""", "b", "c")
     df2 = Seq((4, 5, 6)).toDF("a", "c", "b")
-    intercept[SnowparkClientException] {
+    assertThrows[SnowparkClientException] {
       df1.unionByName(df2)
     }
   }
@@ -210,7 +211,7 @@ class DataFrameSetOperationsSuite extends TestData {
 
     df1 = Seq((1, 2, 3)).toDF(""""a"""", "b", "c")
     df2 = Seq((4, 5, 6)).toDF("a", "c", "b")
-    intercept[SnowparkClientException] {
+    assertThrows[SnowparkClientException] {
       df1.unionAllByName(df2)
     }
   }
@@ -255,6 +256,7 @@ class DataFrameSetOperationsSuite extends TestData {
     dates.union(widenTypedRows).collect()
     dates.except(widenTypedRows).collect()
     dates.intersect(widenTypedRows).collect()
+    succeed
   }
 
   /*
@@ -271,7 +273,7 @@ class DataFrameSetOperationsSuite extends TestData {
     }
     df1 = Seq((1, 1)).toDF("c0", "c1")
     df2 = Seq((1, 1)).toDF(c0, c1)
-    intercept[SnowparkClientException] {
+    assertThrows[SnowparkClientException] {
       df1.unionByName(df2)
     }
   }
@@ -286,7 +288,7 @@ class DataFrameSetOperationsSuite extends TestData {
     }
     df1 = Seq((1, 1)).toDF("c0", "c1")
     df2 = Seq((1, 1)).toDF(c0, c1)
-    intercept[SnowparkClientException] {
+    assertThrows[SnowparkClientException] {
       df1.unionAllByName(df2)
     }
   }

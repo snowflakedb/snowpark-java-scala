@@ -181,6 +181,7 @@ class TableSuite extends TestData {
     checkAnswer(session.table(name2), Seq(Row(1), Row(2), Row(3)))
 
     dropTable(name2)
+    succeed
   }
 
   test("read from different schema") {
@@ -308,6 +309,7 @@ class TableSuite extends TestData {
       df.write.mode(SaveMode.Overwrite).saveAsTable(list)
       checkAnswer(session.table(tableName), Seq(Row(1), Row(2), Row(3)))
       dropTable(tableName)
+      succeed
 
     } finally {
       dropTable(tableName)

@@ -89,15 +89,15 @@ trait UDFSuite extends TestData {
     }
     assert(ex.getMessage.contains("mutable.Map[String,String]"))
 
-    intercept[UnsupportedOperationException] {
+    assertThrows[UnsupportedOperationException] {
       udf((x: java.lang.Integer) => x + x)
     }
 
-    intercept[UnsupportedOperationException] {
+    assertThrows[UnsupportedOperationException] {
       udf((x: Option[String]) => x.map(a => s"$a"))
     }
 
-    intercept[UnsupportedOperationException] {
+    assertThrows[UnsupportedOperationException] {
       udf((x: mutable.Map[String, String]) => x.keys)
     }
   }
@@ -143,6 +143,7 @@ trait UDFSuite extends TestData {
     assert(result.size == 2)
     Seq(1, 2, 3).foreach(i => assert(result(0).getString(0).contains(s"convertToMap$i")))
     Seq(4, 5, 6).foreach(i => assert(result(1).getString(0).contains(s"convertToMap$i")))
+    succeed
   }
 
   test("UDF with multiple args of type map, array etc") {
@@ -2816,6 +2817,7 @@ class AlwaysCleanUDFSuite extends UDFSuite with AlwaysCleanSession {
     val myDf = session.sql("select 'Raymond' NAME")
     val readFileUdf = udf(TestClassWithoutFieldAccess.run)
     myDf.withColumn("CONCAT", readFileUdf(col("NAME"))).show()
+    succeed
   }
 }
 
@@ -2824,7 +2826,7 @@ class NeverCleanUDFSuite extends UDFSuite with NeverCleanSession {
   test("Test without closure cleaner") {
     val myDf = session.sql("select 'Raymond' NAME")
     // Without closure cleaner, this test will throw error
-    intercept[NotSerializableException] {
+    assertThrows[NotSerializableException] {
       val readFileUdf = udf(TestClassWithoutFieldAccess.run)
       myDf.withColumn("CONCAT", readFileUdf(col("NAME"))).show()
     }
