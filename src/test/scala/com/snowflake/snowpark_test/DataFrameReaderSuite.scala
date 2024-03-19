@@ -4,7 +4,7 @@ import com.snowflake.snowpark.functions._
 import com.snowflake.snowpark.types._
 import com.snowflake.snowpark._
 import net.snowflake.client.jdbc.SnowflakeSQLException
-import org.scalatest.Tag
+import org.scalatest.{Assertion, Tag}
 
 import scala.util.Random
 
@@ -226,6 +226,7 @@ class DataFrameReaderSuite extends SNTestBase {
             .csv(path),
           result)
       })
+      succeed
     } finally {
       runQuery(s"drop file format $formatName", session)
     }
@@ -338,6 +339,7 @@ class DataFrameReaderSuite extends SNTestBase {
         .parquet(s"@$tmpStageName/$ctype/")
         .collect()
     })
+    succeed
   })
 
   testReadFile("read parquet with no schema")(reader => {
@@ -502,7 +504,7 @@ class DataFrameReaderSuite extends SNTestBase {
   })
 
   def testReadFile(testName: String, testTags: Tag*)(
-      thunk: (() => DataFrameReader) => Unit): Unit = {
+      thunk: (() => DataFrameReader) => Assertion): Unit = {
     // test select
     test(testName + " - SELECT", testTags: _*) {
       thunk(() => session.read)

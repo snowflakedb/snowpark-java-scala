@@ -1,6 +1,6 @@
 package com.snowflake.snowpark_test
 
-import org.scalatest.FunSuite
+import org.scalatest.funsuite.{AnyFunSuite => FunSuite}
 import com.snowflake.snowpark.internal.JavaUtils._
 import com.snowflake.snowpark.types.Variant
 import com.snowflake.snowpark_java.types.{Variant => JavaVariant}

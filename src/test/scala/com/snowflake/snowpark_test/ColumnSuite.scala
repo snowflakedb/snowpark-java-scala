@@ -240,26 +240,26 @@ class ColumnSuite extends TestData {
     checkAnswer(df.select(df("one")), Row(1) :: Nil)
     checkAnswer(df.select(df("oNe")), Row(1) :: Nil)
     checkAnswer(df.select(df(""""ONE"""")), Row(1) :: Nil)
-    intercept[SnowparkClientException] {
+    assertThrows[SnowparkClientException] {
       df.col(""""One"""")
     }
 
     df = Seq((1)).toDF("One One")
     checkAnswer(df.select(df("One One")), Row(1) :: Nil)
     checkAnswer(df.select(df("\"One One\"")), Row(1) :: Nil)
-    intercept[SnowparkClientException] {
+    assertThrows[SnowparkClientException] {
       df.col(""""one one"""")
     }
-    intercept[SnowparkClientException] {
+    assertThrows[SnowparkClientException] {
       df("one one")
     }
-    intercept[SnowparkClientException] {
+    assertThrows[SnowparkClientException] {
       df(""""ONE ONE"""")
     }
 
     df = Seq((1)).toDF(""""One One"""")
     checkAnswer(df.select(df(""""One One"""")), Row(1) :: Nil)
-    intercept[SnowparkClientException] {
+    assertThrows[SnowparkClientException] {
       df.col(""""ONE ONE"""")
     }
   }
@@ -333,6 +333,7 @@ class ColumnSuite extends TestData {
       val colsResolved = df.schema.fields.map(_.name).map(df.apply).toSeq
       val df2 = df.select(colsUnresolved ++ colsResolved)
       df2.collect()
+      succeed
     } finally {
       session.sql(s"drop function ${temp}.${udfName}(integer)").collect()
       session.sql(s"drop table ${temp}.${sName}").collect()
@@ -346,13 +347,13 @@ class ColumnSuite extends TestData {
     checkAnswer(df.select(col("\"col\"\"\"")), Row(1) :: Nil)
     checkAnswer(df.select(col("\"col\"")), Row(2) :: Nil)
     checkAnswer(df.select(col("\"\"\"col\"")), Row(3) :: Nil)
-    intercept[Exception] {
+    assertThrows[Exception] {
       df.select(col("\"col\"\"")).collect()
     }
-    intercept[Exception] {
+    assertThrows[Exception] {
       df.select(col("\"\"col\"")).collect()
     }
-    intercept[Exception] {
+    assertThrows[Exception] {
       df.select(col("\"col\"\"\"\"")).collect()
     }
   }
@@ -366,13 +367,13 @@ class ColumnSuite extends TestData {
     checkAnswer(df.select(col("COL")), Row(1) :: Nil)
     checkAnswer(df.select(col("CoL")), Row(1) :: Nil)
     checkAnswer(df.select(col("\"COL\"")), Row(1) :: Nil)
-    intercept[Exception] {
+    assertThrows[Exception] {
       df.select(col("\"Col\"")).collect()
     }
-    intercept[Exception] {
+    assertThrows[Exception] {
       df.select(col("COL .")).collect()
     }
-    intercept[Exception] {
+    assertThrows[Exception] {
       df.select(col("\"CoL\"")).collect()
     }
   }
@@ -386,13 +387,13 @@ class ColumnSuite extends TestData {
     checkAnswer(df.select($"COL"), Row(1) :: Nil)
     checkAnswer(df.select($"CoL"), Row(1) :: Nil)
     checkAnswer(df.select($""""COL""""), Row(1) :: Nil)
-    intercept[Exception] {
+    assertThrows[Exception] {
       df.select($""""Col"""").collect()
     }
-    intercept[Exception] {
+    assertThrows[Exception] {
       df.select($"COL .").collect()
     }
-    intercept[Exception] {
+    assertThrows[Exception] {
       df.select($""""CoL"""").collect()
     }
   }
@@ -406,10 +407,10 @@ class ColumnSuite extends TestData {
     checkAnswer(df.select("COL"), Row(1) :: Nil)
     checkAnswer(df.select("CoL"), Row(1) :: Nil)
     checkAnswer(df.select("\"COL\""), Row(1) :: Nil)
-    intercept[Exception] {
+    assertThrows[Exception] {
       df.select("\"Col\"").collect()
     }
-    intercept[Exception] {
+    assertThrows[Exception] {
       df.select("COL .").collect()
     }
   }
@@ -433,16 +434,16 @@ class ColumnSuite extends TestData {
     checkAnswer(df.select(sqlExpr("\"col\" + 10")), Row(12) :: Nil)
     checkAnswer(df.filter(sqlExpr("col < 1")), Nil)
     checkAnswer(df.filter(sqlExpr("\"col\" = 2")).select(col("col")), Row(1) :: Nil)
-    intercept[Exception] {
+    assertThrows[Exception] {
       df.select(sqlExpr("\"Col\"")).collect()
     }
-    intercept[Exception] {
+    assertThrows[Exception] {
       df.select(sqlExpr("COL .")).collect()
     }
-    intercept[Exception] {
+    assertThrows[Exception] {
       df.select(sqlExpr("\"CoL\"")).collect()
     }
-    intercept[Exception] {
+    assertThrows[Exception] {
       df.select(sqlExpr("col .")).collect()
     }
   }
@@ -709,7 +710,7 @@ class ColumnSuite extends TestData {
             new Date(timestamp - 100)))
       }
 
-      val df = session.createDataFrame(largeData, schema)
+      val df = session.createDataFrame(largeData.toSeq, schema)
       // scala style checks dosn't support to put all of these expression in one filter()
       // So split it as 2 steps.
       val df2 = df.filter(

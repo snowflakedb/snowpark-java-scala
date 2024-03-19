@@ -21,5 +21,6 @@ class QueryTagSuite extends SNTestBase {
     res.next()
     assert(res.getString("value").equals(someTag))
     statement.close()
+    succeed
   }
 }

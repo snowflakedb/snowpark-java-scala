@@ -40,6 +40,7 @@ class ResultAttributesSuite extends SNTestBase {
     val attribute = getAttributesWithTypes(tableName, integers)
     assert(attribute.length == integers.length)
     integers.indices.foreach(index => assert(attribute(index).dataType == LongType))
+    succeed
   }
 
   test("float data type") {
@@ -47,6 +48,7 @@ class ResultAttributesSuite extends SNTestBase {
     val attribute = getAttributesWithTypes(tableName, floats)
     assert(attribute.length == floats.length)
     floats.indices.foreach(index => assert(attribute(index).dataType == DoubleType))
+    succeed
   }
 
   test("string data types") {
@@ -54,6 +56,7 @@ class ResultAttributesSuite extends SNTestBase {
     val attribute = getAttributesWithTypes(tableName, strings)
     assert(attribute.length == strings.length)
     strings.indices.foreach(index => assert(attribute(index).dataType == StringType))
+    succeed
   }
 
   test("binary data types") {
@@ -61,6 +64,7 @@ class ResultAttributesSuite extends SNTestBase {
     val attribute = getAttributesWithTypes(tableName, binaries)
     assert(attribute.length == binaries.length)
     binaries.indices.foreach(index => assert(attribute(index).dataType == BinaryType))
+    succeed
   }
 
   test("logical data type") {
@@ -69,6 +73,7 @@ class ResultAttributesSuite extends SNTestBase {
     assert(attributes.length == 1)
     assert(attributes.head.dataType == BooleanType)
     dropTable(tableName)
+    succeed
   }
 
   test("date & time data type") {
@@ -83,6 +88,7 @@ class ResultAttributesSuite extends SNTestBase {
     val attribute = getAttributesWithTypes(tableName, dates.map(_._1))
     assert(attribute.length == dates.length)
     dates.indices.foreach(index => assert(attribute(index).dataType == dates(index)._2))
+    succeed
   }
 
   test("semi-structured data types") {
@@ -106,5 +112,6 @@ class ResultAttributesSuite extends SNTestBase {
       index =>
         assert(attribute(index).dataType ==
           ArrayType(StringType)))
+    succeed
   }
 }

@@ -1,6 +1,6 @@
 package com.snowflake.snowpark
 
-import org.scalatest.FunSuite
+import org.scalatest.funsuite.{AnyFunSuite => FunSuite}
 import com.snowflake.snowpark.internal.SnowparkSFConnectionHandler
 
 class SnowparkSFConnectionHandlerSuite extends FunSuite {

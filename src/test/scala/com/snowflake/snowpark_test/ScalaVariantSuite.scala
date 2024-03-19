@@ -1,7 +1,7 @@
 package com.snowflake.snowpark_test
 
 import com.snowflake.snowpark.types.{Geography, Variant}
-import org.scalatest.FunSuite
+import org.scalatest.funsuite.{AnyFunSuite => FunSuite}
 
 import java.io.UncheckedIOException
 import java.sql.{Date, Time, Timestamp}
@@ -64,7 +64,7 @@ class ScalaVariantSuite extends FunSuite {
     assert(vFloat.asLong() == 1L)
     assert(vFloat.asInt() == 1)
     assert(vFloat.asShort() == 1.toShort)
-    assert((vFloat.asBigDecimal() - BigDecimal("1.1")).abs.doubleValue() < 0.0000001)
+    assert((vFloat.asBigDecimal() - BigDecimal("1.1")).abs.doubleValue < 0.0000001)
     assert(vFloat.asBigInt() == BigInt("1"))
     assert(vFloat.asTimestamp().equals(new Timestamp(1L)))
     assert(vFloat.asString().equals("1.1"))

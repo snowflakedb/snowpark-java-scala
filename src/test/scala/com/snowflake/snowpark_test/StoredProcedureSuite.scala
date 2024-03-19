@@ -144,6 +144,7 @@ class StoredProcedureSuite extends SNTestBase {
   test("decimal input") {
     val sp = session.sproc.registerTemporary((_: Session, num: java.math.BigDecimal) => num)
     session.storedProcedure(sp, java.math.BigDecimal.valueOf(123)).show()
+    succeed
   }
 
   test("binary type") {
@@ -2285,6 +2286,7 @@ println(s"""
     assert(newSession.sql(s"show procedures like '$name1'").collect().isEmpty)
     assert(newSession.sql(s"show procedures like '$name2'").collect().isEmpty)
     newSession.close()
+    succeed
   }
 
   test("runLocally from Sproc") {

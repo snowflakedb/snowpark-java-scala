@@ -17,6 +17,7 @@ class DataTypeSuite extends SNTestBase {
     }
 
     Seq(ByteType, ShortType, IntegerType, LongType).foreach(verifyIntegralType)
+    succeed
   }
 
   test("FractionalType") {
@@ -30,6 +31,7 @@ class DataTypeSuite extends SNTestBase {
     }
 
     Seq(FloatType, DoubleType).foreach(verifyIntegralType)
+    succeed
   }
 
   test("DecimalType") {

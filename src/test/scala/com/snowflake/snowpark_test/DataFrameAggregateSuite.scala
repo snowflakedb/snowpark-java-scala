@@ -3,7 +3,6 @@ package com.snowflake.snowpark_test
 import com.snowflake.snowpark.functions._
 import com.snowflake.snowpark._
 import net.snowflake.client.jdbc.SnowflakeSQLException
-import org.scalatest.Matchers.the
 
 import java.sql.ResultSet
 
@@ -195,6 +194,7 @@ class DataFrameAggregateSuite extends TestData {
         assert(values_1_B.contains(row.getInt(1)) && values_2_B.contains(row.getInt(2)))
       }
     }
+    succeed
   }
 
   test("RelationalGroupedDataFrame.avg()/mean()") {
@@ -308,7 +308,7 @@ class DataFrameAggregateSuite extends TestData {
   // Used temporary VIEW which is not supported by owner's mode stored proc yet
   test("Window functions inside aggregate functions", JavaStoredProcExcludeOwner) {
     def checkWindowError(df: => DataFrame): Unit = {
-      the[SnowflakeSQLException] thrownBy {
+      assertThrows[SnowflakeSQLException] {
         df.collect()
       }
     }
@@ -477,13 +477,13 @@ class DataFrameAggregateSuite extends TestData {
 
     /* TODO: Add another test with eager analysis
      */
-    intercept[SnowflakeSQLException] {
+    assertThrows[SnowflakeSQLException] {
       courseSales.groupBy().agg(grouping($"course")).collect()
     }
     /*
      * TODO: Add another test with eager analysis
      */
-    intercept[SnowflakeSQLException] {
+    assertThrows[SnowflakeSQLException] {
       courseSales.groupBy().agg(grouping_id($"course")).collect()
     }
   }
@@ -546,6 +546,7 @@ class DataFrameAggregateSuite extends TestData {
       checkAnswer(kurtosisVal, Seq(Row(aggKurtosisResult.getDouble(1))))
     }
     statement.close()
+    succeed
   }
 
   test("SN - zero moments") {
@@ -699,7 +700,7 @@ class DataFrameAggregateSuite extends TestData {
 
     checkAnswer(session.sql("SELECT x FROM tempView GROUP BY x HAVING COUNT_IF(NULL) > 0"), Nil)
 
-    val error = intercept[SnowflakeSQLException] {
+    assertThrows[SnowflakeSQLException] {
       session.sql("SELECT COUNT_IF(x) FROM tempView").collect()
     }
   }
