@@ -27,9 +27,9 @@ object Utils extends Logging {
   // Define the compat scala version instead of reading from property file
   // because it fails to read the property file in some environment such as
   // VSCode worksheet.
-  val ScalaCompatVersion: String = "2.12"
+  val ScalaCompatVersion: String = "2.13"
   // Minimum minor version. We require version to be greater than 2.12.9
-  val ScalaMinimumMinorVersion: String = "2.12.9"
+  val ScalaMinimumMinorVersion: String = "2.13.9"
 
   // Minimum GS version for us to identify as Snowpark client
   val MinimumGSVersionForSnowparkClientType: String = "5.20.0"
