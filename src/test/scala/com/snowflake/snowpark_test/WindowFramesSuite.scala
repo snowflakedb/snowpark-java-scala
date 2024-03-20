@@ -114,14 +114,14 @@ class WindowFramesSuite extends TestData {
           .over(window.rangeBetween(Window.unboundedPreceding, Window.unboundedFollowing))),
       Seq(Row(1, 1)))
 
-    intercept[SnowflakeSQLException](
-      df.select(min($"key").over(window.rangeBetween(Window.unboundedPreceding, 1))).collect)
+    assertThrows[SnowflakeSQLException](
+      df.select(min($"key").over(window.rangeBetween(Window.unboundedPreceding, 1))).collect())
 
-    intercept[SnowflakeSQLException](
-      df.select(min($"key").over(window.rangeBetween(-1, Window.unboundedFollowing))).collect)
+    assertThrows[SnowflakeSQLException](
+      df.select(min($"key").over(window.rangeBetween(-1, Window.unboundedFollowing))).collect())
 
-    intercept[SnowflakeSQLException](
-      df.select(min($"key").over(window.rangeBetween(-1, 1))).collect)
+    assertThrows[SnowflakeSQLException](
+      df.select(min($"key").over(window.rangeBetween(-1, 1))).collect())
   }
 
   test("SN - range between should accept numeric values only when bounded") {
@@ -136,13 +136,13 @@ class WindowFramesSuite extends TestData {
       Row("non_numeric", "non_numeric") :: Nil)
 
     // TODO: Add another test with eager mode enabled
-    intercept[SnowflakeSQLException](
+    assertThrows[SnowflakeSQLException](
       df.select(min($"value").over(window.rangeBetween(Window.unboundedPreceding, 1))).collect())
 
-    intercept[SnowflakeSQLException](
+    assertThrows[SnowflakeSQLException](
       df.select(min($"value").over(window.rangeBetween(-1, Window.unboundedFollowing))).collect())
 
-    intercept[SnowflakeSQLException](
+    assertThrows[SnowflakeSQLException](
       df.select(min($"value").over(window.rangeBetween(-1, 1))).collect())
   }
 
@@ -186,5 +186,6 @@ class WindowFramesSuite extends TestData {
         assert(values_1_B.contains(row.getInt(1)) && values_2_B.contains(row.getInt(2)))
       }
     }
+    succeed
   }
 }

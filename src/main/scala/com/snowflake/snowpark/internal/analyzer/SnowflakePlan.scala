@@ -74,9 +74,9 @@ class SnowflakePlan(
     }
     val supportAsyncMode = subqueryPlans.forall(_.supportAsyncMode)
     SnowflakePlan(
-      preQueries :+ queries.last,
+      (preQueries :+ queries.last).toSeq,
       newSchemaQuery,
-      newPostActions,
+      newPostActions.toSeq,
       session,
       sourcePlan,
       supportAsyncMode)

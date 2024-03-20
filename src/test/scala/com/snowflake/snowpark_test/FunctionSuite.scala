@@ -220,6 +220,7 @@ trait FunctionSuite extends TestData {
     val df = session.sql("select 1")
     df.select(random(123)).collect()
     df.select(random()).collect()
+    succeed
   }
 
   test("sqrt") {
@@ -1892,6 +1893,7 @@ trait FunctionSuite extends TestData {
         approx_percentile_estimate(approx_percentile_accumulate(col("a")), 0.5)),
       approxNumbers.select(approx_percentile(col("a"), 0.5)),
       sort = false)
+    succeed
   }
 
   test("approx_percentile_combine") {
@@ -2121,6 +2123,7 @@ trait FunctionSuite extends TestData {
       assert(row.getInt(0) >= 1)
       assert(row.getInt(0) <= 5)
     })
+    succeed
   }
 
   test("listagg") {

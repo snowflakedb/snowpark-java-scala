@@ -6,7 +6,7 @@ import com.snowflake.snowpark.internal.ParameterUtils.{
   MIN_REQUEST_TIMEOUT_IN_SECONDS,
   SnowparkRequestTimeoutInSeconds
 }
-import org.scalatest.FunSuite
+import org.scalatest.funsuite.{AnyFunSuite => FunSuite}
 
 class ErrorMessageSuite extends FunSuite {
 

@@ -47,6 +47,7 @@ class SessionSuite extends SNTestBase {
 
     t1.run()
     t2.run()
+    succeed
   }
 
   test("Test for get or create session") {

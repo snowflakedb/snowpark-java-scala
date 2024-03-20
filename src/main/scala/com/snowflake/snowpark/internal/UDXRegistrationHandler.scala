@@ -385,7 +385,7 @@ class UDXRegistrationHandler(session: Session) extends Logging {
       if (actionID <= session.getLastCanceledID) {
         throw ErrorMessage.MISC_QUERY_IS_CANCELLED()
       }
-      allUrls
+      allUrls.toSeq
     }
     (allImports, targetJarStageLocation)
   }

@@ -3,6 +3,7 @@ package com.snowflake.snowpark
 import com.snowflake.snowpark.internal.ParameterUtils
 import com.snowflake.snowpark.internal.analyzer._
 import com.snowflake.snowpark.types.IntegerType
+import org.scalatest.Assertion
 
 import scala.language.implicitConversions
 
@@ -219,7 +220,9 @@ class NewColumnReferenceSuite extends SNTestBase {
   case class TestInternalAlias(name: String) extends TestColumnName
   implicit def stringToOriginalName(name: String): TestOriginalName =
     TestOriginalName(name)
-  private def verifyOutputName(output: Seq[Attribute], columnNames: Seq[TestColumnName]): Unit = {
+  private def verifyOutputName(
+      output: Seq[Attribute],
+      columnNames: Seq[TestColumnName]): Assertion = {
     assert(output.size == columnNames.size)
     assert(output.map(_.name).zip(columnNames).forall {
       case (name, TestOriginalName(n)) => name == quoteName(n)
@@ -280,6 +283,7 @@ class NewColumnReferenceSuite extends SNTestBase {
     verifyUnaryNode(child => TableUpdate("a", Map.empty, None, Some(child)))
     verifyUnaryNode(child => SnowflakeCreateTable("a", SaveMode.Append, Some(child)))
     verifyBinaryNode((plan1, plan2) => SimplifiedUnion(Seq(plan1, plan2)))
+    succeed
   }
 
   private val project1 = Project(Seq(Attribute("a", IntegerType)), Range(1, 1, 1))

@@ -1,6 +1,6 @@
 package com.snowflake.snowpark
 
-import org.scalatest.FunSuite
+import org.scalatest.funsuite.{AnyFunSuite => FunSuite}
 import com.snowflake.snowpark_test._
 import java.io.ByteArrayOutputStream
 

@@ -37,6 +37,7 @@ import com.snowflake.snowpark.types._
 import net.snowflake.client.core.QueryStatus
 
 import scala.collection.mutable
+import scala.reflect.classTag
 import scala.reflect.runtime.universe.TypeTag
 
 private[snowpark] case class QueryResult(
@@ -245,7 +246,7 @@ private[snowpark] class ServerConnection(
 
   private[snowpark] def resultSetToRows(statement: Statement): Array[Row] = withValidConnection {
     val iterator = resultSetToIterator(statement)._1
-    val buff = mutable.ArrayBuilder.make[Row]()
+    val buff = mutable.ArrayBuilder.make[Row](classTag[Row])
     while (iterator.hasNext) {
       buff += iterator.next()
     }

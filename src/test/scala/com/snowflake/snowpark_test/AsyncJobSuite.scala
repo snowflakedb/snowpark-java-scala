@@ -4,10 +4,9 @@ import com.snowflake.snowpark.functions._
 import com.snowflake.snowpark.types._
 import com.snowflake.snowpark._
 import net.snowflake.client.jdbc.SnowflakeSQLException
-import org.scalatest.{BeforeAndAfterEach, Tag}
+import org.scalatest.{Assertion, BeforeAndAfterEach, Tag}
 
 import scala.concurrent.Future
-import scala.concurrent.ExecutionContext.Implicits.global
 import scala.util.{Failure, Random, Success}
 
 class AsyncJobSuite extends TestData with BeforeAndAfterEach {
@@ -352,7 +351,7 @@ class AsyncJobSuite extends TestData with BeforeAndAfterEach {
 
   // This function is copied from DataFrameReader.testReadFile
   def testReadFile(testName: String, testTags: Tag*)(
-      thunk: (() => DataFrameReader) => Unit): Unit = {
+      thunk: (() => DataFrameReader) => Assertion): Unit = {
     // test select
     test(testName + " - SELECT", testTags: _*) {
       thunk(() => session.read)
@@ -501,6 +500,7 @@ class AsyncJobSuite extends TestData with BeforeAndAfterEach {
       df.write.mode(SaveMode.Overwrite).async.saveAsTable(list).getResult()
       checkAnswer(session.table(tableName), Seq(Row(1), Row(2), Row(3)))
       dropTable(tableName)
+      succeed
     } finally {
       dropTable(tableName)
     }

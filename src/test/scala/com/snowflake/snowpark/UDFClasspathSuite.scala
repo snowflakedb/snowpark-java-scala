@@ -48,6 +48,7 @@ class UDFClasspathSuite extends SNTestBase {
     assert(mockSession.listFilesInStage(stageName1).size == jarInClassPath.size)
     // Assert that no dependencies are uploaded in second time
     verify(mockSession, never()).doUpload(any(), any())
+    succeed
   }
 
   test("Test that udf function's class path is automatically added") {
@@ -58,6 +59,7 @@ class UDFClasspathSuite extends SNTestBase {
     udfR.registerUDF(Some(func), _toUdf((a: Int) => a + a), None)
     verify(mockSession, atLeastOnce())
       .addDependency(path)
+    succeed
   }
 
   test("Test that snowpark jar is NOT uploaded if stage path is available") {
@@ -85,6 +87,7 @@ class UDFClasspathSuite extends SNTestBase {
       .addDependency(expectedPath)
     // createJavaUDF should be only invoked once
     verify(udfR, times(1)).createJavaUDF(any(), any(), any(), any(), any(), any(), any())
+    succeed
   }
 
   test(
@@ -106,6 +109,7 @@ class UDFClasspathSuite extends SNTestBase {
     }
     // createJavaUDF should be invoked twice as it is retried after fixing classpath
     verify(udfR, times(2)).createJavaUDF(any(), any(), any(), any(), any(), any(), any())
+    succeed
   }
 
   test("Test for getPathForClass") {
