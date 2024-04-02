@@ -267,6 +267,34 @@ public final class Functions {
    * Returns the maximum value for the records in a group. NULL values are ignored unless all the
    * records are NULL, in which case a NULL value is returned.
    *
+   * <p>Example:
+   *
+   * <pre>{@code
+   * var df = session.createDataFrame(
+   *         new Row[] { Row.create(1), Row.create(3), Row.create(10), Row.create(1), Row.create(3) },
+   *         StructType.create(new StructField("x", DataTypes.IntegerType))
+   * );
+   * df.select(max("x")).show();
+   *
+   * ----------------
+   * |"MAX(""X"")"  |
+   * ----------------
+   * |10            |
+   * ----------------
+   * }</pre>
+   *
+   * @param colName The name of the column
+   * @return The maximum value of the given column
+   * @since 1.13.0
+   */
+  public static Column max(String colName) {
+    return new Column(com.snowflake.snowpark.functions.max(colName));
+  }
+
+  /**
+   * Returns the maximum value for the records in a group. NULL values are ignored unless all the
+   * records are NULL, in which case a NULL value is returned.
+   *
    * @since 0.9.0
    * @param col The input column
    * @return The result column
@@ -279,12 +307,68 @@ public final class Functions {
    * Returns the minimum value for the records in a group. NULL values are ignored unless all the
    * records are NULL, in which case a NULL value is returned.
    *
+   * <p>Example:
+   *
+   * <pre>{@code
+   * var df = session.createDataFrame(
+   *         new Row[] { Row.create(1), Row.create(3), Row.create(10), Row.create(1), Row.create(3) },
+   *         StructType.create(new StructField("x", DataTypes.IntegerType))
+   * );
+   * df.select(min("x")).show();
+   *
+   * ----------------
+   * |"MIN(""X"")"  |
+   * ----------------
+   * |1             |
+   * ----------------
+   * }</pre>
+   *
+   * @param colName The name of the column
+   * @return The minimum value of the given column
+   * @since 1.13.0
+   */
+  public static Column min(String colName) {
+    return new Column(com.snowflake.snowpark.functions.min(colName));
+  }
+
+  /**
+   * Returns the minimum value for the records in a group. NULL values are ignored unless all the
+   * records are NULL, in which case a NULL value is returned.
+   *
    * @since 0.9.0
    * @param col The input column
    * @return The result column
    */
   public static Column min(Column col) {
     return new Column(com.snowflake.snowpark.functions.min(col.toScalaColumn()));
+  }
+
+  /**
+   * Returns the average of non-NULL records. If all records inside a group are NULL, the function
+   * returns NULL. Alias of avg.
+   *
+   * <p>Example:
+   *
+   * <pre>{@code
+   * var df = session.createDataFrame(
+   *         new Row[] { Row.create(1), Row.create(3), Row.create(10), Row.create(1), Row.create(3) },
+   *         StructType.create(new StructField("x", DataTypes.IntegerType))
+   * );
+   * df.select(mean("x")).show();
+   *
+   * ----------------
+   * |"AVG(""X"")"  |
+   * ----------------
+   * |3.600000      |
+   * ----------------
+   * }</pre>
+   *
+   * @param colName The name of the column
+   * @return The average value of the given column
+   * @since 1.13.0
+   */
+  public static Column mean(String colName) {
+    return new Column(com.snowflake.snowpark.functions.mean(colName));
   }
 
   /**
