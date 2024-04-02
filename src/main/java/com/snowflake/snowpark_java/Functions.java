@@ -270,8 +270,8 @@ public final class Functions {
    * <p>Example:
    *
    * <pre>{@code
-   * var df = session.createDataFrame(
-   *         new Row[] { Row.create(1), Row.create(3), Row.create(10), Row.create(1), Row.create(3) },
+   * DataFrame df = session.createDataFrame(
+   *         new Row[] {Row.create(1), Row.create(3), Row.create(10), Row.create(1), Row.create(3)},
    *         StructType.create(new StructField("x", DataTypes.IntegerType))
    * );
    * df.select(max("x")).show();
@@ -310,8 +310,8 @@ public final class Functions {
    * <p>Example:
    *
    * <pre>{@code
-   * var df = session.createDataFrame(
-   *         new Row[] { Row.create(1), Row.create(3), Row.create(10), Row.create(1), Row.create(3) },
+   * DataFrame df = session.createDataFrame(
+   *         new Row[] {Row.create(1), Row.create(3), Row.create(10), Row.create(1), Row.create(3)},
    *         StructType.create(new StructField("x", DataTypes.IntegerType))
    * );
    * df.select(min("x")).show();
@@ -350,8 +350,8 @@ public final class Functions {
    * <p>Example:
    *
    * <pre>{@code
-   * var df = session.createDataFrame(
-   *         new Row[] { Row.create(1), Row.create(3), Row.create(10), Row.create(1), Row.create(3) },
+   * DataFrame df = session.createDataFrame(
+   *         new Row[] {Row.create(1), Row.create(3), Row.create(10), Row.create(1), Row.create(3)},
    *         StructType.create(new StructField("x", DataTypes.IntegerType))
    * );
    * df.select(mean("x")).show();
