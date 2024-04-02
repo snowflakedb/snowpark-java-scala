@@ -144,10 +144,10 @@ public class JavaFunctionSuite extends TestBase {
   @Test
   public void max_min_mean() {
     // Case 01: Non-null values
-    var df1 =
+    DataFrame df1 =
         getSession()
             .sql("select * from values(1,2,1),(1,2,3),(2,1,10),(2,2,1),(2,2,3) as T(x,y,z)");
-    var expected1 = new Row[] {Row.create(2, 1, 3.600000)};
+    Row[] expected1 = {Row.create(2, 1, 3.600000)};
 
     checkAnswer(
         df1.select(
@@ -158,10 +158,10 @@ public class JavaFunctionSuite extends TestBase {
         df1.select(Functions.max("x"), Functions.min("y"), Functions.mean("z")), expected1, false);
 
     // Case 02: Some null values
-    var df2 =
+    DataFrame df2 =
         getSession()
             .sql("select * from values(1,5,8),(null,8,7),(3,null,9),(4,6,null) as T(x,y,z)");
-    var expected2 = new Row[] {Row.create(4, 5, 8.000000)};
+    Row[] expected2 = {Row.create(4, 5, 8.000000)};
 
     checkAnswer(
         df2.select(
@@ -172,11 +172,11 @@ public class JavaFunctionSuite extends TestBase {
         df2.select(Functions.max("x"), Functions.min("y"), Functions.mean("z")), expected2, false);
 
     // Case 03: All null values
-    var df3 =
+    DataFrame df3 =
         getSession()
             .sql(
                 "select * from values(null,null,null),(null,null,null),(null,null,null) as T(x,y,z)");
-    var expected3 = new Row[] {Row.create(null, null, null)};
+    Row[] expected3 = {Row.create(null, null, null)};
 
     checkAnswer(
         df3.select(
