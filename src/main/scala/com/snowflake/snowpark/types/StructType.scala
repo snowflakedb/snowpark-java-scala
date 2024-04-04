@@ -168,7 +168,7 @@ case class StructField(
 
   private[types] def treeString(layer: Int): String = {
     val prepended: String = (1 to (1 + 2 * layer)).map(x => " ").mkString + "|--"
-    val body: String = s"$name: ${dataType.typeName} (nullable = $nullable)\n" +
+    val body: String = s"$name: ${dataType.toString} (nullable = $nullable)\n" +
       (dataType match {
         case st: StructType => st.treeString(layer + 1)
         case _ => ""
