@@ -3,41 +3,17 @@ package com.snowflake.snowpark.internal
 import java.io.{Closeable, InputStream}
 import java.sql.{PreparedStatement, ResultSetMetaData, SQLException, Statement}
 import java.time.LocalDateTime
-import com.snowflake.snowpark.{
-  MergeBuilder,
-  MergeTypedAsyncJob,
-  Row,
-  SnowparkClientException,
-  TypedAsyncJob
-}
-import com.snowflake.snowpark.internal.ParameterUtils.{
-  ClosureCleanerMode,
-  DEFAULT_MAX_FILE_DOWNLOAD_RETRY_COUNT,
-  DEFAULT_MAX_FILE_UPLOAD_RETRY_COUNT,
-  DEFAULT_REQUEST_TIMEOUT_IN_SECONDS,
-  DEFAULT_SNOWPARK_USE_SCOPED_TEMP_OBJECTS,
-  MAX_REQUEST_TIMEOUT_IN_SECONDS,
-  MIN_REQUEST_TIMEOUT_IN_SECONDS,
-  SnowparkMaxFileDownloadRetryCount,
-  SnowparkMaxFileUploadRetryCount,
-  SnowparkRequestTimeoutInSeconds,
-  Url
-}
+import com.snowflake.snowpark.{MergeBuilder, MergeTypedAsyncJob, Row, SnowparkClientException, TypedAsyncJob}
+import com.snowflake.snowpark.internal.ParameterUtils.{ClosureCleanerMode, DEFAULT_MAX_FILE_DOWNLOAD_RETRY_COUNT, DEFAULT_MAX_FILE_UPLOAD_RETRY_COUNT, DEFAULT_REQUEST_TIMEOUT_IN_SECONDS, DEFAULT_SNOWPARK_USE_SCOPED_TEMP_OBJECTS, MAX_REQUEST_TIMEOUT_IN_SECONDS, MIN_REQUEST_TIMEOUT_IN_SECONDS, SnowparkMaxFileDownloadRetryCount, SnowparkMaxFileUploadRetryCount, SnowparkRequestTimeoutInSeconds, Url}
 import com.snowflake.snowpark.internal.Utils.PackageNameDelimiter
 import com.snowflake.snowpark.internal.analyzer.{Attribute, Query, SnowflakePlan}
-import net.snowflake.client.jdbc.{
-  SnowflakeConnectString,
-  SnowflakeConnectionV1,
-  SnowflakeReauthenticationRequest,
-  SnowflakeResultSet,
-  SnowflakeSQLException,
-  SnowflakeStatement
-}
+import net.snowflake.client.jdbc.{FieldMetadata, SnowflakeConnectString, SnowflakeConnectionV1, SnowflakeReauthenticationRequest, SnowflakeResultSet, SnowflakeResultSetMetaDataV1, SnowflakeSQLException, SnowflakeStatement}
 import com.snowflake.snowpark.types._
 import net.snowflake.client.core.QueryStatus
 
 import scala.collection.mutable
 import scala.reflect.runtime.universe.TypeTag
+import scala.collection.JavaConverters._
 
 private[snowpark] case class QueryResult(
     rows: Option[Array[Row]],
@@ -55,6 +31,8 @@ private[snowpark] object ServerConnection {
 
   def convertResultMetaToAttribute(meta: ResultSetMetaData): Seq[Attribute] =
     (1 to meta.getColumnCount).map(index => {
+      // todo: replace by public API
+      val fieldMetadata = meta.asInstanceOf[SnowflakeResultSetMetaDataV1].getColumnMetaData.get(index - 1).getFields.asScala.toList
       val columnName = analyzer.quoteNameWithoutUpperCasing(meta.getColumnLabel(index))
       val dataType = meta.getColumnType(index)
       val fieldSize = meta.getPrecision(index)
@@ -64,7 +42,8 @@ private[snowpark] object ServerConnection {
       // This field is useful for snowflake types that are not JDBC types like
       // variant, object and array
       val columnTypeName = meta.getColumnTypeName(index)
-      val columnType = getDataType(dataType, columnTypeName, fieldSize, fieldScale, isSigned)
+      val columnType = getDataType(dataType, columnTypeName, fieldSize,
+        fieldScale, isSigned, fieldMetadata)
 
       Attribute(columnName, columnType, nullable)
     })
@@ -74,9 +53,18 @@ private[snowpark] object ServerConnection {
       columnTypeName: String,
       precision: Int,
       scale: Int,
-      signed: Boolean): DataType = {
+      signed: Boolean,
+      field: List[FieldMetadata] = List.empty): DataType = {
     columnTypeName match {
-      case "ARRAY" => ArrayType(StringType)
+      case "ARRAY" =>
+        if (field.isEmpty) ArrayType(StringType)
+        else ArrayType(getDataType(
+          field.head.getType,
+          field.head.getTypeName,
+          field.head.getPrecision,
+          field.head.getScale,
+          signed = true, // no sign info in the fields
+          field.head.getFields.asScala.toList))
       case "VARIANT" => VariantType
       case "OBJECT" => MapType(StringType, StringType)
       case "GEOGRAPHY" => GeographyType
