@@ -236,4 +236,37 @@ class DataTypeSuite extends SNTestBase {
            | |--MAP0: MapType[String, String] (nullable = true)
            |""".stripMargin)
   }
+
+  test("ObjectType v2") {
+    val query =
+      // scalastyle:off
+      """SELECT
+        |  {'a': 1, 'b': 'a'} :: OBJECT(a VARCHAR, b NUMBER) as object1,
+        |  {'a': 1, 'b': [1,2,3,4]} :: OBJECT(a VARCHAR, b ARRAY(NUMBER)) as object2,
+        |  {'a': 1, 'b': [1,2,3,4], 'c': {'1':'a'}} :: OBJECT(a VARCHAR, b ARRAY(NUMBER), c MAP(NUMBER, VARCHAR)) as object3,
+        |  {'a': {'b': {'c': 1}}} :: OBJECT(a OBJECT(b OBJECT(c NUMBER))) as object4
+        |""".stripMargin
+    // scalastyle:on
+    val df = session.sql(query)
+    assert(
+      TestUtils.treeString(df.schema, 0) ==
+        // scalastyle:off
+        s"""root
+           | |--OBJECT1: StructType[StructField(A, String, Nullable = true), StructField(B, Long, Nullable = true)] (nullable = true)
+           |   |--A: String (nullable = true)
+           |   |--B: Long (nullable = true)
+           | |--OBJECT2: StructType[StructField(A, String, Nullable = true), StructField(B, ArrayType[Long], Nullable = true)] (nullable = true)
+           |   |--A: String (nullable = true)
+           |   |--B: ArrayType[Long] (nullable = true)
+           | |--OBJECT3: StructType[StructField(A, String, Nullable = true), StructField(B, ArrayType[Long], Nullable = true), StructField(C, MapType[Long, String], Nullable = true)] (nullable = true)
+           |   |--A: String (nullable = true)
+           |   |--B: ArrayType[Long] (nullable = true)
+           |   |--C: MapType[Long, String] (nullable = true)
+           | |--OBJECT4: StructType[StructField(A, StructType[StructField(B, StructType[StructField(C, Long, Nullable = true)], Nullable = true)], Nullable = true)] (nullable = true)
+           |   |--A: StructType[StructField(B, StructType[StructField(C, Long, Nullable = true)], Nullable = true)] (nullable = true)
+           |     |--B: StructType[StructField(C, Long, Nullable = true)] (nullable = true)
+           |       |--C: Long (nullable = true)
+           |""".stripMargin)
+    // scalastyle:on
+  }
 }
