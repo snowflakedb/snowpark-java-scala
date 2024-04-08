@@ -215,4 +215,25 @@ class DataTypeSuite extends SNTestBase {
            | |--ARR0: ArrayType[String] (nullable = true)
            |""".stripMargin)
   }
+
+  test("MapType v2") {
+    val query =
+      """SELECT
+        |  {'a': 1, 'b': 2} :: MAP(VARCHAR, NUMBER) as map1,
+        |  {'1': 'a'} :: MAP(NUMBER, VARCHAR) as map2,
+        |  {'1': [1,2,3]} :: MAP(NUMBER, ARRAY(NUMBER)) as map3,
+        |  {'1': {'a':1}} :: MAP(NUMBER, MAP(VARCHAR, NUMBER)) as map4,
+        |  {'a': 1, 'b': 2} :: OBJECT as map0
+        |""".stripMargin
+    val df = session.sql(query)
+    assert(
+      TestUtils.treeString(df.schema, 0) ==
+        s"""root
+           | |--MAP1: MapType[String, Long] (nullable = true)
+           | |--MAP2: MapType[Long, String] (nullable = true)
+           | |--MAP3: MapType[Long, ArrayType[Long]] (nullable = true)
+           | |--MAP4: MapType[Long, MapType[String, Long]] (nullable = true)
+           | |--MAP0: MapType[String, String] (nullable = true)
+           |""".stripMargin)
+  }
 }
