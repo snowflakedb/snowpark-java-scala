@@ -103,7 +103,29 @@ private[snowpark] object ServerConnection {
               field.head.getFields.asScala.toList))
         }
       case "VARIANT" => VariantType
-      case "OBJECT" => MapType(StringType, StringType)
+      case "OBJECT" =>
+        if (field.isEmpty) {
+          MapType(StringType, StringType)
+        } else if (field.size == 2 && field.head.getName.isEmpty) {
+          // Map
+          MapType(
+            getDataType(
+              field.head.getType,
+              field.head.getTypeName,
+              field.head.getPrecision,
+              field.head.getScale,
+              signed = true,
+              field.head.getFields.asScala.toList),
+            getDataType(
+              field(1).getType,
+              field(1).getTypeName,
+              field(1).getPrecision,
+              field(1).getScale,
+              signed = true,
+              field(1).getFields.asScala.toList))
+        } else {
+          null // object
+        }
       case "GEOGRAPHY" => GeographyType
       case "GEOMETRY" => GeometryType
       case _ => getTypeFromJDBCType(sqlType, precision, scale, signed)
