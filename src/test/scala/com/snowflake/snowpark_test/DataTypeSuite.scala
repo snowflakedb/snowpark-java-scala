@@ -197,6 +197,22 @@ class DataTypeSuite extends SNTestBase {
                   |    [OBJECT_CONSTRUCT('name', 1)]::ARRAY(OBJECT) AS arr10,
                   |    [[1, 2], [3, 4]]::ARRAY(ARRAY(NUMBER)) AS arr11,
                   |    [1, 2, 3] AS arr0;""".stripMargin
-    session.sql(query).schema.printTreeString()
+    val df = session.sql(query)
+    assert(
+      TestUtils.treeString(df.schema, 0) ==
+        s"""root
+           | |--ARR1: ArrayType[Long] (nullable = true)
+           | |--ARR2: ArrayType[Double] (nullable = true)
+           | |--ARR3: ArrayType[Boolean] (nullable = true)
+           | |--ARR4: ArrayType[String] (nullable = true)
+           | |--ARR5: ArrayType[Timestamp] (nullable = true)
+           | |--ARR6: ArrayType[Binary] (nullable = true)
+           | |--ARR7: ArrayType[Date] (nullable = true)
+           | |--ARR8: ArrayType[Variant] (nullable = true)
+           | |--ARR9: ArrayType[ArrayType[String]] (nullable = true)
+           | |--ARR10: ArrayType[MapType[String, String]] (nullable = true)
+           | |--ARR11: ArrayType[ArrayType[Long]] (nullable = true)
+           | |--ARR0: ArrayType[String] (nullable = true)
+           |""".stripMargin)
   }
 }
