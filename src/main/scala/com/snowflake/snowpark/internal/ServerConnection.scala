@@ -124,7 +124,20 @@ private[snowpark] object ServerConnection {
               signed = true,
               field(1).getFields.asScala.toList))
         } else {
-          null // object
+          // object
+          StructType(
+            field.map(
+              f =>
+                StructField(
+                  f.getName,
+                  getDataType(
+                    f.getType,
+                    f.getTypeName,
+                    f.getPrecision,
+                    f.getScale,
+                    signed = true,
+                    f.getFields.asScala.toList),
+                  f.isNullable)))
         }
       case "GEOGRAPHY" => GeographyType
       case "GEOMETRY" => GeometryType

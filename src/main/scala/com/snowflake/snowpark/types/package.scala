@@ -68,6 +68,7 @@ package object types {
       case VariantType => "VARIANT"
       case GeographyType => "GEOGRAPHY"
       case GeometryType => "GEOMETRY"
+      case StructType(_) => "OBJECT"
       case _ =>
         throw new UnsupportedOperationException(s"Unsupported data type: ${dataType.typeName}")
     }
