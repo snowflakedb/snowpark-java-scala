@@ -63,6 +63,9 @@ package object types {
       case TimeType => "TIME"
       case TimestampType => "TIMESTAMP"
       case BinaryType => "BINARY"
+      case sa: StructuredArrayType =>
+        val nullable = if (sa.nullable) "" else " not null"
+        s"ARRAY(${convertToSFType(sa.elementType)}${nullable})"
       case ArrayType(_) => "ARRAY"
       case MapType(_, _) => "OBJECT"
       case VariantType => "VARIANT"

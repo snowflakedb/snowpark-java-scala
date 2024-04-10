@@ -90,7 +90,7 @@ object DataTypeMapper {
       dataType match {
         case GeographyType => "TRY_TO_GEOGRAPHY(NULL)"
         case GeometryType => "TRY_TO_GEOMETRY(NULL)"
-        case ArrayType(_) => "PARSE_JSON('NULL')::ARRAY"
+        case ArrayType(_) => "PARSE_JSON('NULL')::" + convertToSFType(dataType)
         case _ => "NULL :: " + convertToSFType(dataType)
       }
     } else {
@@ -102,6 +102,7 @@ object DataTypeMapper {
         case DateType => "date('2020-9-16')"
         case TimeType => "to_time('04:15:29.999')"
         case TimestampType => "to_timestamp_ntz('2020-09-16 06:30:00')"
+        case _: StructuredArrayType => "[]::" + convertToSFType(dataType)
         case _: ArrayType => "to_array(0)"
         case _: MapType => "to_object(parse_json('0'))"
         case VariantType => "to_variant(0)"

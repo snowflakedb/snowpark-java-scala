@@ -201,19 +201,61 @@ class DataTypeSuite extends SNTestBase {
     assert(
       TestUtils.treeString(df.schema, 0) ==
         s"""root
-           | |--ARR1: ArrayType[Long] (nullable = true)
-           | |--ARR2: ArrayType[Double] (nullable = true)
-           | |--ARR3: ArrayType[Boolean] (nullable = true)
-           | |--ARR4: ArrayType[String] (nullable = true)
-           | |--ARR5: ArrayType[Timestamp] (nullable = true)
-           | |--ARR6: ArrayType[Binary] (nullable = true)
-           | |--ARR7: ArrayType[Date] (nullable = true)
-           | |--ARR8: ArrayType[Variant] (nullable = true)
-           | |--ARR9: ArrayType[ArrayType[String]] (nullable = true)
-           | |--ARR10: ArrayType[MapType[String, String]] (nullable = true)
-           | |--ARR11: ArrayType[ArrayType[Long]] (nullable = true)
+           | |--ARR1: ArrayType[Long nullable = true] (nullable = true)
+           | |--ARR2: ArrayType[Double nullable = true] (nullable = true)
+           | |--ARR3: ArrayType[Boolean nullable = true] (nullable = true)
+           | |--ARR4: ArrayType[String nullable = true] (nullable = true)
+           | |--ARR5: ArrayType[Timestamp nullable = true] (nullable = true)
+           | |--ARR6: ArrayType[Binary nullable = true] (nullable = true)
+           | |--ARR7: ArrayType[Date nullable = true] (nullable = true)
+           | |--ARR8: ArrayType[Variant nullable = true] (nullable = true)
+           | |--ARR9: ArrayType[ArrayType[String] nullable = true] (nullable = true)
+           | |--ARR10: ArrayType[MapType[String, String] nullable = true] (nullable = true)
+           | |--ARR11: ArrayType[ArrayType[Long nullable = true] nullable = true] (nullable = true)
            | |--ARR0: ArrayType[String] (nullable = true)
            |""".stripMargin)
+    // schema string: nullable
+    assert(
+      // since we retrieved the schema of df before, df.select("*") will use the
+      // schema query instead of the real query to analyze the result schema.
+      TestUtils.treeString(df.select("*").schema, 0) ==
+        s"""root
+           | |--ARR1: ArrayType[Long nullable = true] (nullable = true)
+           | |--ARR2: ArrayType[Double nullable = true] (nullable = true)
+           | |--ARR3: ArrayType[Boolean nullable = true] (nullable = true)
+           | |--ARR4: ArrayType[String nullable = true] (nullable = true)
+           | |--ARR5: ArrayType[Timestamp nullable = true] (nullable = true)
+           | |--ARR6: ArrayType[Binary nullable = true] (nullable = true)
+           | |--ARR7: ArrayType[Date nullable = true] (nullable = true)
+           | |--ARR8: ArrayType[Variant nullable = true] (nullable = true)
+           | |--ARR9: ArrayType[ArrayType[String] nullable = true] (nullable = true)
+           | |--ARR10: ArrayType[MapType[String, String] nullable = true] (nullable = true)
+           | |--ARR11: ArrayType[ArrayType[Long nullable = true] nullable = true] (nullable = true)
+           | |--ARR0: ArrayType[String] (nullable = true)
+           |""".stripMargin)
+
+    // schema string: not nullable
+    val query2 =
+      """SELECT
+        |    [1, 2, 3]::ARRAY(NUMBER not null) AS arr1,
+        |    [[1, 2], [3, 4]]::ARRAY(ARRAY(NUMBER not null) not null) AS arr11""".stripMargin
+
+    val df2 = session.sql(query2)
+    df.schema.printTreeString()
+    assert(
+      TestUtils.treeString(df2.schema, 0) ==
+        s"""root
+           | |--ARR1: ArrayType[Long nullable = false] (nullable = true)
+           | |--ARR11: ArrayType[ArrayType[Long nullable = false] nullable = false] (nullable = true)
+           |""".stripMargin)
+
+    assert(
+      TestUtils.treeString(df2.select("*").schema, 0) ==
+        s"""root
+           | |--ARR1: ArrayType[Long nullable = false] (nullable = true)
+           | |--ARR11: ArrayType[ArrayType[Long nullable = false] nullable = false] (nullable = true)
+           |""".stripMargin)
+
   }
 
   test("MapType v2") {

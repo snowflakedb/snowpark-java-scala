@@ -32,13 +32,6 @@ private[snowpark] object ServerConnection {
   def convertResultMetaToAttribute(meta: ResultSetMetaData): Seq[Attribute] =
     (1 to meta.getColumnCount).map(index => {
       // todo: replace by public API
-//      val fieldMetadata = meta
-//        .asInstanceOf[SnowflakeResultSetMetaDataV1]
-//        .getColumnMetaData
-//        .get(index - 1)
-//        .getFields
-//        .asScala
-//        .toList
       val fieldMetadata = meta.asInstanceOf[SnowflakeResultSetMetaData]
           .getColumnFields(index).asScala.toList
       val columnName = analyzer.quoteNameWithoutUpperCasing(meta.getColumnLabel(index))
@@ -68,14 +61,16 @@ private[snowpark] object ServerConnection {
         if (field.isEmpty) {
           ArrayType(StringType)
         } else {
-          ArrayType(
+          StructuredArrayType(
             getDataType(
               field.head.getType,
               field.head.getTypeName,
               field.head.getPrecision,
               field.head.getScale,
               signed = true, // no sign info in the fields
-              field.head.getFields.asScala.toList))
+              field.head.getFields.asScala.toList),
+            field.head.isNullable
+          )
         }
       case "VARIANT" => VariantType
       case "OBJECT" =>
