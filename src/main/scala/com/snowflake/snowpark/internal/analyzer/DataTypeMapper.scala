@@ -90,7 +90,6 @@ object DataTypeMapper {
       dataType match {
         case GeographyType => "TRY_TO_GEOGRAPHY(NULL)"
         case GeometryType => "TRY_TO_GEOMETRY(NULL)"
-        case ArrayType(_) => "PARSE_JSON('NULL')::" + convertToSFType(dataType)
         case _ => "NULL :: " + convertToSFType(dataType)
       }
     } else {

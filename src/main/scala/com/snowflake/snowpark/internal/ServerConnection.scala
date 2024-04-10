@@ -78,7 +78,7 @@ private[snowpark] object ServerConnection {
           MapType(StringType, StringType)
         } else if (field.size == 2 && field.head.getName.isEmpty) {
           // Map
-          MapType(
+          StructuredMapType(
             getDataType(
               field.head.getType,
               field.head.getTypeName,
@@ -92,7 +92,9 @@ private[snowpark] object ServerConnection {
               field(1).getPrecision,
               field(1).getScale,
               signed = true,
-              field(1).getFields.asScala.toList))
+              field(1).getFields.asScala.toList),
+            field(1).isNullable
+          )
         } else {
           // object
           StructType(

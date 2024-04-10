@@ -65,7 +65,10 @@ package object types {
       case BinaryType => "BINARY"
       case sa: StructuredArrayType =>
         val nullable = if (sa.nullable) "" else " not null"
-        s"ARRAY(${convertToSFType(sa.elementType)}${nullable})"
+        s"ARRAY(${convertToSFType(sa.elementType)}$nullable)"
+      case sm: StructuredMapType =>
+        val isValueNullable = if (sm.isValueNullable) "" else " not null"
+        s"MAP(${convertToSFType(sm.keyType)}, ${convertToSFType(sm.valueType)}$isValueNullable)"
       case ArrayType(_) => "ARRAY"
       case MapType(_, _) => "OBJECT"
       case VariantType => "VARIANT"

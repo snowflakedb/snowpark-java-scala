@@ -10,3 +10,20 @@ case class MapType(keyType: DataType, valueType: DataType) extends DataType {
     s"MapType[${keyType.toString}, ${valueType.toString}]"
   }
 }
+
+private[snowpark] class StructuredMapType(
+                                           override val keyType: DataType,
+                                           override val valueType: DataType,
+                                           val isValueNullable: Boolean
+                                         ) extends MapType(keyType, valueType) {
+  override def toString: String = {
+    s"MapType[${keyType.toString}, ${valueType.toString} nullable = $isValueNullable]"
+  }
+}
+
+private[snowpark] object StructuredMapType {
+  def apply(keyType: DataType,
+            valueType: DataType,
+            isValueType: Boolean): StructuredMapType =
+    new StructuredMapType(keyType, valueType, isValueType)
+}

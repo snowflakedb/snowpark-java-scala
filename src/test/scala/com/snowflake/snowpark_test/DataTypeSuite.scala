@@ -241,7 +241,6 @@ class DataTypeSuite extends SNTestBase {
         |    [[1, 2], [3, 4]]::ARRAY(ARRAY(NUMBER not null) not null) AS arr11""".stripMargin
 
     val df2 = session.sql(query2)
-    df.schema.printTreeString()
     assert(
       TestUtils.treeString(df2.schema, 0) ==
         s"""root
@@ -270,13 +269,30 @@ class DataTypeSuite extends SNTestBase {
     val df = session.sql(query)
     assert(
       TestUtils.treeString(df.schema, 0) ==
+        // scalastyle:off
         s"""root
-           | |--MAP1: MapType[String, Long] (nullable = true)
-           | |--MAP2: MapType[Long, String] (nullable = true)
-           | |--MAP3: MapType[Long, ArrayType[Long]] (nullable = true)
-           | |--MAP4: MapType[Long, MapType[String, Long]] (nullable = true)
+           | |--MAP1: MapType[String, Long nullable = true] (nullable = true)
+           | |--MAP2: MapType[Long, String nullable = true] (nullable = true)
+           | |--MAP3: MapType[Long, ArrayType[Long nullable = true] nullable = true] (nullable = true)
+           | |--MAP4: MapType[Long, MapType[String, Long nullable = true] nullable = true] (nullable = true)
            | |--MAP0: MapType[String, String] (nullable = true)
            |""".stripMargin)
+    // scalastyle:on
+
+    assert(
+      // since we retrieved the schema of df before, df.select("*") will use the
+      // schema query instead of the real query to analyze the result schema.
+      TestUtils.treeString(df.select("*").schema, 0) ==
+        // scalastyle:off
+        s"""root
+           | |--MAP1: MapType[String, Long nullable = true] (nullable = true)
+           | |--MAP2: MapType[Long, String nullable = true] (nullable = true)
+           | |--MAP3: MapType[Long, ArrayType[Long nullable = true] nullable = true] (nullable = true)
+           | |--MAP4: MapType[Long, MapType[String, Long nullable = true] nullable = true] (nullable = true)
+           | |--MAP0: MapType[String, String] (nullable = true)
+           |""".stripMargin)
+    // scalastyle:on
+
   }
 
   test("ObjectType v2") {
