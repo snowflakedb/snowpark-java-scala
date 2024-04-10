@@ -128,22 +128,20 @@ class DataTypeSuite extends SNTestBase {
             StructField("col10", DoubleType),
             StructField("col11", DecimalType(10, 1)))))))
 
-    schema.printTreeString()
-
     assert(
       TestUtils.treeString(schema, 0) ==
         s"""root
            | |--COL1: Binary (nullable = true)
            | |--COL2: Boolean (nullable = true)
-           | |--COL14: Struct (nullable = false)
+           | |--COL14: StructType (nullable = false)
            |   |--COL15: Timestamp (nullable = false)
            | |--COL3: Date (nullable = false)
-           | |--COL4: Struct (nullable = true)
+           | |--COL4: StructType (nullable = true)
            |   |--COL5: Byte (nullable = true)
            |   |--COL6: Short (nullable = true)
            |   |--COL7: Integer (nullable = false)
            |   |--COL8: Long (nullable = true)
-           |   |--COL12: Struct (nullable = false)
+           |   |--COL12: StructType (nullable = false)
            |     |--COL13: String (nullable = true)
            |   |--COL9: Float (nullable = true)
            |   |--COL10: Double (nullable = true)
@@ -377,6 +375,60 @@ class DataTypeSuite extends SNTestBase {
            |   |--A: StructType (nullable = true)
            |     |--B: StructType (nullable = true)
            |       |--C: Long (nullable = true)
+           |""".stripMargin)
+    // scalastyle:on
+
+    // schema query: not null
+    val query2 =
+    // scalastyle:off
+      """SELECT
+        |  {'a': 1, 'b': 'a'} :: OBJECT(a VARCHAR not null, b NUMBER) as object1,
+        |  {'a': 1, 'b': [1,2,3,4]} :: OBJECT(a VARCHAR, b ARRAY(NUMBER not null) not null) as object2,
+        |  {'a': 1, 'b': [1,2,3,4], 'c': {'1':'a'}} :: OBJECT(a VARCHAR, b ARRAY(NUMBER), c MAP(NUMBER, VARCHAR not null) not null) as object3,
+        |  {'a': {'b': {'c': 1}}} :: OBJECT(a OBJECT(b OBJECT(c NUMBER not null) not null) not null) as object4
+        |""".stripMargin
+    // scalastyle:on
+
+    val df2 = session.sql(query2)
+    assert(
+      TestUtils.treeString(df2.schema, 0) ==
+        // scalastyle:off
+        s"""root
+           | |--OBJECT1: StructType (nullable = true)
+           |   |--A: String (nullable = false)
+           |   |--B: Long (nullable = true)
+           | |--OBJECT2: StructType (nullable = true)
+           |   |--A: String (nullable = true)
+           |   |--B: ArrayType[Long nullable = false] (nullable = false)
+           | |--OBJECT3: StructType (nullable = true)
+           |   |--A: String (nullable = true)
+           |   |--B: ArrayType[Long nullable = true] (nullable = true)
+           |   |--C: MapType[Long, String nullable = false] (nullable = false)
+           | |--OBJECT4: StructType (nullable = true)
+           |   |--A: StructType (nullable = false)
+           |     |--B: StructType (nullable = false)
+           |       |--C: Long (nullable = false)
+           |""".stripMargin)
+    // scalastyle:on
+
+    assert(
+      TestUtils.treeString(df2.select("*").schema, 0) ==
+        // scalastyle:off
+        s"""root
+           | |--OBJECT1: StructType (nullable = true)
+           |   |--A: String (nullable = false)
+           |   |--B: Long (nullable = true)
+           | |--OBJECT2: StructType (nullable = true)
+           |   |--A: String (nullable = true)
+           |   |--B: ArrayType[Long nullable = false] (nullable = false)
+           | |--OBJECT3: StructType (nullable = true)
+           |   |--A: String (nullable = true)
+           |   |--B: ArrayType[Long nullable = true] (nullable = true)
+           |   |--C: MapType[Long, String nullable = false] (nullable = false)
+           | |--OBJECT4: StructType (nullable = true)
+           |   |--A: StructType (nullable = false)
+           |     |--B: StructType (nullable = false)
+           |       |--C: Long (nullable = false)
            |""".stripMargin)
     // scalastyle:on
   }
