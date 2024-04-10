@@ -65,6 +65,8 @@ case class StructType(fields: Array[StructField] = Array())
   override def toString: String =
     s"StructType[${fields.map(_.toString).mkString(", ")}]"
 
+  override private[snowpark] def schemaString: String = "StructType"
+
   /**
    * Appends a new [[StructField]] to the end of this object.
    * @since 0.1.0
@@ -168,7 +170,7 @@ case class StructField(
 
   private[types] def treeString(layer: Int): String = {
     val prepended: String = (1 to (1 + 2 * layer)).map(x => " ").mkString + "|--"
-    val body: String = s"$name: ${dataType.toString} (nullable = $nullable)\n" +
+    val body: String = s"$name: ${dataType.schemaString} (nullable = $nullable)\n" +
       (dataType match {
         case st: StructType => st.treeString(layer + 1)
         case _ => ""

@@ -69,6 +69,14 @@ package object types {
       case sm: StructuredMapType =>
         val isValueNullable = if (sm.isValueNullable) "" else " not null"
         s"MAP(${convertToSFType(sm.keyType)}, ${convertToSFType(sm.valueType)}$isValueNullable)"
+      case StructType(fields) =>
+        val fieldStr = fields
+          .map(
+            field =>
+              s"${field.name} ${convertToSFType(field.dataType)} " +
+                (if (field.nullable) "" else "not null"))
+          .mkString(",")
+        s"OBJECT($fieldStr)"
       case ArrayType(_) => "ARRAY"
       case MapType(_, _) => "OBJECT"
       case VariantType => "VARIANT"

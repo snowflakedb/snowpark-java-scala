@@ -243,18 +243,21 @@ class DataTypeSuite extends SNTestBase {
     val df2 = session.sql(query2)
     assert(
       TestUtils.treeString(df2.schema, 0) ==
+        // scalastyle:off
         s"""root
            | |--ARR1: ArrayType[Long nullable = false] (nullable = true)
            | |--ARR11: ArrayType[ArrayType[Long nullable = false] nullable = false] (nullable = true)
            |""".stripMargin)
+    // scalastyle:on
 
     assert(
       TestUtils.treeString(df2.select("*").schema, 0) ==
+        // scalastyle:off
         s"""root
            | |--ARR1: ArrayType[Long nullable = false] (nullable = true)
            | |--ARR11: ArrayType[ArrayType[Long nullable = false] nullable = false] (nullable = true)
            |""".stripMargin)
-
+    // scalastyle:on
   }
 
   test("MapType v2") {
@@ -338,19 +341,41 @@ class DataTypeSuite extends SNTestBase {
       TestUtils.treeString(df.schema, 0) ==
         // scalastyle:off
         s"""root
-           | |--OBJECT1: StructType[StructField(A, String, Nullable = true), StructField(B, Long, Nullable = true)] (nullable = true)
+           | |--OBJECT1: StructType (nullable = true)
            |   |--A: String (nullable = true)
            |   |--B: Long (nullable = true)
-           | |--OBJECT2: StructType[StructField(A, String, Nullable = true), StructField(B, ArrayType[Long], Nullable = true)] (nullable = true)
+           | |--OBJECT2: StructType (nullable = true)
            |   |--A: String (nullable = true)
-           |   |--B: ArrayType[Long] (nullable = true)
-           | |--OBJECT3: StructType[StructField(A, String, Nullable = true), StructField(B, ArrayType[Long], Nullable = true), StructField(C, MapType[Long, String], Nullable = true)] (nullable = true)
+           |   |--B: ArrayType[Long nullable = true] (nullable = true)
+           | |--OBJECT3: StructType (nullable = true)
            |   |--A: String (nullable = true)
-           |   |--B: ArrayType[Long] (nullable = true)
-           |   |--C: MapType[Long, String] (nullable = true)
-           | |--OBJECT4: StructType[StructField(A, StructType[StructField(B, StructType[StructField(C, Long, Nullable = true)], Nullable = true)], Nullable = true)] (nullable = true)
-           |   |--A: StructType[StructField(B, StructType[StructField(C, Long, Nullable = true)], Nullable = true)] (nullable = true)
-           |     |--B: StructType[StructField(C, Long, Nullable = true)] (nullable = true)
+           |   |--B: ArrayType[Long nullable = true] (nullable = true)
+           |   |--C: MapType[Long, String nullable = true] (nullable = true)
+           | |--OBJECT4: StructType (nullable = true)
+           |   |--A: StructType (nullable = true)
+           |     |--B: StructType (nullable = true)
+           |       |--C: Long (nullable = true)
+           |""".stripMargin)
+    // scalastyle:on
+
+    // schema string: nullable
+    assert(
+      TestUtils.treeString(df.select("*").schema, 0) ==
+        // scalastyle:off
+        s"""root
+           | |--OBJECT1: StructType (nullable = true)
+           |   |--A: String (nullable = true)
+           |   |--B: Long (nullable = true)
+           | |--OBJECT2: StructType (nullable = true)
+           |   |--A: String (nullable = true)
+           |   |--B: ArrayType[Long nullable = true] (nullable = true)
+           | |--OBJECT3: StructType (nullable = true)
+           |   |--A: String (nullable = true)
+           |   |--B: ArrayType[Long nullable = true] (nullable = true)
+           |   |--C: MapType[Long, String nullable = true] (nullable = true)
+           | |--OBJECT4: StructType (nullable = true)
+           |   |--A: StructType (nullable = true)
+           |     |--B: StructType (nullable = true)
            |       |--C: Long (nullable = true)
            |""".stripMargin)
     // scalastyle:on
