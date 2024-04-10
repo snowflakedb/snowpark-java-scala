@@ -293,6 +293,34 @@ class DataTypeSuite extends SNTestBase {
            |""".stripMargin)
     // scalastyle:on
 
+    // nullable
+    val query2 =
+      """SELECT
+        |  {'a': 1, 'b': 2} :: MAP(VARCHAR, NUMBER not null) as map1,
+        |  {'1': [1,2,3]} :: MAP(NUMBER, ARRAY(NUMBER not null)) as map3,
+        |  {'1': {'a':1}} :: MAP(NUMBER, MAP(VARCHAR, NUMBER not null)) as map4
+        |""".stripMargin
+    val df2 = session.sql(query2)
+    assert(
+      TestUtils.treeString(df2.schema, 0) ==
+        // scalastyle:off
+        s"""root
+           | |--MAP1: MapType[String, Long nullable = false] (nullable = true)
+           | |--MAP3: MapType[Long, ArrayType[Long nullable = false] nullable = true] (nullable = true)
+           | |--MAP4: MapType[Long, MapType[String, Long nullable = false] nullable = true] (nullable = true)
+           |""".stripMargin)
+    // scalastyle:on
+
+    assert(
+      TestUtils.treeString(df2.select("*").schema, 0) ==
+        // scalastyle:off
+        s"""root
+           | |--MAP1: MapType[String, Long nullable = false] (nullable = true)
+           | |--MAP3: MapType[Long, ArrayType[Long nullable = false] nullable = true] (nullable = true)
+           | |--MAP4: MapType[Long, MapType[String, Long nullable = false] nullable = true] (nullable = true)
+           |""".stripMargin)
+    // scalastyle:on
+
   }
 
   test("ObjectType v2") {
