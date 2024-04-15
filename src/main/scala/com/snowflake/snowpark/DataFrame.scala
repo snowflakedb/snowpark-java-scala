@@ -2369,17 +2369,25 @@ class DataFrame private[snowpark] (
       lines
     }
 
+    def castValueToString(value: Any): String =
+      value match {
+        case ba: Array[Byte] => s"'${DatatypeConverter.printHexBinary(ba)}'"
+        case bytes: Array[java.lang.Byte] =>
+          s"'${DatatypeConverter.printHexBinary(bytes.map(_.toByte))}'"
+        case arr: Array[String] =>
+          arr.mkString("[", ",", "]")
+        case arr: java.sql.Array =>
+          arr.getArray().asInstanceOf[Array[_]].map(castValueToString).mkString("[", ",", "]")
+        case _ => value.toString
+      }
+
     val body: Seq[Seq[String]] = result.flatMap(row => {
       // Value may contain multiple lines
       val lines: Seq[Seq[String]] = row.toSeq.zipWithIndex.map {
         case (value, index) =>
           val texts: Seq[String] = if (value != null) {
-            val str = value match {
-              case ba: Array[Byte] => s"'${DatatypeConverter.printHexBinary(ba)}'"
-              case _ => value.toString
-            }
             // if the result contains multiple lines, split result string
-            splitLines(str)
+            splitLines(castValueToString(value))
           } else {
             Seq("NULL")
           }

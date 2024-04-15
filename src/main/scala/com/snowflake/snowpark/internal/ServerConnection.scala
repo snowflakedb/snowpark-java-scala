@@ -3,40 +3,15 @@ package com.snowflake.snowpark.internal
 import java.io.{Closeable, InputStream}
 import java.sql.{PreparedStatement, ResultSetMetaData, SQLException, Statement}
 import java.time.LocalDateTime
-import com.snowflake.snowpark.{
-  MergeBuilder,
-  MergeTypedAsyncJob,
-  Row,
-  SnowparkClientException,
-  TypedAsyncJob
-}
-import com.snowflake.snowpark.internal.ParameterUtils.{
-  ClosureCleanerMode,
-  DEFAULT_MAX_FILE_DOWNLOAD_RETRY_COUNT,
-  DEFAULT_MAX_FILE_UPLOAD_RETRY_COUNT,
-  DEFAULT_REQUEST_TIMEOUT_IN_SECONDS,
-  DEFAULT_SNOWPARK_USE_SCOPED_TEMP_OBJECTS,
-  MAX_REQUEST_TIMEOUT_IN_SECONDS,
-  MIN_REQUEST_TIMEOUT_IN_SECONDS,
-  SnowparkMaxFileDownloadRetryCount,
-  SnowparkMaxFileUploadRetryCount,
-  SnowparkRequestTimeoutInSeconds,
-  Url
-}
+import com.snowflake.snowpark.{MergeBuilder, MergeTypedAsyncJob, Row, SnowparkClientException, TypedAsyncJob}
+import com.snowflake.snowpark.internal.ParameterUtils.{ClosureCleanerMode, DEFAULT_MAX_FILE_DOWNLOAD_RETRY_COUNT, DEFAULT_MAX_FILE_UPLOAD_RETRY_COUNT, DEFAULT_REQUEST_TIMEOUT_IN_SECONDS, DEFAULT_SNOWPARK_USE_SCOPED_TEMP_OBJECTS, MAX_REQUEST_TIMEOUT_IN_SECONDS, MIN_REQUEST_TIMEOUT_IN_SECONDS, SnowparkMaxFileDownloadRetryCount, SnowparkMaxFileUploadRetryCount, SnowparkRequestTimeoutInSeconds, Url}
 import com.snowflake.snowpark.internal.Utils.PackageNameDelimiter
 import com.snowflake.snowpark.internal.analyzer.{Attribute, Query, SnowflakePlan}
-import net.snowflake.client.jdbc.{
-  FieldMetadata,
-  SnowflakeConnectString,
-  SnowflakeConnectionV1,
-  SnowflakeReauthenticationRequest,
-  SnowflakeResultSet,
-  SnowflakeResultSetMetaData,
-  SnowflakeStatement
-}
+import net.snowflake.client.jdbc.{FieldMetadata, SnowflakeConnectString, SnowflakeConnectionV1, SnowflakeReauthenticationRequest, SnowflakeResultSet, SnowflakeResultSetMetaData, SnowflakeStatement}
 import com.snowflake.snowpark.types._
 import net.snowflake.client.core.QueryStatus
 
+import java.util
 import scala.collection.mutable
 import scala.reflect.runtime.universe.TypeTag
 import scala.collection.JavaConverters._
@@ -311,6 +286,15 @@ private[snowpark] class ServerConnection(
     buff.result()
   }
 
+  private def convertStructuredToScala(data: Any, dataType: DataType): Any =
+    dataType match {
+      case sa: StructuredArrayType =>
+        data.asInstanceOf[util.ArrayList[_]]
+          .toArray().map(v => convertStructuredToScala(v, sa.elementType))
+      case _ => data.toString
+
+    }
+
   private[snowpark] def resultSetToIterator(
       statement: Statement): (CloseableIterator[Row], StructType) =
     withValidConnection {
@@ -338,6 +322,16 @@ private[snowpark] class ServerConnection(
                 } else {
                   attribute.dataType match {
                     case VariantType => data.getString(resultIndex)
+                    case sa: StructuredArrayType =>
+                      sa.elementType match {
+                        case ArrayType(StringType) => // semi structured array
+                          convertStructuredToScala(data.getObject(resultIndex), sa)
+//                        case sa: StructuredArrayType =>
+//                          val result = data.getObject(resultIndex)
+//                            .asInstanceOf[util.ArrayList[_]].toArray()
+//                          ""
+                        case _ => data.getArray(resultIndex)
+                      }
                     case ArrayType(StringType) => data.getString(resultIndex)
                     case MapType(StringType, StringType) => data.getString(resultIndex)
                     case StringType => data.getString(resultIndex)
