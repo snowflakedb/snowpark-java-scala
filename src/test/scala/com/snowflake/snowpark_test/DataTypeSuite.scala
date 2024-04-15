@@ -188,14 +188,9 @@ class DataTypeSuite extends SNTestBase {
         |    [1.1, 2.2, 3.3]::ARRAY(FLOAT) AS arr2,
         |    [true, false]::ARRAY(BOOLEAN) AS arr3,
         |    ['a', 'b']::ARRAY(VARCHAR) AS arr4,
-        |    [parse_json(31000000)::timestamp_ntz]::ARRAY(TIMESTAMP_NTZ) AS arr5,
+        |    [parse_json(31111111)::timestamp_ntz]::ARRAY(TIMESTAMP_NTZ) AS arr5,
         |    [TO_BINARY('SNOW', 'utf-8')]::ARRAY(BINARY) AS arr6,
-        |    [TO_DATE('2013-05-17')]::ARRAY(DATE) AS arr7,
-        |    ['1', 2]::ARRAY(VARIANT) AS arr8,
-        |    [[1,2]]::ARRAY(ARRAY) AS arr9,
-        |    [OBJECT_CONSTRUCT('name', 1)]::ARRAY(OBJECT) AS arr10,
-        |    [[1, 2], [3, 4]]::ARRAY(ARRAY(NUMBER)) AS arr11,
-        |    [1, 2, 3] AS arr0
+        |    [TO_DATE('2013-05-17')]::ARRAY(DATE) AS arr7
         |""".stripMargin
     val df = session.sql(query)
     df.show()

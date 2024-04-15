@@ -2376,6 +2376,8 @@ class DataFrame private[snowpark] (
           s"'${DatatypeConverter.printHexBinary(bytes.map(_.toByte))}'"
         case arr: Array[String] =>
           arr.mkString("[", ",", "]")
+        case arr: Array[_] =>
+          arr.map(castValueToString).mkString("[", ",", "]")
         case arr: java.sql.Array =>
           arr.getArray().asInstanceOf[Array[_]].map(castValueToString).mkString("[", ",", "]")
         case _ => value.toString
