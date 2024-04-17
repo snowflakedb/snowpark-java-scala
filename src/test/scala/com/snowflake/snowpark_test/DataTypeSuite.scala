@@ -194,9 +194,9 @@ class DataTypeSuite extends SNTestBase {
         |    [[1,2]]::ARRAY(ARRAY) AS arr9,
         |    [OBJECT_CONSTRUCT('name', 1)]::ARRAY(OBJECT) AS arr10,
         |    [[1, 2], [3, 4]]::ARRAY(ARRAY(NUMBER)) AS arr11,
+        |    [1.234::DECIMAL(13, 5)]::ARRAY(DECIMAL(13,5)) as arr12,
         |    [time '10:03:56']::ARRAY(TIME) as arr21
         |""".stripMargin
-//    val query = "select time '10:03:56' AS arr7"
     val df = session.sql(query)
     df.show()
   }

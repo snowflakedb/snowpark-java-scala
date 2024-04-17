@@ -324,6 +324,8 @@ private[snowpark] class ServerConnection(
             }
           case "NUMBER" if meta.getType == java.sql.Types.BIGINT =>
             value.asInstanceOf[java.math.BigDecimal].toBigInteger.longValue()
+          case "NUMBER" if meta.getType == java.sql.Types.DECIMAL =>
+            value
           case "DOUBLE" => value.asInstanceOf[Double]
           case "BOOLEAN" => value.asInstanceOf[Boolean]
           case "VARCHAR" => value.toString
@@ -364,7 +366,7 @@ private[snowpark] class ServerConnection(
                 } else {
                   attribute.dataType match {
                     case VariantType => data.getString(resultIndex)
-                    case sa: StructuredArrayType =>
+                    case _: StructuredArrayType =>
                       val meta = data.getMetaData
                       // convert meta to field meta
                       val field = new FieldMetadata(
@@ -380,7 +382,6 @@ private[snowpark] class ServerConnection(
                         meta.asInstanceOf[SnowflakeResultSetMetaData]
                           .getColumnFields(resultIndex))
                       convertToSnowparkValue(data.getObject(resultIndex), field)
-//                      convertStructuredToScala(data.getObject(resultIndex), sa)
                     case ArrayType(StringType) => data.getString(resultIndex)
                     case MapType(StringType, StringType) => data.getString(resultIndex)
                     case StringType => data.getString(resultIndex)
