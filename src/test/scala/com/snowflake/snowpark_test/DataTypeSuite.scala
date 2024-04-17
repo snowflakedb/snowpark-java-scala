@@ -188,10 +188,11 @@ class DataTypeSuite extends SNTestBase {
         |    [1.1, 2.2, 3.3]::ARRAY(FLOAT) AS arr2,
         |    [true, false]::ARRAY(BOOLEAN) AS arr3,
         |    ['a', 'b']::ARRAY(VARCHAR) AS arr4,
-        |    [parse_json(31111111)::timestamp_ntz]::ARRAY(TIMESTAMP_NTZ) AS arr5,
+        |    [parse_json(31000000)::timestamp_ntz]::ARRAY(TIMESTAMP_NTZ) AS arr5,
         |    [TO_BINARY('SNOW', 'utf-8')]::ARRAY(BINARY) AS arr6,
         |    [TO_DATE('2013-05-17')]::ARRAY(DATE) AS arr7
         |""".stripMargin
+//    val query = "select TO_DATE('2013-05-17') AS arr7"
     val df = session.sql(query)
     df.show()
   }
@@ -395,7 +396,7 @@ class DataTypeSuite extends SNTestBase {
 
     // schema query: not null
     val query2 =
-    // scalastyle:off
+      // scalastyle:off
       """SELECT
         |  {'a': 1, 'b': 'a'} :: OBJECT(a VARCHAR not null, b NUMBER) as object1,
         |  {'a': 1, 'b': [1,2,3,4]} :: OBJECT(a VARCHAR, b ARRAY(NUMBER not null) not null) as object2,

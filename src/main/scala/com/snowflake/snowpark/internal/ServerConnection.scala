@@ -7,12 +7,14 @@ import com.snowflake.snowpark.{MergeBuilder, MergeTypedAsyncJob, Row, SnowparkCl
 import com.snowflake.snowpark.internal.ParameterUtils.{ClosureCleanerMode, DEFAULT_MAX_FILE_DOWNLOAD_RETRY_COUNT, DEFAULT_MAX_FILE_UPLOAD_RETRY_COUNT, DEFAULT_REQUEST_TIMEOUT_IN_SECONDS, DEFAULT_SNOWPARK_USE_SCOPED_TEMP_OBJECTS, MAX_REQUEST_TIMEOUT_IN_SECONDS, MIN_REQUEST_TIMEOUT_IN_SECONDS, SnowparkMaxFileDownloadRetryCount, SnowparkMaxFileUploadRetryCount, SnowparkRequestTimeoutInSeconds, Url}
 import com.snowflake.snowpark.internal.Utils.PackageNameDelimiter
 import com.snowflake.snowpark.internal.analyzer.{Attribute, Query, SnowflakePlan}
-import net.snowflake.client.jdbc.{FieldMetadata, SnowflakeConnectString, SnowflakeConnectionV1, SnowflakeReauthenticationRequest, SnowflakeResultSet, SnowflakeResultSetMetaData, SnowflakeStatement}
+import net.snowflake.client.jdbc.{FieldMetadata, SnowflakeBaseResultSet, SnowflakeConnectString, SnowflakeConnectionV1, SnowflakeReauthenticationRequest, SnowflakeResultSet, SnowflakeResultSetMetaData, SnowflakeResultSetV1, SnowflakeStatement}
+import net.snowflake.client.core.json.Converters
 import com.snowflake.snowpark.types._
-import net.snowflake.client.core.QueryStatus
+import net.snowflake.client.core.{ColumnTypeHelper, QueryStatus, SFArrowResultSet, SFBaseResultSet, SFBaseSession}
 import net.snowflake.client.core.arrow.{TwoFieldStructToTimestampLTZConverter, TwoFieldStructToTimestampNTZConverter}
 
 import java.util
+import java.util.TimeZone
 import scala.collection.mutable
 import scala.reflect.runtime.universe.TypeTag
 import scala.collection.JavaConverters._
@@ -287,39 +289,53 @@ private[snowpark] class ServerConnection(
     buff.result()
   }
 
-  private def convertStructuredToScala(value: Any, dataType: DataType): Any =
-    dataType match {
-      case sa: StructuredArrayType =>
-        value.asInstanceOf[util.ArrayList[_]]
-          .toArray().map(v => convertStructuredToScala(v, sa.elementType))
-      case LongType =>
-        value.asInstanceOf[java.math.BigDecimal].toBigInteger.longValue()
-      case DoubleType => value.asInstanceOf[Double]
-      case BooleanType => value.asInstanceOf[Boolean]
-      case StringType => value.toString
-      case TimestampType =>
-        val time = value.asInstanceOf[java.util.Map[_, _]]
-        val epoch = time.get("epoch").asInstanceOf[Long]
-//        val fraction = time.get("fraction").asInstanceOf[Int]
-        new Timestamp(epoch * 1000)
-      case DateType =>
-        new Date(value.asInstanceOf[Int])
-      case BinaryType =>
-        value.asInstanceOf[Array[Byte]]
-      case _ =>
-        throw new UnsupportedOperationException(
-          s"Unsupported type: $dataType")
-
-    }
-
   private[snowpark] def resultSetToIterator(
       statement: Statement): (CloseableIterator[Row], StructType) =
     withValidConnection {
       val data = statement.getResultSet
+
+      // used by structured types
+      lazy val arrowResultSet: SFArrowResultSet = {
+        val sfResultSet = data.asInstanceOf[SnowflakeBaseResultSet]
+        val baseResultSetField = classOf[SnowflakeBaseResultSet].getDeclaredField("sfBaseResultSet")
+        baseResultSetField.setAccessible(true)
+        baseResultSetField.get(sfResultSet).asInstanceOf[SFArrowResultSet]
+      }
       val schema = ServerConnection.convertResultMetaToAttribute(data.getMetaData)
 
       lazy val geographyOutputFormat = getParameterValue(ParameterUtils.GeographyOutputFormat)
       lazy val geometryOutputFormat = getParameterValue(ParameterUtils.GeometryOutputFormat)
+
+      def convertToSnowparkValue(value: Any, meta: FieldMetadata): Any = {
+        meta.getTypeName match {
+          case "ARRAY" =>
+            if (meta.getFields.isEmpty) {
+              null // semi structured
+            } else {
+              value.asInstanceOf[util.ArrayList[_]]
+                .toArray
+                .map(v => convertToSnowparkValue(v, meta.getFields.get(0)))
+            }
+          case "NUMBER" if meta.getType == java.sql.Types.BIGINT =>
+            value.asInstanceOf[java.math.BigDecimal].toBigInteger.longValue()
+          case "DOUBLE" => value.asInstanceOf[Double]
+          case "BOOLEAN" => value.asInstanceOf[Boolean]
+          case "VARCHAR" => value.toString
+          case "BINARY" => value // byte array
+          case "DATE" =>
+            arrowResultSet.convertToDate(value, null)
+          case _ if meta.getType == java.sql.Types.TIMESTAMP ||
+            meta.getType == java.sql.Types.TIMESTAMP_WITH_TIMEZONE =>
+            val columnSubType = meta.getType
+            val columnType = ColumnTypeHelper
+              .getColumnType(columnSubType, arrowResultSet.getSession)
+            arrowResultSet.convertToTimestamp(
+              value, columnType, columnSubType, null, meta.getScale
+            )
+          case _ =>
+            throw new UnsupportedOperationException(s"Unsupported type: ${meta.getTypeName}")
+        }
+      }
 
       val iterator = new CloseableIterator[Row] {
         private var _currentRow: Row = _
@@ -340,8 +356,22 @@ private[snowpark] class ServerConnection(
                   attribute.dataType match {
                     case VariantType => data.getString(resultIndex)
                     case sa: StructuredArrayType =>
-//                      data.getArray(resultIndex)
-                      convertStructuredToScala(data.getObject(resultIndex), sa)
+                      val meta = data.getMetaData
+                      // convert meta to field meta
+                      val field = new FieldMetadata(
+                        meta.getColumnName(resultIndex),
+                        meta.getColumnTypeName(resultIndex),
+                        meta.getColumnType(resultIndex),
+                        true,
+                        0,
+                        0,
+                        0,
+                        false,
+                        null,
+                        meta.asInstanceOf[SnowflakeResultSetMetaData]
+                          .getColumnFields(resultIndex))
+                      convertToSnowparkValue(data.getObject(resultIndex), field)
+//                      convertStructuredToScala(data.getObject(resultIndex), sa)
                     case ArrayType(StringType) => data.getString(resultIndex)
                     case MapType(StringType, StringType) => data.getString(resultIndex)
                     case StringType => data.getString(resultIndex)
