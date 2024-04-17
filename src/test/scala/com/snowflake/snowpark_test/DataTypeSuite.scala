@@ -190,9 +190,10 @@ class DataTypeSuite extends SNTestBase {
         |    ['a', 'b']::ARRAY(VARCHAR) AS arr4,
         |    [parse_json(31000000)::timestamp_ntz]::ARRAY(TIMESTAMP_NTZ) AS arr5,
         |    [TO_BINARY('SNOW', 'utf-8')]::ARRAY(BINARY) AS arr6,
-        |    [TO_DATE('2013-05-17')]::ARRAY(DATE) AS arr7
+        |    [TO_DATE('2013-05-17')]::ARRAY(DATE) AS arr7,
+        |    [time '10:03:56']::ARRAY(TIME) as arr11
         |""".stripMargin
-//    val query = "select TO_DATE('2013-05-17') AS arr7"
+//    val query = "select time '10:03:56' AS arr7"
     val df = session.sql(query)
     df.show()
   }

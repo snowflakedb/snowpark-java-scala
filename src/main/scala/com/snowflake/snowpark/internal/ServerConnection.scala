@@ -321,9 +321,12 @@ private[snowpark] class ServerConnection(
           case "DOUBLE" => value.asInstanceOf[Double]
           case "BOOLEAN" => value.asInstanceOf[Boolean]
           case "VARCHAR" => value.toString
+          case "VARIANT" => value.toString
           case "BINARY" => value // byte array
           case "DATE" =>
             arrowResultSet.convertToDate(value, null)
+          case "TIME" =>
+            arrowResultSet.convertToTime(value, meta.getScale)
           case _ if meta.getType == java.sql.Types.TIMESTAMP ||
             meta.getType == java.sql.Types.TIMESTAMP_WITH_TIMEZONE =>
             val columnSubType = meta.getType
