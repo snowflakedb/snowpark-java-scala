@@ -393,6 +393,26 @@ class APIInternalSuite extends TestData {
           |""".stripMargin)
   }
 
+  test("show structured array") {
+    val query =
+      """SELECT
+        |    [1, 2, 3]::ARRAY(NUMBER) AS arr1,
+        |    [1.1, 2.2, 3.3]::ARRAY(FLOAT) AS arr2,
+        |    [true, false]::ARRAY(BOOLEAN) AS arr3,
+        |    ['a', 'b']::ARRAY(VARCHAR) AS arr4,
+        |    [parse_json(31000000)::timestamp_ntz]::ARRAY(TIMESTAMP_NTZ) AS arr5,
+        |    [TO_BINARY('SNOW', 'utf-8')]::ARRAY(BINARY) AS arr6,
+        |    [TO_DATE('2013-05-17')]::ARRAY(DATE) AS arr7,
+        |    [[1,2]]::ARRAY(ARRAY) AS arr9,
+        |    [OBJECT_CONSTRUCT('name', 1)]::ARRAY(OBJECT) AS arr10,
+        |    [[1, 2], [3, 4]]::ARRAY(ARRAY(NUMBER)) AS arr11,
+        |    [1.234::DECIMAL(13, 5)]::ARRAY(DECIMAL(13,5)) as arr12,
+        |    [time '10:03:56']::ARRAY(TIME) as arr21
+        |""".stripMargin
+    val df = session.sql(query)
+    df.show()
+  }
+
   // dataframe
   test("withColumn function uses * instead of full column name list") {
     import session.implicits._

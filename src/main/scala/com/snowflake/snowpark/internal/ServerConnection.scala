@@ -324,13 +324,7 @@ private[snowpark] class ServerConnection(
             }
           case "NUMBER" if meta.getType == java.sql.Types.BIGINT =>
             value.asInstanceOf[java.math.BigDecimal].toBigInteger.longValue()
-          case "NUMBER" if meta.getType == java.sql.Types.DECIMAL =>
-            value
-          case "DOUBLE" => value.asInstanceOf[Double]
-          case "BOOLEAN" => value.asInstanceOf[Boolean]
-          case "VARCHAR" => value.toString
-          case "VARIANT" => value.toString
-          case "BINARY" => value // byte array
+          case "DOUBLE"| "BOOLEAN"| "BINARY"| "NUMBER"| "VARCHAR"| "VARIANT" => value
           case "DATE" =>
             arrowResultSet.convertToDate(value, null)
           case "TIME" =>
