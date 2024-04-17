@@ -76,9 +76,20 @@ trait FunctionSuite extends TestData {
   }
 
   test("max, min, mean") {
-    checkAnswer(
-      xyz.select(max(col("X")), min(col("Y")), mean(col("Z"))),
-      Seq(Row(2, 1, 3.600000)))
+    // Case 01: Non-null values
+    val expected1 = Seq(Row(2, 1, 3.600000))
+    checkAnswer(xyz.select(max(col("X")), min(col("Y")), mean(col("Z"))), expected1)
+    checkAnswer(xyz.select(max("X"), min("Y"), mean("Z")), expected1)
+
+    // Case 02: Some null values
+    val expected2 = Seq(Row(3, 1, 2.000000))
+    checkAnswer(nullInts.select(max(col("A")), min(col("A")), mean(col("A"))), expected2)
+    checkAnswer(nullInts.select(max("A"), min("A"), mean("A")), expected2)
+
+    // Case 03: All null values
+    val expected3 = Seq(Row(null, null, null))
+    checkAnswer(allNulls.select(max(col("A")), min(col("A")), mean(col("A"))), expected3)
+    checkAnswer(allNulls.select(max("A"), min("A"), mean("A")), expected3)
   }
 
   test("skew") {
