@@ -310,11 +310,17 @@ private[snowpark] class ServerConnection(
         meta.getTypeName match {
           case "ARRAY" =>
             if (meta.getFields.isEmpty) {
-              null // semi structured
+              value.toString // semi structured
             } else {
               value.asInstanceOf[util.ArrayList[_]]
                 .toArray
                 .map(v => convertToSnowparkValue(v, meta.getFields.get(0)))
+            }
+          case "OBJECT" =>
+            if (meta.getFields.isEmpty) { // semi-structured
+              value.toString
+            } else {
+              null
             }
           case "NUMBER" if meta.getType == java.sql.Types.BIGINT =>
             value.asInstanceOf[java.math.BigDecimal].toBigInteger.longValue()

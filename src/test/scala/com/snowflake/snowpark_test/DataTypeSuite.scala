@@ -191,7 +191,10 @@ class DataTypeSuite extends SNTestBase {
         |    [parse_json(31000000)::timestamp_ntz]::ARRAY(TIMESTAMP_NTZ) AS arr5,
         |    [TO_BINARY('SNOW', 'utf-8')]::ARRAY(BINARY) AS arr6,
         |    [TO_DATE('2013-05-17')]::ARRAY(DATE) AS arr7,
-        |    [time '10:03:56']::ARRAY(TIME) as arr11
+        |    [[1,2]]::ARRAY(ARRAY) AS arr9,
+        |    [OBJECT_CONSTRUCT('name', 1)]::ARRAY(OBJECT) AS arr10,
+        |    [[1, 2], [3, 4]]::ARRAY(ARRAY(NUMBER)) AS arr11,
+        |    [time '10:03:56']::ARRAY(TIME) as arr21
         |""".stripMargin
 //    val query = "select time '10:03:56' AS arr7"
     val df = session.sql(query)
