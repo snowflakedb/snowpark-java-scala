@@ -4,6 +4,8 @@ import com.snowflake.snowpark.{Row, SNTestBase, TestUtils}
 import com.snowflake.snowpark.types._
 import com.snowflake.snowpark.functions._
 
+import java.sql.{Date, Time, Timestamp}
+
 // Test DataTypes out of com.snowflake.snowpark package.
 class DataTypeSuite extends SNTestBase {
   test("IntegralType") {
@@ -198,7 +200,21 @@ class DataTypeSuite extends SNTestBase {
         |    [time '10:03:56']::ARRAY(TIME) as arr21
         |""".stripMargin
     val df = session.sql(query)
-    df.show()
+    checkAnswer(
+      df,
+      Row(
+        Array(1L, 2L, 3L),
+        Array(1.1, 2.2, 3.3),
+        Array(true, false),
+        Array("a", "b"),
+        Array(new Timestamp(31000000000L)),
+        Array(Array(83.toByte, 78.toByte, 79.toByte, 87.toByte)),
+        Array(Date.valueOf("2013-05-17")),
+        Array("[\n  1,\n  2\n]"),
+        Array("{\n  \"name\": 1\n}"),
+        Array(Array(1L, 2L), Array(3L, 4L)),
+        Array(java.math.BigDecimal.valueOf(1.234)),
+        Array(Time.valueOf("10:03:56"))))
   }
 
   test("ArrayType v2") {

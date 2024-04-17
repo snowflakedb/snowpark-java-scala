@@ -3,15 +3,52 @@ package com.snowflake.snowpark.internal
 import java.io.{Closeable, InputStream}
 import java.sql.{Date, PreparedStatement, ResultSetMetaData, SQLException, Statement, Timestamp}
 import java.time.LocalDateTime
-import com.snowflake.snowpark.{MergeBuilder, MergeTypedAsyncJob, Row, SnowparkClientException, TypedAsyncJob}
-import com.snowflake.snowpark.internal.ParameterUtils.{ClosureCleanerMode, DEFAULT_MAX_FILE_DOWNLOAD_RETRY_COUNT, DEFAULT_MAX_FILE_UPLOAD_RETRY_COUNT, DEFAULT_REQUEST_TIMEOUT_IN_SECONDS, DEFAULT_SNOWPARK_USE_SCOPED_TEMP_OBJECTS, MAX_REQUEST_TIMEOUT_IN_SECONDS, MIN_REQUEST_TIMEOUT_IN_SECONDS, SnowparkMaxFileDownloadRetryCount, SnowparkMaxFileUploadRetryCount, SnowparkRequestTimeoutInSeconds, Url}
+import com.snowflake.snowpark.{
+  MergeBuilder,
+  MergeTypedAsyncJob,
+  Row,
+  SnowparkClientException,
+  TypedAsyncJob
+}
+import com.snowflake.snowpark.internal.ParameterUtils.{
+  ClosureCleanerMode,
+  DEFAULT_MAX_FILE_DOWNLOAD_RETRY_COUNT,
+  DEFAULT_MAX_FILE_UPLOAD_RETRY_COUNT,
+  DEFAULT_REQUEST_TIMEOUT_IN_SECONDS,
+  DEFAULT_SNOWPARK_USE_SCOPED_TEMP_OBJECTS,
+  MAX_REQUEST_TIMEOUT_IN_SECONDS,
+  MIN_REQUEST_TIMEOUT_IN_SECONDS,
+  SnowparkMaxFileDownloadRetryCount,
+  SnowparkMaxFileUploadRetryCount,
+  SnowparkRequestTimeoutInSeconds,
+  Url
+}
 import com.snowflake.snowpark.internal.Utils.PackageNameDelimiter
 import com.snowflake.snowpark.internal.analyzer.{Attribute, Query, SnowflakePlan}
-import net.snowflake.client.jdbc.{FieldMetadata, SnowflakeBaseResultSet, SnowflakeConnectString, SnowflakeConnectionV1, SnowflakeReauthenticationRequest, SnowflakeResultSet, SnowflakeResultSetMetaData, SnowflakeResultSetV1, SnowflakeStatement}
+import net.snowflake.client.jdbc.{
+  FieldMetadata,
+  SnowflakeBaseResultSet,
+  SnowflakeConnectString,
+  SnowflakeConnectionV1,
+  SnowflakeReauthenticationRequest,
+  SnowflakeResultSet,
+  SnowflakeResultSetMetaData,
+  SnowflakeResultSetV1,
+  SnowflakeStatement
+}
 import net.snowflake.client.core.json.Converters
 import com.snowflake.snowpark.types._
-import net.snowflake.client.core.{ColumnTypeHelper, QueryStatus, SFArrowResultSet, SFBaseResultSet, SFBaseSession}
-import net.snowflake.client.core.arrow.{TwoFieldStructToTimestampLTZConverter, TwoFieldStructToTimestampNTZConverter}
+import net.snowflake.client.core.{
+  ColumnTypeHelper,
+  QueryStatus,
+  SFArrowResultSet,
+  SFBaseResultSet,
+  SFBaseSession
+}
+import net.snowflake.client.core.arrow.{
+  TwoFieldStructToTimestampLTZConverter,
+  TwoFieldStructToTimestampNTZConverter
+}
 
 import java.util
 import java.util.TimeZone
@@ -297,7 +334,8 @@ private[snowpark] class ServerConnection(
       // used by structured types
       lazy val arrowResultSet: SFArrowResultSet = {
         val sfResultSet = data.asInstanceOf[SnowflakeBaseResultSet]
-        val baseResultSetField = classOf[SnowflakeBaseResultSet].getDeclaredField("sfBaseResultSet")
+        val baseResultSetField =
+          classOf[SnowflakeBaseResultSet].getDeclaredField("sfBaseResultSet")
         baseResultSetField.setAccessible(true)
         baseResultSetField.get(sfResultSet).asInstanceOf[SFArrowResultSet]
       }
@@ -312,7 +350,8 @@ private[snowpark] class ServerConnection(
             if (meta.getFields.isEmpty) {
               value.toString // semi structured
             } else {
-              value.asInstanceOf[util.ArrayList[_]]
+              value
+                .asInstanceOf[util.ArrayList[_]]
                 .toArray
                 .map(v => convertToSnowparkValue(v, meta.getFields.get(0)))
             }
@@ -324,19 +363,24 @@ private[snowpark] class ServerConnection(
             }
           case "NUMBER" if meta.getType == java.sql.Types.BIGINT =>
             value.asInstanceOf[java.math.BigDecimal].toBigInteger.longValue()
-          case "DOUBLE"| "BOOLEAN"| "BINARY"| "NUMBER"| "VARCHAR"| "VARIANT" => value
+          case "DOUBLE" | "BOOLEAN" | "BINARY" | "NUMBER" => value
+          case "VARCHAR" | "VARIANT" => value.toString // Text to String
           case "DATE" =>
             arrowResultSet.convertToDate(value, null)
           case "TIME" =>
             arrowResultSet.convertToTime(value, meta.getScale)
-          case _ if meta.getType == java.sql.Types.TIMESTAMP ||
-            meta.getType == java.sql.Types.TIMESTAMP_WITH_TIMEZONE =>
+          case _
+              if meta.getType == java.sql.Types.TIMESTAMP ||
+                meta.getType == java.sql.Types.TIMESTAMP_WITH_TIMEZONE =>
             val columnSubType = meta.getType
             val columnType = ColumnTypeHelper
               .getColumnType(columnSubType, arrowResultSet.getSession)
             arrowResultSet.convertToTimestamp(
-              value, columnType, columnSubType, null, meta.getScale
-            )
+              value,
+              columnType,
+              columnSubType,
+              null,
+              meta.getScale)
           case _ =>
             throw new UnsupportedOperationException(s"Unsupported type: ${meta.getTypeName}")
         }
@@ -373,7 +417,8 @@ private[snowpark] class ServerConnection(
                         0,
                         false,
                         null,
-                        meta.asInstanceOf[SnowflakeResultSetMetaData]
+                        meta
+                          .asInstanceOf[SnowflakeResultSetMetaData]
                           .getColumnFields(resultIndex))
                       convertToSnowparkValue(data.getObject(resultIndex), field)
                     case ArrayType(StringType) => data.getString(resultIndex)
