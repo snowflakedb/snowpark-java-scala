@@ -842,8 +842,9 @@ class DataFrameAggregateSuite extends TestData {
     checkAnswer(
       df.groupBy(df.col("color"))
         .agg(listagg(df.col("length"), ",")
-          .withinGroup(df.col("length").asc)),
-      Seq(Row("orange", "12"), Row("red", "21,24,35"), Row("green", "11,77"), Row("blue", "14")),
+          .withinGroup(df.col("length").asc))
+        .sort($"color"),
+      Seq(Row("blue", "14"), Row("green", "11,77"), Row("orange", "12"), Row("red", "21,24,35")),
       sort = false)
   }
 }
