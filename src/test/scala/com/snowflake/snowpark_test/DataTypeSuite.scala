@@ -217,6 +217,28 @@ class DataTypeSuite extends SNTestBase {
         Array(Time.valueOf("10:03:56"))))
   }
 
+  test("read Structured Map") {
+    val query =
+      """SELECT
+        |  {'a':1,'b':2} :: MAP(VARCHAR, NUMBER) as map1,
+        |  {'1':'a','2':'b'} :: MAP(NUMBER, VARCHAR) as map2,
+        |  {'1':[1,2,3],'2':[4,5,6]} :: MAP(NUMBER, ARRAY(NUMBER)) as map3,
+        |  {'1':{'a':1,'b':2},'2':{'c':3}} :: MAP(NUMBER, MAP(VARCHAR, NUMBER)) as map4,
+        |  [{'a':1,'b':2},{'c':3}] :: ARRAY(MAP(VARCHAR, NUMBER)) as map5,
+        |  {'a':1,'b':2} :: OBJECT as map0
+        |""".stripMargin
+    val df = session.sql(query)
+    checkAnswer(
+      df,
+      Row(
+        Map("b" -> 2, "a" -> 1),
+        Map(2 -> "b", 1 -> "a"),
+        Map(2 -> Array(4L, 5L, 6L), 1 -> Array(1L, 2L, 3L)),
+        Map(2 -> Map("c" -> 3), 1 -> Map("a" -> 1, "b" -> 2)),
+        Array(Map("a" -> 1, "b" -> 2), Map("c" -> 3)),
+        "{\n  \"a\": 1,\n  \"b\": 2\n}"))
+  }
+
   test("ArrayType v2") {
     val query = """SELECT
                   |    [1, 2, 3]::ARRAY(NUMBER) AS arr1,
