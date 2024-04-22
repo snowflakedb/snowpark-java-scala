@@ -13,7 +13,9 @@ trait DataFrameSuite extends TestData with BeforeAndAfterEach {
   val tableName = randomName()
   val viewName = randomName()
   val samplingDeviation = 0.4
+
   import session.implicits._
+
   override def afterEach(): Unit = {
     dropTable(tableName)
     dropView(viewName)
@@ -104,15 +106,15 @@ trait DataFrameSuite extends TestData with BeforeAndAfterEach {
     assert(
       getShowString(df, 2) ==
         """-------------------------------
-      ||"A"          |"B"            |
-      |-------------------------------
-      ||line1        |NULL           |
-      ||line2        |               |
-      ||single line  |NotNull        |
-      ||             |one more line  |
-      ||             |last line      |
-      |-------------------------------
-      |""".stripMargin)
+          ||"A"          |"B"            |
+          |-------------------------------
+          ||line1        |NULL           |
+          ||line2        |               |
+          ||single line  |NotNull        |
+          ||             |one more line  |
+          ||             |last line      |
+          |-------------------------------
+          |""".stripMargin)
   }
 
   test("show") {
@@ -404,11 +406,11 @@ trait DataFrameSuite extends TestData with BeforeAndAfterEach {
     assert(
       getSchemaString(nullData3.na.replace("flo", Map(Double.NaN -> null)).schema) ==
         """root
-      | |--FLO: Double (nullable = true)
-      | |--INT: Long (nullable = true)
-      | |--BOO: Boolean (nullable = true)
-      | |--STR: String (nullable = true)
-      |""".stripMargin)
+          | |--FLO: Double (nullable = true)
+          | |--INT: Long (nullable = true)
+          | |--BOO: Boolean (nullable = true)
+          | |--STR: String (nullable = true)
+          |""".stripMargin)
 
   }
 
@@ -535,69 +537,86 @@ trait DataFrameSuite extends TestData with BeforeAndAfterEach {
     assert(
       getShowString(monthlySales.stat.sampleBy(col("empid"), Map(1 -> 0.0, 2 -> 1.0)), 10) ==
         """--------------------------------
-        ||"EMPID"  |"AMOUNT"  |"MONTH"  |
-        |--------------------------------
-        ||2        |4500      |JAN      |
-        ||2        |35000     |JAN      |
-        ||2        |200       |FEB      |
-        ||2        |90500     |FEB      |
-        ||2        |2500      |MAR      |
-        ||2        |9500      |MAR      |
-        ||2        |800       |APR      |
-        ||2        |4500      |APR      |
-        |--------------------------------
-        |""".stripMargin)
+          ||"EMPID"  |"AMOUNT"  |"MONTH"  |
+          |--------------------------------
+          ||2        |4500      |JAN      |
+          ||2        |35000     |JAN      |
+          ||2        |200       |FEB      |
+          ||2        |90500     |FEB      |
+          ||2        |2500      |MAR      |
+          ||2        |9500      |MAR      |
+          ||2        |800       |APR      |
+          ||2        |4500      |APR      |
+          |--------------------------------
+          |""".stripMargin)
 
     assert(
       getShowString(monthlySales.stat.sampleBy(col("month"), Map("JAN" -> 1.0)), 10) ==
         """--------------------------------
-        ||"EMPID"  |"AMOUNT"  |"MONTH"  |
-        |--------------------------------
-        ||1        |10000     |JAN      |
-        ||1        |400       |JAN      |
-        ||2        |4500      |JAN      |
-        ||2        |35000     |JAN      |
-        |--------------------------------
-        |""".stripMargin)
+          ||"EMPID"  |"AMOUNT"  |"MONTH"  |
+          |--------------------------------
+          ||1        |10000     |JAN      |
+          ||1        |400       |JAN      |
+          ||2        |4500      |JAN      |
+          ||2        |35000     |JAN      |
+          |--------------------------------
+          |""".stripMargin)
 
     assert(
       getShowString(monthlySales.stat.sampleBy(col("month"), Map()), 10) ==
         """--------------------------------
-        ||"EMPID"  |"AMOUNT"  |"MONTH"  |
-        |--------------------------------
-        |--------------------------------
-        |""".stripMargin)
+          ||"EMPID"  |"AMOUNT"  |"MONTH"  |
+          |--------------------------------
+          |--------------------------------
+          |""".stripMargin)
   }
 
   // On GitHub Action this test time out. But locally it passed.
   ignore("df.stat.pivot max column test") {
     def randomString(n: Int): String = Random.alphanumeric.filter(_.isLetter).take(n).mkString
+
     // Local execution time: 1000 -> 25s, 3000 -> 2.5 min, 5000 -> 10 min.
-    val df1 = Seq.fill(1000) { (randomString(230), randomString(230)) }.toDF("a", "b")
+    val df1 = Seq
+      .fill(1000) {
+        (randomString(230), randomString(230))
+      }
+      .toDF("a", "b")
     getShowString(df1.stat.crosstab("a", "b"), 1)
 
-    val df2 = Seq.fill(1001) { (randomString(230), randomString(230)) }.toDF("a", "b")
+    val df2 = Seq
+      .fill(1001) {
+        (randomString(230), randomString(230))
+      }
+      .toDF("a", "b")
     assertThrows[SnowparkClientException](getShowString(df2.stat.crosstab("a", "b"), 1))
 
-    val df3 = Seq.fill(1000) { (1, 1) }.toDF("a", "b")
+    val df3 = Seq
+      .fill(1000) {
+        (1, 1)
+      }
+      .toDF("a", "b")
     assert(
       getShowString(df3.stat.crosstab("a", "b"), 10) ==
         """-----------------------------------
-        ||"A"  |"CAST(1 AS NUMBER(38,0))"  |
-        |-----------------------------------
-        ||1    |1000                       |
-        |-----------------------------------
-        |""".stripMargin)
+          ||"A"  |"CAST(1 AS NUMBER(38,0))"  |
+          |-----------------------------------
+          ||1    |1000                       |
+          |-----------------------------------
+          |""".stripMargin)
 
-    val df4 = Seq.fill(1001) { (1, 1) }.toDF("a", "b")
+    val df4 = Seq
+      .fill(1001) {
+        (1, 1)
+      }
+      .toDF("a", "b")
     assert(
       getShowString(df4.stat.crosstab("a", "b"), 10) ==
         """-----------------------------------
-        ||"A"  |"CAST(1 AS NUMBER(38,0))"  |
-        |-----------------------------------
-        ||1    |1001                       |
-        |-----------------------------------
-        |""".stripMargin)
+          ||"A"  |"CAST(1 AS NUMBER(38,0))"  |
+          |-----------------------------------
+          ||1    |1001                       |
+          |-----------------------------------
+          |""".stripMargin)
   }
 
   test("select *") {
@@ -793,13 +812,23 @@ trait DataFrameSuite extends TestData with BeforeAndAfterEach {
     val values = Seq((1, null), (2, "NotNull"), (3, null))
 
     // toDF(String, String*) with invalid args count
-    assertThrows[IllegalArgumentException]({ values.toDF("a") })
-    assertThrows[IllegalArgumentException]({ values.toDF("a", "b", "c") })
+    assertThrows[IllegalArgumentException]({
+      values.toDF("a")
+    })
+    assertThrows[IllegalArgumentException]({
+      values.toDF("a", "b", "c")
+    })
 
     // toDF(Seq[String]) with invalid args count
-    assertThrows[IllegalArgumentException]({ values.toDF(Seq.empty) })
-    assertThrows[IllegalArgumentException]({ values.toDF(Seq("a")) })
-    assertThrows[IllegalArgumentException]({ values.toDF(Seq("a", "b", "c")) })
+    assertThrows[IllegalArgumentException]({
+      values.toDF(Seq.empty)
+    })
+    assertThrows[IllegalArgumentException]({
+      values.toDF(Seq("a"))
+    })
+    assertThrows[IllegalArgumentException]({
+      values.toDF(Seq("a", "b", "c"))
+    })
   }
 
   test("test sort()") {
@@ -836,7 +865,9 @@ trait DataFrameSuite extends TestData with BeforeAndAfterEach {
     }
 
     // Negative test: sort() needs at least one sort expression.
-    assertThrows[SnowparkClientException]({ df.sort(Seq.empty) })
+    assertThrows[SnowparkClientException]({
+      df.sort(Seq.empty)
+    })
   }
 
   test("test select()") {
@@ -874,14 +905,26 @@ trait DataFrameSuite extends TestData with BeforeAndAfterEach {
     val df = Seq((1, "a", 10), (2, "b", 20), (3, "c", 30)).toDF("a", "b", "c")
 
     // Select with empty Seq
-    assertThrows[IllegalArgumentException]({ df.select(Seq.empty[String]) })
-    assertThrows[IllegalArgumentException]({ df.select(Seq.empty[Column]) })
+    assertThrows[IllegalArgumentException]({
+      df.select(Seq.empty[String])
+    })
+    assertThrows[IllegalArgumentException]({
+      df.select(Seq.empty[Column])
+    })
 
     // select column which doesn't exist.
-    assertThrows[SnowflakeSQLException]({ df.select("not_exist_column").collect() })
-    assertThrows[SnowflakeSQLException]({ df.select(Seq("not_exist_column")).collect() })
-    assertThrows[SnowflakeSQLException]({ df.select(col("not_exist_column")).collect() })
-    assertThrows[SnowflakeSQLException]({ df.select(Seq(col("not_exist_column"))).collect() })
+    assertThrows[SnowflakeSQLException]({
+      df.select("not_exist_column").collect()
+    })
+    assertThrows[SnowflakeSQLException]({
+      df.select(Seq("not_exist_column")).collect()
+    })
+    assertThrows[SnowflakeSQLException]({
+      df.select(col("not_exist_column")).collect()
+    })
+    assertThrows[SnowflakeSQLException]({
+      df.select(Seq(col("not_exist_column"))).collect()
+    })
   }
 
   test("drop() and dropColumns()") {
@@ -916,10 +959,18 @@ trait DataFrameSuite extends TestData with BeforeAndAfterEach {
     checkAnswer(df.drop(Seq(col("c"), col("b"))), expectedResult)
 
     // drop all columns (negative test)
-    assertThrows[SnowparkClientException]({ df.drop("a", "b", "c").collect() })
-    assertThrows[SnowparkClientException]({ df.drop(Seq("a", "b", "c")).collect() })
-    assertThrows[SnowparkClientException]({ df.drop(col("a"), col("b"), col("c")).collect() })
-    assertThrows[SnowparkClientException]({ df.drop(Seq(col("a"), col("b"), col("c"))).collect() })
+    assertThrows[SnowparkClientException]({
+      df.drop("a", "b", "c").collect()
+    })
+    assertThrows[SnowparkClientException]({
+      df.drop(Seq("a", "b", "c")).collect()
+    })
+    assertThrows[SnowparkClientException]({
+      df.drop(col("a"), col("b"), col("c")).collect()
+    })
+    assertThrows[SnowparkClientException]({
+      df.drop(Seq(col("a"), col("b"), col("c"))).collect()
+    })
   }
 
   test("DataFrame.agg()") {
@@ -1313,12 +1364,12 @@ trait DataFrameSuite extends TestData with BeforeAndAfterEach {
           "{\n  \"'\": 1\n}",
           "1",
           Geography.fromGeoJSON("""{
-                                  |  "coordinates": [
-                                  |    30,
-                                  |    10
-                                  |  ],
-                                  |  "type": "Point"
-                                  |}""".stripMargin),
+              |  "coordinates": [
+              |    30,
+              |    10
+              |  ],
+              |  "type": "Point"
+              |}""".stripMargin),
           Geometry.fromGeoJSON("""{
               |  "coordinates": [
               |    2.000000000000000e+01,
@@ -1431,12 +1482,12 @@ trait DataFrameSuite extends TestData with BeforeAndAfterEach {
         Row(
           "1",
           Geography.fromGeoJSON("""{
-                                  |  "coordinates": [
-                                  |    10,
-                                  |    10
-                                  |  ],
-                                  |  "type": "Point"
-                                  |}""".stripMargin),
+              |  "coordinates": [
+              |    10,
+              |    10
+              |  ],
+              |  "type": "Point"
+              |}""".stripMargin),
           Geometry.fromGeoJSON("""{
               |  "coordinates": [
               |    2.000000000000000e+01,
@@ -1451,11 +1502,13 @@ trait DataFrameSuite extends TestData with BeforeAndAfterEach {
   test("create nullable dataFrame with schema inference") {
     val df = Seq((1, Some(1), None), (2, Some(3), Some(true)))
       .toDF("a", "b", "c")
-    assert(getSchemaString(df.schema) == """root
-                                  | |--A: Long (nullable = false)
-                                  | |--B: Long (nullable = false)
-                                  | |--C: Boolean (nullable = true)
-                                  |""".stripMargin)
+    assert(
+      getSchemaString(df.schema) ==
+        """root
+        | |--A: Long (nullable = false)
+        | |--B: Long (nullable = false)
+        | |--C: Boolean (nullable = true)
+        |""".stripMargin)
     checkAnswer(df, Seq(Row(1, 1, null), Row(2, 3, true)), sort = false)
   }
 
