@@ -71,7 +71,8 @@ private[snowpark] class ExpressionAnalyzer(
         val normalizedColName = quoteName(aliasColName)
         val col = aliasOutput.filter(attr => attr.name.equals(normalizedColName))
         if (col.length == 1) {
-          col.head.withName(normalizedColName)
+          // analyze new attributes at the same time
+          analyze(col.head.withName(normalizedColName))
         } else {
           throw ErrorMessage.DF_CANNOT_RESOLVE_COLUMN_NAME(aliasColName, aliasOutput.map(_.name))
         }

@@ -533,7 +533,7 @@ class DataFrame private[snowpark] (
    * @param alias The alias name of the dataframe
    * @return a [[DataFrame]]
    */
-  def alias(alias: String): DataFrame = withPlan(DataframeAlias(alias, plan))
+  def alias(alias: String): DataFrame = withPlan(DataframeAlias(alias, plan, output))
 
   /**
    * Returns a new DataFrame with the specified Column expressions as output (similar to SELECT in
