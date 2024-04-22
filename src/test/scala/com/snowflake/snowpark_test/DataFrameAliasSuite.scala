@@ -113,4 +113,35 @@ class DataFrameAliasSuite extends TestData with BeforeAndAfterEach with EagerSes
         .join(df2, df1.col("id") === df2.col("id"))
         .select(df1.col("A.num")))
   }
+
+  test("snow-1335123") {
+    val df1 = Seq((1, 2, 3, 4), (11, 12, 13, 14), (21, 12, 23, 24), (11, 32, 33, 34)).toDF(
+      "col_a",
+      "col_b",
+      "col_c",
+      "col_d")
+
+    val df2 = Seq((1, 2, 5, 6), (11, 12, 15, 16), (41, 12, 25, 26), (11, 42, 35, 36)).toDF(
+      "col_a",
+      "col_b",
+      "col_e",
+      "col_f")
+
+    val df3 = df1
+      .alias("a")
+      .join(
+        df2.alias("b"),
+        col("a.col_a") === col("b.col_a")
+          && col("a.col_b") === col("b.col_b"),
+        "left")
+      .select("a.col_a", "a.col_b", "col_c", "col_d", "col_e", "col_f")
+
+    checkAnswer(
+      df3,
+      Seq(
+        Row(1, 2, 3, 4, 5, 6),
+        Row(11, 12, 13, 14, 15, 16),
+        Row(11, 32, 33, 34, null, null),
+        Row(21, 12, 23, 24, null, null)))
+  }
 }
