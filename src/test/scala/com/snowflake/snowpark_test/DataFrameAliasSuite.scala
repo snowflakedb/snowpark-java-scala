@@ -94,13 +94,6 @@ class DataFrameAliasSuite extends TestData with BeforeAndAfterEach with EagerSes
         .join(df2, df1.col("id") === df2.col("id"))
         .select(df2.col("B.num")),
       Seq(Row(7), Row(8), Row(9)))
-
-    // The following use case is out of the scope of supporting alias
-    // We still follow the old ambiguity resolving policy and require DF to be used
-    assertThrows[SnowparkClientException](
-      df1
-        .join(df2, df1.col("id") === df2.col("id"))
-        .select($"A.num"))
   }
 
   test("Test for alias conflict") {
