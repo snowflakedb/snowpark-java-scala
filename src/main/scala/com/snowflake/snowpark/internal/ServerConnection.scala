@@ -1,7 +1,7 @@
 package com.snowflake.snowpark.internal
 
 import java.io.{Closeable, InputStream}
-import java.sql.{Date, PreparedStatement, ResultSetMetaData, SQLException, Statement, Timestamp}
+import java.sql.{PreparedStatement, ResultSetMetaData, SQLException, Statement}
 import java.time.LocalDateTime
 import com.snowflake.snowpark.{
   MergeBuilder,
@@ -33,25 +33,16 @@ import net.snowflake.client.jdbc.{
   SnowflakeReauthenticationRequest,
   SnowflakeResultSet,
   SnowflakeResultSetMetaData,
-  SnowflakeResultSetV1,
   SnowflakeStatement
 }
-import net.snowflake.client.core.json.Converters
 import com.snowflake.snowpark.types._
-import net.snowflake.client.core.{
-  ColumnTypeHelper,
-  QueryStatus,
-  SFArrowResultSet,
-  SFBaseResultSet,
-  SFBaseSession
-}
-import net.snowflake.client.core.arrow.{
-  TwoFieldStructToTimestampLTZConverter,
-  TwoFieldStructToTimestampNTZConverter
+import net.snowflake.client.core.{ColumnTypeHelper, QueryStatus, SFArrowResultSet}
+import net.snowflake.client.jdbc.internal.apache.arrow.vector.util.{
+  JsonStringArrayList,
+  JsonStringHashMap
 }
 
 import java.util
-import java.util.TimeZone
 import scala.collection.mutable
 import scala.reflect.runtime.universe.TypeTag
 import scala.collection.JavaConverters._
@@ -346,23 +337,38 @@ private[snowpark] class ServerConnection(
 
       def convertToSnowparkValue(value: Any, meta: FieldMetadata): Any = {
         meta.getTypeName match {
-          case "ARRAY" =>
-            if (meta.getFields.isEmpty) {
-              value.toString // semi structured
-            } else {
-              value
-                .asInstanceOf[util.ArrayList[_]]
-                .toArray
-                .map(v => convertToSnowparkValue(v, meta.getFields.get(0)))
-            }
-          case "OBJECT" =>
-            if (meta.getFields.isEmpty) { // semi-structured
-              value.toString
-            } else {
-              null
+          // semi structured
+          case "ARRAY" if meta.getFields.isEmpty => value.toString
+          // structured array
+          case "ARRAY" if meta.getFields.size() == 1 =>
+            value
+              .asInstanceOf[util.ArrayList[_]]
+              .toArray
+              .map(v => convertToSnowparkValue(v, meta.getFields.get(0)))
+          // semi-structured
+          case "OBJECT" if meta.getFields.isEmpty => value.toString
+          // structured map
+          case "OBJECT" if meta.getFields.size() == 2 =>
+            value match {
+              // nested structured maps are JsonStringArrayValues
+              case subMap: JsonStringArrayList[_] =>
+                subMap.asScala.map {
+                  case mapValue: JsonStringHashMap[_, _] =>
+                    convertToSnowparkValue(mapValue.get("key"), meta.getFields.get(0)) ->
+                      convertToSnowparkValue(mapValue.get("value"), meta.getFields.get(1))
+                }.toMap
+              case map: util.HashMap[_, _] =>
+                map.asScala.map {
+                  case (key, value) =>
+                    convertToSnowparkValue(key, meta.getFields.get(0)) ->
+                      convertToSnowparkValue(value, meta.getFields.get(1))
+                }.toMap
             }
           case "NUMBER" if meta.getType == java.sql.Types.BIGINT =>
-            value.asInstanceOf[java.math.BigDecimal].toBigInteger.longValue()
+            value match {
+              case str: String => str.toLong // number key in structured map
+              case bd: java.math.BigDecimal => bd.toBigInteger.longValue()
+            }
           case "DOUBLE" | "BOOLEAN" | "BINARY" | "NUMBER" => value
           case "VARCHAR" | "VARIANT" => value.toString // Text to String
           case "DATE" =>
@@ -404,7 +410,7 @@ private[snowpark] class ServerConnection(
                 } else {
                   attribute.dataType match {
                     case VariantType => data.getString(resultIndex)
-                    case _: StructuredArrayType =>
+                    case _: StructuredArrayType | _: StructuredMapType =>
                       val meta = data.getMetaData
                       // convert meta to field meta
                       val field = new FieldMetadata(

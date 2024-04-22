@@ -393,6 +393,22 @@ class APIInternalSuite extends TestData {
           |""".stripMargin)
   }
 
+  test("show structured map") {
+    val query =
+      """SELECT
+        |  {'a':1,'b':2} :: MAP(VARCHAR, NUMBER) as map1,
+        |  {'1':'a','2':'b'} :: MAP(NUMBER, VARCHAR) as map2,
+        |  {'1':[1,2,3],'2':[4,5,6]} :: MAP(NUMBER, ARRAY(NUMBER)) as map3,
+        |  {'1':{'a':1,'b':2},'2':{'c':3}} :: MAP(NUMBER, MAP(VARCHAR, NUMBER)) as map4,
+        |  [{'a':1,'b':2},{'c':3}] :: ARRAY(MAP(VARCHAR, NUMBER)) as map5,
+        |  {'a':1,'b':2} :: OBJECT as map0
+        |""".stripMargin
+
+    val df = session.sql(query)
+
+    df.show()
+  }
+
   test("show structured array") {
     val query =
       """SELECT

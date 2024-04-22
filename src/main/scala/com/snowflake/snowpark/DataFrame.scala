@@ -2371,6 +2371,12 @@ class DataFrame private[snowpark] (
 
     def castValueToString(value: Any): String =
       value match {
+        case map: Map[_, _] =>
+          map
+            .map {
+              case (key, value) => s"${castValueToString(key)}:${castValueToString(value)}"
+            }
+            .mkString("{", ",", "}")
         case ba: Array[Byte] => s"'${DatatypeConverter.printHexBinary(ba)}'"
         case bytes: Array[java.lang.Byte] =>
           s"'${DatatypeConverter.printHexBinary(bytes.map(_.toByte))}'"
