@@ -218,7 +218,7 @@ object functions {
    * @since 1.13.0
    */
   def countDistinct(colName: String, colNames: String*): Column =
-    count_distinct(col(colName), colNames.map(Column.apply) : _*)
+    count_distinct(col(colName), colNames.map(Column.apply): _*)
 
   /**
    * Returns either the number of non-NULL distinct records for the specified columns,
@@ -228,7 +228,7 @@ object functions {
    * @since 1.13.0
    */
   def countDistinct(expr: Column, exprs: Column*): Column =
-    count_distinct(expr, exprs)
+    count_distinct(expr, exprs: _*)
 
   /**
    * Returns either the number of non-NULL distinct records for the specified columns,

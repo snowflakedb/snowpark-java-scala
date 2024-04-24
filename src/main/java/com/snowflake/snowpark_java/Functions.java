@@ -197,8 +197,7 @@ public final class Functions {
   public static Column countDistinct(String first, String... remaining) {
     return new Column(
         com.snowflake.snowpark.functions.countDistinct(
-            first,
-            remaining));
+            first, JavaUtils.stringArrayToStringSeq(remaining)));
   }
 
   /**
