@@ -212,6 +212,26 @@ object functions {
 
   /**
    * Returns either the number of non-NULL distinct records for the specified columns,
+   * or the total number of the distinct records. An alias of count_distinct.
+   *
+   * @group agg_func
+   * @since 1.13.0
+   */
+  def countDistinct(colName: String, colNames: String*): Column =
+    count_distinct(col(colName), colNames.map(Column.apply) : _*)
+
+  /**
+   * Returns either the number of non-NULL distinct records for the specified columns,
+   * or the total number of the distinct records. An alias of count_distinct.
+   *
+   * @group agg_func
+   * @since 1.13.0
+   */
+  def countDistinct(expr: Column, exprs: Column*): Column =
+    count_distinct(expr, exprs)
+
+  /**
+   * Returns either the number of non-NULL distinct records for the specified columns,
    * or the total number of the distinct records.
    *
    * @group agg_func
