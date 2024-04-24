@@ -2369,12 +2369,12 @@ class DataFrame private[snowpark] (
       lines
     }
 
-    def castValueToString(value: Any): String =
+    def convertValueToString(value: Any): String =
       value match {
         case map: Map[_, _] =>
           map
             .map {
-              case (key, value) => s"${castValueToString(key)}:${castValueToString(value)}"
+              case (key, value) => s"${convertValueToString(key)}:${convertValueToString(value)}"
             }
             .mkString("{", ",", "}")
         case ba: Array[Byte] => s"'${DatatypeConverter.printHexBinary(ba)}'"
@@ -2383,9 +2383,9 @@ class DataFrame private[snowpark] (
         case arr: Array[String] =>
           arr.mkString("[", ",", "]")
         case arr: Array[_] =>
-          arr.map(castValueToString).mkString("[", ",", "]")
+          arr.map(convertValueToString).mkString("[", ",", "]")
         case arr: java.sql.Array =>
-          arr.getArray().asInstanceOf[Array[_]].map(castValueToString).mkString("[", ",", "]")
+          arr.getArray().asInstanceOf[Array[_]].map(convertValueToString).mkString("[", ",", "]")
         case _ => value.toString
       }
 
@@ -2395,7 +2395,7 @@ class DataFrame private[snowpark] (
         case (value, index) =>
           val texts: Seq[String] = if (value != null) {
             // if the result contains multiple lines, split result string
-            splitLines(castValueToString(value))
+            splitLines(convertValueToString(value))
           } else {
             Seq("NULL")
           }

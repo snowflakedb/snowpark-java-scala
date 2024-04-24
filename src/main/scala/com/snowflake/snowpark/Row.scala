@@ -28,6 +28,14 @@ object Row {
    * @since 0.2.0
    */
   def fromArray(values: Array[Any]): Row = new Row(values)
+
+  private[snowpark] def fromMap(map: Map[String, Any]): Row =
+    new SnowflakeObject(map)
+}
+
+private[snowpark] class SnowflakeObject private[snowpark]
+  (private[snowpark] val map: Map[String, Any]) extends Row(map.values.toArray) {
+  override def toString: String = convertValueToString(this)
 }
 
 /**
@@ -37,7 +45,7 @@ object Row {
  * @groupname utl Utility Functions
  * @since 0.1.0
  */
-class Row private (values: Array[Any]) extends Serializable {
+class Row protected (values: Array[Any]) extends Serializable {
 
   /**
    * Converts this [[Row]] to a Seq
@@ -325,6 +333,27 @@ class Row private (values: Array[Any]) extends Serializable {
   def getMapOfVariant(index: Int): Map[String, Variant] =
     new Variant(getString(index)).asMap()
 
+  protected def convertValueToString(value: Any): String =
+    value match {
+      case null => "null"
+      case map: Map[_, _] =>
+        map
+          .map {
+            case (key, value) => s"${convertValueToString(key)}:${convertValueToString(value)}"
+          }
+          .mkString("Map(", ",", ")")
+      case binary: Array[Byte] => s"Binary(${binary.mkString(",")})"
+      case strValue: String => s""""$strValue""""
+      case arr: Array[_] =>
+        arr.map(convertValueToString).mkString("Array(", ",", ")")
+      case obj: SnowflakeObject =>
+        obj.map.map {
+          case (key, value) =>
+            s"$key:${convertValueToString(value)}"
+        }.mkString("Object(", ",", ")")
+      case other => other.toString
+    }
+
   /**
    * Returns a string value to represent the content of this row
    * @since 0.1.0
@@ -332,11 +361,7 @@ class Row private (values: Array[Any]) extends Serializable {
    */
   override def toString: String =
     values
-      .map {
-        case null => "null"
-        case binary: Array[Byte] => s"Binary(${binary.mkString(",")})"
-        case other => other.toString
-      }
+      .map(convertValueToString)
       .mkString("Row[", ",", "]")
 
   private def getAs[T](index: Int): T = get(index).asInstanceOf[T]

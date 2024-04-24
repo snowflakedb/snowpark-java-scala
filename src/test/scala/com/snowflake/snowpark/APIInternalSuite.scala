@@ -393,6 +393,31 @@ class APIInternalSuite extends TestData {
           |""".stripMargin)
   }
 
+  test("show object") {
+//    val query =
+//    // scalastyle:off
+//      """SELECT
+//        |  {'a': 1, 'b': 'a'} :: OBJECT(a VARCHAR, b NUMBER) as object1,
+//        |  {'a': 1, 'b': [1,2,3,4]} :: OBJECT(a VARCHAR, b ARRAY(NUMBER)) as object2,
+//        |  {'a': 1, 'b': [1,2,3,4], 'c': {'1':'a'}} :: OBJECT(a VARCHAR, b ARRAY(NUMBER), c MAP(NUMBER, VARCHAR)) as object3,
+//        |  {'a': {'b': {'c': 1}}} :: OBJECT(a OBJECT(b OBJECT(c NUMBER))) as object4
+//        |""".stripMargin
+//    // scalastyle:on
+
+    val query =
+    // scalastyle:off
+      """SELECT
+        |  {'b': 1, 'a': '22'} :: OBJECT(a VARCHAR, b NUMBER) as object1,
+        |  {'a': 1, 'b': [1,2,3,4]} :: OBJECT(a NUMBER, b ARRAY(NUMBER)) as object2
+        |""".stripMargin
+    // scalastyle:on
+
+    val df = session.sql(query)
+//    df.schema.printTreeString()
+    df.show()
+
+  }
+
   test("show structured map") {
     val query =
       """SELECT
