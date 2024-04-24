@@ -3,14 +3,44 @@ package com.snowflake.snowpark.internal
 import java.io.{Closeable, InputStream}
 import java.sql.{PreparedStatement, ResultSetMetaData, SQLException, Statement}
 import java.time.LocalDateTime
-import com.snowflake.snowpark.{MergeBuilder, MergeTypedAsyncJob, Row, SnowparkClientException, TypedAsyncJob}
-import com.snowflake.snowpark.internal.ParameterUtils.{ClosureCleanerMode, DEFAULT_MAX_FILE_DOWNLOAD_RETRY_COUNT, DEFAULT_MAX_FILE_UPLOAD_RETRY_COUNT, DEFAULT_REQUEST_TIMEOUT_IN_SECONDS, DEFAULT_SNOWPARK_USE_SCOPED_TEMP_OBJECTS, MAX_REQUEST_TIMEOUT_IN_SECONDS, MIN_REQUEST_TIMEOUT_IN_SECONDS, SnowparkMaxFileDownloadRetryCount, SnowparkMaxFileUploadRetryCount, SnowparkRequestTimeoutInSeconds, Url}
+import com.snowflake.snowpark.{
+  MergeBuilder,
+  MergeTypedAsyncJob,
+  Row,
+  SnowparkClientException,
+  TypedAsyncJob
+}
+import com.snowflake.snowpark.internal.ParameterUtils.{
+  ClosureCleanerMode,
+  DEFAULT_MAX_FILE_DOWNLOAD_RETRY_COUNT,
+  DEFAULT_MAX_FILE_UPLOAD_RETRY_COUNT,
+  DEFAULT_REQUEST_TIMEOUT_IN_SECONDS,
+  DEFAULT_SNOWPARK_USE_SCOPED_TEMP_OBJECTS,
+  MAX_REQUEST_TIMEOUT_IN_SECONDS,
+  MIN_REQUEST_TIMEOUT_IN_SECONDS,
+  SnowparkMaxFileDownloadRetryCount,
+  SnowparkMaxFileUploadRetryCount,
+  SnowparkRequestTimeoutInSeconds,
+  Url
+}
 import com.snowflake.snowpark.internal.Utils.PackageNameDelimiter
 import com.snowflake.snowpark.internal.analyzer.{Attribute, Query, SnowflakePlan}
-import net.snowflake.client.jdbc.{FieldMetadata, SnowflakeBaseResultSet, SnowflakeConnectString, SnowflakeConnectionV1, SnowflakeReauthenticationRequest, SnowflakeResultSet, SnowflakeResultSetMetaData, SnowflakeStatement}
+import net.snowflake.client.jdbc.{
+  FieldMetadata,
+  SnowflakeBaseResultSet,
+  SnowflakeConnectString,
+  SnowflakeConnectionV1,
+  SnowflakeReauthenticationRequest,
+  SnowflakeResultSet,
+  SnowflakeResultSetMetaData,
+  SnowflakeStatement
+}
 import com.snowflake.snowpark.types._
 import net.snowflake.client.core.{ArrowSqlInput, ColumnTypeHelper, QueryStatus, SFArrowResultSet}
-import net.snowflake.client.jdbc.internal.apache.arrow.vector.util.{JsonStringArrayList, JsonStringHashMap}
+import net.snowflake.client.jdbc.internal.apache.arrow.vector.util.{
+  JsonStringArrayList,
+  JsonStringHashMap
+}
 
 import java.util
 import scala.collection.mutable
@@ -336,14 +366,19 @@ private[snowpark] class ServerConnection(
             }
           // object, object's field name can't be empty
           case "OBJECT" =>
-            Row.fromMap(
-              value.asInstanceOf[ArrowSqlInput]
-                .getInput.asScala
-                .toList.zip(meta.getFields.asScala)
-                .map {
-                  case ((key, value), metadata) => key -> convertToSnowparkValue(value, metadata)
-                }.toMap
-            )
+            value match {
+              case arrowSqlInput: ArrowSqlInput =>
+                convertToSnowparkValue(arrowSqlInput.getInput, meta)
+              case map: java.util.Map[String, _] =>
+                Row.fromMap(
+                  map.asScala.toList
+                    .zip(meta.getFields.asScala)
+                    .map {
+                      case ((key, value), metadata) =>
+                        key -> convertToSnowparkValue(value, metadata)
+                    }
+                    .toMap)
+            }
 
           case "NUMBER" if meta.getType == java.sql.Types.BIGINT =>
             value match {
@@ -391,7 +426,7 @@ private[snowpark] class ServerConnection(
                 } else {
                   attribute.dataType match {
                     case VariantType => data.getString(resultIndex)
-                    case _: StructuredArrayType | _: StructuredMapType| _: StructType =>
+                    case _: StructuredArrayType | _: StructuredMapType | _: StructType =>
                       val meta = data.getMetaData
                       // convert meta to field meta
                       val field = new FieldMetadata(

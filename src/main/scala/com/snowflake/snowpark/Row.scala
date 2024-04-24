@@ -33,8 +33,9 @@ object Row {
     new SnowflakeObject(map)
 }
 
-private[snowpark] class SnowflakeObject private[snowpark]
-  (private[snowpark] val map: Map[String, Any]) extends Row(map.values.toArray) {
+private[snowpark] class SnowflakeObject private[snowpark] (
+    private[snowpark] val map: Map[String, Any])
+    extends Row(map.values.toArray) {
   override def toString: String = convertValueToString(this)
 }
 
@@ -347,10 +348,12 @@ class Row protected (values: Array[Any]) extends Serializable {
       case arr: Array[_] =>
         arr.map(convertValueToString).mkString("Array(", ",", ")")
       case obj: SnowflakeObject =>
-        obj.map.map {
-          case (key, value) =>
-            s"$key:${convertValueToString(value)}"
-        }.mkString("Object(", ",", ")")
+        obj.map
+          .map {
+            case (key, value) =>
+              s"$key:${convertValueToString(value)}"
+          }
+          .mkString("Object(", ",", ")")
       case other => other.toString
     }
 

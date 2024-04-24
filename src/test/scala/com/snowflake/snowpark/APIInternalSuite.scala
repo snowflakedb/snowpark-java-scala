@@ -394,27 +394,29 @@ class APIInternalSuite extends TestData {
   }
 
   test("show object") {
-//    val query =
-//    // scalastyle:off
-//      """SELECT
-//        |  {'a': 1, 'b': 'a'} :: OBJECT(a VARCHAR, b NUMBER) as object1,
-//        |  {'a': 1, 'b': [1,2,3,4]} :: OBJECT(a VARCHAR, b ARRAY(NUMBER)) as object2,
-//        |  {'a': 1, 'b': [1,2,3,4], 'c': {'1':'a'}} :: OBJECT(a VARCHAR, b ARRAY(NUMBER), c MAP(NUMBER, VARCHAR)) as object3,
-//        |  {'a': {'b': {'c': 1}}} :: OBJECT(a OBJECT(b OBJECT(c NUMBER))) as object4
-//        |""".stripMargin
-//    // scalastyle:on
-
     val query =
-    // scalastyle:off
+      // scalastyle:off
       """SELECT
         |  {'b': 1, 'a': '22'} :: OBJECT(a VARCHAR, b NUMBER) as object1,
-        |  {'a': 1, 'b': [1,2,3,4]} :: OBJECT(a NUMBER, b ARRAY(NUMBER)) as object2
+        |  {'a': 1, 'b': [1,2,3,4]} :: OBJECT(a NUMBER, b ARRAY(NUMBER)) as object2,
+        |  {'a': 1, 'b': [1,2,3,4], 'c': {'1':'a'}} :: OBJECT(a VARCHAR, b ARRAY(NUMBER), c MAP(NUMBER, VARCHAR)) as object3,
+        |  {'a': {'b': {'a':10,'c': 1}}} :: OBJECT(a OBJECT(b OBJECT(c NUMBER, a NUMBER))) as object4,
+        |  [{'a':1,'b':2},{'b':3,'a':4}] :: ARRAY(OBJECT(a NUMBER, b NUMBER)) as arr1,
+        |  {'a1':{'b':2}, 'a2':{'b':3}} :: MAP(VARCHAR, OBJECT(b NUMBER)) as map1
         |""".stripMargin
     // scalastyle:on
 
     val df = session.sql(query)
-//    df.schema.printTreeString()
-    df.show()
+    // scalastyle:off
+    assert(
+      df.showString(10) ==
+        """----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+          ||"OBJECT1"           |"OBJECT2"                     |"OBJECT3"                                    |"OBJECT4"                             |"ARR1"                             |"MAP1"                           |
+          |----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+          ||Object(a:"22",b:1)  |Object(a:1,b:Array(1,2,3,4))  |Object(a:"1",b:Array(1,2,3,4),c:Map(1:"a"))  |Object(a:Object(b:Object(c:1,a:10)))  |[Object(a:1,b:2),Object(a:4,b:3)]  |{a1:Object(b:2),a2:Object(b:3)}  |
+          |----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+          |""".stripMargin)
+    // scalastyle:on
 
   }
 
