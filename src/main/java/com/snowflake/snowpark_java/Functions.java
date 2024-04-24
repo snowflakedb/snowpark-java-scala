@@ -187,6 +187,37 @@ public final class Functions {
 
   /**
    * Returns either the number of non-NULL distinct records for the specified columns, or the total
+   * number of the distinct records. An alias of count_distinct.
+   *
+   * @since 1.13.0
+   * @param first The first column name
+   * @param remaining A column name list except the first column name
+   * @return The result column
+   */
+  public static Column countDistinct(String first, String... remaining) {
+    return new Column(
+        com.snowflake.snowpark.functions.countDistinct(
+            first, JavaUtils.stringArrayToStringSeq(remaining)));
+  }
+
+  /**
+   * Returns either the number of non-NULL distinct records for the specified columns, or the total
+   * number of the distinct records. An alias of count_distinct.
+   *
+   * @since 1.13.0
+   * @param first The first column
+   * @param remaining A column list except the first column
+   * @return The result column
+   */
+  public static Column countDistinct(Column first, Column... remaining) {
+    return new Column(
+        com.snowflake.snowpark.functions.countDistinct(
+            first.toScalaColumn(),
+            JavaUtils.columnArrayToSeq(Column.toScalaColumnArray(remaining))));
+  }
+
+  /**
+   * Returns either the number of non-NULL distinct records for the specified columns, or the total
    * number of the distinct records.
    *
    * @since 0.9.0

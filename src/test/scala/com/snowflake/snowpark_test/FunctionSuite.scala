@@ -40,6 +40,10 @@ trait FunctionSuite extends TestData {
     checkAnswer(duplicatedNumbers.select(count(col("A"))), Seq(Row(5)))
 
     checkAnswer(duplicatedNumbers.select(count_distinct(col("A"))), Seq(Row(3)))
+
+    checkAnswer(duplicatedNumbers.select(countDistinct(col("A"))), Seq(Row(3)))
+
+    checkAnswer(duplicatedNumbers.select(countDistinct("A")), Seq(Row(3)))
   }
 
   test("covariance") {
