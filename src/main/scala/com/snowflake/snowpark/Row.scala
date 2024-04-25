@@ -334,6 +334,9 @@ class Row protected (values: Array[Any]) extends Serializable {
   def getMapOfVariant(index: Int): Map[String, Variant] =
     new Variant(getString(index)).asMap()
 
+  def getObject(index: Int): Row =
+    getAs[Row](index)
+
   protected def convertValueToString(value: Any): String =
     value match {
       case null => "null"

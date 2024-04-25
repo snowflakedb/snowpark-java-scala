@@ -239,6 +239,41 @@ class DataTypeSuite extends SNTestBase {
         "{\n  \"a\": 1,\n  \"b\": 2\n}"))
   }
 
+  test("read object") {
+//    val query =
+//    // scalastyle:off
+//      """SELECT
+//        |  {'b': 1, 'a': '22'} :: OBJECT(a VARCHAR, b NUMBER) as object1,
+//        |  {'a': 1, 'b': [1,2,3,4]} :: OBJECT(a NUMBER, b ARRAY(NUMBER)) as object2,
+//        |  {'a': 1, 'b': [1,2,3,4], 'c': {'1':'a'}} :: OBJECT(a VARCHAR, b ARRAY(NUMBER), c MAP(NUMBER, VARCHAR)) as object3,
+//        |  {'a': {'b': {'a':10,'c': 1}}} :: OBJECT(a OBJECT(b OBJECT(c NUMBER, a NUMBER))) as object4,
+//        |  [{'a':1,'b':2},{'b':3,'a':4}] :: ARRAY(OBJECT(a NUMBER, b NUMBER)) as arr1,
+//        |  {'a1':{'b':2}, 'a2':{'b':3}} :: MAP(VARCHAR, OBJECT(b NUMBER)) as map1
+//        |""".stripMargin
+    // scalastyle:on
+
+    val query =
+    // scalastyle:off
+      """SELECT
+        |  {'b': 1, 'a': '22'} :: OBJECT(a VARCHAR, b NUMBER) as object1,
+        |  {'a': 1, 'b': [1,2,3,4], 'c': true} :: OBJECT(a NUMBER, b ARRAY(NUMBER), c BOOLEAN) as object2
+        |""".stripMargin
+    // scalastyle:on
+
+    val df = session.sql(query)
+    val result = df.collect()
+    assert(result.length == 1)
+    val row = result.head
+    assert(row.getObject(0).length == 2)
+    assert(row.getObject(0).getString(0) == "22")
+    assert(row.getObject(0).getLong(1) == 1L)
+
+    assert(row.getObject(1).length == 3)
+    assert(row.getObject(1).getLong(0) == 1L)
+
+
+  }
+
   test("ArrayType v2") {
     val query = """SELECT
                   |    [1, 2, 3]::ARRAY(NUMBER) AS arr1,
