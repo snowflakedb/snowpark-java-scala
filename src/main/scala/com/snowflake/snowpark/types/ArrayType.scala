@@ -11,7 +11,7 @@ case class ArrayType(elementType: DataType) extends DataType {
   }
 
   override def schemaString: String =
-    s"Array[${elementType.toString}]"
+    s"Array"
 }
 
 /* temporary solution for Structured and Semi Structured data types.

@@ -207,10 +207,10 @@ class DataTypeSuite extends SNTestBase {
            | |--ARR6: Array[Binary nullable = true] (nullable = true)
            | |--ARR7: Array[Date nullable = true] (nullable = true)
            | |--ARR8: Array[Variant nullable = true] (nullable = true)
-           | |--ARR9: Array[Array[String] nullable = true] (nullable = true)
-           | |--ARR10: Array[Map[String, String] nullable = true] (nullable = true)
+           | |--ARR9: Array[Array nullable = true] (nullable = true)
+           | |--ARR10: Array[Map nullable = true] (nullable = true)
            | |--ARR11: Array[Array[Long nullable = true] nullable = true] (nullable = true)
-           | |--ARR0: Array[String] (nullable = true)
+           | |--ARR0: Array (nullable = true)
            |""".stripMargin)
     // schema string: nullable
     assert(
@@ -226,10 +226,10 @@ class DataTypeSuite extends SNTestBase {
            | |--ARR6: Array[Binary nullable = true] (nullable = true)
            | |--ARR7: Array[Date nullable = true] (nullable = true)
            | |--ARR8: Array[Variant nullable = true] (nullable = true)
-           | |--ARR9: Array[Array[String] nullable = true] (nullable = true)
-           | |--ARR10: Array[Map[String, String] nullable = true] (nullable = true)
+           | |--ARR9: Array[Array nullable = true] (nullable = true)
+           | |--ARR10: Array[Map nullable = true] (nullable = true)
            | |--ARR11: Array[Array[Long nullable = true] nullable = true] (nullable = true)
-           | |--ARR0: Array[String] (nullable = true)
+           | |--ARR0: Array (nullable = true)
            |""".stripMargin)
 
     // schema string: not nullable
@@ -276,7 +276,7 @@ class DataTypeSuite extends SNTestBase {
            | |--MAP2: Map[Long, String nullable = true] (nullable = true)
            | |--MAP3: Map[Long, Array[Long nullable = true] nullable = true] (nullable = true)
            | |--MAP4: Map[Long, Map[String, Long nullable = true] nullable = true] (nullable = true)
-           | |--MAP0: Map[String, String] (nullable = true)
+           | |--MAP0: Map (nullable = true)
            |""".stripMargin)
     // scalastyle:on
 
@@ -290,7 +290,7 @@ class DataTypeSuite extends SNTestBase {
            | |--MAP2: Map[Long, String nullable = true] (nullable = true)
            | |--MAP3: Map[Long, Array[Long nullable = true] nullable = true] (nullable = true)
            | |--MAP4: Map[Long, Map[String, Long nullable = true] nullable = true] (nullable = true)
-           | |--MAP0: Map[String, String] (nullable = true)
+           | |--MAP0: Map (nullable = true)
            |""".stripMargin)
     // scalastyle:on
 

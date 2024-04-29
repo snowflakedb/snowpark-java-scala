@@ -11,7 +11,7 @@ case class MapType(keyType: DataType, valueType: DataType) extends DataType {
   }
 
   override private[snowpark] def schemaString =
-    s"Map[${keyType.toString}, ${valueType.toString}]"
+    s"Map"
 }
 
 private[snowpark] class StructuredMapType(
