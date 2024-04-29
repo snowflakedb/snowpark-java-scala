@@ -212,6 +212,26 @@ object functions {
 
   /**
    * Returns either the number of non-NULL distinct records for the specified columns,
+   * or the total number of the distinct records. An alias of count_distinct.
+   *
+   * @group agg_func
+   * @since 1.13.0
+   */
+  def countDistinct(colName: String, colNames: String*): Column =
+    count_distinct(col(colName), colNames.map(Column.apply): _*)
+
+  /**
+   * Returns either the number of non-NULL distinct records for the specified columns,
+   * or the total number of the distinct records. An alias of count_distinct.
+   *
+   * @group agg_func
+   * @since 1.13.0
+   */
+  def countDistinct(expr: Column, exprs: Column*): Column =
+    count_distinct(expr, exprs: _*)
+
+  /**
+   * Returns either the number of non-NULL distinct records for the specified columns,
    * or the total number of the distinct records.
    *
    * @group agg_func
@@ -269,6 +289,29 @@ object functions {
    * Returns the maximum value for the records in a group. NULL values are ignored unless all
    * the records are NULL, in which case a NULL value is returned.
    *
+   * Example:
+   * {{{
+   *   val df = session.createDataFrame(Seq(1, 3, 10, 1, 3)).toDF("x")
+   *   df.select(max("x")).show()
+   *
+   *   ----------------
+   *   |"MAX(""X"")"  |
+   *   ----------------
+   *   |10            |
+   *   ----------------
+   * }}}
+   *
+   * @param colName The name of the column
+   * @return The maximum value of the given column
+   * @group agg_func
+   * @since 1.13.0
+   */
+  def max(colName: String): Column = max(col(colName))
+
+  /**
+   * Returns the maximum value for the records in a group. NULL values are ignored unless all
+   * the records are NULL, in which case a NULL value is returned.
+   *
    * @group agg_func
    * @since 0.1.0
    */
@@ -281,6 +324,29 @@ object functions {
    * @since 0.12.0
    */
   def any_value(e: Column): Column = builtin("any_value")(e)
+
+  /**
+   * Returns the average of non-NULL records. If all records inside a group are NULL,
+   * the function returns NULL. Alias of avg.
+   *
+   * Example:
+   * {{{
+   *   val df = session.createDataFrame(Seq(1, 3, 10, 1, 3)).toDF("x")
+   *   df.select(mean("x")).show()
+   *
+   *   ----------------
+   *   |"AVG(""X"")"  |
+   *   ----------------
+   *   |3.600000      |
+   *   ----------------
+   * }}}
+   *
+   * @param colName The name of the column
+   * @return The average value of the given column
+   * @group agg_func
+   * @since 1.13.0
+   */
+  def mean(colName: String): Column = mean(col(colName))
 
   /**
    * Returns the average of non-NULL records. If all records inside a group are NULL,
@@ -301,6 +367,29 @@ object functions {
   def median(e: Column): Column = {
     builtin("median")(e)
   }
+
+  /**
+   * Returns the minimum value for the records in a group. NULL values are ignored unless all
+   * the records are NULL, in which case a NULL value is returned.
+   *
+   * Example:
+   * {{{
+   *   val df = session.createDataFrame(Seq(1, 3, 10, 1, 3)).toDF("x")
+   *   df.select(min("x")).show()
+   *
+   *   ----------------
+   *   |"MIN(""X"")"  |
+   *   ----------------
+   *   |1             |
+   *   ----------------
+   * }}}
+   *
+   * @param colName The name of the column
+   * @return The minimum value of the given column
+   * @group agg_func
+   * @since 1.13.0
+   */
+  def min(colName: String): Column = min(col(colName))
 
   /**
    * Returns the minimum value for the records in a group. NULL values are ignored unless all
