@@ -65,7 +65,7 @@ case class StructType(fields: Array[StructField] = Array())
   override def toString: String =
     s"StructType[${fields.map(_.toString).mkString(", ")}]"
 
-  override private[snowpark] def schemaString: String = "StructType"
+  override private[snowpark] def schemaString: String = "Struct"
 
   /**
    * Appends a new [[StructField]] to the end of this object.
