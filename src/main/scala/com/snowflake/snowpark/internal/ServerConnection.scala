@@ -57,14 +57,6 @@ private[snowpark] object ServerConnection {
 
   def convertResultMetaToAttribute(meta: ResultSetMetaData): Seq[Attribute] =
     (1 to meta.getColumnCount).map(index => {
-      // todo: replace by public API
-//      val fieldMetadata = meta
-//        .asInstanceOf[SnowflakeResultSetMetaDataV1]
-//        .getColumnMetaData
-//        .get(index - 1)
-//        .getFields
-//        .asScala
-//        .toList
       val fieldMetadata = meta
         .asInstanceOf[SnowflakeResultSetMetaData]
         .getColumnFields(index)
