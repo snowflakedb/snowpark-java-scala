@@ -393,6 +393,34 @@ class APIInternalSuite extends TestData {
           |""".stripMargin)
   }
 
+  test("show structured types mix") {
+    val query =
+      // scalastyle:off
+      """SELECT
+        |  NULL :: OBJECT(a VARCHAR, b NUMBER) as object1,
+        |  1 as NUM1,
+        |  'abc' as STR1,
+        |  {'a':1,'b':2} :: MAP(VARCHAR, NUMBER) as map1,
+        |  {'1':'a','2':'b'} :: MAP(NUMBER, VARCHAR) as map2,
+        |  {'a': 1, 'b': [1,2,3,4]} :: OBJECT(a NUMBER, b ARRAY(NUMBER)) as object2,
+        |  [1, 2, 3]::ARRAY(NUMBER) AS arr1,
+        |  [1.1, 2.2, 3.3]::ARRAY(FLOAT) AS arr2,
+        |  {'a1':{'b':2}, 'a2':{'b':3}} :: MAP(VARCHAR, OBJECT(b NUMBER)) as map1
+        |""".stripMargin
+    // scalastyle:on
+    val df = session.sql(query)
+    // scalastyle:off
+    assert(
+      df.showString(10) ==
+        """--------------------------------------------------------------------------------------------------------------------------------------------------
+          ||"OBJECT1"  |"NUM1"  |"STR1"  |"MAP1"     |"MAP2"     |"OBJECT2"                     |"ARR1"   |"ARR2"         |"MAP1"                           |
+          |--------------------------------------------------------------------------------------------------------------------------------------------------
+          ||NULL       |1       |abc     |{b:2,a:1}  |{2:b,1:a}  |Object(a:1,b:Array(1,2,3,4))  |[1,2,3]  |[1.1,2.2,3.3]  |{a1:Object(b:2),a2:Object(b:3)}  |
+          |--------------------------------------------------------------------------------------------------------------------------------------------------
+          |""".stripMargin)
+    // scalastyle:on
+  }
+
   test("show object") {
     val query =
       // scalastyle:off
