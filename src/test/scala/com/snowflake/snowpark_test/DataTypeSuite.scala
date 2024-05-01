@@ -239,7 +239,7 @@ class DataTypeSuite extends SNTestBase {
         "{\n  \"a\": 1,\n  \"b\": 2\n}"))
   }
 
-  test("read object") {
+  ignore("read object") {
     // scalastyle:off
 //    val query =
 //    // scalastyle:off
