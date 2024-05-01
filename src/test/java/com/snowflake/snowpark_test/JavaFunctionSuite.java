@@ -67,6 +67,14 @@ public class JavaFunctionSuite extends TestBase {
 
     Row[] expected2 = {Row.create(5)};
     checkAnswer(df.select(Functions.count_distinct(df.col("A"), df.col("b"))), expected2);
+
+    checkAnswer(df.select(Functions.countDistinct(df.col("A"))), expected1);
+
+    checkAnswer(df.select(Functions.countDistinct(df.col("A"), df.col("b"))), expected2);
+
+    checkAnswer(df.select(Functions.countDistinct("A")), expected1);
+
+    checkAnswer(df.select(Functions.countDistinct("A", "b")), expected2);
   }
 
   @Test

@@ -240,6 +240,7 @@ class DataTypeSuite extends SNTestBase {
   }
 
   test("read object") {
+    // scalastyle:off
 //    val query =
 //    // scalastyle:off
 //      """SELECT
@@ -253,7 +254,7 @@ class DataTypeSuite extends SNTestBase {
     // scalastyle:on
 
     val query =
-    // scalastyle:off
+      // scalastyle:off
       """SELECT
         |  {'b': 1, 'a': '22'} :: OBJECT(a VARCHAR, b NUMBER) as object1,
         |  {'a': 1, 'b': [1,2,3,4], 'c': true} :: OBJECT(a NUMBER, b ARRAY(NUMBER), c BOOLEAN) as object2
@@ -270,7 +271,6 @@ class DataTypeSuite extends SNTestBase {
 
     assert(row.getObject(1).length == 3)
     assert(row.getObject(1).getLong(0) == 1L)
-
 
   }
 
@@ -292,18 +292,18 @@ class DataTypeSuite extends SNTestBase {
     assert(
       TestUtils.treeString(df.schema, 0) ==
         s"""root
-           | |--ARR1: ArrayType[Long nullable = true] (nullable = true)
-           | |--ARR2: ArrayType[Double nullable = true] (nullable = true)
-           | |--ARR3: ArrayType[Boolean nullable = true] (nullable = true)
-           | |--ARR4: ArrayType[String nullable = true] (nullable = true)
-           | |--ARR5: ArrayType[Timestamp nullable = true] (nullable = true)
-           | |--ARR6: ArrayType[Binary nullable = true] (nullable = true)
-           | |--ARR7: ArrayType[Date nullable = true] (nullable = true)
-           | |--ARR8: ArrayType[Variant nullable = true] (nullable = true)
-           | |--ARR9: ArrayType[ArrayType[String] nullable = true] (nullable = true)
-           | |--ARR10: ArrayType[MapType[String, String] nullable = true] (nullable = true)
-           | |--ARR11: ArrayType[ArrayType[Long nullable = true] nullable = true] (nullable = true)
-           | |--ARR0: ArrayType[String] (nullable = true)
+           | |--ARR1: Array[Long nullable = true] (nullable = true)
+           | |--ARR2: Array[Double nullable = true] (nullable = true)
+           | |--ARR3: Array[Boolean nullable = true] (nullable = true)
+           | |--ARR4: Array[String nullable = true] (nullable = true)
+           | |--ARR5: Array[Timestamp nullable = true] (nullable = true)
+           | |--ARR6: Array[Binary nullable = true] (nullable = true)
+           | |--ARR7: Array[Date nullable = true] (nullable = true)
+           | |--ARR8: Array[Variant nullable = true] (nullable = true)
+           | |--ARR9: Array[Array nullable = true] (nullable = true)
+           | |--ARR10: Array[Map nullable = true] (nullable = true)
+           | |--ARR11: Array[Array[Long nullable = true] nullable = true] (nullable = true)
+           | |--ARR0: Array (nullable = true)
            |""".stripMargin)
     // schema string: nullable
     assert(
@@ -311,18 +311,18 @@ class DataTypeSuite extends SNTestBase {
       // schema query instead of the real query to analyze the result schema.
       TestUtils.treeString(df.select("*").schema, 0) ==
         s"""root
-           | |--ARR1: ArrayType[Long nullable = true] (nullable = true)
-           | |--ARR2: ArrayType[Double nullable = true] (nullable = true)
-           | |--ARR3: ArrayType[Boolean nullable = true] (nullable = true)
-           | |--ARR4: ArrayType[String nullable = true] (nullable = true)
-           | |--ARR5: ArrayType[Timestamp nullable = true] (nullable = true)
-           | |--ARR6: ArrayType[Binary nullable = true] (nullable = true)
-           | |--ARR7: ArrayType[Date nullable = true] (nullable = true)
-           | |--ARR8: ArrayType[Variant nullable = true] (nullable = true)
-           | |--ARR9: ArrayType[ArrayType[String] nullable = true] (nullable = true)
-           | |--ARR10: ArrayType[MapType[String, String] nullable = true] (nullable = true)
-           | |--ARR11: ArrayType[ArrayType[Long nullable = true] nullable = true] (nullable = true)
-           | |--ARR0: ArrayType[String] (nullable = true)
+           | |--ARR1: Array[Long nullable = true] (nullable = true)
+           | |--ARR2: Array[Double nullable = true] (nullable = true)
+           | |--ARR3: Array[Boolean nullable = true] (nullable = true)
+           | |--ARR4: Array[String nullable = true] (nullable = true)
+           | |--ARR5: Array[Timestamp nullable = true] (nullable = true)
+           | |--ARR6: Array[Binary nullable = true] (nullable = true)
+           | |--ARR7: Array[Date nullable = true] (nullable = true)
+           | |--ARR8: Array[Variant nullable = true] (nullable = true)
+           | |--ARR9: Array[Array nullable = true] (nullable = true)
+           | |--ARR10: Array[Map nullable = true] (nullable = true)
+           | |--ARR11: Array[Array[Long nullable = true] nullable = true] (nullable = true)
+           | |--ARR0: Array (nullable = true)
            |""".stripMargin)
 
     // schema string: not nullable
@@ -336,8 +336,8 @@ class DataTypeSuite extends SNTestBase {
       TestUtils.treeString(df2.schema, 0) ==
         // scalastyle:off
         s"""root
-           | |--ARR1: ArrayType[Long nullable = false] (nullable = true)
-           | |--ARR11: ArrayType[ArrayType[Long nullable = false] nullable = false] (nullable = true)
+           | |--ARR1: Array[Long nullable = false] (nullable = true)
+           | |--ARR11: Array[Array[Long nullable = false] nullable = false] (nullable = true)
            |""".stripMargin)
     // scalastyle:on
 
@@ -345,8 +345,8 @@ class DataTypeSuite extends SNTestBase {
       TestUtils.treeString(df2.select("*").schema, 0) ==
         // scalastyle:off
         s"""root
-           | |--ARR1: ArrayType[Long nullable = false] (nullable = true)
-           | |--ARR11: ArrayType[ArrayType[Long nullable = false] nullable = false] (nullable = true)
+           | |--ARR1: Array[Long nullable = false] (nullable = true)
+           | |--ARR11: Array[Array[Long nullable = false] nullable = false] (nullable = true)
            |""".stripMargin)
     // scalastyle:on
   }
@@ -365,11 +365,11 @@ class DataTypeSuite extends SNTestBase {
       TestUtils.treeString(df.schema, 0) ==
         // scalastyle:off
         s"""root
-           | |--MAP1: MapType[String, Long nullable = true] (nullable = true)
-           | |--MAP2: MapType[Long, String nullable = true] (nullable = true)
-           | |--MAP3: MapType[Long, ArrayType[Long nullable = true] nullable = true] (nullable = true)
-           | |--MAP4: MapType[Long, MapType[String, Long nullable = true] nullable = true] (nullable = true)
-           | |--MAP0: MapType[String, String] (nullable = true)
+           | |--MAP1: Map[String, Long nullable = true] (nullable = true)
+           | |--MAP2: Map[Long, String nullable = true] (nullable = true)
+           | |--MAP3: Map[Long, Array[Long nullable = true] nullable = true] (nullable = true)
+           | |--MAP4: Map[Long, Map[String, Long nullable = true] nullable = true] (nullable = true)
+           | |--MAP0: Map (nullable = true)
            |""".stripMargin)
     // scalastyle:on
 
@@ -379,11 +379,11 @@ class DataTypeSuite extends SNTestBase {
       TestUtils.treeString(df.select("*").schema, 0) ==
         // scalastyle:off
         s"""root
-           | |--MAP1: MapType[String, Long nullable = true] (nullable = true)
-           | |--MAP2: MapType[Long, String nullable = true] (nullable = true)
-           | |--MAP3: MapType[Long, ArrayType[Long nullable = true] nullable = true] (nullable = true)
-           | |--MAP4: MapType[Long, MapType[String, Long nullable = true] nullable = true] (nullable = true)
-           | |--MAP0: MapType[String, String] (nullable = true)
+           | |--MAP1: Map[String, Long nullable = true] (nullable = true)
+           | |--MAP2: Map[Long, String nullable = true] (nullable = true)
+           | |--MAP3: Map[Long, Array[Long nullable = true] nullable = true] (nullable = true)
+           | |--MAP4: Map[Long, Map[String, Long nullable = true] nullable = true] (nullable = true)
+           | |--MAP0: Map (nullable = true)
            |""".stripMargin)
     // scalastyle:on
 
@@ -399,9 +399,9 @@ class DataTypeSuite extends SNTestBase {
       TestUtils.treeString(df2.schema, 0) ==
         // scalastyle:off
         s"""root
-           | |--MAP1: MapType[String, Long nullable = false] (nullable = true)
-           | |--MAP3: MapType[Long, ArrayType[Long nullable = false] nullable = true] (nullable = true)
-           | |--MAP4: MapType[Long, MapType[String, Long nullable = false] nullable = true] (nullable = true)
+           | |--MAP1: Map[String, Long nullable = false] (nullable = true)
+           | |--MAP3: Map[Long, Array[Long nullable = false] nullable = true] (nullable = true)
+           | |--MAP4: Map[Long, Map[String, Long nullable = false] nullable = true] (nullable = true)
            |""".stripMargin)
     // scalastyle:on
 
@@ -409,9 +409,9 @@ class DataTypeSuite extends SNTestBase {
       TestUtils.treeString(df2.select("*").schema, 0) ==
         // scalastyle:off
         s"""root
-           | |--MAP1: MapType[String, Long nullable = false] (nullable = true)
-           | |--MAP3: MapType[Long, ArrayType[Long nullable = false] nullable = true] (nullable = true)
-           | |--MAP4: MapType[Long, MapType[String, Long nullable = false] nullable = true] (nullable = true)
+           | |--MAP1: Map[String, Long nullable = false] (nullable = true)
+           | |--MAP3: Map[Long, Array[Long nullable = false] nullable = true] (nullable = true)
+           | |--MAP4: Map[Long, Map[String, Long nullable = false] nullable = true] (nullable = true)
            |""".stripMargin)
     // scalastyle:on
 
@@ -432,19 +432,19 @@ class DataTypeSuite extends SNTestBase {
       TestUtils.treeString(df.schema, 0) ==
         // scalastyle:off
         s"""root
-           | |--OBJECT1: StructType (nullable = true)
+           | |--OBJECT1: Struct (nullable = true)
            |   |--A: String (nullable = true)
            |   |--B: Long (nullable = true)
-           | |--OBJECT2: StructType (nullable = true)
+           | |--OBJECT2: Struct (nullable = true)
            |   |--A: String (nullable = true)
-           |   |--B: ArrayType[Long nullable = true] (nullable = true)
-           | |--OBJECT3: StructType (nullable = true)
+           |   |--B: Array[Long nullable = true] (nullable = true)
+           | |--OBJECT3: Struct (nullable = true)
            |   |--A: String (nullable = true)
-           |   |--B: ArrayType[Long nullable = true] (nullable = true)
-           |   |--C: MapType[Long, String nullable = true] (nullable = true)
-           | |--OBJECT4: StructType (nullable = true)
-           |   |--A: StructType (nullable = true)
-           |     |--B: StructType (nullable = true)
+           |   |--B: Array[Long nullable = true] (nullable = true)
+           |   |--C: Map[Long, String nullable = true] (nullable = true)
+           | |--OBJECT4: Struct (nullable = true)
+           |   |--A: Struct (nullable = true)
+           |     |--B: Struct (nullable = true)
            |       |--C: Long (nullable = true)
            |""".stripMargin)
     // scalastyle:on
@@ -454,19 +454,19 @@ class DataTypeSuite extends SNTestBase {
       TestUtils.treeString(df.select("*").schema, 0) ==
         // scalastyle:off
         s"""root
-           | |--OBJECT1: StructType (nullable = true)
+           | |--OBJECT1: Struct (nullable = true)
            |   |--A: String (nullable = true)
            |   |--B: Long (nullable = true)
-           | |--OBJECT2: StructType (nullable = true)
+           | |--OBJECT2: Struct (nullable = true)
            |   |--A: String (nullable = true)
-           |   |--B: ArrayType[Long nullable = true] (nullable = true)
-           | |--OBJECT3: StructType (nullable = true)
+           |   |--B: Array[Long nullable = true] (nullable = true)
+           | |--OBJECT3: Struct (nullable = true)
            |   |--A: String (nullable = true)
-           |   |--B: ArrayType[Long nullable = true] (nullable = true)
-           |   |--C: MapType[Long, String nullable = true] (nullable = true)
-           | |--OBJECT4: StructType (nullable = true)
-           |   |--A: StructType (nullable = true)
-           |     |--B: StructType (nullable = true)
+           |   |--B: Array[Long nullable = true] (nullable = true)
+           |   |--C: Map[Long, String nullable = true] (nullable = true)
+           | |--OBJECT4: Struct (nullable = true)
+           |   |--A: Struct (nullable = true)
+           |     |--B: Struct (nullable = true)
            |       |--C: Long (nullable = true)
            |""".stripMargin)
     // scalastyle:on
@@ -487,19 +487,19 @@ class DataTypeSuite extends SNTestBase {
       TestUtils.treeString(df2.schema, 0) ==
         // scalastyle:off
         s"""root
-           | |--OBJECT1: StructType (nullable = true)
+           | |--OBJECT1: Struct (nullable = true)
            |   |--A: String (nullable = false)
            |   |--B: Long (nullable = true)
-           | |--OBJECT2: StructType (nullable = true)
+           | |--OBJECT2: Struct (nullable = true)
            |   |--A: String (nullable = true)
-           |   |--B: ArrayType[Long nullable = false] (nullable = false)
-           | |--OBJECT3: StructType (nullable = true)
+           |   |--B: Array[Long nullable = false] (nullable = false)
+           | |--OBJECT3: Struct (nullable = true)
            |   |--A: String (nullable = true)
-           |   |--B: ArrayType[Long nullable = true] (nullable = true)
-           |   |--C: MapType[Long, String nullable = false] (nullable = false)
-           | |--OBJECT4: StructType (nullable = true)
-           |   |--A: StructType (nullable = false)
-           |     |--B: StructType (nullable = false)
+           |   |--B: Array[Long nullable = true] (nullable = true)
+           |   |--C: Map[Long, String nullable = false] (nullable = false)
+           | |--OBJECT4: Struct (nullable = true)
+           |   |--A: Struct (nullable = false)
+           |     |--B: Struct (nullable = false)
            |       |--C: Long (nullable = false)
            |""".stripMargin)
     // scalastyle:on
@@ -508,19 +508,19 @@ class DataTypeSuite extends SNTestBase {
       TestUtils.treeString(df2.select("*").schema, 0) ==
         // scalastyle:off
         s"""root
-           | |--OBJECT1: StructType (nullable = true)
+           | |--OBJECT1: Struct (nullable = true)
            |   |--A: String (nullable = false)
            |   |--B: Long (nullable = true)
-           | |--OBJECT2: StructType (nullable = true)
+           | |--OBJECT2: Struct (nullable = true)
            |   |--A: String (nullable = true)
-           |   |--B: ArrayType[Long nullable = false] (nullable = false)
-           | |--OBJECT3: StructType (nullable = true)
+           |   |--B: Array[Long nullable = false] (nullable = false)
+           | |--OBJECT3: Struct (nullable = true)
            |   |--A: String (nullable = true)
-           |   |--B: ArrayType[Long nullable = true] (nullable = true)
-           |   |--C: MapType[Long, String nullable = false] (nullable = false)
-           | |--OBJECT4: StructType (nullable = true)
-           |   |--A: StructType (nullable = false)
-           |     |--B: StructType (nullable = false)
+           |   |--B: Array[Long nullable = true] (nullable = true)
+           |   |--C: Map[Long, String nullable = false] (nullable = false)
+           | |--OBJECT4: Struct (nullable = true)
+           |   |--A: Struct (nullable = false)
+           |     |--B: Struct (nullable = false)
            |       |--C: Long (nullable = false)
            |""".stripMargin)
     // scalastyle:on
