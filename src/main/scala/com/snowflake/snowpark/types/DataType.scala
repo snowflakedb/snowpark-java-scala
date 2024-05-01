@@ -18,6 +18,8 @@ abstract class DataType {
    * @since 0.1.0
    */
   override def toString: String = typeName
+
+  private[snowpark] def schemaString: String = toString
 }
 
 private[snowpark] abstract class AtomicType extends DataType

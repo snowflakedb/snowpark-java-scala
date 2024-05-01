@@ -128,8 +128,6 @@ class DataTypeSuite extends SNTestBase {
             StructField("col10", DoubleType),
             StructField("col11", DecimalType(10, 1)))))))
 
-    schema.printTreeString()
-
     assert(
       TestUtils.treeString(schema, 0) ==
         s"""root
@@ -183,4 +181,255 @@ class DataTypeSuite extends SNTestBase {
            |""".stripMargin)
   }
 
+  test("ArrayType v2") {
+    val query = """SELECT
+                  |    [1, 2, 3]::ARRAY(NUMBER) AS arr1,
+                  |    [1.1, 2.2, 3.3]::ARRAY(FLOAT) AS arr2,
+                  |    [true, false]::ARRAY(BOOLEAN) AS arr3,
+                  |    ['a', 'b']::ARRAY(VARCHAR) AS arr4,
+                  |    [parse_json(31000000)::timestamp_ntz]::ARRAY(TIMESTAMP_NTZ) AS arr5,
+                  |    [TO_BINARY('SNOW', 'utf-8')]::ARRAY(BINARY) AS arr6,
+                  |    [TO_DATE('2013-05-17')]::ARRAY(DATE) AS arr7,
+                  |    ['1', 2]::ARRAY(VARIANT) AS arr8,
+                  |    [[1,2]]::ARRAY(ARRAY) AS arr9,
+                  |    [OBJECT_CONSTRUCT('name', 1)]::ARRAY(OBJECT) AS arr10,
+                  |    [[1, 2], [3, 4]]::ARRAY(ARRAY(NUMBER)) AS arr11,
+                  |    [1, 2, 3] AS arr0;""".stripMargin
+    val df = session.sql(query)
+    assert(
+      TestUtils.treeString(df.schema, 0) ==
+        s"""root
+           | |--ARR1: Array[Long nullable = true] (nullable = true)
+           | |--ARR2: Array[Double nullable = true] (nullable = true)
+           | |--ARR3: Array[Boolean nullable = true] (nullable = true)
+           | |--ARR4: Array[String nullable = true] (nullable = true)
+           | |--ARR5: Array[Timestamp nullable = true] (nullable = true)
+           | |--ARR6: Array[Binary nullable = true] (nullable = true)
+           | |--ARR7: Array[Date nullable = true] (nullable = true)
+           | |--ARR8: Array[Variant nullable = true] (nullable = true)
+           | |--ARR9: Array[Array nullable = true] (nullable = true)
+           | |--ARR10: Array[Map nullable = true] (nullable = true)
+           | |--ARR11: Array[Array[Long nullable = true] nullable = true] (nullable = true)
+           | |--ARR0: Array (nullable = true)
+           |""".stripMargin)
+    // schema string: nullable
+    assert(
+      // since we retrieved the schema of df before, df.select("*") will use the
+      // schema query instead of the real query to analyze the result schema.
+      TestUtils.treeString(df.select("*").schema, 0) ==
+        s"""root
+           | |--ARR1: Array[Long nullable = true] (nullable = true)
+           | |--ARR2: Array[Double nullable = true] (nullable = true)
+           | |--ARR3: Array[Boolean nullable = true] (nullable = true)
+           | |--ARR4: Array[String nullable = true] (nullable = true)
+           | |--ARR5: Array[Timestamp nullable = true] (nullable = true)
+           | |--ARR6: Array[Binary nullable = true] (nullable = true)
+           | |--ARR7: Array[Date nullable = true] (nullable = true)
+           | |--ARR8: Array[Variant nullable = true] (nullable = true)
+           | |--ARR9: Array[Array nullable = true] (nullable = true)
+           | |--ARR10: Array[Map nullable = true] (nullable = true)
+           | |--ARR11: Array[Array[Long nullable = true] nullable = true] (nullable = true)
+           | |--ARR0: Array (nullable = true)
+           |""".stripMargin)
+
+    // schema string: not nullable
+    val query2 =
+      """SELECT
+        |    [1, 2, 3]::ARRAY(NUMBER not null) AS arr1,
+        |    [[1, 2], [3, 4]]::ARRAY(ARRAY(NUMBER not null) not null) AS arr11""".stripMargin
+
+    val df2 = session.sql(query2)
+    assert(
+      TestUtils.treeString(df2.schema, 0) ==
+        // scalastyle:off
+        s"""root
+           | |--ARR1: Array[Long nullable = false] (nullable = true)
+           | |--ARR11: Array[Array[Long nullable = false] nullable = false] (nullable = true)
+           |""".stripMargin)
+    // scalastyle:on
+
+    assert(
+      TestUtils.treeString(df2.select("*").schema, 0) ==
+        // scalastyle:off
+        s"""root
+           | |--ARR1: Array[Long nullable = false] (nullable = true)
+           | |--ARR11: Array[Array[Long nullable = false] nullable = false] (nullable = true)
+           |""".stripMargin)
+    // scalastyle:on
+  }
+
+  test("MapType v2") {
+    val query =
+      """SELECT
+        |  {'a': 1, 'b': 2} :: MAP(VARCHAR, NUMBER) as map1,
+        |  {'1': 'a'} :: MAP(NUMBER, VARCHAR) as map2,
+        |  {'1': [1,2,3]} :: MAP(NUMBER, ARRAY(NUMBER)) as map3,
+        |  {'1': {'a':1}} :: MAP(NUMBER, MAP(VARCHAR, NUMBER)) as map4,
+        |  {'a': 1, 'b': 2} :: OBJECT as map0
+        |""".stripMargin
+    val df = session.sql(query)
+    assert(
+      TestUtils.treeString(df.schema, 0) ==
+        // scalastyle:off
+        s"""root
+           | |--MAP1: Map[String, Long nullable = true] (nullable = true)
+           | |--MAP2: Map[Long, String nullable = true] (nullable = true)
+           | |--MAP3: Map[Long, Array[Long nullable = true] nullable = true] (nullable = true)
+           | |--MAP4: Map[Long, Map[String, Long nullable = true] nullable = true] (nullable = true)
+           | |--MAP0: Map (nullable = true)
+           |""".stripMargin)
+    // scalastyle:on
+
+    assert(
+      // since we retrieved the schema of df before, df.select("*") will use the
+      // schema query instead of the real query to analyze the result schema.
+      TestUtils.treeString(df.select("*").schema, 0) ==
+        // scalastyle:off
+        s"""root
+           | |--MAP1: Map[String, Long nullable = true] (nullable = true)
+           | |--MAP2: Map[Long, String nullable = true] (nullable = true)
+           | |--MAP3: Map[Long, Array[Long nullable = true] nullable = true] (nullable = true)
+           | |--MAP4: Map[Long, Map[String, Long nullable = true] nullable = true] (nullable = true)
+           | |--MAP0: Map (nullable = true)
+           |""".stripMargin)
+    // scalastyle:on
+
+    // nullable
+    val query2 =
+      """SELECT
+        |  {'a': 1, 'b': 2} :: MAP(VARCHAR, NUMBER not null) as map1,
+        |  {'1': [1,2,3]} :: MAP(NUMBER, ARRAY(NUMBER not null)) as map3,
+        |  {'1': {'a':1}} :: MAP(NUMBER, MAP(VARCHAR, NUMBER not null)) as map4
+        |""".stripMargin
+    val df2 = session.sql(query2)
+    assert(
+      TestUtils.treeString(df2.schema, 0) ==
+        // scalastyle:off
+        s"""root
+           | |--MAP1: Map[String, Long nullable = false] (nullable = true)
+           | |--MAP3: Map[Long, Array[Long nullable = false] nullable = true] (nullable = true)
+           | |--MAP4: Map[Long, Map[String, Long nullable = false] nullable = true] (nullable = true)
+           |""".stripMargin)
+    // scalastyle:on
+
+    assert(
+      TestUtils.treeString(df2.select("*").schema, 0) ==
+        // scalastyle:off
+        s"""root
+           | |--MAP1: Map[String, Long nullable = false] (nullable = true)
+           | |--MAP3: Map[Long, Array[Long nullable = false] nullable = true] (nullable = true)
+           | |--MAP4: Map[Long, Map[String, Long nullable = false] nullable = true] (nullable = true)
+           |""".stripMargin)
+    // scalastyle:on
+
+  }
+
+  test("ObjectType v2") {
+    val query =
+      // scalastyle:off
+      """SELECT
+        |  {'a': 1, 'b': 'a'} :: OBJECT(a VARCHAR, b NUMBER) as object1,
+        |  {'a': 1, 'b': [1,2,3,4]} :: OBJECT(a VARCHAR, b ARRAY(NUMBER)) as object2,
+        |  {'a': 1, 'b': [1,2,3,4], 'c': {'1':'a'}} :: OBJECT(a VARCHAR, b ARRAY(NUMBER), c MAP(NUMBER, VARCHAR)) as object3,
+        |  {'a': {'b': {'c': 1}}} :: OBJECT(a OBJECT(b OBJECT(c NUMBER))) as object4
+        |""".stripMargin
+    // scalastyle:on
+    val df = session.sql(query)
+    assert(
+      TestUtils.treeString(df.schema, 0) ==
+        // scalastyle:off
+        s"""root
+           | |--OBJECT1: Struct (nullable = true)
+           |   |--A: String (nullable = true)
+           |   |--B: Long (nullable = true)
+           | |--OBJECT2: Struct (nullable = true)
+           |   |--A: String (nullable = true)
+           |   |--B: Array[Long nullable = true] (nullable = true)
+           | |--OBJECT3: Struct (nullable = true)
+           |   |--A: String (nullable = true)
+           |   |--B: Array[Long nullable = true] (nullable = true)
+           |   |--C: Map[Long, String nullable = true] (nullable = true)
+           | |--OBJECT4: Struct (nullable = true)
+           |   |--A: Struct (nullable = true)
+           |     |--B: Struct (nullable = true)
+           |       |--C: Long (nullable = true)
+           |""".stripMargin)
+    // scalastyle:on
+
+    // schema string: nullable
+    assert(
+      TestUtils.treeString(df.select("*").schema, 0) ==
+        // scalastyle:off
+        s"""root
+           | |--OBJECT1: Struct (nullable = true)
+           |   |--A: String (nullable = true)
+           |   |--B: Long (nullable = true)
+           | |--OBJECT2: Struct (nullable = true)
+           |   |--A: String (nullable = true)
+           |   |--B: Array[Long nullable = true] (nullable = true)
+           | |--OBJECT3: Struct (nullable = true)
+           |   |--A: String (nullable = true)
+           |   |--B: Array[Long nullable = true] (nullable = true)
+           |   |--C: Map[Long, String nullable = true] (nullable = true)
+           | |--OBJECT4: Struct (nullable = true)
+           |   |--A: Struct (nullable = true)
+           |     |--B: Struct (nullable = true)
+           |       |--C: Long (nullable = true)
+           |""".stripMargin)
+    // scalastyle:on
+
+    // schema query: not null
+    val query2 =
+      // scalastyle:off
+      """SELECT
+        |  {'a': 1, 'b': 'a'} :: OBJECT(a VARCHAR not null, b NUMBER) as object1,
+        |  {'a': 1, 'b': [1,2,3,4]} :: OBJECT(a VARCHAR, b ARRAY(NUMBER not null) not null) as object2,
+        |  {'a': 1, 'b': [1,2,3,4], 'c': {'1':'a'}} :: OBJECT(a VARCHAR, b ARRAY(NUMBER), c MAP(NUMBER, VARCHAR not null) not null) as object3,
+        |  {'a': {'b': {'c': 1}}} :: OBJECT(a OBJECT(b OBJECT(c NUMBER not null) not null) not null) as object4
+        |""".stripMargin
+    // scalastyle:on
+
+    val df2 = session.sql(query2)
+    assert(
+      TestUtils.treeString(df2.schema, 0) ==
+        // scalastyle:off
+        s"""root
+           | |--OBJECT1: Struct (nullable = true)
+           |   |--A: String (nullable = false)
+           |   |--B: Long (nullable = true)
+           | |--OBJECT2: Struct (nullable = true)
+           |   |--A: String (nullable = true)
+           |   |--B: Array[Long nullable = false] (nullable = false)
+           | |--OBJECT3: Struct (nullable = true)
+           |   |--A: String (nullable = true)
+           |   |--B: Array[Long nullable = true] (nullable = true)
+           |   |--C: Map[Long, String nullable = false] (nullable = false)
+           | |--OBJECT4: Struct (nullable = true)
+           |   |--A: Struct (nullable = false)
+           |     |--B: Struct (nullable = false)
+           |       |--C: Long (nullable = false)
+           |""".stripMargin)
+    // scalastyle:on
+
+    assert(
+      TestUtils.treeString(df2.select("*").schema, 0) ==
+        // scalastyle:off
+        s"""root
+           | |--OBJECT1: Struct (nullable = true)
+           |   |--A: String (nullable = false)
+           |   |--B: Long (nullable = true)
+           | |--OBJECT2: Struct (nullable = true)
+           |   |--A: String (nullable = true)
+           |   |--B: Array[Long nullable = false] (nullable = false)
+           | |--OBJECT3: Struct (nullable = true)
+           |   |--A: String (nullable = true)
+           |   |--B: Array[Long nullable = true] (nullable = true)
+           |   |--C: Map[Long, String nullable = false] (nullable = false)
+           | |--OBJECT4: Struct (nullable = true)
+           |   |--A: Struct (nullable = false)
+           |     |--B: Struct (nullable = false)
+           |       |--C: Long (nullable = false)
+           |""".stripMargin)
+    // scalastyle:on
+  }
 }
