@@ -38,7 +38,13 @@ import net.snowflake.client.jdbc.{
   SnowflakeUtil
 }
 import com.snowflake.snowpark.types._
-import net.snowflake.client.core.{ArrowSqlInput, ColumnTypeHelper, QueryStatus, SFArrowResultSet}
+import net.snowflake.client.core.{
+  ArrowSqlInput,
+  ColumnTypeHelper,
+  QueryStatus,
+  SFArrowResultSet,
+  SFBaseResultSet
+}
 import net.snowflake.client.jdbc.internal.apache.arrow.vector.util.{
   JsonStringArrayList,
   JsonStringHashMap
@@ -1024,16 +1030,20 @@ private[snowflake] object SnowflakeResultSetExt {
 // Extends the Snowflake ResultSet to access private fields
 private[snowflake] class SnowflakeResultSetExt(data: SnowflakeResultSetV1) {
   // used by structured types
-  lazy val arrowResultSet: SFArrowResultSet = {
+  // the baseResultSet is not always SFArrowResultSet
+  lazy val baseResultSet: SFBaseResultSet = {
     val sfResultSet = data.asInstanceOf[SnowflakeBaseResultSet]
     val baseResultSetField =
       classOf[SnowflakeBaseResultSet].getDeclaredField("sfBaseResultSet")
     baseResultSetField.setAccessible(true)
-    baseResultSetField.get(sfResultSet).asInstanceOf[SFArrowResultSet]
+    baseResultSetField.get(sfResultSet).asInstanceOf[SFBaseResultSet]
   }
 
+  lazy val arrowResultSet: SFArrowResultSet =
+    baseResultSet.asInstanceOf[SFArrowResultSet]
+
   private def getObjectInternal(index: Int): Any = {
-    SnowflakeUtil.mapSFExceptionToSQLException(() => arrowResultSet.getObject(index))
+    SnowflakeUtil.mapSFExceptionToSQLException(() => baseResultSet.getObject(index))
   }
 
   def isNull(index: Int): Boolean =
