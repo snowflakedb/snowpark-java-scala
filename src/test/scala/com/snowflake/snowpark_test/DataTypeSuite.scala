@@ -200,6 +200,7 @@ class DataTypeSuite extends SNTestBase {
         |    [time '10:03:56']::ARRAY(TIME) as arr21
         |""".stripMargin
     val df = session.sql(query)
+    assert(df.collect().head.getArray[Double](1).isInstanceOf[Array[Double]])
     checkAnswer(
       df,
       Row(
@@ -239,7 +240,7 @@ class DataTypeSuite extends SNTestBase {
         "{\n  \"a\": 1,\n  \"b\": 2\n}"))
   }
 
-  ignore("read object") {
+  test("read object") {
     // scalastyle:off
 //    val query =
 //    // scalastyle:off
@@ -271,6 +272,13 @@ class DataTypeSuite extends SNTestBase {
 
     assert(row.getObject(1).length == 3)
     assert(row.getObject(1).getLong(0) == 1L)
+    assert(row.getObject(1).getArray(1).length == 4)
+    val arr1 = row.getObject(1).getArray[Long](1)
+    assert(arr1.isInstanceOf[Array[Long]])
+    assert(arr1.sameElements(Array(1L, 2L, 3L, 4L)))
+    assert(row.getObject(1).getBoolean(2))
+
+
 
   }
 

@@ -4,6 +4,7 @@ import java.sql.{Date, Time, Timestamp}
 import com.snowflake.snowpark.internal.ErrorMessage
 import com.snowflake.snowpark.types.{Geography, Geometry, Variant}
 
+import scala.reflect.ClassTag
 import scala.util.hashing.MurmurHash3
 
 /**
@@ -336,6 +337,16 @@ class Row protected (values: Array[Any]) extends Serializable {
 
   def getObject(index: Int): Row =
     getAs[Row](index)
+
+  private def getSeq[T](index: Int): Seq[T] = {
+    val result = getAs[Array[_]](index)
+    result.map{
+      case x: T => x
+    }
+  }
+
+  def getArray[T: ClassTag](index: Int): Array[T] =
+    getSeq[T](index).toArray[T]
 
   protected def convertValueToString(value: Any): String =
     value match {
