@@ -344,21 +344,18 @@ class Row protected (values: Array[Any]) extends Serializable {
   def getObject(index: Int): Row =
     getAs[Row](index)
 
-  private def getSeq[T](index: Int): Seq[T] = {
+  /**
+   * Returns the value of the column at the given index as a Seq value.
+   *
+   * @since 1.13.0
+   * @group getter
+   */
+  def getSeq[T](index: Int): Seq[T] = {
     val result = getAs[Array[_]](index)
     result.map {
       case x: T => x
     }
   }
-
-  /**
-   * Returns the value of the column at the given index as an Array value.
-   *
-   * @since 1.13.0
-   * @group getter
-   */
-  def getArray[T: ClassTag](index: Int): Array[T] =
-    getSeq[T](index).toArray[T]
 
   /**
    * Returns the value of the column at the given index as a Map value.

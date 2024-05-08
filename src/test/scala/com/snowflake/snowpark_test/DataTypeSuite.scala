@@ -200,7 +200,7 @@ class DataTypeSuite extends SNTestBase {
         |    [time '10:03:56']::ARRAY(TIME) as arr21
         |""".stripMargin
     val df = session.sql(query)
-    assert(df.collect().head.getArray[Double](1).isInstanceOf[Array[Double]])
+    assert(df.collect().head.getSeq[Double](1).isInstanceOf[Seq[Double]])
     checkAnswer(
       df,
       Row(
@@ -263,17 +263,17 @@ class DataTypeSuite extends SNTestBase {
 
     assert(row.getObject(1).length == 3)
     assert(row.getObject(1).getLong(0) == 1L)
-    assert(row.getObject(1).getArray(1).length == 4)
-    val arr1 = row.getObject(1).getArray[Long](1)
-    assert(arr1.isInstanceOf[Array[Long]])
+    assert(row.getObject(1).getSeq(1).length == 4)
+    val arr1 = row.getObject(1).getSeq[Long](1)
+    assert(arr1.isInstanceOf[Seq[Long]])
     assert(arr1.sameElements(Array(1L, 2L, 3L, 4L)))
     assert(row.getObject(1).getBoolean(2))
 
     assert(row.getObject(2).length == 3)
     assert(row.getObject(2).getLong(0) == 1L)
-    assert(row.getObject(2).getArray(1).length == 4)
-    val arr2 = row.getObject(2).getArray[Long](1)
-    assert(arr2.isInstanceOf[Array[Long]])
+    assert(row.getObject(2).getSeq(1).length == 4)
+    val arr2 = row.getObject(2).getSeq[Long](1)
+    assert(arr2.isInstanceOf[Seq[Long]])
     assert(arr2.sameElements(Array(1L, 2L, 3L, 4L)))
     val map1 = row.getObject(2).getMap[Long, String](2)
     assert(map1 == Map(1L -> "a"))
@@ -286,8 +286,8 @@ class DataTypeSuite extends SNTestBase {
     assert(row2.getInt(0) == 1)
     assert(row2.getInt(1) == 10)
 
-    assert(row.getArray[Row](4).length == 2)
-    val arr3 = row.getArray[Row](4)
+    assert(row.getSeq[Row](4).length == 2)
+    val arr3 = row.getSeq[Row](4)
     val row3 = arr3.head
     val row4 = arr3(1)
     assert(row3.length == 2)

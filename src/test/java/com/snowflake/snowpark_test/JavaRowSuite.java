@@ -1,9 +1,8 @@
 package com.snowflake.snowpark_test;
 
+import com.snowflake.snowpark_java.DataFrame;
 import com.snowflake.snowpark_java.Row;
-import com.snowflake.snowpark_java.types.Geography;
-import com.snowflake.snowpark_java.types.Geometry;
-import com.snowflake.snowpark_java.types.Variant;
+import com.snowflake.snowpark_java.types.*;
 import java.math.BigDecimal;
 import java.sql.Date;
 import java.sql.Time;
@@ -14,7 +13,7 @@ import java.util.List;
 import java.util.Map;
 import org.junit.Test;
 
-public class JavaRowSuite {
+public class JavaRowSuite extends TestBase {
 
   @Test
   public void createList() {
@@ -345,5 +344,19 @@ public class JavaRowSuite {
     assert getValues2.get("a") == null
         && getValues2.get("b") == null
         && getValues2.get("c") == null;
+  }
+
+  @Test
+  public void testGetList() {
+    DataFrame df = getSession().sql("select [1, 2, 3]::ARRAY(NUMBER) AS arr1");
+    StructType schema = df.schema();
+    assert schema.get(0).dataType() instanceof ArrayType;
+    assert ((ArrayType) schema.get(0).dataType()).getElementType() instanceof LongType;
+
+    List<?> list = df.collect()[0].getList(0);
+    assert list.size() == 3;
+    assert (Long) list.get(0) == 1;
+    assert (Long) list.get(1) == 2;
+    assert (Long) list.get(2) == 3;
   }
 }
