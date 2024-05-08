@@ -335,6 +335,12 @@ class Row protected (values: Array[Any]) extends Serializable {
   def getMapOfVariant(index: Int): Map[String, Variant] =
     new Variant(getString(index)).asMap()
 
+  /**
+   * Returns the Snowflake Object value at the given index as a Row value.
+   *
+   * @since 1.13.0
+   * @group getter
+   */
   def getObject(index: Int): Row =
     getAs[Row](index)
 
@@ -345,9 +351,21 @@ class Row protected (values: Array[Any]) extends Serializable {
     }
   }
 
+  /**
+   * Returns the value of the column at the given index as an Array value.
+   *
+   * @since 1.13.0
+   * @group getter
+   */
   def getArray[T: ClassTag](index: Int): Array[T] =
     getSeq[T](index).toArray[T]
 
+  /**
+   * Returns the value of the column at the given index as a Map value.
+   *
+   * @since 1.13.0
+   * @group getter
+   */
   def getMap[T, U](index: Int): Map[T, U] = {
     getAs[Map[T, U]](index)
   }
