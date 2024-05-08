@@ -340,13 +340,17 @@ class Row protected (values: Array[Any]) extends Serializable {
 
   private def getSeq[T](index: Int): Seq[T] = {
     val result = getAs[Array[_]](index)
-    result.map{
+    result.map {
       case x: T => x
     }
   }
 
   def getArray[T: ClassTag](index: Int): Array[T] =
     getSeq[T](index).toArray[T]
+
+  def getMap[T, U](index: Int): Map[T, U] = {
+    getAs[Map[T, U]](index)
+  }
 
   protected def convertValueToString(value: Any): String =
     value match {

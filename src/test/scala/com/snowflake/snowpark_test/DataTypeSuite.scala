@@ -241,24 +241,15 @@ class DataTypeSuite extends SNTestBase {
   }
 
   test("read object") {
-    // scalastyle:off
-//    val query =
-//    // scalastyle:off
-//      """SELECT
-//        |  {'b': 1, 'a': '22'} :: OBJECT(a VARCHAR, b NUMBER) as object1,
-//        |  {'a': 1, 'b': [1,2,3,4]} :: OBJECT(a NUMBER, b ARRAY(NUMBER)) as object2,
-//        |  {'a': 1, 'b': [1,2,3,4], 'c': {'1':'a'}} :: OBJECT(a VARCHAR, b ARRAY(NUMBER), c MAP(NUMBER, VARCHAR)) as object3,
-//        |  {'a': {'b': {'a':10,'c': 1}}} :: OBJECT(a OBJECT(b OBJECT(c NUMBER, a NUMBER))) as object4,
-//        |  [{'a':1,'b':2},{'b':3,'a':4}] :: ARRAY(OBJECT(a NUMBER, b NUMBER)) as arr1,
-//        |  {'a1':{'b':2}, 'a2':{'b':3}} :: MAP(VARCHAR, OBJECT(b NUMBER)) as map1
-//        |""".stripMargin
-    // scalastyle:on
-
     val query =
       // scalastyle:off
       """SELECT
         |  {'b': 1, 'a': '22'} :: OBJECT(a VARCHAR, b NUMBER) as object1,
-        |  {'a': 1, 'b': [1,2,3,4], 'c': true} :: OBJECT(a NUMBER, b ARRAY(NUMBER), c BOOLEAN) as object2
+        |  {'a': 1, 'b': [1,2,3,4], 'c': true} :: OBJECT(a NUMBER, b ARRAY(NUMBER), c BOOLEAN) as object2,
+        |  {'a': 1, 'b': [1,2,3,4], 'c': {'1':'a'}} :: OBJECT(a NUMBER, b ARRAY(NUMBER), c MAP(NUMBER, VARCHAR)) as object3,
+        |  {'a': {'b': {'a':10,'c': 1}}} :: OBJECT(a OBJECT(b OBJECT(c NUMBER, a NUMBER))) as object4,
+        |  [{'a':1,'b':2},{'b':3,'a':4}] :: ARRAY(OBJECT(a NUMBER, b NUMBER)) as arr1,
+        |  {'a1':{'b':2}, 'a2':{'b':3}} :: MAP(VARCHAR, OBJECT(b NUMBER)) as map1
         |""".stripMargin
     // scalastyle:on
 
@@ -278,7 +269,42 @@ class DataTypeSuite extends SNTestBase {
     assert(arr1.sameElements(Array(1L, 2L, 3L, 4L)))
     assert(row.getObject(1).getBoolean(2))
 
+    assert(row.getObject(2).length == 3)
+    assert(row.getObject(2).getLong(0) == 1L)
+    assert(row.getObject(2).getArray(1).length == 4)
+    val arr2 = row.getObject(2).getArray[Long](1)
+    assert(arr2.isInstanceOf[Array[Long]])
+    assert(arr2.sameElements(Array(1L, 2L, 3L, 4L)))
+    val map1 = row.getObject(2).getMap[Long, String](2)
+    assert(map1 == Map(1L -> "a"))
 
+    assert(row.getObject(3).length == 1)
+    val row1 = row.getObject(3).getObject(0)
+    assert(row1.length == 1)
+    val row2 = row1.getObject(0)
+    assert(row2.length == 2)
+    assert(row2.getInt(0) == 1)
+    assert(row2.getInt(1) == 10)
+
+    assert(row.getArray[Row](4).length == 2)
+    val arr3 = row.getArray[Row](4)
+    val row3 = arr3.head
+    val row4 = arr3(1)
+    assert(row3.length == 2)
+    assert(row3.getInt(0) == 1)
+    assert(row3.getInt(1) == 2)
+    assert(row4.length == 2)
+    assert(row4.getInt(0) == 4)
+    assert(row4.getInt(1) == 3)
+
+    assert(row.getMap[String, Row](5).size == 2)
+    val map2 = row.getMap[String, Row](5)
+    val row5 = map2("a1")
+    val row6 = map2("a2")
+    assert(row5.length == 1)
+    assert(row5.getInt(0) == 2)
+    assert(row6.length == 1)
+    assert(row6.getInt(0) == 3)
 
   }
 
