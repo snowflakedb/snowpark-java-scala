@@ -348,15 +348,44 @@ public class JavaRowSuite extends TestBase {
 
   @Test
   public void testGetList() {
-    DataFrame df = getSession().sql("select [1, 2, 3]::ARRAY(NUMBER) AS arr1");
+    DataFrame df = getSession().sql("select [[1, 2], [3]]::ARRAY(ARRAY(NUMBER)) AS arr1");
     StructType schema = df.schema();
     assert schema.get(0).dataType() instanceof ArrayType;
-    assert ((ArrayType) schema.get(0).dataType()).getElementType() instanceof LongType;
+    assert ((ArrayType) schema.get(0).dataType()).getElementType() instanceof ArrayType;
 
     List<?> list = df.collect()[0].getList(0);
-    assert list.size() == 3;
-    assert (Long) list.get(0) == 1;
-    assert (Long) list.get(1) == 2;
-    assert (Long) list.get(2) == 3;
+    assert list.size() == 2;
+
+    List<?> list1 = (List<?>) list.get(0);
+    List<?> list2 = (List<?>) list.get(1);
+
+    assert list1.size() == 2;
+    assert list2.size() == 1;
+
+    assert (Long) list1.get(0) == 1;
+    assert (Long) list1.get(1) == 2;
+    assert (Long) list2.get(0) == 3;
+  }
+
+  @Test
+  public void testGetMap() {
+    DataFrame df =
+        getSession()
+            .sql(
+                "select {'1':{'a':1,'b':2},'2':{'c':3}} :: MAP(NUMBER, MAP(VARCHAR, NUMBER)) as map");
+    StructType schema = df.schema();
+    assert schema.get(0).dataType() instanceof MapType;
+    assert ((MapType) schema.get(0).dataType()).getKeyType() instanceof LongType;
+    assert ((MapType) schema.get(0).dataType()).getValueType() instanceof MapType;
+
+    Map<?, ?> map = df.collect()[0].getMap(0);
+    Map<?, ?> map1 = (Map<?, ?>) map.get(1L);
+    assert map1.size() == 2;
+    assert (Long) map1.get("a") == 1;
+    assert (Long) map1.get("b") == 2;
+
+    Map<?, ?> map2 = (Map<?, ?>) map.get(2L);
+    assert map2.size() == 1;
+    assert (Long) map2.get("c") == 3;
   }
 }

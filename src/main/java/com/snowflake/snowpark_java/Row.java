@@ -151,8 +151,11 @@ public class Row implements Serializable, Cloneable {
       }
       return resultArray;
     } else if (value instanceof scala.collection.immutable.Map<?, ?>) {
-      return JavaUtils.scalaMapToJavaWithVariantConversion(
-          (scala.collection.immutable.Map<?, ?>) value);
+      scala.collection.immutable.Map<?, ?> input = (scala.collection.immutable.Map<?, ?>) value;
+      Map<Object, Object> result = new HashMap<>();
+      // key is either Long or String, no need to convert values
+      input.foreach(x -> result.put(x._1, toJavaValue(x._2)));
+      return result;
     } else if (value instanceof Object[]) {
       Object[] arr = (Object[]) value;
       List<Object> result = new ArrayList<>(arr.length);
@@ -396,6 +399,17 @@ public class Row implements Serializable, Cloneable {
    */
   public List<?> getList(int index) {
     return (List<?>) get(index);
+  }
+
+  /**
+   * Retrieves the value of the column at the given index as a Java Map
+   *
+   * @param index The index of target column
+   * @return A Java Map
+   * @since 1.13.0
+   */
+  public Map<?, ?> getMap(int index) {
+    return (Map<?, ?>) get(index);
   }
 
   /**
