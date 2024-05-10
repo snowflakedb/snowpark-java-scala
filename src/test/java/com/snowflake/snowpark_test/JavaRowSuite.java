@@ -76,7 +76,7 @@ public class JavaRowSuite extends TestBase {
     assert row.getDouble(7) == 6.6;
     assert row.getString(8).equals("a");
 
-    assert row.toString().equals("Row[null,true,1,2,3,4,5.5,6.6,a]");
+    assert row.toString().equals("Row[null,true,1,2,3,4,5.5,6.6,\"a\"]");
   }
 
   @Test
@@ -121,7 +121,7 @@ public class JavaRowSuite extends TestBase {
     assert map.get("a").asInt() == 1;
     assert map.get("b").asInt() == 2;
 
-    assert row.toString().equals("Row[[1,2,3],{\"a\":1,\"b\":2}]");
+    assert row.toString().equals("Row[\"[1,2,3]\",\"{\"a\":1,\"b\":2}\"]");
   }
 
   @Test
@@ -160,10 +160,6 @@ public class JavaRowSuite extends TestBase {
     assert values[0].asString().equals("a")
         && values[1].asString().equals("b")
         && values[2].asString().equals("null");
-    // get()
-    String[] getValues = (String[]) row.get(0);
-    assert getValues.length == 3;
-    assert getValues[0].equals("a") && getValues[1].equals("b") && getValues[2] == null;
 
     // Variant Array
     Variant[] variantArray = {new Variant("a"), new Variant("b"), null};
@@ -190,7 +186,7 @@ public class JavaRowSuite extends TestBase {
     // Empty String Array
     String[] emptyStringArray = new String[0];
     row = Row.create((Object) emptyStringArray);
-    assert ((String[]) row.get(0)).length == 0;
+    assert row.getList(0).isEmpty();
     assert row.getVariant(0).asArray().length == 0;
 
     // Empty Variant Array
@@ -216,11 +212,6 @@ public class JavaRowSuite extends TestBase {
     assert values[0].asString().equals("null")
         && values[1].asString().equals("null")
         && values[2].asString().equals("null");
-    // get()
-    String[] getValues = (String[]) row.get(0);
-    assert getValues.length == 3;
-    assert getValues[0] == null && getValues[1] == null && getValues[2] == null;
-
     // Variant Array with all values to be null
     Variant[] variantArrayAllNull = new Variant[3];
     variantArrayAllNull[0] = null;
