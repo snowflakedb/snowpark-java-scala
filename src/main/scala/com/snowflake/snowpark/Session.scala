@@ -190,7 +190,7 @@ class Session private (private[snowpark] val conn: ServerConnection) extends Log
       // result has only one column and only one row.
       Option(rows.head.getString(0))
     } catch {
-      case e: Exception => None
+      case _: Exception => None
     }
   }
 
