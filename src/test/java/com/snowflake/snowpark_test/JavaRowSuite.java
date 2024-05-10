@@ -388,4 +388,41 @@ public class JavaRowSuite extends TestBase {
     assert map2.size() == 1;
     assert (Long) map2.get("c") == 3;
   }
+
+  @Test
+  public void testGetRow() {
+    DataFrame df =
+        getSession()
+            .sql(
+                "select {'a': {'b': {'d':10,'c': 'txt'}}} :: OBJECT(a OBJECT(b OBJECT(c VARCHAR, d NUMBER))) as obj1");
+    StructType schema = df.schema();
+    schema.printTreeString();
+    assert schema.get(0).dataType() instanceof StructType;
+    assert schema.get(0).name().equals("OBJ1");
+    StructType sub1 = (StructType) schema.get(0).dataType();
+    assert sub1.size() == 1;
+    assert sub1.get(0).dataType() instanceof StructType;
+    assert sub1.get(0).name().equals("A");
+    StructType sub2 = (StructType) sub1.get(0).dataType();
+    assert sub2.size() == 1;
+    assert sub2.get(0).dataType() instanceof StructType;
+    assert sub2.get(0).name().equals("B");
+    StructType sub3 = (StructType) sub2.get(0).dataType();
+    assert sub3.size() == 2;
+    assert sub3.get(0).dataType() instanceof StringType;
+    assert sub3.get(0).name().equals("C");
+    assert sub3.get(1).dataType() instanceof LongType;
+    assert sub3.get(1).name().equals("D");
+
+    Row[] rows1 = df.collect();
+    assert rows1.length == 1;
+    Row row1 = rows1[0].getObject(0);
+    assert row1.size() == 1;
+    Row row2 = row1.getObject(0);
+    assert row2.size() == 1;
+    Row row3 = row2.getObject(0);
+    assert row3.size() == 2;
+    assert row3.getString(0).equals("txt");
+    assert row3.getLong(1) == 10;
+  }
 }

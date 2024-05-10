@@ -47,6 +47,8 @@ object JavaDataTypeUtils {
       case TimestampType => JDataTypes.TimestampType
       case TimeType => JDataTypes.TimeType
       case VariantType => JDataTypes.VariantType
+      case st: StructType =>
+        com.snowflake.snowpark_java.types.InternalUtils.createStructType(st)
     }
 
   def javaTypeToScalaType(jDataType: JDataType): DataType =

@@ -163,6 +163,8 @@ public class Row implements Serializable, Cloneable {
         result.add(toJavaValue(x));
       }
       return result;
+    } else if (value instanceof com.snowflake.snowpark.Row) {
+      return new Row((com.snowflake.snowpark.Row) value);
     } else {
       return value;
     }
@@ -410,6 +412,17 @@ public class Row implements Serializable, Cloneable {
    */
   public Map<?, ?> getMap(int index) {
     return (Map<?, ?>) get(index);
+  }
+
+  /**
+   * Retrieves the value of the column at the given index as a Row
+   *
+   * @param index The index of target column
+   * @return A Row
+   * @since 1.13.0
+   */
+  public Row getObject(int index) {
+    return (Row) get(index);
   }
 
   /**
