@@ -317,8 +317,11 @@ class JavaScalaAPISuite extends FunSuite {
         class1Only = Set(),
         class2Only = Set("fromArray", "fromSeq", "length" // Java API has "size"
         ) ++ scalaCaseClassFunctions,
-        class1To2NameMap =
-          Map("toList" -> "toSeq", "create" -> "apply", "getListOfVariant" -> "getSeqOfVariant")))
+        class1To2NameMap = Map(
+          "toList" -> "toSeq",
+          "create" -> "apply",
+          "getListOfVariant" -> "getSeqOfVariant",
+          "getList" -> "getSeq")))
   }
 
   // Java SaveMode is an Enum,
