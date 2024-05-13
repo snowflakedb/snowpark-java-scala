@@ -5,6 +5,7 @@ import com.snowflake.snowpark.types._
 import com.snowflake.snowpark.functions._
 
 import java.sql.{Date, Time, Timestamp}
+import java.util.TimeZone
 
 // Test DataTypes out of com.snowflake.snowpark package.
 class DataTypeSuite extends SNTestBase {
@@ -184,6 +185,8 @@ class DataTypeSuite extends SNTestBase {
   }
 
   test("read Structured Array") {
+    // Need to set default time zone because the expected result has timestamp data
+    TimeZone.setDefault(TimeZone.getTimeZone("US/Pacific"))
     val query =
       """SELECT
         |    [1, 2, 3]::ARRAY(NUMBER) AS arr1,
