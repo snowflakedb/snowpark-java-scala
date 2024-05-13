@@ -1,9 +1,8 @@
 package com.snowflake.snowpark_test;
 
+import com.snowflake.snowpark_java.DataFrame;
 import com.snowflake.snowpark_java.Row;
-import com.snowflake.snowpark_java.types.Geography;
-import com.snowflake.snowpark_java.types.Geometry;
-import com.snowflake.snowpark_java.types.Variant;
+import com.snowflake.snowpark_java.types.*;
 import java.math.BigDecimal;
 import java.sql.Date;
 import java.sql.Time;
@@ -14,7 +13,7 @@ import java.util.List;
 import java.util.Map;
 import org.junit.Test;
 
-public class JavaRowSuite {
+public class JavaRowSuite extends TestBase {
 
   @Test
   public void createList() {
@@ -77,7 +76,7 @@ public class JavaRowSuite {
     assert row.getDouble(7) == 6.6;
     assert row.getString(8).equals("a");
 
-    assert row.toString().equals("Row[null,true,1,2,3,4,5.5,6.6,a]");
+    assert row.toString().equals("Row[null,true,1,2,3,4,5.5,6.6,\"a\"]");
   }
 
   @Test
@@ -122,7 +121,7 @@ public class JavaRowSuite {
     assert map.get("a").asInt() == 1;
     assert map.get("b").asInt() == 2;
 
-    assert row.toString().equals("Row[[1,2,3],{\"a\":1,\"b\":2}]");
+    assert row.toString().equals("Row[\"[1,2,3]\",\"{\"a\":1,\"b\":2}\"]");
   }
 
   @Test
@@ -161,10 +160,6 @@ public class JavaRowSuite {
     assert values[0].asString().equals("a")
         && values[1].asString().equals("b")
         && values[2].asString().equals("null");
-    // get()
-    String[] getValues = (String[]) row.get(0);
-    assert getValues.length == 3;
-    assert getValues[0].equals("a") && getValues[1].equals("b") && getValues[2] == null;
 
     // Variant Array
     Variant[] variantArray = {new Variant("a"), new Variant("b"), null};
@@ -191,7 +186,7 @@ public class JavaRowSuite {
     // Empty String Array
     String[] emptyStringArray = new String[0];
     row = Row.create((Object) emptyStringArray);
-    assert ((String[]) row.get(0)).length == 0;
+    assert row.getList(0).isEmpty();
     assert row.getVariant(0).asArray().length == 0;
 
     // Empty Variant Array
@@ -217,11 +212,6 @@ public class JavaRowSuite {
     assert values[0].asString().equals("null")
         && values[1].asString().equals("null")
         && values[2].asString().equals("null");
-    // get()
-    String[] getValues = (String[]) row.get(0);
-    assert getValues.length == 3;
-    assert getValues[0] == null && getValues[1] == null && getValues[2] == null;
-
     // Variant Array with all values to be null
     Variant[] variantArrayAllNull = new Variant[3];
     variantArrayAllNull[0] = null;
@@ -345,5 +335,85 @@ public class JavaRowSuite {
     assert getValues2.get("a") == null
         && getValues2.get("b") == null
         && getValues2.get("c") == null;
+  }
+
+  @Test
+  public void testGetList() {
+    DataFrame df = getSession().sql("select [[1, 2], [3]]::ARRAY(ARRAY(NUMBER)) AS arr1");
+    StructType schema = df.schema();
+    assert schema.get(0).dataType() instanceof ArrayType;
+    assert ((ArrayType) schema.get(0).dataType()).getElementType() instanceof ArrayType;
+
+    List<?> list = df.collect()[0].getList(0);
+    assert list.size() == 2;
+
+    List<?> list1 = (List<?>) list.get(0);
+    List<?> list2 = (List<?>) list.get(1);
+
+    assert list1.size() == 2;
+    assert list2.size() == 1;
+
+    assert (Long) list1.get(0) == 1;
+    assert (Long) list1.get(1) == 2;
+    assert (Long) list2.get(0) == 3;
+  }
+
+  @Test
+  public void testGetMap() {
+    DataFrame df =
+        getSession()
+            .sql(
+                "select {'1':{'a':1,'b':2},'2':{'c':3}} :: MAP(NUMBER, MAP(VARCHAR, NUMBER)) as map");
+    StructType schema = df.schema();
+    assert schema.get(0).dataType() instanceof MapType;
+    assert ((MapType) schema.get(0).dataType()).getKeyType() instanceof LongType;
+    assert ((MapType) schema.get(0).dataType()).getValueType() instanceof MapType;
+
+    Map<?, ?> map = df.collect()[0].getMap(0);
+    Map<?, ?> map1 = (Map<?, ?>) map.get(1L);
+    assert map1.size() == 2;
+    assert (Long) map1.get("a") == 1;
+    assert (Long) map1.get("b") == 2;
+
+    Map<?, ?> map2 = (Map<?, ?>) map.get(2L);
+    assert map2.size() == 1;
+    assert (Long) map2.get("c") == 3;
+  }
+
+  @Test
+  public void testGetRow() {
+    DataFrame df =
+        getSession()
+            .sql(
+                "select {'a': {'b': {'d':10,'c': 'txt'}}} :: OBJECT(a OBJECT(b OBJECT(c VARCHAR, d NUMBER))) as obj1");
+    StructType schema = df.schema();
+    schema.printTreeString();
+    assert schema.get(0).dataType() instanceof StructType;
+    assert schema.get(0).name().equals("OBJ1");
+    StructType sub1 = (StructType) schema.get(0).dataType();
+    assert sub1.size() == 1;
+    assert sub1.get(0).dataType() instanceof StructType;
+    assert sub1.get(0).name().equals("A");
+    StructType sub2 = (StructType) sub1.get(0).dataType();
+    assert sub2.size() == 1;
+    assert sub2.get(0).dataType() instanceof StructType;
+    assert sub2.get(0).name().equals("B");
+    StructType sub3 = (StructType) sub2.get(0).dataType();
+    assert sub3.size() == 2;
+    assert sub3.get(0).dataType() instanceof StringType;
+    assert sub3.get(0).name().equals("C");
+    assert sub3.get(1).dataType() instanceof LongType;
+    assert sub3.get(1).name().equals("D");
+
+    Row[] rows1 = df.collect();
+    assert rows1.length == 1;
+    Row row1 = rows1[0].getObject(0);
+    assert row1.size() == 1;
+    Row row2 = row1.getObject(0);
+    assert row2.size() == 1;
+    Row row3 = row2.getObject(0);
+    assert row3.size() == 2;
+    assert row3.getString(0).equals("txt");
+    assert row3.getLong(1) == 10;
   }
 }

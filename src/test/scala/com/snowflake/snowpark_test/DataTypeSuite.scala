@@ -4,6 +4,9 @@ import com.snowflake.snowpark.{Row, SNTestBase, TestUtils}
 import com.snowflake.snowpark.types._
 import com.snowflake.snowpark.functions._
 
+import java.sql.{Date, Time, Timestamp}
+import java.util.TimeZone
+
 // Test DataTypes out of com.snowflake.snowpark package.
 class DataTypeSuite extends SNTestBase {
   test("IntegralType") {
@@ -181,6 +184,138 @@ class DataTypeSuite extends SNTestBase {
            |""".stripMargin)
   }
 
+  test("read Structured Array") {
+    val oldTimeZone = TimeZone.getDefault
+    try {
+      // Need to set default time zone because the expected result has timestamp data
+      TimeZone.setDefault(TimeZone.getTimeZone("US/Pacific"))
+      val query =
+        """SELECT
+          |    [1, 2, 3]::ARRAY(NUMBER) AS arr1,
+          |    [1.1, 2.2, 3.3]::ARRAY(FLOAT) AS arr2,
+          |    [true, false]::ARRAY(BOOLEAN) AS arr3,
+          |    ['a', 'b']::ARRAY(VARCHAR) AS arr4,
+          |    [parse_json(31000000)::timestamp_ntz]::ARRAY(TIMESTAMP_NTZ) AS arr5,
+          |    [TO_BINARY('SNOW', 'utf-8')]::ARRAY(BINARY) AS arr6,
+          |    [TO_DATE('2013-05-17')]::ARRAY(DATE) AS arr7,
+          |    [[1,2]]::ARRAY(ARRAY) AS arr9,
+          |    [OBJECT_CONSTRUCT('name', 1)]::ARRAY(OBJECT) AS arr10,
+          |    [[1, 2], [3, 4]]::ARRAY(ARRAY(NUMBER)) AS arr11,
+          |    [1.234::DECIMAL(13, 5)]::ARRAY(DECIMAL(13,5)) as arr12,
+          |    [time '10:03:56']::ARRAY(TIME) as arr21
+          |""".stripMargin
+      val df = session.sql(query)
+      assert(df.collect().head.getSeq[Double](1).isInstanceOf[Seq[Double]])
+      checkAnswer(
+        df,
+        Row(
+          Array(1L, 2L, 3L),
+          Array(1.1, 2.2, 3.3),
+          Array(true, false),
+          Array("a", "b"),
+          Array(new Timestamp(31000000000L)),
+          Array(Array(83.toByte, 78.toByte, 79.toByte, 87.toByte)),
+          Array(Date.valueOf("2013-05-17")),
+          Array("[\n  1,\n  2\n]"),
+          Array("{\n  \"name\": 1\n}"),
+          Array(Array(1L, 2L), Array(3L, 4L)),
+          Array(java.math.BigDecimal.valueOf(1.234)),
+          Array(Time.valueOf("10:03:56"))))
+    } finally {
+      TimeZone.setDefault(oldTimeZone)
+    }
+  }
+
+  test("read Structured Map") {
+    val query =
+      """SELECT
+        |  {'a':1,'b':2} :: MAP(VARCHAR, NUMBER) as map1,
+        |  {'1':'a','2':'b'} :: MAP(NUMBER, VARCHAR) as map2,
+        |  {'1':[1,2,3],'2':[4,5,6]} :: MAP(NUMBER, ARRAY(NUMBER)) as map3,
+        |  {'1':{'a':1,'b':2},'2':{'c':3}} :: MAP(NUMBER, MAP(VARCHAR, NUMBER)) as map4,
+        |  [{'a':1,'b':2},{'c':3}] :: ARRAY(MAP(VARCHAR, NUMBER)) as map5,
+        |  {'a':1,'b':2} :: OBJECT as map0
+        |""".stripMargin
+    val df = session.sql(query)
+    checkAnswer(
+      df,
+      Row(
+        Map("b" -> 2, "a" -> 1),
+        Map(2 -> "b", 1 -> "a"),
+        Map(2 -> Array(4L, 5L, 6L), 1 -> Array(1L, 2L, 3L)),
+        Map(2 -> Map("c" -> 3), 1 -> Map("a" -> 1, "b" -> 2)),
+        Array(Map("a" -> 1, "b" -> 2), Map("c" -> 3)),
+        "{\n  \"a\": 1,\n  \"b\": 2\n}"))
+  }
+
+  test("read object") {
+    val query =
+      // scalastyle:off
+      """SELECT
+        |  {'b': 1, 'a': '22'} :: OBJECT(a VARCHAR, b NUMBER) as object1,
+        |  {'a': 1, 'b': [1,2,3,4], 'c': true} :: OBJECT(a NUMBER, b ARRAY(NUMBER), c BOOLEAN) as object2,
+        |  {'a': 1, 'b': [1,2,3,4], 'c': {'1':'a'}} :: OBJECT(a NUMBER, b ARRAY(NUMBER), c MAP(NUMBER, VARCHAR)) as object3,
+        |  {'a': {'b': {'a':10,'c': 1}}} :: OBJECT(a OBJECT(b OBJECT(c NUMBER, a NUMBER))) as object4,
+        |  [{'a':1,'b':2},{'b':3,'a':4}] :: ARRAY(OBJECT(a NUMBER, b NUMBER)) as arr1,
+        |  {'a1':{'b':2}, 'a2':{'b':3}} :: MAP(VARCHAR, OBJECT(b NUMBER)) as map1
+        |""".stripMargin
+    // scalastyle:on
+
+    val df = session.sql(query)
+    val result = df.collect()
+    assert(result.length == 1)
+    val row = result.head
+    assert(row.getObject(0).length == 2)
+    assert(row.getObject(0).getString(0) == "22")
+    assert(row.getObject(0).getLong(1) == 1L)
+
+    assert(row.getObject(1).length == 3)
+    assert(row.getObject(1).getLong(0) == 1L)
+    assert(row.getObject(1).getSeq(1).length == 4)
+    val arr1 = row.getObject(1).getSeq[Long](1)
+    assert(arr1.isInstanceOf[Seq[Long]])
+    assert(arr1.sameElements(Array(1L, 2L, 3L, 4L)))
+    assert(row.getObject(1).getBoolean(2))
+
+    assert(row.getObject(2).length == 3)
+    assert(row.getObject(2).getLong(0) == 1L)
+    assert(row.getObject(2).getSeq(1).length == 4)
+    val arr2 = row.getObject(2).getSeq[Long](1)
+    assert(arr2.isInstanceOf[Seq[Long]])
+    assert(arr2.sameElements(Array(1L, 2L, 3L, 4L)))
+    val map1 = row.getObject(2).getMap[Long, String](2)
+    assert(map1 == Map(1L -> "a"))
+
+    assert(row.getObject(3).length == 1)
+    val row1 = row.getObject(3).getObject(0)
+    assert(row1.length == 1)
+    val row2 = row1.getObject(0)
+    assert(row2.length == 2)
+    assert(row2.getInt(0) == 1)
+    assert(row2.getInt(1) == 10)
+
+    assert(row.getSeq[Row](4).length == 2)
+    val arr3 = row.getSeq[Row](4)
+    val row3 = arr3.head
+    val row4 = arr3(1)
+    assert(row3.length == 2)
+    assert(row3.getInt(0) == 1)
+    assert(row3.getInt(1) == 2)
+    assert(row4.length == 2)
+    assert(row4.getInt(0) == 4)
+    assert(row4.getInt(1) == 3)
+
+    assert(row.getMap[String, Row](5).size == 2)
+    val map2 = row.getMap[String, Row](5)
+    val row5 = map2("a1")
+    val row6 = map2("a2")
+    assert(row5.length == 1)
+    assert(row5.getInt(0) == 2)
+    assert(row6.length == 1)
+    assert(row6.getInt(0) == 3)
+
+  }
+
   test("ArrayType v2") {
     val query = """SELECT
                   |    [1, 2, 3]::ARRAY(NUMBER) AS arr1,
@@ -194,7 +329,7 @@ class DataTypeSuite extends SNTestBase {
                   |    [[1,2]]::ARRAY(ARRAY) AS arr9,
                   |    [OBJECT_CONSTRUCT('name', 1)]::ARRAY(OBJECT) AS arr10,
                   |    [[1, 2], [3, 4]]::ARRAY(ARRAY(NUMBER)) AS arr11,
-                  |    [1, 2, 3] AS arr0;""".stripMargin
+                  |    [1, 2, 3] AS arr0""".stripMargin
     val df = session.sql(query)
     assert(
       TestUtils.treeString(df.schema, 0) ==
