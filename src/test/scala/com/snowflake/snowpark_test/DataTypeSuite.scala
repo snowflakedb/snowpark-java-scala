@@ -185,40 +185,45 @@ class DataTypeSuite extends SNTestBase {
   }
 
   test("read Structured Array") {
-    // Need to set default time zone because the expected result has timestamp data
-    TimeZone.setDefault(TimeZone.getTimeZone("US/Pacific"))
-    val query =
-      """SELECT
-        |    [1, 2, 3]::ARRAY(NUMBER) AS arr1,
-        |    [1.1, 2.2, 3.3]::ARRAY(FLOAT) AS arr2,
-        |    [true, false]::ARRAY(BOOLEAN) AS arr3,
-        |    ['a', 'b']::ARRAY(VARCHAR) AS arr4,
-        |    [parse_json(31000000)::timestamp_ntz]::ARRAY(TIMESTAMP_NTZ) AS arr5,
-        |    [TO_BINARY('SNOW', 'utf-8')]::ARRAY(BINARY) AS arr6,
-        |    [TO_DATE('2013-05-17')]::ARRAY(DATE) AS arr7,
-        |    [[1,2]]::ARRAY(ARRAY) AS arr9,
-        |    [OBJECT_CONSTRUCT('name', 1)]::ARRAY(OBJECT) AS arr10,
-        |    [[1, 2], [3, 4]]::ARRAY(ARRAY(NUMBER)) AS arr11,
-        |    [1.234::DECIMAL(13, 5)]::ARRAY(DECIMAL(13,5)) as arr12,
-        |    [time '10:03:56']::ARRAY(TIME) as arr21
-        |""".stripMargin
-    val df = session.sql(query)
-    assert(df.collect().head.getSeq[Double](1).isInstanceOf[Seq[Double]])
-    checkAnswer(
-      df,
-      Row(
-        Array(1L, 2L, 3L),
-        Array(1.1, 2.2, 3.3),
-        Array(true, false),
-        Array("a", "b"),
-        Array(new Timestamp(31000000000L)),
-        Array(Array(83.toByte, 78.toByte, 79.toByte, 87.toByte)),
-        Array(Date.valueOf("2013-05-17")),
-        Array("[\n  1,\n  2\n]"),
-        Array("{\n  \"name\": 1\n}"),
-        Array(Array(1L, 2L), Array(3L, 4L)),
-        Array(java.math.BigDecimal.valueOf(1.234)),
-        Array(Time.valueOf("10:03:56"))))
+    val oldTimeZone = TimeZone.getDefault
+    try {
+      // Need to set default time zone because the expected result has timestamp data
+      TimeZone.setDefault(TimeZone.getTimeZone("US/Pacific"))
+      val query =
+        """SELECT
+          |    [1, 2, 3]::ARRAY(NUMBER) AS arr1,
+          |    [1.1, 2.2, 3.3]::ARRAY(FLOAT) AS arr2,
+          |    [true, false]::ARRAY(BOOLEAN) AS arr3,
+          |    ['a', 'b']::ARRAY(VARCHAR) AS arr4,
+          |    [parse_json(31000000)::timestamp_ntz]::ARRAY(TIMESTAMP_NTZ) AS arr5,
+          |    [TO_BINARY('SNOW', 'utf-8')]::ARRAY(BINARY) AS arr6,
+          |    [TO_DATE('2013-05-17')]::ARRAY(DATE) AS arr7,
+          |    [[1,2]]::ARRAY(ARRAY) AS arr9,
+          |    [OBJECT_CONSTRUCT('name', 1)]::ARRAY(OBJECT) AS arr10,
+          |    [[1, 2], [3, 4]]::ARRAY(ARRAY(NUMBER)) AS arr11,
+          |    [1.234::DECIMAL(13, 5)]::ARRAY(DECIMAL(13,5)) as arr12,
+          |    [time '10:03:56']::ARRAY(TIME) as arr21
+          |""".stripMargin
+      val df = session.sql(query)
+      assert(df.collect().head.getSeq[Double](1).isInstanceOf[Seq[Double]])
+      checkAnswer(
+        df,
+        Row(
+          Array(1L, 2L, 3L),
+          Array(1.1, 2.2, 3.3),
+          Array(true, false),
+          Array("a", "b"),
+          Array(new Timestamp(31000000000L)),
+          Array(Array(83.toByte, 78.toByte, 79.toByte, 87.toByte)),
+          Array(Date.valueOf("2013-05-17")),
+          Array("[\n  1,\n  2\n]"),
+          Array("{\n  \"name\": 1\n}"),
+          Array(Array(1L, 2L), Array(3L, 4L)),
+          Array(java.math.BigDecimal.valueOf(1.234)),
+          Array(Time.valueOf("10:03:56"))))
+    } finally {
+      TimeZone.setDefault(oldTimeZone)
+    }
   }
 
   test("read Structured Map") {
