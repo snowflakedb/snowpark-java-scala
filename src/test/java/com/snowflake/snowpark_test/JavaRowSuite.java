@@ -340,14 +340,17 @@ public class JavaRowSuite extends TestBase {
   @Test
   public void testGetList() {
     try {
-      getSession().sql("alter session set ENABLE_STRUCTURED_TYPES_IN_CLIENT_RESPONSE=true").show();
-      getSession()
-          .sql("alter session set IGNORE_CLIENT_VESRION_IN_STRUCTURED_TYPES_RESPONSE = true")
-          .show();
-      getSession()
-          .sql("alter session set FORCE_ENABLE_STRUCTURED_TYPES_NATIVE_ARROW_FORMAT=true")
-          .show();
-
+      if (isPreprodAccount()) {
+        getSession()
+            .sql("alter session set ENABLE_STRUCTURED_TYPES_IN_CLIENT_RESPONSE=true")
+            .show();
+        getSession()
+            .sql("alter session set IGNORE_CLIENT_VESRION_IN_STRUCTURED_TYPES_RESPONSE = true")
+            .show();
+        getSession()
+            .sql("alter session set FORCE_ENABLE_STRUCTURED_TYPES_NATIVE_ARROW_FORMAT=true")
+            .show();
+      }
       DataFrame df = getSession().sql("select [[1, 2], [3]]::ARRAY(ARRAY(NUMBER)) AS arr1");
       StructType schema = df.schema();
       assert schema.get(0).dataType() instanceof ArrayType;
@@ -366,27 +369,32 @@ public class JavaRowSuite extends TestBase {
       assert (Long) list1.get(1) == 2;
       assert (Long) list2.get(0) == 3;
     } finally {
-      getSession().sql("alter session unset ENABLE_STRUCTURED_TYPES_IN_CLIENT_RESPONSE").show();
-      getSession()
-          .sql("alter session unset IGNORE_CLIENT_VESRION_IN_STRUCTURED_TYPES_RESPONSE")
-          .show();
-      getSession()
-          .sql("alter session unset FORCE_ENABLE_STRUCTURED_TYPES_NATIVE_ARROW_FORMAT")
-          .show();
+      if (isPreprodAccount()) {
+        getSession().sql("alter session unset ENABLE_STRUCTURED_TYPES_IN_CLIENT_RESPONSE").show();
+        getSession()
+            .sql("alter session unset IGNORE_CLIENT_VESRION_IN_STRUCTURED_TYPES_RESPONSE")
+            .show();
+        getSession()
+            .sql("alter session unset FORCE_ENABLE_STRUCTURED_TYPES_NATIVE_ARROW_FORMAT")
+            .show();
+      }
     }
   }
 
   @Test
   public void testGetMap() {
     try {
-      getSession().sql("alter session set ENABLE_STRUCTURED_TYPES_IN_CLIENT_RESPONSE=true").show();
-      getSession()
-          .sql("alter session set IGNORE_CLIENT_VESRION_IN_STRUCTURED_TYPES_RESPONSE = true")
-          .show();
-      getSession()
-          .sql("alter session set FORCE_ENABLE_STRUCTURED_TYPES_NATIVE_ARROW_FORMAT=true")
-          .show();
-
+      if (isPreprodAccount()) {
+        getSession()
+            .sql("alter session set ENABLE_STRUCTURED_TYPES_IN_CLIENT_RESPONSE=true")
+            .show();
+        getSession()
+            .sql("alter session set IGNORE_CLIENT_VESRION_IN_STRUCTURED_TYPES_RESPONSE = true")
+            .show();
+        getSession()
+            .sql("alter session set FORCE_ENABLE_STRUCTURED_TYPES_NATIVE_ARROW_FORMAT=true")
+            .show();
+      }
       DataFrame df =
           getSession()
               .sql(
@@ -406,27 +414,32 @@ public class JavaRowSuite extends TestBase {
       assert map2.size() == 1;
       assert (Long) map2.get("c") == 3;
     } finally {
-      getSession().sql("alter session unset ENABLE_STRUCTURED_TYPES_IN_CLIENT_RESPONSE").show();
-      getSession()
-          .sql("alter session unset IGNORE_CLIENT_VESRION_IN_STRUCTURED_TYPES_RESPONSE")
-          .show();
-      getSession()
-          .sql("alter session unset FORCE_ENABLE_STRUCTURED_TYPES_NATIVE_ARROW_FORMAT")
-          .show();
+      if (isPreprodAccount()) {
+        getSession().sql("alter session unset ENABLE_STRUCTURED_TYPES_IN_CLIENT_RESPONSE").show();
+        getSession()
+            .sql("alter session unset IGNORE_CLIENT_VESRION_IN_STRUCTURED_TYPES_RESPONSE")
+            .show();
+        getSession()
+            .sql("alter session unset FORCE_ENABLE_STRUCTURED_TYPES_NATIVE_ARROW_FORMAT")
+            .show();
+      }
     }
   }
 
   @Test
   public void testGetRow() {
     try {
-      getSession().sql("alter session set ENABLE_STRUCTURED_TYPES_IN_CLIENT_RESPONSE=true").show();
-      getSession()
-          .sql("alter session set IGNORE_CLIENT_VESRION_IN_STRUCTURED_TYPES_RESPONSE = true")
-          .show();
-      getSession()
-          .sql("alter session set FORCE_ENABLE_STRUCTURED_TYPES_NATIVE_ARROW_FORMAT=true")
-          .show();
-
+      if (isPreprodAccount()) {
+        getSession()
+            .sql("alter session set ENABLE_STRUCTURED_TYPES_IN_CLIENT_RESPONSE=true")
+            .show();
+        getSession()
+            .sql("alter session set IGNORE_CLIENT_VESRION_IN_STRUCTURED_TYPES_RESPONSE = true")
+            .show();
+        getSession()
+            .sql("alter session set FORCE_ENABLE_STRUCTURED_TYPES_NATIVE_ARROW_FORMAT=true")
+            .show();
+      }
       DataFrame df =
           getSession()
               .sql(
@@ -461,13 +474,15 @@ public class JavaRowSuite extends TestBase {
       assert row3.getString(0).equals("txt");
       assert row3.getLong(1) == 10;
     } finally {
-      getSession().sql("alter session unset ENABLE_STRUCTURED_TYPES_IN_CLIENT_RESPONSE").show();
-      getSession()
-          .sql("alter session unset IGNORE_CLIENT_VESRION_IN_STRUCTURED_TYPES_RESPONSE")
-          .show();
-      getSession()
-          .sql("alter session unset FORCE_ENABLE_STRUCTURED_TYPES_NATIVE_ARROW_FORMAT")
-          .show();
+      if (isPreprodAccount()) {
+        getSession().sql("alter session unset ENABLE_STRUCTURED_TYPES_IN_CLIENT_RESPONSE").show();
+        getSession()
+            .sql("alter session unset IGNORE_CLIENT_VESRION_IN_STRUCTURED_TYPES_RESPONSE")
+            .show();
+        getSession()
+            .sql("alter session unset FORCE_ENABLE_STRUCTURED_TYPES_NATIVE_ARROW_FORMAT")
+            .show();
+      }
     }
   }
 }

@@ -11,17 +11,23 @@ import java.util.TimeZone
 class DataTypeSuite extends SNTestBase {
   override def beforeAll: Unit = {
     super.beforeAll
-    session.sql("alter session set ENABLE_STRUCTURED_TYPES_IN_CLIENT_RESPONSE=true").show()
-    session
-      .sql("alter session set IGNORE_CLIENT_VESRION_IN_STRUCTURED_TYPES_RESPONSE = true")
-      .show()
-    session.sql("alter session set FORCE_ENABLE_STRUCTURED_TYPES_NATIVE_ARROW_FORMAT=true").show()
+    if (isPreprodAccount) {
+      session.sql("alter session set ENABLE_STRUCTURED_TYPES_IN_CLIENT_RESPONSE=true").show()
+      session
+        .sql("alter session set IGNORE_CLIENT_VESRION_IN_STRUCTURED_TYPES_RESPONSE = true")
+        .show()
+      session
+        .sql("alter session set FORCE_ENABLE_STRUCTURED_TYPES_NATIVE_ARROW_FORMAT=true")
+        .show()
+    }
   }
 
   override def afterAll: Unit = {
-    session.sql("alter session unset ENABLE_STRUCTURED_TYPES_IN_CLIENT_RESPONSE").show()
-    session.sql("alter session unset IGNORE_CLIENT_VESRION_IN_STRUCTURED_TYPES_RESPONSE").show()
-    session.sql("alter session unset FORCE_ENABLE_STRUCTURED_TYPES_NATIVE_ARROW_FORMAT").show()
+    if (isPreprodAccount) {
+      session.sql("alter session unset ENABLE_STRUCTURED_TYPES_IN_CLIENT_RESPONSE").show()
+      session.sql("alter session unset IGNORE_CLIENT_VESRION_IN_STRUCTURED_TYPES_RESPONSE").show()
+      session.sql("alter session unset FORCE_ENABLE_STRUCTURED_TYPES_NATIVE_ARROW_FORMAT").show()
+    }
     super.afterAll
   }
   test("IntegralType") {
