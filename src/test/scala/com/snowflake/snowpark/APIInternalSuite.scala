@@ -42,10 +42,23 @@ class APIInternalSuite extends TestData {
     runQuery(s"CREATE TEMPORARY STAGE $tmpStageName", session)
     // upload the file to stage
     uploadFileToStage(tmpStageName, testFileCsv, compress = false)
-
+    if (isPreprodAccount) {
+      session.sql("alter session set ENABLE_STRUCTURED_TYPES_IN_CLIENT_RESPONSE=true").show()
+      session
+        .sql("alter session set IGNORE_CLIENT_VESRION_IN_STRUCTURED_TYPES_RESPONSE = true")
+        .show()
+      session
+        .sql("alter session set FORCE_ENABLE_STRUCTURED_TYPES_NATIVE_ARROW_FORMAT=true")
+        .show()
+    }
   }
 
   override def afterAll: Unit = {
+    if (isPreprodAccount) {
+      session.sql("alter session unset ENABLE_STRUCTURED_TYPES_IN_CLIENT_RESPONSE").show()
+      session.sql("alter session unset IGNORE_CLIENT_VESRION_IN_STRUCTURED_TYPES_RESPONSE").show()
+      session.sql("alter session unset FORCE_ENABLE_STRUCTURED_TYPES_NATIVE_ARROW_FORMAT").show()
+    }
     // drop the temporary stages
     runQuery(s"DROP STAGE IF EXISTS $tmpStageName", session)
 

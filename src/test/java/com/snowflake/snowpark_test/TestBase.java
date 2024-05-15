@@ -3,6 +3,7 @@ package com.snowflake.snowpark_test;
 import com.snowflake.snowpark.TestUtils;
 import com.snowflake.snowpark_java.JavaToScalaConvertor;
 import com.snowflake.snowpark_java.Session;
+import java.util.Optional;
 
 public abstract class TestBase extends TestFunctions {
 
@@ -18,6 +19,21 @@ public abstract class TestBase extends TestFunctions {
       _session = Session.builder().configFile(defaultProfile).create();
     }
     return _session;
+  }
+
+  Optional<Boolean> isPreprodAccount = Optional.empty();
+
+  protected boolean isPreprodAccount() {
+    if (!isPreprodAccount.isPresent()) {
+      isPreprodAccount =
+          Optional.of(
+              !getSession()
+                  .sql("select current_account()")
+                  .collect()[0]
+                  .getString(0)
+                  .contains("SFCTEST0"));
+    }
+    return isPreprodAccount.get();
   }
 
   protected void runQuery(String sql) {

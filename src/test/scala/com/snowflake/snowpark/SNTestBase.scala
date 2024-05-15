@@ -41,6 +41,9 @@ trait SNTestBase extends FunSuite with BeforeAndAfterAll with SFTestUtils with S
   def runQueryReturnStatement(sql: String, sess: Session): Statement =
     TestUtils.runQueryReturnStatement(sql, sess)
 
+  lazy val isPreprodAccount: Boolean =
+    !session.sql("select current_account()").collect().head.getString(0).contains("SFCTEST0")
+
   case class TypeMap(colName: String, sfType: String, jdbcType: Int, tsType: DataType)
   lazy val typeMap = List(
     TypeMap("number", "number(10,2)", Types.DECIMAL, DecimalType(10, 2)),
