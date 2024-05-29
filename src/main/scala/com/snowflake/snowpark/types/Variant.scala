@@ -164,7 +164,11 @@ class Variant private[snowpark] (
   def this(str: String) =
     this({
       try {
-        MAPPER.readTree(str)
+        if (str.toLowerCase().startsWith("null") && str != "null") {
+          JsonNodeFactory.instance.textNode(str)
+        } else {
+          MAPPER.readTree(str)
+        }
       } catch {
         case _: Exception => JsonNodeFactory.instance.textNode(str)
       }
