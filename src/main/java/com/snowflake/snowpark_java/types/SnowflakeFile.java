@@ -13,7 +13,7 @@ public class SnowflakeFile {
    * Create a new instance of SnowflakeFile. Calls into our C++ layer to construct it.
    *
    * @param scopedUrl can be scoped URL. Stage file references should use
-   *     newInstanceFromOwnerFileUrl.
+   *     the second override to set requireScopedUrl to false.
    * @return A new instance of SnowflakeFile for the given URL.
    * @since 1.3.0
    */
