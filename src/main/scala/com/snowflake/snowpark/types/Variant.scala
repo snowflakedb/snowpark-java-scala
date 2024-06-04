@@ -164,8 +164,10 @@ class Variant private[snowpark] (
   def this(str: String) =
     this({
       try {
-        // `ObjectMapper` only reads the first token from the input string but not the whole string.
-        // It can successfully convert "null dummy" to `null` value without reporting error.
+        // `ObjectMapper` only reads the first token from
+        // the input string but not the whole string.
+        // For example, It can successfully
+        // convert "null dummy" to `null` value without reporting error.
         if (str.toLowerCase().startsWith("null") && str != "null") {
           JsonNodeFactory.instance.textNode(str)
         } else {
