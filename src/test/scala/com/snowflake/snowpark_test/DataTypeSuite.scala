@@ -590,27 +590,18 @@ class DataTypeSuite extends SNTestBase {
     // scalastyle:on
   }
 
-  test("Variant containing word null in the text")  {
+  test("Variant containing word null in the text") {
     import session.implicits._
     var variant = new Variant("null string starts with null")
     var df = Seq(variant).toDF("a")
-    checkAnswer(
-      df,
-      Row("\"null string starts with null\"")
-    )
+    checkAnswer(df, Row("\"null string starts with null\""))
 
     variant = new Variant("string with null in the middle")
     df = Seq(variant).toDF("a")
-    checkAnswer(
-      df,
-      Row("\"string with null in the middle\"")
-    )
+    checkAnswer(df, Row("\"string with null in the middle\""))
 
     variant = new Variant("string with null in the end null")
     df = Seq(variant).toDF("a")
-    checkAnswer(
-      df,
-      Row("\"string with null in the end null\"")
-    )
+    checkAnswer(df, Row("\"string with null in the end null\""))
   }
 }
