@@ -6,8 +6,8 @@ import com.snowflake.snowpark.internal.OpenTelemetry
 class OpenTelemetrySuite extends OpenTelemetryEnabled {
 
   test("a") {
-    OpenTelemetry.emit("a1", "b2", "c3", 123, "d4")
-    checkSpan("a1", "b2", "c3", 123, "d4")
+    OpenTelemetry.emit("ClassA", "functionB", "fileC", 123, "chainD")
+    checkSpan("snow.snowpark.ClassA", "functionB", "fileC", 123, "chainD")
   }
 
 }

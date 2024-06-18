@@ -21,13 +21,15 @@ object OpenTelemetry extends Logging {
 
   // class name format: snow.snowpark.<class name>
   // method chain: Dataframe.filter.join.select.collect
+  // todo: track line number in SNOW-1480775
   def emit(
       className: String,
       funcName: String,
       fileName: String,
       lineNumber: Int,
       methodChain: String): Unit = {
-    val tracer = GlobalOpenTelemetry.getTracer(className)
+    val name = s"snow.snowpark.$className"
+    val tracer = GlobalOpenTelemetry.getTracer(name)
     val span = tracer.spanBuilder(funcName).startSpan()
     try {
       val scope = span.makeCurrent()
@@ -47,6 +49,7 @@ object OpenTelemetry extends Logging {
     }
   }
 
+  // todo: Snow-1480779
   def buildMethodChain(funcName: String, df: DataFrame): String = {
     ""
   }
