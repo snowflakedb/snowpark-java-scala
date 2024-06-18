@@ -3,14 +3,13 @@ package com.snowflake.snowpark.internal
 import com.snowflake.snowpark.DataFrame
 import io.opentelemetry.api.GlobalOpenTelemetry
 
-object OpenTelemetry extends Logging{
+object OpenTelemetry extends Logging {
   def test(): Unit = {
     val stack = Thread.currentThread().getStackTrace
     // scalastyle:off println
     stack.foreach(e => {
 
-      println(
-        s"""
+      println(s"""
            |file name: ${e.getFileName}
            |line #: ${e.getLineNumber}
            |class name: ${e.getClassName}
@@ -23,12 +22,11 @@ object OpenTelemetry extends Logging{
   // class name format: snow.snowpark.<class name>
   // method chain: Dataframe.filter.join.select.collect
   def emit(
-            className: String,
-            funcName: String,
-            fileName: String,
-            lineNumber: Int,
-            methodChain: String
-          ): Unit = {
+      className: String,
+      funcName: String,
+      fileName: String,
+      lineNumber: Int,
+      methodChain: String): Unit = {
     val tracer = GlobalOpenTelemetry.getTracer(className)
     val span = tracer.spanBuilder(funcName).startSpan()
     try {
@@ -41,8 +39,7 @@ object OpenTelemetry extends Logging{
       } catch {
         case e: Exception =>
           logWarning(s"Error when acquiring span attributes. ${e.getMessage}")
-      }
-      finally {
+      } finally {
         scope.close()
       }
     } finally {
