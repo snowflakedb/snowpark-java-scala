@@ -43,6 +43,7 @@ trait OpenTelemetryEnabled extends SNTestBase {
     assert(span.getAttributes.get(AttributeKey.stringKey("code.filepath")) == fileName)
     assert(span.getAttributes.get(AttributeKey.longKey("code.lineno")) == lineNumber)
     assert(span.getAttributes.get(AttributeKey.stringKey("method.chain")) == methodChain)
+    testSpanExporter.reset()
   }
 
   override def afterAll: Unit = {
