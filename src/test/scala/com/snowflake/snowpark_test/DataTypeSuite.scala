@@ -3,6 +3,7 @@ package com.snowflake.snowpark_test
 import com.snowflake.snowpark.{Row, SNTestBase, TestUtils}
 import com.snowflake.snowpark.types._
 import com.snowflake.snowpark.functions._
+import com.snowflake.snowpark.internal.Utils
 
 import java.sql.{Date, Time, Timestamp}
 import java.util.TimeZone
@@ -587,5 +588,20 @@ class DataTypeSuite extends SNTestBase {
            |       |--C: Long (nullable = false)
            |""".stripMargin)
     // scalastyle:on
+  }
+
+  test("Variant containing word null in the text") {
+    import session.implicits._
+    var variant = new Variant("null string starts with null")
+    var df = Seq(variant).toDF("a")
+    checkAnswer(df, Row("\"null string starts with null\""))
+
+    variant = new Variant("string with null in the middle")
+    df = Seq(variant).toDF("a")
+    checkAnswer(df, Row("\"string with null in the middle\""))
+
+    variant = new Variant("string with null in the end null")
+    df = Seq(variant).toDF("a")
+    checkAnswer(df, Row("\"string with null in the end null\""))
   }
 }

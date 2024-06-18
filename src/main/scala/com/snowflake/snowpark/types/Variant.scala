@@ -162,13 +162,23 @@ class Variant private[snowpark] (
    * @since 0.2.0
    */
   def this(str: String) =
-    this({
-      try {
-        MAPPER.readTree(str)
-      } catch {
-        case _: Exception => JsonNodeFactory.instance.textNode(str)
-      }
-    }, VariantTypes.String)
+    this(
+      {
+        try {
+          // `ObjectMapper` only reads the first token from
+          // the input string but not the whole string.
+          // For example, It can successfully
+          // convert "null dummy" to `null` value without reporting error.
+          if (str.toLowerCase().startsWith("null") && str != "null") {
+            JsonNodeFactory.instance.textNode(str)
+          } else {
+            MAPPER.readTree(str)
+          }
+        } catch {
+          case _: Exception => JsonNodeFactory.instance.textNode(str)
+        }
+      },
+      VariantTypes.String)
 
   /**
    * Creates a Variant from binary value
