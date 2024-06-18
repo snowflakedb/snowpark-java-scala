@@ -4,21 +4,6 @@ import com.snowflake.snowpark.DataFrame
 import io.opentelemetry.api.GlobalOpenTelemetry
 
 object OpenTelemetry extends Logging {
-  def test(): Unit = {
-    val stack = Thread.currentThread().getStackTrace
-    // scalastyle:off println
-    stack.foreach(e => {
-
-      println(s"""
-           |file name: ${e.getFileName}
-           |line #: ${e.getLineNumber}
-           |class name: ${e.getClassName}
-           |method name: ${e.getMethodName}
-           |""".stripMargin)
-    })
-    // scalastyle:on println
-  }
-
   // class name format: snow.snowpark.<class name>
   // method chain: Dataframe.filter.join.select.collect
   // todo: track line number in SNOW-1480775
