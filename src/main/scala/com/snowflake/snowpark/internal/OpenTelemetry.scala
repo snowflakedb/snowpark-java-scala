@@ -2,6 +2,7 @@ package com.snowflake.snowpark.internal
 
 import com.snowflake.snowpark.DataFrame
 import io.opentelemetry.api.GlobalOpenTelemetry
+import io.opentelemetry.api.trace.{Span, StatusCode}
 
 object OpenTelemetry extends Logging {
   // class name format: snow.snowpark.<class name>
@@ -12,7 +13,24 @@ object OpenTelemetry extends Logging {
       funcName: String,
       fileName: String,
       lineNumber: Int,
-      methodChain: String): Unit = {
+      methodChain: String): Unit =
+    emit(className, funcName) { span =>
+      {
+        span.setAttribute("code.filepath", fileName)
+        span.setAttribute("code.lineno", lineNumber)
+        span.setAttribute("method.chain", methodChain)
+      }
+    }
+
+  def reportError(className: String, funcName: String, error: Throwable): Unit =
+    emit(className, funcName) { span =>
+      {
+        span.setStatus(StatusCode.ERROR, error.getMessage)
+        span.recordException(error)
+      }
+    }
+
+  private def emit(className: String, funcName: String)(report: Span => Unit): Unit = {
     val name = s"snow.snowpark.$className"
     val tracer = GlobalOpenTelemetry.getTracer(name)
     val span = tracer.spanBuilder(funcName).startSpan()
@@ -20,9 +38,7 @@ object OpenTelemetry extends Logging {
       val scope = span.makeCurrent()
       // Using Manager is not available in Scala 2.12 yet
       try {
-        span.setAttribute("code.filepath", fileName)
-        span.setAttribute("code.lineno", lineNumber)
-        span.setAttribute("method.chain", methodChain)
+        report(span)
       } catch {
         case e: Exception =>
           logWarning(s"Error when acquiring span attributes. ${e.getMessage}")

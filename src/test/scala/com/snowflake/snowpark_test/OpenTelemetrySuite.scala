@@ -10,4 +10,10 @@ class OpenTelemetrySuite extends OpenTelemetryEnabled {
     checkSpan("snow.snowpark.ClassA", "functionB", "fileC", 123, "chainD")
   }
 
+  test("report error") {
+    val error = new Exception("test")
+    OpenTelemetry.reportError("ClassA1", "functionB1", error)
+    checkSpanError("snow.snowpark.ClassA1", "functionB1", error)
+  }
+
 }
