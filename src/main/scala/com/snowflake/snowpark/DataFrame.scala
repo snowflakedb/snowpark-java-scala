@@ -3,8 +3,7 @@ package com.snowflake.snowpark
 import scala.reflect.ClassTag
 import scala.util.Random
 import com.snowflake.snowpark.internal.analyzer.{TableFunction => TF}
-import com.snowflake.snowpark.internal.ErrorMessage
-import com.snowflake.snowpark.internal.{Logging, Utils}
+import com.snowflake.snowpark.internal.{ErrorMessage, Logging, OpenTelemetry, Utils}
 import com.snowflake.snowpark.internal.analyzer._
 import com.snowflake.snowpark.types._
 import com.github.vertical_blank.sqlformatter.SqlFormatter
@@ -2938,6 +2937,28 @@ class DataFrame private[snowpark] (
   }
 
   @inline protected def withPlan(plan: LogicalPlan): DataFrame = DataFrame(session, plan)
+
+  // wrapper of all action functions
+  @inline protected def action(funcName: String)(func: => Unit): Unit = {
+    val isScala: Boolean = this.session.conn.isScalaAPI
+    val className = "DataFrame"
+    val stacks = Thread.currentThread().getStackTrace
+    val methodChain = ""
+    val (fileName, lineNumber): (String, Int) =
+      if (isScala) {
+        null
+      } else {
+        null
+      }
+    try {
+      func
+      OpenTelemetry.emit(className, funcName, fileName, lineNumber, methodChain)
+    } catch {
+      case error: Throwable =>
+        OpenTelemetry.reportError(className, funcName, error)
+        throw error
+    }
+  }
 }
 
 /**
