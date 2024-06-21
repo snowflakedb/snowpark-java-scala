@@ -2219,7 +2219,7 @@ class DataFrame private[snowpark] (
    * @since 0.1.0
    * @return An Array of [[Row]]
    */
-  def collect(): Array[Row] = {
+  def collect(): Array[Row] = action("collect") {
     session.conn.telemetry.reportActionCollect()
     session.conn.execute(snowflakePlan)
   }
@@ -2939,7 +2939,7 @@ class DataFrame private[snowpark] (
   @inline protected def withPlan(plan: LogicalPlan): DataFrame = DataFrame(session, plan)
 
   // wrapper of all action functions
-  @inline protected def action(funcName: String)(func: => Unit): Unit = {
+  @inline protected def action[T](funcName: String)(func: => T): T = {
     val isScala: Boolean = this.session.conn.isScalaAPI
     val className = "DataFrame"
     val stacks = Thread.currentThread().getStackTrace
@@ -2951,8 +2951,9 @@ class DataFrame private[snowpark] (
         null
       }
     try {
-      func
+      val result: T = func
       OpenTelemetry.emit(className, funcName, fileName, lineNumber, methodChain)
+      result
     } catch {
       case error: Throwable =>
         OpenTelemetry.reportError(className, funcName, error)
