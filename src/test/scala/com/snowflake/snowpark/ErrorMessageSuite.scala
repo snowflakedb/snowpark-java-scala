@@ -859,4 +859,31 @@ class ErrorMessageSuite extends FunSuite {
           "Unsupported Geometry output format: KWT." +
           " Please set session parameter GEOMETRY_OUTPUT_FORMAT to GeoJSON."))
   }
+
+  test("MISC_INVALID_INPUT_QUERY_TAG") {
+    val ex = ErrorMessage.MISC_INVALID_INPUT_QUERY_TAG()
+    assert(ex.telemetryMessage.equals(ErrorMessage.getMessage("0426")))
+    assert(
+      ex.message.startsWith(
+        "Error Code: 0426, Error message: " +
+          "The given query tag must be a valid JSON string. " +
+          "Ensure it's correctly formatted as JSON."))
+  }
+
+  test("MISC_INVALID_CURRENT_QUERY_TAG") {
+    val ex = ErrorMessage.MISC_INVALID_CURRENT_QUERY_TAG("myTag")
+    assert(ex.telemetryMessage.equals(ErrorMessage.getMessage("0427")))
+    assert(
+      ex.message.startsWith(
+        "Error Code: 0427, Error message: The query tag of the current session " +
+          "must be a valid JSON string. Current query tag: myTag"))
+  }
+
+  test("MISC_FAILED_TO_SERIALIZE_QUERY_TAG") {
+    val ex = ErrorMessage.MISC_FAILED_TO_SERIALIZE_QUERY_TAG()
+    assert(ex.telemetryMessage.equals(ErrorMessage.getMessage("0428")))
+    assert(
+      ex.message.startsWith(
+        "Error Code: 0428, Error message: Failed to serialize the query tag into a JSON string."))
+  }
 }

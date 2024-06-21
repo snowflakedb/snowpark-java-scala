@@ -1,6 +1,7 @@
 package com.snowflake.snowpark_java;
 
 import com.snowflake.snowpark.PublicPreview;
+import com.snowflake.snowpark.SnowparkClientException;
 import com.snowflake.snowpark.internal.JavaUtils;
 import com.snowflake.snowpark_java.types.InternalUtils;
 import com.snowflake.snowpark_java.types.StructType;
@@ -295,6 +296,49 @@ public class Session {
    */
   public void unsetQueryTag() {
     session.unsetQueryTag();
+  }
+
+  /**
+   * Updates the query tag that is a JSON encoded string for the current session.
+   *
+   * <p>Keep in mind that assigning a value via {@link Session#setQueryTag(String)} will remove any
+   * current query tag state.
+   *
+   * <p>Example 1:
+   *
+   * <pre>{@code
+   * session.setQueryTag("{\"key1\":\"value1\"}");
+   * session.updateQueryTag("{\"key2\":\"value2\"}");
+   * System.out.println(session.getQueryTag().get());
+   * {"key1":"value1","key2":"value2"}
+   * }</pre>
+   *
+   * <p>Example 2:
+   *
+   * <pre>{@code
+   * session.sql("ALTER SESSION SET QUERY_TAG = '{\"key1\":\"value1\"}'").collect();
+   * session.updateQueryTag("{\"key2\":\"value2\"}");
+   * System.out.println(session.getQueryTag().get());
+   * {"key1":"value1","key2":"value2"}
+   * }</pre>
+   *
+   * <p>Example 3:
+   *
+   * <pre>{@code
+   * session.setQueryTag("");
+   * session.updateQueryTag("{\"key1\":\"value1\"}");
+   * System.out.println(session.getQueryTag().get());
+   * {"key1":"value1"}
+   * }</pre>
+   *
+   * @param queryTag A JSON encoded string that provides updates to the current query tag.
+   * @throws SnowparkClientException If the provided query tag or the query tag of the current
+   *     session are not valid JSON strings; or if it could not serialize the query tag into a JSON
+   *     string.
+   * @since 1.13.0
+   */
+  public void updateQueryTag(String queryTag) throws SnowparkClientException {
+    session.updateQueryTag(queryTag);
   }
 
   /**
