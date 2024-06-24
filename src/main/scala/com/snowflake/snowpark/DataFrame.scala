@@ -558,6 +558,20 @@ class DataFrame private[snowpark] (
   }
 
   /**
+   * Selects columns based on the
+   * expressions specified. They could either be
+   * column names, or calls to other functions such as conversions,
+   * case expressions, among others.
+   * @since 1.10.0
+   * @param exprs Expressions to apply to select from the DataFrame.
+   * @return DataFrame with the selected expressions as columns.
+   * Unspecified columns are not included.
+   */
+  def selectExpr(exprs: String*): DataFrame = {
+    select(exprs.map(e => sqlExpr(e)))
+  }
+
+  /**
    * Returns a new DataFrame with the specified Column expressions as output
    * (similar to SELECT in SQL). Only the Columns specified as arguments will be present in
    * the resulting DataFrame.
@@ -865,6 +879,24 @@ class DataFrame private[snowpark] (
    * @return A filtered [[DataFrame]]
    */
   def filter(condition: Column): DataFrame = withPlan(Filter(condition.expr, plan))
+
+  /**
+   * Filters rows based on the specified conditional expression (similar to WHERE in SQL).
+   *
+   * For example:
+   *
+   * {{{
+   *   val dfFiltered = df.filter($"colA > 1 and colB < 100")
+   * }}}
+   *
+   * @group transform
+   * @since 1.10.0
+   * @param condition Filter condition defined as a SQL expression
+   * @return A filtered [[DataFrame]]
+   */
+  def filter(conditionExpr: String): DataFrame = {
+    df.where(sqlExpr(conditionExpr))
+  }
 
   /**
    * Filters rows based on the specified conditional expression (similar to WHERE in SQL).
@@ -1359,6 +1391,20 @@ class DataFrame private[snowpark] (
         .where(functions.col(rowNumberName) === 1)
         .select(outputCols)
     }
+  }
+
+  /**
+   * Overload of dropDuplicates.
+   * Unspecified columns
+   * from the dataframe will be preserved, but won't be
+   * considered to calculate duplicates. For rows with different
+   * values on unspecified columns, it will return the first row.
+   * @param columns List of columns to group by to detect the duplicates.
+   * @since 1.10.0
+   * @return DataFrame without duplicates on the specified columns.
+   */
+  def dropDuplicates(columns: Seq[String]): DataFrame = {
+    dropDuplicates(columns: _*)
   }
 
   /**
@@ -2938,6 +2984,98 @@ class DataFrame private[snowpark] (
   }
 
   @inline protected def withPlan(plan: LogicalPlan): DataFrame = DataFrame(session, plan)
+
+  /**
+   * Function that returns the dataframe with a column renamed.
+   * @since 1.10.0
+   * @param existingName Name of the column to rename.
+   * @param newName New name to give to the column.
+   * @return DataFrame with the column renamed.
+   */
+  def withColumnRenamed(existingName: String, newName: String): DataFrame = {
+    rename(newName, col(existingName))
+  }
+
+  /**
+   * Transforms the DataFrame according to the function from the parameter.
+   * @since 1.10.0
+   * @param func Function to apply to the DataFrame.
+   * @return DataFrame with the transformation applied.
+   */
+  def transform(func: DataFrame => DataFrame): DataFrame = func(self)
+
+  /**
+   * Returns the first row. Since this is an Option element, a `.get`
+   * is required to get the actual row.
+   * @since 1.10.0
+   * @return The first row of the DataFrame.
+   */
+  def head(): Option[Row] = first()
+
+  /**
+   * Returns the first N rows.
+   * @since 1.10.0
+   * @param n Amount of rows to return.
+   * @return Array with the amount of rows specified in the parameter.
+   */
+  def head(n: Int): Array[Row] = first(n)
+
+  /**
+   * Returns the first N rows.
+   * @since 1.10.0
+   * @param n Amount of rows to return.
+   * @return Array with the amount of rows specified in the parameter.
+   */
+  def take(n: Int): Array[Row] = first(n)
+
+  /**
+   * Caches the result of the DataFrame and creates a new Dataframe,
+   * whose operations won't affect the original DataFrame.
+   * @since 1.10.0
+   * @return New cached DataFrame.
+   */
+  def cache(): DataFrame = cacheResult()
+
+  /**
+   * Alias for sort function. Receives columns or column expressions.
+   * @since 1.10.0
+   * @param sortExprs Column expressions to order the dataset by.
+   * @return Returns the dataset ordered by the specified expressions
+   */
+  def orderBy(sortExprs: Column*): DataFrame = sort(sortExprs: _*)
+
+  /**
+   * Alias for sort function. Receives column names
+   * @since 1.10.0
+   * @param sortCol Column name 1
+   * @param sortCols Variable column names
+   * @return DataFrame filtered on the variable names.
+   */
+  def orderBy(sortCol: String, sortCols: String*): DataFrame =
+    sort((Seq(sortCol) ++ sortCols).map(s => col(s)))
+
+  /**
+   * This is a shortcut to schema.printTreeString(). Prints the schema
+   * of the DataFrame in a tree format.
+   * Includes column names, data types and if they're nullable or not.
+   * @since 1.10.0
+   */
+  def printSchema(): Unit = schema.printTreeString()
+
+  /**
+   * Converts each row into a JSON object and returns a DataFrame with a single column.
+   * @since 1.10.0
+   * @return DataFrame with 1 column whose value corresponds to a JSON object of the row.
+   */
+  def toJSON: DataFrame = select(object_construct(col("*")).cast(StringType).as("value"))
+
+  /**
+   * @since 1.10.0
+   * Collects the DataFrame and converts it to a java.util.List[Row] object.
+   * @return A java.util.List[Row] representation of the DataFrame.
+   */
+  def collectAsList(): java.util.List[Row] = java.util.Arrays.asList(collect(): _*)
+
 }
 
 /**
