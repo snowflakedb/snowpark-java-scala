@@ -1502,7 +1502,20 @@ object Session extends Logging {
 
     /**
      * Adds the app name to set in the query_tag after session creation.
-     * The query tag will be set with this format 'APPNAME=${appName}'.
+     *
+     * Since version 1.13.0, the app name is set to the query tag in JSON format. For example:
+     * {{{
+     *   val session = Session.builder.appName("myApp").configFile(myConfigFile).create
+     *   print(session.getQueryTag().get)
+     *   {"APPNAME":"myApp"}
+     * }}}
+     *
+     * In previous versions it is set using a key=value format. For example:
+     * {{{
+     *   val session = Session.builder.appName("myApp").configFile(myConfigFile).create
+     *   print(session.getQueryTag().get)
+     *   APPNAME=myApp
+     * }}}
      *
      * @param appName Name of the app.
      * @return A [[SessionBuilder]]
@@ -1576,7 +1589,8 @@ object Session extends Logging {
       val session = createInternal(None)
       val appName = this.appName
       if (appName.isDefined) {
-        session.setQueryTag(s"APPNAME=${appName.get}")
+        val appNameTag = s"""{"APPNAME":"${appName.get}"}"""
+        session.updateQueryTag(appNameTag)
       }
       session
     }
