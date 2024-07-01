@@ -2,6 +2,8 @@
 // to make sure all API can be accessed from public
 package com.snowflake.snowpark_test;
 
+import static org.junit.Assert.assertThrows;
+
 import com.snowflake.snowpark.SnowparkClientException;
 import com.snowflake.snowpark.TestUtils;
 import com.snowflake.snowpark_java.*;
@@ -54,6 +56,84 @@ public class JavaSessionNonStoredProcSuite extends TestBase {
     assert getSession().getQueryTag().get().equals(tag);
     getSession().unsetQueryTag();
     assert !getSession().getQueryTag().isPresent();
+  }
+
+  @Test
+  public void updateQueryTagAddNewKeyValuePairs() {
+    String queryTag1 = "{\"key1\":\"value1\"}";
+    getSession().setQueryTag(queryTag1);
+
+    String queryTag2 = "{\"key2\":\"value2\",\"key3\":{\"key4\":0},\"key5\":{\"key6\":\"value6\"}}";
+    getSession().updateQueryTag(queryTag2);
+
+    String expected =
+        "{\"key1\":\"value1\",\"key2\":\"value2\",\"key3\":{\"key4\":0},\"key5\":{\"key6\":\"value6\"}}";
+    assert getSession().getQueryTag().isPresent();
+    assert getSession().getQueryTag().get().equals(expected);
+  }
+
+  @Test
+  public void updateQueryTagUpdateKeyValuePairs() {
+    String queryTag1 = "{\"key1\":\"value1\",\"key2\":\"value2\",\"key3\":\"value3\"}";
+    getSession().setQueryTag(queryTag1);
+
+    String queryTag2 = "{\"key2\":\"newValue2\"}";
+    getSession().updateQueryTag(queryTag2);
+
+    String expected = "{\"key1\":\"value1\",\"key2\":\"newValue2\",\"key3\":\"value3\"}";
+    assert getSession().getQueryTag().isPresent();
+    assert getSession().getQueryTag().get().equals(expected);
+  }
+
+  @Test
+  public void updateQueryTagEmptySessionQueryTag() {
+    getSession().setQueryTag("");
+
+    String queryTag = "{\"key1\":\"value1\"}";
+    getSession().updateQueryTag(queryTag);
+
+    assert getSession().getQueryTag().isPresent();
+    assert getSession().getQueryTag().get().equals(queryTag);
+  }
+
+  @Test
+  public void updateQueryTagInvalidInputQueryTag() {
+    String queryTag = "tag1";
+
+    SnowparkClientException exception =
+        assertThrows(SnowparkClientException.class, () -> getSession().updateQueryTag(queryTag));
+    assert exception
+        .getMessage()
+        .equals(
+            "Error Code: 0426, Error message: "
+                + "The given query tag must be a valid JSON string. Ensure it's correctly formatted as JSON.");
+  }
+
+  @Test
+  public void updateQueryTagInvalidSessionQueryTag() {
+    String queryTag1 = "tag1";
+    getSession().setQueryTag(queryTag1);
+
+    String queryTag2 = "{\"key1\":\"value1\"}";
+    SnowparkClientException exception =
+        assertThrows(SnowparkClientException.class, () -> getSession().updateQueryTag(queryTag2));
+    assert exception
+        .getMessage()
+        .equals(
+            "Error Code: 0427, Error message: "
+                + "The query tag of the current session must be a valid JSON string. Current query tag: tag1");
+  }
+
+  @Test
+  public void updateQueryTagFromAlterSession() {
+    getSession().sql("ALTER SESSION SET QUERY_TAG = '{\"key1\":\"value1\"}'").collect();
+
+    String queryTag2 = "{\"key2\":\"value2\"}";
+    getSession().updateQueryTag(queryTag2);
+
+    String expected = "{\"key1\":\"value1\",\"key2\":\"value2\"}";
+    assert getSession().getQueryTag().isPresent();
+    assert getSession().getQueryTag().get().equals(expected);
   }
 
   @Test
