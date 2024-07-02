@@ -18,7 +18,7 @@ import com.snowflake.snowpark.internal.UDFClassPath.getPathForClass
 import com.snowflake.snowpark.internal.analyzer.{quoteName, quoteNameWithoutUpperCasing}
 import com.snowflake.snowpark.types._
 import com.snowflake.snowpark_java.types.{InternalUtils, StructType => JavaStructType}
-import org.scalatest.{BeforeAndAfterAll, Tag}
+import org.scalatest.{Assertion, Assertions, BeforeAndAfterAll, Tag}
 
 import java.util.{Locale, Properties}
 import com.snowflake.snowpark.Session.loadConfFromFile
@@ -101,7 +101,7 @@ object TestUtils extends Logging {
       s"insert into $name values ${data.map("(" + _.toString + ")").mkString(",")}")
 
   def insertIntoTable(name: String, data: java.util.List[Object], session: Session): Unit =
-    insertIntoTable(name, data.asScala.map(_.toString), session)
+    insertIntoTable(name, data.asScala.map(_.toString).toSeq, session)
 
   def uploadFileToStage(
       stageName: String,
@@ -275,17 +275,17 @@ object TestUtils extends Logging {
     res
   }
 
-  def checkResult(result: Array[Row], expected: Seq[Row], sort: Boolean = true): Unit = {
+  def checkResult(result: Array[Row], expected: Seq[Row], sort: Boolean = true): Assertion = {
     val sorted = if (sort) result.sortBy(_.toString) else result
     val sortedExpected = if (sort) expected.sortBy(_.toString) else expected
-    assert(
+    Assertions.assert(
       compare(sorted, sortedExpected.toArray[Row]),
       s"${sorted.map(_.toString).mkString("[", ", ", "]")} != " +
         s"${sortedExpected.map(_.toString).mkString("[", ", ", "]")}")
   }
 
-  def checkResult(result: Array[Row], expected: java.util.List[Row], sort: Boolean): Unit =
-    checkResult(result, expected.asScala, sort)
+  def checkResult(result: Array[Row], expected: java.util.List[Row], sort: Boolean): Assertion =
+    checkResult(result, expected.asScala.toSeq, sort)
 
   def runQueryInSession(session: Session, sql: String): Unit =
     session.runQuery(sql)

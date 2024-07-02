@@ -69,6 +69,7 @@ class LargeDataFrameSuite extends TestData {
 
     (0 until (result.length - 1)).foreach(index =>
       assert(result(index).getInt(0) < result(index + 1).getInt(0)))
+    succeed
   }
 
   test("createDataFrame for large values: basic types") {
@@ -128,12 +129,13 @@ class LargeDataFrameSuite extends TestData {
     largeData.append(
       Row(1025, null, null, null, null, null, null, null, null, null, null, null, null))
 
-    val result = session.createDataFrame(largeData, schema)
+    val largeDataSeq = largeData.toSeq
+    val result = session.createDataFrame(largeDataSeq, schema)
     // byte, short, int, long are converted to long
     // float and double are converted to double
     result.schema.printTreeString()
     assert(getSchemaString(result.schema) == schemaString)
-    checkAnswer(result.sort(col("id")), largeData, false)
+    checkAnswer(result.sort(col("id")), largeDataSeq, sort = false)
   }
 
   test("createDataFrame for large values: time") {
@@ -146,7 +148,7 @@ class LargeDataFrameSuite extends TestData {
     }
     largeData.append(Row(rowCount, null))
 
-    val df = session.createDataFrame(largeData, schema)
+    val df = session.createDataFrame(largeData.toSeq, schema)
     assert(
       getSchemaString(df.schema) ==
         """root
@@ -160,7 +162,7 @@ class LargeDataFrameSuite extends TestData {
       expected.append(Row(i.toLong, snowflakeTime))
     }
     expected.append(Row(rowCount, null))
-    checkAnswer(df.sort(col("id")), expected, sort = false)
+    checkAnswer(df.sort(col("id")), expected.toSeq, sort = false)
   }
 
   // In the result, Array, Map and Geography are String data
@@ -188,7 +190,7 @@ class LargeDataFrameSuite extends TestData {
     }
     largeData.append(Row(rowCount, null, null, null, null, null))
 
-    val df = session.createDataFrame(largeData, schema)
+    val df = session.createDataFrame(largeData.toSeq, schema)
     assert(
       getSchemaString(df.schema) ==
         """root
@@ -224,7 +226,7 @@ class LargeDataFrameSuite extends TestData {
             |}""".stripMargin)))
     }
     expected.append(Row(rowCount, null, null, null, null, null))
-    checkAnswer(df.sort(col("id")), expected, sort = false)
+    checkAnswer(df.sort(col("id")), expected.toSeq, sort = false)
   }
 
   test("createDataFrame for large values: variant in array and map") {
@@ -240,13 +242,13 @@ class LargeDataFrameSuite extends TestData {
         Row(i.toLong, Array(new Variant(1), new Variant("\"'")), Map("a" -> new Variant("\"'"))))
     }
     largeData.append(Row(rowCount, null, null))
-    val df = session.createDataFrame(largeData, schema)
+    val df = session.createDataFrame(largeData.toSeq, schema)
     val expected = new ArrayBuffer[Row]()
     for (i <- 0 until rowCount) {
       expected.append(Row(i.toLong, "[\n  1,\n  \"\\\"'\"\n]", "{\n  \"a\": \"\\\"'\"\n}"))
     }
     expected.append(Row(rowCount, null, null))
-    checkAnswer(df.sort(col("id")), expected, sort = false)
+    checkAnswer(df.sort(col("id")), expected.toSeq, sort = false)
   }
 
   test("createDataFrame for large values: geography in array and map") {
@@ -269,7 +271,7 @@ class LargeDataFrameSuite extends TestData {
             "b" -> Geography.fromGeoJSON("{\"type\":\"Point\",\"coordinates\":[300,100]}"))))
     }
     largeData.append(Row(rowCount, null, null))
-    val df = session.createDataFrame(largeData, schema)
+    val df = session.createDataFrame(largeData.toSeq, schema)
     val expected = new ArrayBuffer[Row]()
     for (i <- 0 until rowCount) {
       expected.append(
@@ -281,7 +283,7 @@ class LargeDataFrameSuite extends TestData {
             "      300,\n      100\n    ],\n    \"type\": \"Point\"\n  }\n}"))
     }
     expected.append(Row(rowCount, null, null))
-    checkAnswer(df.sort(col("id")), expected, sort = false)
+    checkAnswer(df.sort(col("id")), expected.toSeq, sort = false)
   }
 
   test("test large ResultSet with multiple chunks") {

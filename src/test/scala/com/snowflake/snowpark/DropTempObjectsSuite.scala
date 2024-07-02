@@ -109,16 +109,16 @@ class DropTempObjectsSuite extends SNTestBase {
       TempObjectType.Table,
       "db.schema.tempName1",
       TempType.Temporary)
-    assertTrue(session.getTempObjectMap.contains("db.schema.tempName1"))
+    assert(session.getTempObjectMap.contains("db.schema.tempName1"))
     session.recordTempObjectIfNecessary(
       TempObjectType.Table,
       "db.schema.tempName2",
       TempType.ScopedTemporary)
-    assertFalse(session.getTempObjectMap.contains("db.schema.tempName2"))
+    assert(!session.getTempObjectMap.contains("db.schema.tempName2"))
     session.recordTempObjectIfNecessary(
       TempObjectType.Table,
       "db.schema.tempName3",
       TempType.Permanent)
-    assertFalse(session.getTempObjectMap.contains("db.schema.tempName3"))
+    assert(!session.getTempObjectMap.contains("db.schema.tempName3"))
   }
 }

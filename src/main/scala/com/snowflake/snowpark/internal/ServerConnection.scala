@@ -52,6 +52,7 @@ import net.snowflake.client.jdbc.internal.apache.arrow.vector.util.{
 
 import java.util
 import scala.collection.mutable
+import scala.reflect.classTag
 import scala.reflect.runtime.universe.TypeTag
 import scala.collection.JavaConverters._
 
@@ -317,7 +318,7 @@ private[snowpark] class ServerConnection(
 
   private[snowpark] def resultSetToRows(statement: Statement): Array[Row] = withValidConnection {
     val iterator = resultSetToIterator(statement)._1
-    val buff = mutable.ArrayBuilder.make[Row]()
+    val buff = mutable.ArrayBuilder.make[Row](classTag[Row])
     while (iterator.hasNext) {
       buff += iterator.next()
     }

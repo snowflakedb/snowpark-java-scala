@@ -48,6 +48,7 @@ class UDFInternalSuite extends TestData {
     }
     verify(mockSession, times(1)).removeDependency(path)
     verify(mockSession, times(1)).addPackage("com.snowflake:snowpark:latest")
+    succeed
   }
 
   test("Test permanent udf not failing back to upload jar", JavaStoredProcExclude) {
@@ -82,6 +83,7 @@ class UDFInternalSuite extends TestData {
     }
     verify(mockSession, times(1)).removeDependency(path)
     verify(mockSession, times(1)).addPackage("com.snowflake:snowpark:latest")
+    succeed
   }
 
   test("Test add version logic", JavaStoredProcExclude) {
@@ -103,6 +105,7 @@ class UDFInternalSuite extends TestData {
     val path = UDFClassPath.getPathForClass(classOf[com.snowflake.snowpark.Session]).get
     verify(mockSession, never()).addDependency(path)
     verify(mockSession, times(1)).addPackage(Utils.clientPackageName)
+    succeed
   }
 
   test("Confirm jar files to be uploaded to expected location", JavaStoredProcExclude) {
@@ -170,6 +173,7 @@ class UDFInternalSuite extends TestData {
       mockSession1.udf.registerPermanent(funcName1, udf, stageName1)
       mockSession2.udf.registerPermanent(funcName2, udf, stageName1)
       verify(mockSession2, never()).doUpload(any(), any())
+      succeed
 
     } finally {
       session.runQuery(s"drop function if exists $funcName1(INT)")

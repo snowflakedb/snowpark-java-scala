@@ -18,6 +18,7 @@ import com.snowflake.snowpark.internal.analyzer.{
 import com.snowflake.snowpark.types._
 import net.snowflake.client.core.SFSessionProperty
 import net.snowflake.client.jdbc.SnowflakeSQLException
+import org.scalatest.Assertion
 
 import java.nio.file.Files
 import java.sql.{Date, Timestamp}
@@ -26,6 +27,7 @@ import scala.collection.mutable.ArrayBuffer
 import scala.concurrent.Await
 import scala.concurrent.duration._
 import scala.util.Random
+import scala.language.postfixOps
 
 class APIInternalSuite extends TestData {
   private val userSchema: StructType = StructType(
@@ -578,10 +580,11 @@ class APIInternalSuite extends TestData {
     testWithAlteredSessionParameter(() => {
       import session.implicits._
       val schema = StructType(Seq(StructField("ID", LongType)))
-      val largeData = new ArrayBuffer[Row]()
+      val largeDataBuf = new ArrayBuffer[Row]()
       for (i <- 0 to 1024) {
-        largeData.append(Row(i.toLong))
+        largeDataBuf.append(Row(i.toLong))
       }
+      val largeData = largeDataBuf.toSeq
       // With specific schema
       var df = session.createDataFrame(largeData, schema)
       assert(df.snowflakePlan.queries.size == 3)
@@ -596,7 +599,7 @@ class APIInternalSuite extends TestData {
       for (i <- 0 to 1024) {
         inferData.append(i.toLong)
       }
-      df = inferData.toDF("id2")
+      df = inferData.toSeq.toDF("id2")
       assert(df.snowflakePlan.queries.size == 3)
       assert(df.snowflakePlan.queries(0).sql.trim().startsWith("CREATE  SCOPED TEMPORARY  TABLE"))
       assert(df.snowflakePlan.queries(1).sql.trim().startsWith("INSERT  INTO"))
@@ -823,6 +826,7 @@ class APIInternalSuite extends TestData {
       val (rows, meta) = session.conn.getResultAndMetadata(session.sql(query).snowflakePlan)
       assert(rows.length == 0 || rows(0).length == meta.size)
     }
+    succeed
   }
 
   // reader
@@ -895,7 +899,7 @@ class APIInternalSuite extends TestData {
     assert(ex2.errorCode.equals("0321"))
   }
 
-  def checkExecuteAndGetQueryId(df: DataFrame): Unit = {
+  def checkExecuteAndGetQueryId(df: DataFrame): Assertion = {
     val query = Query.resultScanQuery(df.executeAndGetQueryId())
     val res = query.runQueryGetResult(session.conn, mutable.HashMap.empty[String, String], false)
     res.attributes
@@ -907,7 +911,7 @@ class APIInternalSuite extends TestData {
     checkExecuteAndGetQueryIdWithStatementParameter(df)
   }
 
-  private def checkExecuteAndGetQueryIdWithStatementParameter(df: DataFrame): Unit = {
+  private def checkExecuteAndGetQueryIdWithStatementParameter(df: DataFrame): Assertion = {
     val testQueryTagValue = s"test_query_tag_${Random.nextLong().abs}"
     val queryId = df.executeAndGetQueryId(Map("QUERY_TAG" -> testQueryTagValue))
     val rows = session
@@ -1007,7 +1011,7 @@ class APIInternalSuite extends TestData {
     largeData.append(
       Row(1025, null, null, null, null, null, null, null, null, null, null, null, null))
 
-    val df = session.createDataFrame(largeData, schema)
+    val df = session.createDataFrame(largeData.toSeq, schema)
     checkExecuteAndGetQueryId(df)
 
     // Statement parameters are applied for all queries.
@@ -1039,6 +1043,7 @@ class APIInternalSuite extends TestData {
     // case 2: test int/boolean parameter
     multipleQueriesDF1.executeAndGetQueryId(
       Map("STATEMENT_TIMEOUT_IN_SECONDS" -> 100, "USE_CACHED_RESULT" -> false))
+    succeed
   }
 
   test("VariantTypes.getType") {
@@ -1052,7 +1057,7 @@ class APIInternalSuite extends TestData {
     assert(Variant.VariantTypes.getType("Timestamp") == Variant.VariantTypes.Timestamp)
     assert(Variant.VariantTypes.getType("Array") == Variant.VariantTypes.Array)
     assert(Variant.VariantTypes.getType("Object") == Variant.VariantTypes.Object)
-    intercept[Exception] { Variant.VariantTypes.getType("not_exist_type") }
+    assertThrows[Exception] { Variant.VariantTypes.getType("not_exist_type") }
   }
 
   test("HasCachedResult doesn't cache again") {

@@ -162,6 +162,7 @@ class FileOperationSuite extends SNTestBase {
     assert(secondResult.length == 3)
     // On GCP, the files are not skipped if target file already exists
     secondResult.map(row => assert(row.status.equals("SKIPPED") || row.status.equals("UPLOADED")))
+    succeed
   }
 
   test("put() negative test") {
@@ -453,6 +454,7 @@ class FileOperationSuite extends SNTestBase {
 
     fileName = s"streamFile_${TestUtils.randomString(5)}.csv"
     testStreamRoundTrip(s"$schema.$tempStage/$fileName", s"$schema.$tempStage/$fileName.gz", true)
+    succeed
 
   }
 
@@ -469,6 +471,7 @@ class FileOperationSuite extends SNTestBase {
         s"$randomNewSchema.$tempStage/$fileName",
         s"$randomNewSchema.$tempStage/$fileName.gz",
         true)
+      succeed
     } finally {
       session.sql(s"DROP SCHEMA $randomNewSchema").collect()
     }
