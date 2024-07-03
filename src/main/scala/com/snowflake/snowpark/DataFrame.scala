@@ -2672,7 +2672,7 @@ class DataFrame private[snowpark] (
    * @since 0.2.0
    * @return A list of [[DataFrame]] objects
    */
-  def randomSplit(weights: Array[Double]): Array[DataFrame] = {
+  def randomSplit(weights: Array[Double]): Array[DataFrame] = action("randomSplit") {
     session.conn.telemetry.reportActionRandomSplit()
     import com.snowflake.snowpark.functions._
     if (weights.isEmpty) {
