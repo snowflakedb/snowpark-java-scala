@@ -7,7 +7,6 @@ import io.opentelemetry.api.trace.{Span, StatusCode}
 object OpenTelemetry extends Logging {
   // class name format: snow.snowpark.<class name>
   // method chain: Dataframe.filter.join.select.collect
-  // todo: track line number in SNOW-1480775
   def emit(
       className: String,
       funcName: String,
@@ -21,6 +20,14 @@ object OpenTelemetry extends Logging {
         span.setAttribute("method.chain", methodChain)
       }
     }
+
+  def emit(spanInfo: SpanInfo): Unit =
+    emit(
+      spanInfo.className,
+      spanInfo.funcName,
+      spanInfo.fileName,
+      spanInfo.lineNumber,
+      spanInfo.methodChain)
 
   def reportError(className: String, funcName: String, error: Throwable): Unit =
     emit(className, funcName) { span =>
@@ -55,3 +62,10 @@ object OpenTelemetry extends Logging {
     ""
   }
 }
+
+case class SpanInfo(
+    className: String,
+    funcName: String,
+    fileName: String,
+    lineNumber: Int,
+    methodChain: String)

@@ -1,9 +1,9 @@
 package com.snowflake.snowpark
 
 import scala.reflect.ClassTag
-import scala.util.Random
+import scala.util.{DynamicVariable, Random}
 import com.snowflake.snowpark.internal.analyzer.{TableFunction => TF}
-import com.snowflake.snowpark.internal.{ErrorMessage, Logging, OpenTelemetry, Utils}
+import com.snowflake.snowpark.internal.{ErrorMessage, Logging, OpenTelemetry, SpanInfo, Utils}
 import com.snowflake.snowpark.internal.analyzer._
 import com.snowflake.snowpark.types._
 import com.github.vertical_blank.sqlformatter.SqlFormatter
@@ -2938,23 +2938,36 @@ class DataFrame private[snowpark] (
 
   @inline protected def withPlan(plan: LogicalPlan): DataFrame = DataFrame(session, plan)
 
+  // only report the top function info in case of recursion.
+  val spanInfo = new DynamicVariable[Option[SpanInfo]](None)
+
   // wrapper of all action functions
   @inline protected def action[T](funcName: String)(func: => T): T = {
-    val isScala: Boolean = this.session.conn.isScalaAPI
     val className = "DataFrame"
-    val stacks = Thread.currentThread().getStackTrace
-    val methodChain = ""
-    val (fileName, lineNumber): (String, Int) =
-      if (isScala) {
-        val file = stacks(3)
-        (file.getFileName, file.getLineNumber)
-      } else {
-        null
-      }
     try {
-      val result: T = func
-      OpenTelemetry.emit(className, funcName, fileName, lineNumber, methodChain)
-      result
+      spanInfo.withValue[T](spanInfo.value match {
+        // empty info means this is the entry of the recursion
+        case None =>
+          val isScala: Boolean = this.session.conn.isScalaAPI
+          val stacks = Thread.currentThread().getStackTrace
+          val methodChain = ""
+          val (fileName, lineNumber): (String, Int) =
+            if (isScala) {
+              val file = stacks(3)
+              (file.getFileName, file.getLineNumber)
+            } else {
+              // todo: change in Java API
+              null
+            }
+          Some(SpanInfo(className, funcName, fileName, lineNumber, methodChain))
+        // if value is not empty, this function call should be recursion.
+        // do not issue new SpanInfo, use the info inherited from previous.
+        case other => other
+      }) {
+        val result: T = func
+        OpenTelemetry.emit(spanInfo.value.get)
+        result
+      }
     } catch {
       case error: Throwable =>
         OpenTelemetry.reportError(className, funcName, error)
