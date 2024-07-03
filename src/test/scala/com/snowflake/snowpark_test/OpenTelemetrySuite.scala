@@ -2,8 +2,15 @@ package com.snowflake.snowpark_test
 
 import com.snowflake.snowpark.OpenTelemetryEnabled
 import com.snowflake.snowpark.internal.OpenTelemetry
+import io.opentelemetry.sdk.trace.data.SpanData
 
 class OpenTelemetrySuite extends OpenTelemetryEnabled {
+  // do not add test before line number tests
+  // it verifies code line numbers
+  test("line number - collect") {
+    session.sql("select 1").collect()
+    checkSpan("snow.snowpark.DataFrame", "collect", "OpenTelemetrySuite.scala", 11, "")
+  }
 
   test("OpenTelemetry.emit") {
     OpenTelemetry.emit("ClassA", "functionB", "fileC", 123, "chainD")

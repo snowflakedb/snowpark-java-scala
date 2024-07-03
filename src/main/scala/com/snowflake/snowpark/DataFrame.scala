@@ -2946,7 +2946,8 @@ class DataFrame private[snowpark] (
     val methodChain = ""
     val (fileName, lineNumber): (String, Int) =
       if (isScala) {
-        null
+        val file = stacks(3)
+        (file.getFileName, file.getLineNumber)
       } else {
         null
       }
