@@ -239,6 +239,75 @@ class SessionSuite extends SNTestBase {
     assert(getParameterValue("query_tag", session) == queryTag2)
   }
 
+  test("updateQueryTag when adding new key-value pairs") {
+    val queryTag1 = """{"key1":"value1"}"""
+    session.setQueryTag(queryTag1)
+
+    val queryTag2 = """{"key2":"value2","key3":{"key4":0},"key5":{"key6":"value6"}}"""
+    session.updateQueryTag(queryTag2)
+
+    val expected = {
+      """{"key1":"value1","key2":"value2","key3":{"key4":0},"key5":{"key6":"value6"}}"""
+    }
+    val actual = getParameterValue("query_tag", session)
+    assert(actual == expected)
+  }
+
+  test("updateQueryTag when updating an existing key-value pair") {
+    val queryTag1 = """{"key1":"value1","key2":"value2","key3":"value3"}"""
+    session.setQueryTag(queryTag1)
+
+    val queryTag2 = """{"key2":"newValue2"}"""
+    session.updateQueryTag(queryTag2)
+
+    val expected = """{"key1":"value1","key2":"newValue2","key3":"value3"}"""
+    val actual = getParameterValue("query_tag", session)
+    assert(actual == expected)
+  }
+
+  test("updateQueryTag when the query tag of the current session is empty") {
+    session.setQueryTag("")
+
+    val queryTag = """{"key1":"value1"}"""
+    session.updateQueryTag(queryTag)
+
+    val actual = getParameterValue("query_tag", session)
+    assert(actual == queryTag)
+  }
+
+  test("updateQueryTag when the given query tag is not a valid JSON") {
+    val queryTag = "tag1"
+    val exception = intercept[SnowparkClientException](session.updateQueryTag(queryTag))
+    assert(
+      exception.message.startsWith(
+        "Error Code: 0426, Error message: The given query tag must be a valid JSON string. " +
+          "Ensure it's correctly formatted as JSON."))
+  }
+
+  test("updateQueryTag when the query tag of the current session is not a valid JSON") {
+    val queryTag1 = "tag1"
+    session.setQueryTag(queryTag1)
+
+    val queryTag2 = """{"key1":"value1"}"""
+    val exception = intercept[SnowparkClientException](session.updateQueryTag(queryTag2))
+    assert(
+      exception.message.startsWith(
+        "Error Code: 0427, Error message: The query tag of the current session must be a valid " +
+          "JSON string. Current query tag: tag1"))
+  }
+
+  test("updateQueryTag when the query tag of the current session is set with an ALTER SESSION") {
+    val queryTag1 = """{"key1":"value1"}"""
+    session.sql(s"ALTER SESSION SET QUERY_TAG = '$queryTag1'").collect()
+
+    val queryTag2 = """{"key2":"value2"}"""
+    session.updateQueryTag(queryTag2)
+
+    val expected = """{"key1":"value1","key2":"value2"}"""
+    val actual = getParameterValue("query_tag", session)
+    assert(actual == expected)
+  }
+
   test("Multiple queries test for query tags") {
     val queryTag = randomName()
     session.setQueryTag(queryTag)
@@ -253,7 +322,7 @@ class SessionSuite extends SNTestBase {
 
   test("Set an app name in the query tag") {
     val appName = "my_app"
-    val expectedAppName = s"APPNAME=$appName"
+    val expectedAppName = s"""{"APPNAME":"$appName"}"""
     val newSession = Session.builder.appName(appName).configFile(defaultProfile).create
     assert(getParameterValue("query_tag", newSession) == expectedAppName)
   }

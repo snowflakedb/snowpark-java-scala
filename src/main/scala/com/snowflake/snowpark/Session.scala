@@ -1,5 +1,8 @@
 package com.snowflake.snowpark
 
+import com.fasterxml.jackson.databind.json.JsonMapper
+import com.fasterxml.jackson.module.scala.{ClassTagExtensions, DefaultScalaModule}
+
 import java.io.{File, FileInputStream, FileNotFoundException}
 import java.net.URI
 import java.sql.{Connection, Date, Time, Timestamp}
@@ -26,6 +29,7 @@ import net.snowflake.client.jdbc.{SnowflakeConnectionV1, SnowflakeDriver, Snowfl
 import scala.concurrent.{ExecutionContext, Future}
 import scala.collection.JavaConverters._
 import scala.reflect.runtime.universe.TypeTag
+import scala.util.Try
 
 /**
  *
@@ -61,6 +65,11 @@ import scala.reflect.runtime.universe.TypeTag
  * @since 0.1.0
  */
 class Session private (private[snowpark] val conn: ServerConnection) extends Logging {
+  private val jsonMapper = JsonMapper
+    .builder()
+    .addModule(DefaultScalaModule)
+    .build() :: ClassTagExtensions
+
   private val STAGE_PREFIX = "@"
   // URI and file name with md5
   private val classpathURIs = new ConcurrentHashMap[URI, Option[String]]().asScala
@@ -320,6 +329,87 @@ class Session private (private[snowpark] val conn: ServerConnection) extends Log
    * @since 0.1.0
    */
   def getQueryTag(): Option[String] = this.conn.getQueryTag()
+
+  /**
+   * Updates the query tag that is a JSON encoded string for the current session.
+   *
+   * Keep in mind that assigning a value via [[setQueryTag]] will remove any current query tag
+   * state.
+   *
+   * Example 1:
+   * {{{
+   *   session.setQueryTag("""{"key1":"value1"}""")
+   *   session.updateQueryTag("""{"key2":"value2"}""")
+   *   print(session.getQueryTag().get)
+   *   {"key1":"value1","key2":"value2"}
+   * }}}
+   *
+   * Example 2:
+   * {{{
+   *   session.sql("""ALTER SESSION SET QUERY_TAG = '{"key1":"value1"}'""").collect()
+   *   session.updateQueryTag("""{"key2":"value2"}""")
+   *   print(session.getQueryTag().get)
+   *   {"key1":"value1","key2":"value2"}
+   * }}}
+   *
+   * Example 3:
+   * {{{
+   *   session.setQueryTag("")
+   *   session.updateQueryTag("""{"key1":"value1"}""")
+   *   print(session.getQueryTag().get)
+   *   {"key1":"value1"}
+   * }}}
+   *
+   * @param queryTag A JSON encoded string that provides updates to the current query tag.
+   * @throws SnowparkClientException If the provided query tag or the query tag of the current
+   *                                 session are not valid JSON strings; or if it could not
+   *                                 serialize the query tag into a JSON string.
+   * @since 1.13.0
+   */
+  def updateQueryTag(queryTag: String): Unit = synchronized {
+    val newQueryTagMap = parseJsonString(queryTag)
+    if (newQueryTagMap.isEmpty) {
+      throw ErrorMessage.MISC_INVALID_INPUT_QUERY_TAG()
+    }
+
+    var currentQueryTag = this.conn.getParameterValue("query_tag")
+    currentQueryTag = if (currentQueryTag.isEmpty) "{}" else currentQueryTag
+
+    val currentQueryTagMap = parseJsonString(currentQueryTag)
+    if (currentQueryTagMap.isEmpty) {
+      throw ErrorMessage.MISC_INVALID_CURRENT_QUERY_TAG(currentQueryTag)
+    }
+
+    val updatedQueryTagMap = currentQueryTagMap.get ++ newQueryTagMap.get
+    val updatedQueryTagStr = toJsonString(updatedQueryTagMap)
+    if (updatedQueryTagStr.isEmpty) {
+      throw ErrorMessage.MISC_FAILED_TO_SERIALIZE_QUERY_TAG()
+    }
+
+    setQueryTag(updatedQueryTagStr.get)
+  }
+
+  /**
+   * Attempts to parse a JSON-encoded string into a [[scala.collection.immutable.Map]].
+   *
+   * @param jsonString The JSON-encoded string to parse.
+   * @return An `Option` containing the `Map` if the parsing of the JSON string was
+   *         successful, or `None` otherwise.
+   */
+  private def parseJsonString(jsonString: String): Option[Map[String, Any]] = {
+    Try(jsonMapper.readValue[Map[String, Any]](jsonString)).toOption
+  }
+
+  /**
+   * Attempts to convert a [[scala.collection.immutable.Map]] into a JSON-encoded string.
+   *
+   * @param map The `Map` to convert.
+   * @return An `Option` containing the JSON-encoded string if the conversion was successful,
+   *         or `None` otherwise.
+   */
+  private def toJsonString(map: Map[String, Any]): Option[String] = {
+    Try(jsonMapper.writeValueAsString(map)).toOption
+  }
 
   /*
    * Checks that the latest version of all jar dependencies is
@@ -1412,7 +1502,20 @@ object Session extends Logging {
 
     /**
      * Adds the app name to set in the query_tag after session creation.
-     * The query tag will be set with this format 'APPNAME=${appName}'.
+     *
+     * Since version 1.13.0, the app name is set to the query tag in JSON format. For example:
+     * {{{
+     *   val session = Session.builder.appName("myApp").configFile(myConfigFile).create
+     *   print(session.getQueryTag().get)
+     *   {"APPNAME":"myApp"}
+     * }}}
+     *
+     * In previous versions it is set using a key=value format. For example:
+     * {{{
+     *   val session = Session.builder.appName("myApp").configFile(myConfigFile).create
+     *   print(session.getQueryTag().get)
+     *   APPNAME=myApp
+     * }}}
      *
      * @param appName Name of the app.
      * @return A [[SessionBuilder]]
@@ -1486,7 +1589,8 @@ object Session extends Logging {
       val session = createInternal(None)
       val appName = this.appName
       if (appName.isDefined) {
-        session.setQueryTag(s"APPNAME=${appName.get}")
+        val appNameTag = s"""{"APPNAME":"${appName.get}"}"""
+        session.updateQueryTag(appNameTag)
       }
       session
     }

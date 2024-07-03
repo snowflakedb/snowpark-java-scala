@@ -159,7 +159,10 @@ private[snowpark] object ErrorMessage {
       """Invalid input argument type, the input argument type of Explode function should be either Map or Array types.
         |The input argument type: %s
         |""".stripMargin,
-    "0425" -> "Unsupported Geometry output format: %s. Please set session parameter GEOMETRY_OUTPUT_FORMAT to GeoJSON.")
+    "0425" -> "Unsupported Geometry output format: %s. Please set session parameter GEOMETRY_OUTPUT_FORMAT to GeoJSON.",
+    "0426" -> "The given query tag must be a valid JSON string. Ensure it's correctly formatted as JSON.",
+    "0427" -> "The query tag of the current session must be a valid JSON string. Current query tag: %s",
+    "0428" -> "Failed to serialize the query tag into a JSON string.")
   // scalastyle:on
 
   /*
@@ -408,6 +411,15 @@ private[snowpark] object ErrorMessage {
 
   def MISC_UNSUPPORTED_GEOMETRY_FORMAT(typeName: String): SnowparkClientException =
     createException("0425", typeName)
+
+  def MISC_INVALID_INPUT_QUERY_TAG(): SnowparkClientException =
+    createException("0426")
+
+  def MISC_INVALID_CURRENT_QUERY_TAG(currentQueryTag: String): SnowparkClientException =
+    createException("0427", currentQueryTag)
+
+  def MISC_FAILED_TO_SERIALIZE_QUERY_TAG(): SnowparkClientException =
+    createException("0428")
 
   /**
    * Create Snowpark client Exception.
