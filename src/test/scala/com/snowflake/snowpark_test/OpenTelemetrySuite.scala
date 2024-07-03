@@ -16,6 +16,14 @@ class OpenTelemetrySuite extends OpenTelemetryEnabled {
     checkSpan("snow.snowpark.DataFrame", "randomSplit", "OpenTelemetrySuite.scala", 15, "")
   }
 
+  test("line number - first") {
+    val df = session.sql("select * from values(1),(2),(3) as t(num)")
+    df.first()
+    checkSpan("snow.snowpark.DataFrame", "first", "OpenTelemetrySuite.scala", 21, "")
+    df.first(2)
+    checkSpan("snow.snowpark.DataFrame", "first", "OpenTelemetrySuite.scala", 23, "")
+  }
+
   test("OpenTelemetry.emit") {
     OpenTelemetry.emit("ClassA", "functionB", "fileC", 123, "chainD")
     checkSpan("snow.snowpark.ClassA", "functionB", "fileC", 123, "chainD")

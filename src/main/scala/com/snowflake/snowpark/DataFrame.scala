@@ -1,9 +1,9 @@
 package com.snowflake.snowpark
 
 import scala.reflect.ClassTag
-import scala.util.{DynamicVariable, Random}
+import scala.util.Random
 import com.snowflake.snowpark.internal.analyzer.{TableFunction => TF}
-import com.snowflake.snowpark.internal.{ErrorMessage, Logging, OpenTelemetry, SpanInfo, Utils}
+import com.snowflake.snowpark.internal.{ErrorMessage, Logging, OpenTelemetry, Utils}
 import com.snowflake.snowpark.internal.analyzer._
 import com.snowflake.snowpark.types._
 import com.github.vertical_blank.sqlformatter.SqlFormatter
@@ -2578,7 +2578,10 @@ class DataFrame private[snowpark] (
    * @since 0.2.0
    * @return The first [[Row]], if the row exists. Otherwise, returns `None`.
    */
-  def first(): Option[Row] = first(1).headOption
+  def first(): Option[Row] = action("first") {
+    first(1).headOption
+  }
+
 
   /**
    * Executes the query representing this DataFrame and returns the first {@code n} rows of the
@@ -2590,7 +2593,7 @@ class DataFrame private[snowpark] (
    * @return An Array of the first {@code n} [[Row]] objects. If {@code n} is negative or larger
    *   than the number of rows in the results, returns all rows in the results.
    */
-  def first(n: Int): Array[Row] = {
+  def first(n: Int): Array[Row] = action("first") {
     session.conn.telemetry.reportActionFirst()
     if (n < 0) {
       this.collect()
@@ -2938,41 +2941,9 @@ class DataFrame private[snowpark] (
 
   @inline protected def withPlan(plan: LogicalPlan): DataFrame = DataFrame(session, plan)
 
-  // only report the top function info in case of recursion.
-  val spanInfo = new DynamicVariable[Option[SpanInfo]](None)
-
-  // wrapper of all action functions
   @inline protected def action[T](funcName: String)(func: => T): T = {
-    val className = "DataFrame"
-    try {
-      spanInfo.withValue[T](spanInfo.value match {
-        // empty info means this is the entry of the recursion
-        case None =>
-          val isScala: Boolean = this.session.conn.isScalaAPI
-          val stacks = Thread.currentThread().getStackTrace
-          val methodChain = ""
-          val (fileName, lineNumber): (String, Int) =
-            if (isScala) {
-              val file = stacks(3)
-              (file.getFileName, file.getLineNumber)
-            } else {
-              // todo: change in Java API
-              null
-            }
-          Some(SpanInfo(className, funcName, fileName, lineNumber, methodChain))
-        // if value is not empty, this function call should be recursion.
-        // do not issue new SpanInfo, use the info inherited from previous.
-        case other => other
-      }) {
-        val result: T = func
-        OpenTelemetry.emit(spanInfo.value.get)
-        result
-      }
-    } catch {
-      case error: Throwable =>
-        OpenTelemetry.reportError(className, funcName, error)
-        throw error
-    }
+    val isScala: Boolean = this.session.conn.isScalaAPI
+    OpenTelemetry.action("DataFrame", funcName, isScala)(func)
   }
 }
 

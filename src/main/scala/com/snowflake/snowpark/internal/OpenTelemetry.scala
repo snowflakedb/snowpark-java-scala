@@ -4,7 +4,44 @@ import com.snowflake.snowpark.DataFrame
 import io.opentelemetry.api.GlobalOpenTelemetry
 import io.opentelemetry.api.trace.{Span, StatusCode}
 
+import scala.util.DynamicVariable
+
 object OpenTelemetry extends Logging {
+
+  // only report the top function info in case of recursion.
+  val spanInfo = new DynamicVariable[Option[SpanInfo]](None)
+
+  // wrapper of all action functions
+  def action[T](className: String, funcName: String, isScala: Boolean)(func: => T): T = {
+    try {
+      spanInfo.withValue[T](spanInfo.value match {
+        // empty info means this is the entry of the recursion
+        case None =>
+          val stacks = Thread.currentThread().getStackTrace
+          val methodChain = ""
+          val (fileName, lineNumber): (String, Int) =
+            if (isScala) {
+              val file = stacks(4)
+              (file.getFileName, file.getLineNumber)
+            } else {
+              // todo: change in Java API
+              null
+            }
+          Some(SpanInfo(className, funcName, fileName, lineNumber, methodChain))
+        // if value is not empty, this function call should be recursion.
+        // do not issue new SpanInfo, use the info inherited from previous.
+        case other => other
+      }) {
+        val result: T = func
+        OpenTelemetry.emit(spanInfo.value.get)
+        result
+      }
+    } catch {
+      case error: Throwable =>
+        OpenTelemetry.reportError(className, funcName, error)
+        throw error
+    }
+  }
   // class name format: snow.snowpark.<class name>
   // method chain: Dataframe.filter.join.select.collect
   def emit(
