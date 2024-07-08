@@ -249,7 +249,7 @@ class OpenTelemetrySuite extends OpenTelemetryEnabled {
         "snow.snowpark.DataFrameWriter",
         "saveAsTable",
         "OpenTelemetrySuite.scala",
-        242,
+        247,
         "")
     } finally {
       dropTable(tableName)
@@ -262,7 +262,7 @@ class OpenTelemetrySuite extends OpenTelemetryEnabled {
         "snow.snowpark.DataFrameWriter",
         "saveAsTable",
         "OpenTelemetrySuite.scala",
-        250,
+        260,
         "")
     } finally {
       dropTable(tableName)
