@@ -1,6 +1,6 @@
 package com.snowflake.snowpark
 
-import com.snowflake.snowpark.internal.{ErrorMessage, Utils}
+import com.snowflake.snowpark.internal.{ErrorMessage, OpenTelemetry, Utils}
 import com.snowflake.snowpark.internal.analyzer.{
   CopyIntoLocation,
   SnowflakeCreateTable,
@@ -105,7 +105,7 @@ class DataFrameWriter(dataFrame: DataFrame) {
    * @param path The path (including the stage name) to the CSV file.
    * @return A [[WriteFileResult]]
    */
-  def csv(path: String): WriteFileResult = {
+  def csv(path: String): WriteFileResult = action("csv") {
     val plan = getCopyIntoLocationPlan(path, "CSV")
     val (rows, attributes) = dataFrame.session.conn.getResultAndMetadata(plan)
     WriteFileResult(rows, StructType.fromAttributes(attributes))
@@ -146,7 +146,7 @@ class DataFrameWriter(dataFrame: DataFrame) {
    * @return A [[WriteFileResult]]
    */
   // scalastyle:on
-  def json(path: String): WriteFileResult = {
+  def json(path: String): WriteFileResult = action("json") {
     val plan = getCopyIntoLocationPlan(path, "JSON")
     val (rows, attributes) = dataFrame.session.conn.getResultAndMetadata(plan)
     WriteFileResult(rows, StructType.fromAttributes(attributes))
@@ -388,6 +388,11 @@ class DataFrameWriter(dataFrame: DataFrame) {
    * @return A [[DataFrameWriterAsyncActor]] object
    */
   def async: DataFrameWriterAsyncActor = new DataFrameWriterAsyncActor(this)
+
+  @inline protected def action[T](funcName: String)(func: => T): T = {
+    val isScala: Boolean = dataFrame.session.conn.isScalaAPI
+    OpenTelemetry.action("DataFrameWriter", funcName, isScala)(func)
+  }
 
 }
 

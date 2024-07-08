@@ -2,7 +2,7 @@ package com.snowflake.snowpark_test
 
 import com.snowflake.snowpark.OpenTelemetryEnabled
 import com.snowflake.snowpark.internal.OpenTelemetry
-
+import com.snowflake.snowpark.functions._
 import java.util
 
 class OpenTelemetrySuite extends OpenTelemetryEnabled {
@@ -209,6 +209,20 @@ class OpenTelemetrySuite extends OpenTelemetryEnabled {
       "")
   }
 
+  test("line number - DataFrameWriter - csv") {
+    val df = session.sql("select * from values(1),(2),(3) as t(num)")
+    df.write.csv(s"@$stageName1/csv1")
+    checkSpan("snow.snowpark.DataFrameWriter", "csv", "OpenTelemetrySuite.scala", 214, "")
+  }
+
+  test("line number - DataFrameWriter - json") {
+    import session.implicits._
+    val df = Seq((1, 1.1, "a"), (2, 2.2, "b")).toDF("a", "b", "c")
+    val df2 = df.select(array_construct(df.schema.names.map(df(_)): _*))
+    df2.write.option("compression", "none").json(s"@$stageName1/json1")
+    checkSpan("snow.snowpark.DataFrameWriter", "json", "OpenTelemetrySuite.scala", 222, "")
+  }
+
   test("OpenTelemetry.emit") {
     OpenTelemetry.emit("ClassA", "functionB", "fileC", 123, "chainD")
     checkSpan("snow.snowpark.ClassA", "functionB", "fileC", 123, "chainD")
@@ -219,4 +233,16 @@ class OpenTelemetrySuite extends OpenTelemetryEnabled {
     OpenTelemetry.reportError("ClassA1", "functionB1", error)
     checkSpanError("snow.snowpark.ClassA1", "functionB1", error)
   }
+
+  override def beforeAll: Unit = {
+    super.beforeAll
+    createStage(stageName1)
+  }
+
+  override def afterAll: Unit = {
+    dropStage(stageName1)
+    super.afterAll
+  }
+
+  private val stageName1 = randomName()
 }
