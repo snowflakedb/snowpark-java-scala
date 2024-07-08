@@ -136,6 +136,14 @@ class OpenTelemetrySuite extends OpenTelemetryEnabled {
     }
   }
 
+  test("line number - HasCachedResult") {
+    val df = session.sql("select * from values(1),(2),(3) as t(num)")
+    val cached = df.cacheResult()
+    checkSpan("snow.snowpark.DataFrame", "cacheResult", "OpenTelemetrySuite.scala", 141, "")
+    cached.cacheResult()
+    checkSpan("snow.snowpark.DataFrame", "cacheResult", "OpenTelemetrySuite.scala", 143, "")
+  }
+
   test("OpenTelemetry.emit") {
     OpenTelemetry.emit("ClassA", "functionB", "fileC", 123, "chainD")
     checkSpan("snow.snowpark.ClassA", "functionB", "fileC", 123, "chainD")

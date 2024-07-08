@@ -2980,7 +2980,7 @@ class HasCachedResult private[snowpark] (
    * @group actions
    * @return A [[HasCachedResult]]
    */
-  override def cacheResult(): HasCachedResult = {
+  override def cacheResult(): HasCachedResult = action("cacheResult") {
     // cacheResult function of HashCachedResult returns a clone of this
     // HashCachedResult DataFrame instead of to cache this DataFrame again.
     new HasCachedResult(session, snowflakePlan.clone)
