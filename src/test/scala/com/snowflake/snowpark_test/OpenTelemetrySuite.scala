@@ -267,7 +267,81 @@ class OpenTelemetrySuite extends OpenTelemetryEnabled {
     } finally {
       dropTable(tableName)
     }
+  }
 
+  test("line number - DataFrameWriterAsyncActor - saveAsTable") {
+    val df = session.sql("select * from values(1),(2),(3) as t(num)")
+    val tableName = randomName()
+    try {
+      df.write.async.saveAsTable(tableName).getResult()
+      checkSpan(
+        "snow.snowpark.DataFrameWriterAsyncActor",
+        "saveAsTable",
+        "OpenTelemetrySuite.scala",
+        276,
+        "")
+    } finally {
+      dropTable(tableName)
+    }
+    try {
+      df.write.async.saveAsTable(Seq(tableName)).getResult()
+      checkSpan(
+        "snow.snowpark.DataFrameWriterAsyncActor",
+        "saveAsTable",
+        "OpenTelemetrySuite.scala",
+        287,
+        "")
+    } finally {
+      dropTable(tableName)
+    }
+    try {
+      val list = new util.ArrayList[String](1)
+      list.add(tableName)
+      df.write.async.saveAsTable(tableName).getResult()
+      checkSpan(
+        "snow.snowpark.DataFrameWriterAsyncActor",
+        "saveAsTable",
+        "OpenTelemetrySuite.scala",
+        300,
+        "")
+    } finally {
+      dropTable(tableName)
+    }
+  }
+
+  test("line number - DataFrameWriterAsyncActor - csv") {
+    val df = session.sql("select * from values(1),(2),(3) as t(num)")
+    df.write.async.csv(s"@$stageName1/csv2").getResult()
+    checkSpan(
+      "snow.snowpark.DataFrameWriterAsyncActor",
+      "csv",
+      "OpenTelemetrySuite.scala",
+      314,
+      "")
+  }
+
+  test("line number - DataFrameWriterAsyncActor - json") {
+    import session.implicits._
+    val df = Seq((1, 1.1, "a"), (2, 2.2, "b")).toDF("a", "b", "c")
+    val df2 = df.select(array_construct(df.schema.names.map(df(_)): _*))
+    df2.write.option("compression", "none").async.json(s"@$stageName1/json2")
+    checkSpan(
+      "snow.snowpark.DataFrameWriterAsyncActor",
+      "json",
+      "OpenTelemetrySuite.scala",
+      327,
+      "")
+  }
+
+  test("line number - DataFrameWriterAsyncActor - parquet") {
+    val df = session.sql("select * from values(1),(2),(3) as t(num)")
+    df.write.async.parquet(s"@$stageName1/parquet2")
+    checkSpan(
+      "snow.snowpark.DataFrameWriterAsyncActor",
+      "parquet",
+      "OpenTelemetrySuite.scala",
+      338,
+      "")
   }
 
   test("OpenTelemetry.emit") {

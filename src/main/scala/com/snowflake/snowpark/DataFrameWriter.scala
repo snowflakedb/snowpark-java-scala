@@ -69,7 +69,7 @@ import scala.collection.mutable
  * @param dataFrame Input [[DataFrame]]
  * @since 0.1.0
  */
-class DataFrameWriter(dataFrame: DataFrame) {
+class DataFrameWriter(private[snowpark] val dataFrame: DataFrame) {
   private var saveMode: Option[SaveMode] = None
 
   private val COLUMN_ORDER = "COLUMNORDER"
@@ -411,7 +411,7 @@ class DataFrameWriterAsyncActor private[snowpark] (writer: DataFrameWriter) {
    *         and get the results.
    * @since 0.11.0
    */
-  def saveAsTable(tableName: String): TypedAsyncJob[Unit] = {
+  def saveAsTable(tableName: String): TypedAsyncJob[Unit] = action("saveAsTable") {
     val writePlan = writer.getWriteTablePlan(tableName)
     writePlan.session.conn.executeAsync[Unit](writePlan)
   }
@@ -426,7 +426,7 @@ class DataFrameWriterAsyncActor private[snowpark] (writer: DataFrameWriter) {
    *         and get the results.
    * @since 0.11.0
    */
-  def saveAsTable(multipartIdentifier: Seq[String]): TypedAsyncJob[Unit] = {
+  def saveAsTable(multipartIdentifier: Seq[String]): TypedAsyncJob[Unit] = action("saveAsTable") {
     val writePlan = writer.getWriteTablePlan(multipartIdentifier.mkString("."))
     writePlan.session.conn.executeAsync[Unit](writePlan)
   }
@@ -440,10 +440,11 @@ class DataFrameWriterAsyncActor private[snowpark] (writer: DataFrameWriter) {
    *         and get the results.
    * @since 0.11.0
    */
-  def saveAsTable(multipartIdentifier: java.util.List[String]): TypedAsyncJob[Unit] = {
-    val writePlan = writer.getWriteTablePlan(multipartIdentifier.asScala.mkString("."))
-    writePlan.session.conn.executeAsync[Unit](writePlan)
-  }
+  def saveAsTable(multipartIdentifier: java.util.List[String]): TypedAsyncJob[Unit] =
+    action("saveAsTable") {
+      val writePlan = writer.getWriteTablePlan(multipartIdentifier.asScala.mkString("."))
+      writePlan.session.conn.executeAsync[Unit](writePlan)
+    }
 
   /**
    * Executes `DataFrameWriter.csv` asynchronously.
@@ -453,7 +454,7 @@ class DataFrameWriterAsyncActor private[snowpark] (writer: DataFrameWriter) {
    *         and get the results.
    * @since 1.5.0
    */
-  def csv(path: String): TypedAsyncJob[WriteFileResult] = {
+  def csv(path: String): TypedAsyncJob[WriteFileResult] = action("csv") {
     val writePlan = writer.getCopyIntoLocationPlan(path, "CSV")
     writePlan.session.conn.executeAsync[WriteFileResult](writePlan)
   }
@@ -466,7 +467,7 @@ class DataFrameWriterAsyncActor private[snowpark] (writer: DataFrameWriter) {
    *         and get the results.
    * @since 1.5.0
    */
-  def json(path: String): TypedAsyncJob[WriteFileResult] = {
+  def json(path: String): TypedAsyncJob[WriteFileResult] = action("json") {
     val writePlan = writer.getCopyIntoLocationPlan(path, "JSON")
     writePlan.session.conn.executeAsync[WriteFileResult](writePlan)
   }
@@ -479,9 +480,14 @@ class DataFrameWriterAsyncActor private[snowpark] (writer: DataFrameWriter) {
    *         and get the results.
    * @since 1.5.0
    */
-  def parquet(path: String): TypedAsyncJob[WriteFileResult] = {
+  def parquet(path: String): TypedAsyncJob[WriteFileResult] = action { "parquet" } {
     val writePlan = writer.getCopyIntoLocationPlan(path, "PARQUET")
     writePlan.session.conn.executeAsync[WriteFileResult](writePlan)
+  }
+
+  @inline protected def action[T](funcName: String)(func: => T): T = {
+    val isScala: Boolean = writer.dataFrame.session.conn.isScalaAPI
+    OpenTelemetry.action("DataFrameWriterAsyncActor", funcName, isScala)(func)
   }
 }
 
