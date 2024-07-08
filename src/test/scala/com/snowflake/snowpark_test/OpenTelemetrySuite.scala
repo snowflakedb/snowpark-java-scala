@@ -159,6 +159,32 @@ class OpenTelemetrySuite extends OpenTelemetryEnabled {
       "")
   }
 
+  test("line number - DataFrameStatFunctions - corr") {
+    import session.implicits._
+    val df = Seq((0.1, 0.5), (0.2, 0.6), (0.3, 0.7)).toDF("a", "b")
+    df.stat.corr("a", "b")
+    checkSpan("snow.snowpark.DataFrameStatFunctions", "corr", "OpenTelemetrySuite.scala", 165, "")
+  }
+
+  test("line number - DataFrameStatFunctions - cov") {
+    import session.implicits._
+    val df = Seq((0.1, 0.5), (0.2, 0.6), (0.3, 0.7)).toDF("a", "b")
+    df.stat.cov("a", "b")
+    checkSpan("snow.snowpark.DataFrameStatFunctions", "cov", "OpenTelemetrySuite.scala", 172, "")
+  }
+
+  test("line number - DataFrameStatFunctions - approxQuantile") {
+    import session.implicits._
+    val df = Seq(1, 2, 3, 4, 5, 6, 7, 8, 9, 0).toDF("a")
+    df.stat.approxQuantile("a", Array(0, 0.1, 0.4, 0.6, 1))
+    checkSpan(
+      "snow.snowpark.DataFrameStatFunctions",
+      "approxQuantile",
+      "OpenTelemetrySuite.scala",
+      179,
+      "")
+  }
+
   test("OpenTelemetry.emit") {
     OpenTelemetry.emit("ClassA", "functionB", "fileC", 123, "chainD")
     checkSpan("snow.snowpark.ClassA", "functionB", "fileC", 123, "chainD")
