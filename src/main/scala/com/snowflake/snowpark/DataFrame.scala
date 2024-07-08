@@ -2293,7 +2293,9 @@ class DataFrame private[snowpark] (
    * @group actions
    * @since 0.1.0
    */
-  def show(): Unit = show(10)
+  def show(): Unit = action("show") {
+    show(10)
+  }
 
   /**
    * Evaluates this DataFrame and prints out the first `''n''` rows.
@@ -2302,7 +2304,9 @@ class DataFrame private[snowpark] (
    * @since 0.1.0
    * @param n The number of rows to print out.
    */
-  def show(n: Int): Unit = show(n, 50)
+  def show(n: Int): Unit = action("show") {
+    show(n, 50)
+  }
 
   /**
    * Evaluates this DataFrame and prints out the first `''n''` rows with the specified maximum
@@ -2315,7 +2319,7 @@ class DataFrame private[snowpark] (
    *   of characters exceeds the maximum, the method prints out an ellipsis (...) at the end of
    *   the column.
    */
-  def show(n: Int, maxWidth: Int): Unit = {
+  def show(n: Int, maxWidth: Int): Unit = action("show") {
     session.conn.telemetry.reportActionShow()
     // scalastyle:off println
     println(showString(n, maxWidth))
@@ -2462,7 +2466,7 @@ class DataFrame private[snowpark] (
    * @group actions
    * @param viewName The name of the view to create or replace.
    */
-  def createOrReplaceView(viewName: String): Unit = {
+  def createOrReplaceView(viewName: String): Unit = action("createOrReplaceView") {
     doCreateOrReplaceView(viewName, PersistedView)
   }
 
@@ -2482,7 +2486,9 @@ class DataFrame private[snowpark] (
    *                            and view name.
    */
   def createOrReplaceView(multipartIdentifier: Seq[String]): Unit =
-    createOrReplaceView(multipartIdentifier.mkString("."))
+    action("createOrReplaceView") {
+      createOrReplaceView(multipartIdentifier.mkString("."))
+    }
 
   /**
    * Creates a view that captures the computation expressed by this DataFrame.
@@ -2500,7 +2506,9 @@ class DataFrame private[snowpark] (
    *                            and view name.
    */
   def createOrReplaceView(multipartIdentifier: java.util.List[String]): Unit =
-    createOrReplaceView(multipartIdentifier.asScala)
+    action("createOrReplaceView") {
+      createOrReplaceView(multipartIdentifier.asScala)
+    }
 
   /**
    * Creates a temporary view that returns the same results as this DataFrame.
@@ -2519,7 +2527,7 @@ class DataFrame private[snowpark] (
    * @group actions
    * @param viewName The name of the view to create or replace.
    */
-  def createOrReplaceTempView(viewName: String): Unit = {
+  def createOrReplaceTempView(viewName: String): Unit = action("createOrReplaceTempView") {
     doCreateOrReplaceView(viewName, LocalTempView)
   }
 
@@ -2542,7 +2550,9 @@ class DataFrame private[snowpark] (
    *                            and view name.
    */
   def createOrReplaceTempView(multipartIdentifier: Seq[String]): Unit =
-    createOrReplaceTempView(multipartIdentifier.mkString("."))
+    action("createOrReplaceTempView") {
+      createOrReplaceTempView(multipartIdentifier.mkString("."))
+    }
 
   /**
    * Creates a temporary view that returns the same results as this DataFrame.
@@ -2563,7 +2573,9 @@ class DataFrame private[snowpark] (
    *                            view name.
    */
   def createOrReplaceTempView(multipartIdentifier: java.util.List[String]): Unit =
-    createOrReplaceTempView(multipartIdentifier.asScala)
+    action("createOrReplaceTempView") {
+      createOrReplaceTempView(multipartIdentifier.asScala)
+    }
 
   private def doCreateOrReplaceView(viewName: String, viewType: ViewType): Unit = {
     session.conn.telemetry.reportActionCreateOrReplaceView()
