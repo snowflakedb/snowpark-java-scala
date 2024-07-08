@@ -24,8 +24,8 @@ object OpenTelemetry extends Logging {
               val file = stacks(4)
               (file.getFileName, file.getLineNumber)
             } else {
-              // todo: change in Java API
-              null
+              val file = stacks(5)
+              (file.getFileName, file.getLineNumber)
             }
           Some(SpanInfo(className, funcName, fileName, lineNumber, methodChain))
         // if value is not empty, this function call should be recursion.
