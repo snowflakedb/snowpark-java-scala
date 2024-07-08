@@ -169,7 +169,7 @@ class DataFrameWriter(dataFrame: DataFrame) {
    * @param path The path (including the stage name) to the Parquet file.
    * @return A [[WriteFileResult]]
    */
-  def parquet(path: String): WriteFileResult = {
+  def parquet(path: String): WriteFileResult = action("parquet") {
     val plan = getCopyIntoLocationPlan(path, "PARQUET")
     val (rows, attributes) = dataFrame.session.conn.getResultAndMetadata(plan)
     WriteFileResult(rows, StructType.fromAttributes(attributes))
@@ -273,7 +273,7 @@ class DataFrameWriter(dataFrame: DataFrame) {
    * @param tableName Name of the table where the data should be saved.
    * @since 0.1.0
    */
-  def saveAsTable(tableName: String): Unit = {
+  def saveAsTable(tableName: String): Unit = action("saveAsTable") {
     val writePlan = getWriteTablePlan(tableName)
     dataFrame.session.conn.execute(writePlan)
   }
@@ -324,7 +324,7 @@ class DataFrameWriter(dataFrame: DataFrame) {
    *                            {@code Seq("database_name", "schema_name", "table_name")}).
    * @since 0.5.0
    */
-  def saveAsTable(multipartIdentifier: Seq[String]): Unit = {
+  def saveAsTable(multipartIdentifier: Seq[String]): Unit = action("saveAsTable") {
     val writePlan = getWriteTablePlan(multipartIdentifier.mkString("."))
     dataFrame.session.conn.execute(writePlan)
   }
@@ -345,7 +345,7 @@ class DataFrameWriter(dataFrame: DataFrame) {
    *                            and table name.
    * @since 0.5.0
    */
-  def saveAsTable(multipartIdentifier: java.util.List[String]): Unit = {
+  def saveAsTable(multipartIdentifier: java.util.List[String]): Unit = action("saveAsTable") {
     val writePlan = getWriteTablePlan(multipartIdentifier.asScala.mkString("."))
     dataFrame.session.conn.execute(writePlan)
   }

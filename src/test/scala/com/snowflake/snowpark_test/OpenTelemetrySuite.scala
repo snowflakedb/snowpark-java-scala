@@ -223,6 +223,53 @@ class OpenTelemetrySuite extends OpenTelemetryEnabled {
     checkSpan("snow.snowpark.DataFrameWriter", "json", "OpenTelemetrySuite.scala", 222, "")
   }
 
+  test("line number - DataFrameWriter - parquet") {
+    val df = session.sql("select * from values(1),(2),(3) as t(num)")
+    df.write.parquet(s"@$stageName1/parquet1")
+    checkSpan("snow.snowpark.DataFrameWriter", "parquet", "OpenTelemetrySuite.scala", 228, "")
+  }
+
+  test("line number - DataFrameWriter - saveAsTable") {
+    val df = session.sql("select * from values(1),(2),(3) as t(num)")
+    val tableName = randomName()
+    try {
+      df.write.saveAsTable(tableName)
+      checkSpan(
+        "snow.snowpark.DataFrameWriter",
+        "saveAsTable",
+        "OpenTelemetrySuite.scala",
+        236,
+        "")
+    } finally {
+      dropTable(tableName)
+    }
+    try {
+      df.write.saveAsTable(Seq(tableName))
+      checkSpan(
+        "snow.snowpark.DataFrameWriter",
+        "saveAsTable",
+        "OpenTelemetrySuite.scala",
+        242,
+        "")
+    } finally {
+      dropTable(tableName)
+    }
+    try {
+      val list = new util.ArrayList[String](1)
+      list.add(tableName)
+      df.write.saveAsTable(tableName)
+      checkSpan(
+        "snow.snowpark.DataFrameWriter",
+        "saveAsTable",
+        "OpenTelemetrySuite.scala",
+        250,
+        "")
+    } finally {
+      dropTable(tableName)
+    }
+
+  }
+
   test("OpenTelemetry.emit") {
     OpenTelemetry.emit("ClassA", "functionB", "fileC", 123, "chainD")
     checkSpan("snow.snowpark.ClassA", "functionB", "fileC", 123, "chainD")
