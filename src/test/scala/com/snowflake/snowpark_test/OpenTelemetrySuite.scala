@@ -185,6 +185,30 @@ class OpenTelemetrySuite extends OpenTelemetryEnabled {
       "")
   }
 
+  test("line number - DataFrameStatFunctions - approxQuantile 2") {
+    import session.implicits._
+    val df = Seq((0.1, 0.5), (0.2, 0.6), (0.3, 0.7)).toDF("a", "b")
+    df.stat.approxQuantile(Array("a", "b"), Array(0, 0.1, 0.6))
+    checkSpan(
+      "snow.snowpark.DataFrameStatFunctions",
+      "approxQuantile",
+      "OpenTelemetrySuite.scala",
+      191,
+      "")
+  }
+
+  test("line number - DataFrameStatFunctions - crosstab") {
+    import session.implicits._
+    val df = Seq((1, 1), (1, 2), (2, 1), (2, 1), (2, 3), (3, 2), (3, 3)).toDF("key", "value")
+    df.stat.crosstab("key", "value")
+    checkSpan(
+      "snow.snowpark.DataFrameStatFunctions",
+      "crosstab",
+      "OpenTelemetrySuite.scala",
+      203,
+      "")
+  }
+
   test("OpenTelemetry.emit") {
     OpenTelemetry.emit("ClassA", "functionB", "fileC", 123, "chainD")
     checkSpan("snow.snowpark.ClassA", "functionB", "fileC", 123, "chainD")

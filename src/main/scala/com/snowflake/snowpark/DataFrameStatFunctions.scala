@@ -149,7 +149,7 @@ final class DataFrameStatFunctions private[snowpark] (df: DataFrame) extends Log
    */
   def approxQuantile(
       cols: Array[String],
-      percentile: Array[Double]): Array[Array[Option[Double]]] = {
+      percentile: Array[Double]): Array[Array[Option[Double]]] = action("approxQuantile") {
     if (cols.isEmpty || percentile.isEmpty) {
       return Array[Array[Option[Double]]]()
     }
@@ -219,7 +219,7 @@ final class DataFrameStatFunctions private[snowpark] (df: DataFrame) extends Log
    * @since 0.2.0
    * @return A DataFrame containing the contingency table.
    */
-  def crosstab(col1: String, col2: String): DataFrame = {
+  def crosstab(col1: String, col2: String): DataFrame = action("crosstab") {
     // Limit the distinct values of col2 to maxColumnsPerTable.
     val rowCount =
       df.select(col2).distinct().select(count(Col(col2))).limit(1).collect().head.getLong(0)
