@@ -1,15 +1,14 @@
 package com.snowflake.snowpark
 
-import java.io.{BufferedReader, OutputStreamWriter, StringReader}
+import java.io.{BufferedReader, OutputStreamWriter, StringReader, PrintWriter => JPrintWriter}
 import java.nio.charset.StandardCharsets
 import java.nio.file.{Files, Paths, StandardCopyOption}
-
 import com.snowflake.snowpark.internal.Utils
 
 import scala.tools.nsc.Settings
-import scala.tools.nsc.interpreter._
 import scala.tools.nsc.util.stringFromStream
 import scala.sys.process._
+import scala.tools.nsc.interpreter.shell.{ILoop, ShellConfig}
 
 @UDFTest
 class ReplSuite extends TestData {
@@ -48,7 +47,6 @@ class ReplSuite extends TestData {
       Console.withOut(outputStream) {
         val input = new BufferedReader(new StringReader(preLoad + code))
         val output = new JPrintWriter(new OutputStreamWriter(outputStream))
-        val repl = new ILoop(input, output)
         val settings = new Settings()
         if (inMemory) {
           settings.processArgumentString("-Yrepl-class-based")
@@ -56,7 +54,8 @@ class ReplSuite extends TestData {
           settings.processArgumentString("-Yrepl-class-based -Yrepl-outdir repl_classes")
         }
         settings.classpath.value = sys.props("java.class.path")
-        repl.process(settings)
+        val repl = new ILoop(ShellConfig(settings), input, output)
+        repl.run(settings)
       }
     }.replaceAll("scala> ", "")
   }

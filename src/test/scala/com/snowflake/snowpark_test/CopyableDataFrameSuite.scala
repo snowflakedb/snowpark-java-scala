@@ -944,6 +944,7 @@ class CopyableDataFrameSuite extends SNTestBase {
       val cloned = df.clone
       assert(cloned.isInstanceOf[CopyableDataFrame])
       cloned.copyInto(testTableName, Seq(col("$1").as("B")))
+      succeed
     } finally {
       dropTable(testTableName)
     }

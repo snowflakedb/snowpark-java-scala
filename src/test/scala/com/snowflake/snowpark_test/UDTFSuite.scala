@@ -12,7 +12,7 @@ import com.snowflake.snowpark.internal._
 import com.snowflake.snowpark.types._
 import com.snowflake.snowpark.udtf._
 
-import scala.collection.{Seq, mutable}
+import scala.collection.mutable
 
 @UDFTest
 class UDTFSuite extends TestData {
@@ -287,6 +287,7 @@ class UDTFSuite extends TestData {
 
       session.udtf.registerTemporary(funcName, new MyDuplicateRegisterUDTF1())
       session.udtf.registerTemporary(funcName2, new MyDuplicateRegisterUDTF1())
+      succeed
     } finally {
       runQuery(s"drop function if exists $funcName(STRING)", session)
     }
@@ -416,6 +417,7 @@ class UDTFSuite extends TestData {
               |""".stripMargin)
         checkAnswer(df, Seq(Row(30), Row(31), Row(32), Row(33), Row(34)))
       }
+      succeed
     } finally {
       runQuery(s"drop function if exists $funcName(NUMBER, NUMBER)", session)
     }
@@ -2129,6 +2131,7 @@ class UDTFSuite extends TestData {
       Seq(Row("a", null, "Map(b -> 2, c -> 1)"), Row("d", null, "Map(e -> 1)")))
     df.join(tf, Map("arg1" -> df("b")), Seq.empty, Seq(df("b"))).show()
     df.join(tf, Map("arg1" -> df("b")), Seq.empty, Seq.empty).show()
+    succeed
   }
 
   test("single partition") {

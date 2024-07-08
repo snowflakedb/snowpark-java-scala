@@ -8,12 +8,13 @@ import com.snowflake.snowpark.internal.{ParameterUtils, ServerConnection, UDFCla
 import com.snowflake.snowpark.types._
 import com.snowflake.snowpark_test.TestFiles
 import org.mockito.Mockito.{doReturn, spy, when}
-import org.scalatest.{BeforeAndAfterAll, FunSuite}
+import org.scalatest.{Assertion, Assertions, BeforeAndAfterAll}
+import org.scalatest.funsuite.{AsyncFunSuite => FunSuite}
 
 import scala.collection.mutable.ArrayBuffer
 import scala.concurrent.{Await, Future}
 import scala.concurrent.duration._
-import scala.concurrent.ExecutionContext.Implicits.global
+import scala.language.postfixOps
 
 trait SNTestBase extends FunSuite with BeforeAndAfterAll with SFTestUtils with SnowTestFiles {
 
@@ -100,7 +101,7 @@ trait SNTestBase extends FunSuite with BeforeAndAfterAll with SFTestUtils with S
     }
   }
 
-  def checkAnswer(df1: DataFrame, df2: DataFrame, sort: Boolean): Unit = {
+  def checkAnswer(df1: DataFrame, df2: DataFrame, sort: Boolean): Assertion = {
     if (sort) {
       assert(
         TestUtils.compare(df1.collect().sortBy(_.toString), df2.collect().sortBy(_.toString)))
@@ -109,14 +110,15 @@ trait SNTestBase extends FunSuite with BeforeAndAfterAll with SFTestUtils with S
     }
   }
 
-  def checkAnswer(df: DataFrame, result: Row): Unit =
-    checkResult(df.collect(), Seq(result), false)
+  def checkAnswer(df: DataFrame, result: Row): Assertion =
+    checkResult(df.collect(), Seq(result), sort = false)
 
-  def checkAnswer(df: DataFrame, result: Seq[Row], sort: Boolean = true): Unit =
+  def checkAnswer(df: DataFrame, result: Seq[Row], sort: Boolean = true): Assertion =
     checkResult(df.collect(), result, sort)
 
-  def checkResult(result: Array[Row], expected: Seq[Row], sort: Boolean = true): Unit =
+  def checkResult(result: Array[Row], expected: Seq[Row], sort: Boolean = true): Assertion =
     TestUtils.checkResult(result, expected, sort)
+
   def checkResultIterator(result: Iterator[Row], expected: Seq[Row], sort: Boolean = true): Unit =
     checkResult(result.toArray, expected, sort)
 
@@ -171,7 +173,7 @@ trait SNTestBase extends FunSuite with BeforeAndAfterAll with SFTestUtils with S
       thunk: => T,
       parameter: String,
       value: String,
-      skipIfParamNotExist: Boolean = false): Unit = {
+      skipIfParamNotExist: Boolean = false): Assertion = {
     var parameterNotExist = false
     try {
       session.runQuery(s"alter session set $parameter = $value")
@@ -187,6 +189,7 @@ trait SNTestBase extends FunSuite with BeforeAndAfterAll with SFTestUtils with S
       // best effort to unset the parameter.
       session.runQuery(s"alter session unset $parameter")
     }
+    succeed
   }
 
   def testWithTimezone[T](thunk: => T, timezone: String): T = {

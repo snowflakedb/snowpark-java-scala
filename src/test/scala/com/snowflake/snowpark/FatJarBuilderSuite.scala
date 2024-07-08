@@ -5,7 +5,7 @@ import java.util.jar.{JarFile, JarOutputStream}
 import java.util.zip.ZipException
 
 import com.snowflake.snowpark.internal.{FatJarBuilder, JavaCodeCompiler}
-import org.scalatest.FunSuite
+import org.scalatest.funsuite.{AnyFunSuite => FunSuite}
 
 import scala.collection.mutable.ArrayBuffer
 import scala.util.Random

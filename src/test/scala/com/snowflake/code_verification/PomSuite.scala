@@ -1,7 +1,7 @@
 package com.snowflake.code_verification
 
 import com.snowflake.snowpark.CodeVerification
-import org.scalatest.FunSuite
+import org.scalatest.funsuite.{AnyFunSuite => FunSuite}
 
 import scala.collection.mutable
 

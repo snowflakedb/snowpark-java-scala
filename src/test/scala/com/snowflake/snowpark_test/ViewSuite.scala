@@ -108,6 +108,7 @@ class ViewSuite extends TestData {
       checkAnswer(session.table(viewName), Seq(Row(1), Row(2), Row(3)))
       dropView(viewName)
 
+      succeed
     } finally {
       dropView(viewName)
     }

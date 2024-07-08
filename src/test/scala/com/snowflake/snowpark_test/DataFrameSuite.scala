@@ -5,7 +5,8 @@ import com.snowflake.snowpark.functions._
 import com.snowflake.snowpark.internal.analyzer._
 import com.snowflake.snowpark.types._
 import net.snowflake.client.jdbc.SnowflakeSQLException
-import org.scalatest.BeforeAndAfterEach
+import org.scalatest.{Assertion, BeforeAndAfterEach}
+
 import java.sql.{Date, Time, Timestamp}
 import scala.util.Random
 
@@ -159,7 +160,7 @@ trait DataFrameSuite extends TestData with BeforeAndAfterEach {
       skipIfParamNotExist = true)
   }
 
-  private def testCacheResult(): Unit = {
+  private def testCacheResult(): Assertion = {
     val tableName = randomName()
     runQuery(s"create table $tableName (num int)", session)
     runQuery(s"insert into $tableName values(1),(2)", session)
@@ -446,8 +447,8 @@ trait DataFrameSuite extends TestData with BeforeAndAfterEach {
   test("df.stat.approxQuantile", JavaStoredProcExclude) {
     assert(approxNumbers.stat.approxQuantile("a", Array(0.5))(0).get == 4.5)
     assert(
-      approxNumbers.stat.approxQuantile("a", Array(0, 0.1, 0.4, 0.6, 1)).deep ==
-        Array(Some(0.0), Some(0.9), Some(3.6), Some(5.3999999999999995), Some(9.0)).deep)
+      approxNumbers.stat.approxQuantile("a", Array(0, 0.1, 0.4, 0.6, 1)).toSeq ==
+        Seq(Some(0.0), Some(0.9), Some(3.6), Some(5.3999999999999995), Some(9.0)))
 
     // Probability out of range error and apply on string column error.
     assertThrows[SnowflakeSQLException](approxNumbers.stat.approxQuantile("a", Array(-1d)))
@@ -457,8 +458,8 @@ trait DataFrameSuite extends TestData with BeforeAndAfterEach {
     assert(session.table(tableName).stat.approxQuantile("num", Array(0.5))(0).isEmpty)
 
     val res = double2.stat.approxQuantile(Array("a", "b"), Array(0, 0.1, 0.6))
-    assert(res(0).deep == Array(Some(0.1), Some(0.12000000000000001), Some(0.22)).deep)
-    assert(res(1).deep == Array(Some(0.5), Some(0.52), Some(0.62)).deep)
+    assert(res(0).toSeq == Seq(Some(0.1), Some(0.12000000000000001), Some(0.22)))
+    assert(res(1).toSeq == Seq(Some(0.5), Some(0.52), Some(0.62)))
 
     // ApproxNumbers2 contains a column called T, which conflicts with tmpColumnName.
     // This test demos that the query still works.
@@ -630,12 +631,12 @@ trait DataFrameSuite extends TestData with BeforeAndAfterEach {
     assert(nullData1.first().get == Row(null))
     assert(integer1.filter(col("a") < 0).first().isEmpty)
 
-    integer1.first(2) sameElements Seq(Row(1), Row(2))
+    assert(integer1.first(2) sameElements Seq(Row(1), Row(2)))
 
     // return all elements
-    integer1.first(3) sameElements Seq(Row(1), Row(2), Row(3))
-    integer1.first(10) sameElements Seq(Row(1), Row(2), Row(3))
-    integer1.first(-10) sameElements Seq(Row(1), Row(2), Row(3))
+    assert(integer1.first(3) sameElements Seq(Row(1), Row(2), Row(3)))
+    assert(integer1.first(10) sameElements Seq(Row(1), Row(2), Row(3)))
+    assert(integer1.first(-10) sameElements Seq(Row(1), Row(2), Row(3)))
   }
 
   test("sample() with row count") {
@@ -726,7 +727,7 @@ trait DataFrameSuite extends TestData with BeforeAndAfterEach {
         weights: Array[Double],
         index: Int,
         count: Long,
-        TotalCount: Long): Unit = {
+        TotalCount: Long): Assertion = {
       val expectedRowCount = TotalCount * weights(index) / weights.sum
       assert(Math.abs(expectedRowCount - count) < expectedRowCount * samplingDeviation)
     }
@@ -1514,6 +1515,7 @@ trait DataFrameSuite extends TestData with BeforeAndAfterEach {
 
   test("createDataFrame from empty Seq with schema inference") {
     Seq.empty[(Int, Int)].toDF("a", "b").schema.printTreeString()
+    succeed
   }
 
   test("schema inference binary type") {
@@ -2182,11 +2184,11 @@ trait DataFrameSuite extends TestData with BeforeAndAfterEach {
     val row1 = df1.collect().head
     // result is non-deterministic.
     (row1.getInt(0), row1.getInt(1), row1.getInt(2), row1.getInt(3)) match {
-      case (1, 1, 1, 1) =>
-      case (1, 1, 1, 2) =>
-      case (1, 1, 2, 3) =>
-      case (1, 2, 3, 4) =>
-      case _ => throw new Exception("wrong result")
+      case (1, 1, 1, 1) => succeed
+      case (1, 1, 1, 2) => succeed
+      case (1, 1, 2, 3) => succeed
+      case (1, 2, 3, 4) => succeed
+      case _ => fail("wrong result")
     }
   }
 

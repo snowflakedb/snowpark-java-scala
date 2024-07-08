@@ -319,7 +319,7 @@ object JavaUtils {
   def stringArrayToStringSeq(arr: Array[String]): Seq[String] = arr
 
   def objectListToAnySeq(input: java.util.List[java.util.List[Object]]): Seq[Seq[Any]] =
-    input.asScala.map(list => list.asScala)
+    input.asScala.map(list => list.asScala.toSeq).toSeq
 
   def registerUDF(
       udfRegistration: UDFRegistration,
@@ -360,18 +360,26 @@ object JavaUtils {
     map.asScala.toMap
 
   def javaMapToScalaWithVariantConversion(map: java.util.Map[_, _]): Map[Any, Any] =
-    map.asScala.map {
-      case (key, value: com.snowflake.snowpark_java.types.Variant) =>
-        key -> InternalUtils.toScalaVariant(value)
-      case (key, value) => key -> value
-    }.toMap
+    map.asScala
+      .map((e: (Any, Any)) => {
+        (e) match {
+          case (key, value: com.snowflake.snowpark_java.types.Variant) =>
+            key -> InternalUtils.toScalaVariant(value)
+          case (key, value) => key -> value
+        }
+      })
+      .toMap
 
   def scalaMapToJavaWithVariantConversion(map: Map[_, _]): java.util.Map[Object, Object] =
-    map.map {
-      case (key, value: com.snowflake.snowpark.types.Variant) =>
-        key.asInstanceOf[Object] -> InternalUtils.createVariant(value)
-      case (key, value) => key.asInstanceOf[Object] -> value.asInstanceOf[Object]
-    }.asJava
+    map
+      .map((e: (Any, Any)) => {
+        (e) match {
+          case (key, value: com.snowflake.snowpark.types.Variant) =>
+            key.asInstanceOf[Object] -> InternalUtils.createVariant(value)
+          case (key, value) => key.asInstanceOf[Object] -> value.asInstanceOf[Object]
+        }
+      })
+      .asJava
 
   def serialize(obj: Any): Array[Byte] = {
     val bos = new ByteArrayOutputStream()

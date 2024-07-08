@@ -68,7 +68,8 @@ class ServerConnectionSuite extends SNTestBase {
     for (i <- 0 to 1024) {
       largeData.append(Row(i))
     }
-    val df2 = session.createDataFrame(largeData, StructType(Seq(StructField("ID", LongType))))
+    val df2 =
+      session.createDataFrame(largeData.toSeq, StructType(Seq(StructField("ID", LongType))))
     val ex2 = intercept[SnowparkClientException] {
       session.conn.executeAsync(df2.snowflakePlan)
     }

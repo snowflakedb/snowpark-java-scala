@@ -126,7 +126,8 @@ class SnowflakePlanSuite extends SNTestBase {
     for (i <- 0 to 1024) {
       largeData.append(Row(i))
     }
-    val df2 = session.createDataFrame(largeData, StructType(Seq(StructField("ID", LongType))))
+    val df2 =
+      session.createDataFrame(largeData.toSeq, StructType(Seq(StructField("ID", LongType))))
     assert(!df2.snowflakePlan.supportAsyncMode && !df2.clone.snowflakePlan.supportAsyncMode)
     assert(!session.sql(" put file").snowflakePlan.supportAsyncMode)
     assert(!session.sql("get file ").snowflakePlan.supportAsyncMode)

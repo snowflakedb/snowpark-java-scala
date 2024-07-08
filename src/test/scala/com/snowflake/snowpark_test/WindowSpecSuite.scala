@@ -3,7 +3,7 @@ package com.snowflake.snowpark_test
 import com.snowflake.snowpark.functions._
 import com.snowflake.snowpark.{DataFrame, Row, TestData, Window}
 import net.snowflake.client.jdbc.SnowflakeSQLException
-import org.scalatest.Matchers.the
+import org.scalatest.matchers.should.Matchers.the
 
 import scala.reflect.ClassTag
 
@@ -97,6 +97,7 @@ class WindowSpecSuite extends TestData {
                      |GROUP BY a
                      |HAVING SUM(b) = 5 AND RANK() OVER(ORDER BY a) = 1
                      |""".stripMargin))
+    succeed
   }
 
   test("reuse window partitionBy") {
@@ -171,7 +172,7 @@ class WindowSpecSuite extends TestData {
 
   test("SN - window function should fail if order by clause is not specified") {
     val df = Seq((1, "1"), (2, "2"), (1, "2"), (2, "2")).toDF("key", "value")
-    val e = intercept[SnowflakeSQLException](
+    assertThrows[SnowflakeSQLException](
       // Here we missed .orderBy("key")!
       df.select(row_number().over(Window.partitionBy($"value"))).collect())
   }
@@ -329,8 +330,7 @@ class WindowSpecSuite extends TestData {
 
   test("SN - aggregation function on invalid column") {
     val df = Seq((1, "1")).toDF("key", "value")
-    val e =
-      intercept[SnowflakeSQLException](df.select($"key", count($"invalid").over()).collect())
+    assertThrows[SnowflakeSQLException](df.select($"key", count($"invalid").over()).collect())
   }
 
   test("SN - statistical functions") {
