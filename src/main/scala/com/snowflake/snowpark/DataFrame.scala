@@ -3001,8 +3001,9 @@ class DataFrameAsyncActor private[snowpark] (df: DataFrame) {
    *         and get the results.
    * @since 0.11.0
    */
-  def collect(): TypedAsyncJob[Array[Row]] =
+  def collect(): TypedAsyncJob[Array[Row]] = action("collect") {
     df.session.conn.executeAsync[Array[Row]](df.snowflakePlan)
+  }
 
   /**
    * Executes [[DataFrame.toLocalIterator]] asynchronously.
@@ -3011,8 +3012,9 @@ class DataFrameAsyncActor private[snowpark] (df: DataFrame) {
    *         and get the results.
    * @since 0.11.0
    */
-  def toLocalIterator(): TypedAsyncJob[Iterator[Row]] =
+  def toLocalIterator(): TypedAsyncJob[Iterator[Row]] = action("toLocalIterator") {
     df.session.conn.executeAsync[Iterator[Row]](df.snowflakePlan)
+  }
 
   /**
    * Executes [[DataFrame.count]] asynchronously.
@@ -3021,7 +3023,12 @@ class DataFrameAsyncActor private[snowpark] (df: DataFrame) {
    *         and get the results.
    * @since 0.11.0
    */
-  def count(): TypedAsyncJob[Long] =
+  def count(): TypedAsyncJob[Long] = action("count") {
     df.session.conn.executeAsync[Long](df.agg(("*", "count")).snowflakePlan)
+  }
 
+  @inline protected def action[T](funcName: String)(func: => T): T = {
+    val isScala: Boolean = df.session.conn.isScalaAPI
+    OpenTelemetry.action("DataFrameAsyncActor", funcName, isScala)(func)
+  }
 }

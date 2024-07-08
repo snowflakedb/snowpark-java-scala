@@ -144,6 +144,21 @@ class OpenTelemetrySuite extends OpenTelemetryEnabled {
     checkSpan("snow.snowpark.DataFrame", "cacheResult", "OpenTelemetrySuite.scala", 143, "")
   }
 
+  test("line number - DataFrameAsyncActor") {
+    val df = session.sql("select * from values(1),(2),(3) as t(num)")
+    df.async.count()
+    checkSpan("snow.snowpark.DataFrameAsyncActor", "count", "OpenTelemetrySuite.scala", 149, "")
+    df.async.collect()
+    checkSpan("snow.snowpark.DataFrameAsyncActor", "collect", "OpenTelemetrySuite.scala", 151, "")
+    df.async.toLocalIterator()
+    checkSpan(
+      "snow.snowpark.DataFrameAsyncActor",
+      "toLocalIterator",
+      "OpenTelemetrySuite.scala",
+      153,
+      "")
+  }
+
   test("OpenTelemetry.emit") {
     OpenTelemetry.emit("ClassA", "functionB", "fileC", 123, "chainD")
     checkSpan("snow.snowpark.ClassA", "functionB", "fileC", 123, "chainD")
