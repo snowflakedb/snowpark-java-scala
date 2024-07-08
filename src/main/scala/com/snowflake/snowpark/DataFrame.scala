@@ -235,7 +235,7 @@ class DataFrame private[snowpark] (
    * @group actions
    * @return A [[HasCachedResult]]
    */
-  def cacheResult(): HasCachedResult = {
+  def cacheResult(): HasCachedResult = action("cacheResult") {
     val tempTableName = randomNameForTempObject(TempObjectType.Table)
     val createTempTable =
       session.plans.createTempTable(tempTableName, snowflakePlan)
@@ -2234,7 +2234,7 @@ class DataFrame private[snowpark] (
    * @since 0.5.0
    * @return An Iterator of [[Row]]
    */
-  def toLocalIterator: Iterator[Row] = {
+  def toLocalIterator: Iterator[Row] = action("toLocalIterator") {
     session.conn.telemetry.reportActionToLocalIterator()
     session.conn.getRowIterator(snowflakePlan)
   }
@@ -2247,7 +2247,7 @@ class DataFrame private[snowpark] (
    * @since 0.1.0
    * @return The number of rows.
    */
-  def count(): Long = {
+  def count(): Long = action("count") {
     session.conn.telemetry.reportActionCount()
     agg(("*", "count")).collect().head.getLong(0)
   }
@@ -2581,7 +2581,6 @@ class DataFrame private[snowpark] (
   def first(): Option[Row] = action("first") {
     first(1).headOption
   }
-
 
   /**
    * Executes the query representing this DataFrame and returns the first {@code n} rows of the
