@@ -252,4 +252,94 @@ public class JavaOpenTelemetrySuite extends JavaOpenTelemetryEnabled {
       dropTable(name);
     }
   }
+
+  @Test
+  public void dataFrameWriterAsyncActorSaveAsTable() {
+    String name = randomName();
+    DataFrame df = getSession().sql("select * from values(1),(2),(3) as t(num)");
+    try {
+      df.write().async().saveAsTable(name).getResult();
+      checkSpan(
+          "snow.snowpark.DataFrameWriterAsyncActor",
+          "saveAsTable",
+          "JavaOpenTelemetrySuite.java",
+          261,
+          null);
+    } finally {
+      dropTable(name);
+    }
+    try {
+      String[] names = {name};
+      testSpanExporter.reset();
+      df.write().async().saveAsTable(names).getResult();
+      checkSpan(
+          "snow.snowpark.DataFrameWriterAsyncActor",
+          "saveAsTable",
+          "JavaOpenTelemetrySuite.java",
+          274,
+          null);
+    } finally {
+      dropTable(name);
+    }
+  }
+
+  @Test
+  public void dataFrameWriterAsyncActorCsv() {
+    String name = randomName();
+    try {
+      createTempStage(name);
+      testSpanExporter.reset();
+      DataFrame df = getSession().sql("select * from values(1),(2),(3) as t(num)");
+      df.write().async().csv("@" + name + "/csv").getResult();
+      checkSpan(
+          "snow.snowpark.DataFrameWriterAsyncActor",
+          "csv",
+          "JavaOpenTelemetrySuite.java",
+          293,
+          null);
+    } finally {
+      dropStage(name);
+    }
+  }
+
+  @Test
+  public void dataFrameWriterAsyncActorJson() {
+    String name = randomName();
+    try {
+      createTempStage(name);
+      testSpanExporter.reset();
+      DataFrame df = getSession().sql("select * from values(1, 2) as t(a, b)");
+      DataFrame df2 =
+          df.select(
+              com.snowflake.snowpark_java.Functions.array_construct(df.col("a"), df.col("b")));
+      df2.write().async().json("@" + name + "/json").getResult();
+      checkSpan(
+          "snow.snowpark.DataFrameWriterAsyncActor",
+          "json",
+          "JavaOpenTelemetrySuite.java",
+          315,
+          null);
+    } finally {
+      dropStage(name);
+    }
+  }
+
+  @Test
+  public void dataFrameWriterAsyncActorParquet() {
+    String name = randomName();
+    try {
+      createTempStage(name);
+      testSpanExporter.reset();
+      DataFrame df = getSession().sql("select * from values(1),(2),(3) as t(num)");
+      df.write().async().parquet("@" + name + "/parquet").getResult();
+      checkSpan(
+          "snow.snowpark.DataFrameWriterAsyncActor",
+          "parquet",
+          "JavaOpenTelemetrySuite.java",
+          334,
+          null);
+    } finally {
+      dropStage(name);
+    }
+  }
 }
