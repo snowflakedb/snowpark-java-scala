@@ -215,4 +215,41 @@ public class JavaOpenTelemetrySuite extends JavaOpenTelemetryEnabled {
       dropStage(name);
     }
   }
+
+  @Test
+  public void dataFrameWriterParquet() {
+    String name = randomName();
+    try {
+      createTempStage(name);
+      testSpanExporter.reset();
+      DataFrame df = getSession().sql("select * from values(1),(2),(3) as t(num)");
+      df.write().parquet("@" + name + "/parquet");
+      checkSpan(
+          "snow.snowpark.DataFrameWriter", "parquet", "JavaOpenTelemetrySuite.java", 226, null);
+    } finally {
+      dropStage(name);
+    }
+  }
+
+  @Test
+  public void dataFrameWriterSaveAsTable() {
+    String name = randomName();
+    DataFrame df = getSession().sql("select * from values(1),(2),(3) as t(num)");
+    try {
+      df.write().saveAsTable(name);
+      checkSpan(
+          "snow.snowpark.DataFrameWriter", "saveAsTable", "JavaOpenTelemetrySuite.java", 239, null);
+    } finally {
+      dropTable(name);
+    }
+    try {
+      String[] names = {name};
+      testSpanExporter.reset();
+      df.write().saveAsTable(names);
+      checkSpan(
+          "snow.snowpark.DataFrameWriter", "saveAsTable", "JavaOpenTelemetrySuite.java", 248, null);
+    } finally {
+      dropTable(name);
+    }
+  }
 }
