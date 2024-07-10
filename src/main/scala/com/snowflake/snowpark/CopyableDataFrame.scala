@@ -40,8 +40,9 @@ class CopyableDataFrame private[snowpark] (
    * @param tableName Name of the table where the data should be saved.
    * @since 0.9.0
    */
-  def copyInto(tableName: String): Unit =
+  def copyInto(tableName: String): Unit = action("copyInto") {
     getCopyDataFrame(tableName, Seq.empty, Seq.empty, Map.empty).collect()
+  }
 
   // scalastyle:off line.size.limit
   /**
@@ -82,8 +83,9 @@ class CopyableDataFrame private[snowpark] (
    * @since 0.9.0
    */
   // scalastyle:on line.size.limit
-  def copyInto(tableName: String, transformations: Seq[Column]): Unit =
+  def copyInto(tableName: String, transformations: Seq[Column]): Unit = action("copyInto") {
     getCopyDataFrame(tableName, Seq.empty, transformations, Map.empty).collect()
+  }
 
   // scalastyle:off line.size.limit
   /**
@@ -136,7 +138,9 @@ class CopyableDataFrame private[snowpark] (
    */
   // scalastyle:on line.size.limit
   def copyInto(tableName: String, transformations: Seq[Column], options: Map[String, Any]): Unit =
-    getCopyDataFrame(tableName, Seq.empty, transformations, options).collect()
+    action("copyInto") {
+      getCopyDataFrame(tableName, Seq.empty, transformations, options).collect()
+    }
 
   // scalastyle:off line.size.limit
   /**
@@ -198,8 +202,9 @@ class CopyableDataFrame private[snowpark] (
       tableName: String,
       targetColumnNames: Seq[String],
       transformations: Seq[Column],
-      options: Map[String, Any]): Unit =
+      options: Map[String, Any]): Unit = action("copyInto") {
     getCopyDataFrame(tableName, targetColumnNames, transformations, options).collect()
+  }
 
   // Internal function to create plan for COPY
   private[snowpark] def getCopyDataFrame(
@@ -232,8 +237,9 @@ class CopyableDataFrame private[snowpark] (
    * @since 0.10.0
    * @group basic
    */
-  override def clone: CopyableDataFrame =
+  override def clone: CopyableDataFrame = action("clone") {
     new CopyableDataFrame(session, plan, stagedFileReader)
+  }
 
   /**
    * Returns a [[CopyableDataFrameAsyncActor]] object that can be used to execute
@@ -253,6 +259,10 @@ class CopyableDataFrame private[snowpark] (
    */
   override def async: CopyableDataFrameAsyncActor = new CopyableDataFrameAsyncActor(this)
 
+  @inline override protected def action[T](funcName: String)(func: => T): T = {
+    val isScala: Boolean = this.session.conn.isScalaAPI
+    OpenTelemetry.action("CopyableDataFrame", funcName, isScala)(func)
+  }
 }
 
 /**
