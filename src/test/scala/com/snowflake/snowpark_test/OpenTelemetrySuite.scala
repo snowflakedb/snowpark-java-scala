@@ -1,6 +1,6 @@
 package com.snowflake.snowpark_test
 
-import com.snowflake.snowpark.OpenTelemetryEnabled
+import com.snowflake.snowpark.{OpenTelemetryEnabled, SaveMode, UpdateResult}
 import com.snowflake.snowpark.internal.OpenTelemetry
 import com.snowflake.snowpark.functions._
 import com.snowflake.snowpark.types.{DoubleType, IntegerType, StringType, StructField, StructType}
@@ -307,6 +307,33 @@ class OpenTelemetrySuite extends OpenTelemetryEnabled {
     } finally {
       dropStage(stageName)
       dropTable(tableName)
+    }
+  }
+
+  test("line number - updatable") {
+    val tableName = randomName()
+    val tableName2 = randomName()
+    try {
+      testData2.write.mode(SaveMode.Overwrite).saveAsTable(tableName)
+      val updatable = session.table(tableName)
+      upperCaseData.write.mode(SaveMode.Overwrite).saveAsTable(tableName2)
+      val t2 = session.table(tableName2)
+      testSpanExporter.reset()
+      updatable.update(Map(col("a") -> lit(1), col("b") -> lit(0)))
+      checkSpan("snow.snowpark.Updatable", "update", "")
+      updatable.update(Map("b" -> (col("a") + col("b"))))
+      checkSpan("snow.snowpark.Updatable", "update", "")
+      updatable.update(Map(col("b") -> lit(0)), col("a") === 1)
+      checkSpan("snow.snowpark.Updatable", "update", "")
+      updatable.update(Map("b" -> lit(0)), col("a") === 1)
+      checkSpan("snow.snowpark.Updatable", "update", "")
+      t2.update(Map(col("n") -> lit(0)), updatable("a") === t2("n"), updatable)
+      checkSpan("snow.snowpark.Updatable", "update", "")
+      t2.update(Map("n" -> lit(0)), updatable("a") === t2("n"), updatable)
+      checkSpan("snow.snowpark.Updatable", "update", "")
+    } finally {
+      dropTable(tableName)
+      dropTable(tableName2)
     }
   }
 

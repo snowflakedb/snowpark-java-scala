@@ -1,6 +1,6 @@
 package com.snowflake.snowpark
 
-import com.snowflake.snowpark.internal.Logging
+import com.snowflake.snowpark.internal.{Logging, OpenTelemetry}
 import com.snowflake.snowpark.internal.analyzer._
 
 import scala.reflect.ClassTag
@@ -76,7 +76,7 @@ class Updatable private[snowpark] (
    * @since 0.7.0
    * @return [[UpdateResult]]
    */
-  def update(assignments: Map[Column, Column]): UpdateResult = {
+  def update(assignments: Map[Column, Column]): UpdateResult = action("update") {
     val newDf = getUpdateDataFrameWithColumn(assignments, None, None)
     Updatable.getUpdateResult(newDf.collect())
   }
@@ -102,7 +102,7 @@ class Updatable private[snowpark] (
    * @since 0.7.0
    * @return [[UpdateResult]]
    */
-  def update[T: ClassTag](assignments: Map[String, Column]): UpdateResult = {
+  def update[T: ClassTag](assignments: Map[String, Column]): UpdateResult = action("update") {
     val newDf = getUpdateDataFrameWithString(assignments, None, None)
     Updatable.getUpdateResult(newDf.collect())
   }
@@ -123,7 +123,7 @@ class Updatable private[snowpark] (
    * @since 0.7.0
    * @return [[UpdateResult]]
    */
-  def update(assignments: Map[Column, Column], condition: Column): UpdateResult = {
+  def update(assignments: Map[Column, Column], condition: Column): UpdateResult = action("update") {
     val newDf = getUpdateDataFrameWithColumn(assignments, Some(condition), None)
     Updatable.getUpdateResult(newDf.collect())
   }
@@ -144,7 +144,8 @@ class Updatable private[snowpark] (
    * @since 0.7.0
    * @return [[UpdateResult]]
    */
-  def update[T: ClassTag](assignments: Map[String, Column], condition: Column): UpdateResult = {
+  def update[T: ClassTag](assignments: Map[String, Column], condition: Column): UpdateResult =
+    action("update") {
     val newDf = getUpdateDataFrameWithString(assignments, Some(condition), None)
     Updatable.getUpdateResult(newDf.collect())
   }
@@ -168,7 +169,7 @@ class Updatable private[snowpark] (
   def update(
       assignments: Map[Column, Column],
       condition: Column,
-      sourceData: DataFrame): UpdateResult = {
+      sourceData: DataFrame): UpdateResult = action("update") {
     val newDf = getUpdateDataFrameWithColumn(assignments, Some(condition), Some(sourceData))
     Updatable.getUpdateResult(newDf.collect())
   }
@@ -192,7 +193,7 @@ class Updatable private[snowpark] (
   def update[T: ClassTag](
       assignments: Map[String, Column],
       condition: Column,
-      sourceData: DataFrame): UpdateResult = {
+      sourceData: DataFrame): UpdateResult = action("update") {
     val newDf = getUpdateDataFrameWithString(assignments, Some(condition), Some(sourceData))
     Updatable.getUpdateResult(newDf.collect())
   }
@@ -346,6 +347,11 @@ class Updatable private[snowpark] (
    * @return A [[UpdatableAsyncActor]] object
    */
   override def async: UpdatableAsyncActor = new UpdatableAsyncActor(this)
+
+  @inline override protected def action[T](funcName: String)(func: => T): T = {
+    val isScala: Boolean = this.session.conn.isScalaAPI
+    OpenTelemetry.action("Updatable", funcName, isScala)(func)
+  }
 
 }
 
