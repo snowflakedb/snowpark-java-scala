@@ -302,10 +302,10 @@ public class JavaColumnSuite extends TestBase {
                 Arrays.asList(
                     Arrays.asList(1, "a"), Arrays.asList(2, "b"), Arrays.asList(3, "c"))));
     Row[] expected = {Row.create(1, "a", 1, 1), Row.create(2, "b", 2, 2)};
-    checkAnswer(df1, expected, false);
+    checkAnswer(df1, expected, true);
 
     DataFrame df2 = df.filter(Functions.in(new Column[] {df.col("a"), df.col("b")}, df0));
-    checkAnswer(df2, expected, false);
+    checkAnswer(df2, expected, true);
   }
 
   @Test

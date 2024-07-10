@@ -120,6 +120,10 @@ class JavaAPISuite extends FunSuite {
     TestRunner.run(classOf[JavaSProcNonStoredProcSuite])
   }
 
+  test("Java OpenTelemetry") {
+    TestRunner.run(classOf[JavaOpenTelemetrySuite])
+  }
+
   // some tests can't be implemented in Java are listed below
 
   // console redirect doesn't work in Java since run JUnit from Scala

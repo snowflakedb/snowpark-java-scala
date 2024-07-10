@@ -3,8 +3,7 @@ package com.snowflake.snowpark
 import scala.reflect.ClassTag
 import scala.util.Random
 import com.snowflake.snowpark.internal.analyzer.{TableFunction => TF}
-import com.snowflake.snowpark.internal.ErrorMessage
-import com.snowflake.snowpark.internal.{Logging, Utils}
+import com.snowflake.snowpark.internal.{ErrorMessage, Logging, OpenTelemetry, Utils}
 import com.snowflake.snowpark.internal.analyzer._
 import com.snowflake.snowpark.types._
 import com.github.vertical_blank.sqlformatter.SqlFormatter
@@ -236,7 +235,7 @@ class DataFrame private[snowpark] (
    * @group actions
    * @return A [[HasCachedResult]]
    */
-  def cacheResult(): HasCachedResult = {
+  def cacheResult(): HasCachedResult = action("cacheResult") {
     val tempTableName = randomNameForTempObject(TempObjectType.Table)
     val createTempTable =
       session.plans.createTempTable(tempTableName, snowflakePlan)
@@ -2220,7 +2219,7 @@ class DataFrame private[snowpark] (
    * @since 0.1.0
    * @return An Array of [[Row]]
    */
-  def collect(): Array[Row] = {
+  def collect(): Array[Row] = action("collect") {
     session.conn.telemetry.reportActionCollect()
     session.conn.execute(snowflakePlan)
   }
@@ -2235,7 +2234,7 @@ class DataFrame private[snowpark] (
    * @since 0.5.0
    * @return An Iterator of [[Row]]
    */
-  def toLocalIterator: Iterator[Row] = {
+  def toLocalIterator: Iterator[Row] = action("toLocalIterator") {
     session.conn.telemetry.reportActionToLocalIterator()
     session.conn.getRowIterator(snowflakePlan)
   }
@@ -2248,7 +2247,7 @@ class DataFrame private[snowpark] (
    * @since 0.1.0
    * @return The number of rows.
    */
-  def count(): Long = {
+  def count(): Long = action("count") {
     session.conn.telemetry.reportActionCount()
     agg(("*", "count")).collect().head.getLong(0)
   }
@@ -2294,7 +2293,9 @@ class DataFrame private[snowpark] (
    * @group actions
    * @since 0.1.0
    */
-  def show(): Unit = show(10)
+  def show(): Unit = action("show") {
+    show(10)
+  }
 
   /**
    * Evaluates this DataFrame and prints out the first `''n''` rows.
@@ -2303,7 +2304,9 @@ class DataFrame private[snowpark] (
    * @since 0.1.0
    * @param n The number of rows to print out.
    */
-  def show(n: Int): Unit = show(n, 50)
+  def show(n: Int): Unit = action("show") {
+    show(n, 50)
+  }
 
   /**
    * Evaluates this DataFrame and prints out the first `''n''` rows with the specified maximum
@@ -2316,7 +2319,7 @@ class DataFrame private[snowpark] (
    *   of characters exceeds the maximum, the method prints out an ellipsis (...) at the end of
    *   the column.
    */
-  def show(n: Int, maxWidth: Int): Unit = {
+  def show(n: Int, maxWidth: Int): Unit = action("show") {
     session.conn.telemetry.reportActionShow()
     // scalastyle:off println
     println(showString(n, maxWidth))
@@ -2463,7 +2466,7 @@ class DataFrame private[snowpark] (
    * @group actions
    * @param viewName The name of the view to create or replace.
    */
-  def createOrReplaceView(viewName: String): Unit = {
+  def createOrReplaceView(viewName: String): Unit = action("createOrReplaceView") {
     doCreateOrReplaceView(viewName, PersistedView)
   }
 
@@ -2483,7 +2486,9 @@ class DataFrame private[snowpark] (
    *                            and view name.
    */
   def createOrReplaceView(multipartIdentifier: Seq[String]): Unit =
-    createOrReplaceView(multipartIdentifier.mkString("."))
+    action("createOrReplaceView") {
+      createOrReplaceView(multipartIdentifier.mkString("."))
+    }
 
   /**
    * Creates a view that captures the computation expressed by this DataFrame.
@@ -2501,7 +2506,9 @@ class DataFrame private[snowpark] (
    *                            and view name.
    */
   def createOrReplaceView(multipartIdentifier: java.util.List[String]): Unit =
-    createOrReplaceView(multipartIdentifier.asScala)
+    action("createOrReplaceView") {
+      createOrReplaceView(multipartIdentifier.asScala)
+    }
 
   /**
    * Creates a temporary view that returns the same results as this DataFrame.
@@ -2520,7 +2527,7 @@ class DataFrame private[snowpark] (
    * @group actions
    * @param viewName The name of the view to create or replace.
    */
-  def createOrReplaceTempView(viewName: String): Unit = {
+  def createOrReplaceTempView(viewName: String): Unit = action("createOrReplaceTempView") {
     doCreateOrReplaceView(viewName, LocalTempView)
   }
 
@@ -2543,7 +2550,9 @@ class DataFrame private[snowpark] (
    *                            and view name.
    */
   def createOrReplaceTempView(multipartIdentifier: Seq[String]): Unit =
-    createOrReplaceTempView(multipartIdentifier.mkString("."))
+    action("createOrReplaceTempView") {
+      createOrReplaceTempView(multipartIdentifier.mkString("."))
+    }
 
   /**
    * Creates a temporary view that returns the same results as this DataFrame.
@@ -2564,7 +2573,9 @@ class DataFrame private[snowpark] (
    *                            view name.
    */
   def createOrReplaceTempView(multipartIdentifier: java.util.List[String]): Unit =
-    createOrReplaceTempView(multipartIdentifier.asScala)
+    action("createOrReplaceTempView") {
+      createOrReplaceTempView(multipartIdentifier.asScala)
+    }
 
   private def doCreateOrReplaceView(viewName: String, viewType: ViewType): Unit = {
     session.conn.telemetry.reportActionCreateOrReplaceView()
@@ -2579,7 +2590,9 @@ class DataFrame private[snowpark] (
    * @since 0.2.0
    * @return The first [[Row]], if the row exists. Otherwise, returns `None`.
    */
-  def first(): Option[Row] = first(1).headOption
+  def first(): Option[Row] = action("first") {
+    first(1).headOption
+  }
 
   /**
    * Executes the query representing this DataFrame and returns the first {@code n} rows of the
@@ -2591,7 +2604,7 @@ class DataFrame private[snowpark] (
    * @return An Array of the first {@code n} [[Row]] objects. If {@code n} is negative or larger
    *   than the number of rows in the results, returns all rows in the results.
    */
-  def first(n: Int): Array[Row] = {
+  def first(n: Int): Array[Row] = action("first") {
     session.conn.telemetry.reportActionFirst()
     if (n < 0) {
       this.collect()
@@ -2673,7 +2686,7 @@ class DataFrame private[snowpark] (
    * @since 0.2.0
    * @return A list of [[DataFrame]] objects
    */
-  def randomSplit(weights: Array[Double]): Array[DataFrame] = {
+  def randomSplit(weights: Array[Double]): Array[DataFrame] = action("randomSplit") {
     session.conn.telemetry.reportActionRandomSplit()
     import com.snowflake.snowpark.functions._
     if (weights.isEmpty) {
@@ -2938,6 +2951,11 @@ class DataFrame private[snowpark] (
   }
 
   @inline protected def withPlan(plan: LogicalPlan): DataFrame = DataFrame(session, plan)
+
+  @inline protected def action[T](funcName: String)(func: => T): T = {
+    val isScala: Boolean = this.session.conn.isScalaAPI
+    OpenTelemetry.action("DataFrame", funcName, isScala)(func)
+  }
 }
 
 /**
@@ -2962,7 +2980,7 @@ class HasCachedResult private[snowpark] (
    * @group actions
    * @return A [[HasCachedResult]]
    */
-  override def cacheResult(): HasCachedResult = {
+  override def cacheResult(): HasCachedResult = action("cacheResult") {
     // cacheResult function of HashCachedResult returns a clone of this
     // HashCachedResult DataFrame instead of to cache this DataFrame again.
     new HasCachedResult(session, snowflakePlan.clone)
@@ -2983,8 +3001,9 @@ class DataFrameAsyncActor private[snowpark] (df: DataFrame) {
    *         and get the results.
    * @since 0.11.0
    */
-  def collect(): TypedAsyncJob[Array[Row]] =
+  def collect(): TypedAsyncJob[Array[Row]] = action("collect") {
     df.session.conn.executeAsync[Array[Row]](df.snowflakePlan)
+  }
 
   /**
    * Executes [[DataFrame.toLocalIterator]] asynchronously.
@@ -2993,8 +3012,9 @@ class DataFrameAsyncActor private[snowpark] (df: DataFrame) {
    *         and get the results.
    * @since 0.11.0
    */
-  def toLocalIterator(): TypedAsyncJob[Iterator[Row]] =
+  def toLocalIterator(): TypedAsyncJob[Iterator[Row]] = action("toLocalIterator") {
     df.session.conn.executeAsync[Iterator[Row]](df.snowflakePlan)
+  }
 
   /**
    * Executes [[DataFrame.count]] asynchronously.
@@ -3003,7 +3023,12 @@ class DataFrameAsyncActor private[snowpark] (df: DataFrame) {
    *         and get the results.
    * @since 0.11.0
    */
-  def count(): TypedAsyncJob[Long] =
+  def count(): TypedAsyncJob[Long] = action("count") {
     df.session.conn.executeAsync[Long](df.agg(("*", "count")).snowflakePlan)
+  }
 
+  @inline protected def action[T](funcName: String)(func: => T): T = {
+    val isScala: Boolean = df.session.conn.isScalaAPI
+    OpenTelemetry.action("DataFrameAsyncActor", funcName, isScala)(func)
+  }
 }

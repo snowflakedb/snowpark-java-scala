@@ -1,12 +1,12 @@
 package com.snowflake.snowpark
 
-import com.snowflake.snowpark.internal.{ErrorMessage, Logging}
+import com.snowflake.snowpark.internal.{ErrorMessage, Logging, OpenTelemetry}
 import com.snowflake.snowpark.functions.{
   approx_percentile_accumulate,
   approx_percentile_estimate,
-  col => Col,
   count,
   covar_samp,
+  col => Col,
   corr => corr_func
 }
 
@@ -47,7 +47,7 @@ final class DataFrameStatFunctions private[snowpark] (df: DataFrame) extends Log
    * @return The correlation of the two numeric columns.
    *         If there is not enough data to generate the correlation, the method returns None.
    */
-  def corr(col1: String, col2: String): Option[Double] = {
+  def corr(col1: String, col2: String): Option[Double] = action("corr") {
     val res = df.select(corr_func(Col(col1), Col(col2))).limit(1).collect().head
     if (res.isNullAt(0)) None else Some(res.getDouble(0))
   }
@@ -73,7 +73,7 @@ final class DataFrameStatFunctions private[snowpark] (df: DataFrame) extends Log
    * @return The sample covariance of the two numeric columns,
    *         If there is not enough data to generate the covariance, the method returns None.
    */
-  def cov(col1: String, col2: String): Option[Double] = {
+  def cov(col1: String, col2: String): Option[Double] = action("cov") {
     val res = df.select(covar_samp(Col(col1), Col(col2))).limit(1).collect().head
     if (res.isNullAt(0)) None else Some(res.getDouble(0))
   }
@@ -102,21 +102,22 @@ final class DataFrameStatFunctions private[snowpark] (df: DataFrame) extends Log
    * @return An array of approximate percentile values,
    *         If there is not enough data to calculate the quantile, the method returns None.
    */
-  def approxQuantile(col: String, percentile: Array[Double]): Array[Option[Double]] = {
-    if (percentile.isEmpty) {
-      return Array[Option[Double]]()
+  def approxQuantile(col: String, percentile: Array[Double]): Array[Option[Double]] =
+    action("approxQuantile") {
+      if (percentile.isEmpty) {
+        return Array[Option[Double]]()
+      }
+      val res = df
+        .select(approx_percentile_accumulate(Col(col)).as(tempColumnName))
+        .select(percentile.map(p => approx_percentile_estimate(Col(tempColumnName), p)))
+        .limit(1)
+        .collect()
+        .head
+      res.toSeq.map {
+        case d: Double => Some(d)
+        case _ => None
+      }.toArray
     }
-    val res = df
-      .select(approx_percentile_accumulate(Col(col)).as(tempColumnName))
-      .select(percentile.map(p => approx_percentile_estimate(Col(tempColumnName), p)))
-      .limit(1)
-      .collect()
-      .head
-    res.toSeq.map {
-      case d: Double => Some(d)
-      case _ => None
-    }.toArray
-  }
 
   /**
    * For an array of numeric columns and an array of desired quantiles, returns a matrix of
@@ -148,7 +149,7 @@ final class DataFrameStatFunctions private[snowpark] (df: DataFrame) extends Log
    */
   def approxQuantile(
       cols: Array[String],
-      percentile: Array[Double]): Array[Array[Option[Double]]] = {
+      percentile: Array[Double]): Array[Array[Option[Double]]] = action("approxQuantile") {
     if (cols.isEmpty || percentile.isEmpty) {
       return Array[Array[Option[Double]]]()
     }
@@ -218,7 +219,7 @@ final class DataFrameStatFunctions private[snowpark] (df: DataFrame) extends Log
    * @since 0.2.0
    * @return A DataFrame containing the contingency table.
    */
-  def crosstab(col1: String, col2: String): DataFrame = {
+  def crosstab(col1: String, col2: String): DataFrame = action("crosstab") {
     // Limit the distinct values of col2 to maxColumnsPerTable.
     val rowCount =
       df.select(col2).distinct().select(count(Col(col2))).limit(1).collect().head.getLong(0)
@@ -305,5 +306,10 @@ final class DataFrameStatFunctions private[snowpark] (df: DataFrame) extends Log
    */
   def sampleBy[T](col: String, fractions: Map[T, Double]): DataFrame = {
     sampleBy(Col(col), fractions)
+  }
+
+  @inline protected def action[T](funcName: String)(func: => T): T = {
+    val isScala: Boolean = df.session.conn.isScalaAPI
+    OpenTelemetry.action("DataFrameStatFunctions", funcName, isScala)(func)
   }
 }

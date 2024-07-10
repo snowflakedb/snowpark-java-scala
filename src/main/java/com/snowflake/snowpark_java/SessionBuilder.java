@@ -85,6 +85,7 @@ public class SessionBuilder {
    * Adds the app name to set in the query_tag after session creation.
    *
    * <p>Since version 1.13.0, the app name is set to the query tag in JSON format. For example:
+   *
    * <pre>{@code
    * Session session = Session.builder().appName("myApp").configFile(myConfigFile).create();
    * System.out.println(session.getQueryTag().get());
@@ -92,6 +93,7 @@ public class SessionBuilder {
    * }</pre>
    *
    * <p>In previous versions it is set using a key=value format. For example:
+   *
    * <pre>{@code
    * Session session = Session.builder().appName("myApp").configFile(myConfigFile).create();
    * System.out.println(session.getQueryTag().get());

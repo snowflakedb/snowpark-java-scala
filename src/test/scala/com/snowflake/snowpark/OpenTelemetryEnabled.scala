@@ -16,6 +16,7 @@ trait OpenTelemetryEnabled extends SNTestBase {
 
   override def beforeAll: Unit = {
     super.beforeAll
+    GlobalOpenTelemetry.resetForTest()
     val resource = Resource.getDefault.toBuilder
       .put("service.name", "test-server")
       .put("service.version", "0.1.0")

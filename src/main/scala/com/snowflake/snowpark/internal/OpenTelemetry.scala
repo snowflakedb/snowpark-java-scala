@@ -4,10 +4,46 @@ import com.snowflake.snowpark.DataFrame
 import io.opentelemetry.api.GlobalOpenTelemetry
 import io.opentelemetry.api.trace.{Span, StatusCode}
 
+import scala.util.DynamicVariable
+
 object OpenTelemetry extends Logging {
+
+  // only report the top function info in case of recursion.
+  val spanInfo = new DynamicVariable[Option[SpanInfo]](None)
+
+  // wrapper of all action functions
+  def action[T](className: String, funcName: String, isScala: Boolean)(func: => T): T = {
+    try {
+      spanInfo.withValue[T](spanInfo.value match {
+        // empty info means this is the entry of the recursion
+        case None =>
+          val stacks = Thread.currentThread().getStackTrace
+          val methodChain = ""
+          val (fileName, lineNumber): (String, Int) =
+            if (isScala) {
+              val file = stacks(4)
+              (file.getFileName, file.getLineNumber)
+            } else {
+              val file = stacks(5)
+              (file.getFileName, file.getLineNumber)
+            }
+          Some(SpanInfo(className, funcName, fileName, lineNumber, methodChain))
+        // if value is not empty, this function call should be recursion.
+        // do not issue new SpanInfo, use the info inherited from previous.
+        case other => other
+      }) {
+        val result: T = func
+        OpenTelemetry.emit(spanInfo.value.get)
+        result
+      }
+    } catch {
+      case error: Throwable =>
+        OpenTelemetry.reportError(className, funcName, error)
+        throw error
+    }
+  }
   // class name format: snow.snowpark.<class name>
   // method chain: Dataframe.filter.join.select.collect
-  // todo: track line number in SNOW-1480775
   def emit(
       className: String,
       funcName: String,
@@ -21,6 +57,14 @@ object OpenTelemetry extends Logging {
         span.setAttribute("method.chain", methodChain)
       }
     }
+
+  def emit(spanInfo: SpanInfo): Unit =
+    emit(
+      spanInfo.className,
+      spanInfo.funcName,
+      spanInfo.fileName,
+      spanInfo.lineNumber,
+      spanInfo.methodChain)
 
   def reportError(className: String, funcName: String, error: Throwable): Unit =
     emit(className, funcName) { span =>
@@ -55,3 +99,10 @@ object OpenTelemetry extends Logging {
     ""
   }
 }
+
+case class SpanInfo(
+    className: String,
+    funcName: String,
+    fileName: String,
+    lineNumber: Int,
+    methodChain: String)
