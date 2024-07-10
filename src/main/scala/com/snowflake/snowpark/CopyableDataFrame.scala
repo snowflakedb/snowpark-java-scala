@@ -19,8 +19,9 @@ import com.snowflake.snowpark.internal.analyzer._
 class CopyableDataFrame private[snowpark] (
     override private[snowpark] val session: Session,
     override private[snowpark] val plan: SnowflakePlan,
+    override private[snowpark] val methodChain: Seq[String],
     private val stagedFileReader: StagedFileReader)
-    extends DataFrame(session, plan) {
+    extends DataFrame(session, plan, methodChain) {
 
   /**
    * Executes a `COPY INTO <table_name>` command to
@@ -233,7 +234,7 @@ class CopyableDataFrame private[snowpark] (
    * @group basic
    */
   override def clone: CopyableDataFrame =
-    new CopyableDataFrame(session, plan, stagedFileReader)
+    new CopyableDataFrame(session, plan, Seq(), stagedFileReader)
 
   /**
    * Returns a [[CopyableDataFrameAsyncActor]] object that can be used to execute

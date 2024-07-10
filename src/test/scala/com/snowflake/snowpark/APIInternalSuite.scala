@@ -649,7 +649,7 @@ class APIInternalSuite extends TestData {
         None,
         supportAsyncMode = true)
 
-    new DataFrame(session, session.analyzer.resolve(plan))
+    new DataFrame(session, session.analyzer.resolve(plan), Seq())
   }
 
   // This test DataFrame can't be defined in TestData,
@@ -673,7 +673,7 @@ class APIInternalSuite extends TestData {
         None,
         supportAsyncMode = true)
 
-    new DataFrame(session, session.analyzer.resolve(plan2))
+    new DataFrame(session, session.analyzer.resolve(plan2), Seq())
   }
 
   test("test col(DataFrame) with multiple queries") {
@@ -730,7 +730,7 @@ class APIInternalSuite extends TestData {
         session,
         None,
         supportAsyncMode = true)
-    val df = new DataFrame(session, plan)
+    val df = new DataFrame(session, plan, Seq())
     df.explain()
 
     val explainString1 = df.explainString

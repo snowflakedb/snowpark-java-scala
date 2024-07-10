@@ -1,7 +1,7 @@
 package com.snowflake.snowpark
 
 import scala.reflect.ClassTag
-import scala.util.Random
+import scala.util.{DynamicVariable, Random}
 import com.snowflake.snowpark.internal.analyzer.{TableFunction => TF}
 import com.snowflake.snowpark.internal.{ErrorMessage, Logging, OpenTelemetry, Utils}
 import com.snowflake.snowpark.internal.analyzer._
@@ -20,7 +20,7 @@ import scala.collection.mutable.ArrayBuffer
 
 private[snowpark] object DataFrame extends Logging {
   def apply(session: Session, plan: LogicalPlan): DataFrame =
-    new DataFrame(session, plan)
+    new DataFrame(session, plan, methodChainCache.value)
 
   def getUnaliased(colName: String): List[String] = {
     val ColPattern = s"""._[a-zA-Z0-9]{${numPrefixDigits}}_(.*)""".r
@@ -37,6 +37,18 @@ private[snowpark] object DataFrame extends Logging {
   }
 
   private val numPrefixDigits = 4
+
+  // build method chain in the Dataframe transformation functions
+  // in case of recursion, only record the outer function in the method chain.
+  val methodChainCache = new DynamicVariable[Seq[String]](Seq.empty[String])
+
+  def buildMethodChain(current: Seq[String], newMethod: String)(
+      thunk: => DataFrame): DataFrame = {
+    methodChainCache.withValue(
+      if (methodChainCache.value.isEmpty) current :+ newMethod else methodChainCache.value) {
+      thunk
+    }
+  }
 }
 
 /**
@@ -190,7 +202,8 @@ private[snowpark] object DataFrame extends Logging {
  */
 class DataFrame private[snowpark] (
     private[snowpark] val session: Session,
-    private[snowpark] val plan: LogicalPlan)
+    private[snowpark] val plan: LogicalPlan,
+    private[snowpark] val methodChain: Seq[String])
     extends Logging {
 
   lazy private[snowpark] val snowflakePlan: SnowflakePlan = session.analyzer.resolve(plan)
@@ -242,7 +255,7 @@ class DataFrame private[snowpark] (
     session.conn.execute(createTempTable)
     val newPlan = session.table(tempTableName).plan
     session.conn.telemetry.reportActionCacheResult()
-    new HasCachedResult(session, newPlan)
+    new HasCachedResult(session, newPlan, Seq())
   }
 
   /**
@@ -2967,8 +2980,9 @@ class DataFrame private[snowpark] (
  */
 class HasCachedResult private[snowpark] (
     override private[snowpark] val session: Session,
-    override private[snowpark] val plan: LogicalPlan)
-    extends DataFrame(session, plan) {
+    override private[snowpark] val plan: LogicalPlan,
+    override private[snowpark] val methodChain: Seq[String])
+    extends DataFrame(session, plan, methodChain) {
 
   /**
    * Caches the content of this DataFrame to create a new cached DataFrame.
@@ -2983,7 +2997,7 @@ class HasCachedResult private[snowpark] (
   override def cacheResult(): HasCachedResult = action("cacheResult") {
     // cacheResult function of HashCachedResult returns a clone of this
     // HashCachedResult DataFrame instead of to cache this DataFrame again.
-    new HasCachedResult(session, snowflakePlan.clone)
+    new HasCachedResult(session, snowflakePlan.clone, Seq())
   }
 }
 
