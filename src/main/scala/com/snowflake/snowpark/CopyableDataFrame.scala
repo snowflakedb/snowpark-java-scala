@@ -281,7 +281,7 @@ class CopyableDataFrameAsyncActor private[snowpark] (cdf: CopyableDataFrame)
    *         and get the results.
    * @since 0.11.0
    */
-  def copyInto(tableName: String): TypedAsyncJob[Unit] = {
+  def copyInto(tableName: String): TypedAsyncJob[Unit] = action("copyInto") {
     val df = cdf.getCopyDataFrame(tableName)
     cdf.session.conn.executeAsync[Unit](df.snowflakePlan)
   }
@@ -298,10 +298,11 @@ class CopyableDataFrameAsyncActor private[snowpark] (cdf: CopyableDataFrame)
    * @since 0.11.0
    */
   // scalastyle:on line.size.limit
-  def copyInto(tableName: String, transformations: Seq[Column]): TypedAsyncJob[Unit] = {
-    val df = cdf.getCopyDataFrame(tableName, Seq.empty, transformations, Map.empty)
-    cdf.session.conn.executeAsync[Unit](df.snowflakePlan)
-  }
+  def copyInto(tableName: String, transformations: Seq[Column]): TypedAsyncJob[Unit] =
+    action("copyInto") {
+      val df = cdf.getCopyDataFrame(tableName, Seq.empty, transformations, Map.empty)
+      cdf.session.conn.executeAsync[Unit](df.snowflakePlan)
+    }
 
   // scalastyle:off line.size.limit
   /**
@@ -322,7 +323,7 @@ class CopyableDataFrameAsyncActor private[snowpark] (cdf: CopyableDataFrame)
   def copyInto(
       tableName: String,
       transformations: Seq[Column],
-      options: Map[String, Any]): TypedAsyncJob[Unit] = {
+      options: Map[String, Any]): TypedAsyncJob[Unit] = action("copyInto") {
     val df = cdf.getCopyDataFrame(tableName, Seq.empty, transformations, options)
     cdf.session.conn.executeAsync[Unit](df.snowflakePlan)
   }
@@ -348,9 +349,13 @@ class CopyableDataFrameAsyncActor private[snowpark] (cdf: CopyableDataFrame)
       tableName: String,
       targetColumnNames: Seq[String],
       transformations: Seq[Column],
-      options: Map[String, Any]): TypedAsyncJob[Unit] = {
+      options: Map[String, Any]): TypedAsyncJob[Unit] = action("copyInto") {
     val df = cdf.getCopyDataFrame(tableName, targetColumnNames, transformations, options)
     cdf.session.conn.executeAsync[Unit](df.snowflakePlan)
   }
 
+  @inline override protected def action[T](funcName: String)(func: => T): T = {
+    val isScala: Boolean = cdf.session.conn.isScalaAPI
+    OpenTelemetry.action("CopyableDataFrameAsyncActor", funcName, isScala)(func)
+  }
 }

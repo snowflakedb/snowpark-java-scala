@@ -280,6 +280,36 @@ class OpenTelemetrySuite extends OpenTelemetryEnabled {
     }
   }
 
+  test("line number - CopyableDataFrameAsyncActor") {
+    val stageName = randomName()
+    val tableName = randomName()
+    val userSchema: StructType = StructType(
+      Seq(
+        StructField("a", IntegerType),
+        StructField("b", StringType),
+        StructField("c", DoubleType)))
+    try {
+      createStage(stageName)
+      uploadFileToStage(stageName, testFileCsv, compress = false)
+      createTable(tableName, "a Int, b String, c Double")
+      val testFileOnStage = s"@$stageName/$testFileCsv"
+      testSpanExporter.reset()
+      val df = session.read.schema(userSchema).csv(testFileOnStage)
+      df.async.copyInto(tableName).getResult()
+      checkSpan("snow.snowpark.CopyableDataFrameAsyncActor", "copyInto", "")
+      df.async.copyInto(tableName, Seq(col("$1"), col("$2"), col("$3"))).getResult()
+      checkSpan("snow.snowpark.CopyableDataFrameAsyncActor", "copyInto", "")
+      val seq1 = Seq(col("$1"), col("$2"), col("$3"))
+      df.async.copyInto(tableName, seq1, Map("FORCE" -> "TRUE")).getResult()
+      checkSpan("snow.snowpark.CopyableDataFrameAsyncActor", "copyInto", "")
+      df.async.copyInto(tableName, Seq("a", "b", "c"), seq1, Map.empty).getResult()
+      checkSpan("snow.snowpark.CopyableDataFrameAsyncActor", "copyInto", "")
+    } finally {
+      dropStage(stageName)
+      dropTable(tableName)
+    }
+  }
+
   test("OpenTelemetry.emit") {
     OpenTelemetry.emit("ClassA", "functionB", "fileC", 123, "chainD")
     checkSpan("snow.snowpark.ClassA", "functionB", "fileC", 123, "chainD")
