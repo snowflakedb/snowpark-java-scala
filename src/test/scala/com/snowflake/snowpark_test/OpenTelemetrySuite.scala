@@ -1,6 +1,6 @@
 package com.snowflake.snowpark_test
 
-import com.snowflake.snowpark.{OpenTelemetryEnabled, SaveMode, UpdateResult}
+import com.snowflake.snowpark.{MergeResult, OpenTelemetryEnabled, SaveMode, UpdateResult}
 import com.snowflake.snowpark.internal.OpenTelemetry
 import com.snowflake.snowpark.functions._
 import com.snowflake.snowpark.types.{DoubleType, IntegerType, StringType, StructField, StructType}
@@ -378,7 +378,45 @@ class OpenTelemetrySuite extends OpenTelemetryEnabled {
     }
   }
 
-  // mergerBuilder and async
+  test("line number - MergeBuilder") {
+    val tableName = randomName()
+    try {
+      import session.implicits._
+      val targetDF = Seq((10, "old"), (10, "too_old"), (11, "old")).toDF("id", "desc")
+      targetDF.write.mode(SaveMode.Overwrite).saveAsTable(tableName)
+      val target = session.table(tableName)
+      val source = Seq((10, "new")).toDF("id", "desc")
+      testSpanExporter.reset()
+      val builder = target
+        .merge(source, target("id") === source("id"))
+        .whenMatched
+        .update(Map(target("desc") -> source("desc")))
+      builder.collect()
+      checkSpan("snow.snowpark.MergeBuilder", "collect", "")
+    } finally {
+      dropTable(tableName)
+    }
+  }
+
+  test("line number - MergeBuilderAsyncActor") {
+    val tableName = randomName()
+    try {
+      import session.implicits._
+      val targetDF = Seq((10, "old"), (10, "too_old"), (11, "old")).toDF("id", "desc")
+      targetDF.write.mode(SaveMode.Overwrite).saveAsTable(tableName)
+      val target = session.table(tableName)
+      val source = Seq((10, "new")).toDF("id", "desc")
+      testSpanExporter.reset()
+      val builder = target
+        .merge(source, target("id") === source("id"))
+        .whenMatched
+        .update(Map(target("desc") -> source("desc")))
+      builder.async.collect().getResult()
+      checkSpan("snow.snowpark.MergeBuilderAsyncActor", "collect", "")
+    } finally {
+      dropTable(tableName)
+    }
+  }
 
   test("OpenTelemetry.emit") {
     OpenTelemetry.emit("ClassA", "functionB", "fileC", 123, "chainD")
