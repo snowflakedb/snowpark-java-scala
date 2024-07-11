@@ -1,6 +1,11 @@
 package com.snowflake.snowpark_test;
 
-import com.snowflake.snowpark_java.DataFrame;
+import com.snowflake.snowpark_java.*;
+import com.snowflake.snowpark_java.types.DataTypes;
+import com.snowflake.snowpark_java.types.StructField;
+import com.snowflake.snowpark_java.types.StructType;
+import java.util.HashMap;
+import java.util.Map;
 import org.junit.Test;
 
 public class JavaOpenTelemetrySuite extends JavaOpenTelemetryEnabled {
@@ -267,6 +272,116 @@ public class JavaOpenTelemetrySuite extends JavaOpenTelemetryEnabled {
       checkSpan("snow.snowpark.DataFrameWriterAsyncActor", "parquet", null);
     } finally {
       dropStage(name);
+    }
+  }
+
+  @Test
+  public void copyableDataFrame() {
+    String stageName = randomName();
+    String tableName = randomName();
+    StructType schema =
+        StructType.create(
+            new StructField("num", DataTypes.IntegerType),
+            new StructField("str", DataTypes.StringType),
+            new StructField("double", DataTypes.DoubleType));
+    try {
+      createTable(tableName, "a Int, b String, c Double", true);
+      createTempStage(stageName);
+      uploadFileToStage(stageName, TestFiles.testFileCsv, false);
+      testSpanExporter.reset();
+      String className = "snow.snowpark.CopyableDataFrame";
+      getSession()
+          .read()
+          .schema(schema)
+          .csv("@" + stageName + "/" + TestFiles.testFileCsv)
+          .copyInto(tableName);
+      checkSpan(className, "copyInto", null);
+      Column[] transformation = {Functions.col("$1"), Functions.col("$2"), Functions.col("$3")};
+      getSession()
+          .read()
+          .schema(schema)
+          .csv("@" + stageName + "/" + TestFiles.testFileCsv)
+          .copyInto(tableName, transformation);
+      checkSpan(className, "copyInto", null);
+      Map<String, Object> options = new HashMap<>();
+      options.put("skip_header", 1);
+      options.put("FORCE", "true");
+      getSession()
+          .read()
+          .schema(schema)
+          .csv("@" + stageName + "/" + TestFiles.testFileCsv)
+          .copyInto(tableName, transformation, options);
+      checkSpan(className, "copyInto", null);
+      String[] columns = {"a", "b", "c"};
+      getSession()
+          .read()
+          .schema(schema)
+          .csv("@" + stageName + "/" + TestFiles.testFileCsv)
+          .copyInto(tableName, columns, transformation, options);
+      checkSpan(className, "copyInto", null);
+      getSession().read().schema(schema).csv("@" + stageName + "/" + TestFiles.testFileCsv).clone();
+      checkSpan(className, "clone", null);
+    } finally {
+      dropTable(tableName);
+      dropStage(stageName);
+    }
+  }
+
+  @Test
+  public void copyableDataFrameAsyncActor() {
+    String stageName = randomName();
+    String tableName = randomName();
+    StructType schema =
+        StructType.create(
+            new StructField("num", DataTypes.IntegerType),
+            new StructField("str", DataTypes.StringType),
+            new StructField("double", DataTypes.DoubleType));
+    try {
+      createTable(tableName, "a Int, b String, c Double", true);
+      createTempStage(stageName);
+      uploadFileToStage(stageName, TestFiles.testFileCsv, false);
+      testSpanExporter.reset();
+      String className = "snow.snowpark.CopyableDataFrameAsyncActor";
+      CopyableDataFrameAsyncActor df1 =
+          getSession()
+              .read()
+              .schema(schema)
+              .csv("@" + stageName + "/" + TestFiles.testFileCsv)
+              .async();
+      df1.copyInto(tableName).getResult();
+      checkSpan(className, "copyInto", null);
+      Column[] transformation = {Functions.col("$1"), Functions.col("$2"), Functions.col("$3")};
+      CopyableDataFrameAsyncActor df2 =
+          getSession()
+              .read()
+              .schema(schema)
+              .csv("@" + stageName + "/" + TestFiles.testFileCsv)
+              .async();
+      df2.copyInto(tableName, transformation).getResult();
+      checkSpan(className, "copyInto", null);
+      Map<String, Object> options = new HashMap<>();
+      options.put("skip_header", 1);
+      options.put("FORCE", "true");
+      CopyableDataFrameAsyncActor df3 =
+          getSession()
+              .read()
+              .schema(schema)
+              .csv("@" + stageName + "/" + TestFiles.testFileCsv)
+              .async();
+      df3.copyInto(tableName, transformation, options).getResult();
+      checkSpan(className, "copyInto", null);
+      String[] columns = {"a", "b", "c"};
+      CopyableDataFrameAsyncActor df4 =
+          getSession()
+              .read()
+              .schema(schema)
+              .csv("@" + stageName + "/" + TestFiles.testFileCsv)
+              .async();
+      df4.copyInto(tableName, columns, transformation, options).getResult();
+      checkSpan(className, "copyInto", null);
+    } finally {
+      dropTable(tableName);
+      dropStage(stageName);
     }
   }
 

@@ -237,7 +237,7 @@ class CopyableDataFrame private[snowpark] (
    * @since 0.10.0
    * @group basic
    */
-  override def clone: CopyableDataFrame = action("clone") {
+  override def clone: CopyableDataFrame = action("clone", 2) {
     new CopyableDataFrame(session, plan, stagedFileReader)
   }
 
@@ -262,6 +262,10 @@ class CopyableDataFrame private[snowpark] (
   @inline override protected def action[T](funcName: String)(func: => T): T = {
     val isScala: Boolean = this.session.conn.isScalaAPI
     OpenTelemetry.action("CopyableDataFrame", funcName, isScala)(func)
+  }
+  @inline protected def action[T](funcName: String, javaOffset: Int)(func: => T): T = {
+    val isScala: Boolean = this.session.conn.isScalaAPI
+    OpenTelemetry.action("CopyableDataFrame", funcName, isScala, javaOffset)(func)
   }
 }
 
