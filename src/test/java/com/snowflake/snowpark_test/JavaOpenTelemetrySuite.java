@@ -476,6 +476,62 @@ public class JavaOpenTelemetrySuite extends JavaOpenTelemetryEnabled {
     }
   }
 
+  @Test
+  public void mergeBuilder() {
+    String tableName = randomName();
+    DataFrame df = getSession().sql("select * from values(1, 2), (3, 4) as t(a, b)");
+    Row[] data = {Row.create(1, "a", true), Row.create(2, "b", false)};
+    StructType schema =
+        StructType.create(
+            new StructField("col1", DataTypes.IntegerType),
+            new StructField("col2", DataTypes.StringType),
+            new StructField("col3", DataTypes.BooleanType));
+    try {
+      getSession().createDataFrame(data, schema).write().saveAsTable(tableName);
+      testSpanExporter.reset();
+      Map<Column, Column> assignments = new HashMap<>();
+      assignments.put(Functions.col("col1"), df.col("b"));
+      getSession()
+          .table(tableName)
+          .merge(df, Functions.col("col1").equal_to(df.col("a")))
+          .whenMatched()
+          .update(assignments)
+          .collect();
+      checkSpan("snow.snowpark.MergeBuilder", "collect", null);
+    } finally {
+      dropTable(tableName);
+    }
+  }
+
+  @Test
+  public void mergeBuilderAsyncActor() {
+    String tableName = randomName();
+    DataFrame df = getSession().sql("select * from values(1, 2), (3, 4) as t(a, b)");
+    Row[] data = {Row.create(1, "a", true), Row.create(2, "b", false)};
+    StructType schema =
+        StructType.create(
+            new StructField("col1", DataTypes.IntegerType),
+            new StructField("col2", DataTypes.StringType),
+            new StructField("col3", DataTypes.BooleanType));
+    try {
+      getSession().createDataFrame(data, schema).write().saveAsTable(tableName);
+      testSpanExporter.reset();
+      Map<Column, Column> assignments = new HashMap<>();
+      assignments.put(Functions.col("col1"), df.col("b"));
+      MergeBuilderAsyncActor builderAsyncActor =
+          getSession()
+              .table(tableName)
+              .merge(df, Functions.col("col1").equal_to(df.col("a")))
+              .whenMatched()
+              .update(assignments)
+              .async();
+      builderAsyncActor.collect().getResult();
+      checkSpan("snow.snowpark.MergeBuilderAsyncActor", "collect", null);
+    } finally {
+      dropTable(tableName);
+    }
+  }
+
   private void checkSpan(String className, String funcName, String methodChain) {
     StackTraceElement[] stack = Thread.currentThread().getStackTrace();
     StackTraceElement file = stack[2];
