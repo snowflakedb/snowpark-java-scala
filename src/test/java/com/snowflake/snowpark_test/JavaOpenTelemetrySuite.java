@@ -385,6 +385,97 @@ public class JavaOpenTelemetrySuite extends JavaOpenTelemetryEnabled {
     }
   }
 
+  @Test
+  public void updatable() {
+    String tableName = randomName();
+    Row[] data = {Row.create(1, "a", true), Row.create(2, "b", false)};
+    StructType schema =
+        StructType.create(
+            new StructField("col1", DataTypes.IntegerType),
+            new StructField("col2", DataTypes.StringType),
+            new StructField("col3", DataTypes.BooleanType));
+    String className = "snow.snowpark.Updatable";
+    DataFrame df = getSession().sql("select * from values(1, 2), (1, 4) as t(a, b)");
+    try {
+      getSession().createDataFrame(data, schema).write().saveAsTable(tableName);
+      testSpanExporter.reset();
+      Map<Column, Column> map = new HashMap<>();
+      map.put(Functions.col("col1"), Functions.lit(3));
+      Map<String, Column> map1 = new HashMap<>();
+      map1.put("col1", Functions.lit(3));
+      getSession().table(tableName).update(map);
+      checkSpan(className, "update", null);
+      getSession().table(tableName).updateColumn(map1);
+      checkSpan(className, "update", null);
+      getSession()
+          .table(tableName)
+          .update(map, Functions.col("col3").equal_to(Functions.lit(true)));
+      checkSpan(className, "update", null);
+      getSession()
+          .table(tableName)
+          .updateColumn(map1, Functions.col("col3").equal_to(Functions.lit(true)));
+      checkSpan(className, "update", null);
+      getSession().table(tableName).update(map, Functions.col("col1").equal_to(df.col("a")), df);
+      checkSpan(className, "update", null);
+      getSession()
+          .table(tableName)
+          .updateColumn(map1, Functions.col("col1").equal_to(df.col("a")), df);
+      checkSpan(className, "update", null);
+      getSession().table(tableName).delete();
+      checkSpan(className, "delete", null);
+      getSession().table(tableName).delete(Functions.col("col1").equal_to(Functions.lit(1)));
+      checkSpan(className, "delete", null);
+      getSession().table(tableName).delete(Functions.col("col1").equal_to(df.col("a")), df);
+      checkSpan(className, "delete", null);
+      getSession().table(tableName).clone();
+      checkSpan(className, "clone", null);
+    } finally {
+      dropTable(tableName);
+    }
+  }
+
+  @Test
+  public void updatableAsyncActor() {
+    String tableName = randomName();
+    Row[] data = {Row.create(1, "a", true), Row.create(2, "b", false)};
+    StructType schema =
+        StructType.create(
+            new StructField("col1", DataTypes.IntegerType),
+            new StructField("col2", DataTypes.StringType),
+            new StructField("col3", DataTypes.BooleanType));
+    String className = "snow.snowpark.UpdatableAsyncActor";
+    DataFrame df = getSession().sql("select * from values(1, 2), (1, 4) as t(a, b)");
+    try {
+      getSession().createDataFrame(data, schema).write().saveAsTable(tableName);
+      testSpanExporter.reset();
+      Map<Column, Column> map = new HashMap<>();
+      map.put(Functions.col("col1"), Functions.lit(3));
+      Map<String, Column> map1 = new HashMap<>();
+      map1.put("col1", Functions.lit(3));
+      UpdatableAsyncActor df1 = getSession().table(tableName).async();
+      df1.update(map).getResult();
+      checkSpan(className, "update", null);
+      df1.updateColumn(map1).getResult();
+      checkSpan(className, "update", null);
+      df1.update(map, Functions.col("col3").equal_to(Functions.lit(true))).getResult();
+      checkSpan(className, "update", null);
+      df1.updateColumn(map1, Functions.col("col3").equal_to(Functions.lit(true))).getResult();
+      checkSpan(className, "update", null);
+      df1.update(map, Functions.col("col1").equal_to(df.col("a")), df);
+      checkSpan(className, "update", null);
+      df1.updateColumn(map1, Functions.col("col1").equal_to(df.col("a")), df);
+      checkSpan(className, "update", null);
+      df1.delete().getResult();
+      checkSpan(className, "delete", null);
+      df1.delete(Functions.col("col1").equal_to(Functions.lit(1))).getResult();
+      checkSpan(className, "delete", null);
+      df1.delete(Functions.col("col1").equal_to(df.col("a")), df).getResult();
+      checkSpan(className, "delete", null);
+    } finally {
+      dropTable(tableName);
+    }
+  }
+
   private void checkSpan(String className, String funcName, String methodChain) {
     StackTraceElement[] stack = Thread.currentThread().getStackTrace();
     StackTraceElement file = stack[2];

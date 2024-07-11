@@ -76,7 +76,7 @@ class Updatable private[snowpark] (
    * @since 0.7.0
    * @return [[UpdateResult]]
    */
-  def update(assignments: Map[Column, Column]): UpdateResult = action("update") {
+  def update(assignments: Map[Column, Column]): UpdateResult = action("update", 2) {
     val newDf = getUpdateDataFrameWithColumn(assignments, None, None)
     Updatable.getUpdateResult(newDf.collect())
   }
@@ -102,7 +102,7 @@ class Updatable private[snowpark] (
    * @since 0.7.0
    * @return [[UpdateResult]]
    */
-  def update[T: ClassTag](assignments: Map[String, Column]): UpdateResult = action("update") {
+  def update[T: ClassTag](assignments: Map[String, Column]): UpdateResult = action("update", 2) {
     val newDf = getUpdateDataFrameWithString(assignments, None, None)
     Updatable.getUpdateResult(newDf.collect())
   }
@@ -124,7 +124,7 @@ class Updatable private[snowpark] (
    * @return [[UpdateResult]]
    */
   def update(assignments: Map[Column, Column], condition: Column): UpdateResult =
-    action("update") {
+    action("update", 2) {
       val newDf = getUpdateDataFrameWithColumn(assignments, Some(condition), None)
       Updatable.getUpdateResult(newDf.collect())
     }
@@ -146,7 +146,7 @@ class Updatable private[snowpark] (
    * @return [[UpdateResult]]
    */
   def update[T: ClassTag](assignments: Map[String, Column], condition: Column): UpdateResult =
-    action("update") {
+    action("update", 2) {
       val newDf = getUpdateDataFrameWithString(assignments, Some(condition), None)
       Updatable.getUpdateResult(newDf.collect())
     }
@@ -170,7 +170,7 @@ class Updatable private[snowpark] (
   def update(
       assignments: Map[Column, Column],
       condition: Column,
-      sourceData: DataFrame): UpdateResult = action("update") {
+      sourceData: DataFrame): UpdateResult = action("update", 2) {
     val newDf = getUpdateDataFrameWithColumn(assignments, Some(condition), Some(sourceData))
     Updatable.getUpdateResult(newDf.collect())
   }
@@ -194,7 +194,7 @@ class Updatable private[snowpark] (
   def update[T: ClassTag](
       assignments: Map[String, Column],
       condition: Column,
-      sourceData: DataFrame): UpdateResult = action("update") {
+      sourceData: DataFrame): UpdateResult = action("update", 2) {
     val newDf = getUpdateDataFrameWithString(assignments, Some(condition), Some(sourceData))
     Updatable.getUpdateResult(newDf.collect())
   }
@@ -328,7 +328,7 @@ class Updatable private[snowpark] (
    * @since 0.10.0
    * @group basic
    */
-  override def clone: Updatable = action("clone") {
+  override def clone: Updatable = action("clone", 2) {
     new Updatable(tableName, session)
   }
 
@@ -356,6 +356,11 @@ class Updatable private[snowpark] (
     OpenTelemetry.action("Updatable", funcName, isScala)(func)
   }
 
+  @inline protected def action[T](funcName: String, javaOffset: Int)(func: => T): T = {
+    val isScala: Boolean = this.session.conn.isScalaAPI
+    OpenTelemetry.action("Updatable", funcName, isScala, javaOffset)(func)
+  }
+
 }
 
 /**
@@ -374,7 +379,7 @@ class UpdatableAsyncActor private[snowpark] (updatable: Updatable)
    * @since 0.11.0
    */
   def update(assignments: Map[Column, Column]): TypedAsyncJob[UpdateResult] =
-    action("update") {
+    action("update", 2) {
       val newDf = updatable.getUpdateDataFrameWithColumn(assignments, None, None)
       updatable.session.conn.executeAsync[UpdateResult](newDf.snowflakePlan)
     }
@@ -387,7 +392,7 @@ class UpdatableAsyncActor private[snowpark] (updatable: Updatable)
    * @since 0.11.0
    */
   def update[T: ClassTag](assignments: Map[String, Column]): TypedAsyncJob[UpdateResult] =
-    action("update") {
+    action("update", 2) {
       val newDf = updatable.getUpdateDataFrameWithString(assignments, None, None)
       updatable.session.conn.executeAsync[UpdateResult](newDf.snowflakePlan)
     }
@@ -400,7 +405,7 @@ class UpdatableAsyncActor private[snowpark] (updatable: Updatable)
    * @since 0.11.0
    */
   def update(assignments: Map[Column, Column], condition: Column): TypedAsyncJob[UpdateResult] =
-    action("update") {
+    action("update", 2) {
       val newDf = updatable.getUpdateDataFrameWithColumn(assignments, Some(condition), None)
       updatable.session.conn.executeAsync[UpdateResult](newDf.snowflakePlan)
     }
@@ -415,7 +420,7 @@ class UpdatableAsyncActor private[snowpark] (updatable: Updatable)
   def update[T: ClassTag](
       assignments: Map[String, Column],
       condition: Column): TypedAsyncJob[UpdateResult] =
-    action("update") {
+    action("update", 2) {
       val newDf = updatable.getUpdateDataFrameWithString(assignments, Some(condition), None)
       updatable.session.conn.executeAsync[UpdateResult](newDf.snowflakePlan)
     }
@@ -430,7 +435,7 @@ class UpdatableAsyncActor private[snowpark] (updatable: Updatable)
   def update(
       assignments: Map[Column, Column],
       condition: Column,
-      sourceData: DataFrame): TypedAsyncJob[UpdateResult] = action("update") {
+      sourceData: DataFrame): TypedAsyncJob[UpdateResult] = action("update", 2) {
     val newDf =
       updatable.getUpdateDataFrameWithColumn(assignments, Some(condition), Some(sourceData))
     updatable.session.conn.executeAsync[UpdateResult](newDf.snowflakePlan)
@@ -446,7 +451,7 @@ class UpdatableAsyncActor private[snowpark] (updatable: Updatable)
   def update[T: ClassTag](
       assignments: Map[String, Column],
       condition: Column,
-      sourceData: DataFrame): TypedAsyncJob[UpdateResult] = action("update") {
+      sourceData: DataFrame): TypedAsyncJob[UpdateResult] = action("update", 2) {
     val newDf =
       updatable.getUpdateDataFrameWithString(assignments, Some(condition), Some(sourceData))
     updatable.session.conn.executeAsync[UpdateResult](newDf.snowflakePlan)
@@ -492,5 +497,10 @@ class UpdatableAsyncActor private[snowpark] (updatable: Updatable)
   @inline override protected def action[T](funcName: String)(func: => T): T = {
     val isScala: Boolean = updatable.session.conn.isScalaAPI
     OpenTelemetry.action("UpdatableAsyncActor", funcName, isScala)(func)
+  }
+
+  @inline protected def action[T](funcName: String, javaOffset: Int)(func: => T): T = {
+    val isScala: Boolean = updatable.session.conn.isScalaAPI
+    OpenTelemetry.action("UpdatableAsyncActor", funcName, isScala, javaOffset)(func)
   }
 }
