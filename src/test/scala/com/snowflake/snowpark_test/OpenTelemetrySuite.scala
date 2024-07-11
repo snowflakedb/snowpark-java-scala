@@ -331,11 +331,54 @@ class OpenTelemetrySuite extends OpenTelemetryEnabled {
       checkSpan("snow.snowpark.Updatable", "update", "")
       t2.update(Map("n" -> lit(0)), updatable("a") === t2("n"), updatable)
       checkSpan("snow.snowpark.Updatable", "update", "")
+      updatable.delete()
+      checkSpan("snow.snowpark.Updatable", "delete", "")
+      updatable.delete(col("a") === 1 && col("b") === 2)
+      checkSpan("snow.snowpark.Updatable", "delete", "")
+      t2.delete(updatable("a") === t2("n"), updatable)
+      checkSpan("snow.snowpark.Updatable", "delete", "")
+      updatable.clone
+      checkSpan("snow.snowpark.Updatable", "clone", "")
     } finally {
       dropTable(tableName)
       dropTable(tableName2)
     }
   }
+
+  test("line number - UpdatableAsyncActor") {
+    val tableName = randomName()
+    val tableName2 = randomName()
+    try {
+      testData2.write.mode(SaveMode.Overwrite).saveAsTable(tableName)
+      val updatable = session.table(tableName)
+      upperCaseData.write.mode(SaveMode.Overwrite).saveAsTable(tableName2)
+      val t2 = session.table(tableName2)
+      testSpanExporter.reset()
+      updatable.async.update(Map(col("a") -> lit(1), col("b") -> lit(0))).getResult()
+      checkSpan("snow.snowpark.UpdatableAsyncActor", "update", "")
+      updatable.async.update(Map("b" -> (col("a") + col("b")))).getResult()
+      checkSpan("snow.snowpark.UpdatableAsyncActor", "update", "")
+      updatable.async.update(Map(col("b") -> lit(0)), col("a") === 1).getResult()
+      checkSpan("snow.snowpark.UpdatableAsyncActor", "update", "")
+      updatable.async.update(Map("b" -> lit(0)), col("a") === 1).getResult()
+      checkSpan("snow.snowpark.UpdatableAsyncActor", "update", "")
+      t2.async.update(Map(col("n") -> lit(0)), updatable("a") === t2("n"), updatable).getResult()
+      checkSpan("snow.snowpark.UpdatableAsyncActor", "update", "")
+      t2.async.update(Map("n" -> lit(0)), updatable("a") === t2("n"), updatable).getResult()
+      checkSpan("snow.snowpark.UpdatableAsyncActor", "update", "")
+      updatable.async.delete().getResult()
+      checkSpan("snow.snowpark.UpdatableAsyncActor", "delete", "")
+      updatable.async.delete(col("a") === 1 && col("b") === 2).getResult()
+      checkSpan("snow.snowpark.UpdatableAsyncActor", "delete", "")
+      t2.async.delete(updatable("a") === t2("n"), updatable).getResult()
+      checkSpan("snow.snowpark.UpdatableAsyncActor", "delete", "")
+    } finally {
+      dropTable(tableName)
+      dropTable(tableName2)
+    }
+  }
+
+  // mergerBuilder and async
 
   test("OpenTelemetry.emit") {
     OpenTelemetry.emit("ClassA", "functionB", "fileC", 123, "chainD")
