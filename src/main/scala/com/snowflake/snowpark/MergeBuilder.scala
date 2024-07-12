@@ -1,6 +1,6 @@
 package com.snowflake.snowpark
 
-import com.snowflake.snowpark.internal.ErrorMessage
+import com.snowflake.snowpark.internal.{ErrorMessage, OpenTelemetry}
 import com.snowflake.snowpark.internal.analyzer.{MergeExpression, TableMerge}
 
 /**
@@ -167,7 +167,7 @@ class MergeBuilder private[snowpark] (
    * @since 0.7.0
    * @return [[MergeResult]]
    */
-  def collect(): MergeResult = {
+  def collect(): MergeResult = action("collect") {
     val rows = getMergeDataFrame().collect()
     MergeBuilder.getMergeResult(rows, this)
   }
@@ -202,6 +202,11 @@ class MergeBuilder private[snowpark] (
    * @return A [[MergeBuilderAsyncActor]] object
    */
   def async: MergeBuilderAsyncActor = new MergeBuilderAsyncActor(this)
+
+  @inline protected def action[T](funcName: String)(func: => T): T = {
+    val isScala: Boolean = target.session.conn.isScalaAPI
+    OpenTelemetry.action("MergeBuilder", funcName, isScala)(func)
+  }
 }
 
 /**
@@ -218,9 +223,14 @@ class MergeBuilderAsyncActor private[snowpark] (mergeBuilder: MergeBuilder) {
    *         and get the results.
    * @since 1.3.0
    */
-  def collect(): TypedAsyncJob[MergeResult] = {
+  def collect(): TypedAsyncJob[MergeResult] = action("collect") {
     val newDf = mergeBuilder.getMergeDataFrame()
     mergeBuilder.target.session.conn
       .executeAsync[MergeResult](newDf.snowflakePlan, Some(mergeBuilder))
+  }
+
+  @inline protected def action[T](funcName: String)(func: => T): T = {
+    val isScala: Boolean = mergeBuilder.target.session.conn.isScalaAPI
+    OpenTelemetry.action("MergeBuilderAsyncActor", funcName, isScala)(func)
   }
 }
