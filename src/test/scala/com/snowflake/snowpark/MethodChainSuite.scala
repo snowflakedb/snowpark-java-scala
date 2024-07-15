@@ -1,6 +1,7 @@
 package com.snowflake.snowpark
 
 import com.snowflake.snowpark.functions._
+import com.snowflake.snowpark.internal.analyzer.Literal
 
 class MethodChainSuite extends SNTestBase {
   private val df1 = session.sql("select * from values(1,2,3) as T(a, b, c)")
@@ -90,5 +91,26 @@ class MethodChainSuite extends SNTestBase {
     checkMethodChain(df1.rollup("a").agg(Seq(max(col("a")))), "rollup.agg")
     checkMethodChain(df1.rollup(Seq("a")).agg(Array(max(col("a")))), "rollup.agg")
     checkMethodChain(df1.rollup(Array("a")).agg(Map(col("a") -> "max")), "rollup.agg")
+  }
+
+  test("groupBy") {
+    checkMethodChain(df1.groupBy(col("a")).avg(col("a")), "groupBy.avg")
+    checkMethodChain(df1.groupBy().mean(col("a")), "groupBy.mean")
+    checkMethodChain(df1.groupBy(Seq(col("a"))).sum(col("a")), "groupBy.sum")
+    checkMethodChain(df1.groupBy(Array(col("a"))).median(col("a")), "groupBy.median")
+    checkMethodChain(df1.groupBy("a").min(col("a")), "groupBy.min")
+    checkMethodChain(df1.groupBy(Seq("a")).max(col("a")), "groupBy.max")
+    checkMethodChain(df1.groupBy(Array("a")).any_value(col("a")), "groupBy.any_value")
+  }
+
+  test("groupByGroupingSets") {
+    checkMethodChain(
+      df1.groupByGroupingSets(GroupingSets(Set(col("a")))).count(),
+      "groupByGroupingSets.count")
+    checkMethodChain(
+      df1
+        .groupByGroupingSets(Seq(GroupingSets(Set(col("a")))))
+        .builtin("count")(col("a")),
+      "groupByGroupingSets.builtin")
   }
 }

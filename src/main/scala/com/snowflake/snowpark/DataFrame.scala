@@ -1284,7 +1284,7 @@ class DataFrame private[snowpark] (
     RelationalGroupedDataFrame(
       this,
       groupingSets.map(_.toExpression),
-      RelationalGroupedDataFrame.GroupByType)
+      RelationalGroupedDataFrame.GroupByGroupingSetsType)
 
   /**
    * Performs an SQL
