@@ -113,4 +113,29 @@ class MethodChainSuite extends SNTestBase {
         .builtin("count")(col("a")),
       "groupByGroupingSets.builtin")
   }
+
+  test("cube") {
+    checkMethodChain(df1.cube(col("a")).count(), "cube.count")
+    checkMethodChain(df1.cube(Seq(col("a"))).count(), "cube.count")
+    checkMethodChain(df1.cube(Array(col("a"))).count(), "cube.count")
+    checkMethodChain(df1.cube("a").count(), "cube.count")
+    checkMethodChain(df1.cube(Seq("a")).count(), "cube.count")
+  }
+
+  test("distinct") {
+    checkMethodChain(df1.distinct(), "distinct")
+  }
+
+  test("dropDuplicates") {
+    checkMethodChain(df1.dropDuplicates(), "dropDuplicates")
+  }
+
+  test("pivot") {
+    checkMethodChain(df1.pivot(col("a"), Seq(1, 2, 3)).count(), "pivot.count")
+    checkMethodChain(df1.pivot("a", Seq(1, 2, 3)).count(), "pivot.count")
+  }
+
+  test("limit") {
+    checkMethodChain(df1.limit(1), "limit")
+  }
 }

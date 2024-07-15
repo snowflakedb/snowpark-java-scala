@@ -1361,8 +1361,9 @@ class DataFrame private[snowpark] (
    * @since 0.1.0
    * @return A [[DataFrame]]
    */
-  def distinct(): DataFrame =
+  def distinct(): DataFrame = transformation("distinct") {
     groupBy(output.map(att => quoteName(att.name)).map(this.col)).agg(Map.empty[Column, String])
+  }
 
   /**
    * Creates a new DataFrame by removing duplicated rows on given subset of columns.
@@ -1381,7 +1382,7 @@ class DataFrame private[snowpark] (
    * @since 0.10.0
    * @return A [[DataFrame]]
    */
-  def dropDuplicates(colNames: String*): DataFrame = {
+  def dropDuplicates(colNames: String*): DataFrame = transformation("dropDuplicates") {
     if (colNames.isEmpty) {
       this.distinct()
     } else {
@@ -1459,7 +1460,9 @@ class DataFrame private[snowpark] (
    * @param n Number of rows to return.
    * @return A [[DataFrame]]
    */
-  def limit(n: Int): DataFrame = withPlan(Limit(Literal(n), plan))
+  def limit(n: Int): DataFrame = transformation("limit") {
+    withPlan(Limit(Literal(n), plan))
+  }
 
   /**
    * Returns a new DataFrame that contains all the rows in the current DataFrame and another
