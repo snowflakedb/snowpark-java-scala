@@ -12,21 +12,17 @@ object OpenTelemetry extends Logging {
   val spanInfo = new DynamicVariable[Option[SpanInfo]](None)
 
   // wrapper of all action functions
-  def action[T](className: String, funcName: String, isScala: Boolean)(func: => T): T = {
+  def action[T](className: String, funcName: String, isScala: Boolean, javaOffSet: Int = 0)(
+      func: => T): T = {
     try {
       spanInfo.withValue[T](spanInfo.value match {
         // empty info means this is the entry of the recursion
         case None =>
           val stacks = Thread.currentThread().getStackTrace
           val methodChain = ""
-          val (fileName, lineNumber): (String, Int) =
-            if (isScala) {
-              val file = stacks(4)
-              (file.getFileName, file.getLineNumber)
-            } else {
-              val file = stacks(5)
-              (file.getFileName, file.getLineNumber)
-            }
+          val index = if (isScala) 4 else 5 + javaOffSet
+          val fileName = stacks(index).getFileName
+          val lineNumber = stacks(index).getLineNumber
           Some(SpanInfo(className, funcName, fileName, lineNumber, methodChain))
         // if value is not empty, this function call should be recursion.
         // do not issue new SpanInfo, use the info inherited from previous.

@@ -11,7 +11,7 @@ import io.opentelemetry.sdk.trace.`export`.SimpleSpanProcessor
 import io.opentelemetry.sdk.trace.data.SpanData
 import io.opentelemetry.sdk.trace.internal.data.ExceptionEventData
 
-trait OpenTelemetryEnabled extends SNTestBase {
+trait OpenTelemetryEnabled extends TestData {
   lazy protected val testSpanExporter: InMemorySpanExporter = InMemorySpanExporter.create()
 
   override def beforeAll: Unit = {
