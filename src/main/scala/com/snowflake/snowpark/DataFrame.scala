@@ -570,7 +570,7 @@ class DataFrame private[snowpark] (
    * @param remaining A list of expressions for the additional columns to return.
    * @return A [[DataFrame]]
    */
-  def select(first: Column, remaining: Column*): DataFrame = {
+  def select(first: Column, remaining: Column*): DataFrame = transformation("select") {
     select(first +: remaining)
   }
 
@@ -591,7 +591,7 @@ class DataFrame private[snowpark] (
    * @param columns A list of expressions for the columns to return.
    * @return A [[DataFrame]]
    */
-  def select[T: ClassTag](columns: Seq[Column]): DataFrame = {
+  def select[T: ClassTag](columns: Seq[Column]): DataFrame = transformation("select") {
     require(
       columns.nonEmpty,
       "Provide at least one column expression for select(). " +
@@ -697,7 +697,9 @@ class DataFrame private[snowpark] (
    * @param columns An array of expressions for the columns to return.
    * @return A [[DataFrame]]
    */
-  def select(columns: Array[Column]): DataFrame = select(columns.toSeq)
+  def select(columns: Array[Column]): DataFrame = transformation("select") {
+    select(columns.toSeq)
+  }
 
   /**
    * Returns a new DataFrame with a subset of named columns (similar to SELECT in SQL).
@@ -714,7 +716,7 @@ class DataFrame private[snowpark] (
    * @param remaining A list of the names of the additional columns to return.
    * @return A [[DataFrame]]
    */
-  def select(first: String, remaining: String*): DataFrame = {
+  def select(first: String, remaining: String*): DataFrame = transformation("select") {
     select(first +: remaining)
   }
 
@@ -732,7 +734,7 @@ class DataFrame private[snowpark] (
    * @param columns A list of the names of columns to return.
    * @return A [[DataFrame]]
    */
-  def select(columns: Seq[String]): DataFrame = {
+  def select(columns: Seq[String]): DataFrame = transformation("select") {
     select(columns.map(Column(_)))
   }
 
@@ -750,7 +752,9 @@ class DataFrame private[snowpark] (
    * @param columns An array of the names of columns to return.
    * @return A [[DataFrame]]
    */
-  def select(columns: Array[String]): DataFrame = select(columns.toSeq)
+  def select(columns: Array[String]): DataFrame = transformation("select") {
+    select(columns.toSeq)
+  }
 
   /**
    * Returns a new DataFrame that excludes the columns with the specified names from the output.
@@ -765,7 +769,7 @@ class DataFrame private[snowpark] (
    * @param remaining A list of the names of additional columns to exclude.
    * @return A [[DataFrame]]
    */
-  def drop(first: String, remaining: String*): DataFrame = {
+  def drop(first: String, remaining: String*): DataFrame = transformation("drop") {
     drop(first +: remaining)
   }
 
@@ -783,7 +787,7 @@ class DataFrame private[snowpark] (
    * @param colNames A list of the names of columns to exclude.
    * @return A [[DataFrame]]
    */
-  def drop(colNames: Seq[String]): DataFrame = {
+  def drop(colNames: Seq[String]): DataFrame = transformation("drop") {
     val dropColumns: Seq[Column] = colNames.map(name => functions.col(name))
     drop(dropColumns)
   }
@@ -801,7 +805,9 @@ class DataFrame private[snowpark] (
    * @param colNames An array of the names of columns to exclude.
    * @return A [[DataFrame]]
    */
-  def drop(colNames: Array[String]): DataFrame = drop(colNames.toSeq)
+  def drop(colNames: Array[String]): DataFrame = transformation("drop") {
+    drop(colNames.toSeq)
+  }
 
   /**
    * Returns a new DataFrame that excludes the columns specified by the expressions from the
@@ -820,7 +826,7 @@ class DataFrame private[snowpark] (
    * @param remaining A list of expressions for additional columns to exclude.
    * @return A [[DataFrame]]
    */
-  def drop(first: Column, remaining: Column*): DataFrame = {
+  def drop(first: Column, remaining: Column*): DataFrame = transformation("drop") {
     drop(first +: remaining)
   }
 
@@ -840,7 +846,7 @@ class DataFrame private[snowpark] (
    * @param cols  A list of the names of the columns to exclude.
    * @return A [[DataFrame]]
    */
-  def drop[T: ClassTag](cols: Seq[Column]): DataFrame = {
+  def drop[T: ClassTag](cols: Seq[Column]): DataFrame = transformation("drop") {
     val dropColumns: Seq[NamedExpression] = cols.map {
       case Column(expr: NamedExpression) => expr
       case c =>
@@ -865,7 +871,9 @@ class DataFrame private[snowpark] (
    * @param cols  An array of the names of the columns to exclude.
    * @return A [[DataFrame]]
    */
-  def drop(cols: Array[Column]): DataFrame = drop(cols.toSeq)
+  def drop(cols: Array[Column]): DataFrame = transformation("drop") {
+    drop(cols.toSeq)
+  }
 
   /**
    * Filters rows based on the specified conditional expression (similar to WHERE in SQL).
@@ -881,7 +889,9 @@ class DataFrame private[snowpark] (
    * @param condition Filter condition defined as an expression on columns.
    * @return A filtered [[DataFrame]]
    */
-  def filter(condition: Column): DataFrame = withPlan(Filter(condition.expr, plan))
+  def filter(condition: Column): DataFrame = transformation("filter") {
+    withPlan(Filter(condition.expr, plan))
+  }
 
   /**
    * Filters rows based on the specified conditional expression (similar to WHERE in SQL).
@@ -900,7 +910,9 @@ class DataFrame private[snowpark] (
    * @param condition Filter condition defined as an expression on columns.
    * @return A filtered [[DataFrame]]
    */
-  def where(condition: Column): DataFrame = filter(condition)
+  def where(condition: Column): DataFrame = transformation("where") {
+    filter(condition)
+  }
 
   /**
    * Aggregate the data in the DataFrame. Use this method if you don't need to
@@ -927,8 +939,9 @@ class DataFrame private[snowpark] (
    * @param expr A map of column names and aggregate functions.
    * @return A [[DataFrame]]
    */
-  def agg(expr: (String, String), exprs: (String, String)*): DataFrame =
+  def agg(expr: (String, String), exprs: (String, String)*): DataFrame = transformation("agg") {
     agg(expr +: exprs)
+  }
 
   /**
    * Aggregate the data in the DataFrame. Use this method if you don't need
@@ -955,8 +968,9 @@ class DataFrame private[snowpark] (
    * @param exprs A map of column names and aggregate functions.
    * @return A [[DataFrame]]
    */
-  def agg(exprs: Seq[(String, String)]): DataFrame =
+  def agg(exprs: Seq[(String, String)]): DataFrame = transformation("agg") {
     groupBy().agg(exprs.map({ case (c, a) => (col(c), a) }))
+  }
 
   /**
    * Aggregate the data in the DataFrame. Use this method if you don't need to group the data
@@ -981,7 +995,9 @@ class DataFrame private[snowpark] (
    * @param expr A list of expressions on columns.
    * @return A [[DataFrame]]
    */
-  def agg(expr: Column, exprs: Column*): DataFrame = agg(expr +: exprs)
+  def agg(expr: Column, exprs: Column*): DataFrame = transformation("agg") {
+    agg(expr +: exprs)
+  }
 
   /**
    * Aggregate the data in the DataFrame. Use this method if you don't need
@@ -1003,7 +1019,9 @@ class DataFrame private[snowpark] (
    * @param exprs A list of expressions on columns.
    * @return A [[DataFrame]]
    */
-  def agg[T: ClassTag](exprs: Seq[Column]): DataFrame = groupBy().agg(exprs)
+  def agg[T: ClassTag](exprs: Seq[Column]): DataFrame = transformation("agg") {
+    groupBy().agg(exprs)
+  }
 
   /**
    * Aggregate the data in the DataFrame. Use this method if you don't need
@@ -1028,7 +1046,9 @@ class DataFrame private[snowpark] (
    * @param exprs An array of expressions on columns.
    * @return A [[DataFrame]]
    */
-  def agg(exprs: Array[Column]): DataFrame = agg(exprs.toSeq)
+  def agg(exprs: Array[Column]): DataFrame = transformation("agg") {
+    agg(exprs.toSeq)
+  }
 
   /**
    * Performs an SQL

@@ -125,8 +125,9 @@ class RelationalGroupedDataFrame private[snowpark] (
    * @return a [[DataFrame]]
    * @since 0.1.0
    */
-  def agg(expr: (Column, String), exprs: (Column, String)*): DataFrame =
+  def agg(expr: (Column, String), exprs: (Column, String)*): DataFrame = transformation("agg") {
     agg(expr +: exprs)
+  }
 
   /**
    * Returns a DataFrame with computed aggregates. The first element
@@ -148,8 +149,9 @@ class RelationalGroupedDataFrame private[snowpark] (
    * @return a [[DataFrame]]
    * @since 0.2.0
    */
-  def agg(exprs: Seq[(Column, String)]): DataFrame =
+  def agg(exprs: Seq[(Column, String)]): DataFrame = transformation("agg") {
     toDF(exprs.map { case (col, expr) => strToExpr(expr)(col.expr) })
+  }
 
   /**
    * Returns a DataFrame with aggregated computed according to the supplied
@@ -166,7 +168,9 @@ class RelationalGroupedDataFrame private[snowpark] (
    * @return a [[DataFrame]]
    * @since 0.1.0
    */
-  def agg(expr: Column, exprs: Column*): DataFrame = agg(expr +: exprs)
+  def agg(expr: Column, exprs: Column*): DataFrame = transformation("agg") {
+    agg(expr +: exprs)
+  }
 
   /**
    * Returns a DataFrame with aggregated computed according to the supplied
@@ -183,7 +187,9 @@ class RelationalGroupedDataFrame private[snowpark] (
    * @return a [[DataFrame]]
    * @since 0.2.0
    */
-  def agg[T: ClassTag](exprs: Seq[Column]): DataFrame = toDF(exprs.map(_.expr))
+  def agg[T: ClassTag](exprs: Seq[Column]): DataFrame = transformation("agg") {
+    toDF(exprs.map(_.expr))
+  }
 
   /**
    * Returns a DataFrame with aggregated computed according to the supplied
@@ -193,7 +199,9 @@ class RelationalGroupedDataFrame private[snowpark] (
    * @return a [[DataFrame]]
    * @since 0.9.0
    */
-  def agg(exprs: Array[Column]): DataFrame = agg(exprs.toSeq)
+  def agg(exprs: Array[Column]): DataFrame = transformation("agg") {
+    agg(exprs.toSeq)
+  }
 
   /**
    * Returns a DataFrame with computed aggregates. The first element
@@ -216,10 +224,11 @@ class RelationalGroupedDataFrame private[snowpark] (
    * @return a [[DataFrame]]
    * @since 0.1.0
    */
-  def agg(exprs: Map[Column, String]): DataFrame =
+  def agg(exprs: Map[Column, String]): DataFrame = transformation("agg") {
     toDF(exprs.map {
       case (col, expr) => strToExpr(expr)(col.expr)
     }.toSeq)
+  }
 
   /**
    * Return the average for the specified numeric columns.
@@ -309,6 +318,11 @@ class RelationalGroupedDataFrame private[snowpark] (
     } else {
       builtin(funcName)(cols: _*)
     }
+  }
+
+  @inline def transformation(funcName: String)(func: => DataFrame): DataFrame = {
+    val name = s"${groupType.toString.toLowerCase()}.$funcName"
+    DataFrame.buildMethodChain(dataFrame.methodChain, name)(func)
   }
 
 }
