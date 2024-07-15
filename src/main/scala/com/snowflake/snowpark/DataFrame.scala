@@ -215,7 +215,7 @@ class DataFrame private[snowpark] (
    * @since 0.4.0
    * @return A [[DataFrame]]
    */
-  override def clone: DataFrame = {
+  override def clone: DataFrame = transformation("clone") {
     DataFrame(session, snowflakePlan.clone)
   }
 
@@ -339,7 +339,7 @@ class DataFrame private[snowpark] (
    * @param remaining A list of the rest of the column names.
    * @return A [[DataFrame]]
    */
-  def toDF(first: String, remaining: String*): DataFrame = {
+  def toDF(first: String, remaining: String*): DataFrame = transformation("toDF") {
     toDF(first +: remaining)
   }
 
@@ -383,7 +383,7 @@ class DataFrame private[snowpark] (
    * @param colNames A list of column names.
    * @return A [[DataFrame]]
    */
-  def toDF(colNames: Seq[String]): DataFrame = {
+  def toDF(colNames: Seq[String]): DataFrame = transformation("toDF") {
     require(
       output.length == colNames.length,
       "The number of columns doesn't match. \n" +
@@ -444,8 +444,9 @@ class DataFrame private[snowpark] (
    * @param colNames An array of column names.
    * @return A [[DataFrame]]
    */
-  def toDF(colNames: Array[String]): DataFrame =
+  def toDF(colNames: Array[String]): DataFrame = transformation("toDF") {
     toDF(colNames.toSeq)
+  }
 
   /**
    * Sorts a DataFrame by the specified expressions (similar to ORDER BY in SQL).
@@ -462,8 +463,9 @@ class DataFrame private[snowpark] (
    * @param remaining Additional Column expressions for sorting the DataFrame.
    * @return A [[DataFrame]]
    */
-  def sort(first: Column, remaining: Column*): DataFrame =
+  def sort(first: Column, remaining: Column*): DataFrame = transformation("sort") {
     sort(first +: remaining)
+  }
 
   /**
    * Sorts a DataFrame by the specified expressions (similar to ORDER BY in SQL).
@@ -478,7 +480,7 @@ class DataFrame private[snowpark] (
    * @param sortExprs A list of Column expressions for sorting the DataFrame.
    * @return A [[DataFrame]]
    */
-  def sort(sortExprs: Seq[Column]): DataFrame =
+  def sort(sortExprs: Seq[Column]): DataFrame = transformation("sort") {
     if (sortExprs.nonEmpty) {
       withPlan(Sort(sortExprs.map { col =>
         col.expr match {
@@ -489,6 +491,7 @@ class DataFrame private[snowpark] (
     } else {
       throw ErrorMessage.DF_SORT_NEED_AT_LEAST_ONE_EXPR()
     }
+  }
 
   /**
    * Sorts a DataFrame by the specified expressions (similar to ORDER BY in SQL).
@@ -545,7 +548,9 @@ class DataFrame private[snowpark] (
    * @param alias The alias name of the dataframe
    * @return a [[DataFrame]]
    */
-  def alias(alias: String): DataFrame = withPlan(DataframeAlias(alias, plan, output))
+  def alias(alias: String): DataFrame = transformation("alias") {
+    withPlan(DataframeAlias(alias, plan, output))
+  }
 
   /**
    * Returns a new DataFrame with the specified Column expressions as output (similar to SELECT in
@@ -2969,6 +2974,9 @@ class DataFrame private[snowpark] (
     val isScala: Boolean = this.session.conn.isScalaAPI
     OpenTelemetry.action("DataFrame", funcName, isScala)(func)
   }
+
+  @inline protected def transformation(funcName: String)(func: => DataFrame): DataFrame =
+    DataFrame.buildMethodChain(this.methodChain, funcName)(func)
 }
 
 /**
