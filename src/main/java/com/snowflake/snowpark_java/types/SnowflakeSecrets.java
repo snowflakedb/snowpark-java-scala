@@ -32,6 +32,15 @@ public class SnowflakeSecrets {
   }
 
   /**
+   * Get the Cloud provider token from the secret. On success, it returns a valid object with access key id,
+   * secret access key and token.
+   *
+   * @param secretName name of the secret object.
+   */
+  public CloudProviderToken getCloudProviderToken(String secretName) {
+    throw new UnsupportedOperationException();
+  }
+  /**
    * Get the secret generic string of the secret. On success, it returns a valid token string.
    *
    * @param secretName name of the secret object.
