@@ -1,7 +1,6 @@
 package com.snowflake.snowpark
 
 import com.snowflake.snowpark.functions._
-import com.snowflake.snowpark.internal.analyzer.Literal
 import com.snowflake.snowpark.types.{StringType, StructField, StructType}
 import com.snowflake.snowpark.udtf.UDTF1
 
@@ -238,16 +237,16 @@ class MethodChainSuite extends TestData {
   }
 
   test("na") {
-    checkMethodChain(double3.na.drop(1, Seq("a")), "na.drop")
+    checkMethodChain(double3.na.drop(1, Seq("a")), "na", "drop")
     checkMethodChain(
       nullData3.na.fill(Map("flo" -> 12.3, "int" -> 11, "boo" -> false, "str" -> "f")),
-      "na.fill")
-    checkMethodChain(nullData3.na.replace("flo", Map(2 -> 300, 1 -> 200)), "na.replace")
+      "na", "fill")
+    checkMethodChain(nullData3.na.replace("flo", Map(2 -> 300, 1 -> 200)), "na", "replace")
   }
 
   test("stat") {
-    checkMethodChain(df1.stat.sampleBy(col("a"), Map(1 -> 0.0, 2 -> 1.0)), "stat.sampleBy")
-    checkMethodChain(df1.stat.sampleBy("a", Map(1 -> 0.0, 2 -> 1.0)), "stat.sampleBy")
+    checkMethodChain(df1.stat.sampleBy(col("a"), Map(1 -> 0.0, 2 -> 1.0)), "stat", "sampleBy")
+    checkMethodChain(df1.stat.sampleBy("a", Map(1 -> 0.0, 2 -> 1.0)), "stat", "sampleBy")
   }
 
   test("flatten") {
