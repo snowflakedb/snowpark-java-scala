@@ -1480,7 +1480,9 @@ class DataFrame private[snowpark] (
    * @param other The other [[DataFrame]] that contains the rows to include.
    * @return A [[DataFrame]]
    */
-  def union(other: DataFrame): DataFrame = withPlan(Union(plan, other.plan))
+  def union(other: DataFrame): DataFrame = transformation("union") {
+    withPlan(Union(plan, other.plan))
+  }
 
   /**
    * Returns a new DataFrame that contains all the rows in the current DataFrame and another
@@ -1498,7 +1500,9 @@ class DataFrame private[snowpark] (
    * @param other The other [[DataFrame]] that contains the rows to include.
    * @return A [[DataFrame]]
    */
-  def unionAll(other: DataFrame): DataFrame = withPlan(UnionAll(plan, other.plan))
+  def unionAll(other: DataFrame): DataFrame = transformation("unionAll") {
+    withPlan(UnionAll(plan, other.plan))
+  }
 
   /**
    * Returns a new DataFrame that contains all the rows in the current DataFrame and another
@@ -1519,7 +1523,9 @@ class DataFrame private[snowpark] (
    * @param other The other [[DataFrame]] that contains the rows to include.
    * @return A [[DataFrame]]
    */
-  def unionByName(other: DataFrame): DataFrame = internalUnionByName(other, isAll = false)
+  def unionByName(other: DataFrame): DataFrame = transformation("unionByName") {
+    internalUnionByName(other, isAll = false)
+  }
 
   /**
    * Returns a new DataFrame that contains all the rows in the current DataFrame and another
@@ -1540,7 +1546,9 @@ class DataFrame private[snowpark] (
    * @param other The other [[DataFrame]] that contains the rows to include.
    * @return A [[DataFrame]]
    */
-  def unionAllByName(other: DataFrame): DataFrame = internalUnionByName(other, isAll = true)
+  def unionAllByName(other: DataFrame): DataFrame = transformation("unionAllByName") {
+    internalUnionByName(other, isAll = true)
+  }
 
   private def internalUnionByName(other: DataFrame, isAll: Boolean): DataFrame = {
     val leftOutputAttrs = output
@@ -1591,7 +1599,9 @@ class DataFrame private[snowpark] (
    * @param other The other [[DataFrame]] that contains the rows to use for the intersection.
    * @return A [[DataFrame]]
    */
-  def intersect(other: DataFrame): DataFrame = withPlan(Intersect(plan, other.plan))
+  def intersect(other: DataFrame): DataFrame = transformation("intersect") {
+    withPlan(Intersect(plan, other.plan))
+  }
 
   /**
    * Returns a new DataFrame that contains all the rows from the current DataFrame except for the
@@ -1608,7 +1618,9 @@ class DataFrame private[snowpark] (
    * @param other The [[DataFrame]] that contains the rows to exclude.
    * @return A [[DataFrame]]
    */
-  def except(other: DataFrame): DataFrame = withPlan(Except(plan, other.plan))
+  def except(other: DataFrame): DataFrame = transformation("except") {
+    withPlan(Except(plan, other.plan))
+  }
 
   /**
    * Performs a default inner join of the current DataFrame and another DataFrame (`right`).
@@ -1632,7 +1644,7 @@ class DataFrame private[snowpark] (
    * @param right The other [[DataFrame]] to join.
    * @return A [[DataFrame]]
    */
-  def join(right: DataFrame): DataFrame = {
+  def join(right: DataFrame): DataFrame = transformation("join") {
     join(right, Seq.empty)
   }
 
@@ -1655,7 +1667,7 @@ class DataFrame private[snowpark] (
    * @param usingColumn The name of the column to use for the join.
    * @return A [[DataFrame]]
    */
-  def join(right: DataFrame, usingColumn: String): DataFrame = {
+  def join(right: DataFrame, usingColumn: String): DataFrame = transformation("join") {
     join(right, Seq(usingColumn))
   }
 
@@ -1679,7 +1691,7 @@ class DataFrame private[snowpark] (
    * @param usingColumns A list of the names of the columns to use for the join.
    * @return A [[DataFrame]]
    */
-  def join(right: DataFrame, usingColumns: Seq[String]): DataFrame = {
+  def join(right: DataFrame, usingColumns: Seq[String]): DataFrame = transformation("join") {
     join(right, usingColumns, "inner")
   }
 
@@ -1704,21 +1716,22 @@ class DataFrame private[snowpark] (
    * @param joinType The type of join (e.g. {@code "right"}, {@code "outer"}, etc.).
    * @return A [[DataFrame]]
    */
-  def join(right: DataFrame, usingColumns: Seq[String], joinType: String): DataFrame = {
-    val jType = JoinType(joinType)
-    if (jType == LeftSemi || jType == LeftAnti) {
-      val joinCond = usingColumns
-        .map(quoteName)
-        .map(n => this.col(n) === right.col(n))
-        .foldLeft(functions.lit(true))(_ && _)
-      join(right, joinCond, joinType)
-    } else {
-      val (lhs, rhs) = disambiguate(this, right, jType, usingColumns)
-      withPlan {
-        Join(lhs.plan, rhs.plan, UsingJoin(jType, usingColumns), None)
+  def join(right: DataFrame, usingColumns: Seq[String], joinType: String): DataFrame =
+    transformation("join") {
+      val jType = JoinType(joinType)
+      if (jType == LeftSemi || jType == LeftAnti) {
+        val joinCond = usingColumns
+          .map(quoteName)
+          .map(n => this.col(n) === right.col(n))
+          .foldLeft(functions.lit(true))(_ && _)
+        join(right, joinCond, joinType)
+      } else {
+        val (lhs, rhs) = disambiguate(this, right, jType, usingColumns)
+        withPlan {
+          Join(lhs.plan, rhs.plan, UsingJoin(jType, usingColumns), None)
+        }
       }
     }
-  }
 
   // scalastyle:off line.size.limit
   /**
@@ -1757,7 +1770,7 @@ class DataFrame private[snowpark] (
    * @return A [[DataFrame]]
    */
   // scalastyle:on line.size.limit
-  def join(right: DataFrame, joinExprs: Column): DataFrame = {
+  def join(right: DataFrame, joinExprs: Column): DataFrame = transformation("join") {
     join(right, joinExprs, "inner")
   }
 
@@ -1803,12 +1816,13 @@ class DataFrame private[snowpark] (
    * @return A [[DataFrame]]
    */
   // scalastyle:on line.size.limit
-  def join(right: DataFrame, joinExprs: Column, joinType: String): DataFrame = {
-    if (this.eq(right) || this.plan.eq(right.plan)) {
-      throw ErrorMessage.DF_SELF_JOIN_NOT_SUPPORTED()
+  def join(right: DataFrame, joinExprs: Column, joinType: String): DataFrame =
+    transformation("join") {
+      if (this.eq(right) || this.plan.eq(right.plan)) {
+        throw ErrorMessage.DF_SELF_JOIN_NOT_SUPPORTED()
+      }
+      join(right, JoinType(joinType), Some(joinExprs))
     }
-    join(right, JoinType(joinType), Some(joinExprs))
-  }
 
   /**
    * Joins the current DataFrame with the output of the specified table function `func`.
@@ -1838,7 +1852,9 @@ class DataFrame private[snowpark] (
    * @param remaining A list of any additional arguments for the specified table function.
    */
   def join(func: TableFunction, firstArg: Column, remaining: Column*): DataFrame =
-    join(func, firstArg +: remaining)
+    transformation("join") {
+      join(func, firstArg +: remaining)
+    }
 
   /**
    * Joins the current DataFrame with the output of the specified table function `func`.
@@ -1864,8 +1880,9 @@ class DataFrame private[snowpark] (
    *   object or an object that you create from the [[TableFunction]] class.
    * @param args A list of arguments to pass to the specified table function.
    */
-  def join(func: TableFunction, args: Seq[Column]): DataFrame =
+  def join(func: TableFunction, args: Seq[Column]): DataFrame = transformation("join") {
     joinTableFunction(func.call(args: _*), None)
+  }
 
   /**
    * Joins the current DataFrame with the output of the specified user-defined table
@@ -1897,10 +1914,11 @@ class DataFrame private[snowpark] (
       func: TableFunction,
       args: Seq[Column],
       partitionBy: Seq[Column],
-      orderBy: Seq[Column]): DataFrame =
+      orderBy: Seq[Column]): DataFrame = transformation("join") {
     joinTableFunction(
       func.call(args: _*),
       Some(Window.partitionBy(partitionBy: _*).orderBy(orderBy: _*).getWindowSpecDefinition))
+  }
 
   /**
    * Joins the current DataFrame with the output of the specified table function `func` that takes
@@ -1933,7 +1951,9 @@ class DataFrame private[snowpark] (
    *              Use this map to specify the parameter names and their corresponding values.
    */
   def join(func: TableFunction, args: Map[String, Column]): DataFrame =
-    joinTableFunction(func.call(args), None)
+    transformation("join") {
+      joinTableFunction(func.call(args), None)
+    }
 
   /**
    * Joins the current DataFrame with the output of the specified user-defined table function
@@ -1972,10 +1992,11 @@ class DataFrame private[snowpark] (
       func: TableFunction,
       args: Map[String, Column],
       partitionBy: Seq[Column],
-      orderBy: Seq[Column]): DataFrame =
+      orderBy: Seq[Column]): DataFrame = transformation("join") {
     joinTableFunction(
       func.call(args),
       Some(Window.partitionBy(partitionBy: _*).orderBy(orderBy: _*).getWindowSpecDefinition))
+  }
 
   /**
    * Joins the current DataFrame with the output of the specified table function `func`.
@@ -1999,8 +2020,9 @@ class DataFrame private[snowpark] (
    * @param func [[TableFunction]] object, which can be one of the values in the [[tableFunctions]]
    *             object or an object that you create from the [[TableFunction.apply()]].
    */
-  def join(func: Column): DataFrame =
+  def join(func: Column): DataFrame = transformation("join") {
     joinTableFunction(getTableFunctionExpression(func), None)
+  }
 
   /**
    * Joins the current DataFrame with the output of the specified user-defined table function
@@ -2021,9 +2043,11 @@ class DataFrame private[snowpark] (
    * @param orderBy     A list of columns ordered by.
    */
   def join(func: Column, partitionBy: Seq[Column], orderBy: Seq[Column]): DataFrame =
-    joinTableFunction(
-      getTableFunctionExpression(func),
-      Some(Window.partitionBy(partitionBy: _*).orderBy(orderBy: _*).getWindowSpecDefinition))
+    transformation("join") {
+      joinTableFunction(
+        getTableFunctionExpression(func),
+        Some(Window.partitionBy(partitionBy: _*).orderBy(orderBy: _*).getWindowSpecDefinition))
+    }
 
   private def joinTableFunction(
       func: TableFunctionExpression,
@@ -2094,7 +2118,7 @@ class DataFrame private[snowpark] (
    * @param right The other [[DataFrame]] to join.
    * @return A [[DataFrame]]
    */
-  def crossJoin(right: DataFrame): DataFrame = {
+  def crossJoin(right: DataFrame): DataFrame = transformation("crossJoin") {
     join(right, JoinType("cross"), None)
   }
 
@@ -2125,7 +2149,7 @@ class DataFrame private[snowpark] (
    * @param right The other [[DataFrame]] to join.
    * @return A [[DataFrame]]
    */
-  def naturalJoin(right: DataFrame): DataFrame = {
+  def naturalJoin(right: DataFrame): DataFrame = transformation("naturalJoin") {
     naturalJoin(right, "inner")
   }
 
@@ -2145,7 +2169,7 @@ class DataFrame private[snowpark] (
    * @param joinType The type of join (e.g. {@code "right"}, {@code "outer"}, etc.).
    * @return A [[DataFrame]]
    */
-  def naturalJoin(right: DataFrame, joinType: String): DataFrame = {
+  def naturalJoin(right: DataFrame, joinType: String): DataFrame = transformation("naturalJoin") {
     withPlan {
       Join(this.plan, right.plan, NaturalJoin(JoinType(joinType)), None)
     }
@@ -2170,7 +2194,9 @@ class DataFrame private[snowpark] (
    * @param col The [[Column]] to add or replace.
    * @return A [[DataFrame]]
    */
-  def withColumn(colName: String, col: Column): DataFrame = withColumns(Seq(colName), Seq(col))
+  def withColumn(colName: String, col: Column): DataFrame = transformation("withColumn") {
+    withColumns(Seq(colName), Seq(col))
+  }
 
   /**
    * Returns a DataFrame with additional columns with the specified names (`colNames`). The
@@ -2192,19 +2218,22 @@ class DataFrame private[snowpark] (
    * @param values A list of the [[Column]] objects to add or replace.
    * @return A [[DataFrame]]
    */
-  def withColumns(colNames: Seq[String], values: Seq[Column]): DataFrame = {
-    if (colNames.size != values.size) {
-      throw ErrorMessage.DF_WITH_COLUMNS_INPUT_NAMES_NOT_MATCH_VALUES(colNames.size, values.size)
+  def withColumns(colNames: Seq[String], values: Seq[Column]): DataFrame =
+    transformation("withColumns") {
+      if (colNames.size != values.size) {
+        throw ErrorMessage.DF_WITH_COLUMNS_INPUT_NAMES_NOT_MATCH_VALUES(
+          colNames.size,
+          values.size)
+      }
+      val qualifiedNames = colNames.map(quoteName)
+      if (qualifiedNames.toSet.size != colNames.size) {
+        throw ErrorMessage.DF_WITH_COLUMNS_INPUT_NAMES_CONTAINS_DUPLICATES
+      }
+      val newCols = qualifiedNames.zip(values).map {
+        case (name, col) => col.as(name).expr.asInstanceOf[NamedExpression]
+      }
+      withPlan(WithColumns(newCols, plan))
     }
-    val qualifiedNames = colNames.map(quoteName)
-    if (qualifiedNames.toSet.size != colNames.size) {
-      throw ErrorMessage.DF_WITH_COLUMNS_INPUT_NAMES_CONTAINS_DUPLICATES
-    }
-    val newCols = qualifiedNames.zip(values).map {
-      case (name, col) => col.as(name).expr.asInstanceOf[NamedExpression]
-    }
-    withPlan(WithColumns(newCols, plan))
-  }
 
   /**
    * Returns a DataFrame with the specified column `col` renamed as `newName`.
@@ -2221,7 +2250,7 @@ class DataFrame private[snowpark] (
    * @param col The [[Column]] to be renamed
    * @return A [[DataFrame]]
    */
-  def rename(newName: String, col: Column): DataFrame = {
+  def rename(newName: String, col: Column): DataFrame = transformation("rename") {
     // Normalize the new column name
     val newQuotedName = quoteName(newName)
 
@@ -2237,10 +2266,8 @@ class DataFrame private[snowpark] (
     if (toBeRenamed.isEmpty) {
       throw ErrorMessage.DF_CANNOT_RENAME_COLUMN_BECAUSE_NOT_EXIST(oldName, newQuotedName)
     } else if (toBeRenamed.size > 1) {
-      throw ErrorMessage.DF_CANNOT_RENAME_COLUMN_BECAUSE_MULTIPLE_EXIST(
-        oldName,
-        newQuotedName,
-        toBeRenamed.size)
+      throw ErrorMessage
+        .DF_CANNOT_RENAME_COLUMN_BECAUSE_MULTIPLE_EXIST(oldName, newQuotedName, toBeRenamed.size)
     }
 
     val newColumns = output.map {
@@ -2686,8 +2713,9 @@ class DataFrame private[snowpark] (
    * @since 0.2.0
    * @return A [[DataFrame]] containing the sample of {@code num} rows.
    */
-  def sample(num: Long): DataFrame =
+  def sample(num: Long): DataFrame = transformation("sample") {
     withPlan(SnowflakeSampleNode(None, Some(num), plan))
+  }
 
   /**
    * Returns a new DataFrame that contains a sampling of rows from the current DataFrame.
@@ -2708,8 +2736,9 @@ class DataFrame private[snowpark] (
    * @since 0.2.0
    * @return A [[DataFrame]] containing the sample of rows.
    */
-  def sample(probabilityFraction: Double): DataFrame =
+  def sample(probabilityFraction: Double): DataFrame = transformation("sample") {
     withPlan(SnowflakeSampleNode(Some(probabilityFraction), None, plan))
+  }
 
   /**
    * Randomly splits the current DataFrame into separate DataFrames, using the specified weights.

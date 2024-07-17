@@ -28,7 +28,7 @@ final class DataFrameNaFunctions private[snowpark] (df: DataFrame) extends Loggi
    * @throws SnowparkClientException if cols contains any unrecognized column name
    * @since 0.2.0
    */
-  def drop(minNonNullsPerRow: Int, cols: Seq[String]): DataFrame = {
+  def drop(minNonNullsPerRow: Int, cols: Seq[String]): DataFrame = transformation("na.drop") {
     // translate to
     // select * from table where
     // iff(floatCol = 'NaN' or floatCol is null, 0, 1)
@@ -95,7 +95,7 @@ final class DataFrameNaFunctions private[snowpark] (df: DataFrame) extends Loggi
    *
    * @since 0.2.0
    */
-  def fill(valueMap: Map[String, Any]): DataFrame = {
+  def fill(valueMap: Map[String, Any]): DataFrame = transformation("na.fill") {
     // translate to
     // select col, iff(floatCol is null or floatCol == 'NaN', replacement, floatCol),
     // iff(nonFloatCol is null, replacement, nonFloatCol) from table
@@ -167,39 +167,43 @@ final class DataFrameNaFunctions private[snowpark] (df: DataFrame) extends Loggi
    * @throws SnowparkClientException if colName is an unrecognized column name
    * @since 0.2.0
    */
-  def replace(colName: String, replacement: Map[Any, Any]): DataFrame = {
-    // verify name
-    val column = df.col(colName)
+  def replace(colName: String, replacement: Map[Any, Any]): DataFrame =
+    transformation("na.replace") {
+      // verify name
+      val column = df.col(colName)
 
-    if (replacement.isEmpty) {
-      df
-    } else {
-      val columns = df.output.map { field =>
-        if (quoteName(field.name) == quoteName(colName)) {
-          val conditionReplacement = replacement.toSeq.map {
-            case (original, replace) =>
-              val cond = if (original == None || original == null) {
-                column.is_null
-              } else {
-                column === lit(original)
-              }
-              val replacement = if (replace == None) {
-                lit(null)
-              } else {
-                lit(replace)
-              }
-              (cond, replacement)
+      if (replacement.isEmpty) {
+        df
+      } else {
+        val columns = df.output.map { field =>
+          if (quoteName(field.name) == quoteName(colName)) {
+            val conditionReplacement = replacement.toSeq.map {
+              case (original, replace) =>
+                val cond = if (original == None || original == null) {
+                  column.is_null
+                } else {
+                  column === lit(original)
+                }
+                val replacement = if (replace == None) {
+                  lit(null)
+                } else {
+                  lit(replace)
+                }
+                (cond, replacement)
+            }
+            var caseWhen = when(conditionReplacement.head._1, conditionReplacement.head._2)
+            conditionReplacement.tail.foreach {
+              case (cond, replace) => caseWhen = caseWhen.when(cond, replace)
+            }
+            caseWhen.otherwise(column).cast(field.dataType).as(colName)
+          } else {
+            df.col(field.name)
           }
-          var caseWhen = when(conditionReplacement.head._1, conditionReplacement.head._2)
-          conditionReplacement.tail.foreach {
-            case (cond, replace) => caseWhen = caseWhen.when(cond, replace)
-          }
-          caseWhen.otherwise(column).cast(field.dataType).as(colName)
-        } else {
-          df.col(field.name)
         }
+        df.select(columns)
       }
-      df.select(columns)
     }
-  }
+
+  @inline protected def transformation(funcName: String)(func: => DataFrame): DataFrame =
+    DataFrame.buildMethodChain(this.df.methodChain, funcName)(func)
 }
