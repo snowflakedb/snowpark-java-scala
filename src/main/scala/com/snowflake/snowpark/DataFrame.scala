@@ -3021,11 +3021,16 @@ class DataFrame private[snowpark] (
     }
   }
 
+  lazy private[snowpark] val methodChainString: String =
+    methodChain.foldLeft("DataFrame") {
+      case (str, methodName) => s"$str.$methodName"
+    }
+
   @inline protected def withPlan(plan: LogicalPlan): DataFrame = DataFrame(session, plan)
 
   @inline protected def action[T](funcName: String)(func: => T): T = {
     val isScala: Boolean = this.session.conn.isScalaAPI
-    OpenTelemetry.action("DataFrame", funcName, isScala)(func)
+    OpenTelemetry.action("DataFrame", funcName, methodChainString, isScala)(func)
   }
 
   @inline protected def transformation(funcName: String)(func: => DataFrame): DataFrame =
@@ -3104,6 +3109,6 @@ class DataFrameAsyncActor private[snowpark] (df: DataFrame) {
 
   @inline protected def action[T](funcName: String)(func: => T): T = {
     val isScala: Boolean = df.session.conn.isScalaAPI
-    OpenTelemetry.action("DataFrameAsyncActor", funcName, isScala)(func)
+    OpenTelemetry.action("DataFrameAsyncActor", funcName, df.methodChainString, isScala)(func)
   }
 }

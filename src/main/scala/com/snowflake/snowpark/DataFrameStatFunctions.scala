@@ -312,7 +312,7 @@ final class DataFrameStatFunctions private[snowpark] (df: DataFrame) extends Log
 
   @inline protected def action[T](funcName: String)(func: => T): T = {
     val isScala: Boolean = df.session.conn.isScalaAPI
-    OpenTelemetry.action("DataFrameStatFunctions", funcName, isScala)(func)
+    OpenTelemetry.action("DataFrameStatFunctions", funcName, df.methodChainString, isScala)(func)
   }
   @inline protected def transformation(funcName: String)(func: => DataFrame): DataFrame =
     DataFrame.buildMethodChain(this.df.methodChain, funcName)(func)

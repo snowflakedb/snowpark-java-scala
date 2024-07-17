@@ -357,12 +357,12 @@ class Updatable private[snowpark] (
 
   @inline override protected def action[T](funcName: String)(func: => T): T = {
     val isScala: Boolean = this.session.conn.isScalaAPI
-    OpenTelemetry.action("Updatable", funcName, isScala)(func)
+    OpenTelemetry.action("Updatable", funcName, methodChainString, isScala)(func)
   }
 
   @inline protected def action[T](funcName: String, javaOffset: Int)(func: => T): T = {
     val isScala: Boolean = this.session.conn.isScalaAPI
-    OpenTelemetry.action("Updatable", funcName, isScala, javaOffset)(func)
+    OpenTelemetry.action("Updatable", funcName, methodChainString, isScala, javaOffset)(func)
   }
 
 }
@@ -500,11 +500,17 @@ class UpdatableAsyncActor private[snowpark] (updatable: Updatable)
 
   @inline override protected def action[T](funcName: String)(func: => T): T = {
     val isScala: Boolean = updatable.session.conn.isScalaAPI
-    OpenTelemetry.action("UpdatableAsyncActor", funcName, isScala)(func)
+    OpenTelemetry.action("UpdatableAsyncActor", funcName, updatable.methodChainString, isScala)(
+      func)
   }
 
   @inline protected def action[T](funcName: String, javaOffset: Int)(func: => T): T = {
     val isScala: Boolean = updatable.session.conn.isScalaAPI
-    OpenTelemetry.action("UpdatableAsyncActor", funcName, isScala, javaOffset)(func)
+    OpenTelemetry.action(
+      "UpdatableAsyncActor",
+      funcName,
+      updatable.methodChainString,
+      isScala,
+      javaOffset)(func)
   }
 }
