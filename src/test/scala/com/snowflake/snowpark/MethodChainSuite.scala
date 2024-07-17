@@ -244,4 +244,17 @@ class MethodChainSuite extends TestData {
       "na.fill")
     checkMethodChain(nullData3.na.replace("flo", Map(2 -> 300, 1 -> 200)), "na.replace")
   }
+
+  test("stat") {
+    checkMethodChain(df1.stat.sampleBy(col("a"), Map(1 -> 0.0, 2 -> 1.0)), "stat.sampleBy")
+    checkMethodChain(df1.stat.sampleBy("a", Map(1 -> 0.0, 2 -> 1.0)), "stat.sampleBy")
+  }
+
+  test("flatten") {
+    val table1 = session.sql("select parse_json(value) as value from values('[1,2]') as T(value)")
+    checkMethodChain(table1.flatten(table1("value")), "flatten")
+    checkMethodChain(
+      table1.flatten(table1("value"), "", outer = false, recursive = false, "both"),
+      "flatten")
+  }
 }

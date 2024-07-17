@@ -2823,8 +2823,9 @@ class DataFrame private[snowpark] (
    * @return A [[DataFrame]] containing the flattened values.
    * @since 0.2.0
    */
-  def flatten(input: Column): DataFrame =
+  def flatten(input: Column): DataFrame = transformation("flatten") {
     flatten(input, "", outer = false, recursive = false, "BOTH")
+  }
 
   /**
    * Flattens (explodes) compound values into multiple rows (similar to the SQL
@@ -2876,7 +2877,7 @@ class DataFrame private[snowpark] (
       path: String,
       outer: Boolean,
       recursive: Boolean,
-      mode: String): DataFrame = {
+      mode: String): DataFrame = transformation("flatten") {
     // scalastyle:off
     val flattenMode = mode.toUpperCase() match {
       case m @ ("OBJECT" | "ARRAY" | "BOTH") => m
