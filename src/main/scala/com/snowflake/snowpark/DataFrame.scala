@@ -3109,6 +3109,10 @@ class DataFrameAsyncActor private[snowpark] (df: DataFrame) {
 
   @inline protected def action[T](funcName: String)(func: => T): T = {
     val isScala: Boolean = df.session.conn.isScalaAPI
-    OpenTelemetry.action("DataFrameAsyncActor", funcName, df.methodChainString, isScala)(func)
+    OpenTelemetry.action(
+      "DataFrameAsyncActor",
+      funcName,
+      df.methodChainString + ".async",
+      isScala)(func)
   }
 }

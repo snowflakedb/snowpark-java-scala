@@ -28,7 +28,7 @@ final class DataFrameNaFunctions private[snowpark] (df: DataFrame) extends Loggi
    * @throws SnowparkClientException if cols contains any unrecognized column name
    * @since 0.2.0
    */
-  def drop(minNonNullsPerRow: Int, cols: Seq[String]): DataFrame = transformation("na.drop") {
+  def drop(minNonNullsPerRow: Int, cols: Seq[String]): DataFrame = transformation("drop") {
     // translate to
     // select * from table where
     // iff(floatCol = 'NaN' or floatCol is null, 0, 1)
@@ -95,7 +95,7 @@ final class DataFrameNaFunctions private[snowpark] (df: DataFrame) extends Loggi
    *
    * @since 0.2.0
    */
-  def fill(valueMap: Map[String, Any]): DataFrame = transformation("na.fill") {
+  def fill(valueMap: Map[String, Any]): DataFrame = transformation("fill") {
     // translate to
     // select col, iff(floatCol is null or floatCol == 'NaN', replacement, floatCol),
     // iff(nonFloatCol is null, replacement, nonFloatCol) from table
@@ -168,7 +168,7 @@ final class DataFrameNaFunctions private[snowpark] (df: DataFrame) extends Loggi
    * @since 0.2.0
    */
   def replace(colName: String, replacement: Map[Any, Any]): DataFrame =
-    transformation("na.replace") {
+    transformation("replace") {
       // verify name
       val column = df.col(colName)
 
@@ -205,5 +205,5 @@ final class DataFrameNaFunctions private[snowpark] (df: DataFrame) extends Loggi
     }
 
   @inline protected def transformation(funcName: String)(func: => DataFrame): DataFrame =
-    DataFrame.buildMethodChain(this.df.methodChain, funcName)(func)
+    DataFrame.buildMethodChain(this.df.methodChain :+ "na", funcName)(func)
 }

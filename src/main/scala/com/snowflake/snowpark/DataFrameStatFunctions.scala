@@ -264,7 +264,7 @@ final class DataFrameStatFunctions private[snowpark] (df: DataFrame) extends Log
    * @return A new DataFrame that contains the stratified sample.
    */
   def sampleBy[T](col: Column, fractions: Map[T, Double]): DataFrame =
-    transformation("stat.sampleBy") {
+    transformation("sampleBy") {
       if (fractions.isEmpty) {
         return df.limit(0)
       }
@@ -306,14 +306,18 @@ final class DataFrameStatFunctions private[snowpark] (df: DataFrame) extends Log
    * @return A new DataFrame that contains the stratified sample.
    */
   def sampleBy[T](col: String, fractions: Map[T, Double]): DataFrame =
-    transformation("stat.sampleBy") {
+    transformation("sampleBy") {
       sampleBy(Col(col), fractions)
     }
 
   @inline protected def action[T](funcName: String)(func: => T): T = {
     val isScala: Boolean = df.session.conn.isScalaAPI
-    OpenTelemetry.action("DataFrameStatFunctions", funcName, df.methodChainString, isScala)(func)
+    OpenTelemetry.action(
+      "DataFrameStatFunctions",
+      funcName,
+      df.methodChainString + ".stat",
+      isScala)(func)
   }
   @inline protected def transformation(funcName: String)(func: => DataFrame): DataFrame =
-    DataFrame.buildMethodChain(this.df.methodChain, funcName)(func)
+    DataFrame.buildMethodChain(this.df.methodChain :+ "stat", funcName)(func)
 }
