@@ -1,6 +1,8 @@
 package com.snowflake.snowpark_java.types;
 
-/** Custom Snowflake class that provides access to accessKeyId & secretAccessKey & token secret object. */
+/** The Snowflake class provides access to the CloudProviderToken secret object with the following properties: accessKeyId, 
+ * secretAccessKey, and token.*/
+
 public class CloudProviderToken {
   private final String accessKeyId;
   private final String secretAccessKey;
