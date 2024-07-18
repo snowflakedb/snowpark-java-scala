@@ -240,7 +240,8 @@ class MethodChainSuite extends TestData {
     checkMethodChain(double3.na.drop(1, Seq("a")), "na", "drop")
     checkMethodChain(
       nullData3.na.fill(Map("flo" -> 12.3, "int" -> 11, "boo" -> false, "str" -> "f")),
-      "na", "fill")
+      "na",
+      "fill")
     checkMethodChain(nullData3.na.replace("flo", Map(2 -> 300, 1 -> 200)), "na", "replace")
   }
 

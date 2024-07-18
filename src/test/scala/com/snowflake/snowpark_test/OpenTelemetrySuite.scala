@@ -115,13 +115,14 @@ class OpenTelemetrySuite extends OpenTelemetryEnabled {
   }
 
   test("line number - DataFrameAsyncActor") {
+    val className = "snow.snowpark.DataFrameAsyncActor"
     val df = session.sql("select * from values(1),(2),(3) as t(num)")
     df.async.count()
-    checkSpan("snow.snowpark.DataFrameAsyncActor", "count")
+    checkSpan(className, "count", "DataFrame.async.count")
     df.async.collect()
-    checkSpan("snow.snowpark.DataFrameAsyncActor", "collect")
+    checkSpan(className, "collect", "DataFrame.async.collect")
     df.async.toLocalIterator()
-    checkSpan("snow.snowpark.DataFrameAsyncActor", "toLocalIterator")
+    checkSpan(className, "toLocalIterator", "DataFrame.async.toLocalIterator")
   }
 
   test("line number - DataFrameStatFunctions - corr") {
@@ -135,34 +136,37 @@ class OpenTelemetrySuite extends OpenTelemetryEnabled {
     import session.implicits._
     val df = Seq((0.1, 0.5), (0.2, 0.6), (0.3, 0.7)).toDF("a", "b")
     df.stat.cov("a", "b")
-    checkSpan("snow.snowpark.DataFrameStatFunctions", "DataFrame.select.toDF.stat.cov")
+    checkSpan("snow.snowpark.DataFrameStatFunctions", "cov", "DataFrame.select.toDF.stat.cov")
   }
 
   test("line number - DataFrameStatFunctions - approxQuantile") {
     import session.implicits._
+    val className = "snow.snowpark.DataFrameStatFunctions"
     val df = Seq(1, 2, 3, 4, 5, 6, 7, 8, 9, 0).toDF("a")
     df.stat.approxQuantile("a", Array(0, 0.1, 0.4, 0.6, 1))
-    checkSpan("snow.snowpark.DataFrameStatFunctions", "approxQuantile")
+    checkSpan(className, "approxQuantile", "DataFrame.select.toDF.stat.approxQuantile")
   }
 
   test("line number - DataFrameStatFunctions - approxQuantile 2") {
     import session.implicits._
+    val className = "snow.snowpark.DataFrameStatFunctions"
     val df = Seq((0.1, 0.5), (0.2, 0.6), (0.3, 0.7)).toDF("a", "b")
     df.stat.approxQuantile(Array("a", "b"), Array(0, 0.1, 0.6))
-    checkSpan("snow.snowpark.DataFrameStatFunctions", "approxQuantile")
+    checkSpan(className, "approxQuantile", "DataFrame.select.toDF.stat.approxQuantile")
   }
 
   test("line number - DataFrameStatFunctions - crosstab") {
     import session.implicits._
+    val className = "snow.snowpark.DataFrameStatFunctions"
     val df = Seq((1, 1), (1, 2), (2, 1), (2, 1), (2, 3), (3, 2), (3, 3)).toDF("key", "value")
     df.stat.crosstab("key", "value")
-    checkSpan("snow.snowpark.DataFrameStatFunctions", "crosstab")
+    checkSpan(className, "crosstab", "DataFrame.select.toDF.stat.crosstab")
   }
 
   test("line number - DataFrameWriter - csv") {
     val df = session.sql("select * from values(1),(2),(3) as t(num)")
     df.write.csv(s"@$stageName1/csv1")
-    checkSpan("snow.snowpark.DataFrameWriter", "csv")
+    checkSpan("snow.snowpark.DataFrameWriter", "csv", "DataFrame.writer.csv")
   }
 
   test("line number - DataFrameWriter - json") {
@@ -170,13 +174,13 @@ class OpenTelemetrySuite extends OpenTelemetryEnabled {
     val df = Seq((1, 1.1, "a"), (2, 2.2, "b")).toDF("a", "b", "c")
     val df2 = df.select(array_construct(df.schema.names.map(df(_)): _*))
     df2.write.option("compression", "none").json(s"@$stageName1/json1")
-    checkSpan("snow.snowpark.DataFrameWriter", "json")
+    checkSpan("snow.snowpark.DataFrameWriter", "json", "DataFrame.select.toDF.select.writer.json")
   }
 
   test("line number - DataFrameWriter - parquet") {
     val df = session.sql("select * from values(1),(2),(3) as t(num)")
     df.write.parquet(s"@$stageName1/parquet1")
-    checkSpan("snow.snowpark.DataFrameWriter", "parquet")
+    checkSpan("snow.snowpark.DataFrameWriter", "parquet", "DataFrame.writer.parquet")
   }
 
   test("line number - DataFrameWriter - saveAsTable") {
@@ -184,13 +188,13 @@ class OpenTelemetrySuite extends OpenTelemetryEnabled {
     val tableName = randomName()
     try {
       df.write.saveAsTable(tableName)
-      checkSpan("snow.snowpark.DataFrameWriter", "saveAsTable")
+      checkSpan("snow.snowpark.DataFrameWriter", "saveAsTable", "DataFrame.writer.saveAsTable")
     } finally {
       dropTable(tableName)
     }
     try {
       df.write.saveAsTable(Seq(tableName))
-      checkSpan("snow.snowpark.DataFrameWriter", "saveAsTable")
+      checkSpan("snow.snowpark.DataFrameWriter", "saveAsTable", "DataFrame.writer.saveAsTable")
     } finally {
       dropTable(tableName)
     }
@@ -198,7 +202,7 @@ class OpenTelemetrySuite extends OpenTelemetryEnabled {
       val list = new util.ArrayList[String](1)
       list.add(tableName)
       df.write.saveAsTable(tableName)
-      checkSpan("snow.snowpark.DataFrameWriter", "saveAsTable")
+      checkSpan("snow.snowpark.DataFrameWriter", "saveAsTable", "DataFrame.writer.saveAsTable")
     } finally {
       dropTable(tableName)
     }
@@ -206,16 +210,17 @@ class OpenTelemetrySuite extends OpenTelemetryEnabled {
 
   test("line number - DataFrameWriterAsyncActor - saveAsTable") {
     val df = session.sql("select * from values(1),(2),(3) as t(num)")
+    val className = "snow.snowpark.DataFrameWriterAsyncActor"
     val tableName = randomName()
     try {
       df.write.async.saveAsTable(tableName).getResult()
-      checkSpan("snow.snowpark.DataFrameWriterAsyncActor", "saveAsTable")
+      checkSpan(className, "saveAsTable", "DataFrame.writer.async.saveAsTable")
     } finally {
       dropTable(tableName)
     }
     try {
       df.write.async.saveAsTable(Seq(tableName)).getResult()
-      checkSpan("snow.snowpark.DataFrameWriterAsyncActor", "saveAsTable")
+      checkSpan(className, "saveAsTable", "DataFrame.writer.async.saveAsTable")
     } finally {
       dropTable(tableName)
     }
@@ -223,30 +228,33 @@ class OpenTelemetrySuite extends OpenTelemetryEnabled {
       val list = new util.ArrayList[String](1)
       list.add(tableName)
       df.write.async.saveAsTable(tableName).getResult()
-      checkSpan("snow.snowpark.DataFrameWriterAsyncActor", "saveAsTable")
+      checkSpan(className, "saveAsTable", "DataFrame.writer.async.saveAsTable")
     } finally {
       dropTable(tableName)
     }
   }
 
   test("line number - DataFrameWriterAsyncActor - csv") {
+    val className = "snow.snowpark.DataFrameWriterAsyncActor"
     val df = session.sql("select * from values(1),(2),(3) as t(num)")
     df.write.async.csv(s"@$stageName1/csv2").getResult()
-    checkSpan("snow.snowpark.DataFrameWriterAsyncActor", "csv")
+    checkSpan(className, "csv", "DataFrame.writer.async.csv")
   }
 
   test("line number - DataFrameWriterAsyncActor - json") {
     import session.implicits._
+    val className = "snow.snowpark.DataFrameWriterAsyncActor"
     val df = Seq((1, 1.1, "a"), (2, 2.2, "b")).toDF("a", "b", "c")
     val df2 = df.select(array_construct(df.schema.names.map(df(_)): _*))
     df2.write.option("compression", "none").async.json(s"@$stageName1/json2")
-    checkSpan("snow.snowpark.DataFrameWriterAsyncActor", "json")
+    checkSpan(className, "json", "DataFrame.select.toDF.select.writer.async.json")
   }
 
   test("line number - DataFrameWriterAsyncActor - parquet") {
+    val className = "snow.snowpark.DataFrameWriterAsyncActor"
     val df = session.sql("select * from values(1),(2),(3) as t(num)")
     df.write.async.parquet(s"@$stageName1/parquet2")
-    checkSpan("snow.snowpark.DataFrameWriterAsyncActor", "parquet")
+    checkSpan(className, "parquet", "DataFrame.writer.async.parquet")
   }
 
   test("line number - CopyableDataFrame") {
@@ -392,7 +400,7 @@ class OpenTelemetrySuite extends OpenTelemetryEnabled {
         .whenMatched
         .update(Map(target("desc") -> source("desc")))
       builder.collect()
-      checkSpan("snow.snowpark.MergeBuilder", "collect")
+      checkSpan("snow.snowpark.MergeBuilder", "collect", "DataFrame.merge.collect")
     } finally {
       dropTable(tableName)
     }
@@ -412,7 +420,10 @@ class OpenTelemetrySuite extends OpenTelemetryEnabled {
         .whenMatched
         .update(Map(target("desc") -> source("desc")))
       builder.async.collect().getResult()
-      checkSpan("snow.snowpark.MergeBuilderAsyncActor", "collect")
+      checkSpan(
+        "snow.snowpark.MergeBuilderAsyncActor",
+        "collect",
+        "DataFrame.merge.async.collect")
     } finally {
       dropTable(tableName)
     }
