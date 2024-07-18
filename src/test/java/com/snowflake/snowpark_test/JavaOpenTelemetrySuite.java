@@ -538,4 +538,15 @@ public class JavaOpenTelemetrySuite extends JavaOpenTelemetryEnabled {
     checkSpan(
         className, funcName, "JavaOpenTelemetrySuite.java", file.getLineNumber() - 1, methodChain);
   }
+
+  private void checkSpan(String className, String funcName) {
+    StackTraceElement[] stack = Thread.currentThread().getStackTrace();
+    StackTraceElement file = stack[2];
+    checkSpan(
+        className,
+        funcName,
+        "JavaOpenTelemetrySuite.java",
+        file.getLineNumber() - 1,
+        "DataFrame." + funcName);
+  }
 }
