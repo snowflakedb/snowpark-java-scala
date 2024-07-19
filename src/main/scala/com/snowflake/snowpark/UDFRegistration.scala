@@ -67,13 +67,15 @@ class UDFRegistration(session: Session) extends Logging {
     (0 to 22).foreach { x =>
       val types = (1 to x).foldRight("RT")((i, s) => {s"A$i, $s"})
       val typeTags = (1 to x).map(i => s"A$i: TypeTag").foldLeft("RT: TypeTag")(_ + ", " + _)
+      val s = if (x > 1) "s" else ""
+      val version = if (x > 10) "0.12.0" else "0.6.0"
       println(s"""
         |/**
-        | * Registers a Scala closure of $x argument(s) as a temporary anonymous UDF that is
+        | * Registers a Scala closure of $x argument$s as a temporary anonymous UDF that is
         | * scoped to this session.
         | *
         | * @tparam RT Return type of the UDF.
-        | * @since 0.12.0
+        | * @since $version
         | */
         |def registerTemporary[$typeTags](func: Function$x[$types]): UserDefinedFunction =
         | udf("registerTemporary") {
@@ -83,11 +85,11 @@ class UDFRegistration(session: Session) extends Logging {
    */
 
   /**
-   * Registers a Scala closure of 0 argument(s) as a temporary anonymous UDF that is
+   * Registers a Scala closure of 0 argument as a temporary anonymous UDF that is
    * scoped to this session.
    *
    * @tparam RT Return type of the UDF.
-   * @since 0.12.0
+   * @since 0.6.0
    */
   def registerTemporary[RT: TypeTag](func: Function0[RT]): UserDefinedFunction =
     udf("registerTemporary") {
@@ -95,11 +97,11 @@ class UDFRegistration(session: Session) extends Logging {
     }
 
   /**
-   * Registers a Scala closure of 1 argument(s) as a temporary anonymous UDF that is
+   * Registers a Scala closure of 1 argument as a temporary anonymous UDF that is
    * scoped to this session.
    *
    * @tparam RT Return type of the UDF.
-   * @since 0.12.0
+   * @since 0.6.0
    */
   def registerTemporary[RT: TypeTag, A1: TypeTag](func: Function1[A1, RT]): UserDefinedFunction =
     udf("registerTemporary") {
@@ -107,11 +109,11 @@ class UDFRegistration(session: Session) extends Logging {
     }
 
   /**
-   * Registers a Scala closure of 2 argument(s) as a temporary anonymous UDF that is
+   * Registers a Scala closure of 2 arguments as a temporary anonymous UDF that is
    * scoped to this session.
    *
    * @tparam RT Return type of the UDF.
-   * @since 0.12.0
+   * @since 0.6.0
    */
   def registerTemporary[RT: TypeTag, A1: TypeTag, A2: TypeTag](
       func: Function2[A1, A2, RT]): UserDefinedFunction =
@@ -120,11 +122,11 @@ class UDFRegistration(session: Session) extends Logging {
     }
 
   /**
-   * Registers a Scala closure of 3 argument(s) as a temporary anonymous UDF that is
+   * Registers a Scala closure of 3 arguments as a temporary anonymous UDF that is
    * scoped to this session.
    *
    * @tparam RT Return type of the UDF.
-   * @since 0.12.0
+   * @since 0.6.0
    */
   def registerTemporary[RT: TypeTag, A1: TypeTag, A2: TypeTag, A3: TypeTag](
       func: Function3[A1, A2, A3, RT]): UserDefinedFunction =
@@ -133,11 +135,11 @@ class UDFRegistration(session: Session) extends Logging {
     }
 
   /**
-   * Registers a Scala closure of 4 argument(s) as a temporary anonymous UDF that is
+   * Registers a Scala closure of 4 arguments as a temporary anonymous UDF that is
    * scoped to this session.
    *
    * @tparam RT Return type of the UDF.
-   * @since 0.12.0
+   * @since 0.6.0
    */
   def registerTemporary[RT: TypeTag, A1: TypeTag, A2: TypeTag, A3: TypeTag, A4: TypeTag](
       func: Function4[A1, A2, A3, A4, RT]): UserDefinedFunction =
@@ -146,11 +148,11 @@ class UDFRegistration(session: Session) extends Logging {
     }
 
   /**
-   * Registers a Scala closure of 5 argument(s) as a temporary anonymous UDF that is
+   * Registers a Scala closure of 5 arguments as a temporary anonymous UDF that is
    * scoped to this session.
    *
    * @tparam RT Return type of the UDF.
-   * @since 0.12.0
+   * @since 0.6.0
    */
   def registerTemporary[
       RT: TypeTag,
@@ -164,11 +166,11 @@ class UDFRegistration(session: Session) extends Logging {
     }
 
   /**
-   * Registers a Scala closure of 6 argument(s) as a temporary anonymous UDF that is
+   * Registers a Scala closure of 6 arguments as a temporary anonymous UDF that is
    * scoped to this session.
    *
    * @tparam RT Return type of the UDF.
-   * @since 0.12.0
+   * @since 0.6.0
    */
   def registerTemporary[
       RT: TypeTag,
@@ -183,11 +185,11 @@ class UDFRegistration(session: Session) extends Logging {
     }
 
   /**
-   * Registers a Scala closure of 7 argument(s) as a temporary anonymous UDF that is
+   * Registers a Scala closure of 7 arguments as a temporary anonymous UDF that is
    * scoped to this session.
    *
    * @tparam RT Return type of the UDF.
-   * @since 0.12.0
+   * @since 0.6.0
    */
   def registerTemporary[
       RT: TypeTag,
@@ -203,11 +205,11 @@ class UDFRegistration(session: Session) extends Logging {
     }
 
   /**
-   * Registers a Scala closure of 8 argument(s) as a temporary anonymous UDF that is
+   * Registers a Scala closure of 8 arguments as a temporary anonymous UDF that is
    * scoped to this session.
    *
    * @tparam RT Return type of the UDF.
-   * @since 0.12.0
+   * @since 0.6.0
    */
   def registerTemporary[
       RT: TypeTag,
@@ -224,11 +226,11 @@ class UDFRegistration(session: Session) extends Logging {
     }
 
   /**
-   * Registers a Scala closure of 9 argument(s) as a temporary anonymous UDF that is
+   * Registers a Scala closure of 9 arguments as a temporary anonymous UDF that is
    * scoped to this session.
    *
    * @tparam RT Return type of the UDF.
-   * @since 0.12.0
+   * @since 0.6.0
    */
   def registerTemporary[
       RT: TypeTag,
@@ -246,11 +248,11 @@ class UDFRegistration(session: Session) extends Logging {
     }
 
   /**
-   * Registers a Scala closure of 10 argument(s) as a temporary anonymous UDF that is
+   * Registers a Scala closure of 10 arguments as a temporary anonymous UDF that is
    * scoped to this session.
    *
    * @tparam RT Return type of the UDF.
-   * @since 0.12.0
+   * @since 0.6.0
    */
   def registerTemporary[
       RT: TypeTag,
@@ -270,7 +272,7 @@ class UDFRegistration(session: Session) extends Logging {
     }
 
   /**
-   * Registers a Scala closure of 11 argument(s) as a temporary anonymous UDF that is
+   * Registers a Scala closure of 11 arguments as a temporary anonymous UDF that is
    * scoped to this session.
    *
    * @tparam RT Return type of the UDF.
@@ -295,7 +297,7 @@ class UDFRegistration(session: Session) extends Logging {
     }
 
   /**
-   * Registers a Scala closure of 12 argument(s) as a temporary anonymous UDF that is
+   * Registers a Scala closure of 12 arguments as a temporary anonymous UDF that is
    * scoped to this session.
    *
    * @tparam RT Return type of the UDF.
@@ -321,7 +323,7 @@ class UDFRegistration(session: Session) extends Logging {
     }
 
   /**
-   * Registers a Scala closure of 13 argument(s) as a temporary anonymous UDF that is
+   * Registers a Scala closure of 13 arguments as a temporary anonymous UDF that is
    * scoped to this session.
    *
    * @tparam RT Return type of the UDF.
@@ -348,7 +350,7 @@ class UDFRegistration(session: Session) extends Logging {
     }
 
   /**
-   * Registers a Scala closure of 14 argument(s) as a temporary anonymous UDF that is
+   * Registers a Scala closure of 14 arguments as a temporary anonymous UDF that is
    * scoped to this session.
    *
    * @tparam RT Return type of the UDF.
@@ -377,7 +379,7 @@ class UDFRegistration(session: Session) extends Logging {
     }
 
   /**
-   * Registers a Scala closure of 15 argument(s) as a temporary anonymous UDF that is
+   * Registers a Scala closure of 15 arguments as a temporary anonymous UDF that is
    * scoped to this session.
    *
    * @tparam RT Return type of the UDF.
@@ -407,7 +409,7 @@ class UDFRegistration(session: Session) extends Logging {
     }
 
   /**
-   * Registers a Scala closure of 16 argument(s) as a temporary anonymous UDF that is
+   * Registers a Scala closure of 16 arguments as a temporary anonymous UDF that is
    * scoped to this session.
    *
    * @tparam RT Return type of the UDF.
@@ -438,7 +440,7 @@ class UDFRegistration(session: Session) extends Logging {
     }
 
   /**
-   * Registers a Scala closure of 17 argument(s) as a temporary anonymous UDF that is
+   * Registers a Scala closure of 17 arguments as a temporary anonymous UDF that is
    * scoped to this session.
    *
    * @tparam RT Return type of the UDF.
@@ -487,7 +489,7 @@ class UDFRegistration(session: Session) extends Logging {
     }
 
   /**
-   * Registers a Scala closure of 18 argument(s) as a temporary anonymous UDF that is
+   * Registers a Scala closure of 18 arguments as a temporary anonymous UDF that is
    * scoped to this session.
    *
    * @tparam RT Return type of the UDF.
@@ -538,7 +540,7 @@ class UDFRegistration(session: Session) extends Logging {
     }
 
   /**
-   * Registers a Scala closure of 19 argument(s) as a temporary anonymous UDF that is
+   * Registers a Scala closure of 19 arguments as a temporary anonymous UDF that is
    * scoped to this session.
    *
    * @tparam RT Return type of the UDF.
@@ -591,7 +593,7 @@ class UDFRegistration(session: Session) extends Logging {
     }
 
   /**
-   * Registers a Scala closure of 20 argument(s) as a temporary anonymous UDF that is
+   * Registers a Scala closure of 20 arguments as a temporary anonymous UDF that is
    * scoped to this session.
    *
    * @tparam RT Return type of the UDF.
@@ -646,7 +648,7 @@ class UDFRegistration(session: Session) extends Logging {
     }
 
   /**
-   * Registers a Scala closure of 21 argument(s) as a temporary anonymous UDF that is
+   * Registers a Scala closure of 21 arguments as a temporary anonymous UDF that is
    * scoped to this session.
    *
    * @tparam RT Return type of the UDF.
@@ -703,7 +705,7 @@ class UDFRegistration(session: Session) extends Logging {
     }
 
   /**
-   * Registers a Scala closure of 22 argument(s) as a temporary anonymous UDF that is
+   * Registers a Scala closure of 22 arguments as a temporary anonymous UDF that is
    * scoped to this session.
    *
    * @tparam RT Return type of the UDF.
@@ -776,7 +778,8 @@ class UDFRegistration(session: Session) extends Logging {
         | * @tparam RT Return type of the UDF.
         | * @since $version
         | */
-        |def registerTemporary[$typeTags](name: String, func: Function$x[$types]): UserDefinedFunction = {
+        |def registerTemporary[$typeTags](name: String, func: Function$x[$types]): UserDefinedFunction =
+        | udf("registerTemporary", execName = name) {
         |  register(Some(name), _toUdf(func))
         |}""".stripMargin)
     }
@@ -788,9 +791,10 @@ class UDFRegistration(session: Session) extends Logging {
    * @tparam RT Return type of the UDF.
    * @since 0.1.0
    */
-  def registerTemporary[RT: TypeTag](name: String, func: Function0[RT]): UserDefinedFunction = {
-    register(Some(name), _toUdf(func))
-  }
+  def registerTemporary[RT: TypeTag](name: String, func: Function0[RT]): UserDefinedFunction =
+    udf("registerTemporary", execName = name) {
+      register(Some(name), _toUdf(func))
+    }
 
   /**
    * Registers a Scala closure of 1 argument as a temporary Snowflake Java UDF that you
@@ -801,9 +805,10 @@ class UDFRegistration(session: Session) extends Logging {
    */
   def registerTemporary[RT: TypeTag, A1: TypeTag](
       name: String,
-      func: Function1[A1, RT]): UserDefinedFunction = {
-    register(Some(name), _toUdf(func))
-  }
+      func: Function1[A1, RT]): UserDefinedFunction =
+    udf("registerTemporary", execName = name) {
+      register(Some(name), _toUdf(func))
+    }
 
   /**
    * Registers a Scala closure of 2 arguments as a temporary Snowflake Java UDF that you
@@ -814,9 +819,10 @@ class UDFRegistration(session: Session) extends Logging {
    */
   def registerTemporary[RT: TypeTag, A1: TypeTag, A2: TypeTag](
       name: String,
-      func: Function2[A1, A2, RT]): UserDefinedFunction = {
-    register(Some(name), _toUdf(func))
-  }
+      func: Function2[A1, A2, RT]): UserDefinedFunction =
+    udf("registerTemporary", execName = name) {
+      register(Some(name), _toUdf(func))
+    }
 
   /**
    * Registers a Scala closure of 3 arguments as a temporary Snowflake Java UDF that you
@@ -827,9 +833,10 @@ class UDFRegistration(session: Session) extends Logging {
    */
   def registerTemporary[RT: TypeTag, A1: TypeTag, A2: TypeTag, A3: TypeTag](
       name: String,
-      func: Function3[A1, A2, A3, RT]): UserDefinedFunction = {
-    register(Some(name), _toUdf(func))
-  }
+      func: Function3[A1, A2, A3, RT]): UserDefinedFunction =
+    udf("registerTemporary", execName = name) {
+      register(Some(name), _toUdf(func))
+    }
 
   /**
    * Registers a Scala closure of 4 arguments as a temporary Snowflake Java UDF that you
@@ -840,9 +847,10 @@ class UDFRegistration(session: Session) extends Logging {
    */
   def registerTemporary[RT: TypeTag, A1: TypeTag, A2: TypeTag, A3: TypeTag, A4: TypeTag](
       name: String,
-      func: Function4[A1, A2, A3, A4, RT]): UserDefinedFunction = {
-    register(Some(name), _toUdf(func))
-  }
+      func: Function4[A1, A2, A3, A4, RT]): UserDefinedFunction =
+    udf("registerTemporary", execName = name) {
+      register(Some(name), _toUdf(func))
+    }
 
   /**
    * Registers a Scala closure of 5 arguments as a temporary Snowflake Java UDF that you
@@ -857,9 +865,10 @@ class UDFRegistration(session: Session) extends Logging {
       A2: TypeTag,
       A3: TypeTag,
       A4: TypeTag,
-      A5: TypeTag](name: String, func: Function5[A1, A2, A3, A4, A5, RT]): UserDefinedFunction = {
-    register(Some(name), _toUdf(func))
-  }
+      A5: TypeTag](name: String, func: Function5[A1, A2, A3, A4, A5, RT]): UserDefinedFunction =
+    udf("registerTemporary", execName = name) {
+      register(Some(name), _toUdf(func))
+    }
 
   /**
    * Registers a Scala closure of 6 arguments as a temporary Snowflake Java UDF that you
@@ -877,9 +886,10 @@ class UDFRegistration(session: Session) extends Logging {
       A5: TypeTag,
       A6: TypeTag](
       name: String,
-      func: Function6[A1, A2, A3, A4, A5, A6, RT]): UserDefinedFunction = {
-    register(Some(name), _toUdf(func))
-  }
+      func: Function6[A1, A2, A3, A4, A5, A6, RT]): UserDefinedFunction =
+    udf("registerTemporary", execName = name) {
+      register(Some(name), _toUdf(func))
+    }
 
   /**
    * Registers a Scala closure of 7 arguments as a temporary Snowflake Java UDF that you
@@ -898,9 +908,10 @@ class UDFRegistration(session: Session) extends Logging {
       A6: TypeTag,
       A7: TypeTag](
       name: String,
-      func: Function7[A1, A2, A3, A4, A5, A6, A7, RT]): UserDefinedFunction = {
-    register(Some(name), _toUdf(func))
-  }
+      func: Function7[A1, A2, A3, A4, A5, A6, A7, RT]): UserDefinedFunction =
+    udf("registerTemporary", execName = name) {
+      register(Some(name), _toUdf(func))
+    }
 
   /**
    * Registers a Scala closure of 8 arguments as a temporary Snowflake Java UDF that you
@@ -920,9 +931,10 @@ class UDFRegistration(session: Session) extends Logging {
       A7: TypeTag,
       A8: TypeTag](
       name: String,
-      func: Function8[A1, A2, A3, A4, A5, A6, A7, A8, RT]): UserDefinedFunction = {
-    register(Some(name), _toUdf(func))
-  }
+      func: Function8[A1, A2, A3, A4, A5, A6, A7, A8, RT]): UserDefinedFunction =
+    udf("registerTemporary", execName = name) {
+      register(Some(name), _toUdf(func))
+    }
 
   /**
    * Registers a Scala closure of 9 arguments as a temporary Snowflake Java UDF that you
@@ -943,9 +955,10 @@ class UDFRegistration(session: Session) extends Logging {
       A8: TypeTag,
       A9: TypeTag](
       name: String,
-      func: Function9[A1, A2, A3, A4, A5, A6, A7, A8, A9, RT]): UserDefinedFunction = {
-    register(Some(name), _toUdf(func))
-  }
+      func: Function9[A1, A2, A3, A4, A5, A6, A7, A8, A9, RT]): UserDefinedFunction =
+    udf("registerTemporary", execName = name) {
+      register(Some(name), _toUdf(func))
+    }
 
   /**
    * Registers a Scala closure of 10 arguments as a temporary Snowflake Java UDF that you
@@ -967,9 +980,10 @@ class UDFRegistration(session: Session) extends Logging {
       A9: TypeTag,
       A10: TypeTag](
       name: String,
-      func: Function10[A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, RT]): UserDefinedFunction = {
-    register(Some(name), _toUdf(func))
-  }
+      func: Function10[A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, RT]): UserDefinedFunction =
+    udf("registerTemporary", execName = name) {
+      register(Some(name), _toUdf(func))
+    }
 
   /**
    * Registers a Scala closure of 11 arguments as a temporary Snowflake Java UDF that you
@@ -992,9 +1006,10 @@ class UDFRegistration(session: Session) extends Logging {
       A10: TypeTag,
       A11: TypeTag](
       name: String,
-      func: Function11[A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, RT]): UserDefinedFunction = {
-    register(Some(name), _toUdf(func))
-  }
+      func: Function11[A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, RT]): UserDefinedFunction =
+    udf("registerTemporary", execName = name) {
+      register(Some(name), _toUdf(func))
+    }
 
   /**
    * Registers a Scala closure of 12 arguments as a temporary Snowflake Java UDF that you
@@ -1019,9 +1034,10 @@ class UDFRegistration(session: Session) extends Logging {
       A12: TypeTag](
       name: String,
       func: Function12[A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, RT])
-    : UserDefinedFunction = {
-    register(Some(name), _toUdf(func))
-  }
+    : UserDefinedFunction =
+    udf("registerTemporary", execName = name) {
+      register(Some(name), _toUdf(func))
+    }
 
   /**
    * Registers a Scala closure of 13 arguments as a temporary Snowflake Java UDF that you
@@ -1047,9 +1063,10 @@ class UDFRegistration(session: Session) extends Logging {
       A13: TypeTag](
       name: String,
       func: Function13[A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, RT])
-    : UserDefinedFunction = {
-    register(Some(name), _toUdf(func))
-  }
+    : UserDefinedFunction =
+    udf("registerTemporary", execName = name) {
+      register(Some(name), _toUdf(func))
+    }
 
   /**
    * Registers a Scala closure of 14 arguments as a temporary Snowflake Java UDF that you
@@ -1076,9 +1093,10 @@ class UDFRegistration(session: Session) extends Logging {
       A14: TypeTag](
       name: String,
       func: Function14[A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, RT])
-    : UserDefinedFunction = {
-    register(Some(name), _toUdf(func))
-  }
+    : UserDefinedFunction =
+    udf("registerTemporary", execName = name) {
+      register(Some(name), _toUdf(func))
+    }
 
   /**
    * Registers a Scala closure of 15 arguments as a temporary Snowflake Java UDF that you
@@ -1106,9 +1124,10 @@ class UDFRegistration(session: Session) extends Logging {
       A15: TypeTag](
       name: String,
       func: Function15[A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15, RT])
-    : UserDefinedFunction = {
-    register(Some(name), _toUdf(func))
-  }
+    : UserDefinedFunction =
+    udf("registerTemporary", execName = name) {
+      register(Some(name), _toUdf(func))
+    }
 
   /**
    * Registers a Scala closure of 16 arguments as a temporary Snowflake Java UDF that you
@@ -1137,9 +1156,10 @@ class UDFRegistration(session: Session) extends Logging {
       A16: TypeTag](
       name: String,
       func: Function16[A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15, A16, RT])
-    : UserDefinedFunction = {
-    register(Some(name), _toUdf(func))
-  }
+    : UserDefinedFunction =
+    udf("registerTemporary", execName = name) {
+      register(Some(name), _toUdf(func))
+    }
 
   /**
    * Registers a Scala closure of 17 arguments as a temporary Snowflake Java UDF that you
@@ -1186,9 +1206,10 @@ class UDFRegistration(session: Session) extends Logging {
         A15,
         A16,
         A17,
-        RT]): UserDefinedFunction = {
-    register(Some(name), _toUdf(func))
-  }
+        RT]): UserDefinedFunction =
+    udf("registerTemporary", execName = name) {
+      register(Some(name), _toUdf(func))
+    }
 
   /**
    * Registers a Scala closure of 18 arguments as a temporary Snowflake Java UDF that you
@@ -1237,9 +1258,10 @@ class UDFRegistration(session: Session) extends Logging {
         A16,
         A17,
         A18,
-        RT]): UserDefinedFunction = {
-    register(Some(name), _toUdf(func))
-  }
+        RT]): UserDefinedFunction =
+    udf("registerTemporary", execName = name) {
+      register(Some(name), _toUdf(func))
+    }
 
   /**
    * Registers a Scala closure of 19 arguments as a temporary Snowflake Java UDF that you
@@ -1290,9 +1312,10 @@ class UDFRegistration(session: Session) extends Logging {
         A17,
         A18,
         A19,
-        RT]): UserDefinedFunction = {
-    register(Some(name), _toUdf(func))
-  }
+        RT]): UserDefinedFunction =
+    udf("registerTemporary", execName = name) {
+      register(Some(name), _toUdf(func))
+    }
 
   /**
    * Registers a Scala closure of 20 arguments as a temporary Snowflake Java UDF that you
@@ -1345,9 +1368,10 @@ class UDFRegistration(session: Session) extends Logging {
         A18,
         A19,
         A20,
-        RT]): UserDefinedFunction = {
-    register(Some(name), _toUdf(func))
-  }
+        RT]): UserDefinedFunction =
+    udf("registerTemporary", execName = name) {
+      register(Some(name), _toUdf(func))
+    }
 
   /**
    * Registers a Scala closure of 21 arguments as a temporary Snowflake Java UDF that you
@@ -1402,9 +1426,10 @@ class UDFRegistration(session: Session) extends Logging {
         A19,
         A20,
         A21,
-        RT]): UserDefinedFunction = {
-    register(Some(name), _toUdf(func))
-  }
+        RT]): UserDefinedFunction =
+    udf("registerTemporary", execName = name) {
+      register(Some(name), _toUdf(func))
+    }
 
   /**
    * Registers a Scala closure of 22 arguments as a temporary Snowflake Java UDF that you
@@ -1461,9 +1486,10 @@ class UDFRegistration(session: Session) extends Logging {
         A20,
         A21,
         A22,
-        RT]): UserDefinedFunction = {
-    register(Some(name), _toUdf(func))
-  }
+        RT]): UserDefinedFunction =
+    udf("registerTemporary", execName = name) {
+      register(Some(name), _toUdf(func))
+    }
 
   // scalastyle:off line.size.limit
   /* Code below for _toUdf 0-22 generated by this script
