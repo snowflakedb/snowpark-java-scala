@@ -1514,7 +1514,8 @@ class UDFRegistration(session: Session) extends Logging {
         | * @param stageLocation Stage location where the JAR files for the UDF and its
         | *   and its dependencies should be uploaded.
         | */
-        |def registerPermanent[$typeTags](name: String, func: Function$x[$types], stageLocation: String): UserDefinedFunction = {
+        |def registerPermanent[$typeTags](name: String, func: Function$x[$types], stageLocation: String): UserDefinedFunction =
+        | udf("registerPermanent", execName = name, execFilePath = stageLocation) {
         |  register(Some(name), _toUdf(func), Some(stageLocation))
         |}""".stripMargin)
     }
@@ -1537,9 +1538,10 @@ class UDFRegistration(session: Session) extends Logging {
   def registerPermanent[RT: TypeTag](
       name: String,
       func: Function0[RT],
-      stageLocation: String): UserDefinedFunction = {
-    register(Some(name), _toUdf(func), Some(stageLocation))
-  }
+      stageLocation: String): UserDefinedFunction =
+    udf("registerPermanent", execName = name, execFilePath = stageLocation) {
+      register(Some(name), _toUdf(func), Some(stageLocation))
+    }
 
   /**
    * Registers a Scala closure of 1 argument as a Snowflake Java UDF.
@@ -1559,9 +1561,10 @@ class UDFRegistration(session: Session) extends Logging {
   def registerPermanent[RT: TypeTag, A1: TypeTag](
       name: String,
       func: Function1[A1, RT],
-      stageLocation: String): UserDefinedFunction = {
-    register(Some(name), _toUdf(func), Some(stageLocation))
-  }
+      stageLocation: String): UserDefinedFunction =
+    udf("registerPermanent", execName = name, execFilePath = stageLocation) {
+      register(Some(name), _toUdf(func), Some(stageLocation))
+    }
 
   /**
    * Registers a Scala closure of 2 arguments as a Snowflake Java UDF.
@@ -1581,9 +1584,10 @@ class UDFRegistration(session: Session) extends Logging {
   def registerPermanent[RT: TypeTag, A1: TypeTag, A2: TypeTag](
       name: String,
       func: Function2[A1, A2, RT],
-      stageLocation: String): UserDefinedFunction = {
-    register(Some(name), _toUdf(func), Some(stageLocation))
-  }
+      stageLocation: String): UserDefinedFunction =
+    udf("registerPermanent", execName = name, execFilePath = stageLocation) {
+      register(Some(name), _toUdf(func), Some(stageLocation))
+    }
 
   /**
    * Registers a Scala closure of 3 arguments as a Snowflake Java UDF.
@@ -1603,9 +1607,10 @@ class UDFRegistration(session: Session) extends Logging {
   def registerPermanent[RT: TypeTag, A1: TypeTag, A2: TypeTag, A3: TypeTag](
       name: String,
       func: Function3[A1, A2, A3, RT],
-      stageLocation: String): UserDefinedFunction = {
-    register(Some(name), _toUdf(func), Some(stageLocation))
-  }
+      stageLocation: String): UserDefinedFunction =
+    udf("registerPermanent", execName = name, execFilePath = stageLocation) {
+      register(Some(name), _toUdf(func), Some(stageLocation))
+    }
 
   /**
    * Registers a Scala closure of 4 arguments as a Snowflake Java UDF.
@@ -1625,9 +1630,10 @@ class UDFRegistration(session: Session) extends Logging {
   def registerPermanent[RT: TypeTag, A1: TypeTag, A2: TypeTag, A3: TypeTag, A4: TypeTag](
       name: String,
       func: Function4[A1, A2, A3, A4, RT],
-      stageLocation: String): UserDefinedFunction = {
-    register(Some(name), _toUdf(func), Some(stageLocation))
-  }
+      stageLocation: String): UserDefinedFunction =
+    udf("registerPermanent", execName = name, execFilePath = stageLocation) {
+      register(Some(name), _toUdf(func), Some(stageLocation))
+    }
 
   /**
    * Registers a Scala closure of 5 arguments as a Snowflake Java UDF.
@@ -1653,9 +1659,10 @@ class UDFRegistration(session: Session) extends Logging {
       A5: TypeTag](
       name: String,
       func: Function5[A1, A2, A3, A4, A5, RT],
-      stageLocation: String): UserDefinedFunction = {
-    register(Some(name), _toUdf(func), Some(stageLocation))
-  }
+      stageLocation: String): UserDefinedFunction =
+    udf("registerPermanent", execName = name, execFilePath = stageLocation) {
+      register(Some(name), _toUdf(func), Some(stageLocation))
+    }
 
   /**
    * Registers a Scala closure of 6 arguments as a Snowflake Java UDF.
@@ -1682,9 +1689,10 @@ class UDFRegistration(session: Session) extends Logging {
       A6: TypeTag](
       name: String,
       func: Function6[A1, A2, A3, A4, A5, A6, RT],
-      stageLocation: String): UserDefinedFunction = {
-    register(Some(name), _toUdf(func), Some(stageLocation))
-  }
+      stageLocation: String): UserDefinedFunction =
+    udf("registerPermanent", execName = name, execFilePath = stageLocation) {
+      register(Some(name), _toUdf(func), Some(stageLocation))
+    }
 
   /**
    * Registers a Scala closure of 7 arguments as a Snowflake Java UDF.
@@ -1712,9 +1720,10 @@ class UDFRegistration(session: Session) extends Logging {
       A7: TypeTag](
       name: String,
       func: Function7[A1, A2, A3, A4, A5, A6, A7, RT],
-      stageLocation: String): UserDefinedFunction = {
-    register(Some(name), _toUdf(func), Some(stageLocation))
-  }
+      stageLocation: String): UserDefinedFunction =
+    udf("registerPermanent", execName = name, execFilePath = stageLocation) {
+      register(Some(name), _toUdf(func), Some(stageLocation))
+    }
 
   /**
    * Registers a Scala closure of 8 arguments as a Snowflake Java UDF.
@@ -1743,9 +1752,10 @@ class UDFRegistration(session: Session) extends Logging {
       A8: TypeTag](
       name: String,
       func: Function8[A1, A2, A3, A4, A5, A6, A7, A8, RT],
-      stageLocation: String): UserDefinedFunction = {
-    register(Some(name), _toUdf(func), Some(stageLocation))
-  }
+      stageLocation: String): UserDefinedFunction =
+    udf("registerPermanent", execName = name, execFilePath = stageLocation) {
+      register(Some(name), _toUdf(func), Some(stageLocation))
+    }
 
   /**
    * Registers a Scala closure of 9 arguments as a Snowflake Java UDF.
@@ -1775,9 +1785,10 @@ class UDFRegistration(session: Session) extends Logging {
       A9: TypeTag](
       name: String,
       func: Function9[A1, A2, A3, A4, A5, A6, A7, A8, A9, RT],
-      stageLocation: String): UserDefinedFunction = {
-    register(Some(name), _toUdf(func), Some(stageLocation))
-  }
+      stageLocation: String): UserDefinedFunction =
+    udf("registerPermanent", execName = name, execFilePath = stageLocation) {
+      register(Some(name), _toUdf(func), Some(stageLocation))
+    }
 
   /**
    * Registers a Scala closure of 10 arguments as a Snowflake Java UDF.
@@ -1808,9 +1819,10 @@ class UDFRegistration(session: Session) extends Logging {
       A10: TypeTag](
       name: String,
       func: Function10[A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, RT],
-      stageLocation: String): UserDefinedFunction = {
-    register(Some(name), _toUdf(func), Some(stageLocation))
-  }
+      stageLocation: String): UserDefinedFunction =
+    udf("registerPermanent", execName = name, execFilePath = stageLocation) {
+      register(Some(name), _toUdf(func), Some(stageLocation))
+    }
 
   /**
    * Registers a Scala closure of 11 arguments as a Snowflake Java UDF.
@@ -1842,9 +1854,10 @@ class UDFRegistration(session: Session) extends Logging {
       A11: TypeTag](
       name: String,
       func: Function11[A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, RT],
-      stageLocation: String): UserDefinedFunction = {
-    register(Some(name), _toUdf(func), Some(stageLocation))
-  }
+      stageLocation: String): UserDefinedFunction =
+    udf("registerPermanent", execName = name, execFilePath = stageLocation) {
+      register(Some(name), _toUdf(func), Some(stageLocation))
+    }
 
   /**
    * Registers a Scala closure of 12 arguments as a Snowflake Java UDF.
@@ -1877,9 +1890,10 @@ class UDFRegistration(session: Session) extends Logging {
       A12: TypeTag](
       name: String,
       func: Function12[A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, RT],
-      stageLocation: String): UserDefinedFunction = {
-    register(Some(name), _toUdf(func), Some(stageLocation))
-  }
+      stageLocation: String): UserDefinedFunction =
+    udf("registerPermanent", execName = name, execFilePath = stageLocation) {
+      register(Some(name), _toUdf(func), Some(stageLocation))
+    }
 
   /**
    * Registers a Scala closure of 13 arguments as a Snowflake Java UDF.
@@ -1913,9 +1927,10 @@ class UDFRegistration(session: Session) extends Logging {
       A13: TypeTag](
       name: String,
       func: Function13[A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, RT],
-      stageLocation: String): UserDefinedFunction = {
-    register(Some(name), _toUdf(func), Some(stageLocation))
-  }
+      stageLocation: String): UserDefinedFunction =
+    udf("registerPermanent", execName = name, execFilePath = stageLocation) {
+      register(Some(name), _toUdf(func), Some(stageLocation))
+    }
 
   /**
    * Registers a Scala closure of 14 arguments as a Snowflake Java UDF.
@@ -1950,9 +1965,10 @@ class UDFRegistration(session: Session) extends Logging {
       A14: TypeTag](
       name: String,
       func: Function14[A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, RT],
-      stageLocation: String): UserDefinedFunction = {
-    register(Some(name), _toUdf(func), Some(stageLocation))
-  }
+      stageLocation: String): UserDefinedFunction =
+    udf("registerPermanent", execName = name, execFilePath = stageLocation) {
+      register(Some(name), _toUdf(func), Some(stageLocation))
+    }
 
   /**
    * Registers a Scala closure of 15 arguments as a Snowflake Java UDF.
@@ -1988,9 +2004,10 @@ class UDFRegistration(session: Session) extends Logging {
       A15: TypeTag](
       name: String,
       func: Function15[A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15, RT],
-      stageLocation: String): UserDefinedFunction = {
-    register(Some(name), _toUdf(func), Some(stageLocation))
-  }
+      stageLocation: String): UserDefinedFunction =
+    udf("registerPermanent", execName = name, execFilePath = stageLocation) {
+      register(Some(name), _toUdf(func), Some(stageLocation))
+    }
 
   /**
    * Registers a Scala closure of 16 arguments as a Snowflake Java UDF.
@@ -2027,9 +2044,10 @@ class UDFRegistration(session: Session) extends Logging {
       A16: TypeTag](
       name: String,
       func: Function16[A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15, A16, RT],
-      stageLocation: String): UserDefinedFunction = {
-    register(Some(name), _toUdf(func), Some(stageLocation))
-  }
+      stageLocation: String): UserDefinedFunction =
+    udf("registerPermanent", execName = name, execFilePath = stageLocation) {
+      register(Some(name), _toUdf(func), Some(stageLocation))
+    }
 
   /**
    * Registers a Scala closure of 17 arguments as a Snowflake Java UDF.
@@ -2085,9 +2103,10 @@ class UDFRegistration(session: Session) extends Logging {
         A16,
         A17,
         RT],
-      stageLocation: String): UserDefinedFunction = {
-    register(Some(name), _toUdf(func), Some(stageLocation))
-  }
+      stageLocation: String): UserDefinedFunction =
+    udf("registerPermanent", execName = name, execFilePath = stageLocation) {
+      register(Some(name), _toUdf(func), Some(stageLocation))
+    }
 
   /**
    * Registers a Scala closure of 18 arguments as a Snowflake Java UDF.
@@ -2145,9 +2164,10 @@ class UDFRegistration(session: Session) extends Logging {
         A17,
         A18,
         RT],
-      stageLocation: String): UserDefinedFunction = {
-    register(Some(name), _toUdf(func), Some(stageLocation))
-  }
+      stageLocation: String): UserDefinedFunction =
+    udf("registerPermanent", execName = name, execFilePath = stageLocation) {
+      register(Some(name), _toUdf(func), Some(stageLocation))
+    }
 
   /**
    * Registers a Scala closure of 19 arguments as a Snowflake Java UDF.
@@ -2207,9 +2227,10 @@ class UDFRegistration(session: Session) extends Logging {
         A18,
         A19,
         RT],
-      stageLocation: String): UserDefinedFunction = {
-    register(Some(name), _toUdf(func), Some(stageLocation))
-  }
+      stageLocation: String): UserDefinedFunction =
+    udf("registerPermanent", execName = name, execFilePath = stageLocation) {
+      register(Some(name), _toUdf(func), Some(stageLocation))
+    }
 
   /**
    * Registers a Scala closure of 20 arguments as a Snowflake Java UDF.
@@ -2271,9 +2292,10 @@ class UDFRegistration(session: Session) extends Logging {
         A19,
         A20,
         RT],
-      stageLocation: String): UserDefinedFunction = {
-    register(Some(name), _toUdf(func), Some(stageLocation))
-  }
+      stageLocation: String): UserDefinedFunction =
+    udf("registerPermanent", execName = name, execFilePath = stageLocation) {
+      register(Some(name), _toUdf(func), Some(stageLocation))
+    }
 
   /**
    * Registers a Scala closure of 21 arguments as a Snowflake Java UDF.
@@ -2337,9 +2359,10 @@ class UDFRegistration(session: Session) extends Logging {
         A20,
         A21,
         RT],
-      stageLocation: String): UserDefinedFunction = {
-    register(Some(name), _toUdf(func), Some(stageLocation))
-  }
+      stageLocation: String): UserDefinedFunction =
+    udf("registerPermanent", execName = name, execFilePath = stageLocation) {
+      register(Some(name), _toUdf(func), Some(stageLocation))
+    }
 
   /**
    * Registers a Scala closure of 22 arguments as a Snowflake Java UDF.
@@ -2405,9 +2428,10 @@ class UDFRegistration(session: Session) extends Logging {
         A21,
         A22,
         RT],
-      stageLocation: String): UserDefinedFunction = {
-    register(Some(name), _toUdf(func), Some(stageLocation))
-  }
+      stageLocation: String): UserDefinedFunction =
+    udf("registerPermanent", execName = name, execFilePath = stageLocation) {
+      register(Some(name), _toUdf(func), Some(stageLocation))
+    }
 
   private[snowpark] def register(
       name: Option[String],
