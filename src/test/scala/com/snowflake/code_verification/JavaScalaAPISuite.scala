@@ -91,6 +91,8 @@ class JavaScalaAPISuite extends FunSuite {
         class2Only = Set(
           // package private functions
           "getUnaliased",
+          "methodChainCache",
+          "buildMethodChain",
           "generatePrefix") ++ scalaCaseClassFunctions))
   }
 
