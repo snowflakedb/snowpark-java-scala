@@ -98,35 +98,39 @@ public class JavaOpenTelemetrySuite extends JavaOpenTelemetryEnabled {
 
   @Test
   public void DataFrameAsyncActor() {
+    String className = "snow.snowpark.DataFrameAsyncActor";
     DataFrame df = getSession().sql("select * from values(1),(2),(3) as t(num)");
     df.async().collect();
-    checkSpan("snow.snowpark.DataFrameAsyncActor", "collect");
+    checkSpan(className, "collect", "DataFrame.async.collect");
     df.async().toLocalIterator();
-    checkSpan("snow.snowpark.DataFrameAsyncActor", "toLocalIterator");
+    checkSpan(className, "toLocalIterator", "DataFrame.async.toLocalIterator");
     df.async().count();
-    checkSpan("snow.snowpark.DataFrameAsyncActor", "count");
+    checkSpan(className, "count", "DataFrame.async.count");
   }
 
   @Test
   public void dataFrameStatFunctionsCorr() {
     DataFrame df = getSession().sql("select * from values(0.1, 0.5) as t(a, b)");
+    String className = "snow.snowpark.DataFrameStatFunctions";
     df.stat().corr("a", "b");
-    checkSpan("snow.snowpark.DataFrameStatFunctions", "corr");
+    checkSpan(className, "corr", "DataFrame.stat.corr");
   }
 
   @Test
   public void dataFrameStatFunctionsCov() {
     DataFrame df = getSession().sql("select * from values(0.1, 0.5) as t(a, b)");
+    String className = "snow.snowpark.DataFrameStatFunctions";
     df.stat().cov("a", "b");
-    checkSpan("snow.snowpark.DataFrameStatFunctions", "cov");
+    checkSpan(className, "cov", "DataFrame.stat.cov");
   }
 
   @Test
   public void dataFrameStatFunctionsApproxQuantile() {
     DataFrame df = getSession().sql("select * from values(1), (2) as t(a)");
     double[] values = {0, 0.1, 0.4, 0.6, 1};
+    String className = "snow.snowpark.DataFrameStatFunctions";
     df.stat().approxQuantile("a", values);
-    checkSpan("snow.snowpark.DataFrameStatFunctions", "approxQuantile");
+    checkSpan(className, "approxQuantile", "DataFrame.stat.approxQuantile");
   }
 
   @Test
@@ -134,15 +138,17 @@ public class JavaOpenTelemetrySuite extends JavaOpenTelemetryEnabled {
     DataFrame df = getSession().sql("select * from values(0.1, 0.5) as t(a, b)");
     double[] values = {0, 0.1, 0.6};
     String[] cols = {"a", "b"};
+    String className = "snow.snowpark.DataFrameStatFunctions";
     df.stat().approxQuantile(cols, values);
-    checkSpan("snow.snowpark.DataFrameStatFunctions", "approxQuantile");
+    checkSpan(className, "approxQuantile", "DataFrame.stat.approxQuantile");
   }
 
   @Test
   public void dataFrameStatFunctionsCrosstab() {
     DataFrame df = getSession().sql("select * from values(0.1, 0.5) as t(a, b)");
+    String className = "snow.snowpark.DataFrameStatFunctions";
     df.stat().crosstab("a", "b");
-    checkSpan("snow.snowpark.DataFrameStatFunctions", "crosstab");
+    checkSpan(className, "crosstab", "DataFrame.stat.crosstab");
   }
 
   @Test
@@ -152,8 +158,9 @@ public class JavaOpenTelemetrySuite extends JavaOpenTelemetryEnabled {
       createTempStage(name);
       testSpanExporter.reset();
       DataFrame df = getSession().sql("select * from values(1),(2),(3) as t(num)");
+      String className = "snow.snowpark.DataFrameWriter";
       df.write().csv("@" + name + "/csv");
-      checkSpan("snow.snowpark.DataFrameWriter", "csv");
+      checkSpan(className, "csv", "DataFrame.writer.csv");
     } finally {
       dropStage(name);
     }
@@ -165,12 +172,13 @@ public class JavaOpenTelemetrySuite extends JavaOpenTelemetryEnabled {
     try {
       createTempStage(name);
       testSpanExporter.reset();
+      String className = "snow.snowpark.DataFrameWriter";
       DataFrame df = getSession().sql("select * from values(1, 2) as t(a, b)");
       DataFrame df2 =
           df.select(
               com.snowflake.snowpark_java.Functions.array_construct(df.col("a"), df.col("b")));
       df2.write().json("@" + name + "/json");
-      checkSpan("snow.snowpark.DataFrameWriter", "json");
+      checkSpan(className, "json", "DataFrame.select.writer.json");
     } finally {
       dropStage(name);
     }
@@ -182,9 +190,10 @@ public class JavaOpenTelemetrySuite extends JavaOpenTelemetryEnabled {
     try {
       createTempStage(name);
       testSpanExporter.reset();
+      String className = "snow.snowpark.DataFrameWriter";
       DataFrame df = getSession().sql("select * from values(1),(2),(3) as t(num)");
       df.write().parquet("@" + name + "/parquet");
-      checkSpan("snow.snowpark.DataFrameWriter", "parquet");
+      checkSpan(className, "parquet", "DataFrame.writer.parquet");
     } finally {
       dropStage(name);
     }
@@ -194,9 +203,10 @@ public class JavaOpenTelemetrySuite extends JavaOpenTelemetryEnabled {
   public void dataFrameWriterSaveAsTable() {
     String name = randomName();
     DataFrame df = getSession().sql("select * from values(1),(2),(3) as t(num)");
+    String className = "snow.snowpark.DataFrameWriter";
     try {
       df.write().saveAsTable(name);
-      checkSpan("snow.snowpark.DataFrameWriter", "saveAsTable");
+      checkSpan(className, "saveAsTable", "DataFrame.writer.saveAsTable");
     } finally {
       dropTable(name);
     }
@@ -204,7 +214,7 @@ public class JavaOpenTelemetrySuite extends JavaOpenTelemetryEnabled {
       String[] names = {name};
       testSpanExporter.reset();
       df.write().saveAsTable(names);
-      checkSpan("snow.snowpark.DataFrameWriter", "saveAsTable");
+      checkSpan(className, "saveAsTable", "DataFrame.writer.saveAsTable");
     } finally {
       dropTable(name);
     }
@@ -214,9 +224,10 @@ public class JavaOpenTelemetrySuite extends JavaOpenTelemetryEnabled {
   public void dataFrameWriterAsyncActorSaveAsTable() {
     String name = randomName();
     DataFrame df = getSession().sql("select * from values(1),(2),(3) as t(num)");
+    String className = "snow.snowpark.DataFrameWriterAsyncActor";
     try {
       df.write().async().saveAsTable(name).getResult();
-      checkSpan("snow.snowpark.DataFrameWriterAsyncActor", "saveAsTable");
+      checkSpan(className, "saveAsTable", "DataFrame.writer.async.saveAsTable");
     } finally {
       dropTable(name);
     }
@@ -224,7 +235,7 @@ public class JavaOpenTelemetrySuite extends JavaOpenTelemetryEnabled {
       String[] names = {name};
       testSpanExporter.reset();
       df.write().async().saveAsTable(names).getResult();
-      checkSpan("snow.snowpark.DataFrameWriterAsyncActor", "saveAsTable");
+      checkSpan(className, "saveAsTable", "DataFrame.writer.async.saveAsTable");
     } finally {
       dropTable(name);
     }
@@ -236,9 +247,10 @@ public class JavaOpenTelemetrySuite extends JavaOpenTelemetryEnabled {
     try {
       createTempStage(name);
       testSpanExporter.reset();
+      String className = "snow.snowpark.DataFrameWriterAsyncActor";
       DataFrame df = getSession().sql("select * from values(1),(2),(3) as t(num)");
       df.write().async().csv("@" + name + "/csv").getResult();
-      checkSpan("snow.snowpark.DataFrameWriterAsyncActor", "csv");
+      checkSpan(className, "csv", "DataFrame.writer.async.csv");
     } finally {
       dropStage(name);
     }
@@ -250,12 +262,13 @@ public class JavaOpenTelemetrySuite extends JavaOpenTelemetryEnabled {
     try {
       createTempStage(name);
       testSpanExporter.reset();
+      String className = "snow.snowpark.DataFrameWriterAsyncActor";
       DataFrame df = getSession().sql("select * from values(1, 2) as t(a, b)");
       DataFrame df2 =
           df.select(
               com.snowflake.snowpark_java.Functions.array_construct(df.col("a"), df.col("b")));
       df2.write().async().json("@" + name + "/json").getResult();
-      checkSpan("snow.snowpark.DataFrameWriterAsyncActor", "json");
+      checkSpan(className, "json", "DataFrame.select.writer.async.json");
     } finally {
       dropStage(name);
     }
@@ -267,9 +280,10 @@ public class JavaOpenTelemetrySuite extends JavaOpenTelemetryEnabled {
     try {
       createTempStage(name);
       testSpanExporter.reset();
+      String className = "snow.snowpark.DataFrameWriterAsyncActor";
       DataFrame df = getSession().sql("select * from values(1),(2),(3) as t(num)");
       df.write().async().parquet("@" + name + "/parquet").getResult();
-      checkSpan("snow.snowpark.DataFrameWriterAsyncActor", "parquet");
+      checkSpan(className, "parquet", "DataFrame.writer.async.parquet");
     } finally {
       dropStage(name);
     }
@@ -349,7 +363,7 @@ public class JavaOpenTelemetrySuite extends JavaOpenTelemetryEnabled {
               .csv("@" + stageName + "/" + TestFiles.testFileCsv)
               .async();
       df1.copyInto(tableName).getResult();
-      checkSpan(className, "copyInto");
+      checkSpan(className, "copyInto", "DataFrame.async.copyInto");
       Column[] transformation = {Functions.col("$1"), Functions.col("$2"), Functions.col("$3")};
       CopyableDataFrameAsyncActor df2 =
           getSession()
@@ -358,7 +372,7 @@ public class JavaOpenTelemetrySuite extends JavaOpenTelemetryEnabled {
               .csv("@" + stageName + "/" + TestFiles.testFileCsv)
               .async();
       df2.copyInto(tableName, transformation).getResult();
-      checkSpan(className, "copyInto");
+      checkSpan(className, "copyInto", "DataFrame.async.copyInto");
       Map<String, Object> options = new HashMap<>();
       options.put("skip_header", 1);
       options.put("FORCE", "true");
@@ -369,7 +383,7 @@ public class JavaOpenTelemetrySuite extends JavaOpenTelemetryEnabled {
               .csv("@" + stageName + "/" + TestFiles.testFileCsv)
               .async();
       df3.copyInto(tableName, transformation, options).getResult();
-      checkSpan(className, "copyInto");
+      checkSpan(className, "copyInto", "DataFrame.async.copyInto");
       String[] columns = {"a", "b", "c"};
       CopyableDataFrameAsyncActor df4 =
           getSession()
@@ -378,7 +392,7 @@ public class JavaOpenTelemetrySuite extends JavaOpenTelemetryEnabled {
               .csv("@" + stageName + "/" + TestFiles.testFileCsv)
               .async();
       df4.copyInto(tableName, columns, transformation, options).getResult();
-      checkSpan(className, "copyInto");
+      checkSpan(className, "copyInto", "DataFrame.async.copyInto");
     } finally {
       dropTable(tableName);
       dropStage(stageName);
@@ -454,23 +468,23 @@ public class JavaOpenTelemetrySuite extends JavaOpenTelemetryEnabled {
       map1.put("col1", Functions.lit(3));
       UpdatableAsyncActor df1 = getSession().table(tableName).async();
       df1.update(map).getResult();
-      checkSpan(className, "update");
+      checkSpan(className, "update", "DataFrame.async.update");
       df1.updateColumn(map1).getResult();
-      checkSpan(className, "update");
+      checkSpan(className, "update", "DataFrame.async.update");
       df1.update(map, Functions.col("col3").equal_to(Functions.lit(true))).getResult();
-      checkSpan(className, "update");
+      checkSpan(className, "update", "DataFrame.async.update");
       df1.updateColumn(map1, Functions.col("col3").equal_to(Functions.lit(true))).getResult();
-      checkSpan(className, "update");
+      checkSpan(className, "update", "DataFrame.async.update");
       df1.update(map, Functions.col("col1").equal_to(df.col("a")), df);
-      checkSpan(className, "update");
+      checkSpan(className, "update", "DataFrame.async.update");
       df1.updateColumn(map1, Functions.col("col1").equal_to(df.col("a")), df);
-      checkSpan(className, "update");
+      checkSpan(className, "update", "DataFrame.async.update");
       df1.delete().getResult();
-      checkSpan(className, "delete");
+      checkSpan(className, "delete", "DataFrame.async.delete");
       df1.delete(Functions.col("col1").equal_to(Functions.lit(1))).getResult();
-      checkSpan(className, "delete");
+      checkSpan(className, "delete", "DataFrame.async.delete");
       df1.delete(Functions.col("col1").equal_to(df.col("a")), df).getResult();
-      checkSpan(className, "delete");
+      checkSpan(className, "delete", "DataFrame.async.delete");
     } finally {
       dropTable(tableName);
     }
@@ -491,13 +505,14 @@ public class JavaOpenTelemetrySuite extends JavaOpenTelemetryEnabled {
       testSpanExporter.reset();
       Map<Column, Column> assignments = new HashMap<>();
       assignments.put(Functions.col("col1"), df.col("b"));
+      String className = "snow.snowpark.MergeBuilder";
       getSession()
           .table(tableName)
           .merge(df, Functions.col("col1").equal_to(df.col("a")))
           .whenMatched()
           .update(assignments)
           .collect();
-      checkSpan("snow.snowpark.MergeBuilder", "collect");
+      checkSpan(className, "collect", "DataFrame.merge.collect");
     } finally {
       dropTable(tableName);
     }
@@ -525,8 +540,9 @@ public class JavaOpenTelemetrySuite extends JavaOpenTelemetryEnabled {
               .whenMatched()
               .update(assignments)
               .async();
+      String className = "snow.snowpark.MergeBuilderAsyncActor";
       builderAsyncActor.collect().getResult();
-      checkSpan("snow.snowpark.MergeBuilderAsyncActor", "collect");
+      checkSpan(className, "collect", "DataFrame.merge.async.collect");
     } finally {
       dropTable(tableName);
     }

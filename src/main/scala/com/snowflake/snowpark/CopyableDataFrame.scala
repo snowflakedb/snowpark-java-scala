@@ -363,7 +363,9 @@ class CopyableDataFrameAsyncActor private[snowpark] (cdf: CopyableDataFrame)
   @inline override protected def action[T](funcName: String)(func: => T): T = {
     val isScala: Boolean = cdf.session.conn.isScalaAPI
     OpenTelemetry.action(
-      "CopyableDataFrameAsyncActor", funcName, cdf.methodChainString + ".async", isScala)(
-      func)
+      "CopyableDataFrameAsyncActor",
+      funcName,
+      cdf.methodChainString + ".async",
+      isScala)(func)
   }
 }
