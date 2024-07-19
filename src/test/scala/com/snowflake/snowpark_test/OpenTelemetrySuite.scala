@@ -1,7 +1,7 @@
 package com.snowflake.snowpark_test
 
 import com.snowflake.snowpark.{MergeResult, OpenTelemetryEnabled, SaveMode, UpdateResult}
-import com.snowflake.snowpark.internal.OpenTelemetry
+import com.snowflake.snowpark.internal.{OpenTelemetry, ActionInfo}
 import com.snowflake.snowpark.functions._
 import com.snowflake.snowpark.types.{DoubleType, IntegerType, StringType, StructField, StructType}
 
@@ -430,7 +430,7 @@ class OpenTelemetrySuite extends OpenTelemetryEnabled {
   }
 
   test("OpenTelemetry.emit") {
-    OpenTelemetry.emit("ClassA", "functionB", "fileC", 123, "chainD")
+    OpenTelemetry.emit(ActionInfo("ClassA", "functionB", "fileC", 123, "chainD"))
     checkSpan("snow.snowpark.ClassA", "functionB", "fileC", 123, "chainD")
   }
 
