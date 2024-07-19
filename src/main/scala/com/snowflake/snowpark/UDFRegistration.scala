@@ -69,7 +69,7 @@ class UDFRegistration(session: Session) extends Logging {
       val typeTags = (1 to x).map(i => s"A$i: TypeTag").foldLeft("RT: TypeTag")(_ + ", " + _)
       println(s"""
         |/**
-        | * Registers a Scala closure of $x arguments as a temporary anonymous UDF that is
+        | * Registers a Scala closure of $x argument(s) as a temporary anonymous UDF that is
         | * scoped to this session.
         | *
         | * @tparam RT Return type of the UDF.
@@ -83,7 +83,7 @@ class UDFRegistration(session: Session) extends Logging {
    */
 
   /**
-   * Registers a Scala closure of 0 arguments as a temporary anonymous UDF that is
+   * Registers a Scala closure of 0 argument(s) as a temporary anonymous UDF that is
    * scoped to this session.
    *
    * @tparam RT Return type of the UDF.
@@ -95,7 +95,7 @@ class UDFRegistration(session: Session) extends Logging {
     }
 
   /**
-   * Registers a Scala closure of 1 arguments as a temporary anonymous UDF that is
+   * Registers a Scala closure of 1 argument(s) as a temporary anonymous UDF that is
    * scoped to this session.
    *
    * @tparam RT Return type of the UDF.
@@ -107,7 +107,7 @@ class UDFRegistration(session: Session) extends Logging {
     }
 
   /**
-   * Registers a Scala closure of 2 arguments as a temporary anonymous UDF that is
+   * Registers a Scala closure of 2 argument(s) as a temporary anonymous UDF that is
    * scoped to this session.
    *
    * @tparam RT Return type of the UDF.
@@ -120,7 +120,7 @@ class UDFRegistration(session: Session) extends Logging {
     }
 
   /**
-   * Registers a Scala closure of 3 arguments as a temporary anonymous UDF that is
+   * Registers a Scala closure of 3 argument(s) as a temporary anonymous UDF that is
    * scoped to this session.
    *
    * @tparam RT Return type of the UDF.
@@ -133,7 +133,7 @@ class UDFRegistration(session: Session) extends Logging {
     }
 
   /**
-   * Registers a Scala closure of 4 arguments as a temporary anonymous UDF that is
+   * Registers a Scala closure of 4 argument(s) as a temporary anonymous UDF that is
    * scoped to this session.
    *
    * @tparam RT Return type of the UDF.
@@ -146,7 +146,7 @@ class UDFRegistration(session: Session) extends Logging {
     }
 
   /**
-   * Registers a Scala closure of 5 arguments as a temporary anonymous UDF that is
+   * Registers a Scala closure of 5 argument(s) as a temporary anonymous UDF that is
    * scoped to this session.
    *
    * @tparam RT Return type of the UDF.
@@ -164,7 +164,7 @@ class UDFRegistration(session: Session) extends Logging {
     }
 
   /**
-   * Registers a Scala closure of 6 arguments as a temporary anonymous UDF that is
+   * Registers a Scala closure of 6 argument(s) as a temporary anonymous UDF that is
    * scoped to this session.
    *
    * @tparam RT Return type of the UDF.
@@ -183,7 +183,7 @@ class UDFRegistration(session: Session) extends Logging {
     }
 
   /**
-   * Registers a Scala closure of 7 arguments as a temporary anonymous UDF that is
+   * Registers a Scala closure of 7 argument(s) as a temporary anonymous UDF that is
    * scoped to this session.
    *
    * @tparam RT Return type of the UDF.
@@ -203,7 +203,7 @@ class UDFRegistration(session: Session) extends Logging {
     }
 
   /**
-   * Registers a Scala closure of 8 arguments as a temporary anonymous UDF that is
+   * Registers a Scala closure of 8 argument(s) as a temporary anonymous UDF that is
    * scoped to this session.
    *
    * @tparam RT Return type of the UDF.
@@ -224,7 +224,7 @@ class UDFRegistration(session: Session) extends Logging {
     }
 
   /**
-   * Registers a Scala closure of 9 arguments as a temporary anonymous UDF that is
+   * Registers a Scala closure of 9 argument(s) as a temporary anonymous UDF that is
    * scoped to this session.
    *
    * @tparam RT Return type of the UDF.
@@ -246,7 +246,7 @@ class UDFRegistration(session: Session) extends Logging {
     }
 
   /**
-   * Registers a Scala closure of 10 arguments as a temporary anonymous UDF that is
+   * Registers a Scala closure of 10 argument(s) as a temporary anonymous UDF that is
    * scoped to this session.
    *
    * @tparam RT Return type of the UDF.
@@ -270,7 +270,7 @@ class UDFRegistration(session: Session) extends Logging {
     }
 
   /**
-   * Registers a Scala closure of 11 arguments as a temporary anonymous UDF that is
+   * Registers a Scala closure of 11 argument(s) as a temporary anonymous UDF that is
    * scoped to this session.
    *
    * @tparam RT Return type of the UDF.
@@ -295,7 +295,7 @@ class UDFRegistration(session: Session) extends Logging {
     }
 
   /**
-   * Registers a Scala closure of 12 arguments as a temporary anonymous UDF that is
+   * Registers a Scala closure of 12 argument(s) as a temporary anonymous UDF that is
    * scoped to this session.
    *
    * @tparam RT Return type of the UDF.
@@ -321,7 +321,7 @@ class UDFRegistration(session: Session) extends Logging {
     }
 
   /**
-   * Registers a Scala closure of 13 arguments as a temporary anonymous UDF that is
+   * Registers a Scala closure of 13 argument(s) as a temporary anonymous UDF that is
    * scoped to this session.
    *
    * @tparam RT Return type of the UDF.
@@ -348,7 +348,7 @@ class UDFRegistration(session: Session) extends Logging {
     }
 
   /**
-   * Registers a Scala closure of 14 arguments as a temporary anonymous UDF that is
+   * Registers a Scala closure of 14 argument(s) as a temporary anonymous UDF that is
    * scoped to this session.
    *
    * @tparam RT Return type of the UDF.
@@ -377,7 +377,7 @@ class UDFRegistration(session: Session) extends Logging {
     }
 
   /**
-   * Registers a Scala closure of 15 arguments as a temporary anonymous UDF that is
+   * Registers a Scala closure of 15 argument(s) as a temporary anonymous UDF that is
    * scoped to this session.
    *
    * @tparam RT Return type of the UDF.
@@ -407,7 +407,7 @@ class UDFRegistration(session: Session) extends Logging {
     }
 
   /**
-   * Registers a Scala closure of 16 arguments as a temporary anonymous UDF that is
+   * Registers a Scala closure of 16 argument(s) as a temporary anonymous UDF that is
    * scoped to this session.
    *
    * @tparam RT Return type of the UDF.
@@ -438,7 +438,7 @@ class UDFRegistration(session: Session) extends Logging {
     }
 
   /**
-   * Registers a Scala closure of 17 arguments as a temporary anonymous UDF that is
+   * Registers a Scala closure of 17 argument(s) as a temporary anonymous UDF that is
    * scoped to this session.
    *
    * @tparam RT Return type of the UDF.
@@ -487,7 +487,7 @@ class UDFRegistration(session: Session) extends Logging {
     }
 
   /**
-   * Registers a Scala closure of 18 arguments as a temporary anonymous UDF that is
+   * Registers a Scala closure of 18 argument(s) as a temporary anonymous UDF that is
    * scoped to this session.
    *
    * @tparam RT Return type of the UDF.
@@ -538,7 +538,7 @@ class UDFRegistration(session: Session) extends Logging {
     }
 
   /**
-   * Registers a Scala closure of 19 arguments as a temporary anonymous UDF that is
+   * Registers a Scala closure of 19 argument(s) as a temporary anonymous UDF that is
    * scoped to this session.
    *
    * @tparam RT Return type of the UDF.
@@ -591,7 +591,7 @@ class UDFRegistration(session: Session) extends Logging {
     }
 
   /**
-   * Registers a Scala closure of 20 arguments as a temporary anonymous UDF that is
+   * Registers a Scala closure of 20 argument(s) as a temporary anonymous UDF that is
    * scoped to this session.
    *
    * @tparam RT Return type of the UDF.
@@ -646,7 +646,7 @@ class UDFRegistration(session: Session) extends Logging {
     }
 
   /**
-   * Registers a Scala closure of 21 arguments as a temporary anonymous UDF that is
+   * Registers a Scala closure of 21 argument(s) as a temporary anonymous UDF that is
    * scoped to this session.
    *
    * @tparam RT Return type of the UDF.
@@ -703,7 +703,7 @@ class UDFRegistration(session: Session) extends Logging {
     }
 
   /**
-   * Registers a Scala closure of 22 arguments as a temporary anonymous UDF that is
+   * Registers a Scala closure of 22 argument(s) as a temporary anonymous UDF that is
    * scoped to this session.
    *
    * @tparam RT Return type of the UDF.
