@@ -2445,6 +2445,12 @@ class UDFRegistration(session: Session) extends Logging {
       execName: String = "",
       execFilePath: String = "",
       offset: Int = 0)(func: => UserDefinedFunction): UserDefinedFunction = {
-    OpenTelemetry.udf("UDFRegistration", funcName, execName, "", execFilePath, offset)(func)
+    OpenTelemetry.udf(
+      "UDFRegistration",
+      funcName,
+      execName,
+      s"${handler.className}.${handler.methodName}",
+      execFilePath,
+      offset)(func)
   }
 }

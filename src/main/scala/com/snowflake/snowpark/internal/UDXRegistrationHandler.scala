@@ -29,9 +29,9 @@ import scala.util.Random
 
 class UDXRegistrationHandler(session: Session) extends Logging {
   // Class name for generated Java code
-  private val className = "SnowUDF"
+  private[snowpark] val className = "SnowUDF"
   // Method name for generated Java code
-  private val methodName = "compute"
+  private[snowpark] val methodName = "compute"
   private val udtfClassName = "SnowparkGeneratedUDTF"
   private val jarBuilder = new FatJarBuilder()
 

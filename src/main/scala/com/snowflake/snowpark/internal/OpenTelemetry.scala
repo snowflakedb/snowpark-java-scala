@@ -8,7 +8,7 @@ import scala.util.DynamicVariable
 
 object OpenTelemetry extends Logging {
 
-  private val udfInfo = new DynamicVariable[Option[UdfInfo]](None)
+  private val spanInfo = new DynamicVariable[Option[SpanInfo]](None)
 
   def udf(
       className: String,
@@ -18,7 +18,7 @@ object OpenTelemetry extends Logging {
       execFilePath: String,
       stackOffset: Int)(func: => UserDefinedFunction): UserDefinedFunction = {
     try {
-      udfInfo.withValue[UserDefinedFunction](udfInfo.value match {
+      spanInfo.withValue[UserDefinedFunction](spanInfo.value match {
         // empty info means this is the entry of the recursion
         case None =>
           val stacks = Thread.currentThread().getStackTrace
@@ -39,7 +39,7 @@ object OpenTelemetry extends Logging {
         case other => other
       }) {
         val result: UserDefinedFunction = func
-        OpenTelemetry.emit(udfInfo.value.get)
+        OpenTelemetry.emit(spanInfo.value.get)
         result
       }
     } catch {
@@ -49,9 +49,6 @@ object OpenTelemetry extends Logging {
     }
   }
 
-  // only report the top function info in case of recursion.
-  private val actionInfo = new DynamicVariable[Option[ActionInfo]](None)
-
   // wrapper of all action functions
   def action[T](
       className: String,
@@ -60,7 +57,7 @@ object OpenTelemetry extends Logging {
       isScala: Boolean,
       javaOffSet: Int = 0)(func: => T): T = {
     try {
-      actionInfo.withValue[T](actionInfo.value match {
+      spanInfo.withValue[T](spanInfo.value match {
         // empty info means this is the entry of the recursion
         case None =>
           val stacks = Thread.currentThread().getStackTrace
@@ -73,7 +70,7 @@ object OpenTelemetry extends Logging {
         case other => other
       }) {
         val result: T = func
-        OpenTelemetry.emit(actionInfo.value.get)
+        OpenTelemetry.emit(spanInfo.value.get)
         result
       }
     } catch {
@@ -83,25 +80,19 @@ object OpenTelemetry extends Logging {
     }
   }
 
-  // class name format: snow.snowpark.<class name>
-  // method chain: Dataframe.filter.join.select.collect
-  def emit(spanInfo: ActionInfo): Unit =
-    emit(spanInfo.className, spanInfo.funcName) { span =>
+  def emit(info: SpanInfo): Unit =
+    emit(info.className, info.funcName) { span =>
       {
-        span.setAttribute("code.filepath", spanInfo.fileName)
-        span.setAttribute("code.lineno", spanInfo.lineNumber)
-        span.setAttribute("method.chain", spanInfo.methodChain)
-      }
-    }
-
-  def emit(udfInfo: UdfInfo): Unit =
-    emit(udfInfo.className, udfInfo.funcName) { span =>
-      {
-        span.setAttribute("code.filepath", udfInfo.fileName)
-        span.setAttribute("code.lineno", udfInfo.lineNumber)
-        span.setAttribute("snow.executable.name", udfInfo.execName)
-        span.setAttribute("snow.executable.handler", udfInfo.execHandler)
-        span.setAttribute("snow.executable.filepath", udfInfo.execFilePath)
+        span.setAttribute("code.filepath", info.fileName)
+        span.setAttribute("code.lineno", info.lineNumber)
+        info match {
+          case ActionInfo(_, _, _, _, methodChain) =>
+            span.setAttribute("method.chain", methodChain)
+          case UdfInfo(_, _, _, _, execName, execHandler, execFilePath) =>
+            span.setAttribute("snow.executable.name", execName)
+            span.setAttribute("snow.executable.handler", execHandler)
+            span.setAttribute("snow.executable.filepath", execFilePath)
+        }
       }
     }
 
@@ -135,18 +126,27 @@ object OpenTelemetry extends Logging {
 
 }
 
+trait SpanInfo {
+  val className: String
+  val funcName: String
+  val fileName: String
+  val lineNumber: Int
+}
+
 case class ActionInfo(
-    className: String,
-    funcName: String,
-    fileName: String,
-    lineNumber: Int,
+    override val className: String,
+    override val funcName: String,
+    override val fileName: String,
+    override val lineNumber: Int,
     methodChain: String)
+    extends SpanInfo
 
 case class UdfInfo(
-    className: String,
-    funcName: String,
-    fileName: String,
-    lineNumber: Int,
+    override val className: String,
+    override val funcName: String,
+    override val fileName: String,
+    override val lineNumber: Int,
     execName: String,
     execHandler: String,
     execFilePath: String)
+    extends SpanInfo
