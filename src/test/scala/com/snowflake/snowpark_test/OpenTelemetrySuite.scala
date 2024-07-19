@@ -291,6 +291,7 @@ class OpenTelemetrySuite extends OpenTelemetryEnabled {
   test("line number - CopyableDataFrameAsyncActor") {
     val stageName = randomName()
     val tableName = randomName()
+    val className = "snow.snowpark.CopyableDataFrameAsyncActor"
     val userSchema: StructType = StructType(
       Seq(
         StructField("a", IntegerType),
@@ -304,14 +305,14 @@ class OpenTelemetrySuite extends OpenTelemetryEnabled {
       testSpanExporter.reset()
       val df = session.read.schema(userSchema).csv(testFileOnStage)
       df.async.copyInto(tableName).getResult()
-      checkSpan("snow.snowpark.CopyableDataFrameAsyncActor", "copyInto")
+      checkSpan(className, "copyInto", "DataFrame.async.copyInto")
       df.async.copyInto(tableName, Seq(col("$1"), col("$2"), col("$3"))).getResult()
-      checkSpan("snow.snowpark.CopyableDataFrameAsyncActor", "copyInto")
+      checkSpan(className, "copyInto", "DataFrame.async.copyInto")
       val seq1 = Seq(col("$1"), col("$2"), col("$3"))
       df.async.copyInto(tableName, seq1, Map("FORCE" -> "TRUE")).getResult()
-      checkSpan("snow.snowpark.CopyableDataFrameAsyncActor", "copyInto")
+      checkSpan(className, "copyInto", "DataFrame.async.copyInto")
       df.async.copyInto(tableName, Seq("a", "b", "c"), seq1, Map.empty).getResult()
-      checkSpan("snow.snowpark.CopyableDataFrameAsyncActor", "copyInto")
+      checkSpan(className, "copyInto", "DataFrame.async.copyInto")
     } finally {
       dropStage(stageName)
       dropTable(tableName)
@@ -356,6 +357,7 @@ class OpenTelemetrySuite extends OpenTelemetryEnabled {
   test("line number - UpdatableAsyncActor") {
     val tableName = randomName()
     val tableName2 = randomName()
+    val className = "snow.snowpark.UpdatableAsyncActor"
     try {
       testData2.write.mode(SaveMode.Overwrite).saveAsTable(tableName)
       val updatable = session.table(tableName)
@@ -363,23 +365,23 @@ class OpenTelemetrySuite extends OpenTelemetryEnabled {
       val t2 = session.table(tableName2)
       testSpanExporter.reset()
       updatable.async.update(Map(col("a") -> lit(1), col("b") -> lit(0))).getResult()
-      checkSpan("snow.snowpark.UpdatableAsyncActor", "update")
+      checkSpan(className, "update", "DataFrame.async.update")
       updatable.async.update(Map("b" -> (col("a") + col("b")))).getResult()
-      checkSpan("snow.snowpark.UpdatableAsyncActor", "update")
+      checkSpan(className, "update", "DataFrame.async.update")
       updatable.async.update(Map(col("b") -> lit(0)), col("a") === 1).getResult()
-      checkSpan("snow.snowpark.UpdatableAsyncActor", "update")
+      checkSpan(className, "update", "DataFrame.async.update")
       updatable.async.update(Map("b" -> lit(0)), col("a") === 1).getResult()
-      checkSpan("snow.snowpark.UpdatableAsyncActor", "update")
+      checkSpan(className, "update", "DataFrame.async.update")
       t2.async.update(Map(col("n") -> lit(0)), updatable("a") === t2("n"), updatable).getResult()
-      checkSpan("snow.snowpark.UpdatableAsyncActor", "update")
+      checkSpan(className, "update", "DataFrame.async.update")
       t2.async.update(Map("n" -> lit(0)), updatable("a") === t2("n"), updatable).getResult()
-      checkSpan("snow.snowpark.UpdatableAsyncActor", "update")
+      checkSpan(className, "update", "DataFrame.async.update")
       updatable.async.delete().getResult()
-      checkSpan("snow.snowpark.UpdatableAsyncActor", "delete")
+      checkSpan(className, "delete", "DataFrame.async.delete")
       updatable.async.delete(col("a") === 1 && col("b") === 2).getResult()
-      checkSpan("snow.snowpark.UpdatableAsyncActor", "delete")
+      checkSpan(className, "delete", "DataFrame.async.delete")
       t2.async.delete(updatable("a") === t2("n"), updatable).getResult()
-      checkSpan("snow.snowpark.UpdatableAsyncActor", "delete")
+      checkSpan(className, "delete", "DataFrame.async.delete")
     } finally {
       dropTable(tableName)
       dropTable(tableName2)
