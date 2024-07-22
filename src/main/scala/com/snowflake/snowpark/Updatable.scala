@@ -7,7 +7,7 @@ import scala.reflect.ClassTag
 
 private[snowpark] object Updatable extends Logging {
   def apply(tableName: String, session: Session): Updatable =
-    new Updatable(tableName, session)
+    new Updatable(tableName, session, DataFrame.methodChainCache.value)
 
   private[snowpark] def getUpdateResult(rows: Array[Row]): UpdateResult =
     UpdateResult(rows.head.getLong(0), rows.head.getLong(1))
@@ -52,8 +52,12 @@ case class DeleteResult(rowsDeleted: Long)
  */
 class Updatable private[snowpark] (
     private[snowpark] val tableName: String,
-    override private[snowpark] val session: Session)
-    extends DataFrame(session, session.analyzer.resolve(UnresolvedRelation(tableName))) {
+    override private[snowpark] val session: Session,
+    override private[snowpark] val methodChain: Seq[String])
+    extends DataFrame(
+      session,
+      session.analyzer.resolve(UnresolvedRelation(tableName)),
+      methodChain) {
 
   /**
    * Updates all rows in the Updatable with specified assignments and returns a [[UpdateResult]],
@@ -329,7 +333,7 @@ class Updatable private[snowpark] (
    * @group basic
    */
   override def clone: Updatable = action("clone", 2) {
-    new Updatable(tableName, session)
+    new Updatable(tableName, session, Seq())
   }
 
   /**
@@ -353,12 +357,12 @@ class Updatable private[snowpark] (
 
   @inline override protected def action[T](funcName: String)(func: => T): T = {
     val isScala: Boolean = this.session.conn.isScalaAPI
-    OpenTelemetry.action("Updatable", funcName, isScala)(func)
+    OpenTelemetry.action("Updatable", funcName, methodChainString, isScala)(func)
   }
 
   @inline protected def action[T](funcName: String, javaOffset: Int)(func: => T): T = {
     val isScala: Boolean = this.session.conn.isScalaAPI
-    OpenTelemetry.action("Updatable", funcName, isScala, javaOffset)(func)
+    OpenTelemetry.action("Updatable", funcName, methodChainString, isScala, javaOffset)(func)
   }
 
 }
@@ -496,11 +500,20 @@ class UpdatableAsyncActor private[snowpark] (updatable: Updatable)
 
   @inline override protected def action[T](funcName: String)(func: => T): T = {
     val isScala: Boolean = updatable.session.conn.isScalaAPI
-    OpenTelemetry.action("UpdatableAsyncActor", funcName, isScala)(func)
+    OpenTelemetry.action(
+      "UpdatableAsyncActor",
+      funcName,
+      updatable.methodChainString + ".async",
+      isScala)(func)
   }
 
   @inline protected def action[T](funcName: String, javaOffset: Int)(func: => T): T = {
     val isScala: Boolean = updatable.session.conn.isScalaAPI
-    OpenTelemetry.action("UpdatableAsyncActor", funcName, isScala, javaOffset)(func)
+    OpenTelemetry.action(
+      "UpdatableAsyncActor",
+      funcName,
+      updatable.methodChainString + ".async",
+      isScala,
+      javaOffset)(func)
   }
 }

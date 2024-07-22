@@ -157,7 +157,11 @@ class DataFrameReader(session: Session) {
       .path(path)
       .format("csv")
       .databaseSchema(session.getFullyQualifiedCurrentSchema)
-    new CopyableDataFrame(session, stagedFileReader.createSnowflakePlan(), stagedFileReader)
+    new CopyableDataFrame(
+      session,
+      stagedFileReader.createSnowflakePlan(),
+      Seq(),
+      stagedFileReader)
   }
 
   /**
@@ -427,6 +431,10 @@ class DataFrameReader(session: Session) {
       .path(path)
       .format(format)
       .databaseSchema(session.getFullyQualifiedCurrentSchema)
-    new CopyableDataFrame(session, stagedFileReader.createSnowflakePlan(), stagedFileReader)
+    new CopyableDataFrame(
+      session,
+      stagedFileReader.createSnowflakePlan(),
+      Seq(),
+      stagedFileReader)
   }
 }

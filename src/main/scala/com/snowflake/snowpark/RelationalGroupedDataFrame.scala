@@ -22,6 +22,8 @@ private[snowpark] object RelationalGroupedDataFrame {
 
   object GroupByType extends GroupType
 
+  object GroupByGroupingSetsType extends GroupType
+
   object CubeType extends GroupType
 
   object RollupType extends GroupType
@@ -61,7 +63,8 @@ class RelationalGroupedDataFrame private[snowpark] (
     } ++ aggExprs).distinct.map(alias)
 
     groupType match {
-      case RelationalGroupedDataFrame.GroupByType =>
+      case RelationalGroupedDataFrame.GroupByType |
+          RelationalGroupedDataFrame.GroupByGroupingSetsType =>
         DataFrame(dataFrame.session, Aggregate(groupingExprs, aliasedAgg, dataFrame.plan))
       case RelationalGroupedDataFrame.RollupType =>
         DataFrame(
@@ -125,8 +128,9 @@ class RelationalGroupedDataFrame private[snowpark] (
    * @return a [[DataFrame]]
    * @since 0.1.0
    */
-  def agg(expr: (Column, String), exprs: (Column, String)*): DataFrame =
+  def agg(expr: (Column, String), exprs: (Column, String)*): DataFrame = transformation("agg") {
     agg(expr +: exprs)
+  }
 
   /**
    * Returns a DataFrame with computed aggregates. The first element
@@ -148,8 +152,9 @@ class RelationalGroupedDataFrame private[snowpark] (
    * @return a [[DataFrame]]
    * @since 0.2.0
    */
-  def agg(exprs: Seq[(Column, String)]): DataFrame =
+  def agg(exprs: Seq[(Column, String)]): DataFrame = transformation("agg") {
     toDF(exprs.map { case (col, expr) => strToExpr(expr)(col.expr) })
+  }
 
   /**
    * Returns a DataFrame with aggregated computed according to the supplied
@@ -166,7 +171,9 @@ class RelationalGroupedDataFrame private[snowpark] (
    * @return a [[DataFrame]]
    * @since 0.1.0
    */
-  def agg(expr: Column, exprs: Column*): DataFrame = agg(expr +: exprs)
+  def agg(expr: Column, exprs: Column*): DataFrame = transformation("agg") {
+    agg(expr +: exprs)
+  }
 
   /**
    * Returns a DataFrame with aggregated computed according to the supplied
@@ -183,7 +190,9 @@ class RelationalGroupedDataFrame private[snowpark] (
    * @return a [[DataFrame]]
    * @since 0.2.0
    */
-  def agg[T: ClassTag](exprs: Seq[Column]): DataFrame = toDF(exprs.map(_.expr))
+  def agg[T: ClassTag](exprs: Seq[Column]): DataFrame = transformation("agg") {
+    toDF(exprs.map(_.expr))
+  }
 
   /**
    * Returns a DataFrame with aggregated computed according to the supplied
@@ -193,7 +202,9 @@ class RelationalGroupedDataFrame private[snowpark] (
    * @return a [[DataFrame]]
    * @since 0.9.0
    */
-  def agg(exprs: Array[Column]): DataFrame = agg(exprs.toSeq)
+  def agg(exprs: Array[Column]): DataFrame = transformation("agg") {
+    agg(exprs.toSeq)
+  }
 
   /**
    * Returns a DataFrame with computed aggregates. The first element
@@ -216,10 +227,11 @@ class RelationalGroupedDataFrame private[snowpark] (
    * @return a [[DataFrame]]
    * @since 0.1.0
    */
-  def agg(exprs: Map[Column, String]): DataFrame =
+  def agg(exprs: Map[Column, String]): DataFrame = transformation("agg") {
     toDF(exprs.map {
       case (col, expr) => strToExpr(expr)(col.expr)
     }.toSeq)
+  }
 
   /**
    * Return the average for the specified numeric columns.
@@ -227,7 +239,9 @@ class RelationalGroupedDataFrame private[snowpark] (
    * @since 0.4.0
    * @return a [[DataFrame]]
    */
-  def avg(cols: Column*): DataFrame = nonEmptyArgumentFunction("avg", cols)
+  def avg(cols: Column*): DataFrame = transformation("avg") {
+    nonEmptyArgumentFunction("avg", cols)
+  }
 
   /**
    * Return the average for the specified numeric columns. Alias of avg
@@ -235,7 +249,9 @@ class RelationalGroupedDataFrame private[snowpark] (
    * @since 0.4.0
    * @return a [[DataFrame]]
    */
-  def mean(cols: Column*): DataFrame = avg(cols: _*)
+  def mean(cols: Column*): DataFrame = transformation("mean") {
+    avg(cols: _*)
+  }
 
   /**
    * Return the sum for the specified numeric columns.
@@ -243,7 +259,9 @@ class RelationalGroupedDataFrame private[snowpark] (
    * @since 0.1.0
    * @return a [[DataFrame]]
    */
-  def sum(cols: Column*): DataFrame = nonEmptyArgumentFunction("sum", cols)
+  def sum(cols: Column*): DataFrame = transformation("sum") {
+    nonEmptyArgumentFunction("sum", cols)
+  }
 
   /**
    * Return the median for the specified numeric columns.
@@ -251,7 +269,9 @@ class RelationalGroupedDataFrame private[snowpark] (
    * @since 0.5.0
    * @return A [[DataFrame]]
    */
-  def median(cols: Column*): DataFrame = nonEmptyArgumentFunction("median", cols)
+  def median(cols: Column*): DataFrame = transformation("median") {
+    nonEmptyArgumentFunction("median", cols)
+  }
 
   /**
    * Return the min for the specified numeric columns.
@@ -259,7 +279,9 @@ class RelationalGroupedDataFrame private[snowpark] (
    * @since 0.1.0
    * @return A [[DataFrame]]
    */
-  def min(cols: Column*): DataFrame = nonEmptyArgumentFunction("min", cols)
+  def min(cols: Column*): DataFrame = transformation("min") {
+    nonEmptyArgumentFunction("min", cols)
+  }
 
   /**
    * Return the max for the specified numeric columns.
@@ -267,7 +289,9 @@ class RelationalGroupedDataFrame private[snowpark] (
    * @since 0.4.0
    * @return A [[DataFrame]]
    */
-  def max(cols: Column*): DataFrame = nonEmptyArgumentFunction("max", cols)
+  def max(cols: Column*): DataFrame = transformation("max") {
+    nonEmptyArgumentFunction("max", cols)
+  }
 
   /**
    * Returns non-deterministic values for the specified columns.
@@ -275,7 +299,9 @@ class RelationalGroupedDataFrame private[snowpark] (
    * @since 0.12.0
    * @return A [[DataFrame]]
    */
-  def any_value(cols: Column*): DataFrame = nonEmptyArgumentFunction("any_value", cols)
+  def any_value(cols: Column*): DataFrame = transformation("any_value") {
+    nonEmptyArgumentFunction("any_value", cols)
+  }
 
   /**
    * Return the number of rows for each group.
@@ -283,7 +309,9 @@ class RelationalGroupedDataFrame private[snowpark] (
    * @since 0.1.0
    * @return A [[DataFrame]]
    */
-  def count(): DataFrame = toDF(Seq(Alias(functions.builtin("count")(Literal(1)).expr, "count")))
+  def count(): DataFrame = transformation("count") {
+    toDF(Seq(Alias(functions.builtin("count")(Literal(1)).expr, "count")))
+  }
 
   /**
    * Computes the builtin aggregate 'aggName' over the specified columns.
@@ -299,7 +327,7 @@ class RelationalGroupedDataFrame private[snowpark] (
    * @return A [[DataFrame]]
    *
    */
-  def builtin(aggName: String)(cols: Column*): DataFrame = {
+  def builtin(aggName: String)(cols: Column*): DataFrame = transformation("builtin") {
     toDF(cols.map(_.expr).map(expr => functions.builtin(aggName)(expr).expr))
   }
 
@@ -309,6 +337,12 @@ class RelationalGroupedDataFrame private[snowpark] (
     } else {
       builtin(funcName)(cols: _*)
     }
+  }
+
+  @inline private def transformation(funcName: String)(func: => DataFrame): DataFrame = {
+    val typeName = groupType.toString.head.toLower + groupType.toString.tail
+    val name = s"$typeName.$funcName"
+    DataFrame.buildMethodChain(dataFrame.methodChain, name)(func)
   }
 
 }

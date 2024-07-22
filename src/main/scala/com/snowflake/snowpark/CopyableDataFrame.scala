@@ -19,8 +19,9 @@ import com.snowflake.snowpark.internal.analyzer._
 class CopyableDataFrame private[snowpark] (
     override private[snowpark] val session: Session,
     override private[snowpark] val plan: SnowflakePlan,
+    override private[snowpark] val methodChain: Seq[String],
     private val stagedFileReader: StagedFileReader)
-    extends DataFrame(session, plan) {
+    extends DataFrame(session, plan, methodChain) {
 
   /**
    * Executes a `COPY INTO <table_name>` command to
@@ -238,7 +239,7 @@ class CopyableDataFrame private[snowpark] (
    * @group basic
    */
   override def clone: CopyableDataFrame = action("clone", 2) {
-    new CopyableDataFrame(session, plan, stagedFileReader)
+    new CopyableDataFrame(session, plan, Seq(), stagedFileReader)
   }
 
   /**
@@ -261,11 +262,12 @@ class CopyableDataFrame private[snowpark] (
 
   @inline override protected def action[T](funcName: String)(func: => T): T = {
     val isScala: Boolean = this.session.conn.isScalaAPI
-    OpenTelemetry.action("CopyableDataFrame", funcName, isScala)(func)
+    OpenTelemetry.action("CopyableDataFrame", funcName, methodChainString, isScala)(func)
   }
   @inline protected def action[T](funcName: String, javaOffset: Int)(func: => T): T = {
     val isScala: Boolean = this.session.conn.isScalaAPI
-    OpenTelemetry.action("CopyableDataFrame", funcName, isScala, javaOffset)(func)
+    OpenTelemetry.action("CopyableDataFrame", funcName, methodChainString, isScala, javaOffset)(
+      func)
   }
 }
 
@@ -360,6 +362,10 @@ class CopyableDataFrameAsyncActor private[snowpark] (cdf: CopyableDataFrame)
 
   @inline override protected def action[T](funcName: String)(func: => T): T = {
     val isScala: Boolean = cdf.session.conn.isScalaAPI
-    OpenTelemetry.action("CopyableDataFrameAsyncActor", funcName, isScala)(func)
+    OpenTelemetry.action(
+      "CopyableDataFrameAsyncActor",
+      funcName,
+      cdf.methodChainString + ".async",
+      isScala)(func)
   }
 }

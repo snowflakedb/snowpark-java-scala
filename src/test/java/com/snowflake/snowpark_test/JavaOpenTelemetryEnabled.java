@@ -42,7 +42,7 @@ public abstract class JavaOpenTelemetryEnabled extends TestBase {
     assert Objects.equals(
         span.getAttributes().get(AttributeKey.longKey("code.lineno")), (long) lineNumber);
     assert Objects.equals(
-        span.getAttributes().get(AttributeKey.stringKey("code.chain")), methodChain);
+        span.getAttributes().get(AttributeKey.stringKey("method.chain")), methodChain);
     testSpanExporter.reset();
   }
 }

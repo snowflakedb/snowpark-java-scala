@@ -32,8 +32,8 @@ public class SnowflakeSecrets {
   }
 
   /**
-   * Get the Cloud provider token from the secret. On success, it returns a valid object with access key id,
-   * secret access key and token.
+   * Get the Cloud provider token from the secret. On success, it returns a valid object with access
+   * key id, secret access key and token.
    *
    * @param secretName name of the secret object.
    */
