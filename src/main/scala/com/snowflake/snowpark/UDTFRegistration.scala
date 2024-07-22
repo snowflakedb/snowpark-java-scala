@@ -1,6 +1,6 @@
 package com.snowflake.snowpark
 
-import com.snowflake.snowpark.internal.{Logging, UDXRegistrationHandler}
+import com.snowflake.snowpark.internal.{Logging, OpenTelemetry, UDXRegistrationHandler}
 import com.snowflake.snowpark.udtf.UDTF
 import com.snowflake.snowpark_java.udtf.JavaUDTF
 
@@ -176,7 +176,9 @@ class UDTFRegistration(session: Session) extends Logging {
    * @param udtf The UDTF instance to be registered
    * @since 1.2.0
    */
-  def registerTemporary(udtf: UDTF): TableFunction = handler.registerUDTF(None, udtf)
+  def registerTemporary(udtf: UDTF): TableFunction = tableFunction("registerTemporary") {
+    handler.registerUDTF(None, udtf)
+  }
 
   /**
    * Registers an UDTF instance as a temporary Snowflake Java UDTF that you
@@ -187,7 +189,9 @@ class UDTFRegistration(session: Session) extends Logging {
    * @since 1.2.0
    */
   def registerTemporary(funcName: String, udtf: UDTF): TableFunction =
-    handler.registerUDTF(Some(funcName), udtf)
+    tableFunction("registerTemporary", execName = funcName) {
+      handler.registerUDTF(Some(funcName), udtf)
+    }
 
   /**
    * Registers an UDTF instance as a Snowflake Java UDTF.
@@ -206,7 +210,9 @@ class UDTFRegistration(session: Session) extends Logging {
    * @since 1.2.0
    */
   def registerPermanent(funcName: String, udtf: UDTF, stageLocation: String): TableFunction =
-    handler.registerUDTF(Some(funcName), udtf, Some(stageLocation))
+    tableFunction("registerPermanent", execName = funcName, execFilePath = stageLocation) {
+      handler.registerUDTF(Some(funcName), udtf, Some(stageLocation))
+    }
 
   // Internal function for Java API UDTF support
   private[snowpark] def registerJavaUDTF(
@@ -214,4 +220,17 @@ class UDTFRegistration(session: Session) extends Logging {
       udtf: JavaUDTF,
       stageLocation: Option[String]): TableFunction =
     handler.registerJavaUDTF(name, udtf, stageLocation)
+
+  @inline protected def tableFunction(
+      funcName: String,
+      execName: String = "",
+      execFilePath: String = "")(func: => TableFunction): TableFunction = {
+    OpenTelemetry.udx(
+      "UDTFRegistration",
+      funcName,
+      execName,
+      s"${UDXRegistrationHandler.className}.${UDXRegistrationHandler.methodName}",
+      execFilePath,
+      0)(func)
+  }
 }

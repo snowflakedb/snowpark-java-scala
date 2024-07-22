@@ -10,15 +10,15 @@ object OpenTelemetry extends Logging {
 
   private val spanInfo = new DynamicVariable[Option[SpanInfo]](None)
 
-  def udf(
+  def udx[T](
       className: String,
       funcName: String,
       execName: String,
       execHandler: String,
       execFilePath: String,
-      stackOffset: Int)(func: => UserDefinedFunction): UserDefinedFunction = {
+      stackOffset: Int)(func: => T): T = {
     try {
-      spanInfo.withValue[UserDefinedFunction](spanInfo.value match {
+      spanInfo.withValue[T](spanInfo.value match {
         // empty info means this is the entry of the recursion
         case None =>
           val stacks = Thread.currentThread().getStackTrace
@@ -38,7 +38,7 @@ object OpenTelemetry extends Logging {
         // do not issue new SpanInfo, use the info inherited from previous.
         case other => other
       }) {
-        val result: UserDefinedFunction = func
+        val result: T = func
         OpenTelemetry.emit(spanInfo.value.get)
         result
       }

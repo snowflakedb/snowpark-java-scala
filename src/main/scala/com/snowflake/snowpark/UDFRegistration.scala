@@ -2442,7 +2442,7 @@ class UDFRegistration(session: Session) extends Logging {
 
   @inline protected def udf(funcName: String, execName: String = "", execFilePath: String = "")(
       func: => UserDefinedFunction): UserDefinedFunction = {
-    OpenTelemetry.udf(
+    OpenTelemetry.udx(
       "UDFRegistration",
       funcName,
       execName,

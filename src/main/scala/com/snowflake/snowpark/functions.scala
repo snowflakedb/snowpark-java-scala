@@ -3859,7 +3859,7 @@ object functions {
 
   @inline protected def udf(funcName: String)(
       func: => UserDefinedFunction): UserDefinedFunction = {
-    OpenTelemetry.udf(
+    OpenTelemetry.udx(
       "functions",
       funcName,
       "",

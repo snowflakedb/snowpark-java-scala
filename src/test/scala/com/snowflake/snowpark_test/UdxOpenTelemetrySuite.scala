@@ -1,6 +1,8 @@
 package com.snowflake.snowpark_test
 
-import com.snowflake.snowpark.{OpenTelemetryEnabled, TestUtils, functions}
+import com.snowflake.snowpark.types.{IntegerType, StructField, StructType}
+import com.snowflake.snowpark.udtf.UDTF0
+import com.snowflake.snowpark.{OpenTelemetryEnabled, Row, TestUtils, functions}
 
 class UdxOpenTelemetrySuite extends OpenTelemetryEnabled {
   override def beforeAll: Unit = {
@@ -28,6 +30,33 @@ class UdxOpenTelemetrySuite extends OpenTelemetryEnabled {
       checkUdfSpan(className, "registerPermanent", udfName2, stageName)
     } finally {
       runQuery(s"drop function $udfName2()", session)
+      dropStage(stageName)
+    }
+  }
+
+  test("udtf") {
+    val className = "snow.snowpark.UDTFRegistration"
+    class MyUDTF0 extends UDTF0 {
+      override def process(): Iterable[Row] = {
+        Seq(Row(123), Row(123))
+      }
+      override def endPartition(): Iterable[Row] = Seq.empty
+      override def outputSchema(): StructType = StructType(StructField("sum", IntegerType))
+    }
+    session.udtf.registerTemporary(new MyUDTF0())
+    checkUdfSpan(className, "registerTemporary", "", "")
+    val udtfName = randomFunctionName()
+    session.udtf.registerTemporary(udtfName, new MyUDTF0)
+    checkUdfSpan(className, "registerTemporary", udtfName, "")
+
+    val stageName: String = randomName()
+    val udtfName2 = randomFunctionName()
+    try {
+      createStage(stageName, isTemporary = false)
+      session.udtf.registerPermanent(udtfName2, new MyUDTF0(), stageName)
+      checkUdfSpan(className, "registerPermanent", udtfName2, stageName)
+    } finally {
+      runQuery(s"drop function $udtfName2()", session)
       dropStage(stageName)
     }
   }
