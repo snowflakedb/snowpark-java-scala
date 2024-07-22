@@ -5,7 +5,7 @@ import com.snowflake.snowpark_java.types.DataTypes;
 import com.snowflake.snowpark_java.udf.JavaUDF0;
 import org.junit.Test;
 
-public class JavaUDXOpenTelemetrySuite extends JavaOpenTelemetryEnabled {
+public class JavaUDXOpenTelemetrySuite extends JavaUDXOpenTelemetryEnabled {
 
   public JavaUDXOpenTelemetrySuite() {}
 
@@ -28,6 +28,20 @@ public class JavaUDXOpenTelemetrySuite extends JavaOpenTelemetryEnabled {
     JavaUDF0 func = () -> 100;
     getSession().udf().registerTemporary(func, DataTypes.IntegerType);
     checkUdfSpan(className, "registerTemporary", "", "");
+    String funcName = randomFunctionName();
+    String funcName2 = randomFunctionName();
+    getSession().udf().registerTemporary(funcName, func, DataTypes.IntegerType);
+    checkUdfSpan(className, "registerTemporary", funcName, "");
+
+    String stageName = randomName();
+    try {
+      createStage(stageName, false);
+      getSession().udf().registerPermanent(funcName2, func, DataTypes.IntegerType, stageName);
+      checkUdfSpan(className, "registerPermanent", funcName2, stageName);
+    } finally {
+      dropStage(stageName);
+      getSession().sql("drop function " + funcName2 + "()").collect();
+    }
   }
 
   private void checkUdfSpan(

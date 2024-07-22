@@ -3,7 +3,7 @@ package com.snowflake.snowpark_test;
 import com.snowflake.snowpark.TestUtils;
 import com.snowflake.snowpark_java.Session;
 
-public abstract class UDFTestBase extends TestBase {
+public abstract class UDFTestBase extends TestFunctions {
   protected String defaultProfile = TestUtils.defaultProfile();
 
   private Session session = null;

@@ -1253,13 +1253,13 @@ public class UDFRegistration {
   //    |  DataType output,
   //    |  String stageLocation
   //    |){
-  //    |  return new UserDefinedFunction(
+  //    |  return udf("registerPermanent", name, stageLocation, () -> new UserDefinedFunction(
   //    |    JavaUtils.registerUDF(
   //    |      udf,
   //    |      name,
   //    |      ScalaFunctions._toUdf(func,$arg convertDataType(output)),
   //    |      stageLocation
-  //    |    ));
+  //    |    )));
   //    |}""".stripMargin)
   //  }
 
@@ -1282,9 +1282,17 @@ public class UDFRegistration {
    */
   public UserDefinedFunction registerPermanent(
       String name, JavaUDF0<?> func, DataType output, String stageLocation) {
-    return new UserDefinedFunction(
-        JavaUtils.registerUDF(
-            udf, name, ScalaFunctions._toUdf(func, convertDataType(output)), stageLocation));
+    return udf(
+        "registerPermanent",
+        name,
+        stageLocation,
+        () ->
+            new UserDefinedFunction(
+                JavaUtils.registerUDF(
+                    udf,
+                    name,
+                    ScalaFunctions._toUdf(func, convertDataType(output)),
+                    stageLocation)));
   }
 
   /**
@@ -1307,12 +1315,17 @@ public class UDFRegistration {
    */
   public UserDefinedFunction registerPermanent(
       String name, JavaUDF1<?, ?> func, DataType input, DataType output, String stageLocation) {
-    return new UserDefinedFunction(
-        JavaUtils.registerUDF(
-            udf,
-            name,
-            ScalaFunctions._toUdf(func, convertDataType(input), convertDataType(output)),
-            stageLocation));
+    return udf(
+        "registerPermanent",
+        name,
+        stageLocation,
+        () ->
+            new UserDefinedFunction(
+                JavaUtils.registerUDF(
+                    udf,
+                    name,
+                    ScalaFunctions._toUdf(func, convertDataType(input), convertDataType(output)),
+                    stageLocation)));
   }
 
   /**
@@ -1339,12 +1352,17 @@ public class UDFRegistration {
       DataType[] input,
       DataType output,
       String stageLocation) {
-    return new UserDefinedFunction(
-        JavaUtils.registerUDF(
-            udf,
-            name,
-            ScalaFunctions._toUdf(func, convertDataType(input), convertDataType(output)),
-            stageLocation));
+    return udf(
+        "registerPermanent",
+        name,
+        stageLocation,
+        () ->
+            new UserDefinedFunction(
+                JavaUtils.registerUDF(
+                    udf,
+                    name,
+                    ScalaFunctions._toUdf(func, convertDataType(input), convertDataType(output)),
+                    stageLocation)));
   }
 
   /**
@@ -1371,12 +1389,17 @@ public class UDFRegistration {
       DataType[] input,
       DataType output,
       String stageLocation) {
-    return new UserDefinedFunction(
-        JavaUtils.registerUDF(
-            udf,
-            name,
-            ScalaFunctions._toUdf(func, convertDataType(input), convertDataType(output)),
-            stageLocation));
+    return udf(
+        "registerPermanent",
+        name,
+        stageLocation,
+        () ->
+            new UserDefinedFunction(
+                JavaUtils.registerUDF(
+                    udf,
+                    name,
+                    ScalaFunctions._toUdf(func, convertDataType(input), convertDataType(output)),
+                    stageLocation)));
   }
 
   /**
@@ -1403,12 +1426,17 @@ public class UDFRegistration {
       DataType[] input,
       DataType output,
       String stageLocation) {
-    return new UserDefinedFunction(
-        JavaUtils.registerUDF(
-            udf,
-            name,
-            ScalaFunctions._toUdf(func, convertDataType(input), convertDataType(output)),
-            stageLocation));
+    return udf(
+        "registerPermanent",
+        name,
+        stageLocation,
+        () ->
+            new UserDefinedFunction(
+                JavaUtils.registerUDF(
+                    udf,
+                    name,
+                    ScalaFunctions._toUdf(func, convertDataType(input), convertDataType(output)),
+                    stageLocation)));
   }
 
   /**
@@ -1435,12 +1463,17 @@ public class UDFRegistration {
       DataType[] input,
       DataType output,
       String stageLocation) {
-    return new UserDefinedFunction(
-        JavaUtils.registerUDF(
-            udf,
-            name,
-            ScalaFunctions._toUdf(func, convertDataType(input), convertDataType(output)),
-            stageLocation));
+    return udf(
+        "registerPermanent",
+        name,
+        stageLocation,
+        () ->
+            new UserDefinedFunction(
+                JavaUtils.registerUDF(
+                    udf,
+                    name,
+                    ScalaFunctions._toUdf(func, convertDataType(input), convertDataType(output)),
+                    stageLocation)));
   }
 
   /**
@@ -1467,12 +1500,17 @@ public class UDFRegistration {
       DataType[] input,
       DataType output,
       String stageLocation) {
-    return new UserDefinedFunction(
-        JavaUtils.registerUDF(
-            udf,
-            name,
-            ScalaFunctions._toUdf(func, convertDataType(input), convertDataType(output)),
-            stageLocation));
+    return udf(
+        "registerPermanent",
+        name,
+        stageLocation,
+        () ->
+            new UserDefinedFunction(
+                JavaUtils.registerUDF(
+                    udf,
+                    name,
+                    ScalaFunctions._toUdf(func, convertDataType(input), convertDataType(output)),
+                    stageLocation)));
   }
 
   /**
@@ -1499,12 +1537,17 @@ public class UDFRegistration {
       DataType[] input,
       DataType output,
       String stageLocation) {
-    return new UserDefinedFunction(
-        JavaUtils.registerUDF(
-            udf,
-            name,
-            ScalaFunctions._toUdf(func, convertDataType(input), convertDataType(output)),
-            stageLocation));
+    return udf(
+        "registerPermanent",
+        name,
+        stageLocation,
+        () ->
+            new UserDefinedFunction(
+                JavaUtils.registerUDF(
+                    udf,
+                    name,
+                    ScalaFunctions._toUdf(func, convertDataType(input), convertDataType(output)),
+                    stageLocation)));
   }
 
   /**
@@ -1531,12 +1574,17 @@ public class UDFRegistration {
       DataType[] input,
       DataType output,
       String stageLocation) {
-    return new UserDefinedFunction(
-        JavaUtils.registerUDF(
-            udf,
-            name,
-            ScalaFunctions._toUdf(func, convertDataType(input), convertDataType(output)),
-            stageLocation));
+    return udf(
+        "registerPermanent",
+        name,
+        stageLocation,
+        () ->
+            new UserDefinedFunction(
+                JavaUtils.registerUDF(
+                    udf,
+                    name,
+                    ScalaFunctions._toUdf(func, convertDataType(input), convertDataType(output)),
+                    stageLocation)));
   }
 
   /**
@@ -1563,12 +1611,17 @@ public class UDFRegistration {
       DataType[] input,
       DataType output,
       String stageLocation) {
-    return new UserDefinedFunction(
-        JavaUtils.registerUDF(
-            udf,
-            name,
-            ScalaFunctions._toUdf(func, convertDataType(input), convertDataType(output)),
-            stageLocation));
+    return udf(
+        "registerPermanent",
+        name,
+        stageLocation,
+        () ->
+            new UserDefinedFunction(
+                JavaUtils.registerUDF(
+                    udf,
+                    name,
+                    ScalaFunctions._toUdf(func, convertDataType(input), convertDataType(output)),
+                    stageLocation)));
   }
 
   /**
@@ -1595,12 +1648,17 @@ public class UDFRegistration {
       DataType[] input,
       DataType output,
       String stageLocation) {
-    return new UserDefinedFunction(
-        JavaUtils.registerUDF(
-            udf,
-            name,
-            ScalaFunctions._toUdf(func, convertDataType(input), convertDataType(output)),
-            stageLocation));
+    return udf(
+        "registerPermanent",
+        name,
+        stageLocation,
+        () ->
+            new UserDefinedFunction(
+                JavaUtils.registerUDF(
+                    udf,
+                    name,
+                    ScalaFunctions._toUdf(func, convertDataType(input), convertDataType(output)),
+                    stageLocation)));
   }
 
   /**
@@ -1627,12 +1685,17 @@ public class UDFRegistration {
       DataType[] input,
       DataType output,
       String stageLocation) {
-    return new UserDefinedFunction(
-        JavaUtils.registerUDF(
-            udf,
-            name,
-            ScalaFunctions._toUdf(func, convertDataType(input), convertDataType(output)),
-            stageLocation));
+    return udf(
+        "registerPermanent",
+        name,
+        stageLocation,
+        () ->
+            new UserDefinedFunction(
+                JavaUtils.registerUDF(
+                    udf,
+                    name,
+                    ScalaFunctions._toUdf(func, convertDataType(input), convertDataType(output)),
+                    stageLocation)));
   }
 
   /**
@@ -1659,12 +1722,17 @@ public class UDFRegistration {
       DataType[] input,
       DataType output,
       String stageLocation) {
-    return new UserDefinedFunction(
-        JavaUtils.registerUDF(
-            udf,
-            name,
-            ScalaFunctions._toUdf(func, convertDataType(input), convertDataType(output)),
-            stageLocation));
+    return udf(
+        "registerPermanent",
+        name,
+        stageLocation,
+        () ->
+            new UserDefinedFunction(
+                JavaUtils.registerUDF(
+                    udf,
+                    name,
+                    ScalaFunctions._toUdf(func, convertDataType(input), convertDataType(output)),
+                    stageLocation)));
   }
 
   /**
@@ -1691,12 +1759,17 @@ public class UDFRegistration {
       DataType[] input,
       DataType output,
       String stageLocation) {
-    return new UserDefinedFunction(
-        JavaUtils.registerUDF(
-            udf,
-            name,
-            ScalaFunctions._toUdf(func, convertDataType(input), convertDataType(output)),
-            stageLocation));
+    return udf(
+        "registerPermanent",
+        name,
+        stageLocation,
+        () ->
+            new UserDefinedFunction(
+                JavaUtils.registerUDF(
+                    udf,
+                    name,
+                    ScalaFunctions._toUdf(func, convertDataType(input), convertDataType(output)),
+                    stageLocation)));
   }
 
   /**
@@ -1723,12 +1796,17 @@ public class UDFRegistration {
       DataType[] input,
       DataType output,
       String stageLocation) {
-    return new UserDefinedFunction(
-        JavaUtils.registerUDF(
-            udf,
-            name,
-            ScalaFunctions._toUdf(func, convertDataType(input), convertDataType(output)),
-            stageLocation));
+    return udf(
+        "registerPermanent",
+        name,
+        stageLocation,
+        () ->
+            new UserDefinedFunction(
+                JavaUtils.registerUDF(
+                    udf,
+                    name,
+                    ScalaFunctions._toUdf(func, convertDataType(input), convertDataType(output)),
+                    stageLocation)));
   }
 
   /**
@@ -1755,12 +1833,17 @@ public class UDFRegistration {
       DataType[] input,
       DataType output,
       String stageLocation) {
-    return new UserDefinedFunction(
-        JavaUtils.registerUDF(
-            udf,
-            name,
-            ScalaFunctions._toUdf(func, convertDataType(input), convertDataType(output)),
-            stageLocation));
+    return udf(
+        "registerPermanent",
+        name,
+        stageLocation,
+        () ->
+            new UserDefinedFunction(
+                JavaUtils.registerUDF(
+                    udf,
+                    name,
+                    ScalaFunctions._toUdf(func, convertDataType(input), convertDataType(output)),
+                    stageLocation)));
   }
 
   /**
@@ -1787,12 +1870,17 @@ public class UDFRegistration {
       DataType[] input,
       DataType output,
       String stageLocation) {
-    return new UserDefinedFunction(
-        JavaUtils.registerUDF(
-            udf,
-            name,
-            ScalaFunctions._toUdf(func, convertDataType(input), convertDataType(output)),
-            stageLocation));
+    return udf(
+        "registerPermanent",
+        name,
+        stageLocation,
+        () ->
+            new UserDefinedFunction(
+                JavaUtils.registerUDF(
+                    udf,
+                    name,
+                    ScalaFunctions._toUdf(func, convertDataType(input), convertDataType(output)),
+                    stageLocation)));
   }
 
   /**
@@ -1819,12 +1907,17 @@ public class UDFRegistration {
       DataType[] input,
       DataType output,
       String stageLocation) {
-    return new UserDefinedFunction(
-        JavaUtils.registerUDF(
-            udf,
-            name,
-            ScalaFunctions._toUdf(func, convertDataType(input), convertDataType(output)),
-            stageLocation));
+    return udf(
+        "registerPermanent",
+        name,
+        stageLocation,
+        () ->
+            new UserDefinedFunction(
+                JavaUtils.registerUDF(
+                    udf,
+                    name,
+                    ScalaFunctions._toUdf(func, convertDataType(input), convertDataType(output)),
+                    stageLocation)));
   }
 
   /**
@@ -1851,12 +1944,17 @@ public class UDFRegistration {
       DataType[] input,
       DataType output,
       String stageLocation) {
-    return new UserDefinedFunction(
-        JavaUtils.registerUDF(
-            udf,
-            name,
-            ScalaFunctions._toUdf(func, convertDataType(input), convertDataType(output)),
-            stageLocation));
+    return udf(
+        "registerPermanent",
+        name,
+        stageLocation,
+        () ->
+            new UserDefinedFunction(
+                JavaUtils.registerUDF(
+                    udf,
+                    name,
+                    ScalaFunctions._toUdf(func, convertDataType(input), convertDataType(output)),
+                    stageLocation)));
   }
 
   /**
@@ -1883,12 +1981,17 @@ public class UDFRegistration {
       DataType[] input,
       DataType output,
       String stageLocation) {
-    return new UserDefinedFunction(
-        JavaUtils.registerUDF(
-            udf,
-            name,
-            ScalaFunctions._toUdf(func, convertDataType(input), convertDataType(output)),
-            stageLocation));
+    return udf(
+        "registerPermanent",
+        name,
+        stageLocation,
+        () ->
+            new UserDefinedFunction(
+                JavaUtils.registerUDF(
+                    udf,
+                    name,
+                    ScalaFunctions._toUdf(func, convertDataType(input), convertDataType(output)),
+                    stageLocation)));
   }
 
   /**
@@ -1915,12 +2018,17 @@ public class UDFRegistration {
       DataType[] input,
       DataType output,
       String stageLocation) {
-    return new UserDefinedFunction(
-        JavaUtils.registerUDF(
-            udf,
-            name,
-            ScalaFunctions._toUdf(func, convertDataType(input), convertDataType(output)),
-            stageLocation));
+    return udf(
+        "registerPermanent",
+        name,
+        stageLocation,
+        () ->
+            new UserDefinedFunction(
+                JavaUtils.registerUDF(
+                    udf,
+                    name,
+                    ScalaFunctions._toUdf(func, convertDataType(input), convertDataType(output)),
+                    stageLocation)));
   }
 
   /**
@@ -1947,12 +2055,17 @@ public class UDFRegistration {
       DataType[] input,
       DataType output,
       String stageLocation) {
-    return new UserDefinedFunction(
-        JavaUtils.registerUDF(
-            udf,
-            name,
-            ScalaFunctions._toUdf(func, convertDataType(input), convertDataType(output)),
-            stageLocation));
+    return udf(
+        "registerPermanent",
+        name,
+        stageLocation,
+        () ->
+            new UserDefinedFunction(
+                JavaUtils.registerUDF(
+                    udf,
+                    name,
+                    ScalaFunctions._toUdf(func, convertDataType(input), convertDataType(output)),
+                    stageLocation)));
   }
 
   /**
@@ -1979,12 +2092,17 @@ public class UDFRegistration {
       DataType[] input,
       DataType output,
       String stageLocation) {
-    return new UserDefinedFunction(
-        JavaUtils.registerUDF(
-            udf,
-            name,
-            ScalaFunctions._toUdf(func, convertDataType(input), convertDataType(output)),
-            stageLocation));
+    return udf(
+        "registerPermanent",
+        name,
+        stageLocation,
+        () ->
+            new UserDefinedFunction(
+                JavaUtils.registerUDF(
+                    udf,
+                    name,
+                    ScalaFunctions._toUdf(func, convertDataType(input), convertDataType(output)),
+                    stageLocation)));
   }
 
   static com.snowflake.snowpark.types.DataType convertDataType(DataType javaType) {
