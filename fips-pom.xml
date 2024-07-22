@@ -37,7 +37,7 @@
         <scala.version>2.12.18</scala.version>
         <scala.compat.version>2.12</scala.compat.version>
         <spec2.version>4.2.0</spec2.version>
-        <snowflake.jdbc.version>3.16.0</snowflake.jdbc.version>
+        <snowflake.jdbc.version>3.17.0</snowflake.jdbc.version>
         <version.scala.binary>${scala.compat.version}</version.scala.binary>
         <doctitle>Snowpark ${project.version}</doctitle>
         <bouncycastle.version>1.64</bouncycastle.version>
