@@ -1,15 +1,36 @@
 package com.snowflake.snowpark.internal
 
-import com.snowflake.snowpark.UserDefinedFunction
 import io.opentelemetry.api.GlobalOpenTelemetry
 import io.opentelemetry.api.trace.{Span, StatusCode}
 
+import java.util.function.Supplier
 import scala.util.DynamicVariable
+import com.snowflake.snowpark_java.{UserDefinedFunction => JavaUDF}
 
 object OpenTelemetry extends Logging {
 
   private val spanInfo = new DynamicVariable[Option[SpanInfo]](None)
 
+  // Java API
+  def javaUDF(
+      className: String,
+      funcName: String,
+      execName: String,
+      execFilePath: String,
+      stackOffset: Int,
+      func: Supplier[JavaUDF]): JavaUDF = {
+    udx(
+      className,
+      funcName,
+      execName,
+      s"${UDXRegistrationHandler.className}.${UDXRegistrationHandler.methodName}",
+      execFilePath,
+      stackOffset + 2)(func.get())
+  }
+  def JavaUDTF(): Unit = {}
+  def JavaSProc(): Unit = {}
+
+  // Scala API
   def udx[T](
       className: String,
       funcName: String,
