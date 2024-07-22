@@ -2440,17 +2440,14 @@ class UDFRegistration(session: Session) extends Logging {
       stageLocation: Option[String] = None): UserDefinedFunction =
     handler.registerUDF(name, udf, stageLocation)
 
-  @inline protected def udf(
-      funcName: String,
-      execName: String = "",
-      execFilePath: String = "",
-      offset: Int = 0)(func: => UserDefinedFunction): UserDefinedFunction = {
+  @inline protected def udf(funcName: String, execName: String = "", execFilePath: String = "")(
+      func: => UserDefinedFunction): UserDefinedFunction = {
     OpenTelemetry.udf(
       "UDFRegistration",
       funcName,
       execName,
-      s"${handler.className}.${handler.methodName}",
+      s"${UDXRegistrationHandler.className}.${UDXRegistrationHandler.methodName}",
       execFilePath,
-      offset)(func)
+      0)(func)
   }
 }

@@ -1,6 +1,6 @@
 package com.snowflake.snowpark_test
 
-import com.snowflake.snowpark.{OpenTelemetryEnabled, TestUtils}
+import com.snowflake.snowpark.{OpenTelemetryEnabled, TestUtils, functions}
 
 class UdxOpenTelemetrySuite extends OpenTelemetryEnabled {
   override def beforeAll: Unit = {
@@ -18,6 +18,8 @@ class UdxOpenTelemetrySuite extends OpenTelemetryEnabled {
     val udfName = randomName()
     session.udf.registerTemporary(udfName, func)
     checkUdfSpan(className, "registerTemporary", udfName, "")
+    functions.udf(func)
+    checkUdfSpan("snow.snowpark.functions", "udf", "", "")
     val stageName = randomName()
     val udfName2 = randomFunctionName()
     try {
