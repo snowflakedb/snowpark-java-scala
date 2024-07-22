@@ -34,7 +34,7 @@ object UDXRegistrationHandler {
   val className = "SnowUDF"
   // Method name for generated Java code
   val methodName = "compute"
-  private val udtfClassName = "SnowparkGeneratedUDTF"
+  private val udtfClassName = className
 }
 
 class UDXRegistrationHandler(session: Session) extends Logging {

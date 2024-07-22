@@ -3,6 +3,10 @@ package com.snowflake.snowpark_java;
 import com.snowflake.snowpark.internal.JavaUtils;
 import com.snowflake.snowpark_java.udtf.*;
 
+import java.util.function.Supplier;
+
+import static com.snowflake.snowpark.internal.OpenTelemetry.javaUDTF;
+
 /**
  * Provides methods to register a UDTF (user-defined table function) in the Snowflake database.
  * {@code Session.udtf()} returns an object of this class.
@@ -255,7 +259,8 @@ public class UDTFRegistration {
    * @return A TableFunction that represents the corresponding FUNCTION created in Snowflake
    */
   public TableFunction registerTemporary(JavaUDTF udtf) {
-    return new TableFunction(JavaUtils.registerJavaUDTF(this.udtfRegistration, null, udtf, null));
+    return tableFunction("registerTemporary", "", "",
+            () -> new TableFunction(JavaUtils.registerJavaUDTF(this.udtfRegistration, null, udtf, null)));
   }
 
   /**
@@ -267,8 +272,8 @@ public class UDTFRegistration {
    * @return A TableFunction that represents the corresponding FUNCTION created in Snowflake
    */
   public TableFunction registerTemporary(String funcName, JavaUDTF udtf) {
-    return new TableFunction(
-        JavaUtils.registerJavaUDTF(this.udtfRegistration, funcName, udtf, null));
+    return tableFunction("registerTemporary", funcName, "", () -> new TableFunction(
+        JavaUtils.registerJavaUDTF(this.udtfRegistration, funcName, udtf, null)));
   }
 
   /**
@@ -289,7 +294,12 @@ public class UDTFRegistration {
    * @return A TableFunction that represents the corresponding FUNCTION created in Snowflake
    */
   public TableFunction registerPermanent(String funcName, JavaUDTF udtf, String stageLocation) {
-    return new TableFunction(
-        JavaUtils.registerJavaUDTF(this.udtfRegistration, funcName, udtf, stageLocation));
+    return tableFunction("registerPermanent", funcName, stageLocation, () -> new TableFunction(
+        JavaUtils.registerJavaUDTF(this.udtfRegistration, funcName, udtf, stageLocation)));
+  }
+
+  private TableFunction tableFunction(
+          String funcName, String execName, String execFilePath, Supplier<TableFunction> func) {
+    return javaUDTF("UDTFRegistration", funcName, execName, execFilePath, 0, func);
   }
 }

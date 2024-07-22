@@ -2,6 +2,7 @@ package com.snowflake.snowpark_test;
 
 import com.snowflake.snowpark_java.Functions;
 import com.snowflake.snowpark_java.Session;
+import com.snowflake.snowpark_java.TableFunction;
 import com.snowflake.snowpark_java.types.DataTypes;
 import com.snowflake.snowpark_java.udf.JavaUDF0;
 import org.junit.Test;
@@ -44,7 +45,29 @@ public class JavaUDXOpenTelemetrySuite extends JavaUDXOpenTelemetryEnabled {
       checkUdfSpan(className, "registerPermanent", funcName2, stageName);
     } finally {
       dropStage(stageName);
-      getSession().sql("drop function " + funcName2 + "()").collect();
+      getSession().sql("drop function " + funcName2 + "(int, int)").collect();
+    }
+  }
+
+  @Test
+  public void udtf() {
+    String className = "snow.snowpark.UDTFRegistration";
+    getSession().udtf().registerTemporary(new MyJavaUDTFOf0());
+    checkUdfSpan(className, "registerTemporary", "", "");
+    String funcName = randomFunctionName();
+    String funcName2 = randomFunctionName();
+    getSession().udtf().registerTemporary(funcName, new MyJavaUDTFOf0());
+    checkUdfSpan(className, "registerTemporary", funcName, "");
+
+    String stageName = randomStageName();
+    try {
+      createStage(stageName, false);
+      getSession().udtf().registerPermanent(funcName2, new MyJavaUDTFOf2(), stageName);
+      checkUdfSpan(className, "registerPermanent", funcName2, stageName);
+    }
+    finally {
+      getSession().sql("drop function " + funcName2 + "(int, int)").collect();
+      dropStage(stageName);
     }
   }
 
