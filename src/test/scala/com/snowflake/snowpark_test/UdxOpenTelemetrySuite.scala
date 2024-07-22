@@ -2,7 +2,7 @@ package com.snowflake.snowpark_test
 
 import com.snowflake.snowpark.types.{IntegerType, StructField, StructType}
 import com.snowflake.snowpark.udtf.UDTF0
-import com.snowflake.snowpark.{OpenTelemetryEnabled, Row, TestUtils, functions}
+import com.snowflake.snowpark.{OpenTelemetryEnabled, Row, Session, TestUtils, functions}
 
 class UdxOpenTelemetrySuite extends OpenTelemetryEnabled {
   override def beforeAll: Unit = {
@@ -58,6 +58,23 @@ class UdxOpenTelemetrySuite extends OpenTelemetryEnabled {
     } finally {
       runQuery(s"drop function $udtfName2()", session)
       dropStage(stageName)
+    }
+  }
+
+  test("sproc") {
+    val className: String = "snow.snowpark.SProcRegistration"
+    val spName: String = randomName()
+    val stageName: String = randomName()
+    val sproc = (_: Session) => s"SUCCESS"
+    session.sproc.registerTemporary(sproc)
+    checkUdfSpan(className, "registerTemporary", "", "")
+    try {
+      createStage(stageName, isTemporary = false)
+      session.sproc.registerPermanent(spName, sproc, stageName, isCallerMode = true)
+      checkUdfSpan(className, "registerPermanent", execName = spName, execFilePath = stageName)
+    } finally {
+      dropStage(stageName)
+      session.sql(s"drop procedure if exists $spName ()").show()
     }
   }
 
