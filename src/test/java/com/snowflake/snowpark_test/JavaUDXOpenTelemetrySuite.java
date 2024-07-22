@@ -1,5 +1,6 @@
 package com.snowflake.snowpark_test;
 
+import com.snowflake.snowpark_java.Functions;
 import com.snowflake.snowpark_java.Session;
 import com.snowflake.snowpark_java.types.DataTypes;
 import com.snowflake.snowpark_java.udf.JavaUDF0;
@@ -25,6 +26,7 @@ public class JavaUDXOpenTelemetrySuite extends JavaUDXOpenTelemetryEnabled {
   @Test
   public void udf() {
     String className = "snow.snowpark.UDFRegistration";
+    String className2 = "snow.snowpark.Functions";
     JavaUDF0 func = () -> 100;
     getSession().udf().registerTemporary(func, DataTypes.IntegerType);
     checkUdfSpan(className, "registerTemporary", "", "");
@@ -32,6 +34,8 @@ public class JavaUDXOpenTelemetrySuite extends JavaUDXOpenTelemetryEnabled {
     String funcName2 = randomFunctionName();
     getSession().udf().registerTemporary(funcName, func, DataTypes.IntegerType);
     checkUdfSpan(className, "registerTemporary", funcName, "");
+    Functions.udf(func, DataTypes.IntegerType);
+    checkUdfSpan(className2, "udf", "", "");
 
     String stageName = randomName();
     try {

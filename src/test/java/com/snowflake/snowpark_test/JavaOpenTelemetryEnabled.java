@@ -45,5 +45,4 @@ public abstract class JavaOpenTelemetryEnabled extends TestBase {
         span.getAttributes().get(AttributeKey.stringKey("method.chain")), methodChain);
     testSpanExporter.reset();
   }
-
 }

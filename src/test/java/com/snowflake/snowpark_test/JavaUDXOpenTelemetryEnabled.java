@@ -8,7 +8,6 @@ import io.opentelemetry.sdk.resources.Resource;
 import io.opentelemetry.sdk.trace.SdkTracerProvider;
 import io.opentelemetry.sdk.trace.data.SpanData;
 import io.opentelemetry.sdk.trace.export.SimpleSpanProcessor;
-
 import java.util.Objects;
 
 public abstract class JavaUDXOpenTelemetryEnabled extends UDFTestBase {

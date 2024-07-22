@@ -1,9 +1,12 @@
 package com.snowflake.snowpark_java;
 
+import static com.snowflake.snowpark.internal.OpenTelemetry.javaUDF;
+
 import com.snowflake.snowpark.internal.JavaUtils;
 import com.snowflake.snowpark_java.types.DataType;
 import com.snowflake.snowpark_java.udf.*;
 import java.util.List;
+import java.util.function.Supplier;
 
 /**
  * Provides utility functions that generate Column expression that you can pass to DataFrame
@@ -3912,8 +3915,8 @@ public final class Functions {
   //    |* @return The result UserDefinedFunction reference
   //    |*/
   //    |public static UserDefinedFunction udf(JavaUDF$x<$types> func,$input DataType output) {
-  //    |  return getActiveSession().udf()
-  //    |    .registerTemporary(func,${if(x == 0) "" else " input,"} output);
+  //    |  return userDefinedFunction("udf", () -> getActiveSession().udf()
+  //    |    .registerTemporary(func,${if(x == 0) "" else " input,"} output));
   //    |}
   //    |""".stripMargin)
   //  }
@@ -3927,7 +3930,8 @@ public final class Functions {
    * @return The result UserDefinedFunction reference
    */
   public static UserDefinedFunction udf(JavaUDF0<?> func, DataType output) {
-    return getActiveSession().udf().registerTemporary(func, output);
+    return userDefinedFunction(
+        "udf", () -> getActiveSession().udf().registerTemporary(func, output));
   }
 
   /**
@@ -3940,7 +3944,8 @@ public final class Functions {
    * @return The result UserDefinedFunction reference
    */
   public static UserDefinedFunction udf(JavaUDF1<?, ?> func, DataType input, DataType output) {
-    return getActiveSession().udf().registerTemporary(func, input, output);
+    return userDefinedFunction(
+        "udf", () -> getActiveSession().udf().registerTemporary(func, input, output));
   }
 
   /**
@@ -3953,7 +3958,8 @@ public final class Functions {
    * @return The result UserDefinedFunction reference
    */
   public static UserDefinedFunction udf(JavaUDF2<?, ?, ?> func, DataType[] input, DataType output) {
-    return getActiveSession().udf().registerTemporary(func, input, output);
+    return userDefinedFunction(
+        "udf", () -> getActiveSession().udf().registerTemporary(func, input, output));
   }
 
   /**
@@ -3967,7 +3973,8 @@ public final class Functions {
    */
   public static UserDefinedFunction udf(
       JavaUDF3<?, ?, ?, ?> func, DataType[] input, DataType output) {
-    return getActiveSession().udf().registerTemporary(func, input, output);
+    return userDefinedFunction(
+        "udf", () -> getActiveSession().udf().registerTemporary(func, input, output));
   }
 
   /**
@@ -3981,7 +3988,8 @@ public final class Functions {
    */
   public static UserDefinedFunction udf(
       JavaUDF4<?, ?, ?, ?, ?> func, DataType[] input, DataType output) {
-    return getActiveSession().udf().registerTemporary(func, input, output);
+    return userDefinedFunction(
+        "udf", () -> getActiveSession().udf().registerTemporary(func, input, output));
   }
 
   /**
@@ -3995,7 +4003,8 @@ public final class Functions {
    */
   public static UserDefinedFunction udf(
       JavaUDF5<?, ?, ?, ?, ?, ?> func, DataType[] input, DataType output) {
-    return getActiveSession().udf().registerTemporary(func, input, output);
+    return userDefinedFunction(
+        "udf", () -> getActiveSession().udf().registerTemporary(func, input, output));
   }
 
   /**
@@ -4009,7 +4018,8 @@ public final class Functions {
    */
   public static UserDefinedFunction udf(
       JavaUDF6<?, ?, ?, ?, ?, ?, ?> func, DataType[] input, DataType output) {
-    return getActiveSession().udf().registerTemporary(func, input, output);
+    return userDefinedFunction(
+        "udf", () -> getActiveSession().udf().registerTemporary(func, input, output));
   }
 
   /**
@@ -4023,7 +4033,8 @@ public final class Functions {
    */
   public static UserDefinedFunction udf(
       JavaUDF7<?, ?, ?, ?, ?, ?, ?, ?> func, DataType[] input, DataType output) {
-    return getActiveSession().udf().registerTemporary(func, input, output);
+    return userDefinedFunction(
+        "udf", () -> getActiveSession().udf().registerTemporary(func, input, output));
   }
 
   /**
@@ -4037,7 +4048,8 @@ public final class Functions {
    */
   public static UserDefinedFunction udf(
       JavaUDF8<?, ?, ?, ?, ?, ?, ?, ?, ?> func, DataType[] input, DataType output) {
-    return getActiveSession().udf().registerTemporary(func, input, output);
+    return userDefinedFunction(
+        "udf", () -> getActiveSession().udf().registerTemporary(func, input, output));
   }
 
   /**
@@ -4051,7 +4063,8 @@ public final class Functions {
    */
   public static UserDefinedFunction udf(
       JavaUDF9<?, ?, ?, ?, ?, ?, ?, ?, ?, ?> func, DataType[] input, DataType output) {
-    return getActiveSession().udf().registerTemporary(func, input, output);
+    return userDefinedFunction(
+        "udf", () -> getActiveSession().udf().registerTemporary(func, input, output));
   }
 
   /**
@@ -4065,7 +4078,8 @@ public final class Functions {
    */
   public static UserDefinedFunction udf(
       JavaUDF10<?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?> func, DataType[] input, DataType output) {
-    return getActiveSession().udf().registerTemporary(func, input, output);
+    return userDefinedFunction(
+        "udf", () -> getActiveSession().udf().registerTemporary(func, input, output));
   }
 
   /**
@@ -4079,7 +4093,8 @@ public final class Functions {
    */
   public static UserDefinedFunction udf(
       JavaUDF11<?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?> func, DataType[] input, DataType output) {
-    return getActiveSession().udf().registerTemporary(func, input, output);
+    return userDefinedFunction(
+        "udf", () -> getActiveSession().udf().registerTemporary(func, input, output));
   }
 
   /**
@@ -4093,7 +4108,8 @@ public final class Functions {
    */
   public static UserDefinedFunction udf(
       JavaUDF12<?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?> func, DataType[] input, DataType output) {
-    return getActiveSession().udf().registerTemporary(func, input, output);
+    return userDefinedFunction(
+        "udf", () -> getActiveSession().udf().registerTemporary(func, input, output));
   }
 
   /**
@@ -4107,7 +4123,8 @@ public final class Functions {
    */
   public static UserDefinedFunction udf(
       JavaUDF13<?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?> func, DataType[] input, DataType output) {
-    return getActiveSession().udf().registerTemporary(func, input, output);
+    return userDefinedFunction(
+        "udf", () -> getActiveSession().udf().registerTemporary(func, input, output));
   }
 
   /**
@@ -4123,7 +4140,8 @@ public final class Functions {
       JavaUDF14<?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?> func,
       DataType[] input,
       DataType output) {
-    return getActiveSession().udf().registerTemporary(func, input, output);
+    return userDefinedFunction(
+        "udf", () -> getActiveSession().udf().registerTemporary(func, input, output));
   }
 
   /**
@@ -4139,7 +4157,8 @@ public final class Functions {
       JavaUDF15<?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?> func,
       DataType[] input,
       DataType output) {
-    return getActiveSession().udf().registerTemporary(func, input, output);
+    return userDefinedFunction(
+        "udf", () -> getActiveSession().udf().registerTemporary(func, input, output));
   }
 
   /**
@@ -4155,7 +4174,8 @@ public final class Functions {
       JavaUDF16<?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?> func,
       DataType[] input,
       DataType output) {
-    return getActiveSession().udf().registerTemporary(func, input, output);
+    return userDefinedFunction(
+        "udf", () -> getActiveSession().udf().registerTemporary(func, input, output));
   }
 
   /**
@@ -4171,7 +4191,8 @@ public final class Functions {
       JavaUDF17<?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?> func,
       DataType[] input,
       DataType output) {
-    return getActiveSession().udf().registerTemporary(func, input, output);
+    return userDefinedFunction(
+        "udf", () -> getActiveSession().udf().registerTemporary(func, input, output));
   }
 
   /**
@@ -4187,7 +4208,8 @@ public final class Functions {
       JavaUDF18<?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?> func,
       DataType[] input,
       DataType output) {
-    return getActiveSession().udf().registerTemporary(func, input, output);
+    return userDefinedFunction(
+        "udf", () -> getActiveSession().udf().registerTemporary(func, input, output));
   }
 
   /**
@@ -4203,7 +4225,8 @@ public final class Functions {
       JavaUDF19<?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?> func,
       DataType[] input,
       DataType output) {
-    return getActiveSession().udf().registerTemporary(func, input, output);
+    return userDefinedFunction(
+        "udf", () -> getActiveSession().udf().registerTemporary(func, input, output));
   }
 
   /**
@@ -4219,7 +4242,8 @@ public final class Functions {
       JavaUDF20<?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?> func,
       DataType[] input,
       DataType output) {
-    return getActiveSession().udf().registerTemporary(func, input, output);
+    return userDefinedFunction(
+        "udf", () -> getActiveSession().udf().registerTemporary(func, input, output));
   }
 
   /**
@@ -4235,7 +4259,8 @@ public final class Functions {
       JavaUDF21<?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?> func,
       DataType[] input,
       DataType output) {
-    return getActiveSession().udf().registerTemporary(func, input, output);
+    return userDefinedFunction(
+        "udf", () -> getActiveSession().udf().registerTemporary(func, input, output));
   }
 
   /**
@@ -4251,10 +4276,16 @@ public final class Functions {
       JavaUDF22<?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?> func,
       DataType[] input,
       DataType output) {
-    return getActiveSession().udf().registerTemporary(func, input, output);
+    return userDefinedFunction(
+        "udf", () -> getActiveSession().udf().registerTemporary(func, input, output));
   }
 
   private static Session getActiveSession() {
     return new Session(JavaUtils.getActiveSession());
+  }
+
+  private static UserDefinedFunction userDefinedFunction(
+      String funcName, Supplier<UserDefinedFunction> func) {
+    return javaUDF("Functions", funcName, "", "", 0, func);
   }
 }
