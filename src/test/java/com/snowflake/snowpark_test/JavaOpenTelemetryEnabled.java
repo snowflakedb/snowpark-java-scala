@@ -47,27 +47,27 @@ public abstract class JavaOpenTelemetryEnabled extends UDFTestBase {
   }
 
   protected void checkSpan(
-          String className,
-          String funcName,
-          String fileName,
-          int lineNumber,
-          String execName,
-          String execHandler,
-          String execFilePath) {
+      String className,
+      String funcName,
+      String fileName,
+      int lineNumber,
+      String execName,
+      String execHandler,
+      String execFilePath) {
     SpanData span = testSpanExporter.getFinishedSpanItems().get(0);
     assert span.getName().equals(funcName);
     assert span.getInstrumentationScopeInfo().getName().equals(className);
     assert span.getTotalAttributeCount() == 5;
     assert Objects.equals(
-            span.getAttributes().get(AttributeKey.stringKey("code.filepath")), fileName);
+        span.getAttributes().get(AttributeKey.stringKey("code.filepath")), fileName);
     assert Objects.equals(
-            span.getAttributes().get(AttributeKey.longKey("code.lineno")), (long) lineNumber);
+        span.getAttributes().get(AttributeKey.longKey("code.lineno")), (long) lineNumber);
     assert Objects.equals(
-            span.getAttributes().get(AttributeKey.stringKey("snow.executable.name")), execName);
+        span.getAttributes().get(AttributeKey.stringKey("snow.executable.name")), execName);
     assert Objects.equals(
-            span.getAttributes().get(AttributeKey.stringKey("snow.executable.handler")), execHandler);
+        span.getAttributes().get(AttributeKey.stringKey("snow.executable.handler")), execHandler);
     assert Objects.equals(
-            span.getAttributes().get(AttributeKey.stringKey("snow.executable.filepath")), execFilePath);
+        span.getAttributes().get(AttributeKey.stringKey("snow.executable.filepath")), execFilePath);
     testSpanExporter.reset();
   }
 }

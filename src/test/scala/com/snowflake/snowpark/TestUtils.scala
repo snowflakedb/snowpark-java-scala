@@ -176,8 +176,8 @@ object TestUtils extends Logging {
       classOf[BeforeAndAfterAll], // scala test jar
       classOf[org.scalactic.TripleEquals], // scalactic jar
       classOf[io.opentelemetry.exporters.inmemory.InMemorySpanExporter],
-      classOf[io.opentelemetry.sdk.trace.export.SpanExporter]
-    ).flatMap(UDFClassPath.getPathForClass(_))
+      classOf[io.opentelemetry.sdk.trace.export.SpanExporter])
+      .flatMap(UDFClassPath.getPathForClass(_))
       .foreach(path => {
         val file = new File(path)
         sess.sql(s"put file://$path @$stage/  AUTO_COMPRESS = FALSE").collect()
