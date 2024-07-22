@@ -48,7 +48,6 @@ object OpenTelemetry extends Logging {
         throw error
     }
   }
-
   // wrapper of all action functions
   def action[T](
       className: String,
