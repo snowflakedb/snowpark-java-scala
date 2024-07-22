@@ -65,13 +65,16 @@ class UdxOpenTelemetrySuite extends OpenTelemetryEnabled {
     val className: String = "snow.snowpark.SProcRegistration"
     val spName: String = randomName()
     val stageName: String = randomName()
+    val spName1: String = randomName()
     val sproc = (_: Session) => s"SUCCESS"
     session.sproc.registerTemporary(sproc)
     checkUdfSpan(className, "registerTemporary", "", "")
+    session.sproc.registerTemporary(spName1, sproc)
+    checkUdfSpan(className, "registerTemporary", spName1, "")
     try {
       createStage(stageName, isTemporary = false)
       session.sproc.registerPermanent(spName, sproc, stageName, isCallerMode = true)
-      checkUdfSpan(className, "registerPermanent", execName = spName, execFilePath = stageName)
+      checkUdfSpan(className, "registerPermanent", spName, stageName)
     } finally {
       dropStage(stageName)
       session.sql(s"drop procedure if exists $spName ()").show()

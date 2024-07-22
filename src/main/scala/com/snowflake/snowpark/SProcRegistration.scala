@@ -1440,7 +1440,8 @@ class SProcRegistration(session: Session) {
        | *
        | * @tparam RT Return type of the UDF.
        | */
-       |def registerTemporary[$typeTags](name: String, sp: Function${x + 1}[Session, $types]): StoredProcedure = {
+       |def registerTemporary[$typeTags](name: String, sp: Function${x + 1}[Session, $types]): StoredProcedure =
+       | sproc("registerTemporary", execName = name) {
        |  register(Some(name), _toSP(sp))
        |}""".stripMargin)
      }
@@ -1453,12 +1454,10 @@ class SProcRegistration(session: Session) {
    *
    * @tparam RT Return type of the UDF.
    */
-  @PublicPreview
-  def registerTemporary[RT: TypeTag](
-      name: String,
-      sp: Function1[Session, RT]): StoredProcedure = {
-    register(Some(name), _toSP(sp))
-  }
+  def registerTemporary[RT: TypeTag](name: String, sp: Function1[Session, RT]): StoredProcedure =
+    sproc("registerTemporary", execName = name) {
+      register(Some(name), _toSP(sp))
+    }
 
   /**
    * Registers a Scala closure of 1 arguments as a temporary Stored Procedure that is
@@ -1466,12 +1465,12 @@ class SProcRegistration(session: Session) {
    *
    * @tparam RT Return type of the UDF.
    */
-  @PublicPreview
   def registerTemporary[RT: TypeTag, A1: TypeTag](
       name: String,
-      sp: Function2[Session, A1, RT]): StoredProcedure = {
-    register(Some(name), _toSP(sp))
-  }
+      sp: Function2[Session, A1, RT]): StoredProcedure =
+    sproc("registerTemporary", execName = name) {
+      register(Some(name), _toSP(sp))
+    }
 
   /**
    * Registers a Scala closure of 2 arguments as a temporary Stored Procedure that is
@@ -1479,12 +1478,12 @@ class SProcRegistration(session: Session) {
    *
    * @tparam RT Return type of the UDF.
    */
-  @PublicPreview
   def registerTemporary[RT: TypeTag, A1: TypeTag, A2: TypeTag](
       name: String,
-      sp: Function3[Session, A1, A2, RT]): StoredProcedure = {
-    register(Some(name), _toSP(sp))
-  }
+      sp: Function3[Session, A1, A2, RT]): StoredProcedure =
+    sproc("registerTemporary", execName = name) {
+      register(Some(name), _toSP(sp))
+    }
 
   /**
    * Registers a Scala closure of 3 arguments as a temporary Stored Procedure that is
@@ -1492,12 +1491,12 @@ class SProcRegistration(session: Session) {
    *
    * @tparam RT Return type of the UDF.
    */
-  @PublicPreview
   def registerTemporary[RT: TypeTag, A1: TypeTag, A2: TypeTag, A3: TypeTag](
       name: String,
-      sp: Function4[Session, A1, A2, A3, RT]): StoredProcedure = {
-    register(Some(name), _toSP(sp))
-  }
+      sp: Function4[Session, A1, A2, A3, RT]): StoredProcedure =
+    sproc("registerTemporary", execName = name) {
+      register(Some(name), _toSP(sp))
+    }
 
   /**
    * Registers a Scala closure of 4 arguments as a temporary Stored Procedure that is
@@ -1505,12 +1504,12 @@ class SProcRegistration(session: Session) {
    *
    * @tparam RT Return type of the UDF.
    */
-  @PublicPreview
   def registerTemporary[RT: TypeTag, A1: TypeTag, A2: TypeTag, A3: TypeTag, A4: TypeTag](
       name: String,
-      sp: Function5[Session, A1, A2, A3, A4, RT]): StoredProcedure = {
-    register(Some(name), _toSP(sp))
-  }
+      sp: Function5[Session, A1, A2, A3, A4, RT]): StoredProcedure =
+    sproc("registerTemporary", execName = name) {
+      register(Some(name), _toSP(sp))
+    }
 
   /**
    * Registers a Scala closure of 5 arguments as a temporary Stored Procedure that is
@@ -1518,7 +1517,6 @@ class SProcRegistration(session: Session) {
    *
    * @tparam RT Return type of the UDF.
    */
-  @PublicPreview
   def registerTemporary[
       RT: TypeTag,
       A1: TypeTag,
@@ -1527,9 +1525,10 @@ class SProcRegistration(session: Session) {
       A4: TypeTag,
       A5: TypeTag](
       name: String,
-      sp: Function6[Session, A1, A2, A3, A4, A5, RT]): StoredProcedure = {
-    register(Some(name), _toSP(sp))
-  }
+      sp: Function6[Session, A1, A2, A3, A4, A5, RT]): StoredProcedure =
+    sproc("registerTemporary", execName = name) {
+      register(Some(name), _toSP(sp))
+    }
 
   /**
    * Registers a Scala closure of 6 arguments as a temporary Stored Procedure that is
@@ -1537,7 +1536,6 @@ class SProcRegistration(session: Session) {
    *
    * @tparam RT Return type of the UDF.
    */
-  @PublicPreview
   def registerTemporary[
       RT: TypeTag,
       A1: TypeTag,
@@ -1547,9 +1545,10 @@ class SProcRegistration(session: Session) {
       A5: TypeTag,
       A6: TypeTag](
       name: String,
-      sp: Function7[Session, A1, A2, A3, A4, A5, A6, RT]): StoredProcedure = {
-    register(Some(name), _toSP(sp))
-  }
+      sp: Function7[Session, A1, A2, A3, A4, A5, A6, RT]): StoredProcedure =
+    sproc("registerTemporary", execName = name) {
+      register(Some(name), _toSP(sp))
+    }
 
   /**
    * Registers a Scala closure of 7 arguments as a temporary Stored Procedure that is
@@ -1557,7 +1556,6 @@ class SProcRegistration(session: Session) {
    *
    * @tparam RT Return type of the UDF.
    */
-  @PublicPreview
   def registerTemporary[
       RT: TypeTag,
       A1: TypeTag,
@@ -1568,9 +1566,10 @@ class SProcRegistration(session: Session) {
       A6: TypeTag,
       A7: TypeTag](
       name: String,
-      sp: Function8[Session, A1, A2, A3, A4, A5, A6, A7, RT]): StoredProcedure = {
-    register(Some(name), _toSP(sp))
-  }
+      sp: Function8[Session, A1, A2, A3, A4, A5, A6, A7, RT]): StoredProcedure =
+    sproc("registerTemporary", execName = name) {
+      register(Some(name), _toSP(sp))
+    }
 
   /**
    * Registers a Scala closure of 8 arguments as a temporary Stored Procedure that is
@@ -1578,7 +1577,6 @@ class SProcRegistration(session: Session) {
    *
    * @tparam RT Return type of the UDF.
    */
-  @PublicPreview
   def registerTemporary[
       RT: TypeTag,
       A1: TypeTag,
@@ -1590,9 +1588,10 @@ class SProcRegistration(session: Session) {
       A7: TypeTag,
       A8: TypeTag](
       name: String,
-      sp: Function9[Session, A1, A2, A3, A4, A5, A6, A7, A8, RT]): StoredProcedure = {
-    register(Some(name), _toSP(sp))
-  }
+      sp: Function9[Session, A1, A2, A3, A4, A5, A6, A7, A8, RT]): StoredProcedure =
+    sproc("registerTemporary", execName = name) {
+      register(Some(name), _toSP(sp))
+    }
 
   /**
    * Registers a Scala closure of 9 arguments as a temporary Stored Procedure that is
@@ -1600,7 +1599,6 @@ class SProcRegistration(session: Session) {
    *
    * @tparam RT Return type of the UDF.
    */
-  @PublicPreview
   def registerTemporary[
       RT: TypeTag,
       A1: TypeTag,
@@ -1613,9 +1611,10 @@ class SProcRegistration(session: Session) {
       A8: TypeTag,
       A9: TypeTag](
       name: String,
-      sp: Function10[Session, A1, A2, A3, A4, A5, A6, A7, A8, A9, RT]): StoredProcedure = {
-    register(Some(name), _toSP(sp))
-  }
+      sp: Function10[Session, A1, A2, A3, A4, A5, A6, A7, A8, A9, RT]): StoredProcedure =
+    sproc("registerTemporary", execName = name) {
+      register(Some(name), _toSP(sp))
+    }
 
   /**
    * Registers a Scala closure of 10 arguments as a temporary Stored Procedure that is
@@ -1623,7 +1622,6 @@ class SProcRegistration(session: Session) {
    *
    * @tparam RT Return type of the UDF.
    */
-  @PublicPreview
   def registerTemporary[
       RT: TypeTag,
       A1: TypeTag,
@@ -1637,9 +1635,10 @@ class SProcRegistration(session: Session) {
       A9: TypeTag,
       A10: TypeTag](
       name: String,
-      sp: Function11[Session, A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, RT]): StoredProcedure = {
-    register(Some(name), _toSP(sp))
-  }
+      sp: Function11[Session, A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, RT]): StoredProcedure =
+    sproc("registerTemporary", execName = name) {
+      register(Some(name), _toSP(sp))
+    }
 
   /**
    * Registers a Scala closure of 11 arguments as a temporary Stored Procedure that is
@@ -1647,7 +1646,6 @@ class SProcRegistration(session: Session) {
    *
    * @tparam RT Return type of the UDF.
    */
-  @PublicPreview
   def registerTemporary[
       RT: TypeTag,
       A1: TypeTag,
@@ -1663,9 +1661,10 @@ class SProcRegistration(session: Session) {
       A11: TypeTag](
       name: String,
       sp: Function12[Session, A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, RT])
-    : StoredProcedure = {
-    register(Some(name), _toSP(sp))
-  }
+    : StoredProcedure =
+    sproc("registerTemporary", execName = name) {
+      register(Some(name), _toSP(sp))
+    }
 
   /**
    * Registers a Scala closure of 12 arguments as a temporary Stored Procedure that is
@@ -1673,7 +1672,6 @@ class SProcRegistration(session: Session) {
    *
    * @tparam RT Return type of the UDF.
    */
-  @PublicPreview
   def registerTemporary[
       RT: TypeTag,
       A1: TypeTag,
@@ -1690,9 +1688,10 @@ class SProcRegistration(session: Session) {
       A12: TypeTag](
       name: String,
       sp: Function13[Session, A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, RT])
-    : StoredProcedure = {
-    register(Some(name), _toSP(sp))
-  }
+    : StoredProcedure =
+    sproc("registerTemporary", execName = name) {
+      register(Some(name), _toSP(sp))
+    }
 
   /**
    * Registers a Scala closure of 13 arguments as a temporary Stored Procedure that is
@@ -1700,7 +1699,6 @@ class SProcRegistration(session: Session) {
    *
    * @tparam RT Return type of the UDF.
    */
-  @PublicPreview
   def registerTemporary[
       RT: TypeTag,
       A1: TypeTag,
@@ -1718,9 +1716,10 @@ class SProcRegistration(session: Session) {
       A13: TypeTag](
       name: String,
       sp: Function14[Session, A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, RT])
-    : StoredProcedure = {
-    register(Some(name), _toSP(sp))
-  }
+    : StoredProcedure =
+    sproc("registerTemporary", execName = name) {
+      register(Some(name), _toSP(sp))
+    }
 
   /**
    * Registers a Scala closure of 14 arguments as a temporary Stored Procedure that is
@@ -1728,7 +1727,6 @@ class SProcRegistration(session: Session) {
    *
    * @tparam RT Return type of the UDF.
    */
-  @PublicPreview
   def registerTemporary[
       RT: TypeTag,
       A1: TypeTag,
@@ -1747,9 +1745,10 @@ class SProcRegistration(session: Session) {
       A14: TypeTag](
       name: String,
       sp: Function15[Session, A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, RT])
-    : StoredProcedure = {
-    register(Some(name), _toSP(sp))
-  }
+    : StoredProcedure =
+    sproc("registerTemporary", execName = name) {
+      register(Some(name), _toSP(sp))
+    }
 
   /**
    * Registers a Scala closure of 15 arguments as a temporary Stored Procedure that is
@@ -1757,7 +1756,6 @@ class SProcRegistration(session: Session) {
    *
    * @tparam RT Return type of the UDF.
    */
-  @PublicPreview
   def registerTemporary[
       RT: TypeTag,
       A1: TypeTag,
@@ -1793,9 +1791,10 @@ class SProcRegistration(session: Session) {
         A13,
         A14,
         A15,
-        RT]): StoredProcedure = {
-    register(Some(name), _toSP(sp))
-  }
+        RT]): StoredProcedure =
+    sproc("registerTemporary", execName = name) {
+      register(Some(name), _toSP(sp))
+    }
 
   /**
    * Registers a Scala closure of 16 arguments as a temporary Stored Procedure that is
@@ -1803,7 +1802,6 @@ class SProcRegistration(session: Session) {
    *
    * @tparam RT Return type of the UDF.
    */
-  @PublicPreview
   def registerTemporary[
       RT: TypeTag,
       A1: TypeTag,
@@ -1841,9 +1839,10 @@ class SProcRegistration(session: Session) {
         A14,
         A15,
         A16,
-        RT]): StoredProcedure = {
-    register(Some(name), _toSP(sp))
-  }
+        RT]): StoredProcedure =
+    sproc("registerTemporary", execName = name) {
+      register(Some(name), _toSP(sp))
+    }
 
   /**
    * Registers a Scala closure of 17 arguments as a temporary Stored Procedure that is
@@ -1851,7 +1850,6 @@ class SProcRegistration(session: Session) {
    *
    * @tparam RT Return type of the UDF.
    */
-  @PublicPreview
   def registerTemporary[
       RT: TypeTag,
       A1: TypeTag,
@@ -1891,9 +1889,10 @@ class SProcRegistration(session: Session) {
         A15,
         A16,
         A17,
-        RT]): StoredProcedure = {
-    register(Some(name), _toSP(sp))
-  }
+        RT]): StoredProcedure =
+    sproc("registerTemporary", execName = name) {
+      register(Some(name), _toSP(sp))
+    }
 
   /**
    * Registers a Scala closure of 18 arguments as a temporary Stored Procedure that is
@@ -1901,7 +1900,6 @@ class SProcRegistration(session: Session) {
    *
    * @tparam RT Return type of the UDF.
    */
-  @PublicPreview
   def registerTemporary[
       RT: TypeTag,
       A1: TypeTag,
@@ -1943,9 +1941,10 @@ class SProcRegistration(session: Session) {
         A16,
         A17,
         A18,
-        RT]): StoredProcedure = {
-    register(Some(name), _toSP(sp))
-  }
+        RT]): StoredProcedure =
+    sproc("registerTemporary", execName = name) {
+      register(Some(name), _toSP(sp))
+    }
 
   /**
    * Registers a Scala closure of 19 arguments as a temporary Stored Procedure that is
@@ -1953,7 +1952,6 @@ class SProcRegistration(session: Session) {
    *
    * @tparam RT Return type of the UDF.
    */
-  @PublicPreview
   def registerTemporary[
       RT: TypeTag,
       A1: TypeTag,
@@ -1997,9 +1995,10 @@ class SProcRegistration(session: Session) {
         A17,
         A18,
         A19,
-        RT]): StoredProcedure = {
-    register(Some(name), _toSP(sp))
-  }
+        RT]): StoredProcedure =
+    sproc("registerTemporary", execName = name) {
+      register(Some(name), _toSP(sp))
+    }
 
   /**
    * Registers a Scala closure of 20 arguments as a temporary Stored Procedure that is
@@ -2007,7 +2006,6 @@ class SProcRegistration(session: Session) {
    *
    * @tparam RT Return type of the UDF.
    */
-  @PublicPreview
   def registerTemporary[
       RT: TypeTag,
       A1: TypeTag,
@@ -2053,9 +2051,10 @@ class SProcRegistration(session: Session) {
         A18,
         A19,
         A20,
-        RT]): StoredProcedure = {
-    register(Some(name), _toSP(sp))
-  }
+        RT]): StoredProcedure =
+    sproc("registerTemporary", execName = name) {
+      register(Some(name), _toSP(sp))
+    }
 
   /**
    * Registers a Scala closure of 21 arguments as a temporary Stored Procedure that is
@@ -2063,7 +2062,6 @@ class SProcRegistration(session: Session) {
    *
    * @tparam RT Return type of the UDF.
    */
-  @PublicPreview
   def registerTemporary[
       RT: TypeTag,
       A1: TypeTag,
@@ -2111,9 +2109,10 @@ class SProcRegistration(session: Session) {
         A19,
         A20,
         A21,
-        RT]): StoredProcedure = {
-    register(Some(name), _toSP(sp))
-  }
+        RT]): StoredProcedure =
+    sproc("registerTemporary", execName = name) {
+      register(Some(name), _toSP(sp))
+    }
 
   private[snowpark] def register(
       name: Option[String],
