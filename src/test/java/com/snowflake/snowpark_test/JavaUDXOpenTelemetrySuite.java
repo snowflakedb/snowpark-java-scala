@@ -45,7 +45,7 @@ public class JavaUDXOpenTelemetrySuite extends JavaUDXOpenTelemetryEnabled {
       checkUdfSpan(className, "registerPermanent", funcName2, stageName);
     } finally {
       dropStage(stageName);
-      getSession().sql("drop function " + funcName2 + "(int, int)").collect();
+      getSession().sql("drop function " + funcName2 + "()").collect();
     }
   }
 

@@ -146,7 +146,8 @@ object TestUtils extends Logging {
       classOf[org.scalactic.TripleEquals], // scalactic jar
       classOf[io.opentelemetry.exporters.inmemory.InMemorySpanExporter],
       classOf[io.opentelemetry.sdk.trace.export.SpanExporter],
-      classOf[scala.collection.Iterator[_]])
+      classOf[scala.collection.Iterator[_]],
+      classOf[scala.reflect.api.TypeTags])
       .flatMap(UDFClassPath.getPathForClass(_))
       .foreach(path => {
         val file = new File(path)
