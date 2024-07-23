@@ -1,10 +1,13 @@
 package com.snowflake.snowpark_java;
 
+import static com.snowflake.snowpark.internal.OpenTelemetry.javaUDF;
+
 import com.snowflake.snowpark.internal.JavaDataTypeUtils;
 import com.snowflake.snowpark.internal.JavaUtils;
 import com.snowflake.snowpark.internal.ScalaFunctions;
 import com.snowflake.snowpark_java.types.DataType;
 import com.snowflake.snowpark_java.udf.*;
+import java.util.function.Supplier;
 
 /**
  * Provides methods to register lambdas and functions as UDFs in the Snowflake database. {@code
@@ -43,12 +46,12 @@ public class UDFRegistration {
   //      | */
   //      |public UserDefinedFunction registerTemporary(JavaUDF$x<$types> func,$input DataType
   // output) {
-  //      |  return new UserDefinedFunction(
+  //      |  return udf("registerTemporary", () -> new UserDefinedFunction(
   //      |    JavaUtils.registerUDF(
   //      |      udf,
   //      |      null,
   //      |      ScalaFunctions._toUdf(func,$arg convertDataType(output)),
-  //      |      null));
+  //      |      null)));
   //      |}""".stripMargin)
   //  }
 
@@ -62,9 +65,12 @@ public class UDFRegistration {
    * @return The result UserDefinedFunction reference
    */
   public UserDefinedFunction registerTemporary(JavaUDF0<?> func, DataType output) {
-    return new UserDefinedFunction(
-        JavaUtils.registerUDF(
-            udf, null, ScalaFunctions._toUdf(func, convertDataType(output)), null));
+    return udf(
+        "registerTemporary",
+        () ->
+            new UserDefinedFunction(
+                JavaUtils.registerUDF(
+                    udf, null, ScalaFunctions._toUdf(func, convertDataType(output)), null)));
   }
 
   /**
@@ -79,12 +85,15 @@ public class UDFRegistration {
    */
   public UserDefinedFunction registerTemporary(
       JavaUDF1<?, ?> func, DataType input, DataType output) {
-    return new UserDefinedFunction(
-        JavaUtils.registerUDF(
-            udf,
-            null,
-            ScalaFunctions._toUdf(func, convertDataType(input), convertDataType(output)),
-            null));
+    return udf(
+        "registerTemporary",
+        () ->
+            new UserDefinedFunction(
+                JavaUtils.registerUDF(
+                    udf,
+                    null,
+                    ScalaFunctions._toUdf(func, convertDataType(input), convertDataType(output)),
+                    null)));
   }
 
   /**
@@ -99,12 +108,15 @@ public class UDFRegistration {
    */
   public UserDefinedFunction registerTemporary(
       JavaUDF2<?, ?, ?> func, DataType[] input, DataType output) {
-    return new UserDefinedFunction(
-        JavaUtils.registerUDF(
-            udf,
-            null,
-            ScalaFunctions._toUdf(func, convertDataType(input), convertDataType(output)),
-            null));
+    return udf(
+        "registerTemporary",
+        () ->
+            new UserDefinedFunction(
+                JavaUtils.registerUDF(
+                    udf,
+                    null,
+                    ScalaFunctions._toUdf(func, convertDataType(input), convertDataType(output)),
+                    null)));
   }
 
   /**
@@ -119,12 +131,15 @@ public class UDFRegistration {
    */
   public UserDefinedFunction registerTemporary(
       JavaUDF3<?, ?, ?, ?> func, DataType[] input, DataType output) {
-    return new UserDefinedFunction(
-        JavaUtils.registerUDF(
-            udf,
-            null,
-            ScalaFunctions._toUdf(func, convertDataType(input), convertDataType(output)),
-            null));
+    return udf(
+        "registerTemporary",
+        () ->
+            new UserDefinedFunction(
+                JavaUtils.registerUDF(
+                    udf,
+                    null,
+                    ScalaFunctions._toUdf(func, convertDataType(input), convertDataType(output)),
+                    null)));
   }
 
   /**
@@ -139,12 +154,15 @@ public class UDFRegistration {
    */
   public UserDefinedFunction registerTemporary(
       JavaUDF4<?, ?, ?, ?, ?> func, DataType[] input, DataType output) {
-    return new UserDefinedFunction(
-        JavaUtils.registerUDF(
-            udf,
-            null,
-            ScalaFunctions._toUdf(func, convertDataType(input), convertDataType(output)),
-            null));
+    return udf(
+        "registerTemporary",
+        () ->
+            new UserDefinedFunction(
+                JavaUtils.registerUDF(
+                    udf,
+                    null,
+                    ScalaFunctions._toUdf(func, convertDataType(input), convertDataType(output)),
+                    null)));
   }
 
   /**
@@ -159,12 +177,15 @@ public class UDFRegistration {
    */
   public UserDefinedFunction registerTemporary(
       JavaUDF5<?, ?, ?, ?, ?, ?> func, DataType[] input, DataType output) {
-    return new UserDefinedFunction(
-        JavaUtils.registerUDF(
-            udf,
-            null,
-            ScalaFunctions._toUdf(func, convertDataType(input), convertDataType(output)),
-            null));
+    return udf(
+        "registerTemporary",
+        () ->
+            new UserDefinedFunction(
+                JavaUtils.registerUDF(
+                    udf,
+                    null,
+                    ScalaFunctions._toUdf(func, convertDataType(input), convertDataType(output)),
+                    null)));
   }
 
   /**
@@ -179,12 +200,15 @@ public class UDFRegistration {
    */
   public UserDefinedFunction registerTemporary(
       JavaUDF6<?, ?, ?, ?, ?, ?, ?> func, DataType[] input, DataType output) {
-    return new UserDefinedFunction(
-        JavaUtils.registerUDF(
-            udf,
-            null,
-            ScalaFunctions._toUdf(func, convertDataType(input), convertDataType(output)),
-            null));
+    return udf(
+        "registerTemporary",
+        () ->
+            new UserDefinedFunction(
+                JavaUtils.registerUDF(
+                    udf,
+                    null,
+                    ScalaFunctions._toUdf(func, convertDataType(input), convertDataType(output)),
+                    null)));
   }
 
   /**
@@ -199,12 +223,15 @@ public class UDFRegistration {
    */
   public UserDefinedFunction registerTemporary(
       JavaUDF7<?, ?, ?, ?, ?, ?, ?, ?> func, DataType[] input, DataType output) {
-    return new UserDefinedFunction(
-        JavaUtils.registerUDF(
-            udf,
-            null,
-            ScalaFunctions._toUdf(func, convertDataType(input), convertDataType(output)),
-            null));
+    return udf(
+        "registerTemporary",
+        () ->
+            new UserDefinedFunction(
+                JavaUtils.registerUDF(
+                    udf,
+                    null,
+                    ScalaFunctions._toUdf(func, convertDataType(input), convertDataType(output)),
+                    null)));
   }
 
   /**
@@ -219,12 +246,15 @@ public class UDFRegistration {
    */
   public UserDefinedFunction registerTemporary(
       JavaUDF8<?, ?, ?, ?, ?, ?, ?, ?, ?> func, DataType[] input, DataType output) {
-    return new UserDefinedFunction(
-        JavaUtils.registerUDF(
-            udf,
-            null,
-            ScalaFunctions._toUdf(func, convertDataType(input), convertDataType(output)),
-            null));
+    return udf(
+        "registerTemporary",
+        () ->
+            new UserDefinedFunction(
+                JavaUtils.registerUDF(
+                    udf,
+                    null,
+                    ScalaFunctions._toUdf(func, convertDataType(input), convertDataType(output)),
+                    null)));
   }
 
   /**
@@ -239,12 +269,15 @@ public class UDFRegistration {
    */
   public UserDefinedFunction registerTemporary(
       JavaUDF9<?, ?, ?, ?, ?, ?, ?, ?, ?, ?> func, DataType[] input, DataType output) {
-    return new UserDefinedFunction(
-        JavaUtils.registerUDF(
-            udf,
-            null,
-            ScalaFunctions._toUdf(func, convertDataType(input), convertDataType(output)),
-            null));
+    return udf(
+        "registerTemporary",
+        () ->
+            new UserDefinedFunction(
+                JavaUtils.registerUDF(
+                    udf,
+                    null,
+                    ScalaFunctions._toUdf(func, convertDataType(input), convertDataType(output)),
+                    null)));
   }
 
   /**
@@ -259,12 +292,15 @@ public class UDFRegistration {
    */
   public UserDefinedFunction registerTemporary(
       JavaUDF10<?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?> func, DataType[] input, DataType output) {
-    return new UserDefinedFunction(
-        JavaUtils.registerUDF(
-            udf,
-            null,
-            ScalaFunctions._toUdf(func, convertDataType(input), convertDataType(output)),
-            null));
+    return udf(
+        "registerTemporary",
+        () ->
+            new UserDefinedFunction(
+                JavaUtils.registerUDF(
+                    udf,
+                    null,
+                    ScalaFunctions._toUdf(func, convertDataType(input), convertDataType(output)),
+                    null)));
   }
 
   /**
@@ -279,12 +315,15 @@ public class UDFRegistration {
    */
   public UserDefinedFunction registerTemporary(
       JavaUDF11<?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?> func, DataType[] input, DataType output) {
-    return new UserDefinedFunction(
-        JavaUtils.registerUDF(
-            udf,
-            null,
-            ScalaFunctions._toUdf(func, convertDataType(input), convertDataType(output)),
-            null));
+    return udf(
+        "registerTemporary",
+        () ->
+            new UserDefinedFunction(
+                JavaUtils.registerUDF(
+                    udf,
+                    null,
+                    ScalaFunctions._toUdf(func, convertDataType(input), convertDataType(output)),
+                    null)));
   }
 
   /**
@@ -299,12 +338,15 @@ public class UDFRegistration {
    */
   public UserDefinedFunction registerTemporary(
       JavaUDF12<?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?> func, DataType[] input, DataType output) {
-    return new UserDefinedFunction(
-        JavaUtils.registerUDF(
-            udf,
-            null,
-            ScalaFunctions._toUdf(func, convertDataType(input), convertDataType(output)),
-            null));
+    return udf(
+        "registerTemporary",
+        () ->
+            new UserDefinedFunction(
+                JavaUtils.registerUDF(
+                    udf,
+                    null,
+                    ScalaFunctions._toUdf(func, convertDataType(input), convertDataType(output)),
+                    null)));
   }
 
   /**
@@ -319,12 +361,15 @@ public class UDFRegistration {
    */
   public UserDefinedFunction registerTemporary(
       JavaUDF13<?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?> func, DataType[] input, DataType output) {
-    return new UserDefinedFunction(
-        JavaUtils.registerUDF(
-            udf,
-            null,
-            ScalaFunctions._toUdf(func, convertDataType(input), convertDataType(output)),
-            null));
+    return udf(
+        "registerTemporary",
+        () ->
+            new UserDefinedFunction(
+                JavaUtils.registerUDF(
+                    udf,
+                    null,
+                    ScalaFunctions._toUdf(func, convertDataType(input), convertDataType(output)),
+                    null)));
   }
 
   /**
@@ -341,12 +386,15 @@ public class UDFRegistration {
       JavaUDF14<?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?> func,
       DataType[] input,
       DataType output) {
-    return new UserDefinedFunction(
-        JavaUtils.registerUDF(
-            udf,
-            null,
-            ScalaFunctions._toUdf(func, convertDataType(input), convertDataType(output)),
-            null));
+    return udf(
+        "registerTemporary",
+        () ->
+            new UserDefinedFunction(
+                JavaUtils.registerUDF(
+                    udf,
+                    null,
+                    ScalaFunctions._toUdf(func, convertDataType(input), convertDataType(output)),
+                    null)));
   }
 
   /**
@@ -363,12 +411,15 @@ public class UDFRegistration {
       JavaUDF15<?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?> func,
       DataType[] input,
       DataType output) {
-    return new UserDefinedFunction(
-        JavaUtils.registerUDF(
-            udf,
-            null,
-            ScalaFunctions._toUdf(func, convertDataType(input), convertDataType(output)),
-            null));
+    return udf(
+        "registerTemporary",
+        () ->
+            new UserDefinedFunction(
+                JavaUtils.registerUDF(
+                    udf,
+                    null,
+                    ScalaFunctions._toUdf(func, convertDataType(input), convertDataType(output)),
+                    null)));
   }
 
   /**
@@ -385,12 +436,15 @@ public class UDFRegistration {
       JavaUDF16<?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?> func,
       DataType[] input,
       DataType output) {
-    return new UserDefinedFunction(
-        JavaUtils.registerUDF(
-            udf,
-            null,
-            ScalaFunctions._toUdf(func, convertDataType(input), convertDataType(output)),
-            null));
+    return udf(
+        "registerTemporary",
+        () ->
+            new UserDefinedFunction(
+                JavaUtils.registerUDF(
+                    udf,
+                    null,
+                    ScalaFunctions._toUdf(func, convertDataType(input), convertDataType(output)),
+                    null)));
   }
 
   /**
@@ -407,12 +461,15 @@ public class UDFRegistration {
       JavaUDF17<?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?> func,
       DataType[] input,
       DataType output) {
-    return new UserDefinedFunction(
-        JavaUtils.registerUDF(
-            udf,
-            null,
-            ScalaFunctions._toUdf(func, convertDataType(input), convertDataType(output)),
-            null));
+    return udf(
+        "registerTemporary",
+        () ->
+            new UserDefinedFunction(
+                JavaUtils.registerUDF(
+                    udf,
+                    null,
+                    ScalaFunctions._toUdf(func, convertDataType(input), convertDataType(output)),
+                    null)));
   }
 
   /**
@@ -429,12 +486,15 @@ public class UDFRegistration {
       JavaUDF18<?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?> func,
       DataType[] input,
       DataType output) {
-    return new UserDefinedFunction(
-        JavaUtils.registerUDF(
-            udf,
-            null,
-            ScalaFunctions._toUdf(func, convertDataType(input), convertDataType(output)),
-            null));
+    return udf(
+        "registerTemporary",
+        () ->
+            new UserDefinedFunction(
+                JavaUtils.registerUDF(
+                    udf,
+                    null,
+                    ScalaFunctions._toUdf(func, convertDataType(input), convertDataType(output)),
+                    null)));
   }
 
   /**
@@ -451,12 +511,15 @@ public class UDFRegistration {
       JavaUDF19<?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?> func,
       DataType[] input,
       DataType output) {
-    return new UserDefinedFunction(
-        JavaUtils.registerUDF(
-            udf,
-            null,
-            ScalaFunctions._toUdf(func, convertDataType(input), convertDataType(output)),
-            null));
+    return udf(
+        "registerTemporary",
+        () ->
+            new UserDefinedFunction(
+                JavaUtils.registerUDF(
+                    udf,
+                    null,
+                    ScalaFunctions._toUdf(func, convertDataType(input), convertDataType(output)),
+                    null)));
   }
 
   /**
@@ -473,12 +536,15 @@ public class UDFRegistration {
       JavaUDF20<?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?> func,
       DataType[] input,
       DataType output) {
-    return new UserDefinedFunction(
-        JavaUtils.registerUDF(
-            udf,
-            null,
-            ScalaFunctions._toUdf(func, convertDataType(input), convertDataType(output)),
-            null));
+    return udf(
+        "registerTemporary",
+        () ->
+            new UserDefinedFunction(
+                JavaUtils.registerUDF(
+                    udf,
+                    null,
+                    ScalaFunctions._toUdf(func, convertDataType(input), convertDataType(output)),
+                    null)));
   }
 
   /**
@@ -495,12 +561,15 @@ public class UDFRegistration {
       JavaUDF21<?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?> func,
       DataType[] input,
       DataType output) {
-    return new UserDefinedFunction(
-        JavaUtils.registerUDF(
-            udf,
-            null,
-            ScalaFunctions._toUdf(func, convertDataType(input), convertDataType(output)),
-            null));
+    return udf(
+        "registerTemporary",
+        () ->
+            new UserDefinedFunction(
+                JavaUtils.registerUDF(
+                    udf,
+                    null,
+                    ScalaFunctions._toUdf(func, convertDataType(input), convertDataType(output)),
+                    null)));
   }
 
   /**
@@ -517,12 +586,15 @@ public class UDFRegistration {
       JavaUDF22<?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?> func,
       DataType[] input,
       DataType output) {
-    return new UserDefinedFunction(
-        JavaUtils.registerUDF(
-            udf,
-            null,
-            ScalaFunctions._toUdf(func, convertDataType(input), convertDataType(output)),
-            null));
+    return udf(
+        "registerTemporary",
+        () ->
+            new UserDefinedFunction(
+                JavaUtils.registerUDF(
+                    udf,
+                    null,
+                    ScalaFunctions._toUdf(func, convertDataType(input), convertDataType(output)),
+                    null)));
   }
 
   //  Code below for registerTemporary 0-22 generated by this script
@@ -550,12 +622,12 @@ public class UDFRegistration {
   //    | */
   //    |public UserDefinedFunction registerTemporary(String name, JavaUDF$x<$types> func,
   //    |$input DataType output) {
-  //    |  return new UserDefinedFunction(
+  //    |  return udf("registerTemporary", name, () -> new UserDefinedFunction(
   //    |    JavaUtils.registerUDF(
   //    |      udf,
   //    |      name,
   //    |      ScalaFunctions._toUdf(func,$arg convertDataType(output)),
-  //    |      null));
+  //    |      null)));
   //    |}""".stripMargin)
   //  }
 
@@ -569,9 +641,13 @@ public class UDFRegistration {
    * @return The result UserDefinedFunction reference
    */
   public UserDefinedFunction registerTemporary(String name, JavaUDF0<?> func, DataType output) {
-    return new UserDefinedFunction(
-        JavaUtils.registerUDF(
-            udf, name, ScalaFunctions._toUdf(func, convertDataType(output)), null));
+    return udf(
+        "registerTemporary",
+        name,
+        () ->
+            new UserDefinedFunction(
+                JavaUtils.registerUDF(
+                    udf, name, ScalaFunctions._toUdf(func, convertDataType(output)), null)));
   }
 
   /**
@@ -586,12 +662,16 @@ public class UDFRegistration {
    */
   public UserDefinedFunction registerTemporary(
       String name, JavaUDF1<?, ?> func, DataType input, DataType output) {
-    return new UserDefinedFunction(
-        JavaUtils.registerUDF(
-            udf,
-            name,
-            ScalaFunctions._toUdf(func, convertDataType(input), convertDataType(output)),
-            null));
+    return udf(
+        "registerTemporary",
+        name,
+        () ->
+            new UserDefinedFunction(
+                JavaUtils.registerUDF(
+                    udf,
+                    name,
+                    ScalaFunctions._toUdf(func, convertDataType(input), convertDataType(output)),
+                    null)));
   }
 
   /**
@@ -606,12 +686,16 @@ public class UDFRegistration {
    */
   public UserDefinedFunction registerTemporary(
       String name, JavaUDF2<?, ?, ?> func, DataType[] input, DataType output) {
-    return new UserDefinedFunction(
-        JavaUtils.registerUDF(
-            udf,
-            name,
-            ScalaFunctions._toUdf(func, convertDataType(input), convertDataType(output)),
-            null));
+    return udf(
+        "registerTemporary",
+        name,
+        () ->
+            new UserDefinedFunction(
+                JavaUtils.registerUDF(
+                    udf,
+                    name,
+                    ScalaFunctions._toUdf(func, convertDataType(input), convertDataType(output)),
+                    null)));
   }
 
   /**
@@ -626,12 +710,16 @@ public class UDFRegistration {
    */
   public UserDefinedFunction registerTemporary(
       String name, JavaUDF3<?, ?, ?, ?> func, DataType[] input, DataType output) {
-    return new UserDefinedFunction(
-        JavaUtils.registerUDF(
-            udf,
-            name,
-            ScalaFunctions._toUdf(func, convertDataType(input), convertDataType(output)),
-            null));
+    return udf(
+        "registerTemporary",
+        name,
+        () ->
+            new UserDefinedFunction(
+                JavaUtils.registerUDF(
+                    udf,
+                    name,
+                    ScalaFunctions._toUdf(func, convertDataType(input), convertDataType(output)),
+                    null)));
   }
 
   /**
@@ -646,12 +734,16 @@ public class UDFRegistration {
    */
   public UserDefinedFunction registerTemporary(
       String name, JavaUDF4<?, ?, ?, ?, ?> func, DataType[] input, DataType output) {
-    return new UserDefinedFunction(
-        JavaUtils.registerUDF(
-            udf,
-            name,
-            ScalaFunctions._toUdf(func, convertDataType(input), convertDataType(output)),
-            null));
+    return udf(
+        "registerTemporary",
+        name,
+        () ->
+            new UserDefinedFunction(
+                JavaUtils.registerUDF(
+                    udf,
+                    name,
+                    ScalaFunctions._toUdf(func, convertDataType(input), convertDataType(output)),
+                    null)));
   }
 
   /**
@@ -666,12 +758,16 @@ public class UDFRegistration {
    */
   public UserDefinedFunction registerTemporary(
       String name, JavaUDF5<?, ?, ?, ?, ?, ?> func, DataType[] input, DataType output) {
-    return new UserDefinedFunction(
-        JavaUtils.registerUDF(
-            udf,
-            name,
-            ScalaFunctions._toUdf(func, convertDataType(input), convertDataType(output)),
-            null));
+    return udf(
+        "registerTemporary",
+        name,
+        () ->
+            new UserDefinedFunction(
+                JavaUtils.registerUDF(
+                    udf,
+                    name,
+                    ScalaFunctions._toUdf(func, convertDataType(input), convertDataType(output)),
+                    null)));
   }
 
   /**
@@ -686,12 +782,16 @@ public class UDFRegistration {
    */
   public UserDefinedFunction registerTemporary(
       String name, JavaUDF6<?, ?, ?, ?, ?, ?, ?> func, DataType[] input, DataType output) {
-    return new UserDefinedFunction(
-        JavaUtils.registerUDF(
-            udf,
-            name,
-            ScalaFunctions._toUdf(func, convertDataType(input), convertDataType(output)),
-            null));
+    return udf(
+        "registerTemporary",
+        name,
+        () ->
+            new UserDefinedFunction(
+                JavaUtils.registerUDF(
+                    udf,
+                    name,
+                    ScalaFunctions._toUdf(func, convertDataType(input), convertDataType(output)),
+                    null)));
   }
 
   /**
@@ -706,12 +806,16 @@ public class UDFRegistration {
    */
   public UserDefinedFunction registerTemporary(
       String name, JavaUDF7<?, ?, ?, ?, ?, ?, ?, ?> func, DataType[] input, DataType output) {
-    return new UserDefinedFunction(
-        JavaUtils.registerUDF(
-            udf,
-            name,
-            ScalaFunctions._toUdf(func, convertDataType(input), convertDataType(output)),
-            null));
+    return udf(
+        "registerTemporary",
+        name,
+        () ->
+            new UserDefinedFunction(
+                JavaUtils.registerUDF(
+                    udf,
+                    name,
+                    ScalaFunctions._toUdf(func, convertDataType(input), convertDataType(output)),
+                    null)));
   }
 
   /**
@@ -726,12 +830,16 @@ public class UDFRegistration {
    */
   public UserDefinedFunction registerTemporary(
       String name, JavaUDF8<?, ?, ?, ?, ?, ?, ?, ?, ?> func, DataType[] input, DataType output) {
-    return new UserDefinedFunction(
-        JavaUtils.registerUDF(
-            udf,
-            name,
-            ScalaFunctions._toUdf(func, convertDataType(input), convertDataType(output)),
-            null));
+    return udf(
+        "registerTemporary",
+        name,
+        () ->
+            new UserDefinedFunction(
+                JavaUtils.registerUDF(
+                    udf,
+                    name,
+                    ScalaFunctions._toUdf(func, convertDataType(input), convertDataType(output)),
+                    null)));
   }
 
   /**
@@ -746,12 +854,16 @@ public class UDFRegistration {
    */
   public UserDefinedFunction registerTemporary(
       String name, JavaUDF9<?, ?, ?, ?, ?, ?, ?, ?, ?, ?> func, DataType[] input, DataType output) {
-    return new UserDefinedFunction(
-        JavaUtils.registerUDF(
-            udf,
-            name,
-            ScalaFunctions._toUdf(func, convertDataType(input), convertDataType(output)),
-            null));
+    return udf(
+        "registerTemporary",
+        name,
+        () ->
+            new UserDefinedFunction(
+                JavaUtils.registerUDF(
+                    udf,
+                    name,
+                    ScalaFunctions._toUdf(func, convertDataType(input), convertDataType(output)),
+                    null)));
   }
 
   /**
@@ -769,12 +881,16 @@ public class UDFRegistration {
       JavaUDF10<?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?> func,
       DataType[] input,
       DataType output) {
-    return new UserDefinedFunction(
-        JavaUtils.registerUDF(
-            udf,
-            name,
-            ScalaFunctions._toUdf(func, convertDataType(input), convertDataType(output)),
-            null));
+    return udf(
+        "registerTemporary",
+        name,
+        () ->
+            new UserDefinedFunction(
+                JavaUtils.registerUDF(
+                    udf,
+                    name,
+                    ScalaFunctions._toUdf(func, convertDataType(input), convertDataType(output)),
+                    null)));
   }
 
   /**
@@ -792,12 +908,16 @@ public class UDFRegistration {
       JavaUDF11<?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?> func,
       DataType[] input,
       DataType output) {
-    return new UserDefinedFunction(
-        JavaUtils.registerUDF(
-            udf,
-            name,
-            ScalaFunctions._toUdf(func, convertDataType(input), convertDataType(output)),
-            null));
+    return udf(
+        "registerTemporary",
+        name,
+        () ->
+            new UserDefinedFunction(
+                JavaUtils.registerUDF(
+                    udf,
+                    name,
+                    ScalaFunctions._toUdf(func, convertDataType(input), convertDataType(output)),
+                    null)));
   }
 
   /**
@@ -815,12 +935,16 @@ public class UDFRegistration {
       JavaUDF12<?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?> func,
       DataType[] input,
       DataType output) {
-    return new UserDefinedFunction(
-        JavaUtils.registerUDF(
-            udf,
-            name,
-            ScalaFunctions._toUdf(func, convertDataType(input), convertDataType(output)),
-            null));
+    return udf(
+        "registerTemporary",
+        name,
+        () ->
+            new UserDefinedFunction(
+                JavaUtils.registerUDF(
+                    udf,
+                    name,
+                    ScalaFunctions._toUdf(func, convertDataType(input), convertDataType(output)),
+                    null)));
   }
 
   /**
@@ -838,12 +962,16 @@ public class UDFRegistration {
       JavaUDF13<?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?> func,
       DataType[] input,
       DataType output) {
-    return new UserDefinedFunction(
-        JavaUtils.registerUDF(
-            udf,
-            name,
-            ScalaFunctions._toUdf(func, convertDataType(input), convertDataType(output)),
-            null));
+    return udf(
+        "registerTemporary",
+        name,
+        () ->
+            new UserDefinedFunction(
+                JavaUtils.registerUDF(
+                    udf,
+                    name,
+                    ScalaFunctions._toUdf(func, convertDataType(input), convertDataType(output)),
+                    null)));
   }
 
   /**
@@ -861,12 +989,16 @@ public class UDFRegistration {
       JavaUDF14<?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?> func,
       DataType[] input,
       DataType output) {
-    return new UserDefinedFunction(
-        JavaUtils.registerUDF(
-            udf,
-            name,
-            ScalaFunctions._toUdf(func, convertDataType(input), convertDataType(output)),
-            null));
+    return udf(
+        "registerTemporary",
+        name,
+        () ->
+            new UserDefinedFunction(
+                JavaUtils.registerUDF(
+                    udf,
+                    name,
+                    ScalaFunctions._toUdf(func, convertDataType(input), convertDataType(output)),
+                    null)));
   }
 
   /**
@@ -884,12 +1016,16 @@ public class UDFRegistration {
       JavaUDF15<?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?> func,
       DataType[] input,
       DataType output) {
-    return new UserDefinedFunction(
-        JavaUtils.registerUDF(
-            udf,
-            name,
-            ScalaFunctions._toUdf(func, convertDataType(input), convertDataType(output)),
-            null));
+    return udf(
+        "registerTemporary",
+        name,
+        () ->
+            new UserDefinedFunction(
+                JavaUtils.registerUDF(
+                    udf,
+                    name,
+                    ScalaFunctions._toUdf(func, convertDataType(input), convertDataType(output)),
+                    null)));
   }
 
   /**
@@ -907,12 +1043,16 @@ public class UDFRegistration {
       JavaUDF16<?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?> func,
       DataType[] input,
       DataType output) {
-    return new UserDefinedFunction(
-        JavaUtils.registerUDF(
-            udf,
-            name,
-            ScalaFunctions._toUdf(func, convertDataType(input), convertDataType(output)),
-            null));
+    return udf(
+        "registerTemporary",
+        name,
+        () ->
+            new UserDefinedFunction(
+                JavaUtils.registerUDF(
+                    udf,
+                    name,
+                    ScalaFunctions._toUdf(func, convertDataType(input), convertDataType(output)),
+                    null)));
   }
 
   /**
@@ -930,12 +1070,16 @@ public class UDFRegistration {
       JavaUDF17<?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?> func,
       DataType[] input,
       DataType output) {
-    return new UserDefinedFunction(
-        JavaUtils.registerUDF(
-            udf,
-            name,
-            ScalaFunctions._toUdf(func, convertDataType(input), convertDataType(output)),
-            null));
+    return udf(
+        "registerTemporary",
+        name,
+        () ->
+            new UserDefinedFunction(
+                JavaUtils.registerUDF(
+                    udf,
+                    name,
+                    ScalaFunctions._toUdf(func, convertDataType(input), convertDataType(output)),
+                    null)));
   }
 
   /**
@@ -953,12 +1097,16 @@ public class UDFRegistration {
       JavaUDF18<?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?> func,
       DataType[] input,
       DataType output) {
-    return new UserDefinedFunction(
-        JavaUtils.registerUDF(
-            udf,
-            name,
-            ScalaFunctions._toUdf(func, convertDataType(input), convertDataType(output)),
-            null));
+    return udf(
+        "registerTemporary",
+        name,
+        () ->
+            new UserDefinedFunction(
+                JavaUtils.registerUDF(
+                    udf,
+                    name,
+                    ScalaFunctions._toUdf(func, convertDataType(input), convertDataType(output)),
+                    null)));
   }
 
   /**
@@ -976,12 +1124,16 @@ public class UDFRegistration {
       JavaUDF19<?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?> func,
       DataType[] input,
       DataType output) {
-    return new UserDefinedFunction(
-        JavaUtils.registerUDF(
-            udf,
-            name,
-            ScalaFunctions._toUdf(func, convertDataType(input), convertDataType(output)),
-            null));
+    return udf(
+        "registerTemporary",
+        name,
+        () ->
+            new UserDefinedFunction(
+                JavaUtils.registerUDF(
+                    udf,
+                    name,
+                    ScalaFunctions._toUdf(func, convertDataType(input), convertDataType(output)),
+                    null)));
   }
 
   /**
@@ -999,12 +1151,16 @@ public class UDFRegistration {
       JavaUDF20<?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?> func,
       DataType[] input,
       DataType output) {
-    return new UserDefinedFunction(
-        JavaUtils.registerUDF(
-            udf,
-            name,
-            ScalaFunctions._toUdf(func, convertDataType(input), convertDataType(output)),
-            null));
+    return udf(
+        "registerTemporary",
+        name,
+        () ->
+            new UserDefinedFunction(
+                JavaUtils.registerUDF(
+                    udf,
+                    name,
+                    ScalaFunctions._toUdf(func, convertDataType(input), convertDataType(output)),
+                    null)));
   }
 
   /**
@@ -1022,12 +1178,16 @@ public class UDFRegistration {
       JavaUDF21<?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?> func,
       DataType[] input,
       DataType output) {
-    return new UserDefinedFunction(
-        JavaUtils.registerUDF(
-            udf,
-            name,
-            ScalaFunctions._toUdf(func, convertDataType(input), convertDataType(output)),
-            null));
+    return udf(
+        "registerTemporary",
+        name,
+        () ->
+            new UserDefinedFunction(
+                JavaUtils.registerUDF(
+                    udf,
+                    name,
+                    ScalaFunctions._toUdf(func, convertDataType(input), convertDataType(output)),
+                    null)));
   }
 
   /**
@@ -1045,12 +1205,16 @@ public class UDFRegistration {
       JavaUDF22<?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?> func,
       DataType[] input,
       DataType output) {
-    return new UserDefinedFunction(
-        JavaUtils.registerUDF(
-            udf,
-            name,
-            ScalaFunctions._toUdf(func, convertDataType(input), convertDataType(output)),
-            null));
+    return udf(
+        "registerTemporary",
+        name,
+        () ->
+            new UserDefinedFunction(
+                JavaUtils.registerUDF(
+                    udf,
+                    name,
+                    ScalaFunctions._toUdf(func, convertDataType(input), convertDataType(output)),
+                    null)));
   }
 
   //  Code below for registerPermanent 0-22 generated by this script
@@ -1089,13 +1253,13 @@ public class UDFRegistration {
   //    |  DataType output,
   //    |  String stageLocation
   //    |){
-  //    |  return new UserDefinedFunction(
+  //    |  return udf("registerPermanent", name, stageLocation, () -> new UserDefinedFunction(
   //    |    JavaUtils.registerUDF(
   //    |      udf,
   //    |      name,
   //    |      ScalaFunctions._toUdf(func,$arg convertDataType(output)),
   //    |      stageLocation
-  //    |    ));
+  //    |    )));
   //    |}""".stripMargin)
   //  }
 
@@ -1118,9 +1282,17 @@ public class UDFRegistration {
    */
   public UserDefinedFunction registerPermanent(
       String name, JavaUDF0<?> func, DataType output, String stageLocation) {
-    return new UserDefinedFunction(
-        JavaUtils.registerUDF(
-            udf, name, ScalaFunctions._toUdf(func, convertDataType(output)), stageLocation));
+    return udf(
+        "registerPermanent",
+        name,
+        stageLocation,
+        () ->
+            new UserDefinedFunction(
+                JavaUtils.registerUDF(
+                    udf,
+                    name,
+                    ScalaFunctions._toUdf(func, convertDataType(output)),
+                    stageLocation)));
   }
 
   /**
@@ -1143,12 +1315,17 @@ public class UDFRegistration {
    */
   public UserDefinedFunction registerPermanent(
       String name, JavaUDF1<?, ?> func, DataType input, DataType output, String stageLocation) {
-    return new UserDefinedFunction(
-        JavaUtils.registerUDF(
-            udf,
-            name,
-            ScalaFunctions._toUdf(func, convertDataType(input), convertDataType(output)),
-            stageLocation));
+    return udf(
+        "registerPermanent",
+        name,
+        stageLocation,
+        () ->
+            new UserDefinedFunction(
+                JavaUtils.registerUDF(
+                    udf,
+                    name,
+                    ScalaFunctions._toUdf(func, convertDataType(input), convertDataType(output)),
+                    stageLocation)));
   }
 
   /**
@@ -1175,12 +1352,17 @@ public class UDFRegistration {
       DataType[] input,
       DataType output,
       String stageLocation) {
-    return new UserDefinedFunction(
-        JavaUtils.registerUDF(
-            udf,
-            name,
-            ScalaFunctions._toUdf(func, convertDataType(input), convertDataType(output)),
-            stageLocation));
+    return udf(
+        "registerPermanent",
+        name,
+        stageLocation,
+        () ->
+            new UserDefinedFunction(
+                JavaUtils.registerUDF(
+                    udf,
+                    name,
+                    ScalaFunctions._toUdf(func, convertDataType(input), convertDataType(output)),
+                    stageLocation)));
   }
 
   /**
@@ -1207,12 +1389,17 @@ public class UDFRegistration {
       DataType[] input,
       DataType output,
       String stageLocation) {
-    return new UserDefinedFunction(
-        JavaUtils.registerUDF(
-            udf,
-            name,
-            ScalaFunctions._toUdf(func, convertDataType(input), convertDataType(output)),
-            stageLocation));
+    return udf(
+        "registerPermanent",
+        name,
+        stageLocation,
+        () ->
+            new UserDefinedFunction(
+                JavaUtils.registerUDF(
+                    udf,
+                    name,
+                    ScalaFunctions._toUdf(func, convertDataType(input), convertDataType(output)),
+                    stageLocation)));
   }
 
   /**
@@ -1239,12 +1426,17 @@ public class UDFRegistration {
       DataType[] input,
       DataType output,
       String stageLocation) {
-    return new UserDefinedFunction(
-        JavaUtils.registerUDF(
-            udf,
-            name,
-            ScalaFunctions._toUdf(func, convertDataType(input), convertDataType(output)),
-            stageLocation));
+    return udf(
+        "registerPermanent",
+        name,
+        stageLocation,
+        () ->
+            new UserDefinedFunction(
+                JavaUtils.registerUDF(
+                    udf,
+                    name,
+                    ScalaFunctions._toUdf(func, convertDataType(input), convertDataType(output)),
+                    stageLocation)));
   }
 
   /**
@@ -1271,12 +1463,17 @@ public class UDFRegistration {
       DataType[] input,
       DataType output,
       String stageLocation) {
-    return new UserDefinedFunction(
-        JavaUtils.registerUDF(
-            udf,
-            name,
-            ScalaFunctions._toUdf(func, convertDataType(input), convertDataType(output)),
-            stageLocation));
+    return udf(
+        "registerPermanent",
+        name,
+        stageLocation,
+        () ->
+            new UserDefinedFunction(
+                JavaUtils.registerUDF(
+                    udf,
+                    name,
+                    ScalaFunctions._toUdf(func, convertDataType(input), convertDataType(output)),
+                    stageLocation)));
   }
 
   /**
@@ -1303,12 +1500,17 @@ public class UDFRegistration {
       DataType[] input,
       DataType output,
       String stageLocation) {
-    return new UserDefinedFunction(
-        JavaUtils.registerUDF(
-            udf,
-            name,
-            ScalaFunctions._toUdf(func, convertDataType(input), convertDataType(output)),
-            stageLocation));
+    return udf(
+        "registerPermanent",
+        name,
+        stageLocation,
+        () ->
+            new UserDefinedFunction(
+                JavaUtils.registerUDF(
+                    udf,
+                    name,
+                    ScalaFunctions._toUdf(func, convertDataType(input), convertDataType(output)),
+                    stageLocation)));
   }
 
   /**
@@ -1335,12 +1537,17 @@ public class UDFRegistration {
       DataType[] input,
       DataType output,
       String stageLocation) {
-    return new UserDefinedFunction(
-        JavaUtils.registerUDF(
-            udf,
-            name,
-            ScalaFunctions._toUdf(func, convertDataType(input), convertDataType(output)),
-            stageLocation));
+    return udf(
+        "registerPermanent",
+        name,
+        stageLocation,
+        () ->
+            new UserDefinedFunction(
+                JavaUtils.registerUDF(
+                    udf,
+                    name,
+                    ScalaFunctions._toUdf(func, convertDataType(input), convertDataType(output)),
+                    stageLocation)));
   }
 
   /**
@@ -1367,12 +1574,17 @@ public class UDFRegistration {
       DataType[] input,
       DataType output,
       String stageLocation) {
-    return new UserDefinedFunction(
-        JavaUtils.registerUDF(
-            udf,
-            name,
-            ScalaFunctions._toUdf(func, convertDataType(input), convertDataType(output)),
-            stageLocation));
+    return udf(
+        "registerPermanent",
+        name,
+        stageLocation,
+        () ->
+            new UserDefinedFunction(
+                JavaUtils.registerUDF(
+                    udf,
+                    name,
+                    ScalaFunctions._toUdf(func, convertDataType(input), convertDataType(output)),
+                    stageLocation)));
   }
 
   /**
@@ -1399,12 +1611,17 @@ public class UDFRegistration {
       DataType[] input,
       DataType output,
       String stageLocation) {
-    return new UserDefinedFunction(
-        JavaUtils.registerUDF(
-            udf,
-            name,
-            ScalaFunctions._toUdf(func, convertDataType(input), convertDataType(output)),
-            stageLocation));
+    return udf(
+        "registerPermanent",
+        name,
+        stageLocation,
+        () ->
+            new UserDefinedFunction(
+                JavaUtils.registerUDF(
+                    udf,
+                    name,
+                    ScalaFunctions._toUdf(func, convertDataType(input), convertDataType(output)),
+                    stageLocation)));
   }
 
   /**
@@ -1431,12 +1648,17 @@ public class UDFRegistration {
       DataType[] input,
       DataType output,
       String stageLocation) {
-    return new UserDefinedFunction(
-        JavaUtils.registerUDF(
-            udf,
-            name,
-            ScalaFunctions._toUdf(func, convertDataType(input), convertDataType(output)),
-            stageLocation));
+    return udf(
+        "registerPermanent",
+        name,
+        stageLocation,
+        () ->
+            new UserDefinedFunction(
+                JavaUtils.registerUDF(
+                    udf,
+                    name,
+                    ScalaFunctions._toUdf(func, convertDataType(input), convertDataType(output)),
+                    stageLocation)));
   }
 
   /**
@@ -1463,12 +1685,17 @@ public class UDFRegistration {
       DataType[] input,
       DataType output,
       String stageLocation) {
-    return new UserDefinedFunction(
-        JavaUtils.registerUDF(
-            udf,
-            name,
-            ScalaFunctions._toUdf(func, convertDataType(input), convertDataType(output)),
-            stageLocation));
+    return udf(
+        "registerPermanent",
+        name,
+        stageLocation,
+        () ->
+            new UserDefinedFunction(
+                JavaUtils.registerUDF(
+                    udf,
+                    name,
+                    ScalaFunctions._toUdf(func, convertDataType(input), convertDataType(output)),
+                    stageLocation)));
   }
 
   /**
@@ -1495,12 +1722,17 @@ public class UDFRegistration {
       DataType[] input,
       DataType output,
       String stageLocation) {
-    return new UserDefinedFunction(
-        JavaUtils.registerUDF(
-            udf,
-            name,
-            ScalaFunctions._toUdf(func, convertDataType(input), convertDataType(output)),
-            stageLocation));
+    return udf(
+        "registerPermanent",
+        name,
+        stageLocation,
+        () ->
+            new UserDefinedFunction(
+                JavaUtils.registerUDF(
+                    udf,
+                    name,
+                    ScalaFunctions._toUdf(func, convertDataType(input), convertDataType(output)),
+                    stageLocation)));
   }
 
   /**
@@ -1527,12 +1759,17 @@ public class UDFRegistration {
       DataType[] input,
       DataType output,
       String stageLocation) {
-    return new UserDefinedFunction(
-        JavaUtils.registerUDF(
-            udf,
-            name,
-            ScalaFunctions._toUdf(func, convertDataType(input), convertDataType(output)),
-            stageLocation));
+    return udf(
+        "registerPermanent",
+        name,
+        stageLocation,
+        () ->
+            new UserDefinedFunction(
+                JavaUtils.registerUDF(
+                    udf,
+                    name,
+                    ScalaFunctions._toUdf(func, convertDataType(input), convertDataType(output)),
+                    stageLocation)));
   }
 
   /**
@@ -1559,12 +1796,17 @@ public class UDFRegistration {
       DataType[] input,
       DataType output,
       String stageLocation) {
-    return new UserDefinedFunction(
-        JavaUtils.registerUDF(
-            udf,
-            name,
-            ScalaFunctions._toUdf(func, convertDataType(input), convertDataType(output)),
-            stageLocation));
+    return udf(
+        "registerPermanent",
+        name,
+        stageLocation,
+        () ->
+            new UserDefinedFunction(
+                JavaUtils.registerUDF(
+                    udf,
+                    name,
+                    ScalaFunctions._toUdf(func, convertDataType(input), convertDataType(output)),
+                    stageLocation)));
   }
 
   /**
@@ -1591,12 +1833,17 @@ public class UDFRegistration {
       DataType[] input,
       DataType output,
       String stageLocation) {
-    return new UserDefinedFunction(
-        JavaUtils.registerUDF(
-            udf,
-            name,
-            ScalaFunctions._toUdf(func, convertDataType(input), convertDataType(output)),
-            stageLocation));
+    return udf(
+        "registerPermanent",
+        name,
+        stageLocation,
+        () ->
+            new UserDefinedFunction(
+                JavaUtils.registerUDF(
+                    udf,
+                    name,
+                    ScalaFunctions._toUdf(func, convertDataType(input), convertDataType(output)),
+                    stageLocation)));
   }
 
   /**
@@ -1623,12 +1870,17 @@ public class UDFRegistration {
       DataType[] input,
       DataType output,
       String stageLocation) {
-    return new UserDefinedFunction(
-        JavaUtils.registerUDF(
-            udf,
-            name,
-            ScalaFunctions._toUdf(func, convertDataType(input), convertDataType(output)),
-            stageLocation));
+    return udf(
+        "registerPermanent",
+        name,
+        stageLocation,
+        () ->
+            new UserDefinedFunction(
+                JavaUtils.registerUDF(
+                    udf,
+                    name,
+                    ScalaFunctions._toUdf(func, convertDataType(input), convertDataType(output)),
+                    stageLocation)));
   }
 
   /**
@@ -1655,12 +1907,17 @@ public class UDFRegistration {
       DataType[] input,
       DataType output,
       String stageLocation) {
-    return new UserDefinedFunction(
-        JavaUtils.registerUDF(
-            udf,
-            name,
-            ScalaFunctions._toUdf(func, convertDataType(input), convertDataType(output)),
-            stageLocation));
+    return udf(
+        "registerPermanent",
+        name,
+        stageLocation,
+        () ->
+            new UserDefinedFunction(
+                JavaUtils.registerUDF(
+                    udf,
+                    name,
+                    ScalaFunctions._toUdf(func, convertDataType(input), convertDataType(output)),
+                    stageLocation)));
   }
 
   /**
@@ -1687,12 +1944,17 @@ public class UDFRegistration {
       DataType[] input,
       DataType output,
       String stageLocation) {
-    return new UserDefinedFunction(
-        JavaUtils.registerUDF(
-            udf,
-            name,
-            ScalaFunctions._toUdf(func, convertDataType(input), convertDataType(output)),
-            stageLocation));
+    return udf(
+        "registerPermanent",
+        name,
+        stageLocation,
+        () ->
+            new UserDefinedFunction(
+                JavaUtils.registerUDF(
+                    udf,
+                    name,
+                    ScalaFunctions._toUdf(func, convertDataType(input), convertDataType(output)),
+                    stageLocation)));
   }
 
   /**
@@ -1719,12 +1981,17 @@ public class UDFRegistration {
       DataType[] input,
       DataType output,
       String stageLocation) {
-    return new UserDefinedFunction(
-        JavaUtils.registerUDF(
-            udf,
-            name,
-            ScalaFunctions._toUdf(func, convertDataType(input), convertDataType(output)),
-            stageLocation));
+    return udf(
+        "registerPermanent",
+        name,
+        stageLocation,
+        () ->
+            new UserDefinedFunction(
+                JavaUtils.registerUDF(
+                    udf,
+                    name,
+                    ScalaFunctions._toUdf(func, convertDataType(input), convertDataType(output)),
+                    stageLocation)));
   }
 
   /**
@@ -1751,12 +2018,17 @@ public class UDFRegistration {
       DataType[] input,
       DataType output,
       String stageLocation) {
-    return new UserDefinedFunction(
-        JavaUtils.registerUDF(
-            udf,
-            name,
-            ScalaFunctions._toUdf(func, convertDataType(input), convertDataType(output)),
-            stageLocation));
+    return udf(
+        "registerPermanent",
+        name,
+        stageLocation,
+        () ->
+            new UserDefinedFunction(
+                JavaUtils.registerUDF(
+                    udf,
+                    name,
+                    ScalaFunctions._toUdf(func, convertDataType(input), convertDataType(output)),
+                    stageLocation)));
   }
 
   /**
@@ -1783,12 +2055,17 @@ public class UDFRegistration {
       DataType[] input,
       DataType output,
       String stageLocation) {
-    return new UserDefinedFunction(
-        JavaUtils.registerUDF(
-            udf,
-            name,
-            ScalaFunctions._toUdf(func, convertDataType(input), convertDataType(output)),
-            stageLocation));
+    return udf(
+        "registerPermanent",
+        name,
+        stageLocation,
+        () ->
+            new UserDefinedFunction(
+                JavaUtils.registerUDF(
+                    udf,
+                    name,
+                    ScalaFunctions._toUdf(func, convertDataType(input), convertDataType(output)),
+                    stageLocation)));
   }
 
   /**
@@ -1815,12 +2092,17 @@ public class UDFRegistration {
       DataType[] input,
       DataType output,
       String stageLocation) {
-    return new UserDefinedFunction(
-        JavaUtils.registerUDF(
-            udf,
-            name,
-            ScalaFunctions._toUdf(func, convertDataType(input), convertDataType(output)),
-            stageLocation));
+    return udf(
+        "registerPermanent",
+        name,
+        stageLocation,
+        () ->
+            new UserDefinedFunction(
+                JavaUtils.registerUDF(
+                    udf,
+                    name,
+                    ScalaFunctions._toUdf(func, convertDataType(input), convertDataType(output)),
+                    stageLocation)));
   }
 
   static com.snowflake.snowpark.types.DataType convertDataType(DataType javaType) {
@@ -1834,5 +2116,19 @@ public class UDFRegistration {
       result[i] = convertDataType(javaTypes[i]);
     }
     return result;
+  }
+
+  private UserDefinedFunction udf(
+      String funcName, String execName, String execFilePath, Supplier<UserDefinedFunction> func) {
+    return javaUDF("UDFRegistration", funcName, execName, execFilePath, 0, func);
+  }
+
+  private UserDefinedFunction udf(
+      String funcName, String execName, Supplier<UserDefinedFunction> func) {
+    return javaUDF("UDFRegistration", funcName, execName, "", 0, func);
+  }
+
+  private UserDefinedFunction udf(String funcName, Supplier<UserDefinedFunction> func) {
+    return javaUDF("UDFRegistration", funcName, "", "", 0, func);
   }
 }

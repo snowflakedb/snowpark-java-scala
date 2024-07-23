@@ -49,6 +49,29 @@ trait OpenTelemetryEnabled extends TestData {
       }
     }
 
+  def checkSpan(
+      className: String,
+      funcName: String,
+      fileName: String,
+      lineNumber: Int,
+      execName: String,
+      execHandler: String,
+      execFilePath: String): Unit =
+    checkSpan(className, funcName) { span =>
+      {
+        assert(span.getTotalAttributeCount == 5)
+        assert(span.getAttributes.get(AttributeKey.stringKey("code.filepath")) == fileName)
+        assert(span.getAttributes.get(AttributeKey.longKey("code.lineno")) == lineNumber)
+        assert(span.getAttributes.get(AttributeKey.stringKey("snow.executable.name")) == execName)
+        assert(
+          span.getAttributes
+            .get(AttributeKey.stringKey("snow.executable.handler")) == execHandler)
+        assert(
+          span.getAttributes
+            .get(AttributeKey.stringKey("snow.executable.filepath")) == execFilePath)
+      }
+    }
+
   def checkSpan(className: String, funcName: String)(func: SpanData => Unit): Unit = {
     val span: SpanData = testSpanExporter.getFinishedSpanItems.get(0)
     assert(span.getName == funcName)

@@ -2,7 +2,12 @@ package com.snowflake.snowpark
 
 import com.snowflake.snowpark.internal.analyzer._
 import com.snowflake.snowpark.internal.ScalaFunctions._
-import com.snowflake.snowpark.internal.{ErrorMessage, Utils}
+import com.snowflake.snowpark.internal.{
+  ErrorMessage,
+  OpenTelemetry,
+  UDXRegistrationHandler,
+  Utils
+}
 
 import scala.reflect.runtime.universe.TypeTag
 import scala.util.Random
@@ -3183,7 +3188,7 @@ object functions {
         | * @group udf_func
         | * @since $version
         | */
-        |def udf[$typeTags](func: Function$x[$types]): UserDefinedFunction = {
+        |def udf[$typeTags](func: Function$x[$types]): UserDefinedFunction = udf("udf") {
         |  registerUdf(_toUdf(func))
         |}""".stripMargin)
     }
@@ -3195,7 +3200,7 @@ object functions {
    * @group udf_func
    * @since 0.1.0
    */
-  def udf[RT: TypeTag](func: Function0[RT]): UserDefinedFunction = {
+  def udf[RT: TypeTag](func: Function0[RT]): UserDefinedFunction = udf("udf") {
     registerUdf(_toUdf(func))
   }
 
@@ -3205,7 +3210,7 @@ object functions {
    * @group udf_func
    * @since 0.1.0
    */
-  def udf[RT: TypeTag, A1: TypeTag](func: Function1[A1, RT]): UserDefinedFunction = {
+  def udf[RT: TypeTag, A1: TypeTag](func: Function1[A1, RT]): UserDefinedFunction = udf("udf") {
     registerUdf(_toUdf(func))
   }
 
@@ -3216,7 +3221,7 @@ object functions {
    * @since 0.1.0
    */
   def udf[RT: TypeTag, A1: TypeTag, A2: TypeTag](
-      func: Function2[A1, A2, RT]): UserDefinedFunction = {
+      func: Function2[A1, A2, RT]): UserDefinedFunction = udf("udf") {
     registerUdf(_toUdf(func))
   }
 
@@ -3227,7 +3232,7 @@ object functions {
    * @since 0.1.0
    */
   def udf[RT: TypeTag, A1: TypeTag, A2: TypeTag, A3: TypeTag](
-      func: Function3[A1, A2, A3, RT]): UserDefinedFunction = {
+      func: Function3[A1, A2, A3, RT]): UserDefinedFunction = udf("udf") {
     registerUdf(_toUdf(func))
   }
 
@@ -3238,7 +3243,7 @@ object functions {
    * @since 0.1.0
    */
   def udf[RT: TypeTag, A1: TypeTag, A2: TypeTag, A3: TypeTag, A4: TypeTag](
-      func: Function4[A1, A2, A3, A4, RT]): UserDefinedFunction = {
+      func: Function4[A1, A2, A3, A4, RT]): UserDefinedFunction = udf("udf") {
     registerUdf(_toUdf(func))
   }
 
@@ -3249,7 +3254,7 @@ object functions {
    * @since 0.1.0
    */
   def udf[RT: TypeTag, A1: TypeTag, A2: TypeTag, A3: TypeTag, A4: TypeTag, A5: TypeTag](
-      func: Function5[A1, A2, A3, A4, A5, RT]): UserDefinedFunction = {
+      func: Function5[A1, A2, A3, A4, A5, RT]): UserDefinedFunction = udf("udf") {
     registerUdf(_toUdf(func))
   }
 
@@ -3266,9 +3271,10 @@ object functions {
       A3: TypeTag,
       A4: TypeTag,
       A5: TypeTag,
-      A6: TypeTag](func: Function6[A1, A2, A3, A4, A5, A6, RT]): UserDefinedFunction = {
-    registerUdf(_toUdf(func))
-  }
+      A6: TypeTag](func: Function6[A1, A2, A3, A4, A5, A6, RT]): UserDefinedFunction =
+    udf("udf") {
+      registerUdf(_toUdf(func))
+    }
 
   /**
    * Registers a Scala closure of 7 arguments as a Snowflake Java UDF and returns the UDF.
@@ -3284,9 +3290,10 @@ object functions {
       A4: TypeTag,
       A5: TypeTag,
       A6: TypeTag,
-      A7: TypeTag](func: Function7[A1, A2, A3, A4, A5, A6, A7, RT]): UserDefinedFunction = {
-    registerUdf(_toUdf(func))
-  }
+      A7: TypeTag](func: Function7[A1, A2, A3, A4, A5, A6, A7, RT]): UserDefinedFunction =
+    udf("udf") {
+      registerUdf(_toUdf(func))
+    }
 
   /**
    * Registers a Scala closure of 8 arguments as a Snowflake Java UDF and returns the UDF.
@@ -3303,9 +3310,10 @@ object functions {
       A5: TypeTag,
       A6: TypeTag,
       A7: TypeTag,
-      A8: TypeTag](func: Function8[A1, A2, A3, A4, A5, A6, A7, A8, RT]): UserDefinedFunction = {
-    registerUdf(_toUdf(func))
-  }
+      A8: TypeTag](func: Function8[A1, A2, A3, A4, A5, A6, A7, A8, RT]): UserDefinedFunction =
+    udf("udf") {
+      registerUdf(_toUdf(func))
+    }
 
   /**
    * Registers a Scala closure of 9 arguments as a Snowflake Java UDF and returns the UDF.
@@ -3323,10 +3331,10 @@ object functions {
       A6: TypeTag,
       A7: TypeTag,
       A8: TypeTag,
-      A9: TypeTag](
-      func: Function9[A1, A2, A3, A4, A5, A6, A7, A8, A9, RT]): UserDefinedFunction = {
-    registerUdf(_toUdf(func))
-  }
+      A9: TypeTag](func: Function9[A1, A2, A3, A4, A5, A6, A7, A8, A9, RT]): UserDefinedFunction =
+    udf("udf") {
+      registerUdf(_toUdf(func))
+    }
 
   /**
    * Registers a Scala closure of 10 arguments as a Snowflake Java UDF and returns the UDF.
@@ -3346,9 +3354,10 @@ object functions {
       A8: TypeTag,
       A9: TypeTag,
       A10: TypeTag](
-      func: Function10[A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, RT]): UserDefinedFunction = {
-    registerUdf(_toUdf(func))
-  }
+      func: Function10[A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, RT]): UserDefinedFunction =
+    udf("udf") {
+      registerUdf(_toUdf(func))
+    }
 
   /**
    * Registers a Scala closure of 11 arguments as a Snowflake Java UDF and returns the UDF.
@@ -3369,9 +3378,10 @@ object functions {
       A9: TypeTag,
       A10: TypeTag,
       A11: TypeTag](
-      func: Function11[A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, RT]): UserDefinedFunction = {
-    registerUdf(_toUdf(func))
-  }
+      func: Function11[A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, RT]): UserDefinedFunction =
+    udf("udf") {
+      registerUdf(_toUdf(func))
+    }
 
   /**
    * Registers a Scala closure of 12 arguments as a Snowflake Java UDF and returns the UDF.
@@ -3393,7 +3403,7 @@ object functions {
       A10: TypeTag,
       A11: TypeTag,
       A12: TypeTag](func: Function12[A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, RT])
-    : UserDefinedFunction = {
+    : UserDefinedFunction = udf("udf") {
     registerUdf(_toUdf(func))
   }
 
@@ -3418,7 +3428,7 @@ object functions {
       A11: TypeTag,
       A12: TypeTag,
       A13: TypeTag](func: Function13[A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, RT])
-    : UserDefinedFunction = {
+    : UserDefinedFunction = udf("udf") {
     registerUdf(_toUdf(func))
   }
 
@@ -3445,7 +3455,7 @@ object functions {
       A13: TypeTag,
       A14: TypeTag](
       func: Function14[A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, RT])
-    : UserDefinedFunction = {
+    : UserDefinedFunction = udf("udf") {
     registerUdf(_toUdf(func))
   }
 
@@ -3473,7 +3483,7 @@ object functions {
       A14: TypeTag,
       A15: TypeTag](
       func: Function15[A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15, RT])
-    : UserDefinedFunction = {
+    : UserDefinedFunction = udf("udf") {
     registerUdf(_toUdf(func))
   }
 
@@ -3502,7 +3512,7 @@ object functions {
       A15: TypeTag,
       A16: TypeTag](
       func: Function16[A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15, A16, RT])
-    : UserDefinedFunction = {
+    : UserDefinedFunction = udf("udf") {
     registerUdf(_toUdf(func))
   }
 
@@ -3549,7 +3559,7 @@ object functions {
         A15,
         A16,
         A17,
-        RT]): UserDefinedFunction = {
+        RT]): UserDefinedFunction = udf("udf") {
     registerUdf(_toUdf(func))
   }
 
@@ -3598,7 +3608,7 @@ object functions {
         A16,
         A17,
         A18,
-        RT]): UserDefinedFunction = {
+        RT]): UserDefinedFunction = udf("udf") {
     registerUdf(_toUdf(func))
   }
 
@@ -3649,7 +3659,7 @@ object functions {
         A17,
         A18,
         A19,
-        RT]): UserDefinedFunction = {
+        RT]): UserDefinedFunction = udf("udf") {
     registerUdf(_toUdf(func))
   }
 
@@ -3702,7 +3712,7 @@ object functions {
         A18,
         A19,
         A20,
-        RT]): UserDefinedFunction = {
+        RT]): UserDefinedFunction = udf("udf") {
     registerUdf(_toUdf(func))
   }
 
@@ -3757,7 +3767,7 @@ object functions {
         A19,
         A20,
         A21,
-        RT]): UserDefinedFunction = {
+        RT]): UserDefinedFunction = udf("udf") {
     registerUdf(_toUdf(func))
   }
 
@@ -3814,7 +3824,7 @@ object functions {
         A20,
         A21,
         A22,
-        RT]): UserDefinedFunction = {
+        RT]): UserDefinedFunction = udf("udf") {
     registerUdf(_toUdf(func))
   }
 
@@ -3845,6 +3855,17 @@ object functions {
       case arg => Literal(arg)
     }
     Column(FunctionExpression(name, exprs, isDistinct))
+  }
+
+  @inline protected def udf(funcName: String)(
+      func: => UserDefinedFunction): UserDefinedFunction = {
+    OpenTelemetry.udx(
+      "functions",
+      funcName,
+      "",
+      s"${UDXRegistrationHandler.className}.${UDXRegistrationHandler.methodName}",
+      "",
+      0)(func)
   }
 
 }

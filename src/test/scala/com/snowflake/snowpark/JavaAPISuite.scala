@@ -124,6 +124,10 @@ class JavaAPISuite extends FunSuite {
     TestRunner.run(classOf[JavaOpenTelemetrySuite])
   }
 
+  test("Java UDX OpenTelemetry") {
+    TestRunner.run(classOf[JavaUDXOpenTelemetrySuite])
+  }
+
   // some tests can't be implemented in Java are listed below
 
   // console redirect doesn't work in Java since run JUnit from Scala

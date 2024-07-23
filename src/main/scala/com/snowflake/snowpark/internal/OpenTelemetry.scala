@@ -3,13 +3,105 @@ package com.snowflake.snowpark.internal
 import io.opentelemetry.api.GlobalOpenTelemetry
 import io.opentelemetry.api.trace.{Span, StatusCode}
 
+import java.util.function.Supplier
 import scala.util.DynamicVariable
+import com.snowflake.snowpark_java.{
+  UserDefinedFunction => JavaUDF,
+  TableFunction => JavaTableFunction,
+  StoredProcedure => JavaSProc
+}
 
 object OpenTelemetry extends Logging {
 
-  // only report the top function info in case of recursion.
-  private val actionInfo = new DynamicVariable[Option[ActionInfo]](None)
+  private val spanInfo = new DynamicVariable[Option[SpanInfo]](None)
 
+  // Java API
+  def javaUDF(
+      className: String,
+      funcName: String,
+      execName: String,
+      execFilePath: String,
+      stackOffset: Int,
+      func: Supplier[JavaUDF]): JavaUDF = {
+    udx(
+      className,
+      funcName,
+      execName,
+      s"${UDXRegistrationHandler.className}.${UDXRegistrationHandler.methodName}",
+      execFilePath,
+      stackOffset + 2)(func.get())
+  }
+
+  def javaUDTF(
+      className: String,
+      funcName: String,
+      execName: String,
+      execFilePath: String,
+      stackOffset: Int,
+      func: Supplier[JavaTableFunction]): JavaTableFunction = {
+    udx(
+      className,
+      funcName,
+      execName,
+      UDXRegistrationHandler.udtfClassName,
+      execFilePath,
+      stackOffset + 2)(func.get())
+  }
+  def javaSProc(
+      className: String,
+      funcName: String,
+      execName: String,
+      execFilePath: String,
+      stackOffset: Int,
+      func: Supplier[JavaSProc]): JavaSProc = {
+    udx(
+      className,
+      funcName,
+      execName,
+      s"${UDXRegistrationHandler.className}.${UDXRegistrationHandler.methodName}",
+      execFilePath,
+      stackOffset + 2)(func.get())
+  }
+
+  // Scala API
+  def udx[T](
+      className: String,
+      funcName: String,
+      execName: String,
+      execHandler: String,
+      execFilePath: String,
+      stackOffset: Int)(func: => T): T = {
+    try {
+      spanInfo.withValue[T](spanInfo.value match {
+        // empty info means this is the entry of the recursion
+        case None =>
+          val stacks = Thread.currentThread().getStackTrace
+          val index = 4 + stackOffset
+          val fileName = stacks(index).getFileName
+          val lineNumber = stacks(index).getLineNumber
+          Some(
+            UdfInfo(
+              className,
+              funcName,
+              fileName,
+              lineNumber,
+              execName,
+              execHandler,
+              execFilePath))
+        // if value is not empty, this function call should be recursion.
+        // do not issue new SpanInfo, use the info inherited from previous.
+        case other => other
+      }) {
+        val result: T = func
+        OpenTelemetry.emit(spanInfo.value.get)
+        result
+      }
+    } catch {
+      case error: Throwable =>
+        OpenTelemetry.reportError(className, funcName, error)
+        throw error
+    }
+  }
   // wrapper of all action functions
   def action[T](
       className: String,
@@ -18,7 +110,7 @@ object OpenTelemetry extends Logging {
       isScala: Boolean,
       javaOffSet: Int = 0)(func: => T): T = {
     try {
-      actionInfo.withValue[T](actionInfo.value match {
+      spanInfo.withValue[T](spanInfo.value match {
         // empty info means this is the entry of the recursion
         case None =>
           val stacks = Thread.currentThread().getStackTrace
@@ -31,7 +123,7 @@ object OpenTelemetry extends Logging {
         case other => other
       }) {
         val result: T = func
-        OpenTelemetry.emit(actionInfo.value.get)
+        OpenTelemetry.emit(spanInfo.value.get)
         result
       }
     } catch {
@@ -40,14 +132,20 @@ object OpenTelemetry extends Logging {
         throw error
     }
   }
-  // class name format: snow.snowpark.<class name>
-  // method chain: Dataframe.filter.join.select.collect
-  def emit(spanInfo: ActionInfo): Unit =
-    emit(spanInfo.className, spanInfo.funcName) { span =>
+
+  def emit(info: SpanInfo): Unit =
+    emit(info.className, info.funcName) { span =>
       {
-        span.setAttribute("code.filepath", spanInfo.fileName)
-        span.setAttribute("code.lineno", spanInfo.lineNumber)
-        span.setAttribute("method.chain", spanInfo.methodChain)
+        span.setAttribute("code.filepath", info.fileName)
+        span.setAttribute("code.lineno", info.lineNumber)
+        info match {
+          case ActionInfo(_, _, _, _, methodChain) =>
+            span.setAttribute("method.chain", methodChain)
+          case UdfInfo(_, _, _, _, execName, execHandler, execFilePath) =>
+            span.setAttribute("snow.executable.name", execName)
+            span.setAttribute("snow.executable.handler", execHandler)
+            span.setAttribute("snow.executable.filepath", execFilePath)
+        }
       }
     }
 
@@ -81,9 +179,27 @@ object OpenTelemetry extends Logging {
 
 }
 
+trait SpanInfo {
+  val className: String
+  val funcName: String
+  val fileName: String
+  val lineNumber: Int
+}
+
 case class ActionInfo(
-    className: String,
-    funcName: String,
-    fileName: String,
-    lineNumber: Int,
+    override val className: String,
+    override val funcName: String,
+    override val fileName: String,
+    override val lineNumber: Int,
     methodChain: String)
+    extends SpanInfo
+
+case class UdfInfo(
+    override val className: String,
+    override val funcName: String,
+    override val fileName: String,
+    override val lineNumber: Int,
+    execName: String,
+    execHandler: String,
+    execFilePath: String)
+    extends SpanInfo

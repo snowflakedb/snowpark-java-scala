@@ -119,6 +119,8 @@ public class JavaUDTFNonStoredProcSuite extends UDFTestBase {
       Row[] rows2 = getAnotherSession().tableFunction(permFunc, lit(3), lit(4)).collect();
       assert rows2.length == 1 && rows2[0].size() == 1 && rows2[0].getInt(0) == 7;
 
+      getSession().sql("drop function " + permFunc.funcName() + "(int, int)").collect();
+
       TableFunction tempFunc = getSession().udtf().registerTemporary(new MyJavaUDTFOf2());
       // use temp UDTF in current session
       Row[] rows3 = getSession().tableFunction(tempFunc, lit(11), lit(22)).collect();

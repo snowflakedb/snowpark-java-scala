@@ -27,12 +27,18 @@ import scala.reflect.internal.util.AbstractFileClassLoader
 import scala.reflect.io.{AbstractFile, VirtualDirectory}
 import scala.util.Random
 
-class UDXRegistrationHandler(session: Session) extends Logging {
+import UDXRegistrationHandler._
+
+object UDXRegistrationHandler {
   // Class name for generated Java code
-  private val className = "SnowUDF"
+  val className = "SnowUDF"
   // Method name for generated Java code
-  private val methodName = "compute"
-  private val udtfClassName = "SnowparkGeneratedUDTF"
+  val methodName = "compute"
+  val udtfClassName = "SnowparkGeneratedUDTF"
+}
+
+class UDXRegistrationHandler(session: Session) extends Logging {
+
   private val jarBuilder = new FatJarBuilder()
 
   private val javaUdtfDefaultStructType =
