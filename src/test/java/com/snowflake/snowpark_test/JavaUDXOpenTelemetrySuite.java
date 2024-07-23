@@ -1,10 +1,7 @@
 package com.snowflake.snowpark_test;
 
 import com.snowflake.snowpark_java.Functions;
-import com.snowflake.snowpark_java.Row;
 import com.snowflake.snowpark_java.Session;
-import com.snowflake.snowpark_java.StoredProcedure;
-import com.snowflake.snowpark_java.internal.JavaSProc;
 import com.snowflake.snowpark_java.sproc.JavaSProc0;
 import com.snowflake.snowpark_java.types.DataTypes;
 import com.snowflake.snowpark_java.udf.JavaUDF0;
@@ -77,8 +74,13 @@ public class JavaUDXOpenTelemetrySuite extends JavaUDXOpenTelemetryEnabled {
   public void sproc() {
     String className = "snow.snowpark.SProcRegistration";
     String spName = randomName();
+    String spName2 = randomName();
     String stageName = randomStageName();
     JavaSProc0 sproc = session -> "SUCCESS";
+    getSession().sproc().registerTemporary(sproc, DataTypes.StringType);
+    checkUdfSpan(className, "registerTemporary", "", "");
+    getSession().sproc().registerTemporary(spName2, sproc, DataTypes.StringType);
+    checkUdfSpan(className, "registerTemporary", spName2, "");
     try {
       createStage(stageName, false);
       getSession().sproc().registerPermanent(spName, sproc, DataTypes.StringType, stageName, true);
