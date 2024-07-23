@@ -1,5 +1,7 @@
 package com.snowflake.snowpark_java;
 
+import static com.snowflake.snowpark.internal.OpenTelemetry.javaSProc;
+
 import com.snowflake.snowpark.PublicPreview;
 import com.snowflake.snowpark.internal.ErrorMessage;
 import com.snowflake.snowpark.internal.JavaUtils;
@@ -7,6 +9,7 @@ import com.snowflake.snowpark.internal.ScalaFunctions;
 import com.snowflake.snowpark_java.internal.JavaSProc;
 import com.snowflake.snowpark_java.sproc.*;
 import com.snowflake.snowpark_java.types.DataType;
+import java.util.function.Supplier;
 
 /**
  * Provides methods to register a SProc (Stored Procedure) in the Snowflake database.
@@ -104,16 +107,15 @@ public class SProcRegistration {
   //  | * @param isCallerMode true if the stored procedure is under caller mode.
   //  | * @return The result StoredProcedure reference
   //  | */
-  //  |@PublicPreview
   //  |public StoredProcedure registerPermanent(String name,
   //  |  JavaSProc$x<$types> sp,$input DataType output,
   //  |  String stageLocation, boolean isCallerMode) {
-  //  |  return new StoredProcedure(
+  //  |  return sproc("registerPermanent", name, stageLocation, () -> new StoredProcedure(
   //  |    JavaUtils.registerJavaSProc(
   //  |      sproc,
   //  |      name,
   //  |      ScalaFunctions._toSProc(sp,$arg UDFRegistration.convertDataType(output)),
-  //  |      stageLocation, isCallerMode));
+  //  |      stageLocation, isCallerMode)));
   //  |}""".stripMargin)
   //  }
 
@@ -131,16 +133,20 @@ public class SProcRegistration {
    * @param isCallerMode true if the stored procedure is under caller mode.
    * @return The result StoredProcedure reference
    */
-  @PublicPreview
   public StoredProcedure registerPermanent(
       String name, JavaSProc0<?> sp, DataType output, String stageLocation, boolean isCallerMode) {
-    return new StoredProcedure(
-        JavaUtils.registerJavaSProc(
-            sproc,
-            name,
-            ScalaFunctions._toSProc(sp, UDFRegistration.convertDataType(output)),
-            stageLocation,
-            isCallerMode));
+    return sproc(
+        "registerPermanent",
+        name,
+        stageLocation,
+        () ->
+            new StoredProcedure(
+                JavaUtils.registerJavaSProc(
+                    sproc,
+                    name,
+                    ScalaFunctions._toSProc(sp, UDFRegistration.convertDataType(output)),
+                    stageLocation,
+                    isCallerMode)));
   }
 
   /**
@@ -158,7 +164,6 @@ public class SProcRegistration {
    * @param isCallerMode true if the stored procedure is under caller mode.
    * @return The result StoredProcedure reference
    */
-  @PublicPreview
   public StoredProcedure registerPermanent(
       String name,
       JavaSProc1<?, ?> sp,
@@ -166,16 +171,21 @@ public class SProcRegistration {
       DataType output,
       String stageLocation,
       boolean isCallerMode) {
-    return new StoredProcedure(
-        JavaUtils.registerJavaSProc(
-            sproc,
-            name,
-            ScalaFunctions._toSProc(
-                sp,
-                UDFRegistration.convertDataType(input),
-                UDFRegistration.convertDataType(output)),
-            stageLocation,
-            isCallerMode));
+    return sproc(
+        "registerPermanent",
+        name,
+        stageLocation,
+        () ->
+            new StoredProcedure(
+                JavaUtils.registerJavaSProc(
+                    sproc,
+                    name,
+                    ScalaFunctions._toSProc(
+                        sp,
+                        UDFRegistration.convertDataType(input),
+                        UDFRegistration.convertDataType(output)),
+                    stageLocation,
+                    isCallerMode)));
   }
 
   /**
@@ -193,7 +203,6 @@ public class SProcRegistration {
    * @param isCallerMode true if the stored procedure is under caller mode.
    * @return The result StoredProcedure reference
    */
-  @PublicPreview
   public StoredProcedure registerPermanent(
       String name,
       JavaSProc2<?, ?, ?> sp,
@@ -201,16 +210,21 @@ public class SProcRegistration {
       DataType output,
       String stageLocation,
       boolean isCallerMode) {
-    return new StoredProcedure(
-        JavaUtils.registerJavaSProc(
-            sproc,
-            name,
-            ScalaFunctions._toSProc(
-                sp,
-                UDFRegistration.convertDataType(input),
-                UDFRegistration.convertDataType(output)),
-            stageLocation,
-            isCallerMode));
+    return sproc(
+        "registerPermanent",
+        name,
+        stageLocation,
+        () ->
+            new StoredProcedure(
+                JavaUtils.registerJavaSProc(
+                    sproc,
+                    name,
+                    ScalaFunctions._toSProc(
+                        sp,
+                        UDFRegistration.convertDataType(input),
+                        UDFRegistration.convertDataType(output)),
+                    stageLocation,
+                    isCallerMode)));
   }
 
   /**
@@ -228,7 +242,6 @@ public class SProcRegistration {
    * @param isCallerMode true if the stored procedure is under caller mode.
    * @return The result StoredProcedure reference
    */
-  @PublicPreview
   public StoredProcedure registerPermanent(
       String name,
       JavaSProc3<?, ?, ?, ?> sp,
@@ -236,16 +249,21 @@ public class SProcRegistration {
       DataType output,
       String stageLocation,
       boolean isCallerMode) {
-    return new StoredProcedure(
-        JavaUtils.registerJavaSProc(
-            sproc,
-            name,
-            ScalaFunctions._toSProc(
-                sp,
-                UDFRegistration.convertDataType(input),
-                UDFRegistration.convertDataType(output)),
-            stageLocation,
-            isCallerMode));
+    return sproc(
+        "registerPermanent",
+        name,
+        stageLocation,
+        () ->
+            new StoredProcedure(
+                JavaUtils.registerJavaSProc(
+                    sproc,
+                    name,
+                    ScalaFunctions._toSProc(
+                        sp,
+                        UDFRegistration.convertDataType(input),
+                        UDFRegistration.convertDataType(output)),
+                    stageLocation,
+                    isCallerMode)));
   }
 
   /**
@@ -263,7 +281,6 @@ public class SProcRegistration {
    * @param isCallerMode true if the stored procedure is under caller mode.
    * @return The result StoredProcedure reference
    */
-  @PublicPreview
   public StoredProcedure registerPermanent(
       String name,
       JavaSProc4<?, ?, ?, ?, ?> sp,
@@ -271,16 +288,21 @@ public class SProcRegistration {
       DataType output,
       String stageLocation,
       boolean isCallerMode) {
-    return new StoredProcedure(
-        JavaUtils.registerJavaSProc(
-            sproc,
-            name,
-            ScalaFunctions._toSProc(
-                sp,
-                UDFRegistration.convertDataType(input),
-                UDFRegistration.convertDataType(output)),
-            stageLocation,
-            isCallerMode));
+    return sproc(
+        "registerPermanent",
+        name,
+        stageLocation,
+        () ->
+            new StoredProcedure(
+                JavaUtils.registerJavaSProc(
+                    sproc,
+                    name,
+                    ScalaFunctions._toSProc(
+                        sp,
+                        UDFRegistration.convertDataType(input),
+                        UDFRegistration.convertDataType(output)),
+                    stageLocation,
+                    isCallerMode)));
   }
 
   /**
@@ -298,7 +320,6 @@ public class SProcRegistration {
    * @param isCallerMode true if the stored procedure is under caller mode.
    * @return The result StoredProcedure reference
    */
-  @PublicPreview
   public StoredProcedure registerPermanent(
       String name,
       JavaSProc5<?, ?, ?, ?, ?, ?> sp,
@@ -306,16 +327,21 @@ public class SProcRegistration {
       DataType output,
       String stageLocation,
       boolean isCallerMode) {
-    return new StoredProcedure(
-        JavaUtils.registerJavaSProc(
-            sproc,
-            name,
-            ScalaFunctions._toSProc(
-                sp,
-                UDFRegistration.convertDataType(input),
-                UDFRegistration.convertDataType(output)),
-            stageLocation,
-            isCallerMode));
+    return sproc(
+        "registerPermanent",
+        name,
+        stageLocation,
+        () ->
+            new StoredProcedure(
+                JavaUtils.registerJavaSProc(
+                    sproc,
+                    name,
+                    ScalaFunctions._toSProc(
+                        sp,
+                        UDFRegistration.convertDataType(input),
+                        UDFRegistration.convertDataType(output)),
+                    stageLocation,
+                    isCallerMode)));
   }
 
   /**
@@ -333,7 +359,6 @@ public class SProcRegistration {
    * @param isCallerMode true if the stored procedure is under caller mode.
    * @return The result StoredProcedure reference
    */
-  @PublicPreview
   public StoredProcedure registerPermanent(
       String name,
       JavaSProc6<?, ?, ?, ?, ?, ?, ?> sp,
@@ -341,16 +366,21 @@ public class SProcRegistration {
       DataType output,
       String stageLocation,
       boolean isCallerMode) {
-    return new StoredProcedure(
-        JavaUtils.registerJavaSProc(
-            sproc,
-            name,
-            ScalaFunctions._toSProc(
-                sp,
-                UDFRegistration.convertDataType(input),
-                UDFRegistration.convertDataType(output)),
-            stageLocation,
-            isCallerMode));
+    return sproc(
+        "registerPermanent",
+        name,
+        stageLocation,
+        () ->
+            new StoredProcedure(
+                JavaUtils.registerJavaSProc(
+                    sproc,
+                    name,
+                    ScalaFunctions._toSProc(
+                        sp,
+                        UDFRegistration.convertDataType(input),
+                        UDFRegistration.convertDataType(output)),
+                    stageLocation,
+                    isCallerMode)));
   }
 
   /**
@@ -368,7 +398,6 @@ public class SProcRegistration {
    * @param isCallerMode true if the stored procedure is under caller mode.
    * @return The result StoredProcedure reference
    */
-  @PublicPreview
   public StoredProcedure registerPermanent(
       String name,
       JavaSProc7<?, ?, ?, ?, ?, ?, ?, ?> sp,
@@ -376,16 +405,21 @@ public class SProcRegistration {
       DataType output,
       String stageLocation,
       boolean isCallerMode) {
-    return new StoredProcedure(
-        JavaUtils.registerJavaSProc(
-            sproc,
-            name,
-            ScalaFunctions._toSProc(
-                sp,
-                UDFRegistration.convertDataType(input),
-                UDFRegistration.convertDataType(output)),
-            stageLocation,
-            isCallerMode));
+    return sproc(
+        "registerPermanent",
+        name,
+        stageLocation,
+        () ->
+            new StoredProcedure(
+                JavaUtils.registerJavaSProc(
+                    sproc,
+                    name,
+                    ScalaFunctions._toSProc(
+                        sp,
+                        UDFRegistration.convertDataType(input),
+                        UDFRegistration.convertDataType(output)),
+                    stageLocation,
+                    isCallerMode)));
   }
 
   /**
@@ -403,7 +437,6 @@ public class SProcRegistration {
    * @param isCallerMode true if the stored procedure is under caller mode.
    * @return The result StoredProcedure reference
    */
-  @PublicPreview
   public StoredProcedure registerPermanent(
       String name,
       JavaSProc8<?, ?, ?, ?, ?, ?, ?, ?, ?> sp,
@@ -411,16 +444,21 @@ public class SProcRegistration {
       DataType output,
       String stageLocation,
       boolean isCallerMode) {
-    return new StoredProcedure(
-        JavaUtils.registerJavaSProc(
-            sproc,
-            name,
-            ScalaFunctions._toSProc(
-                sp,
-                UDFRegistration.convertDataType(input),
-                UDFRegistration.convertDataType(output)),
-            stageLocation,
-            isCallerMode));
+    return sproc(
+        "registerPermanent",
+        name,
+        stageLocation,
+        () ->
+            new StoredProcedure(
+                JavaUtils.registerJavaSProc(
+                    sproc,
+                    name,
+                    ScalaFunctions._toSProc(
+                        sp,
+                        UDFRegistration.convertDataType(input),
+                        UDFRegistration.convertDataType(output)),
+                    stageLocation,
+                    isCallerMode)));
   }
 
   /**
@@ -438,7 +476,6 @@ public class SProcRegistration {
    * @param isCallerMode true if the stored procedure is under caller mode.
    * @return The result StoredProcedure reference
    */
-  @PublicPreview
   public StoredProcedure registerPermanent(
       String name,
       JavaSProc9<?, ?, ?, ?, ?, ?, ?, ?, ?, ?> sp,
@@ -446,16 +483,21 @@ public class SProcRegistration {
       DataType output,
       String stageLocation,
       boolean isCallerMode) {
-    return new StoredProcedure(
-        JavaUtils.registerJavaSProc(
-            sproc,
-            name,
-            ScalaFunctions._toSProc(
-                sp,
-                UDFRegistration.convertDataType(input),
-                UDFRegistration.convertDataType(output)),
-            stageLocation,
-            isCallerMode));
+    return sproc(
+        "registerPermanent",
+        name,
+        stageLocation,
+        () ->
+            new StoredProcedure(
+                JavaUtils.registerJavaSProc(
+                    sproc,
+                    name,
+                    ScalaFunctions._toSProc(
+                        sp,
+                        UDFRegistration.convertDataType(input),
+                        UDFRegistration.convertDataType(output)),
+                    stageLocation,
+                    isCallerMode)));
   }
 
   /**
@@ -473,7 +515,6 @@ public class SProcRegistration {
    * @param isCallerMode true if the stored procedure is under caller mode.
    * @return The result StoredProcedure reference
    */
-  @PublicPreview
   public StoredProcedure registerPermanent(
       String name,
       JavaSProc10<?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?> sp,
@@ -481,16 +522,21 @@ public class SProcRegistration {
       DataType output,
       String stageLocation,
       boolean isCallerMode) {
-    return new StoredProcedure(
-        JavaUtils.registerJavaSProc(
-            sproc,
-            name,
-            ScalaFunctions._toSProc(
-                sp,
-                UDFRegistration.convertDataType(input),
-                UDFRegistration.convertDataType(output)),
-            stageLocation,
-            isCallerMode));
+    return sproc(
+        "registerPermanent",
+        name,
+        stageLocation,
+        () ->
+            new StoredProcedure(
+                JavaUtils.registerJavaSProc(
+                    sproc,
+                    name,
+                    ScalaFunctions._toSProc(
+                        sp,
+                        UDFRegistration.convertDataType(input),
+                        UDFRegistration.convertDataType(output)),
+                    stageLocation,
+                    isCallerMode)));
   }
 
   /**
@@ -508,7 +554,6 @@ public class SProcRegistration {
    * @param isCallerMode true if the stored procedure is under caller mode.
    * @return The result StoredProcedure reference
    */
-  @PublicPreview
   public StoredProcedure registerPermanent(
       String name,
       JavaSProc11<?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?> sp,
@@ -516,16 +561,21 @@ public class SProcRegistration {
       DataType output,
       String stageLocation,
       boolean isCallerMode) {
-    return new StoredProcedure(
-        JavaUtils.registerJavaSProc(
-            sproc,
-            name,
-            ScalaFunctions._toSProc(
-                sp,
-                UDFRegistration.convertDataType(input),
-                UDFRegistration.convertDataType(output)),
-            stageLocation,
-            isCallerMode));
+    return sproc(
+        "registerPermanent",
+        name,
+        stageLocation,
+        () ->
+            new StoredProcedure(
+                JavaUtils.registerJavaSProc(
+                    sproc,
+                    name,
+                    ScalaFunctions._toSProc(
+                        sp,
+                        UDFRegistration.convertDataType(input),
+                        UDFRegistration.convertDataType(output)),
+                    stageLocation,
+                    isCallerMode)));
   }
 
   /**
@@ -543,7 +593,6 @@ public class SProcRegistration {
    * @param isCallerMode true if the stored procedure is under caller mode.
    * @return The result StoredProcedure reference
    */
-  @PublicPreview
   public StoredProcedure registerPermanent(
       String name,
       JavaSProc12<?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?> sp,
@@ -551,16 +600,21 @@ public class SProcRegistration {
       DataType output,
       String stageLocation,
       boolean isCallerMode) {
-    return new StoredProcedure(
-        JavaUtils.registerJavaSProc(
-            sproc,
-            name,
-            ScalaFunctions._toSProc(
-                sp,
-                UDFRegistration.convertDataType(input),
-                UDFRegistration.convertDataType(output)),
-            stageLocation,
-            isCallerMode));
+    return sproc(
+        "registerPermanent",
+        name,
+        stageLocation,
+        () ->
+            new StoredProcedure(
+                JavaUtils.registerJavaSProc(
+                    sproc,
+                    name,
+                    ScalaFunctions._toSProc(
+                        sp,
+                        UDFRegistration.convertDataType(input),
+                        UDFRegistration.convertDataType(output)),
+                    stageLocation,
+                    isCallerMode)));
   }
 
   /**
@@ -578,7 +632,6 @@ public class SProcRegistration {
    * @param isCallerMode true if the stored procedure is under caller mode.
    * @return The result StoredProcedure reference
    */
-  @PublicPreview
   public StoredProcedure registerPermanent(
       String name,
       JavaSProc13<?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?> sp,
@@ -586,16 +639,21 @@ public class SProcRegistration {
       DataType output,
       String stageLocation,
       boolean isCallerMode) {
-    return new StoredProcedure(
-        JavaUtils.registerJavaSProc(
-            sproc,
-            name,
-            ScalaFunctions._toSProc(
-                sp,
-                UDFRegistration.convertDataType(input),
-                UDFRegistration.convertDataType(output)),
-            stageLocation,
-            isCallerMode));
+    return sproc(
+        "registerPermanent",
+        name,
+        stageLocation,
+        () ->
+            new StoredProcedure(
+                JavaUtils.registerJavaSProc(
+                    sproc,
+                    name,
+                    ScalaFunctions._toSProc(
+                        sp,
+                        UDFRegistration.convertDataType(input),
+                        UDFRegistration.convertDataType(output)),
+                    stageLocation,
+                    isCallerMode)));
   }
 
   /**
@@ -613,7 +671,6 @@ public class SProcRegistration {
    * @param isCallerMode true if the stored procedure is under caller mode.
    * @return The result StoredProcedure reference
    */
-  @PublicPreview
   public StoredProcedure registerPermanent(
       String name,
       JavaSProc14<?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?> sp,
@@ -621,16 +678,21 @@ public class SProcRegistration {
       DataType output,
       String stageLocation,
       boolean isCallerMode) {
-    return new StoredProcedure(
-        JavaUtils.registerJavaSProc(
-            sproc,
-            name,
-            ScalaFunctions._toSProc(
-                sp,
-                UDFRegistration.convertDataType(input),
-                UDFRegistration.convertDataType(output)),
-            stageLocation,
-            isCallerMode));
+    return sproc(
+        "registerPermanent",
+        name,
+        stageLocation,
+        () ->
+            new StoredProcedure(
+                JavaUtils.registerJavaSProc(
+                    sproc,
+                    name,
+                    ScalaFunctions._toSProc(
+                        sp,
+                        UDFRegistration.convertDataType(input),
+                        UDFRegistration.convertDataType(output)),
+                    stageLocation,
+                    isCallerMode)));
   }
 
   /**
@@ -648,7 +710,6 @@ public class SProcRegistration {
    * @param isCallerMode true if the stored procedure is under caller mode.
    * @return The result StoredProcedure reference
    */
-  @PublicPreview
   public StoredProcedure registerPermanent(
       String name,
       JavaSProc15<?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?> sp,
@@ -656,16 +717,21 @@ public class SProcRegistration {
       DataType output,
       String stageLocation,
       boolean isCallerMode) {
-    return new StoredProcedure(
-        JavaUtils.registerJavaSProc(
-            sproc,
-            name,
-            ScalaFunctions._toSProc(
-                sp,
-                UDFRegistration.convertDataType(input),
-                UDFRegistration.convertDataType(output)),
-            stageLocation,
-            isCallerMode));
+    return sproc(
+        "registerPermanent",
+        name,
+        stageLocation,
+        () ->
+            new StoredProcedure(
+                JavaUtils.registerJavaSProc(
+                    sproc,
+                    name,
+                    ScalaFunctions._toSProc(
+                        sp,
+                        UDFRegistration.convertDataType(input),
+                        UDFRegistration.convertDataType(output)),
+                    stageLocation,
+                    isCallerMode)));
   }
 
   /**
@@ -683,7 +749,6 @@ public class SProcRegistration {
    * @param isCallerMode true if the stored procedure is under caller mode.
    * @return The result StoredProcedure reference
    */
-  @PublicPreview
   public StoredProcedure registerPermanent(
       String name,
       JavaSProc16<?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?> sp,
@@ -691,16 +756,21 @@ public class SProcRegistration {
       DataType output,
       String stageLocation,
       boolean isCallerMode) {
-    return new StoredProcedure(
-        JavaUtils.registerJavaSProc(
-            sproc,
-            name,
-            ScalaFunctions._toSProc(
-                sp,
-                UDFRegistration.convertDataType(input),
-                UDFRegistration.convertDataType(output)),
-            stageLocation,
-            isCallerMode));
+    return sproc(
+        "registerPermanent",
+        name,
+        stageLocation,
+        () ->
+            new StoredProcedure(
+                JavaUtils.registerJavaSProc(
+                    sproc,
+                    name,
+                    ScalaFunctions._toSProc(
+                        sp,
+                        UDFRegistration.convertDataType(input),
+                        UDFRegistration.convertDataType(output)),
+                    stageLocation,
+                    isCallerMode)));
   }
 
   /**
@@ -718,7 +788,6 @@ public class SProcRegistration {
    * @param isCallerMode true if the stored procedure is under caller mode.
    * @return The result StoredProcedure reference
    */
-  @PublicPreview
   public StoredProcedure registerPermanent(
       String name,
       JavaSProc17<?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?> sp,
@@ -726,16 +795,21 @@ public class SProcRegistration {
       DataType output,
       String stageLocation,
       boolean isCallerMode) {
-    return new StoredProcedure(
-        JavaUtils.registerJavaSProc(
-            sproc,
-            name,
-            ScalaFunctions._toSProc(
-                sp,
-                UDFRegistration.convertDataType(input),
-                UDFRegistration.convertDataType(output)),
-            stageLocation,
-            isCallerMode));
+    return sproc(
+        "registerPermanent",
+        name,
+        stageLocation,
+        () ->
+            new StoredProcedure(
+                JavaUtils.registerJavaSProc(
+                    sproc,
+                    name,
+                    ScalaFunctions._toSProc(
+                        sp,
+                        UDFRegistration.convertDataType(input),
+                        UDFRegistration.convertDataType(output)),
+                    stageLocation,
+                    isCallerMode)));
   }
 
   /**
@@ -753,7 +827,6 @@ public class SProcRegistration {
    * @param isCallerMode true if the stored procedure is under caller mode.
    * @return The result StoredProcedure reference
    */
-  @PublicPreview
   public StoredProcedure registerPermanent(
       String name,
       JavaSProc18<?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?> sp,
@@ -761,16 +834,21 @@ public class SProcRegistration {
       DataType output,
       String stageLocation,
       boolean isCallerMode) {
-    return new StoredProcedure(
-        JavaUtils.registerJavaSProc(
-            sproc,
-            name,
-            ScalaFunctions._toSProc(
-                sp,
-                UDFRegistration.convertDataType(input),
-                UDFRegistration.convertDataType(output)),
-            stageLocation,
-            isCallerMode));
+    return sproc(
+        "registerPermanent",
+        name,
+        stageLocation,
+        () ->
+            new StoredProcedure(
+                JavaUtils.registerJavaSProc(
+                    sproc,
+                    name,
+                    ScalaFunctions._toSProc(
+                        sp,
+                        UDFRegistration.convertDataType(input),
+                        UDFRegistration.convertDataType(output)),
+                    stageLocation,
+                    isCallerMode)));
   }
 
   /**
@@ -788,7 +866,6 @@ public class SProcRegistration {
    * @param isCallerMode true if the stored procedure is under caller mode.
    * @return The result StoredProcedure reference
    */
-  @PublicPreview
   public StoredProcedure registerPermanent(
       String name,
       JavaSProc19<?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?> sp,
@@ -796,16 +873,21 @@ public class SProcRegistration {
       DataType output,
       String stageLocation,
       boolean isCallerMode) {
-    return new StoredProcedure(
-        JavaUtils.registerJavaSProc(
-            sproc,
-            name,
-            ScalaFunctions._toSProc(
-                sp,
-                UDFRegistration.convertDataType(input),
-                UDFRegistration.convertDataType(output)),
-            stageLocation,
-            isCallerMode));
+    return sproc(
+        "registerPermanent",
+        name,
+        stageLocation,
+        () ->
+            new StoredProcedure(
+                JavaUtils.registerJavaSProc(
+                    sproc,
+                    name,
+                    ScalaFunctions._toSProc(
+                        sp,
+                        UDFRegistration.convertDataType(input),
+                        UDFRegistration.convertDataType(output)),
+                    stageLocation,
+                    isCallerMode)));
   }
 
   /**
@@ -823,7 +905,6 @@ public class SProcRegistration {
    * @param isCallerMode true if the stored procedure is under caller mode.
    * @return The result StoredProcedure reference
    */
-  @PublicPreview
   public StoredProcedure registerPermanent(
       String name,
       JavaSProc20<?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?> sp,
@@ -831,16 +912,21 @@ public class SProcRegistration {
       DataType output,
       String stageLocation,
       boolean isCallerMode) {
-    return new StoredProcedure(
-        JavaUtils.registerJavaSProc(
-            sproc,
-            name,
-            ScalaFunctions._toSProc(
-                sp,
-                UDFRegistration.convertDataType(input),
-                UDFRegistration.convertDataType(output)),
-            stageLocation,
-            isCallerMode));
+    return sproc(
+        "registerPermanent",
+        name,
+        stageLocation,
+        () ->
+            new StoredProcedure(
+                JavaUtils.registerJavaSProc(
+                    sproc,
+                    name,
+                    ScalaFunctions._toSProc(
+                        sp,
+                        UDFRegistration.convertDataType(input),
+                        UDFRegistration.convertDataType(output)),
+                    stageLocation,
+                    isCallerMode)));
   }
 
   /**
@@ -858,7 +944,6 @@ public class SProcRegistration {
    * @param isCallerMode true if the stored procedure is under caller mode.
    * @return The result StoredProcedure reference
    */
-  @PublicPreview
   public StoredProcedure registerPermanent(
       String name,
       JavaSProc21<?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?> sp,
@@ -866,16 +951,21 @@ public class SProcRegistration {
       DataType output,
       String stageLocation,
       boolean isCallerMode) {
-    return new StoredProcedure(
-        JavaUtils.registerJavaSProc(
-            sproc,
-            name,
-            ScalaFunctions._toSProc(
-                sp,
-                UDFRegistration.convertDataType(input),
-                UDFRegistration.convertDataType(output)),
-            stageLocation,
-            isCallerMode));
+    return sproc(
+        "registerPermanent",
+        name,
+        stageLocation,
+        () ->
+            new StoredProcedure(
+                JavaUtils.registerJavaSProc(
+                    sproc,
+                    name,
+                    ScalaFunctions._toSProc(
+                        sp,
+                        UDFRegistration.convertDataType(input),
+                        UDFRegistration.convertDataType(output)),
+                    stageLocation,
+                    isCallerMode)));
   }
 
   //  Code below for registerTemporary 0-21 generated by this script
@@ -2477,5 +2567,18 @@ public class SProcRegistration {
               args[16], args[17], args[18], args[19], args[20]);
     }
     throw new UnsupportedOperationException("Unsupported Java SProc Type");
+  }
+
+  private StoredProcedure sproc(
+      String funcName, String execName, String execFilePath, Supplier<StoredProcedure> func) {
+    return javaSProc("SProcRegistration", funcName, execName, execFilePath, 0, func);
+  }
+
+  private StoredProcedure sproc(String funcName, String execName, Supplier<StoredProcedure> func) {
+    return javaSProc("UDFRegistration", funcName, execName, "", 0, func);
+  }
+
+  private StoredProcedure sproc(String funcName, Supplier<StoredProcedure> func) {
+    return javaSProc("UDFRegistration", funcName, "", "", 0, func);
   }
 }

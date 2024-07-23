@@ -1,8 +1,11 @@
 package com.snowflake.snowpark_test;
 
 import com.snowflake.snowpark_java.Functions;
+import com.snowflake.snowpark_java.Row;
 import com.snowflake.snowpark_java.Session;
-import com.snowflake.snowpark_java.TableFunction;
+import com.snowflake.snowpark_java.StoredProcedure;
+import com.snowflake.snowpark_java.internal.JavaSProc;
+import com.snowflake.snowpark_java.sproc.JavaSProc0;
 import com.snowflake.snowpark_java.types.DataTypes;
 import com.snowflake.snowpark_java.udf.JavaUDF0;
 import org.junit.Test;
@@ -64,10 +67,25 @@ public class JavaUDXOpenTelemetrySuite extends JavaUDXOpenTelemetryEnabled {
       createStage(stageName, false);
       getSession().udtf().registerPermanent(funcName2, new MyJavaUDTFOf2(), stageName);
       checkUdfSpan(className, "registerPermanent", funcName2, stageName);
-    }
-    finally {
+    } finally {
       getSession().sql("drop function " + funcName2 + "(int, int)").collect();
       dropStage(stageName);
+    }
+  }
+
+  @Test
+  public void sproc() {
+    String className = "snow.snowpark.SProcRegistration";
+    String spName = randomName();
+    String stageName = randomStageName();
+    JavaSProc0 sproc = session -> "SUCCESS";
+    try {
+      createStage(stageName, false);
+      getSession().sproc().registerPermanent(spName, sproc, DataTypes.StringType, stageName, true);
+      checkUdfSpan(className, "registerPermanent", spName, stageName);
+    } finally {
+      dropStage(stageName);
+      getSession().sql("drop procedure " + spName + "()").collect();
     }
   }
 

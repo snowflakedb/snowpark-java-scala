@@ -5,7 +5,11 @@ import io.opentelemetry.api.trace.{Span, StatusCode}
 
 import java.util.function.Supplier
 import scala.util.DynamicVariable
-import com.snowflake.snowpark_java.{UserDefinedFunction => JavaUDF, TableFunction => JavaTableFunction}
+import com.snowflake.snowpark_java.{
+  UserDefinedFunction => JavaUDF,
+  TableFunction => JavaTableFunction,
+  StoredProcedure => JavaSProc
+}
 
 object OpenTelemetry extends Logging {
 
@@ -29,12 +33,12 @@ object OpenTelemetry extends Logging {
   }
 
   def javaUDTF(
-               className: String,
-               funcName: String,
-               execName: String,
-               execFilePath: String,
-               stackOffset: Int,
-               func: Supplier[JavaTableFunction]): JavaTableFunction = {
+      className: String,
+      funcName: String,
+      execName: String,
+      execFilePath: String,
+      stackOffset: Int,
+      func: Supplier[JavaTableFunction]): JavaTableFunction = {
     udx(
       className,
       funcName,
@@ -43,7 +47,21 @@ object OpenTelemetry extends Logging {
       execFilePath,
       stackOffset + 2)(func.get())
   }
-  def JavaSProc(): Unit = {}
+  def javaSProc(
+      className: String,
+      funcName: String,
+      execName: String,
+      execFilePath: String,
+      stackOffset: Int,
+      func: Supplier[JavaSProc]): JavaSProc = {
+    udx(
+      className,
+      funcName,
+      execName,
+      s"${UDXRegistrationHandler.className}.${UDXRegistrationHandler.methodName}",
+      execFilePath,
+      stackOffset + 2)(func.get())
+  }
 
   // Scala API
   def udx[T](
