@@ -145,9 +145,7 @@ object TestUtils extends Logging {
       classOf[BeforeAndAfterAll], // scala test jar
       classOf[org.scalactic.TripleEquals], // scalactic jar
       classOf[io.opentelemetry.exporters.inmemory.InMemorySpanExporter],
-      classOf[io.opentelemetry.sdk.trace.export.SpanExporter],
-      classOf[scala.collection.Iterator[_]],
-      classOf[scala.reflect.api.TypeTags])
+      classOf[io.opentelemetry.sdk.trace.export.SpanExporter])
       .flatMap(UDFClassPath.getPathForClass(_))
       .foreach(path => {
         val file = new File(path)
@@ -178,8 +176,7 @@ object TestUtils extends Logging {
       classOf[BeforeAndAfterAll], // scala test jar
       classOf[org.scalactic.TripleEquals], // scalactic jar
       classOf[io.opentelemetry.exporters.inmemory.InMemorySpanExporter],
-      classOf[io.opentelemetry.sdk.trace.export.SpanExporter],
-      classOf[scala.Function0[_]])
+      classOf[io.opentelemetry.sdk.trace.export.SpanExporter])
       .flatMap(UDFClassPath.getPathForClass(_))
       .foreach(path => {
         val file = new File(path)

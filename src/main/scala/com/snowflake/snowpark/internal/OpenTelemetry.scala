@@ -43,7 +43,7 @@ object OpenTelemetry extends Logging {
       className,
       funcName,
       execName,
-      s"${UDXRegistrationHandler.className}.${UDXRegistrationHandler.methodName}",
+      UDXRegistrationHandler.udtfClassName,
       execFilePath,
       stackOffset + 2)(func.get())
   }

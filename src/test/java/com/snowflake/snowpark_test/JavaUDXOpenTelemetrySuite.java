@@ -53,17 +53,17 @@ public class JavaUDXOpenTelemetrySuite extends JavaUDXOpenTelemetryEnabled {
   public void udtf() {
     String className = "snow.snowpark.UDTFRegistration";
     getSession().udtf().registerTemporary(new MyJavaUDTFOf0());
-    checkUdfSpan(className, "registerTemporary", "", "");
+    checkUdtfSpan(className, "registerTemporary", "", "");
     String funcName = randomFunctionName();
     String funcName2 = randomFunctionName();
     getSession().udtf().registerTemporary(funcName, new MyJavaUDTFOf0());
-    checkUdfSpan(className, "registerTemporary", funcName, "");
+    checkUdtfSpan(className, "registerTemporary", funcName, "");
 
     String stageName = randomStageName();
     try {
       createStage(stageName, false);
       getSession().udtf().registerPermanent(funcName2, new MyJavaUDTFOf2(), stageName);
-      checkUdfSpan(className, "registerPermanent", funcName2, stageName);
+      checkUdtfSpan(className, "registerPermanent", funcName2, stageName);
     } finally {
       getSession().sql("drop function " + funcName2 + "(int, int)").collect();
       dropStage(stageName);
@@ -102,6 +102,20 @@ public class JavaUDXOpenTelemetrySuite extends JavaUDXOpenTelemetryEnabled {
         file.getLineNumber() - 1,
         execName,
         "SnowUDF.compute",
+        execFilePath);
+  }
+
+  private void checkUdtfSpan(
+      String className, String funcName, String execName, String execFilePath) {
+    StackTraceElement[] stack = Thread.currentThread().getStackTrace();
+    StackTraceElement file = stack[2];
+    checkSpan(
+        className,
+        funcName,
+        "JavaUDXOpenTelemetrySuite.java",
+        file.getLineNumber() - 1,
+        execName,
+        "SnowparkGeneratedUDTF",
         execFilePath);
   }
 }

@@ -44,17 +44,17 @@ class UdxOpenTelemetrySuite extends OpenTelemetryEnabled {
       override def outputSchema(): StructType = StructType(StructField("sum", IntegerType))
     }
     session.udtf.registerTemporary(new MyUDTF0())
-    checkUdfSpan(className, "registerTemporary", "", "")
+    checkUdtfSpan(className, "registerTemporary", "", "")
     val udtfName = randomFunctionName()
     session.udtf.registerTemporary(udtfName, new MyUDTF0)
-    checkUdfSpan(className, "registerTemporary", udtfName, "")
+    checkUdtfSpan(className, "registerTemporary", udtfName, "")
 
     val stageName: String = randomName()
     val udtfName2 = randomFunctionName()
     try {
       createStage(stageName, isTemporary = false)
       session.udtf.registerPermanent(udtfName2, new MyUDTF0(), stageName)
-      checkUdfSpan(className, "registerPermanent", udtfName2, stageName)
+      checkUdtfSpan(className, "registerPermanent", udtfName2, stageName)
     } finally {
       runQuery(s"drop function $udtfName2()", session)
       dropStage(stageName)
@@ -95,6 +95,23 @@ class UdxOpenTelemetrySuite extends OpenTelemetryEnabled {
       file.getLineNumber - 1,
       execName,
       "SnowUDF.compute",
+      execFilePath)
+  }
+
+  def checkUdtfSpan(
+      className: String,
+      funcName: String,
+      execName: String,
+      execFilePath: String): Unit = {
+    val stack = Thread.currentThread().getStackTrace
+    val file = stack(2) // this file
+    checkSpan(
+      className,
+      funcName,
+      "UdxOpenTelemetrySuite.scala",
+      file.getLineNumber - 1,
+      execName,
+      "SnowparkGeneratedUDTF",
       execFilePath)
   }
 }
