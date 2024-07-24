@@ -116,16 +116,16 @@ object OpenTelemetry extends Logging {
   private def findLineNumber(stacks: Array[StackTraceElement]): (String, Int) = {
     var index: Int = 0
     // start with OpenTelemetry class
-    while (stacks(index).getFileName != "OpenTelemetry.scala" && index < stacks.length) {
+    while (index < stacks.length && stacks(index).getFileName != "OpenTelemetry.scala") {
       index += 1
     }
     if (index == stacks.length) {
       // if can't find open telemetry class, make it N/A
       ("N/A", 0)
     } else {
-      while ((stacks(index).getClassName.startsWith("com.snowflake.snowpark.") ||
-             stacks(index).getClassName.startsWith("com.snowflake.snowpark_java.")) &&
-             index < stacks.length) {
+      while (index < stacks.length &&
+             (stacks(index).getClassName.startsWith("com.snowflake.snowpark.") ||
+             stacks(index).getClassName.startsWith("com.snowflake.snowpark_java."))) {
         index += 1
       }
       if (index == stacks.length) {
