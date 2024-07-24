@@ -1,7 +1,7 @@
 package com.snowflake.snowpark.internal
 
 import java.io.{Closeable, InputStream}
-import java.sql.{PreparedStatement, ResultSet, ResultSetMetaData, SQLException, Statement}
+import java.sql.{PreparedStatement, ResultSetMetaData, SQLException, Statement}
 import java.time.LocalDateTime
 import com.snowflake.snowpark.{
   MergeBuilder,
@@ -27,30 +27,16 @@ import com.snowflake.snowpark.internal.Utils.PackageNameDelimiter
 import com.snowflake.snowpark.internal.analyzer.{Attribute, Query, SnowflakePlan}
 import net.snowflake.client.jdbc.{
   FieldMetadata,
-  SnowflakeBaseResultSet,
   SnowflakeConnectString,
   SnowflakeConnectionV1,
   SnowflakeReauthenticationRequest,
   SnowflakeResultSet,
   SnowflakeResultSetMetaData,
-  SnowflakeResultSetV1,
-  SnowflakeStatement,
-  SnowflakeUtil
+  SnowflakeStatement
 }
 import com.snowflake.snowpark.types._
-import net.snowflake.client.core.{
-  ArrowSqlInput,
-  ColumnTypeHelper,
-  QueryStatus,
-  SFArrowResultSet,
-  SFBaseResultSet
-}
-import net.snowflake.client.jdbc.internal.apache.arrow.vector.util.{
-  JsonStringArrayList,
-  JsonStringHashMap
-}
+import net.snowflake.client.core.QueryStatus
 
-import java.util
 import scala.collection.mutable
 import scala.reflect.runtime.universe.TypeTag
 import scala.collection.JavaConverters._
@@ -328,7 +314,6 @@ private[snowpark] class ServerConnection(
       statement: Statement): (CloseableIterator[Row], StructType) =
     withValidConnection {
       val data = statement.getResultSet
-
       val schema = ServerConnection.convertResultMetaToAttribute(data.getMetaData)
 
       lazy val geographyOutputFormat = getParameterValue(ParameterUtils.GeographyOutputFormat)
@@ -346,14 +331,12 @@ private[snowpark] class ServerConnection(
             Row.fromSeq(schema.zipWithIndex.map {
               case (attribute, index) =>
                 val resultIndex: Int = index + 1
-                val resultSetExt = SnowflakeResultSetExt(data)
-                if (resultSetExt.isNull(resultIndex)) {
+                data.getObject(resultIndex) // check null value, JDBC standard
+                if (data.wasNull()) {
                   null
                 } else {
                   attribute.dataType match {
                     case VariantType => data.getString(resultIndex)
-                    case _: StructuredArrayType | _: StructuredMapType | _: StructType =>
-                      resultSetExt.getObject(resultIndex)
                     case ArrayType(StringType) => data.getString(resultIndex)
                     case MapType(StringType, StringType) => data.getString(resultIndex)
                     case StringType => data.getString(resultIndex)
@@ -1016,123 +999,5 @@ private[snowpark] class ServerConnection(
           throw e
       }
     }
-}
 
-private[snowflake] object SnowflakeResultSetExt {
-  def apply(data: ResultSet): SnowflakeResultSetExt =
-    data match {
-      case sfResultSet: SnowflakeResultSetV1 => new SnowflakeResultSetExt(sfResultSet)
-      case other =>
-        throw new IllegalArgumentException(
-          s"Unsupported JDBC ResultSet Object: ${other.getClass.getSimpleName}")
-    }
-}
-// Extends the Snowflake ResultSet to access private fields
-private[snowflake] class SnowflakeResultSetExt(data: SnowflakeResultSetV1) {
-  // used by structured types
-  // the baseResultSet is not always SFArrowResultSet
-  lazy val baseResultSet: SFBaseResultSet = {
-    val sfResultSet = data.asInstanceOf[SnowflakeBaseResultSet]
-    val baseResultSetField =
-      classOf[SnowflakeBaseResultSet].getDeclaredField("sfBaseResultSet")
-    baseResultSetField.setAccessible(true)
-    baseResultSetField.get(sfResultSet).asInstanceOf[SFBaseResultSet]
-  }
-
-  lazy val arrowResultSet: SFArrowResultSet =
-    baseResultSet.asInstanceOf[SFArrowResultSet]
-
-  private def getObjectInternal(index: Int): Any = {
-    SnowflakeUtil.mapSFExceptionToSQLException(() => baseResultSet.getObject(index))
-  }
-
-  def isNull(index: Int): Boolean =
-    getObjectInternal(index) == null
-
-  def getObject(index: Int): Any = {
-    val meta = data.getMetaData
-    // convert meta to field meta
-    val field = new FieldMetadata(
-      meta.getColumnName(index),
-      meta.getColumnTypeName(index),
-      meta.getColumnType(index),
-      true,
-      0,
-      0,
-      0,
-      false,
-      null,
-      meta
-        .asInstanceOf[SnowflakeResultSetMetaData]
-        .getColumnFields(index))
-    convertToSnowparkValue(getObjectInternal(index), field)
-  }
-
-  private def convertToSnowparkValue(value: Any, meta: FieldMetadata): Any = {
-    meta.getTypeName match {
-      // semi structured
-      case "ARRAY" if meta.getFields.isEmpty => value.toString
-      // structured array
-      case "ARRAY" if meta.getFields.size() == 1 =>
-        value
-          .asInstanceOf[util.ArrayList[_]]
-          .toArray
-          .map(v => convertToSnowparkValue(v, meta.getFields.get(0)))
-      // semi-structured
-      case "OBJECT" if meta.getFields.isEmpty => value.toString
-      // structured map, Map type has two fields, and both field names are empty
-      case "OBJECT" if meta.getFields.size() == 2 && meta.getFields.get(0).getName.isEmpty =>
-        value match {
-          // nested structured maps are JsonStringArrayValues
-          case subMap: JsonStringArrayList[_] =>
-            subMap.asScala.map {
-              case mapValue: JsonStringHashMap[_, _] =>
-                convertToSnowparkValue(mapValue.get("key"), meta.getFields.get(0)) ->
-                  convertToSnowparkValue(mapValue.get("value"), meta.getFields.get(1))
-            }.toMap
-          case map: util.HashMap[_, _] =>
-            map.asScala.map {
-              case (key, value) =>
-                convertToSnowparkValue(key, meta.getFields.get(0)) ->
-                  convertToSnowparkValue(value, meta.getFields.get(1))
-            }.toMap
-        }
-      // object, object's field name can't be empty
-      case "OBJECT" =>
-        value match {
-          case arrowSqlInput: ArrowSqlInput =>
-            convertToSnowparkValue(arrowSqlInput.getInput, meta)
-          case map: java.util.Map[String, _] =>
-            Row.fromMap(
-              map.asScala.toList
-                .zip(meta.getFields.asScala)
-                .map {
-                  case ((key, value), metadata) =>
-                    key -> convertToSnowparkValue(value, metadata)
-                }
-                .toMap)
-        }
-
-      case "NUMBER" if meta.getType == java.sql.Types.BIGINT =>
-        value match {
-          case str: String => str.toLong // number key in structured map
-          case bd: java.math.BigDecimal => bd.toBigInteger.longValue()
-        }
-      case "DOUBLE" | "BOOLEAN" | "BINARY" | "NUMBER" => value
-      case "VARCHAR" | "VARIANT" => value.toString // Text to String
-      case "DATE" =>
-        arrowResultSet.convertToDate(value, null)
-      case "TIME" =>
-        arrowResultSet.convertToTime(value, meta.getScale)
-      case _
-          if meta.getType == java.sql.Types.TIMESTAMP ||
-            meta.getType == java.sql.Types.TIMESTAMP_WITH_TIMEZONE =>
-        val columnSubType = meta.getType
-        val columnType = ColumnTypeHelper
-          .getColumnType(columnSubType, arrowResultSet.getSession)
-        arrowResultSet.convertToTimestamp(value, columnType, columnSubType, null, meta.getScale)
-      case _ =>
-        throw new UnsupportedOperationException(s"Unsupported type: ${meta.getTypeName}")
-    }
-  }
 }

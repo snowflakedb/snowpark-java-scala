@@ -4,7 +4,6 @@ import java.sql.{Date, Time, Timestamp}
 import com.snowflake.snowpark.internal.ErrorMessage
 import com.snowflake.snowpark.types.{Geography, Geometry, Variant}
 
-import scala.reflect.ClassTag
 import scala.util.hashing.MurmurHash3
 
 /**
@@ -29,15 +28,6 @@ object Row {
    * @since 0.2.0
    */
   def fromArray(values: Array[Any]): Row = new Row(values)
-
-  private[snowpark] def fromMap(map: Map[String, Any]): Row =
-    new SnowflakeObject(map)
-}
-
-private[snowpark] class SnowflakeObject private[snowpark] (
-    private[snowpark] val map: Map[String, Any])
-    extends Row(map.values.toArray) {
-  override def toString: String = convertValueToString(this)
 }
 
 /**
@@ -47,7 +37,7 @@ private[snowpark] class SnowflakeObject private[snowpark] (
  * @groupname utl Utility Functions
  * @since 0.1.0
  */
-class Row protected (values: Array[Any]) extends Serializable {
+class Row private (values: Array[Any]) extends Serializable {
 
   /**
    * Converts this [[Row]] to a Seq
@@ -336,68 +326,17 @@ class Row protected (values: Array[Any]) extends Serializable {
     new Variant(getString(index)).asMap()
 
   /**
-   * Returns the Snowflake Object value at the given index as a Row value.
-   *
-   * @since 1.13.0
-   * @group getter
-   */
-  def getObject(index: Int): Row =
-    getAs[Row](index)
-
-  /**
-   * Returns the value of the column at the given index as a Seq value.
-   *
-   * @since 1.13.0
-   * @group getter
-   */
-  def getSeq[T](index: Int): Seq[T] = {
-    val result = getAs[Array[_]](index)
-    result.map {
-      case x: T => x
-    }
-  }
-
-  /**
-   * Returns the value of the column at the given index as a Map value.
-   *
-   * @since 1.13.0
-   * @group getter
-   */
-  def getMap[T, U](index: Int): Map[T, U] = {
-    getAs[Map[T, U]](index)
-  }
-
-  protected def convertValueToString(value: Any): String =
-    value match {
-      case null => "null"
-      case map: Map[_, _] =>
-        map
-          .map {
-            case (key, value) => s"${convertValueToString(key)}:${convertValueToString(value)}"
-          }
-          .mkString("Map(", ",", ")")
-      case binary: Array[Byte] => s"Binary(${binary.mkString(",")})"
-      case strValue: String => s""""$strValue""""
-      case arr: Array[_] =>
-        arr.map(convertValueToString).mkString("Array(", ",", ")")
-      case obj: SnowflakeObject =>
-        obj.map
-          .map {
-            case (key, value) =>
-              s"$key:${convertValueToString(value)}"
-          }
-          .mkString("Object(", ",", ")")
-      case other => other.toString
-    }
-
-  /**
    * Returns a string value to represent the content of this row
    * @since 0.1.0
    * @group utl
    */
   override def toString: String =
     values
-      .map(convertValueToString)
+      .map {
+        case null => "null"
+        case binary: Array[Byte] => s"Binary(${binary.mkString(",")})"
+        case other => other.toString
+      }
       .mkString("Row[", ",", "]")
 
   private def getAs[T](index: Int): T = get(index).asInstanceOf[T]

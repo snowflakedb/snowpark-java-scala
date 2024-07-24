@@ -132,42 +132,26 @@ public class Row implements Serializable, Cloneable {
    * @return The value of the column at the given index
    */
   public Object get(int index) {
-    return toJavaValue(scalaRow.get(index));
-  }
-
-  private static Object toJavaValue(Object value) {
-    if (value instanceof com.snowflake.snowpark.types.Variant) {
-      return InternalUtils.createVariant((com.snowflake.snowpark.types.Variant) value);
-    } else if (value instanceof com.snowflake.snowpark.types.Geography) {
-      return Geography.fromGeoJSON(((com.snowflake.snowpark.types.Geography) value).asGeoJSON());
-    } else if (value instanceof com.snowflake.snowpark.types.Geometry) {
-      return Geometry.fromGeoJSON(value.toString());
-    } else if (value instanceof com.snowflake.snowpark.types.Variant[]) {
+    Object result = scalaRow.get(index);
+    if (result instanceof com.snowflake.snowpark.types.Variant) {
+      return InternalUtils.createVariant((com.snowflake.snowpark.types.Variant) result);
+    } else if (result instanceof com.snowflake.snowpark.types.Geography) {
+      return Geography.fromGeoJSON(((com.snowflake.snowpark.types.Geography) result).asGeoJSON());
+    } else if (result instanceof com.snowflake.snowpark.types.Geometry) {
+      return Geometry.fromGeoJSON(result.toString());
+    } else if (result instanceof com.snowflake.snowpark.types.Variant[]) {
       com.snowflake.snowpark.types.Variant[] scalaVariantArray =
-          (com.snowflake.snowpark.types.Variant[]) value;
+          (com.snowflake.snowpark.types.Variant[]) result;
       Variant[] resultArray = new Variant[scalaVariantArray.length];
       for (int idx = 0; idx < scalaVariantArray.length; idx++) {
         resultArray[idx] = InternalUtils.createVariant(scalaVariantArray[idx]);
       }
       return resultArray;
-    } else if (value instanceof scala.collection.immutable.Map<?, ?>) {
-      scala.collection.immutable.Map<?, ?> input = (scala.collection.immutable.Map<?, ?>) value;
-      Map<Object, Object> result = new HashMap<>();
-      // key is either Long or String, no need to convert values
-      input.foreach(x -> result.put(x._1, toJavaValue(x._2)));
-      return result;
-    } else if (value instanceof Object[]) {
-      Object[] arr = (Object[]) value;
-      List<Object> result = new ArrayList<>(arr.length);
-      for (Object x : arr) {
-        result.add(toJavaValue(x));
-      }
-      return result;
-    } else if (value instanceof com.snowflake.snowpark.Row) {
-      return new Row((com.snowflake.snowpark.Row) value);
-    } else {
-      return value;
+    } else if (result instanceof scala.collection.immutable.Map<?, ?>) {
+      return JavaUtils.scalaMapToJavaWithVariantConversion(
+          (scala.collection.immutable.Map<Object, Object>) result);
     }
+    return result;
   }
 
   /**
@@ -390,39 +374,6 @@ public class Row implements Serializable, Cloneable {
       result.put(keys.apply(i), InternalUtils.createVariant(scalaMap.apply(keys.apply(i))));
     }
     return result;
-  }
-
-  /**
-   * Retrieves the value of the column at the given index as a list of Object.
-   *
-   * @param index The index of target column
-   * @return A list of Object
-   * @since 1.13.0
-   */
-  public List<?> getList(int index) {
-    return (List<?>) get(index);
-  }
-
-  /**
-   * Retrieves the value of the column at the given index as a Java Map
-   *
-   * @param index The index of target column
-   * @return A Java Map
-   * @since 1.13.0
-   */
-  public Map<?, ?> getMap(int index) {
-    return (Map<?, ?>) get(index);
-  }
-
-  /**
-   * Retrieves the value of the column at the given index as a Row
-   *
-   * @param index The index of target column
-   * @return A Row
-   * @since 1.13.0
-   */
-  public Row getObject(int index) {
-    return (Row) get(index);
   }
 
   /**
