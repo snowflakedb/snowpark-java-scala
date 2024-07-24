@@ -204,9 +204,7 @@ class MergeBuilder private[snowpark] (
   def async: MergeBuilderAsyncActor = new MergeBuilderAsyncActor(this)
 
   @inline protected def action[T](funcName: String)(func: => T): T = {
-    val isScala: Boolean = target.session.conn.isScalaAPI
-    OpenTelemetry.action("MergeBuilder", funcName, target.methodChainString + ".merge", isScala)(
-      func)
+    OpenTelemetry.action("MergeBuilder", funcName, target.methodChainString + ".merge")(func)
   }
 }
 
@@ -231,11 +229,9 @@ class MergeBuilderAsyncActor private[snowpark] (mergeBuilder: MergeBuilder) {
   }
 
   @inline protected def action[T](funcName: String)(func: => T): T = {
-    val isScala: Boolean = mergeBuilder.target.session.conn.isScalaAPI
     OpenTelemetry.action(
       "MergeBuilderAsyncActor",
       funcName,
-      mergeBuilder.target.methodChainString + ".merge.async",
-      isScala)(func)
+      mergeBuilder.target.methodChainString + ".merge.async")(func)
   }
 }

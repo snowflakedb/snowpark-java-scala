@@ -2447,7 +2447,6 @@ class UDFRegistration(session: Session) extends Logging {
       funcName,
       execName,
       s"${UDXRegistrationHandler.className}.${UDXRegistrationHandler.methodName}",
-      execFilePath,
-      0)(func)
+      execFilePath)(func)
   }
 }

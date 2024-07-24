@@ -394,8 +394,7 @@ class DataFrameWriter(private[snowpark] val dataFrame: DataFrame) {
     OpenTelemetry.action(
       "DataFrameWriter",
       funcName,
-      this.dataFrame.methodChainString + ".writer",
-      isScala)(func)
+      this.dataFrame.methodChainString + ".writer")(func)
   }
 
 }
@@ -490,12 +489,10 @@ class DataFrameWriterAsyncActor private[snowpark] (writer: DataFrameWriter) {
   }
 
   @inline protected def action[T](funcName: String)(func: => T): T = {
-    val isScala: Boolean = writer.dataFrame.session.conn.isScalaAPI
     OpenTelemetry.action(
       "DataFrameWriterAsyncActor",
       funcName,
-      writer.dataFrame.methodChainString + ".writer.async",
-      isScala)(func)
+      writer.dataFrame.methodChainString + ".writer.async")(func)
   }
 }
 
