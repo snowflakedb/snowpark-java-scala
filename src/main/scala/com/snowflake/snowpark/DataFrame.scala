@@ -3029,8 +3029,7 @@ class DataFrame private[snowpark] (
   @inline protected def withPlan(plan: LogicalPlan): DataFrame = DataFrame(session, plan)
 
   @inline protected def action[T](funcName: String)(func: => T): T = {
-    val isScala: Boolean = this.session.conn.isScalaAPI
-    OpenTelemetry.action("DataFrame", funcName, methodChainString, isScala)(func)
+    OpenTelemetry.action("DataFrame", funcName, methodChainString)(func)
   }
 
   @inline protected def transformation(funcName: String)(func: => DataFrame): DataFrame =
@@ -3108,11 +3107,6 @@ class DataFrameAsyncActor private[snowpark] (df: DataFrame) {
   }
 
   @inline protected def action[T](funcName: String)(func: => T): T = {
-    val isScala: Boolean = df.session.conn.isScalaAPI
-    OpenTelemetry.action(
-      "DataFrameAsyncActor",
-      funcName,
-      df.methodChainString + ".async",
-      isScala)(func)
+    OpenTelemetry.action("DataFrameAsyncActor", funcName, df.methodChainString + ".async")(func)
   }
 }

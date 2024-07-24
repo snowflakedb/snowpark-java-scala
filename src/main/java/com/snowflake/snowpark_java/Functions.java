@@ -4286,6 +4286,6 @@ public final class Functions {
 
   private static UserDefinedFunction userDefinedFunction(
       String funcName, Supplier<UserDefinedFunction> func) {
-    return javaUDF("Functions", funcName, "", "", 0, func);
+    return javaUDF("Functions", funcName, "", "", func);
   }
 }

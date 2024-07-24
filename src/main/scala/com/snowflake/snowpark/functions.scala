@@ -3864,8 +3864,7 @@ object functions {
       funcName,
       "",
       s"${UDXRegistrationHandler.className}.${UDXRegistrationHandler.methodName}",
-      "",
-      0)(func)
+      "")(func)
   }
 
 }
