@@ -26,12 +26,11 @@ import com.snowflake.snowpark.internal.ParameterUtils.{
 import com.snowflake.snowpark.internal.Utils.PackageNameDelimiter
 import com.snowflake.snowpark.internal.analyzer.{Attribute, Query, SnowflakePlan}
 import net.snowflake.client.jdbc.{
-  FieldMetadata,
   SnowflakeConnectString,
   SnowflakeConnectionV1,
   SnowflakeReauthenticationRequest,
   SnowflakeResultSet,
-  SnowflakeResultSetMetaData,
+  SnowflakeSQLException,
   SnowflakeStatement
 }
 import com.snowflake.snowpark.types._
@@ -39,7 +38,6 @@ import net.snowflake.client.core.QueryStatus
 
 import scala.collection.mutable
 import scala.reflect.runtime.universe.TypeTag
-import scala.collection.JavaConverters._
 
 private[snowpark] case class QueryResult(
     rows: Option[Array[Row]],
@@ -57,11 +55,6 @@ private[snowpark] object ServerConnection {
 
   def convertResultMetaToAttribute(meta: ResultSetMetaData): Seq[Attribute] =
     (1 to meta.getColumnCount).map(index => {
-      val fieldMetadata = meta
-        .asInstanceOf[SnowflakeResultSetMetaData]
-        .getColumnFields(index)
-        .asScala
-        .toList
       val columnName = analyzer.quoteNameWithoutUpperCasing(meta.getColumnLabel(index))
       val dataType = meta.getColumnType(index)
       val fieldSize = meta.getPrecision(index)
@@ -71,8 +64,7 @@ private[snowpark] object ServerConnection {
       // This field is useful for snowflake types that are not JDBC types like
       // variant, object and array
       val columnTypeName = meta.getColumnTypeName(index)
-      val columnType =
-        getDataType(dataType, columnTypeName, fieldSize, fieldScale, isSigned, fieldMetadata)
+      val columnType = getDataType(dataType, columnTypeName, fieldSize, fieldScale, isSigned)
 
       Attribute(columnName, columnType, nullable)
     })
@@ -82,61 +74,11 @@ private[snowpark] object ServerConnection {
       columnTypeName: String,
       precision: Int,
       scale: Int,
-      signed: Boolean,
-      field: List[FieldMetadata] = List.empty): DataType = {
+      signed: Boolean): DataType = {
     columnTypeName match {
-      case "ARRAY" =>
-        if (field.isEmpty) {
-          ArrayType(StringType)
-        } else {
-          StructuredArrayType(
-            getDataType(
-              field.head.getType,
-              field.head.getTypeName,
-              field.head.getPrecision,
-              field.head.getScale,
-              signed = true, // no sign info in the fields
-              field.head.getFields.asScala.toList),
-            field.head.isNullable)
-        }
+      case "ARRAY" => ArrayType(StringType)
       case "VARIANT" => VariantType
-      case "OBJECT" =>
-        if (field.isEmpty) {
-          MapType(StringType, StringType)
-        } else if (field.size == 2 && field.head.getName.isEmpty) {
-          // Map
-          StructuredMapType(
-            getDataType(
-              field.head.getType,
-              field.head.getTypeName,
-              field.head.getPrecision,
-              field.head.getScale,
-              signed = true,
-              field.head.getFields.asScala.toList),
-            getDataType(
-              field(1).getType,
-              field(1).getTypeName,
-              field(1).getPrecision,
-              field(1).getScale,
-              signed = true,
-              field(1).getFields.asScala.toList),
-            field(1).isNullable)
-        } else {
-          // object
-          StructType(
-            field.map(
-              f =>
-                StructField(
-                  f.getName,
-                  getDataType(
-                    f.getType,
-                    f.getTypeName,
-                    f.getPrecision,
-                    f.getScale,
-                    signed = true,
-                    f.getFields.asScala.toList),
-                  f.isNullable)))
-        }
+      case "OBJECT" => MapType(StringType, StringType)
       case "GEOGRAPHY" => GeographyType
       case "GEOMETRY" => GeometryType
       case _ => getTypeFromJDBCType(sqlType, precision, scale, signed)

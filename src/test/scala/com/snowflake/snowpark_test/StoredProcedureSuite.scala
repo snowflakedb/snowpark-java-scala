@@ -107,8 +107,7 @@ class StoredProcedureSuite extends SNTestBase {
     assert(msg.contains("The object name 'ad#asd' is invalid"))
   }
 
-  // temporary disabled, waiting for server side JDBC upgrade
-  ignore("closure") {
+  test("closure") {
     val num1 = 123
     val sp = session.sproc.registerTemporary((session: Session, num2: Int) => {
       val result = session.sql(s"select $num2").collect().head.getInt(0)
@@ -2288,8 +2287,7 @@ println(s"""
     newSession.close()
   }
 
-  // temporary disabled, waiting for server side JDBC upgrade
-  ignore("runLocally from Sproc") {
+  test("runLocally from Sproc") {
     val sp = session.sproc.registerTemporary((session: Session, num: Int) => {
       val func = (session: Session, num: Int) => s"NUM: $num"
       session.sproc.runLocally(func, num)

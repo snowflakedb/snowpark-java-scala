@@ -63,26 +63,11 @@ package object types {
       case TimeType => "TIME"
       case TimestampType => "TIMESTAMP"
       case BinaryType => "BINARY"
-      case sa: StructuredArrayType =>
-        val nullable = if (sa.nullable) "" else " not null"
-        s"ARRAY(${convertToSFType(sa.elementType)}$nullable)"
-      case sm: StructuredMapType =>
-        val isValueNullable = if (sm.isValueNullable) "" else " not null"
-        s"MAP(${convertToSFType(sm.keyType)}, ${convertToSFType(sm.valueType)}$isValueNullable)"
-      case StructType(fields) =>
-        val fieldStr = fields
-          .map(
-            field =>
-              s"${field.name} ${convertToSFType(field.dataType)} " +
-                (if (field.nullable) "" else "not null"))
-          .mkString(",")
-        s"OBJECT($fieldStr)"
       case ArrayType(_) => "ARRAY"
       case MapType(_, _) => "OBJECT"
       case VariantType => "VARIANT"
       case GeographyType => "GEOGRAPHY"
       case GeometryType => "GEOMETRY"
-      case StructType(_) => "OBJECT"
       case _ =>
         throw new UnsupportedOperationException(s"Unsupported data type: ${dataType.typeName}")
     }

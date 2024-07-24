@@ -8,6 +8,4 @@ object GeometryType extends DataType {
   override def toString: String = {
     s"GeometryType"
   }
-
-  override def schemaString: String = s"Geometry"
 }

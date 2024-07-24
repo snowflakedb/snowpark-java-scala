@@ -8,6 +8,4 @@ object GeographyType extends DataType {
   override def toString: String = {
     s"GeographyType"
   }
-
-  override def schemaString: String = s"Geography"
 }
