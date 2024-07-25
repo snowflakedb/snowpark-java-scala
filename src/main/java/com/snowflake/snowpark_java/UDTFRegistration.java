@@ -313,6 +313,6 @@ public class UDTFRegistration {
 
   private TableFunction tableFunction(
       String funcName, String execName, String execFilePath, Supplier<TableFunction> func) {
-    return javaUDTF("UDTFRegistration", funcName, execName, execFilePath, 0, func);
+    return javaUDTF("UDTFRegistration", funcName, execName, execFilePath, func);
   }
 }

@@ -3180,7 +3180,6 @@ class SProcRegistration(session: Session) {
       funcName,
       execName,
       s"${UDXRegistrationHandler.className}.${UDXRegistrationHandler.methodName}",
-      execFilePath,
-      0)(func)
+      execFilePath)(func)
   }
 }

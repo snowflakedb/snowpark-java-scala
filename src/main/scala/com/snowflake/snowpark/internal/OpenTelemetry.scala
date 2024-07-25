@@ -21,15 +21,13 @@ object OpenTelemetry extends Logging {
       funcName: String,
       execName: String,
       execFilePath: String,
-      stackOffset: Int,
       func: Supplier[JavaUDF]): JavaUDF = {
     udx(
       className,
       funcName,
       execName,
       s"${UDXRegistrationHandler.className}.${UDXRegistrationHandler.methodName}",
-      execFilePath,
-      stackOffset + 2)(func.get())
+      execFilePath)(func.get())
   }
 
   def javaUDTF(
@@ -37,30 +35,22 @@ object OpenTelemetry extends Logging {
       funcName: String,
       execName: String,
       execFilePath: String,
-      stackOffset: Int,
       func: Supplier[JavaTableFunction]): JavaTableFunction = {
-    udx(
-      className,
-      funcName,
-      execName,
-      UDXRegistrationHandler.udtfClassName,
-      execFilePath,
-      stackOffset + 2)(func.get())
+    udx(className, funcName, execName, UDXRegistrationHandler.udtfClassName, execFilePath)(
+      func.get())
   }
   def javaSProc(
       className: String,
       funcName: String,
       execName: String,
       execFilePath: String,
-      stackOffset: Int,
       func: Supplier[JavaSProc]): JavaSProc = {
     udx(
       className,
       funcName,
       execName,
       s"${UDXRegistrationHandler.className}.${UDXRegistrationHandler.methodName}",
-      execFilePath,
-      stackOffset + 2)(func.get())
+      execFilePath)(func.get())
   }
 
   // Scala API
@@ -69,16 +59,13 @@ object OpenTelemetry extends Logging {
       funcName: String,
       execName: String,
       execHandler: String,
-      execFilePath: String,
-      stackOffset: Int)(func: => T): T = {
+      execFilePath: String)(func: => T): T = {
     try {
       spanInfo.withValue[T](spanInfo.value match {
         // empty info means this is the entry of the recursion
         case None =>
           val stacks = Thread.currentThread().getStackTrace
-          val index = 4 + stackOffset
-          val fileName = stacks(index).getFileName
-          val lineNumber = stacks(index).getLineNumber
+          val (fileName, lineNumber) = findLineNumber(stacks)
           Some(
             UdfInfo(
               className,
@@ -103,20 +90,13 @@ object OpenTelemetry extends Logging {
     }
   }
   // wrapper of all action functions
-  def action[T](
-      className: String,
-      funcName: String,
-      methodChain: String,
-      isScala: Boolean,
-      javaOffSet: Int = 0)(func: => T): T = {
+  def action[T](className: String, funcName: String, methodChain: String)(func: => T): T = {
     try {
       spanInfo.withValue[T](spanInfo.value match {
         // empty info means this is the entry of the recursion
         case None =>
           val stacks = Thread.currentThread().getStackTrace
-          val index = if (isScala) 4 else 5 + javaOffSet
-          val fileName = stacks(index).getFileName
-          val lineNumber = stacks(index).getLineNumber
+          val (fileName, lineNumber) = findLineNumber(stacks)
           Some(ActionInfo(className, funcName, fileName, lineNumber, s"$methodChain.$funcName"))
         // if value is not empty, this function call should be recursion.
         // do not issue new SpanInfo, use the info inherited from previous.
@@ -130,6 +110,30 @@ object OpenTelemetry extends Logging {
       case error: Throwable =>
         OpenTelemetry.reportError(className, funcName, error)
         throw error
+    }
+  }
+
+  private def findLineNumber(stacks: Array[StackTraceElement]): (String, Int) = {
+    var index: Int = 0
+    // start with OpenTelemetry class
+    while (index < stacks.length && stacks(index).getFileName != "OpenTelemetry.scala") {
+      index += 1
+    }
+    if (index == stacks.length) {
+      // if can't find open telemetry class, make it N/A
+      ("N/A", 0)
+    } else {
+      while (index < stacks.length &&
+             (stacks(index).getClassName.startsWith("com.snowflake.snowpark.") ||
+             stacks(index).getClassName.startsWith("com.snowflake.snowpark_java."))) {
+        index += 1
+      }
+      if (index == stacks.length) {
+        // all class inside of snowpark/snowpark-java package, make it N/A
+        ("N/A", 0)
+      } else {
+        (stacks(index).getFileName, stacks(index).getLineNumber)
+      }
     }
   }
 

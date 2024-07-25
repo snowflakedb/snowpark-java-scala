@@ -238,7 +238,7 @@ class CopyableDataFrame private[snowpark] (
    * @since 0.10.0
    * @group basic
    */
-  override def clone: CopyableDataFrame = action("clone", 2) {
+  override def clone: CopyableDataFrame = action("clone") {
     new CopyableDataFrame(session, plan, Seq(), stagedFileReader)
   }
 
@@ -261,13 +261,7 @@ class CopyableDataFrame private[snowpark] (
   override def async: CopyableDataFrameAsyncActor = new CopyableDataFrameAsyncActor(this)
 
   @inline override protected def action[T](funcName: String)(func: => T): T = {
-    val isScala: Boolean = this.session.conn.isScalaAPI
-    OpenTelemetry.action("CopyableDataFrame", funcName, methodChainString, isScala)(func)
-  }
-  @inline protected def action[T](funcName: String, javaOffset: Int)(func: => T): T = {
-    val isScala: Boolean = this.session.conn.isScalaAPI
-    OpenTelemetry.action("CopyableDataFrame", funcName, methodChainString, isScala, javaOffset)(
-      func)
+    OpenTelemetry.action("CopyableDataFrame", funcName, methodChainString)(func)
   }
 }
 
@@ -361,11 +355,9 @@ class CopyableDataFrameAsyncActor private[snowpark] (cdf: CopyableDataFrame)
   }
 
   @inline override protected def action[T](funcName: String)(func: => T): T = {
-    val isScala: Boolean = cdf.session.conn.isScalaAPI
     OpenTelemetry.action(
       "CopyableDataFrameAsyncActor",
       funcName,
-      cdf.methodChainString + ".async",
-      isScala)(func)
+      cdf.methodChainString + ".async")(func)
   }
 }

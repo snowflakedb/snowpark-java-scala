@@ -2120,15 +2120,15 @@ public class UDFRegistration {
 
   private UserDefinedFunction udf(
       String funcName, String execName, String execFilePath, Supplier<UserDefinedFunction> func) {
-    return javaUDF("UDFRegistration", funcName, execName, execFilePath, 0, func);
+    return javaUDF("UDFRegistration", funcName, execName, execFilePath, func);
   }
 
   private UserDefinedFunction udf(
       String funcName, String execName, Supplier<UserDefinedFunction> func) {
-    return javaUDF("UDFRegistration", funcName, execName, "", 0, func);
+    return javaUDF("UDFRegistration", funcName, execName, "", func);
   }
 
   private UserDefinedFunction udf(String funcName, Supplier<UserDefinedFunction> func) {
-    return javaUDF("UDFRegistration", funcName, "", "", 0, func);
+    return javaUDF("UDFRegistration", funcName, "", "", func);
   }
 }
