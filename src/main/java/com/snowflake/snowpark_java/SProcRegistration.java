@@ -2679,14 +2679,14 @@ public class SProcRegistration {
 
   private StoredProcedure sproc(
       String funcName, String execName, String execFilePath, Supplier<StoredProcedure> func) {
-    return javaSProc("SProcRegistration", funcName, execName, execFilePath, 0, func);
+    return javaSProc("SProcRegistration", funcName, execName, execFilePath, func);
   }
 
   private StoredProcedure sproc(String funcName, String execName, Supplier<StoredProcedure> func) {
-    return javaSProc("SProcRegistration", funcName, execName, "", 0, func);
+    return javaSProc("SProcRegistration", funcName, execName, "", func);
   }
 
   private StoredProcedure sproc(String funcName, Supplier<StoredProcedure> func) {
-    return javaSProc("SProcRegistration", funcName, "", "", 0, func);
+    return javaSProc("SProcRegistration", funcName, "", "", func);
   }
 }

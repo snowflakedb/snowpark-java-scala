@@ -230,7 +230,6 @@ class UDTFRegistration(session: Session) extends Logging {
       funcName,
       execName,
       UDXRegistrationHandler.udtfClassName,
-      execFilePath,
-      0)(func)
+      execFilePath)(func)
   }
 }
