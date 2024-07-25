@@ -1,8 +1,11 @@
 package com.snowflake.snowpark_test;
 
+import com.snowflake.snowpark.TestMethod;
 import com.snowflake.snowpark.TestUtils;
 import com.snowflake.snowpark_java.JavaToScalaConvertor;
 import com.snowflake.snowpark_java.Session;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Optional;
 
 public abstract class TestBase extends TestFunctions {
@@ -34,6 +37,30 @@ public abstract class TestBase extends TestFunctions {
                   .contains("SFCTEST0"));
     }
     return isPreprodAccount.get();
+  }
+
+  protected void structuredTypeTest(TestMethod thunk, Session session) {
+    Map<String, String> map = new HashMap<>();
+    map.put("ENABLE_STRUCTURED_TYPES_IN_CLIENT_RESPONSE", "true");
+    map.put("IGNORE_CLIENT_VESRION_IN_STRUCTURED_TYPES_RESPONSE", "true");
+    map.put("FORCE_ENABLE_STRUCTURED_TYPES_NATIVE_ARROW_FORMAT", "true");
+    map.put("ENABLE_STRUCTURED_TYPES_NATIVE_ARROW_FORMAT", "true");
+    map.put("ENABLE_STRUCTURED_TYPES_IN_BINDS", "enable");
+    // disable these tests on preprod daily tests until these parameters are enabled by default.
+    withSessionParameters(map, session, true, thunk);
+  }
+
+  protected void withSessionParameters(
+      Map<String, String> params, Session session, boolean skipPreprod, TestMethod thunk) {
+    if (!(skipPreprod && isPreprodAccount())) {
+      try {
+        params.forEach(
+            (name, value) -> session.sql("alter session set " + name + " = " + value).collect());
+        thunk.run();
+      } finally {
+        params.forEach((name, value) -> session.sql("alter session unset " + name).collect());
+      }
+    }
   }
 
   protected void runQuery(String sql) {

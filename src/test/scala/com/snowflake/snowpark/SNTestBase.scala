@@ -282,6 +282,37 @@ trait SNTestBase extends FunSuite with BeforeAndAfterAll with SFTestUtils with S
       }
     }
   }
+
+  def withSessionParameters(
+      params: Seq[(String, String)],
+      currentSession: Session,
+      skipPreprod: Boolean = false)(thunk: => Unit): Unit = {
+    if (!(skipPreprod && isPreprodAccount)) {
+      try {
+        params.foreach {
+          case (paramName, value) =>
+            runQuery(s"alter session set $paramName = $value", currentSession)
+        }
+        thunk
+      } finally {
+        params.foreach {
+          case (paramName, _) => runQuery(s"alter session unset $paramName", currentSession)
+        }
+      }
+    }
+  }
+
+  def structuredTypeTest(thunk: => Unit)(implicit currentSession: Session): Unit = {
+    withSessionParameters(
+      Seq(
+        ("ENABLE_STRUCTURED_TYPES_IN_CLIENT_RESPONSE", "true"),
+        ("IGNORE_CLIENT_VESRION_IN_STRUCTURED_TYPES_RESPONSE", "true"),
+        ("FORCE_ENABLE_STRUCTURED_TYPES_NATIVE_ARROW_FORMAT", "true"),
+        ("ENABLE_STRUCTURED_TYPES_NATIVE_ARROW_FORMAT", "true"),
+        ("ENABLE_STRUCTURED_TYPES_IN_BINDS", "enable")),
+      currentSession, skipPreprod = true)(thunk)
+    // disable these tests on preprod daily tests until these parameters are enabled by default.
+  }
 }
 
 trait SnowTestFiles {
