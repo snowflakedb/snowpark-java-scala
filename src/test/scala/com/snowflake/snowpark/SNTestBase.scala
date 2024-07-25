@@ -310,7 +310,8 @@ trait SNTestBase extends FunSuite with BeforeAndAfterAll with SFTestUtils with S
         ("FORCE_ENABLE_STRUCTURED_TYPES_NATIVE_ARROW_FORMAT", "true"),
         ("ENABLE_STRUCTURED_TYPES_NATIVE_ARROW_FORMAT", "true"),
         ("ENABLE_STRUCTURED_TYPES_IN_BINDS", "enable")),
-      currentSession)(thunk)
+      currentSession, skipPreprod = true)(thunk)
+    // disable these tests on preprod daily tests until these parameters are enabled by default.
   }
 }
 

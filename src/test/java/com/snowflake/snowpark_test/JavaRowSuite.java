@@ -339,150 +339,94 @@ public class JavaRowSuite extends TestBase {
 
   @Test
   public void testGetList() {
-    try {
-      if (isPreprodAccount()) {
-        getSession()
-            .sql("alter session set ENABLE_STRUCTURED_TYPES_IN_CLIENT_RESPONSE=true")
-            .show();
-        getSession()
-            .sql("alter session set IGNORE_CLIENT_VESRION_IN_STRUCTURED_TYPES_RESPONSE = true")
-            .show();
-        getSession()
-            .sql("alter session set FORCE_ENABLE_STRUCTURED_TYPES_NATIVE_ARROW_FORMAT=true")
-            .show();
-      }
-      DataFrame df = getSession().sql("select [[1, 2], [3]]::ARRAY(ARRAY(NUMBER)) AS arr1");
-      StructType schema = df.schema();
-      assert schema.get(0).dataType() instanceof ArrayType;
-      assert ((ArrayType) schema.get(0).dataType()).getElementType() instanceof ArrayType;
+    structuredTypeTest(
+        () -> {
+          DataFrame df = getSession().sql("select [[1, 2], [3]]::ARRAY(ARRAY(NUMBER)) AS arr1");
+          StructType schema = df.schema();
+          assert schema.get(0).dataType() instanceof ArrayType;
+          assert ((ArrayType) schema.get(0).dataType()).getElementType() instanceof ArrayType;
 
-      List<?> list = df.collect()[0].getList(0);
-      assert list.size() == 2;
+          List<?> list = df.collect()[0].getList(0);
+          assert list.size() == 2;
 
-      List<?> list1 = (List<?>) list.get(0);
-      List<?> list2 = (List<?>) list.get(1);
+          List<?> list1 = (List<?>) list.get(0);
+          List<?> list2 = (List<?>) list.get(1);
 
-      assert list1.size() == 2;
-      assert list2.size() == 1;
+          assert list1.size() == 2;
+          assert list2.size() == 1;
 
-      assert (Long) list1.get(0) == 1;
-      assert (Long) list1.get(1) == 2;
-      assert (Long) list2.get(0) == 3;
-    } finally {
-      if (isPreprodAccount()) {
-        getSession().sql("alter session unset ENABLE_STRUCTURED_TYPES_IN_CLIENT_RESPONSE").show();
-        getSession()
-            .sql("alter session unset IGNORE_CLIENT_VESRION_IN_STRUCTURED_TYPES_RESPONSE")
-            .show();
-        getSession()
-            .sql("alter session unset FORCE_ENABLE_STRUCTURED_TYPES_NATIVE_ARROW_FORMAT")
-            .show();
-      }
-    }
+          assert (Long) list1.get(0) == 1;
+          assert (Long) list1.get(1) == 2;
+          assert (Long) list2.get(0) == 3;
+        },
+        getSession());
   }
 
   @Test
   public void testGetMap() {
-    try {
-      if (isPreprodAccount()) {
-        getSession()
-            .sql("alter session set ENABLE_STRUCTURED_TYPES_IN_CLIENT_RESPONSE=true")
-            .show();
-        getSession()
-            .sql("alter session set IGNORE_CLIENT_VESRION_IN_STRUCTURED_TYPES_RESPONSE = true")
-            .show();
-        getSession()
-            .sql("alter session set FORCE_ENABLE_STRUCTURED_TYPES_NATIVE_ARROW_FORMAT=true")
-            .show();
-      }
-      DataFrame df =
-          getSession()
-              .sql(
-                  "select {'1':{'a':1,'b':2},'2':{'c':3}} :: MAP(NUMBER, MAP(VARCHAR, NUMBER)) as map");
-      StructType schema = df.schema();
-      assert schema.get(0).dataType() instanceof MapType;
-      assert ((MapType) schema.get(0).dataType()).getKeyType() instanceof LongType;
-      assert ((MapType) schema.get(0).dataType()).getValueType() instanceof MapType;
+    structuredTypeTest(
+        () -> {
+          DataFrame df =
+              getSession()
+                  .sql(
+                      "select {'1':{'a':1,'b':2},'2':{'c':3}} :: MAP(NUMBER, MAP(VARCHAR, NUMBER)) as map");
 
-      Map<?, ?> map = df.collect()[0].getMap(0);
-      Map<?, ?> map1 = (Map<?, ?>) map.get(1L);
-      assert map1.size() == 2;
-      assert (Long) map1.get("a") == 1;
-      assert (Long) map1.get("b") == 2;
+          StructType schema = df.schema();
+          assert schema.get(0).dataType() instanceof MapType;
+          assert ((MapType) schema.get(0).dataType()).getKeyType() instanceof LongType;
+          assert ((MapType) schema.get(0).dataType()).getValueType() instanceof MapType;
 
-      Map<?, ?> map2 = (Map<?, ?>) map.get(2L);
-      assert map2.size() == 1;
-      assert (Long) map2.get("c") == 3;
-    } finally {
-      if (isPreprodAccount()) {
-        getSession().sql("alter session unset ENABLE_STRUCTURED_TYPES_IN_CLIENT_RESPONSE").show();
-        getSession()
-            .sql("alter session unset IGNORE_CLIENT_VESRION_IN_STRUCTURED_TYPES_RESPONSE")
-            .show();
-        getSession()
-            .sql("alter session unset FORCE_ENABLE_STRUCTURED_TYPES_NATIVE_ARROW_FORMAT")
-            .show();
-      }
-    }
+          Map<?, ?> map = df.collect()[0].getMap(0);
+          Map<?, ?> map1 = (Map<?, ?>) map.get(1L);
+          assert map1.size() == 2;
+          assert (Long) map1.get("a") == 1;
+          assert (Long) map1.get("b") == 2;
+
+          Map<?, ?> map2 = (Map<?, ?>) map.get(2L);
+          assert map2.size() == 1;
+          assert (Long) map2.get("c") == 3;
+        },
+        getSession());
   }
 
   @Test
   public void testGetRow() {
-    try {
-      if (isPreprodAccount()) {
-        getSession()
-            .sql("alter session set ENABLE_STRUCTURED_TYPES_IN_CLIENT_RESPONSE=true")
-            .show();
-        getSession()
-            .sql("alter session set IGNORE_CLIENT_VESRION_IN_STRUCTURED_TYPES_RESPONSE = true")
-            .show();
-        getSession()
-            .sql("alter session set FORCE_ENABLE_STRUCTURED_TYPES_NATIVE_ARROW_FORMAT=true")
-            .show();
-      }
-      DataFrame df =
-          getSession()
-              .sql(
-                  "select {'a': {'b': {'d':10,'c': 'txt'}}} :: OBJECT(a OBJECT(b OBJECT(c VARCHAR, d NUMBER))) as obj1");
-      StructType schema = df.schema();
-      schema.printTreeString();
-      assert schema.get(0).dataType() instanceof StructType;
-      assert schema.get(0).name().equals("OBJ1");
-      StructType sub1 = (StructType) schema.get(0).dataType();
-      assert sub1.size() == 1;
-      assert sub1.get(0).dataType() instanceof StructType;
-      assert sub1.get(0).name().equals("A");
-      StructType sub2 = (StructType) sub1.get(0).dataType();
-      assert sub2.size() == 1;
-      assert sub2.get(0).dataType() instanceof StructType;
-      assert sub2.get(0).name().equals("B");
-      StructType sub3 = (StructType) sub2.get(0).dataType();
-      assert sub3.size() == 2;
-      assert sub3.get(0).dataType() instanceof StringType;
-      assert sub3.get(0).name().equals("C");
-      assert sub3.get(1).dataType() instanceof LongType;
-      assert sub3.get(1).name().equals("D");
+    structuredTypeTest(
+        () -> {
+          DataFrame df =
+              getSession()
+                  .sql(
+                      "select {'a': {'b': {'d':10,'c': 'txt'}}} :: OBJECT(a OBJECT(b OBJECT(c VARCHAR, d NUMBER))) as obj1");
+          StructType schema = df.schema();
+          schema.printTreeString();
+          assert schema.get(0).dataType() instanceof StructType;
+          assert schema.get(0).name().equals("OBJ1");
+          StructType sub1 = (StructType) schema.get(0).dataType();
+          assert sub1.size() == 1;
+          assert sub1.get(0).dataType() instanceof StructType;
+          assert sub1.get(0).name().equals("A");
+          StructType sub2 = (StructType) sub1.get(0).dataType();
+          assert sub2.size() == 1;
+          assert sub2.get(0).dataType() instanceof StructType;
+          assert sub2.get(0).name().equals("B");
+          StructType sub3 = (StructType) sub2.get(0).dataType();
+          assert sub3.size() == 2;
+          assert sub3.get(0).dataType() instanceof StringType;
+          assert sub3.get(0).name().equals("C");
+          assert sub3.get(1).dataType() instanceof LongType;
+          assert sub3.get(1).name().equals("D");
 
-      Row[] rows1 = df.collect();
-      assert rows1.length == 1;
-      Row row1 = rows1[0].getObject(0);
-      assert row1.size() == 1;
-      Row row2 = row1.getObject(0);
-      assert row2.size() == 1;
-      Row row3 = row2.getObject(0);
-      assert row3.size() == 2;
-      assert row3.getString(0).equals("txt");
-      assert row3.getLong(1) == 10;
-    } finally {
-      if (isPreprodAccount()) {
-        getSession().sql("alter session unset ENABLE_STRUCTURED_TYPES_IN_CLIENT_RESPONSE").show();
-        getSession()
-            .sql("alter session unset IGNORE_CLIENT_VESRION_IN_STRUCTURED_TYPES_RESPONSE")
-            .show();
-        getSession()
-            .sql("alter session unset FORCE_ENABLE_STRUCTURED_TYPES_NATIVE_ARROW_FORMAT")
-            .show();
-      }
-    }
+          Row[] rows1 = df.collect();
+          assert rows1.length == 1;
+          Row row1 = rows1[0].getObject(0);
+          assert row1.size() == 1;
+          Row row2 = row1.getObject(0);
+          assert row2.size() == 1;
+          Row row3 = row2.getObject(0);
+          assert row3.size() == 2;
+          assert row3.getString(0).equals("txt");
+          assert row3.getLong(1) == 10;
+        },
+        getSession());
   }
 }
