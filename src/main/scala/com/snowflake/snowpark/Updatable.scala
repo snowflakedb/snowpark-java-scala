@@ -11,6 +11,13 @@ private[snowpark] object Updatable extends Logging {
 
   private[snowpark] def getUpdateResult(rows: Array[Row]): UpdateResult =
     UpdateResult(rows.head.getLong(0), rows.head.getLong(1))
+//    UpdateResult(rows.head.getLong(0),
+//      if (rows.head.length == 1) {
+//        0
+//      } else {
+//        rows.head.getLong(1)
+//      })
+
 
   private[snowpark] def getDeleteResult(rows: Array[Row]): DeleteResult =
     DeleteResult(rows.head.getLong(0))
