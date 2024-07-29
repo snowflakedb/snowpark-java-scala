@@ -539,9 +539,7 @@ trait DataFrameSuite extends TestData with BeforeAndAfterEach {
       "ENABLE_PIVOT_VIEW_WITH_OBJECT_AGG",
       "disable",
       skipIfParamNotExist = true)
-  }
 
-  test("df.stat.pivot.2") {
     testWithAlteredSessionParameter(
       testDataframeStatPivot(),
       "ENABLE_PIVOT_VIEW_WITH_OBJECT_AGG",
