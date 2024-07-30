@@ -350,6 +350,29 @@ public class JavaUpdatableSuite extends TestBase {
     }
   }
 
+  @Test
+  public void singleColumnUpdateResult() {
+    Map<String, String> params = new HashMap<>();
+    params.put("ERROR_ON_NONDETERMINISTIC_UPDATE", "true");
+    withSessionParameters(
+        params,
+        getSession(),
+        false,
+        () -> {
+          String tableName = randomName();
+          try {
+            createTestTable(tableName);
+            Map<Column, Column> map = new HashMap<>();
+            map.put(Functions.col("col1"), Functions.lit(3));
+            UpdateResult result = getSession().table(tableName).update(map);
+            assert result.getRowsUpdated() == 2;
+            assert result.getMultiJoinedRowsUpdated() == 0;
+          } finally {
+            dropTable(tableName);
+          }
+        });
+  }
+
   private void createTestTable(String name) {
     Row[] data = {Row.create(1, "a", true), Row.create(2, "b", false)};
     StructType schema =
