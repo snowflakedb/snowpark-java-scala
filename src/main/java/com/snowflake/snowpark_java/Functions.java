@@ -2,6 +2,7 @@ package com.snowflake.snowpark_java;
 
 import static com.snowflake.snowpark.internal.OpenTelemetry.javaUDF;
 
+import com.snowflake.snowpark.functions;
 import com.snowflake.snowpark.internal.JavaUtils;
 import com.snowflake.snowpark_java.types.DataType;
 import com.snowflake.snowpark_java.udf.*;
@@ -3878,6 +3879,42 @@ public final class Functions {
    */
   public static Column listagg(Column col) {
     return new Column(com.snowflake.snowpark.functions.listagg(col.toScalaColumn()));
+  }
+
+  /**
+   * Function to convert column name into column and order in descending manner.
+   *
+   * @since 1.14.0
+   * @param name The input column name
+   * @return Column object ordered in descending manner.
+   */
+  public static Column desc(String name) {
+    return new Column(functions.desc(name));
+  }
+
+  /**
+   * Function to convert column name into column and order in ascending manner.
+   *
+   * @since 1.14.0
+   * @param name The input column name
+   * @return Column object ordered in ascending manner.
+   */
+  public static Column asc(String name) {
+    return new Column(functions.asc(name));
+  }
+
+  /**
+   * Returns the size of the input ARRAY.
+   *
+   * <p>If the specified column contains a VARIANT value that contains an ARRAY, the size of the
+   * ARRAY is returned; otherwise, NULL is returned if the value is not an ARRAY.
+   *
+   * @since 1.14.0
+   * @param col The input column name
+   * @return size of the input ARRAY.
+   */
+  public static Column size(Column col) {
+    return array_size(col);
   }
 
   /**

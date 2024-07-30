@@ -3141,6 +3141,30 @@ object functions {
   def listagg(col: Column): Column = listagg(col, "", isDistinct = false)
 
   /**
+   * Function to convert column name into column and order in a descending manner.
+   * @since 1.14.0
+   * @param c Column name.
+   * @return Column object ordered in a descending manner.
+   */
+  def desc(c: String): Column = col(c).desc
+
+  /**
+   * Function to convert column name into column and order in an ascending manner.
+   * @since 1.14.0
+   * @param colname Column name.
+   * @return Column object ordered in an ascending manner.
+   */
+  def asc(colname: String): Column = col(colname).asc
+
+  /**
+   * Wrapper for Snowflake built-in size function. Gets the size of array column.
+   * @since 1.14.0
+   * @param c Column to get the size.
+   * @return Size of array column.
+   */
+  def size(c: Column): Column = array_size(c)
+
+  /**
    * Invokes a built-in snowflake function with the specified name and arguments.
    * Arguments can be of two types
    *
