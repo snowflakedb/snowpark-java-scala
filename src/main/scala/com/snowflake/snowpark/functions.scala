@@ -3152,9 +3152,7 @@ object functions {
    * df = session.createDataFrame(Seq(("CR", "{\"id\": 5, \"name\": \"Jose\", \"age\": 29}"))).toDF(Seq("nationality", "json_string")) 
    * When the result of this function is the only part of 
    * the select statement, no changes are needed:
-   * <pre>
    * df.select(json_tuple(col("json_string"), "id", "name", "age")).show()
-   * </pre>
    *
    * <pre>
    * ----------------------
@@ -3218,9 +3216,8 @@ object functions {
    * meaning that the printSchema 
    * function would return different datatypes.
    * To convert the datatype and it to be printed as the expected datatype, 
-   * it should be read on the selectExpr function as 
-   * "json['relative']['age']::integer".
-   * <pre>
+   * it should be read on the 
+   * selectExpr function as "json['relative']['age']::integer".
    * val data_for_json = Seq(
    *   (1, "{\"id\": 172319, \"age\": 41, \"relative\": {\"id\": 885471, \"age\": 29}}"),
    *   (2, "{\"id\": 532161, \"age\": 17, \"relative\":{\"id\": 873513, \"age\": 47}}")
