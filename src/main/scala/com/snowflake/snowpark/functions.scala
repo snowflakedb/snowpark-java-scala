@@ -3149,9 +3149,7 @@ object functions {
    * <li> Identifiers with spaces: Snowflake returns error when an invalid expression is sent. </li>
    *
    * Usage:
-   * <pre>
-   * df = session.createDataFrame(Seq(("CR", "{\"id\": 5, \"name\": \"Jose\", \"age\": 29}"))).toDF(Seq("nationality", "json_string"))
-   * </pre>
+   * df = session.createDataFrame(Seq(("CR", "{\"id\": 5, \"name\": \"Jose\", \"age\": 29}"))).toDF(Seq("nationality", "json_string")) 
    * When the result of this function is the only part of 
    * the select statement, no changes are needed:
    * <pre>
@@ -3217,9 +3215,11 @@ object functions {
    * This function converts a JSON string to a variant in Snowflake.
    *
    * In Snowflake the values are converted automatically, however they're converted as variants, 
-   * meaning that the printSchema function would return different datatypes.
+   * meaning that the printSchema 
+   * function would return different datatypes.
    * To convert the datatype and it to be printed as the expected datatype, 
-   * it should be read on the selectExpr function as "json['relative']['age']::integer".
+   * it should be read on the selectExpr function as 
+   * "json['relative']['age']::integer".
    * <pre>
    * val data_for_json = Seq(
    *   (1, "{\"id\": 172319, \"age\": 41, \"relative\": {\"id\": 885471, \"age\": 29}}"),
