@@ -3139,7 +3139,132 @@ object functions {
    * @group agg_func
    */
   def listagg(col: Column): Column = listagg(col, "", isDistinct = false)
+/**
+   * This leverages JSON_EXTRACT_PATH_TEXT and improves functionality by allowing multiple columns
+   * in a single call, whereas JSON_EXTRACT_PATH_TEXT must be called once for every column.
+   *
+   * NOTE:
+   * <ul>
+   * <li> Timestamp type: there is no interpretation of date values as UTC</li>
+   * <li> Identifiers with spaces: Snowflake returns error when an invalid expression is sent. </li>
+   *
+   * Usage:
+   * <pre>
+   * df = session.createDataFrame(Seq(("CR", "{\"id\": 5, \"name\": \"Jose\", \"age\": 29}"))).toDF(Seq("nationality", "json_string"))
+   * </pre>
+   * When the result of this function is the only part of the select statement, no changes are needed:
+   * <pre>
+   * df.select(json_tuple(col("json_string"), "id", "name", "age")).show()
+   * </pre>
+   *
+   * <pre>
+   * ----------------------
+   * |"C0"  |"C1"  |"C2"  |
+   * ----------------------
+   * |5     |Jose  |29    |
+   * ----------------------
+   * </pre>
+   * However, when specifying multiple columns, an expression like this is required:
+   * <pre>
+   * df.select(
+   *   col("nationality")
+   *   , json_tuple(col("json_string"), "id", "name", "age"):_* // Notice the :_* syntax.
+   * ).show()
+   * </pre>
+   *
+   * <pre>
+   * -------------------------------------------------
+   * |"NATIONALITY"  |"C0"  |"C1"  |"C2"  |"C3"      |
+   * -------------------------------------------------
+   * |CR             |5     |Jose  |29    |Mobilize  |
+   * -------------------------------------------------
+   * </pre>
+   * @since 1.10.0
+   * @param json Column containing the JSON string text.
+   * @param fields Fields to pull from the JSON file.
+   * @return Column sequence with the specified strings.
+   */
+  def json_tuple(json: Column, fields: String*): Seq[Column] = {
+    var i = -1
+    fields.map(f => {
+      i += 1
+      builtin("JSON_EXTRACT_PATH_TEXT")(json, f).as(s"c$i")
+    })
+  }
 
+  /**
+   *  Used to calculate the cubic root of a number.
+   * @since 1.10.0
+   * @param column Column to calculate the cubic root.
+   * @return Column object.
+   */
+  def cbrt(e: Column): Column = {
+    builtin("CBRT")(e)
+  }
+
+  /**
+   * Used to calculate the cubic root of a number. There were slight differences found:
+   * @since 1.10.0
+   * @param column Column to calculate the cubic root.
+   * @return Column object.
+   */
+  def cbrt(columnName: String): Column = {
+    cbrt(col(columnName))
+  }
+
+  /**
+   * This function converts a JSON string to a variant in Snowflake.
+   *
+   * In Snowflake the values are converted automatically, however they're converted as variants, meaning that the printSchema function would return different datatypes.
+   * To convert the datatype and it to be printed as the expected datatype, it should be read on the selectExpr function as "json['relative']['age']::integer".
+   * <pre>
+   * val data_for_json = Seq(
+   *   (1, "{\"id\": 172319, \"age\": 41, \"relative\": {\"id\": 885471, \"age\": 29}}"),
+   *   (2, "{\"id\": 532161, \"age\": 17, \"relative\":{\"id\": 873513, \"age\": 47}}")
+   * )
+   * val data_for_json_column = Seq("col1", "col2")
+   * val df_for_json = session.createDataFrame(data_for_json).toDF(data_for_json_column)
+   *
+   * val json_df = df_for_json.select(
+   *   from_json(col("col2")).as("json")
+   * )
+   *
+   * json_df.selectExpr(
+   *   "json['id']::integer as id"
+   *   , "json['age']::integer as age"
+   *   , "json['relative']['id']::integer as rel_id"
+   *   , "json['relative']['age']::integer as rel_age"
+   * ).show(10, 10000)
+   * </pre>
+   *
+   * <pre>
+   * -----------------------------------------
+   * |"ID"    |"AGE"  |"REL_ID"  |"REL_AGE"  |
+   * -----------------------------------------
+   * |172319  |41     |885471    |29         |
+   * |532161  |17     |873513    |47         |
+   * -----------------------------------------
+   * </pre>
+   * @since 1.10.0
+   * @param e String column to convert to variant.
+   * @return Column object.
+   */
+  def from_json(e: Column): Column = {
+    builtin("TRY_PARSE_JSON")(e)
+  }
+
+  /**
+   * This function receives a date or timestamp, as well as a properly formatted string and subtracts the specified
+   * amount of days from it. If receiving a string, this string is casted to date using try_cast and if it's not possible to cast, returns null. If receiving
+   * a timestamp it will be casted to date (removing its time).
+   * @since 1.10.0
+   * @param start Date, Timestamp or String column to subtract days from.
+   * @param days Days to subtract.
+   * @return Column object.
+   */
+  def date_sub(start: Column, days: Int): Column = {
+    dateadd("DAY", lit(days * -1), sqlExpr(s"try_cast(${start.getName.get} :: STRING as DATE)"))
+  }
   /**
    * Invokes a built-in snowflake function with the specified name and arguments.
    * Arguments can be of two types
@@ -3868,129 +3993,3 @@ object functions {
   }
 
 }
-/**
-   * This leverages JSON_EXTRACT_PATH_TEXT and improves functionality by allowing multiple columns
-   * in a single call, whereas JSON_EXTRACT_PATH_TEXT must be called once for every column.
-   *
-   * NOTE:
-   * <ul>
-   * <li> Timestamp type: there is no interpretation of date values as UTC</li>
-   * <li> Identifiers with spaces: Snowflake returns error when an invalid expression is sent. </li>
-   *
-   * Usage:
-   * <pre>
-   * df = session.createDataFrame(Seq(("CR", "{\"id\": 5, \"name\": \"Jose\", \"age\": 29}"))).toDF(Seq("nationality", "json_string"))
-   * </pre>
-   * When the result of this function is the only part of the select statement, no changes are needed:
-   * <pre>
-   * df.select(json_tuple(col("json_string"), "id", "name", "age")).show()
-   * </pre>
-   *
-   * <pre>
-   * ----------------------
-   * |"C0"  |"C1"  |"C2"  |
-   * ----------------------
-   * |5     |Jose  |29    |
-   * ----------------------
-   * </pre>
-   * However, when specifying multiple columns, an expression like this is required:
-   * <pre>
-   * df.select(
-   *   col("nationality")
-   *   , json_tuple(col("json_string"), "id", "name", "age"):_* // Notice the :_* syntax.
-   * ).show()
-   * </pre>
-   *
-   * <pre>
-   * -------------------------------------------------
-   * |"NATIONALITY"  |"C0"  |"C1"  |"C2"  |"C3"      |
-   * -------------------------------------------------
-   * |CR             |5     |Jose  |29    |Mobilize  |
-   * -------------------------------------------------
-   * </pre>
-   * @since 1.10.0
-   * @param json Column containing the JSON string text.
-   * @param fields Fields to pull from the JSON file.
-   * @return Column sequence with the specified strings.
-   */
-  def json_tuple(json: Column, fields: String*): Seq[Column] = {
-    var i = -1
-    fields.map(f => {
-      i += 1
-      builtin("JSON_EXTRACT_PATH_TEXT")(json, f).as(s"c$i")
-    })
-  }
-
-  /**
-   *  Used to calculate the cubic root of a number.
-   * @since 1.10.0
-   * @param column Column to calculate the cubic root.
-   * @return Column object.
-   */
-  def cbrt(e: Column): Column = {
-    builtin("CBRT")(e)
-  }
-
-  /**
-   * Used to calculate the cubic root of a number. There were slight differences found:
-   * @since 1.10.0
-   * @param column Column to calculate the cubic root.
-   * @return Column object.
-   */
-  def cbrt(columnName: String): Column = {
-    cbrt(col(columnName))
-  }
-
-  /**
-   * This function converts a JSON string to a variant in Snowflake.
-   *
-   * In Snowflake the values are converted automatically, however they're converted as variants, meaning that the printSchema function would return different datatypes.
-   * To convert the datatype and it to be printed as the expected datatype, it should be read on the selectExpr function as "json['relative']['age']::integer".
-   * <pre>
-   * val data_for_json = Seq(
-   *   (1, "{\"id\": 172319, \"age\": 41, \"relative\": {\"id\": 885471, \"age\": 29}}"),
-   *   (2, "{\"id\": 532161, \"age\": 17, \"relative\":{\"id\": 873513, \"age\": 47}}")
-   * )
-   * val data_for_json_column = Seq("col1", "col2")
-   * val df_for_json = session.createDataFrame(data_for_json).toDF(data_for_json_column)
-   *
-   * val json_df = df_for_json.select(
-   *   from_json(col("col2")).as("json")
-   * )
-   *
-   * json_df.selectExpr(
-   *   "json['id']::integer as id"
-   *   , "json['age']::integer as age"
-   *   , "json['relative']['id']::integer as rel_id"
-   *   , "json['relative']['age']::integer as rel_age"
-   * ).show(10, 10000)
-   * </pre>
-   *
-   * <pre>
-   * -----------------------------------------
-   * |"ID"    |"AGE"  |"REL_ID"  |"REL_AGE"  |
-   * -----------------------------------------
-   * |172319  |41     |885471    |29         |
-   * |532161  |17     |873513    |47         |
-   * -----------------------------------------
-   * </pre>
-   * @since 1.10.0
-   * @param e String column to convert to variant.
-   * @return Column object.
-   */
-  def from_json(e: Column): Column = {
-    builtin("TRY_PARSE_JSON")(e)
-  }
-
-  /**
-   * This function receives a date or timestamp, as well as a properly formatted string and subtracts the specified
-   * amount of days from it. If receiving a string, this string is casted to date using try_cast and if it's not possible to cast, returns null. If receiving
-   * a timestamp it will be casted to date (removing its time).
-   * @since 1.10.0
-   * @param start Date, Timestamp or String column to subtract days from.
-   * @param days Days to subtract.
-   * @return Column object.
-   */
-  def date_sub(start: Column, days: Int): Column = {
-    dateadd("DAY", lit(days * -1), sqlExpr(s"try_cast(${start.getName.get} :: STRING as DATE)"))
-  }
