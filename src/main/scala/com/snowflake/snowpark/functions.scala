@@ -3258,8 +3258,11 @@ object functions {
   }
 
   /**
-   * This function receives a date or timestamp, as well as a properly formatted string and subtracts the specified
-   * amount of days from it. If receiving a string, this string is casted to date using try_cast and if it's not possible to cast, returns null. If receiving
+   * This function receives a date or timestamp, as well as a 
+   * properly formatted string and subtracts the specified
+   * amount of days from it. If receiving a string, this string is 
+   * casted to date using try_cast and if it's not possible to cast,
+   *  returns null. If receiving
    * a timestamp it will be casted to date (removing its time).
    * @since 1.10.0
    * @param start Date, Timestamp or String column to subtract days from.
