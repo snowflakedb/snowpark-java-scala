@@ -3149,7 +3149,11 @@ object functions {
    * <li> Identifiers with spaces: Snowflake returns error when an invalid expression is sent. </li>
    *
    * Usage:
-   * df = session.createDataFrame(Seq(("CR", "{\"id\": 5, \"name\": \"Jose\", \"age\": 29}"))).toDF(Seq("nationality", "json_string")) 
+   * { 
+   *   df = session.createDataFrame(Seq(("CR", "{\"id\": 5, 
+   *             \"name\": \"Jose\", \"age\": 29}")))
+   *               .toDF(Seq("nationality", "json_string")) 
+   * }
    * When the result of this function is the only part of 
    * the select statement, no changes are needed
    * df.select(json_tuple(col("json_string"), "id", "name", "age")).show()
