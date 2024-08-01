@@ -2183,13 +2183,15 @@ trait FunctionSuite extends TestData {
       Seq(Row(1.0), Row(1.25992104989)),
       sort = false)
   }
-  test("from_json") {
-    var expected = Seq(("21", "Joe", "21021"),("26","Jay","94021")).toDF("age","name","zip")
+   test("from_json") {
+     var expected = Seq(("21", "Joe", "21021"),("26","Jay","94021")).toDF("age","name","zip")
     checkAnswer(
       object2
         .select(from_json(col("obj"))),
       expected,
       sort = false)
+  }
+  
 }
 
 class EagerFunctionSuite extends FunctionSuite with EagerSession
