@@ -3180,7 +3180,7 @@ object functions {
    * |CR             |5     |Jose  |29    |Mobilize  |
    * -------------------------------------------------
    * </pre>
-   * @since 1.10.0
+   * @since 1.6.0
    * @param json Column containing the JSON string text.
    * @param fields Fields to pull from the JSON file.
    * @return Column sequence with the specified strings.

@@ -2178,13 +2178,18 @@ trait FunctionSuite extends TestData {
       sort = false)
   }
   test("cbrt") {
-    val data = Seq(64.0, 27.0, 8.0).toDF("cbrt_a")
-    var expected = Seq(4.0,3.0,2.0)
     checkAnswer(
-      data.select(cbrt(data("cbrt_a"))),
-      expected,
+      testData1.select(cbrt(col("NUM"))),
+      Seq(Row(1.0), Row(1.25992104989)),
       sort = false)
   }
+  test("from_json") {
+    var expected = Seq(("21", "Joe", "21021"),("26","Jay","94021")).toDF("age","name","zip")
+    checkAnswer(
+      object2
+        .select(from_json(col("obj"))),
+      expected,
+      sort = false)
 }
 
 class EagerFunctionSuite extends FunctionSuite with EagerSession
