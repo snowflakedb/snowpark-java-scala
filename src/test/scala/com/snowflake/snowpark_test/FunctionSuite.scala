@@ -2177,7 +2177,14 @@ trait FunctionSuite extends TestData {
       expected,
       sort = false)
   }
-
+  test("cbrt") {
+    val data = Seq(64.0, 27.0, 8.0).toDF("cbrt_a")
+    var expected = Seq(4.0,3.0,2.0)
+    checkAnswer(
+      data.select(cbrt(data("cbrt_a"))),
+      expected,
+      sort = false)
+  }
 }
 
 class EagerFunctionSuite extends FunctionSuite with EagerSession

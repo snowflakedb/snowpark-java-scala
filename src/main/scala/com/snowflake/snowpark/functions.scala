@@ -3195,7 +3195,7 @@ object functions {
 
   /**
    *  Used to calculate the cubic root of a number.
-   * @since 1.10.0
+   * @since 1.4.0
    * @param column Column to calculate the cubic root.
    * @return Column object.
    */
@@ -3205,7 +3205,7 @@ object functions {
 
   /**
    * Used to calculate the cubic root of a number. There were slight differences found:
-   * @since 1.10.0
+   * @since 1.4.0
    * @param column Column to calculate the cubic root.
    * @return Column object.
    */
