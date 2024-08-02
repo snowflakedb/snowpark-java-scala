@@ -3180,7 +3180,7 @@ object functions {
    * |CR             |5     |Jose  |29    |Mobilize  |
    * -------------------------------------------------
    * </pre>
-   * @since 1.6.0
+   * @since 1.12.1
    * @param json Column containing the JSON string text.
    * @param fields Fields to pull from the JSON file.
    * @return Column sequence with the specified strings.
@@ -3195,7 +3195,7 @@ object functions {
 
   /**
    *  Used to calculate the cubic root of a number.
-   * @since 1.4.0
+   * @since 1.12.1
    * @param column Column to calculate the cubic root.
    * @return Column object.
    */
@@ -3205,7 +3205,7 @@ object functions {
 
   /**
    * Used to calculate the cubic root of a number. There were slight differences found:
-   * @since 1.4.0
+   * @since 1.12.1
    * @param column Column to calculate the cubic root.
    * @return Column object.
    */
@@ -3249,7 +3249,7 @@ object functions {
    * |532161  |17     |873513    |47         |
    * -----------------------------------------
    * </pre>
-   * @since 1.10.0
+   * @since 1.12.1
    * @param e String column to convert to variant.
    * @return Column object.
    */
@@ -3259,25 +3259,19 @@ object functions {
 /**
    * Returns the value of sourceExpr cast to data type 
    * targetType if possible, or NULL if not possible.
-   * @since 1.5.0
+   * @since 1.12.1
    * @param source Any castable expression
    * @param Target The type of the result
    * @return The result is of type targetType.
-   * This function is a more relaxed variant of castfunction
-   * which includes a detailed description.
-   * try_cast differs from cast function by tolerating
-   * the following conditions as long as the cast
-   *  from the type of expr to type is supported:
-   * If a sourceExpr value cannot fit within the domain of 
-   * targetType the result is NULL instead of an overflow error.
-   * If a sourceExpr value is not well formed or contains 
-   * invalid characters the result is NULL instead of 
-   * an invalid data error.Exception to the above are:
-   *Casting to a STRUCT field with NOT NULL property.
-   *Casting a MAP key.
+   *  special version of CAST for a subset of datatype conversions.
+   * It performs the same operation 
+   * (i.e. converts a value of one data type into another data type),
+   * but returns a NULL value instead of raising an error 
+   * when the conversion can not be performed.
+   * The column argument must be a string column in Snowflake.
    */
-  def try_cast(sourceExpr : Column,targetType: datatype): Column = {
-    try_cast(sourceExpr AS targetType)
+  def try_cast(e : Column,targetType: DataType): Column = {
+    try_cast(e,targetType())
   }
   /**
    * This function receives a date or timestamp, as well as a 
@@ -3286,7 +3280,7 @@ object functions {
    * casted to date using try_cast and if it's not possible to cast,
    *  returns null. If receiving
    * a timestamp it will be casted to date (removing its time).
-   * @since 1.5.0
+   * @since 1.12.1
    * @param start Date, Timestamp or String column to subtract days from.
    * @param days Days to subtract.
    * @return Column object.
