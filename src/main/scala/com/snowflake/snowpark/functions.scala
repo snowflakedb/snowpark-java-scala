@@ -2,6 +2,7 @@ package com.snowflake.snowpark
 
 import com.snowflake.snowpark.internal.analyzer._
 import com.snowflake.snowpark.internal.ScalaFunctions._
+import com.snowflake.snowpark.types.DataType
 import com.snowflake.snowpark.internal.{
   ErrorMessage,
   OpenTelemetry,
@@ -3270,9 +3271,10 @@ object functions {
    * when the conversion can not be performed.
    * The column argument must be a string column in Snowflake.
    */
-  def try_cast(e : Column,targetType: String): Column = {
-    try_cast(e,targetType())
+  def try_cast(e : Column,targetType: DataType): Column = {
+    try_cast(col("e"),targetType())
   }
+  
   /**
    * This function receives a date or timestamp, as well as a 
    * properly formatted string and subtracts the specified
@@ -3286,7 +3288,7 @@ object functions {
    * @return Column object.
    */
   def date_sub(start: Column, days: Int): Column = {
-     dateadd("DAY", lit(days * -1), sqlExpr(s"try_cast(${start.getName.get} :: STRING as DATE)"))
+     dateadd("DAY", lit(days * -1), try_cast(col(e),DateType()))
   }
   /**
    * Invokes a built-in snowflake function with the specified name and arguments.
