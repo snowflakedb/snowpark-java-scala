@@ -3270,7 +3270,7 @@ object functions {
    * when the conversion can not be performed.
    * The column argument must be a string column in Snowflake.
    */
-  def try_cast(e : Column,targetType: DataType): Column = {
+  def try_cast(e : Column,targetType: String): Column = {
     try_cast(e,targetType())
   }
   /**
@@ -3286,7 +3286,7 @@ object functions {
    * @return Column object.
    */
   def date_sub(start: Column, days: Int): Column = {
-    dateadd("DAY", lit(days * -1), try_cast(start as DATE))
+    dateadd(start, lit(days * -1))
   }
   /**
    * Invokes a built-in snowflake function with the specified name and arguments.
