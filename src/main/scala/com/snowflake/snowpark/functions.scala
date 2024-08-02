@@ -2,7 +2,7 @@ package com.snowflake.snowpark
 
 import com.snowflake.snowpark.internal.analyzer._
 import com.snowflake.snowpark.internal.ScalaFunctions._
-import com.snowflake.snowpark.types.DataType
+import com.snowflake.snowpark.types._
 import com.snowflake.snowpark.internal.{
   ErrorMessage,
   OpenTelemetry,
@@ -3140,7 +3140,8 @@ object functions {
    * @group agg_func
    */
   def listagg(col: Column): Column = listagg(col, "", isDistinct = false)
-/**
+
+  /**
    * This leverages JSON_EXTRACT_PATH_TEXT and improves functionality by allowing multiple columns
    * in a single call, whereas JSON_EXTRACT_PATH_TEXT must be called once for every column.
    *
@@ -3150,12 +3151,12 @@ object functions {
    * <li> Identifiers with spaces: Snowflake returns error when an invalid expression is sent. </li>
    *
    * Usage:
-   * { 
-   *   df = session.createDataFrame(Seq(("CR", "{\"id\": 5, 
+   * {
+   *   df = session.createDataFrame(Seq(("CR", "{\"id\": 5,
    *             \"name\": \"Jose\", \"age\": 29}")))
-   *               .toDF(Seq("nationality", "json_string")) 
+   *               .toDF(Seq("nationality", "json_string"))
    * }
-   * When the result of this function is the only part of 
+   * When the result of this function is the only part of
    * the select statement, no changes are needed
    * df.select(json_tuple(col("json_string"), "id", "name", "age")).show()
    *
@@ -3217,11 +3218,11 @@ object functions {
   /**
    * This function converts a JSON string to a variant in Snowflake.
    *
-   * In Snowflake the values are converted automatically, however they're converted as variants, 
-   * meaning that the printSchema 
+   * In Snowflake the values are converted automatically, however they're converted as variants,
+   * meaning that the printSchema
    * function would return different datatypes.
-   * To convert the datatype and it to be printed as the expected datatype, 
-   * it should be read on the 
+   * To convert the datatype and it to be printed as the expected datatype,
+   * it should be read on the
    * selectExpr function as "json['relative']['age']::integer"
    * val data_for_json = Seq(
    *   (1, "{\"id\": 172319, \"age\": 41, \"relative\": {\"id\": 885471, \"age\": 29}}")
@@ -3257,28 +3258,29 @@ object functions {
   def from_json(e: Column): Column = {
     builtin("TRY_PARSE_JSON")(e)
   }
-/**
-   * Returns the value of sourceExpr cast to data type 
+
+  /**
+   * Returns the value of sourceExpr cast to data type
    * targetType if possible, or NULL if not possible.
    * @since 1.12.1
    * @param source Any castable expression
    * @param Target The type of the result
    * @return The result is of type targetType.
    *  special version of CAST for a subset of datatype conversions.
-   * It performs the same operation 
+   * It performs the same operation
    * (i.e. converts a value of one data type into another data type),
-   * but returns a NULL value instead of raising an error 
+   * but returns a NULL value instead of raising an error
    * when the conversion can not be performed.
    * The column argument must be a string column in Snowflake.
    */
-  def try_cast(e : Column,targetType: DataType): Column = {
-    try_cast(col("e"),targetType())
+  def try_cast(e: Column, targetType: DataType): Column = {
+    try_cast(col("e"), targetType)
   }
-  
+
   /**
-   * This function receives a date or timestamp, as well as a 
+   * This function receives a date or timestamp, as well as a
    * properly formatted string and subtracts the specified
-   * amount of days from it. If receiving a string, this string is 
+   * amount of days from it. If receiving a string, this string is
    * casted to date using try_cast and if it's not possible to cast,
    *  returns null. If receiving
    * a timestamp it will be casted to date (removing its time).
@@ -3288,8 +3290,9 @@ object functions {
    * @return Column object.
    */
   def date_sub(start: Column, days: Int): Column = {
-     dateadd("DAY", lit(days * -1), try_cast(col(e),DateType()))
+    dateadd("DAY", lit(days * -1), try_cast(col("start"), DateType))
   }
+
   /**
    * Invokes a built-in snowflake function with the specified name and arguments.
    * Arguments can be of two types
