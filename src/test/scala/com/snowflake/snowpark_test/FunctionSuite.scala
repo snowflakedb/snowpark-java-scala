@@ -2191,6 +2191,34 @@ trait FunctionSuite extends TestData {
       expected,
       sort = false)
   }
+  test("json_tuple") {
+     var expected = Seq(("21", "Joe"),("26","Jay")).toDF("age","name")
+    checkAnswer(
+      object2
+        .select(json_tuple(col("obj"),"age","name"):_*),
+      expected,
+      sort = false)
+  }
+
+  test("date_sub") {
+    var expected = Seq(("2020-04-30 13:11:20.000"),("2020-08-20 01:30:05.000")).toDF()
+    checkAnswer(
+      timestamp1
+        .select(date_sub(col("a"),lit(1)),
+      expected,
+      sort = false
+      ))
+  }
+
+  test("try_cast") {
+    var expected = Seq(("2020-08-01"),("2010-12-01")).toDF()
+    checkAnswer(
+      date1
+        .select(try_cast(col("a") as String),
+      expected,
+      sort = false
+      ))
+  }
   
 }
 

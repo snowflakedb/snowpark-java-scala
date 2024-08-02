@@ -3256,7 +3256,29 @@ object functions {
   def from_json(e: Column): Column = {
     builtin("TRY_PARSE_JSON")(e)
   }
-
+/**
+   * Returns the value of sourceExpr cast to data type 
+   * targetType if possible, or NULL if not possible.
+   * @since 1.5.0
+   * @param source Any castable expression
+   * @param Target The type of the result
+   * @return The result is of type targetType.
+   * This function is a more relaxed variant of castfunction
+   * which includes a detailed description.
+   * try_cast differs from cast function by tolerating
+   * the following conditions as long as the cast
+   *  from the type of expr to type is supported:
+   * If a sourceExpr value cannot fit within the domain of 
+   * targetType the result is NULL instead of an overflow error.
+   * If a sourceExpr value is not well formed or contains 
+   * invalid characters the result is NULL instead of 
+   * an invalid data error.Exception to the above are:
+   *Casting to a STRUCT field with NOT NULL property.
+   *Casting a MAP key.
+   */
+  def try_cast(sourceExpr : Column,targetType: datatype): Column = {
+    try_cast(sourceExpr AS targetType)
+  }
   /**
    * This function receives a date or timestamp, as well as a 
    * properly formatted string and subtracts the specified
@@ -3264,13 +3286,13 @@ object functions {
    * casted to date using try_cast and if it's not possible to cast,
    *  returns null. If receiving
    * a timestamp it will be casted to date (removing its time).
-   * @since 1.10.0
+   * @since 1.5.0
    * @param start Date, Timestamp or String column to subtract days from.
    * @param days Days to subtract.
    * @return Column object.
    */
   def date_sub(start: Column, days: Int): Column = {
-    dateadd("DAY", lit(days * -1), sqlExpr(s"try_cast(${start.getName.get} :: STRING as DATE)"))
+    dateadd("DAY", lit(days * -1), try_cast(start as DATE))
   }
   /**
    * Invokes a built-in snowflake function with the specified name and arguments.
