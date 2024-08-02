@@ -3270,7 +3270,7 @@ object functions {
    * when the conversion can not be performed.
    * The column argument must be a string column in Snowflake.
    */
-  def try_cast(e : Column,targetType: Column): Column = {
+  def try_cast(e : Column,targetType: String): Column = {
     try_cast(e,targetType())
   }
   /**
