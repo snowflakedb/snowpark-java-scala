@@ -1,7 +1,7 @@
 package com.snowflake.snowpark_test
 
-import com.snowflake.snowpark.TestData
-import com.snowflake.snowpark.functions.col
+import com.snowflake.snowpark.{SaveMode, TestData, UpdateResult}
+import com.snowflake.snowpark.functions.{col, lit}
 
 class DataFrameNonStoredProcSuite extends TestData {
 
@@ -81,5 +81,23 @@ class DataFrameNonStoredProcSuite extends TestData {
       "ENABLE_PIVOT_VIEW_WITH_OBJECT_AGG",
       "enable",
       skipIfParamNotExist = true)
+  }
+
+  test("ERROR_ON_NONDETERMINISTIC_UPDATE = true") {
+    val tableName: String = randomName()
+    createTable(tableName, "num int")
+    try {
+      runQuery(s"insert into $tableName values(1),(2),(3)", session)
+      withSessionParameters(Seq(("ERROR_ON_NONDETERMINISTIC_UPDATE", "true")), session) {
+        testData2.write.mode(SaveMode.Overwrite).saveAsTable(tableName)
+        val updatable = session.table(tableName)
+        testData2.write.mode(SaveMode.Overwrite).saveAsTable(tableName)
+        assert(
+          updatable.update(Map(col("a") -> lit(1), col("b") -> lit(0))) == UpdateResult(6, 0))
+      }
+    } finally {
+      dropTable(tableName)
+    }
+
   }
 }
