@@ -1,6 +1,5 @@
 package com.snowflake.snowpark_test;
 
-import com.snowflake.snowpark.TestMethod;
 import com.snowflake.snowpark.TestUtils;
 import com.snowflake.snowpark_java.JavaToScalaConvertor;
 import com.snowflake.snowpark_java.Session;
