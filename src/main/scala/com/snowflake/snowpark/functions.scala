@@ -3903,7 +3903,7 @@ object functions {
    * {{{
    *    val repeat = functions.builtin("repeat")
    *    df.select(repeat(col("col_1"), 3))
-   * }}}F
+   * }}}
    *
    * @group client_func
    * @since 0.1.0
