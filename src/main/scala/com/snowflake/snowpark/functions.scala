@@ -3141,6 +3141,112 @@ object functions {
   def listagg(col: Column): Column = listagg(col, "", isDistinct = false)
 
   /**
+   * This function receives a column and extracts the groupIdx from the string
+   * after applying the exp regex. Returns empty string when the string doesn't
+   *  match and null if the input is null.
+   *
+   * This function applies the `case sensitive` and `extract` flags.
+   * It doesn't apply multiline nor .* matches newlines.
+   * If these flags need to be applied, use `builtin("REGEXP_SUBSTR")`
+   * instead and apply the desired flags.
+   *
+   * Note: non-greedy tokens such as `.*?` are not supported
+   * @since 1.12.1
+   * @param colName Column to apply regex.
+   * @param exp Regex expression to apply.
+   * @param grpIdx Group to extract.
+   * @return Column object.
+   */
+  def regexp_extract(
+      colName: Column,
+      exp: String,
+      position: Int,
+      Occurences: Int,
+      grpIdx: Int): Column = {
+    when(colName.is_null, lit(null))
+      .otherwise(
+        coalesce(
+          builtin("REGEXP_SUBSTR")(
+            colName,
+            lit(exp),
+            lit(position),
+            lit(Occurences),
+            lit("ce"),
+            lit(grpIdx)),
+          lit("")))
+  }
+
+  /**
+   * Returns the sign of the given column. Returns either 1 for positive,
+   * 0 for 0 or
+   * NaN, -1 for negative and null for null.
+   * NOTE: if string values are provided snowflake will attempts to cast.
+   *  If it casts correctly, returns the calculation,
+   *  if not an error will be thrown
+   * @since 1.12.1
+   * @param e Column to calculate the sign.
+   * @return Column object.
+   */
+  def signum(colName: Column): Column = {
+    builtin("SIGN")(colName)
+  }
+
+  /**
+   * Returns the sign of the given column. Returns either 1 for positive,
+   *  0 for 0 or
+   * NaN, -1 for negative and null for null.
+   * NOTE: if string values are provided snowflake will attempts to cast.
+   *  If it casts correctly, returns the calculation,
+   *  if not an error will be thrown
+   * @since 1.12.1
+   * @param columnName Name of the column to calculate the sign.
+   * @return Column object.
+   */
+  def signum(columnName: String): Column = {
+    signum(col(columnName))
+  }
+
+  /**
+   * Returns the substring from string str before count occurrences
+   * of the delimiter delim. If count is positive,
+   * everything the left of the final delimiter (counting from left)
+   *  is returned. If count is negative, every to the right of the
+   * final delimiter (counting from the right) is returned.
+   * substring_index performs a case-sensitive match when searching for delim.
+   *   @since 1.12.1
+   */
+  def substring_index(str: Column, delim: String, count: Int): Column = {
+    when(
+      lit(count) < lit(0),
+      callBuiltin(
+        "substring",
+        lit(str),
+        callBuiltin("regexp_instr", sqlExpr(s"reverse(${str}, ${delim}, 1, abs(${count}), 0"))))
+      .otherwise(
+        callBuiltin(
+          "substring",
+          lit(str),
+          1,
+          callBuiltin("regexp_instr", col("str"), lit(delim), 1, lit(count), 1)))
+  }
+
+  /**
+   * Wrapper for Snowflake built-in collect_list function. Get the values of array column.
+   * @since 1.10.0
+   * @param c Column to be collect.
+   * @return The array.
+   */
+  def collect_list(c: Column): Column = array_agg(c)
+
+  /**
+   * Wrapper for Snowflake built-in collect_list function. Get the values of array column.
+   * @since 1.10.0
+   * @param s Column name to be collected.
+   * @return The array.
+   */
+  def collect_list(s: String): Column = array_agg(col(s))
+
+  /**
    * Invokes a built-in snowflake function with the specified name and arguments.
    * Arguments can be of two types
    *
