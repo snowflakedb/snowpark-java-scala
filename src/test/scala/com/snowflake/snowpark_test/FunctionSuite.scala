@@ -2178,6 +2178,34 @@ trait FunctionSuite extends TestData {
       sort = false)
   }
 
+  test("desc column order") {
+    val input = Seq(1, 2, 3).toDF("data")
+    val expected = Seq(3, 2, 1).toDF("data")
+
+    val inputStr = Seq("a", "b", "c").toDF("dataStr")
+    val expectedStr = Seq("c", "b", "a").toDF("dataStr")
+
+    checkAnswer(input.sort(desc("data")), expected, sort = false)
+    checkAnswer(inputStr.sort(desc("dataStr")), expectedStr, sort = false)
+  }
+
+  test("asc column order") {
+    val input = Seq(3, 2, 1).toDF("data")
+    val expected = Seq(1, 2, 3).toDF("data")
+
+    val inputStr = Seq("c", "b", "a").toDF("dataStr")
+    val expectedStr = Seq("a", "b", "c").toDF("dataStr")
+
+    checkAnswer(input.sort(asc("data")), expected, sort = false)
+    checkAnswer(inputStr.sort(asc("dataStr")), expectedStr, sort = false)
+  }
+
+  test("column array size") {
+    val input = Seq(Array(1, 2, 3)).toDF("size")
+    val expected = Seq((3)).toDF("size")
+    checkAnswer(input.select(size(col("size"))), expected, sort = false)
+  }
+
 }
 
 class EagerFunctionSuite extends FunctionSuite with EagerSession

@@ -3143,18 +3143,18 @@ object functions {
   /**
    * Function to convert column name into column and order in a descending manner.
    * @since 1.14.0
-   * @param c Column name.
+   * @param colName Column name.
    * @return Column object ordered in a descending manner.
    */
-  def desc(c: String): Column = col(c).desc
+  def desc(colName: String): Column = col(colName).desc
 
   /**
    * Function to convert column name into column and order in an ascending manner.
    * @since 1.14.0
-   * @param colname Column name.
+   * @param colName Column name.
    * @return Column object ordered in an ascending manner.
    */
-  def asc(colname: String): Column = col(colname).asc
+  def asc(colName: String): Column = col(colName).asc
 
   /**
    * Wrapper for Snowflake built-in size function. Gets the size of array column.
