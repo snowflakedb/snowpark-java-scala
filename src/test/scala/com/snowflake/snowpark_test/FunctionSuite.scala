@@ -2201,6 +2201,7 @@ trait FunctionSuite extends TestData {
   }
 
   test("column array size") {
+
     val input = Seq(Array(1, 2, 3)).toDF("size")
     val expected = Seq((3)).toDF("size")
     checkAnswer(input.select(size(col("size"))), expected, sort = false)

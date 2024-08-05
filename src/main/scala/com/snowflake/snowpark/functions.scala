@@ -3141,7 +3141,21 @@ object functions {
   def listagg(col: Column): Column = listagg(col, "", isDistinct = false)
 
   /**
-   * Function to convert column name into column and order in a descending manner.
+   * Returns a Column expression with values sorted in descending order.
+   * Example:
+   * {{{
+   *   val df = session.createDataFrame(Seq(1, 2, 3)).toDF("id")
+   *   df.sort(desc("id")).show()
+   *
+   * --------
+   * |"ID"  |
+   * --------
+   * |3     |
+   * |2     |
+   * |1     |
+   * --------
+   * }}}
+ *
    * @since 1.14.0
    * @param colName Column name.
    * @return Column object ordered in a descending manner.
@@ -3149,7 +3163,20 @@ object functions {
   def desc(colName: String): Column = col(colName).desc
 
   /**
-   * Function to convert column name into column and order in an ascending manner.
+   * Returns a Column expression with values sorted in ascending order.
+   * Example:
+   * {{{
+   *   val df = session.createDataFrame(Seq(3, 2, 1)).toDF("id")
+   *   df.sort(asc("id")).show()
+   *
+   * --------
+   * |"ID"  |
+   * --------
+   * |1     |
+   * |2     |
+   * |3     |
+   * --------
+   * }}}
    * @since 1.14.0
    * @param colName Column name.
    * @return Column object ordered in an ascending manner.
@@ -3157,7 +3184,23 @@ object functions {
   def asc(colName: String): Column = col(colName).asc
 
   /**
-   * Wrapper for Snowflake built-in size function. Gets the size of array column.
+   * Returns the size of the input ARRAY.
+   *
+   * If the specified column contains a VARIANT value that contains an ARRAY, the size of the ARRAY
+   * is returned; otherwise, NULL is returned if the value is not an ARRAY.
+   *
+   * Example:
+   * {{{
+   *   val df = session.createDataFrame(Seq(Array(1, 2, 3))).toDF("id")
+   *   df.select(size(col("id"))).show()
+   *
+   * ------------------------
+   * |"ARRAY_SIZE(""ID"")"  |
+   * ------------------------
+   * |3                     |
+   * ------------------------
+   * }}}
+   *
    * @since 1.14.0
    * @param c Column to get the size.
    * @return Size of array column.
