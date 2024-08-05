@@ -3882,7 +3882,21 @@ public final class Functions {
   }
 
   /**
-   * Function to convert column name into column and order in descending manner.
+   * Returns a Column expression with values sorted in descending order.
+   *
+   * <p>Example: order column values in descending
+   *
+   * <pre>{@code
+   * DataFrame df = getSession().sql("select * from values(1),(2),(3) as t(a)");
+   * df.sort(Functions.desc("a")).show();
+   * -------
+   * |"A"  |
+   * -------
+   * |3    |
+   * |2    |
+   * |1    |
+   * -------
+   * }</pre>
    *
    * @since 1.14.0
    * @param name The input column name
@@ -3893,7 +3907,21 @@ public final class Functions {
   }
 
   /**
-   * Function to convert column name into column and order in ascending manner.
+   * Returns a Column expression with values sorted in ascending order.
+   *
+   * <p>Example: order column values in ascending
+   *
+   * <pre>{@code
+   * DataFrame df = getSession().sql("select * from values(3),(1),(2) as t(a)");
+   * df.sort(Functions.asc("a")).show();
+   * -------
+   * |"A"  |
+   * -------
+   * |1    |
+   * |2    |
+   * |3    |
+   * -------
+   * }</pre>
    *
    * @since 1.14.0
    * @param name The input column name
@@ -3908,6 +3936,18 @@ public final class Functions {
    *
    * <p>If the specified column contains a VARIANT value that contains an ARRAY, the size of the
    * ARRAY is returned; otherwise, NULL is returned if the value is not an ARRAY.
+   *
+   * <p>Example: calculate size of the array in a column
+   *
+   * <pre>{@code
+   * DataFrame df = getSession().sql("select array_construct(a,b,c) as arr from values(1,2,3) as T(a,b,c)");
+   * df.select(Functions.size(Functions.col("arr"))).show();
+   * -------------------------
+   * |"ARRAY_SIZE(""ARR"")"  |
+   * -------------------------
+   * |3                      |
+   * -------------------------
+   * }</pre>
    *
    * @since 1.14.0
    * @param col The input column name

@@ -2764,4 +2764,30 @@ public class JavaFunctionSuite extends TestBase {
     assert result.length == 1;
     assert result[0].getInt(0) == 1 || result[0].getInt(0) == 2 || result[0].getInt(0) == 3;
   }
+
+  @Test
+  public void test_asc() {
+    DataFrame df = getSession().sql("select * from values(3),(1),(2) as t(a)");
+    Row[] expected = {Row.create(1), Row.create(2), Row.create(3)};
+
+    checkAnswer(df.sort(Functions.asc("a")), expected, false);
+  }
+
+  @Test
+  public void test_desc() {
+    DataFrame df = getSession().sql("select * from values(2),(1),(3) as t(a)");
+    Row[] expected = {Row.create(3), Row.create(2), Row.create(1)};
+
+    checkAnswer(df.sort(Functions.desc("a")), expected, false);
+  }
+
+  @Test
+  public void test_size() {
+    DataFrame df = getSession()
+            .sql(
+                    "select array_construct(a,b,c) as arr from values(1,2,3) as T(a,b,c)");
+    Row[] expected = {Row.create(3)};
+
+    checkAnswer(df.select(Functions.size(Functions.col("arr"))), expected, false);
+  }
 }
