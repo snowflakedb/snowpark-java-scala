@@ -2177,6 +2177,46 @@ trait FunctionSuite extends TestData {
       expected,
       sort = false)
   }
+  test("cbrt") {
+    checkAnswer(
+      testData1.select(cbrt(col("NUM"))),
+      Seq(Row(1.0), Row(1.25992104989)),
+      sort = false)
+  }
+  test("from_json") {
+    var expected = Seq(("21", "Joe", "21021"), ("26", "Jay", "94021")).toDF("age", "name", "zip")
+    checkAnswer(
+      object2
+        .select(from_json(col("obj"))),
+      expected,
+      sort = false)
+  }
+  test("json_tuple") {
+    var expected = Seq(("21", "Joe"), ("26", "Jay")).toDF("age", "name")
+    checkAnswer(
+      object2
+        .select(json_tuple(col("obj"), "age", "name")),
+      expected,
+      sort = false)
+  }
+
+  test("date_sub") {
+    var expected = Seq(("2020-04-30 13:11:20.000"), ("2020-08-20 01:30:05.000")).toDF("b")
+    checkAnswer(
+      timestamp1
+        .select(date_sub(col("a"), 1)),
+      expected,
+      sort = false)
+  }
+
+  test("try_cast") {
+    var expected = Seq(("2020-08-01"), ("2010-12-01")).toDF("b")
+    checkAnswer(
+      date1
+        .select(try_cast(col("a"), StringType)),
+      expected,
+      sort = false)
+  }
 
 }
 
