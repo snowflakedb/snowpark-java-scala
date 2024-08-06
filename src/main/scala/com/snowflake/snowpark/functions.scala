@@ -3208,6 +3208,29 @@ object functions {
   def size(c: Column): Column = array_size(c)
 
   /**
+   * Creates a [[Column]] expression from raw SQL text.
+   *
+   * Note that the function does not interpret or check the SQL text.
+   *
+   * Example:
+   * {{{
+   *   val df = session.createDataFrame(Seq(Array(1, 2, 3))).toDF("id")
+   *   df.filter(expr("id > 2")).show()
+   *
+   *  --------
+   *  |"ID"  |
+   *  --------
+   *  |3     |
+   *  --------
+   * }}}
+   *
+   * @since 1.14.0
+   * @param s condition statement.
+   * @return column expression from input string statement.
+   */
+  def expr(s: String): Column = sqlExpr(s)
+
+  /**
    * Invokes a built-in snowflake function with the specified name and arguments.
    * Arguments can be of two types
    *

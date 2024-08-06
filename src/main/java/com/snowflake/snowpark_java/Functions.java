@@ -3958,6 +3958,29 @@ public final class Functions {
   }
 
   /**
+   * Creates a Column expression from row SQL text.
+   *
+   * <p>Note that the function does not interpret or check the SQL text.
+   *
+   * <pre>{@code
+   * DataFrame df = getSession().sql("select a from values(1), (2), (3) as T(a)");
+   * df.filter(Functions.expr("a > 2")).show();
+   * -------
+   * |"A"  |
+   * -------
+   * |3    |
+   * -------
+   * }</pre>
+   *
+   * @since 1.14.0
+   * @param s The input column name
+   * @return column expression from input statement.
+   */
+  public static Column expr(String s) {
+    return sqlExpr(s);
+  }
+
+  /**
    * Calls a user-defined function (UDF) by name.
    *
    * @since 0.12.0

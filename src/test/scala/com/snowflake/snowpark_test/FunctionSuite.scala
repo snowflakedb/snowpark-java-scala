@@ -2207,6 +2207,14 @@ trait FunctionSuite extends TestData {
     checkAnswer(input.select(size(col("size"))), expected, sort = false)
   }
 
+  test("expr function") {
+
+    val input = session.createDataFrame(Seq(1, 2, 3)).toDF("id")
+    val expected = Seq((3)).toDF("id")
+    checkAnswer(input.filter(expr("id > 2")), expected, sort = false)
+  }
+
+
 }
 
 class EagerFunctionSuite extends FunctionSuite with EagerSession
