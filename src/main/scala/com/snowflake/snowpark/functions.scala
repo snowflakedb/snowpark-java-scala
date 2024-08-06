@@ -3141,20 +3141,24 @@ object functions {
   def listagg(col: Column): Column = listagg(col, "", isDistinct = false)
 
   /**
-   * This function receives a column and extracts the groupIdx from the string
-   * after applying the exp regex. Returns empty string when the string doesn't
-   *  match and null if the input is null.
-   *
-   * This function applies the `case sensitive` and `extract` flags.
-   * It doesn't apply multiline nor .* matches newlines.
-   * If these flags need to be applied, use `builtin("REGEXP_SUBSTR")`
-   * instead and apply the desired flags.
-   *
+   * Signature - snowflake.snowpark.functions.regexp_extract
+   * (value: Union[Column, str], regexp: Union[Column, str], idx: int)
+   *  → Column
+   * Extract a specific group matched by a regex, from the specified string 
+   * column. If the regex did not match, or the specified group did not match, 
+   * an empty string is returned.
+   * Example:
+   * from snowflake.snowpark.functions import regexp_extract
+   * df = session.createDataFrame([["id_20_30", 10], ["id_40_50", 30]], ["id", "age"])
+   * df.select(regexp_extract("id", r"(\d+)", 1).alias("RES")).show()
+   *        ---------
+   *         |"RES"  |
+   *        ---------
+   *        |20     |
+   *        |40     |
+   *        ---------
    * Note: non-greedy tokens such as `.*?` are not supported
    * @since 1.12.1
-   * @param colName Column to apply regex.
-   * @param exp Regex expression to apply.
-   * @param grpIdx Group to extract.
    * @return Column object.
    */
   def regexp_extract(
@@ -3177,12 +3181,23 @@ object functions {
   }
 
   /**
-   * Returns the sign of the given column. Returns either 1 for positive,
-   * 0 for 0 or
-   * NaN, -1 for negative and null for null.
-   * NOTE: if string values are provided snowflake will attempts to cast.
-   *  If it casts correctly, returns the calculation,
-   *  if not an error will be thrown
+   *    Returns the sign of its argument:
+   *
+   *     - -1 if the argument is negative.
+   *     - 1 if it is positive.
+   *     - 0 if it is 0.
+   *
+   * Args:
+   *     col: The column to evaluate its sign
+   *
+   * Example::
+   *     >>> df = session.create_dataframe([(-2, 2, 0)], ["a", "b", "c"])
+   *     >>> df.select(sign("a").alias("a_sign"), sign("b").alias("b_sign"), sign("c").alias("c_sign")).show()
+   *     ----------------------------------
+   *     |"A_SIGN"  |"B_SIGN"  |"C_SIGN"  |
+   *     ----------------------------------
+   *     |-1        |1         |0         |
+   *     ----------------------------------
    * @since 1.12.1
    * @param e Column to calculate the sign.
    * @return Column object.
@@ -3232,6 +3247,21 @@ object functions {
 
   /**
    * Wrapper for Snowflake built-in collect_list function. Get the values of array column.
+   * Returns the input values, pivoted into an ARRAY. If the input is empty, an empty
+   * ARRAY is returned.
+   *
+   * Example::
+   *     >>> df = session.create_dataframe([[1], [2], [3], [1]], schema=["a"])
+   *     >>> df.select(array_agg("a", True).alias("result")).show()
+   *     ------------
+   *     |"RESULT"  |
+   *     ------------
+   *     |[         |
+   *     |  1,      |
+   *     |  2,      |
+   *     |  3       |
+   *     |]         |
+   *     ------------
    * @since 1.10.0
    * @param c Column to be collect.
    * @return The array.
