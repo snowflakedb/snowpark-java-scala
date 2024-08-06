@@ -2,12 +2,8 @@ package com.snowflake.snowpark
 
 import com.snowflake.snowpark.internal.analyzer._
 import com.snowflake.snowpark.internal.ScalaFunctions._
-import com.snowflake.snowpark.internal.{
-  ErrorMessage,
-  OpenTelemetry,
-  UDXRegistrationHandler,
-  Utils
-}
+import com.snowflake.snowpark.internal.{ErrorMessage, OpenTelemetry, UDXRegistrationHandler, Utils}
+import com.snowflake.snowpark.types.TimestampType
 
 import scala.reflect.runtime.universe.TypeTag
 import scala.util.Random
@@ -3225,10 +3221,107 @@ object functions {
    * }}}
    *
    * @since 1.14.0
-   * @param s condition statement.
-   * @return column expression from input string statement.
+   * @param s SQL Expression as text.
+   * @return Converted SQL Expression.
    */
   def expr(s: String): Column = sqlExpr(s)
+
+  /**
+   * Wrapper for Snowflake built-in array function. Create array from columns.
+   *
+   * Example:
+   * {{{
+   *   val df = session.createDataFrame(Seq((1, 2, 3), (4, 5, 6))).toDF("id")
+   *   df.select(array(col("a"), col("b")).as("id")).show()
+   *
+   *  --------
+   * |"ID"  |
+   * --------
+   * |[     |
+   * |  1,  |
+   * |  2   |
+   * |]     |
+   * |[     |
+   * |  4,  |
+   * |  5   |
+   * |]     |
+   * --------
+   * }}}
+   *
+   * @since 1.14.0
+   * @param c Columns to build the array.
+   * @return The array.
+   */
+  def array(c: Column*): Column = array_construct(c: _*)
+
+  /**
+   * Wrapper for Snowflake built-in date_format function.
+   * Converts a date into the specified format.
+   * Example:
+   * {{{
+   *  val df = Seq("2023-10-10", "2022-05-15", null.asInstanceOf[String]).toDF("date")
+   *  df.select(date_format(col("date"), "YYYY/MM/DD").as("formatted_date")).show()
+   *
+   * --------------------
+   * |"FORMATTED_DATE"  |
+   * --------------------
+   * |2023/10/10        |
+   * |2022/05/15        |
+   * |NULL              |
+   * --------------------
+   *
+   * }}}
+ *
+   * @since 1.14.0
+   * @param c Column to format to date.
+   * @param s Date format.
+   * @return Column object.
+   */
+  def date_format(c: Column, s: String): Column =
+    builtin("to_varchar")(c.cast(TimestampType), s.replace("mm", "mi"))
+
+  /**
+   * Wrapper for Snowflake built-in last function.
+   * Gets the last value of a column according to its grouping.
+   * Functional difference with windows, In Snowpark is needed the order by.
+   * SQL doesn't guarantee the order.
+   * Example
+   * {{{
+   *  val df = session.createDataFrame(Seq((5, "a", 10),
+   *                                       (5, "b", 20),
+   *                                       (3, "d", 15),
+   *                                       (3, "e", 40))).toDF("grade", "name", "score")
+   *     val window = Window.partitionBy(col("grade")).orderBy(col("score").desc)
+   *     df.select(last(col("name")).over(window)).show()
+   *
+   * ---------------------
+   * |"LAST_SCORE_NAME"  |
+   * ---------------------
+   * |a                  |
+   * |a                  |
+   * |d                  |
+   * |d                  |
+   * ---------------------
+   * }}}
+ *
+   * @since 1.14.0
+   * @param c Column to obtain last value.
+   * @return Column object.
+   */
+  def last(c: Column): Column =
+    builtin("LAST_VALUE")(c)
+
+  /**
+   * Formats the arguments in printf-style and returns the result as a string column.
+   * @since 1.10.0
+   * @note this function requires the format_string UDF to be previosly created
+   * @param format the printf-style format
+   * @param arguments arguments for the formatting string
+   * @return formatted string
+   */
+  def format_string(format: String, arguments: Column*): Column = {
+    callBuiltin("format_string", lit(format), array_construct(arguments: _*))
+  }
 
   /**
    * Invokes a built-in snowflake function with the specified name and arguments.
