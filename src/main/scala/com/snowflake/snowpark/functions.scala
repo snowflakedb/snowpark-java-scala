@@ -3141,6 +3141,72 @@ object functions {
   def listagg(col: Column): Column = listagg(col, "", isDistinct = false)
 
   /**
+   * Wrapper for Snowflake built-in reverse function. Gets the reversed string.
+   * Reverses the order of characters in a string, or of bytes in a binary value.
+   * The returned value is the same length as the input, but with the characters/bytes
+   *  in reverse order. If subject is NULL, the result is also NULL.
+   * Example: SELECT REVERSE('Hello, world!');
+   *+--------------------------+
+   *| REVERSE('HELLO, WORLD!') |
+   *|--------------------------|
+   *| !dlrow ,olleH            |
+   *+--------------------------+
+
+   * @since 1.12.0
+   * @param c Column to be reverse.
+   * @return Column object.
+   */
+  def reverse(c: Column): Column =
+    builtin("reverse")(c)
+
+  /**
+   * Wrapper for Snowflake built-in isnull function. Gets a boolean
+   * depending if value is NULL or not.
+   * Return true if the value in the column is null.
+   *Example::
+   * >>> from snowflake.snowpark.functions import is_null
+   * >>> df = session.create_dataframe([1.2, float("nan"), None, 1.0],
+   *  schema=["a"])
+   * >>> df.select(is_null("a").as_("a")).collect()
+   * [Row(A=False), Row(A=False), Row(A=True), Row(A=False)]
+   * @since 1.12.0
+   * @param c Column to qnalize if it is null value.
+   * @return Column object.
+   */
+  def isnull(c: Column): Column = is_null(c)
+
+  /**
+   * Wrapper for Snowflake built-in conv function. Convert number with from and to base.
+   * @since 1.10.0
+   * @param c Column to be converted.
+   * @param fromBase Column from base format.
+   * @param toBase Column to base format.
+   * @return Column object.
+   */
+  def conv(c: Column, fromBase: Int, toBase: Int): Column =
+    callBuiltin("conv", c, fromBase, toBase)
+
+  /**
+   * Returns the current Unix timestamp (in seconds) as a long.
+   * Extracts a specified date or time portion from a date, time, or timestamp.
+   * how:
+   * EXTRACT , HOUR / MINUTE / SECOND , YEAR* / DAY* / WEEK* / MONTH / QUARTER
+   * Construction - DATE_PART( <date_or_time_part> , <date_or_time_expr> )
+   * SELECT TO_TIMESTAMP('2013-05-08T23:39:20.123-07:00') AS "TIME_STAMP1",
+   *  DATE_PART(EPOCH_SECOND, "TIME_STAMP1") AS "EXTRACTED EPOCH SECOND";
+   * +-------------------------+------------------------+
+   * | TIME_STAMP1             | EXTRACTED EPOCH SECOND |
+   * |-------------------------+------------------------|
+   * | 2013-05-08 23:39:20.123 |             1368056360 |
+   * +-------------------------+------------------------+
+   * @since 1.12.0
+   * @note All calls of `unix_timestamp` within the same query return the same value
+   */
+  def unix_timestamp(): Column = {
+    builtin("date_part")("epoch_second", current_timestamp())
+  }
+
+  /**
    * Invokes a built-in snowflake function with the specified name and arguments.
    * Arguments can be of two types
    *
