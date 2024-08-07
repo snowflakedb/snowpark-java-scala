@@ -6,7 +6,6 @@ import com.snowflake.snowpark.functions;
 import com.snowflake.snowpark.internal.JavaUtils;
 import com.snowflake.snowpark_java.types.DataType;
 import com.snowflake.snowpark_java.udf.*;
-
 import java.util.List;
 import java.util.function.Supplier;
 
@@ -3974,7 +3973,7 @@ public final class Functions {
    * }</pre>
    *
    * @since 1.14.0
-   * @param s The input column name
+   * @param s The SQL text
    * @return column expression from input statement.
    */
   public static Column expr(String s) {
