@@ -3204,6 +3204,33 @@ object functions {
    * @param e Column to calculate the sign.
    * @return Column object.
    */
+  def sign(colName: Column): Column = {
+    builtin("SIGN")(colName)
+  }
+
+  /**
+   *    Returns the sign of its argument:
+   *
+   *     - -1 if the argument is negative.
+   *     - 1 if it is positive.
+   *     - 0 if it is 0.
+   *
+   * Args:
+   *     col: The column to evaluate its sign
+   *
+   * Example::
+   *     >>> df = session.create_dataframe([(-2, 2, 0)], ["a", "b", "c"])
+   *     >>> df.select(sign("a").alias("a_sign"), sign("b").alias("b_sign"),
+   * sign("c").alias("c_sign")).show()
+   *     ----------------------------------
+   *     |"A_SIGN"  |"B_SIGN"  |"C_SIGN"  |
+   *     ----------------------------------
+   *     |-1        |1         |0         |
+   *     ----------------------------------
+   * @since 1.12.1
+   * @param e Column to calculate the sign.
+   * @return Column object.
+   */
   def signum(colName: Column): Column = {
     builtin("SIGN")(colName)
   }

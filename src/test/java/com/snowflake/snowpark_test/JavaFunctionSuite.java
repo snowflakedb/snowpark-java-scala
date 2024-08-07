@@ -2789,6 +2789,12 @@ public class JavaFunctionSuite extends TestBase {
   }
 
   @Test
+  public void sign() {
+    DataFrame df = getSession().sql("select * from values(1,-2,0) as T(a)");
+    checkAnswer(df.select(Functions.sign(df.col("a"))), new Row[] {Row.create(1, -1, 0)}, false);
+  }
+
+  @Test
   public void collect_list() {
     DataFrame df = getSession().sql("select * from values(10000,400,450) as T(a)");
     checkAnswer(

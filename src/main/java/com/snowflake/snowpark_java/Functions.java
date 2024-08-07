@@ -3925,6 +3925,26 @@ public final class Functions {
   }
 
   /**
+   * Returns the sign of its argument:
+   *
+   * <p>- -1 if the argument is negative. - 1 if it is positive. - 0 if it is 0.
+   *
+   * <p>Args: col: The column to evaluate its sign
+   *
+   * <p>Example:: >>> df = session.create_dataframe([(-2, 2, 0)], ["a", "b", "c"]) >>>
+   * df.select(sign("a").alias("a_sign"), sign("b").alias("b_sign"),
+   * sign("c").alias("c_sign")).show() ---------------------------------- |"A_SIGN" |"B_SIGN"
+   * |"C_SIGN" | ---------------------------------- |-1 |1 |0 | ----------------------------------
+   *
+   * @since 1.12.1
+   * @param e Column to calculate the sign.
+   * @return Column object.
+   */
+  public static Column sign(Column col) {
+    return new Column(com.snowflake.snowpark.functions.sign(col.toScalaColumn()));
+  }
+
+  /**
    * Returns the substring from string str before count occurrences of the delimiter delim. If count
    * is positive, everything the left of the final delimiter (counting from left) is returned. If
    * count is negative, every to the right of the final delimiter (counting from the right) is

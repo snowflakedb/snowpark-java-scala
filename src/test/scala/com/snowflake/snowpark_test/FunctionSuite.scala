@@ -2205,6 +2205,10 @@ trait FunctionSuite extends TestData {
     val df = Seq(1, -2, 0).toDF("a")
     checkAnswer(df.select(signum(col("a"))), Seq(Row(1), Row(-1), Row(0)), sort = false)
   }
+  test("sign") {
+    val df = Seq(1, -2, 0).toDF("a")
+    checkAnswer(df.select(sign(col("a"))), Seq(Row(1), Row(-1), Row(0)), sort = false)
+  }
 
   test("collect_list") {
     assert(monthlySales.select(collect_list(col("amount"))).collect()(0).get(0).toString ==
