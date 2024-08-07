@@ -3312,18 +3312,6 @@ object functions {
     builtin("LAST_VALUE")(c)
 
   /**
-   * Formats the arguments in printf-style and returns the result as a string column.
-   * @since 1.10.0
-   * @note this function requires the format_string UDF to be previosly created
-   * @param format the printf-style format
-   * @param arguments arguments for the formatting string
-   * @return formatted string
-   */
-  def format_string(format: String, arguments: Column*): Column = {
-    callBuiltin("format_string", lit(format), array_construct(arguments: _*))
-  }
-
-  /**
    * Invokes a built-in snowflake function with the specified name and arguments.
    * Arguments can be of two types
    *
