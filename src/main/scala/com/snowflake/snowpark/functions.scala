@@ -3271,7 +3271,7 @@ object functions {
    * --------------------
    *
    * }}}
- *
+   *
    * @since 1.14.0
    * @param c Column to format to date.
    * @param s Date format.

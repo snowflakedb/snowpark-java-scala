@@ -2190,7 +2190,6 @@ trait FunctionSuite extends TestData {
   }
 
   test("asc column order") {
-
     val input = Seq(3, 2, 1).toDF("data")
     val expected = Seq(1, 2, 3).toDF("data")
 
@@ -2207,7 +2206,7 @@ trait FunctionSuite extends TestData {
     val expected = Seq((3)).toDF("size")
     checkAnswer(input.select(size(col("size"))), expected, sort = false)
   }
-
+  
   test("expr function") {
 
     val input = Seq(1, 2, 3).toDF("id")
