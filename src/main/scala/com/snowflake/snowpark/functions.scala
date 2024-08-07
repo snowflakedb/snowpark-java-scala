@@ -3171,7 +3171,7 @@ object functions {
     when(colName.is_null, lit(null))
       .otherwise(
         coalesce(
-          builtin("REGEXP_SUBSTR")(
+          builtin("REGEX_SUBSTR")(
             colName,
             lit(exp),
             lit(position),
@@ -3248,7 +3248,7 @@ object functions {
   }
 
   /**
-   * Wrapper for Snowflake built-in collect_list function. Get the values of array column.
+   *
    * Returns the input values, pivoted into an ARRAY. If the input is empty, an empty
    * ARRAY is returned.
    *
@@ -3271,7 +3271,22 @@ object functions {
   def collect_list(c: Column): Column = array_agg(c)
 
   /**
-   * Wrapper for Snowflake built-in collect_list function. Get the values of array column.
+   *
+   * Returns the input values, pivoted into an ARRAY. If the input is empty, an empty
+   * ARRAY is returned.
+   *
+   * Example::
+   *     >>> df = session.create_dataframe([[1], [2], [3], [1]], schema=["a"])
+   *     >>> df.select(array_agg("a", True).alias("result")).show()
+   *     ------------
+   *     |"RESULT"  |
+   *     ------------
+   *     |[         |
+   *     |  1,      |
+   *     |  2,      |
+   *     |  3       |
+   *     |]         |
+   *     ------------
    * @since 1.10.0
    * @param s Column name to be collected.
    * @return The array.
