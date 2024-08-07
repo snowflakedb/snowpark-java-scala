@@ -3143,21 +3143,22 @@ object functions {
   /**
    * Signature - snowflake.snowpark.functions.regexp_extract
    * (value: Union[Column, str], regexp: Union[Column, str], idx: int)
-   *  → Column
+   *   Column
    * Extract a specific group matched by a regex, from the specified string
    * column. If the regex did not match, or the specified group did not match,
    * an empty string is returned.
    * Example:
    * from snowflake.snowpark.functions import regexp_extract
-   * df = session.createDataFrame([["id_20_30", 10], ["id_40_50", 30]], ["id", "age"])
+   * df = session.createDataFrame([["id_20_30", 10], ["id_40_50", 30]],
+   *  ["id", "age"])
    * df.select(regexp_extract("id", r"(\d+)", 1).alias("RES")).show()
-   *        ---------
-   *         |"RES"  |
-   *        ---------
+   *
+   *         "RES"  |
+   *
    *        |20     |
    *        |40     |
-   *        ---------
-   * Note: non-greedy tokens such as `.*?` are not supported
+   *
+   * Note: non-greedy tokens such as  are not supported
    * @since 1.12.1
    * @return Column object.
    */
