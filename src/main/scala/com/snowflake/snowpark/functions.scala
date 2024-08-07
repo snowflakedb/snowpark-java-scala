@@ -3141,6 +3141,73 @@ object functions {
   def listagg(col: Column): Column = listagg(col, "", isDistinct = false)
 
   /**
+   * Returns a Column expression with values sorted in descending order.
+   * Example:
+   * {{{
+   *   val df = session.createDataFrame(Seq(1, 2, 3)).toDF("id")
+   *   df.sort(desc("id")).show()
+   *
+   * --------
+   * |"ID"  |
+   * --------
+   * |3     |
+   * |2     |
+   * |1     |
+   * --------
+   * }}}
+ *
+   * @since 1.14.0
+   * @param colName Column name.
+   * @return Column object ordered in a descending manner.
+   */
+  def desc(colName: String): Column = col(colName).desc
+
+  /**
+   * Returns a Column expression with values sorted in ascending order.
+   * Example:
+   * {{{
+   *   val df = session.createDataFrame(Seq(3, 2, 1)).toDF("id")
+   *   df.sort(asc("id")).show()
+   *
+   * --------
+   * |"ID"  |
+   * --------
+   * |1     |
+   * |2     |
+   * |3     |
+   * --------
+   * }}}
+   * @since 1.14.0
+   * @param colName Column name.
+   * @return Column object ordered in an ascending manner.
+   */
+  def asc(colName: String): Column = col(colName).asc
+
+  /**
+   * Returns the size of the input ARRAY.
+   *
+   * If the specified column contains a VARIANT value that contains an ARRAY, the size of the ARRAY
+   * is returned; otherwise, NULL is returned if the value is not an ARRAY.
+   *
+   * Example:
+   * {{{
+   *   val df = session.createDataFrame(Seq(Array(1, 2, 3))).toDF("id")
+   *   df.select(size(col("id"))).show()
+   *
+   * ------------------------
+   * |"ARRAY_SIZE(""ID"")"  |
+   * ------------------------
+   * |3                     |
+   * ------------------------
+   * }}}
+   *
+   * @since 1.14.0
+   * @param c Column to get the size.
+   * @return Size of array column.
+   */
+  def size(c: Column): Column = array_size(c)
+
+  /**
    * Invokes a built-in snowflake function with the specified name and arguments.
    * Arguments can be of two types
    *

@@ -2,6 +2,7 @@ package com.snowflake.snowpark_java;
 
 import static com.snowflake.snowpark.internal.OpenTelemetry.javaUDF;
 
+import com.snowflake.snowpark.functions;
 import com.snowflake.snowpark.internal.JavaUtils;
 import com.snowflake.snowpark_java.types.DataType;
 import com.snowflake.snowpark_java.udf.*;
@@ -3878,6 +3879,82 @@ public final class Functions {
    */
   public static Column listagg(Column col) {
     return new Column(com.snowflake.snowpark.functions.listagg(col.toScalaColumn()));
+  }
+
+  /**
+   * Returns a Column expression with values sorted in descending order.
+   *
+   * <p>Example: order column values in descending
+   *
+   * <pre>{@code
+   * DataFrame df = getSession().sql("select * from values(1),(2),(3) as t(a)");
+   * df.sort(Functions.desc("a")).show();
+   * -------
+   * |"A"  |
+   * -------
+   * |3    |
+   * |2    |
+   * |1    |
+   * -------
+   * }</pre>
+   *
+   * @since 1.14.0
+   * @param name The input column name
+   * @return Column object ordered in descending manner.
+   */
+  public static Column desc(String name) {
+    return new Column(functions.desc(name));
+  }
+
+  /**
+   * Returns a Column expression with values sorted in ascending order.
+   *
+   * <p>Example: order column values in ascending
+   *
+   * <pre>{@code
+   * DataFrame df = getSession().sql("select * from values(3),(1),(2) as t(a)");
+   * df.sort(Functions.asc("a")).show();
+   * -------
+   * |"A"  |
+   * -------
+   * |1    |
+   * |2    |
+   * |3    |
+   * -------
+   * }</pre>
+   *
+   * @since 1.14.0
+   * @param name The input column name
+   * @return Column object ordered in ascending manner.
+   */
+  public static Column asc(String name) {
+    return new Column(functions.asc(name));
+  }
+
+  /**
+   * Returns the size of the input ARRAY.
+   *
+   * <p>If the specified column contains a VARIANT value that contains an ARRAY, the size of the
+   * ARRAY is returned; otherwise, NULL is returned if the value is not an ARRAY.
+   *
+   * <p>Example: calculate size of the array in a column
+   *
+   * <pre>{@code
+   * DataFrame df = getSession().sql("select array_construct(a,b,c) as arr from values(1,2,3) as T(a,b,c)");
+   * df.select(Functions.size(Functions.col("arr"))).show();
+   * -------------------------
+   * |"ARRAY_SIZE(""ARR"")"  |
+   * -------------------------
+   * |3                      |
+   * -------------------------
+   * }</pre>
+   *
+   * @since 1.14.0
+   * @param col The input column name
+   * @return size of the input ARRAY.
+   */
+  public static Column size(Column col) {
+    return array_size(col);
   }
 
   /**
