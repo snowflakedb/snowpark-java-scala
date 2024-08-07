@@ -3144,8 +3144,8 @@ object functions {
    * Signature - snowflake.snowpark.functions.regexp_extract
    * (value: Union[Column, str], regexp: Union[Column, str], idx: int)
    *  → Column
-   * Extract a specific group matched by a regex, from the specified string 
-   * column. If the regex did not match, or the specified group did not match, 
+   * Extract a specific group matched by a regex, from the specified string
+   * column. If the regex did not match, or the specified group did not match,
    * an empty string is returned.
    * Example:
    * from snowflake.snowpark.functions import regexp_extract
@@ -3192,7 +3192,8 @@ object functions {
    *
    * Example::
    *     >>> df = session.create_dataframe([(-2, 2, 0)], ["a", "b", "c"])
-   *     >>> df.select(sign("a").alias("a_sign"), sign("b").alias("b_sign"), sign("c").alias("c_sign")).show()
+   *     >>> df.select(sign("a").alias("a_sign"), sign("b").alias("b_sign"),
+   * sign("c").alias("c_sign")).show()
    *     ----------------------------------
    *     |"A_SIGN"  |"B_SIGN"  |"C_SIGN"  |
    *     ----------------------------------
