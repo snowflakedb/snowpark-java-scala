@@ -2790,4 +2790,12 @@ public class JavaFunctionSuite extends TestBase {
 
     checkAnswer(df.select(Functions.size(Functions.col("arr"))), expected, false);
   }
+
+  @Test
+  public void test_expr() {
+    DataFrame df = getSession().sql("select a from values(1), (2), (3) as T(a)");
+    Row[] expected = {Row.create(3)};
+    checkAnswer(df.filter(Functions.expr("a > 2")), expected, false);
+  }
+
 }
