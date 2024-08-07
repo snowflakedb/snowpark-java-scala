@@ -2820,10 +2820,8 @@ public class JavaFunctionSuite extends TestBase {
     DataFrame df = getSession().sql("select * from values (5, 'a', 10), (5, 'b', 20),\n" +
             "    (3, 'd', 15), (3, 'e', 40) as T(grade,name,score)");
 
-    df.select(Functions.last(df.col("name")).over(Window.partitionBy(df.col("grade")).orderBy(df.col("score").desc())).as("last_value")).show();
-//    Row[] expected = {Row.create("a"), Row.create("a"), Row.create("d"), Row.create("d")};
-
-//    checkAnswer(df.select(Functions.last(df.col("name")).over(Window.partitionBy(df.col("grade")).orderBy(df.col("score").desc()))), expected, false);
+    Row[] expected = {Row.create("a"), Row.create("a"), Row.create("d"), Row.create("d")};
+    checkAnswer(df.select(Functions.last(df.col("name")).over(Window.partitionBy(df.col("grade")).orderBy(df.col("score").desc()))), expected, false);
   }
 
 }

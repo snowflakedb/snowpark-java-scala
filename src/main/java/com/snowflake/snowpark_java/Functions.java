@@ -6,7 +6,6 @@ import com.snowflake.snowpark.functions;
 import com.snowflake.snowpark.internal.JavaUtils;
 import com.snowflake.snowpark_java.types.DataType;
 import com.snowflake.snowpark_java.udf.*;
-import net.snowflake.client.jdbc.internal.org.checkerframework.checker.units.qual.C;
 
 import java.util.List;
 import java.util.function.Supplier;
