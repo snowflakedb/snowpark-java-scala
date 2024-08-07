@@ -6,6 +6,8 @@ import com.snowflake.snowpark.functions;
 import com.snowflake.snowpark.internal.JavaUtils;
 import com.snowflake.snowpark_java.types.DataType;
 import com.snowflake.snowpark_java.udf.*;
+import net.snowflake.client.jdbc.internal.org.checkerframework.checker.units.qual.C;
+
 import java.util.List;
 import java.util.function.Supplier;
 
@@ -3978,6 +3980,81 @@ public final class Functions {
    */
   public static Column expr(String s) {
     return sqlExpr(s);
+  }
+
+  /**
+   * Wrapper for Snowflake built-in array function. Create array from columns.
+   *
+   * <pre>{@code
+   * DataFrame df = getSession().sql("select * from values(1,2,3) as T(a,b,c)");
+   * df.select(Functions.array(df.col("a"), df.col("b"), df.col("c")).as("array")).show();
+   *-----------
+   * |"ARRAY"  |
+   * -----------
+   * |[        |
+   * |  1,     |
+   * |  2,     |
+   * |  3      |
+   * |]        |
+   * -----------
+   * }</pre>
+   *
+   * @since 1.14.0
+   * @param cols The input column names
+   * @return Column object as array.
+   */
+  public static Column array(Column... cols) { return array_construct(cols); }
+
+  /**
+   * Wrapper for Snowflake built-in date_format function.
+   * Converts a date into the specified format.
+   *
+   * <pre>{@code
+   * DataFrame df = getSession().sql("select * from values ('2023-10-10'), ('2022-05-15') as T(a)");
+   * df.select(Functions.date_format(df.col("a"), "YYYY/MM/DD").as("formatted_date")).show();
+   * --------------------
+   * |"FORMATTED_DATE"  |
+   * --------------------
+   * |2023/10/10        |
+   * |2022/05/15        |
+   * --------------------
+   * }</pre>
+   *
+   * @since 1.14.0
+   * @param col The input date column name
+   * @param s string format
+   * @return formatted column object.
+   */
+  public static Column date_format(Column col, String s) {
+    return new Column(functions.date_format(col.toScalaColumn(), s));
+  }
+
+  /**
+   * Wrapper for Snowflake built-in last function.
+   * Gets the last value of a column according to its grouping.
+   * Functional difference with windows, In Snowpark is needed the order by.
+   * SQL doesn't guarantee the order.
+   *
+   * <pre>{@code
+   * DataFrame df = getSession().sql("select * from values (5, 'a', 10), (5, 'b', 20),\n" +
+   *             "    (3, 'd', 15), (3, 'e', 40) as T(grade,name,score)");
+   * df.select(Functions.last(df.col("name")).over(Window.partitionBy(df.col("grade")).orderBy(df.col("score").desc()))).show();
+   * ----------------
+   * |"LAST_VALUE"  |
+   * ----------------
+   * |a             |
+   * |a             |
+   * |d             |
+   * |d             |
+   * ----------------
+   * }</pre>
+   *
+   * @since 1.14.0
+   * @param col The input column to get last value
+   * @return column object from last function.
+   */
+  public static Column last(Column col) {
+    return new Column(functions.last(col.toScalaColumn()));
   }
 
   /**

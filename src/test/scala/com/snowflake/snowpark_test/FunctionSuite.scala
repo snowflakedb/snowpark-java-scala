@@ -2221,7 +2221,7 @@ trait FunctionSuite extends TestData {
     checkAnswer(input.select(array(col("a"), col("b")).as("id")), expected, sort = false)
   }
 
-  test("date-format function") {
+  test("date format function") {
 
     val input = Seq("2023-10-10", "2022-05-15").toDF("date")
     val expected = Seq("2023/10/10", "2022/05/15").toDF("formatted_date")
@@ -2230,7 +2230,7 @@ trait FunctionSuite extends TestData {
                 expected, sort = false)
   }
 
-  test("last value function") {
+  test("last function") {
 
     val input = Seq((5, "a", 10), (5, "b", 20),
                     (3, "d", 15), (3, "e", 40)).toDF("grade", "name", "score")
