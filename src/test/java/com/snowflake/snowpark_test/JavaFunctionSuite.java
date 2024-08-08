@@ -2783,9 +2783,8 @@ public class JavaFunctionSuite extends TestBase {
 
   @Test
   public void test_size() {
-    DataFrame df = getSession()
-            .sql(
-                    "select array_construct(a,b,c) as arr from values(1,2,3) as T(a,b,c)");
+    DataFrame df =
+        getSession().sql("select array_construct(a,b,c) as arr from values(1,2,3) as T(a,b,c)");
     Row[] expected = {Row.create(3)};
 
     checkAnswer(df.select(Functions.size(Functions.col("arr"))), expected, false);
@@ -2815,10 +2814,18 @@ public class JavaFunctionSuite extends TestBase {
 
   @Test
   public void last() {
-    DataFrame df = getSession().sql("select * from values (5, 'a', 10), (5, 'b', 20),\n" +
-            "    (3, 'd', 15), (3, 'e', 40) as T(grade,name,score)");
+    DataFrame df =
+        getSession()
+            .sql(
+                "select * from values (5, 'a', 10), (5, 'b', 20),\n"
+                    + "    (3, 'd', 15), (3, 'e', 40) as T(grade,name,score)");
 
     Row[] expected = {Row.create("a"), Row.create("a"), Row.create("d"), Row.create("d")};
-    checkAnswer(df.select(Functions.last(df.col("name")).over(Window.partitionBy(df.col("grade")).orderBy(df.col("score").desc()))), expected, false);
+    checkAnswer(
+        df.select(
+            Functions.last(df.col("name"))
+                .over(Window.partitionBy(df.col("grade")).orderBy(df.col("score").desc()))),
+        expected,
+        false);
   }
 }

@@ -2206,7 +2206,7 @@ trait FunctionSuite extends TestData {
     val expected = Seq((3)).toDF("size")
     checkAnswer(input.select(size(col("size"))), expected, sort = false)
   }
-  
+
   test("expr function") {
 
     val input = Seq(1, 2, 3).toDF("id")
@@ -2226,19 +2226,23 @@ trait FunctionSuite extends TestData {
     val input = Seq("2023-10-10", "2022-05-15").toDF("date")
     val expected = Seq("2023/10/10", "2022/05/15").toDF("formatted_date")
 
-    checkAnswer(input.select(date_format(col("date"), "YYYY/MM/DD").as("formatted_date")),
-                expected, sort = false)
+    checkAnswer(
+      input.select(date_format(col("date"), "YYYY/MM/DD").as("formatted_date")),
+      expected,
+      sort = false)
   }
 
   test("last function") {
 
-    val input = Seq((5, "a", 10), (5, "b", 20),
-                    (3, "d", 15), (3, "e", 40)).toDF("grade", "name", "score")
+    val input =
+      Seq((5, "a", 10), (5, "b", 20), (3, "d", 15), (3, "e", 40)).toDF("grade", "name", "score")
     val window = Window.partitionBy(col("grade")).orderBy(col("score").desc)
     val expected = Seq("a", "a", "d", "d").toDF("last_score_name")
 
-    checkAnswer(input.select(last(col("name")).over(window).as("last_score_name")),
-      expected, sort = false)
+    checkAnswer(
+      input.select(last(col("name")).over(window).as("last_score_name")),
+      expected,
+      sort = false)
   }
 
 }

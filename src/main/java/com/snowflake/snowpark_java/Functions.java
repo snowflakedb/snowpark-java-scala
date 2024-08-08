@@ -3986,7 +3986,7 @@ public final class Functions {
    * <pre>{@code
    * DataFrame df = getSession().sql("select * from values(1,2,3) as T(a,b,c)");
    * df.select(Functions.array(df.col("a"), df.col("b"), df.col("c")).as("array")).show();
-   *-----------
+   * -----------
    * |"ARRAY"  |
    * -----------
    * |[        |
@@ -4001,10 +4001,11 @@ public final class Functions {
    * @param cols The input column names
    * @return Column object as array.
    */
-  public static Column array(Column... cols) { return array_construct(cols); }
+  public static Column array(Column... cols) {
+    return array_construct(cols);
+  }
 
   /**
-   *
    * Converts an input expression into the corresponding date in the specified date format.
    *
    * <pre>{@code

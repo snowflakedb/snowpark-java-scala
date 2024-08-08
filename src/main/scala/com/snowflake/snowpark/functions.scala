@@ -2,7 +2,12 @@ package com.snowflake.snowpark
 
 import com.snowflake.snowpark.internal.analyzer._
 import com.snowflake.snowpark.internal.ScalaFunctions._
-import com.snowflake.snowpark.internal.{ErrorMessage, OpenTelemetry, UDXRegistrationHandler, Utils}
+import com.snowflake.snowpark.internal.{
+  ErrorMessage,
+  OpenTelemetry,
+  UDXRegistrationHandler,
+  Utils
+}
 import com.snowflake.snowpark.types.TimestampType
 
 import scala.reflect.runtime.universe.TypeTag
@@ -3151,7 +3156,7 @@ object functions {
    * |1     |
    * --------
    * }}}
- *
+   *
    * @since 1.14.0
    * @param colName Column name.
    * @return Column object ordered in a descending manner.
@@ -3299,7 +3304,7 @@ object functions {
    * |d                  |
    * ---------------------
    * }}}
- *
+   *
    * @since 1.14.0
    * @param c Column to obtain last value.
    * @return Column object.
