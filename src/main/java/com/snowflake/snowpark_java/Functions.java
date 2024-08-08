@@ -3884,15 +3884,19 @@ public final class Functions {
    * Signature - snowflake.snowpark.functions.regexp_extract (value: Union[Column, str], regexp:
    * Union[Column, str], idx: int) Column Extract a specific group matched by a regex, from the
    * specified string column. If the regex did not match, or the specified group did not match, an
-   * empty string is returned. Example: from snowflake.snowpark.functions import regexp_extract df =
-   * session.createDataFrame([["id_20_30", 10], ["id_40_50", 30]], ["id", "age"])
+   * empty string is returned. 
+   * Example: 
+   *  <pre>{@code 
+   * from snowflake.snowpark.functions import regexp_extract
+   * df = session.createDataFrame([["id_20_30", 10], ["id_40_50", 30]], ["id", "age"])
    * df.select(regexp_extract("id", r"(\d+)", 1).alias("RES")).show()
-   *
-   * <p>"RES" |
-   *
-   * <p>|20 | |40 |
-   *
-   * <p>Note: non-greedy tokens such as are not supported
+   *    ---------
+   *     |"RES"  |
+   *     ---------
+   *     |20     |
+   *     |40     |
+   *     ---------
+   * }</pr>
    *
    * @since 1.12.1
    * @return Column object.
@@ -3909,12 +3913,18 @@ public final class Functions {
    *
    * <p>- -1 if the argument is negative. - 1 if it is positive. - 0 if it is 0.
    *
-   * <p>Args: col: The column to evaluate its sign
-   *
-   * <p>Example:: >>> df = session.create_dataframe([(-2, 2, 0)], ["a", "b", "c"]) >>>
+   * <p>Args: col: The column to evaluate its sign 
+   *  Example:: 
+   * * <pre>{@code df =
+   * session.create_dataframe([(-2, 2, 0)], ["a", "b", "c"]) >>>
    * df.select(sign("a").alias("a_sign"), sign("b").alias("b_sign"),
-   * sign("c").alias("c_sign")).show() ---------------------------------- |"A_SIGN" |"B_SIGN"
-   * |"C_SIGN" | ---------------------------------- |-1 |1 |0 | ----------------------------------
+   * sign("c").alias("c_sign")).show() 
+   *   ----------------------------------
+   *     |"A_SIGN"  |"B_SIGN"  |"C_SIGN"  |
+   *     ----------------------------------
+   *     |-1        |1         |0         |
+   *     ----------------------------------
+   * }</pr>
    *
    * @since 1.12.1
    * @param e Column to calculate the sign.
@@ -3929,12 +3939,18 @@ public final class Functions {
    *
    * <p>- -1 if the argument is negative. - 1 if it is positive. - 0 if it is 0.
    *
-   * <p>Args: col: The column to evaluate its sign
-   *
-   * <p>Example:: >>> df = session.create_dataframe([(-2, 2, 0)], ["a", "b", "c"]) >>>
+   * <p>Args: col: The column to evaluate its sign  
+   * Example:: 
+   * <pre>{@code df =
+   * session.create_dataframe([(-2, 2, 0)], ["a", "b", "c"]) >>>
    * df.select(sign("a").alias("a_sign"), sign("b").alias("b_sign"),
-   * sign("c").alias("c_sign")).show() ---------------------------------- |"A_SIGN" |"B_SIGN"
-   * |"C_SIGN" | ---------------------------------- |-1 |1 |0 | ----------------------------------
+   * sign("c").alias("c_sign")).show() 
+   *   ----------------------------------
+   *     |"A_SIGN"  |"B_SIGN"  |"C_SIGN"  |
+   *     ----------------------------------
+   *     |-1        |1         |0         |
+   *     ----------------------------------
+   * }</pr>
    *
    * @since 1.12.1
    * @param e Column to calculate the sign.
@@ -3958,12 +3974,14 @@ public final class Functions {
   }
 
   /**
-   * Wrapper for Snowflake built-in collect_list function. Get the values of array column. Returns
-   * the input values, pivoted into an ARRAY. If the input is empty, an empty ARRAY is returned.
-   *
-   * <p>Example:: >>> df = session.create_dataframe([[1], [2], [3], [1]], schema=["a"]) >>>
-   * df.select(array_agg("a", True).alias("result")).show() ------------ |"RESULT" | ------------ |[
-   * | | 1, | | 2, | | 3 | |] | ------------
+   * Returns the input values, pivoted into an ARRAY. If the input is empty, an empty ARRAY is
+   * returned. 
+   * <p> Example:: 
+   *  <pre>{@code
+   * df = session.create_dataframe([[1], [2], [3], [1]], schema=["a"])
+   * df.select(array_agg("a", True).alias("result")).show() 
+   * "RESULT" [ 1, 2, 3 ] 
+   * }</pre>
    *
    * @since 1.10.0
    * @param c Column to be collect.

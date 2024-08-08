@@ -3147,17 +3147,20 @@ object functions {
    * Extract a specific group matched by a regex, from the specified string
    * column. If the regex did not match, or the specified group did not match,
    * an empty string is returned.
-   * Example:
+   * <pr>Example:
    * from snowflake.snowpark.functions import regexp_extract
    * df = session.createDataFrame([["id_20_30", 10], ["id_40_50", 30]],
    *  ["id", "age"])
    * df.select(regexp_extract("id", r"(\d+)", 1).alias("RES")).show()
-   *
-   *         "RES"  |
-   *
-   *        |20     |
-   *        |40     |
-   *
+   *</pr>
+   *<pr>
+   *     ---------
+   *     |"RES"  |
+   *     ---------
+   *     |20     |
+   *     |40     |
+   *     ---------
+   *</pr>
    * Note: non-greedy tokens such as  are not supported
    * @since 1.12.1
    * @return Column object.
@@ -3190,7 +3193,7 @@ object functions {
    *
    * Args:
    *     col: The column to evaluate its sign
-   *
+   *<pr>
    * Example::
    *     >>> df = session.create_dataframe([(-2, 2, 0)], ["a", "b", "c"])
    *     >>> df.select(sign("a").alias("a_sign"), sign("b").alias("b_sign"),
@@ -3200,6 +3203,7 @@ object functions {
    *     ----------------------------------
    *     |-1        |1         |0         |
    *     ----------------------------------
+   * </pr>
    * @since 1.12.1
    * @param e Column to calculate the sign.
    * @return Column object.
@@ -3217,7 +3221,7 @@ object functions {
    *
    * Args:
    *     col: The column to evaluate its sign
-   *
+   *<pr>
    * Example::
    *     >>> df = session.create_dataframe([(-2, 2, 0)], ["a", "b", "c"])
    *     >>> df.select(sign("a").alias("a_sign"), sign("b").alias("b_sign"),
@@ -3227,6 +3231,7 @@ object functions {
    *     ----------------------------------
    *     |-1        |1         |0         |
    *     ----------------------------------
+   * </pr>
    * @since 1.12.1
    * @param e Column to calculate the sign.
    * @return Column object.
@@ -3278,7 +3283,7 @@ object functions {
    *
    * Returns the input values, pivoted into an ARRAY. If the input is empty, an empty
    * ARRAY is returned.
-   *
+   *<pr>
    * Example::
    *     >>> df = session.create_dataframe([[1], [2], [3], [1]], schema=["a"])
    *     >>> df.select(array_agg("a", True).alias("result")).show()
@@ -3291,6 +3296,7 @@ object functions {
    *     |  3       |
    *     |]         |
    *     ------------
+   * </pr>
    * @since 1.10.0
    * @param c Column to be collect.
    * @return The array.
