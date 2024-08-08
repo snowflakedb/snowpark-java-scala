@@ -3262,6 +3262,17 @@ object functions {
    *  is returned. If count is negative, every to the right of the
    * final delimiter (counting from the right) is returned.
    * substring_index performs a case-sensitive match when searching for delim.
+   * Example
+   * <pr> 
+   * select id, string1,
+   * regexp_instr( string1, 'A\\W+(\\w+)', 1, 1, 0, 'e', 1) as "POSITION1",
+   * regexp_instr( string1, 'A\\W+(\\w+)', 1, 2, 0, 'e', 1) as "POSITION2",
+   * regexp_instr( string1, 'A\\W+(\\w+)', 1, 3, 0, 'e', 1) as "POSITION3",
+   * regexp_instr( string1, 'A\\W+(\\w+)', 1, 4, 0, 'e', 1) as "POSITION4"
+   * from demo3;
+   * ID	STRING1	         POSITION1	POSITION2	POSITION3	POSITION4
+   * 5	A MAN A PLAN A CANAL	3	       9	      16	       0
+   * </pr>
    *   @since 1.12.1
    */
   def substring_index(str: Column, delim: String, count: Int): Column = {
