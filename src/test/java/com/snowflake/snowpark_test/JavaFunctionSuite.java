@@ -2790,4 +2790,35 @@ public class JavaFunctionSuite extends TestBase {
 
     checkAnswer(df.select(Functions.size(Functions.col("arr"))), expected, false);
   }
+
+  @Test
+  public void test_expr() {
+    DataFrame df = getSession().sql("select * from values(1), (2), (3) as T(a)");
+    Row[] expected = {Row.create(3)};
+    checkAnswer(df.filter(Functions.expr("a > 2")), expected, false);
+  }
+
+  @Test
+  public void test_array() {
+    DataFrame df = getSession().sql("select * from values(1,2,3) as T(a,b,c)");
+    Row[] expected = {Row.create("[\n  1,\n  2,\n  3\n]")};
+    checkAnswer(df.select(Functions.array(df.col("a"), df.col("b"), df.col("c"))), expected, false);
+  }
+
+  @Test
+  public void date_format() {
+    DataFrame df = getSession().sql("select * from values ('2023-10-10'), ('2022-05-15') as T(a)");
+    Row[] expected = {Row.create("2023/10/10"), Row.create("2022/05/15")};
+
+    checkAnswer(df.select(Functions.date_format(df.col("a"), "YYYY/MM/DD")), expected, false);
+  }
+
+  @Test
+  public void last() {
+    DataFrame df = getSession().sql("select * from values (5, 'a', 10), (5, 'b', 20),\n" +
+            "    (3, 'd', 15), (3, 'e', 40) as T(grade,name,score)");
+
+    Row[] expected = {Row.create("a"), Row.create("a"), Row.create("d"), Row.create("d")};
+    checkAnswer(df.select(Functions.last(df.col("name")).over(Window.partitionBy(df.col("grade")).orderBy(df.col("score").desc()))), expected, false);
+  }
 }
