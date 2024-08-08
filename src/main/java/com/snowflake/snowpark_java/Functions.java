@@ -3981,7 +3981,7 @@ public final class Functions {
   }
 
   /**
-   * Wrapper for Snowflake built-in array function. Create array from columns.
+   * Returns an ARRAY constructed from zero, one, or more inputs.
    *
    * <pre>{@code
    * DataFrame df = getSession().sql("select * from values(1,2,3) as T(a,b,c)");
@@ -4004,8 +4004,8 @@ public final class Functions {
   public static Column array(Column... cols) { return array_construct(cols); }
 
   /**
-   * Wrapper for Snowflake built-in date_format function.
-   * Converts a date into the specified format.
+   *
+   * Converts an input expression into the corresponding date in the specified date format.
    *
    * <pre>{@code
    * DataFrame df = getSession().sql("select * from values ('2023-10-10'), ('2022-05-15') as T(a)");
@@ -4028,10 +4028,7 @@ public final class Functions {
   }
 
   /**
-   * Wrapper for Snowflake built-in last function.
-   * Gets the last value of a column according to its grouping.
-   * Functional difference with windows, In Snowpark is needed the order by.
-   * SQL doesn't guarantee the order.
+   * Returns the last value of the column in a group.
    *
    * <pre>{@code
    * DataFrame df = getSession().sql("select * from values (5, 'a', 10), (5, 'b', 20),\n" +

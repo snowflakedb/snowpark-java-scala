@@ -3227,7 +3227,7 @@ object functions {
   def expr(s: String): Column = sqlExpr(s)
 
   /**
-   * Wrapper for Snowflake built-in array function. Create array from columns.
+   * Returns an ARRAY constructed from zero, one, or more inputs.
    *
    * Example:
    * {{{
@@ -3255,8 +3255,7 @@ object functions {
   def array(c: Column*): Column = array_construct(c: _*)
 
   /**
-   * Wrapper for Snowflake built-in date_format function.
-   * Converts a date into the specified format.
+   * Converts an input expression into the corresponding date in the specified date format.
    * Example:
    * {{{
    *  val df = Seq("2023-10-10", "2022-05-15", null.asInstanceOf[String]).toDF("date")
@@ -3281,10 +3280,7 @@ object functions {
     builtin("to_varchar")(c.cast(TimestampType), s.replace("mm", "mi"))
 
   /**
-   * Wrapper for Snowflake built-in last function.
-   * Gets the last value of a column according to its grouping.
-   * Functional difference with windows, In Snowpark is needed the order by.
-   * SQL doesn't guarantee the order.
+   * Returns the last value of the column in a group.
    * Example
    * {{{
    *  val df = session.createDataFrame(Seq((5, "a", 10),
