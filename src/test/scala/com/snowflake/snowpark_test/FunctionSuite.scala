@@ -2195,6 +2195,7 @@ trait FunctionSuite extends TestData {
       expected,
       sort = false)
 
+
     expected = Seq(Row(null))
     checkAnswer(
       data.select(regexp_extract(col("a"), "A\\W+(\\w+)", 1, 4, 1)),
@@ -2220,6 +2221,75 @@ trait FunctionSuite extends TestData {
     val df = Seq("It was the best of times, it was the worst of times").toDF("a")
     checkAnswer(df.select(substring_index(col("a"), "was", 1)), Seq(Row(7)), sort = false)
   }
+  
+  test("desc column order") {
+    val input = Seq(1, 2, 3).toDF("data")
+    val expected = Seq(3, 2, 1).toDF("data")
+
+    val inputStr = Seq("a", "b", "c").toDF("dataStr")
+    val expectedStr = Seq("c", "b", "a").toDF("dataStr")
+
+    checkAnswer(input.sort(desc("data")), expected, sort = false)
+    checkAnswer(inputStr.sort(desc("dataStr")), expectedStr, sort = false)
+  }
+
+  test("asc column order") {
+    val input = Seq(3, 2, 1).toDF("data")
+    val expected = Seq(1, 2, 3).toDF("data")
+
+    val inputStr = Seq("c", "b", "a").toDF("dataStr")
+    val expectedStr = Seq("a", "b", "c").toDF("dataStr")
+
+    checkAnswer(input.sort(asc("data")), expected, sort = false)
+    checkAnswer(inputStr.sort(asc("dataStr")), expectedStr, sort = false)
+  }
+
+  test("column array size") {
+
+    val input = Seq(Array(1, 2, 3)).toDF("size")
+    val expected = Seq((3)).toDF("size")
+    checkAnswer(input.select(size(col("size"))), expected, sort = false)
+  }
+
+  test("expr function") {
+
+    val input = Seq(1, 2, 3).toDF("id")
+    val expected = Seq((3)).toDF("id")
+    checkAnswer(input.filter(expr("id > 2")), expected, sort = false)
+  }
+
+  test("array function") {
+
+    val input = Seq((1, 2, 3), (4, 5, 6)).toDF("a", "b", "c")
+    val expected = Seq(Array(1, 2), Array(4, 5)).toDF("id")
+    checkAnswer(input.select(array(col("a"), col("b")).as("id")), expected, sort = false)
+  }
+
+  test("date format function") {
+
+    val input = Seq("2023-10-10", "2022-05-15").toDF("date")
+    val expected = Seq("2023/10/10", "2022/05/15").toDF("formatted_date")
+
+    checkAnswer(
+      input.select(date_format(col("date"), "YYYY/MM/DD").as("formatted_date")),
+      expected,
+      sort = false)
+  }
+
+  test("last function") {
+
+    val input =
+      Seq((5, "a", 10), (5, "b", 20), (3, "d", 15), (3, "e", 40)).toDF("grade", "name", "score")
+    val window = Window.partitionBy(col("grade")).orderBy(col("score").desc)
+    val expected = Seq("a", "a", "d", "d").toDF("last_score_name")
+
+    checkAnswer(
+      input.select(last(col("name")).over(window).as("last_score_name")),
+      expected,
+      sort = false)
+  }
+
+
 }
 
 class EagerFunctionSuite extends FunctionSuite with EagerSession

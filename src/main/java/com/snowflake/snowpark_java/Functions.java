@@ -2,6 +2,7 @@ package com.snowflake.snowpark_java;
 
 import static com.snowflake.snowpark.internal.OpenTelemetry.javaUDF;
 
+import com.snowflake.snowpark.functions;
 import com.snowflake.snowpark.internal.JavaUtils;
 import com.snowflake.snowpark_java.types.DataType;
 import com.snowflake.snowpark_java.udf.*;
@@ -3881,6 +3882,7 @@ public final class Functions {
   }
 
   /**
+
    * Signature - snowflake.snowpark.functions.regexp_extract (value: Union[Column, str], regexp:
    * Union[Column, str], idx: int) Column Extract a specific group matched by a regex, from the
    * specified string column. If the regex did not match, or the specified group did not match, an
@@ -3992,6 +3994,179 @@ public final class Functions {
   public static Column collect_list(Column col) {
     return new Column(com.snowflake.snowpark.functions.collect_list(col.toScalaColumn()));
   }
+
+   * Returns a Column expression with values sorted in descending order.
+   *
+   * <p>Example: order column values in descending
+   *
+   * <pre>{@code
+   * DataFrame df = getSession().sql("select * from values(1),(2),(3) as t(a)");
+   * df.sort(Functions.desc("a")).show();
+   * -------
+   * |"A"  |
+   * -------
+   * |3    |
+   * |2    |
+   * |1    |
+   * -------
+   * }</pre>
+   *
+   * @since 1.14.0
+   * @param name The input column name
+   * @return Column object ordered in descending manner.
+   */
+  public static Column desc(String name) {
+    return new Column(functions.desc(name));
+  }
+
+  /**
+   * Returns a Column expression with values sorted in ascending order.
+   *
+   * <p>Example: order column values in ascending
+   *
+   * <pre>{@code
+   * DataFrame df = getSession().sql("select * from values(3),(1),(2) as t(a)");
+   * df.sort(Functions.asc("a")).show();
+   * -------
+   * |"A"  |
+   * -------
+   * |1    |
+   * |2    |
+   * |3    |
+   * -------
+   * }</pre>
+   *
+   * @since 1.14.0
+   * @param name The input column name
+   * @return Column object ordered in ascending manner.
+   */
+  public static Column asc(String name) {
+    return new Column(functions.asc(name));
+  }
+
+  /**
+   * Returns the size of the input ARRAY.
+   *
+   * <p>If the specified column contains a VARIANT value that contains an ARRAY, the size of the
+   * ARRAY is returned; otherwise, NULL is returned if the value is not an ARRAY.
+   *
+   * <p>Example: calculate size of the array in a column
+   *
+   * <pre>{@code
+   * DataFrame df = getSession().sql("select array_construct(a,b,c) as arr from values(1,2,3) as T(a,b,c)");
+   * df.select(Functions.size(Functions.col("arr"))).show();
+   * -------------------------
+   * |"ARRAY_SIZE(""ARR"")"  |
+   * -------------------------
+   * |3                      |
+   * -------------------------
+   * }</pre>
+   *
+   * @since 1.14.0
+   * @param col The input column name
+   * @return size of the input ARRAY.
+   */
+  public static Column size(Column col) {
+    return array_size(col);
+  }
+
+  /**
+   * Creates a Column expression from row SQL text.
+   *
+   * <p>Note that the function does not interpret or check the SQL text.
+   *
+   * <pre>{@code
+   * DataFrame df = getSession().sql("select a from values(1), (2), (3) as T(a)");
+   * df.filter(Functions.expr("a > 2")).show();
+   * -------
+   * |"A"  |
+   * -------
+   * |3    |
+   * -------
+   * }</pre>
+   *
+   * @since 1.14.0
+   * @param s The SQL text
+   * @return column expression from input statement.
+   */
+  public static Column expr(String s) {
+    return sqlExpr(s);
+  }
+
+  /**
+   * Returns an ARRAY constructed from zero, one, or more inputs.
+   *
+   * <pre>{@code
+   * DataFrame df = getSession().sql("select * from values(1,2,3) as T(a,b,c)");
+   * df.select(Functions.array(df.col("a"), df.col("b"), df.col("c")).as("array")).show();
+   * -----------
+   * |"ARRAY"  |
+   * -----------
+   * |[        |
+   * |  1,     |
+   * |  2,     |
+   * |  3      |
+   * |]        |
+   * -----------
+   * }</pre>
+   *
+   * @since 1.14.0
+   * @param cols The input column names
+   * @return Column object as array.
+   */
+  public static Column array(Column... cols) {
+    return array_construct(cols);
+  }
+
+  /**
+   * Converts an input expression into the corresponding date in the specified date format.
+   *
+   * <pre>{@code
+   * DataFrame df = getSession().sql("select * from values ('2023-10-10'), ('2022-05-15') as T(a)");
+   * df.select(Functions.date_format(df.col("a"), "YYYY/MM/DD").as("formatted_date")).show();
+   * --------------------
+   * |"FORMATTED_DATE"  |
+   * --------------------
+   * |2023/10/10        |
+   * |2022/05/15        |
+   * --------------------
+   * }</pre>
+   *
+   * @since 1.14.0
+   * @param col The input date column name
+   * @param s string format
+   * @return formatted column object.
+   */
+  public static Column date_format(Column col, String s) {
+    return new Column(functions.date_format(col.toScalaColumn(), s));
+  }
+
+  /**
+   * Returns the last value of the column in a group.
+   *
+   * <pre>{@code
+   * DataFrame df = getSession().sql("select * from values (5, 'a', 10), (5, 'b', 20),\n" +
+   *             "    (3, 'd', 15), (3, 'e', 40) as T(grade,name,score)");
+   * df.select(Functions.last(df.col("name")).over(Window.partitionBy(df.col("grade")).orderBy(df.col("score").desc()))).show();
+   * ----------------
+   * |"LAST_VALUE"  |
+   * ----------------
+   * |a             |
+   * |a             |
+   * |d             |
+   * |d             |
+   * ----------------
+   * }</pre>
+   *
+   * @since 1.14.0
+   * @param col The input column to get last value
+   * @return column object from last function.
+   */
+  public static Column last(Column col) {
+    return new Column(functions.last(col.toScalaColumn()));
+  }
+
+
   /**
    * Calls a user-defined function (UDF) by name.
    *
