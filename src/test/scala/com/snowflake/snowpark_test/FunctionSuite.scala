@@ -2195,7 +2195,6 @@ trait FunctionSuite extends TestData {
       expected,
       sort = false)
 
-
     expected = Seq(Row(null))
     checkAnswer(
       data.select(regexp_extract(col("a"), "A\\W+(\\w+)", 1, 4, 1)),
@@ -2221,7 +2220,7 @@ trait FunctionSuite extends TestData {
     val df = Seq("It was the best of times, it was the worst of times").toDF("a")
     checkAnswer(df.select(substring_index(col("a"), "was", 1)), Seq(Row(7)), sort = false)
   }
-  
+
   test("desc column order") {
     val input = Seq(1, 2, 3).toDF("data")
     val expected = Seq(3, 2, 1).toDF("data")
@@ -2288,7 +2287,6 @@ trait FunctionSuite extends TestData {
       expected,
       sort = false)
   }
-
 
 }
 

@@ -3328,7 +3328,7 @@ object functions {
    */
   def collect_list(s: String): Column = array_agg(col(s))
 
-   * Returns a Column expression with values sorted in descending order.
+  /* Returns a Column expression with values sorted in descending order.
    * Example:
    * {{{
    *   val df = session.createDataFrame(Seq(1, 2, 3)).toDF("id")
@@ -3497,7 +3497,6 @@ object functions {
    */
   def last(c: Column): Column =
     builtin("LAST_VALUE")(c)
-
 
   /**
    * Invokes a built-in snowflake function with the specified name and arguments.

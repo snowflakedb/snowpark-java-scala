@@ -3882,7 +3882,7 @@ public final class Functions {
   }
 
   /**
-
+   *
    * Signature - snowflake.snowpark.functions.regexp_extract (value: Union[Column, str], regexp:
    * Union[Column, str], idx: int) Column Extract a specific group matched by a regex, from the
    * specified string column. If the regex did not match, or the specified group did not match, an
@@ -3995,7 +3995,7 @@ public final class Functions {
     return new Column(com.snowflake.snowpark.functions.collect_list(col.toScalaColumn()));
   }
 
-   * Returns a Column expression with values sorted in descending order.
+  /* Returns a Column expression with values sorted in descending order.
    *
    * <p>Example: order column values in descending
    *
@@ -4165,7 +4165,6 @@ public final class Functions {
   public static Column last(Column col) {
     return new Column(functions.last(col.toScalaColumn()));
   }
-
 
   /**
    * Calls a user-defined function (UDF) by name.
