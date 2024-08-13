@@ -2177,7 +2177,51 @@ trait FunctionSuite extends TestData {
       expected,
       sort = false)
   }
+  test("regexp_extract") {
+    val data = Seq("A MAN A PLAN A CANAL").toDF("a")
+    var expected = Seq(Row("MAN"))
+    checkAnswer(
+      data.select(regexp_extract(col("a"), "A\\W+(\\w+)", 1, 1, 1)),
+      expected,
+      sort = false)
+    expected = Seq(Row("PLAN"))
+    checkAnswer(
+      data.select(regexp_extract(col("a"), "A\\W+(\\w+)", 1, 2, 1)),
+      expected,
+      sort = false)
+    expected = Seq(Row("CANAL"))
+    checkAnswer(
+      data.select(regexp_extract(col("a"), "A\\W+(\\w+)", 1, 3, 1)),
+      expected,
+      sort = false)
 
+
+    expected = Seq(Row(null))
+    checkAnswer(
+      data.select(regexp_extract(col("a"), "A\\W+(\\w+)", 1, 4, 1)),
+      expected,
+      sort = false)
+  }
+  test("signum") {
+    val df = Seq(1, -2, 0).toDF("a")
+    checkAnswer(df.select(signum(col("a"))), Seq(Row(1), Row(-1), Row(0)), sort = false)
+  }
+  test("sign") {
+    val df = Seq(1, -2, 0).toDF("a")
+    checkAnswer(df.select(sign(col("a"))), Seq(Row(1), Row(-1), Row(0)), sort = false)
+  }
+
+  test("collect_list") {
+    assert(monthlySales.select(collect_list(col("amount"))).collect()(0).get(0).toString ==
+      "[\n  10000,\n  400,\n  4500,\n  35000,\n  5000,\n  3000,\n  200,\n  90500,\n  6000,\n  " +
+        "5000,\n  2500,\n  9500,\n  8000,\n  10000,\n  800,\n  4500\n]")
+
+  }
+  test("substring_index") {
+    val df = Seq("It was the best of times, it was the worst of times").toDF("a")
+    checkAnswer(df.select(substring_index(col("a"), "was", 1)), Seq(Row(7)), sort = false)
+  }
+  
   test("desc column order") {
     val input = Seq(1, 2, 3).toDF("data")
     val expected = Seq(3, 2, 1).toDF("data")
@@ -2244,6 +2288,7 @@ trait FunctionSuite extends TestData {
       expected,
       sort = false)
   }
+
 
 }
 
