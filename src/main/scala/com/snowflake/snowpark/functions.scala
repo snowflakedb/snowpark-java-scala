@@ -3357,7 +3357,7 @@ object functions {
    *Example
    * {{{
    *  val df = session.createDataFrame(Seq(0.1)).toDF("a")
-   *  df.select(log1p(col("a"))).show()
+   *  df.select(log1p(col("a")).as("log1p")).show()
    * -----------------------
    * |"LOG1P"              |
    * -----------------------

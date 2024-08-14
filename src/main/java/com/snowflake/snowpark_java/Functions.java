@@ -4054,6 +4054,90 @@ public final class Functions {
   }
 
   /**
+   * Computes the logarithm of the given value in base 10.
+   *
+   * <pre>{@code
+   * DataFrame df = getSession().sql("select * from values (100) as T(a)");
+   * df.select(Functions.log10(df.col("a")).as("log10")).show();
+   * -----------
+   * |"LOG10"  |
+   * -----------
+   * |2.0      |
+   * -----------
+   * }</pre>
+   *
+   * @since 1.14.0
+   * @param col The input column to get last value
+   * @return column object from last function.
+   */
+  public static Column log10(Column col) {
+    return new Column(functions.log10(col.toScalaColumn()));
+  }
+
+  /**
+   * Computes the logarithm of the given value in base 10.
+   *
+   * <pre>{@code
+   * DataFrame df = getSession().sql("select * from values (100) as T(a)");
+   * df.select(Functions.log10("a").as("log10")).show();
+   * -----------
+   * |"LOG10"  |
+   * -----------
+   * |2.0      |
+   * -----------
+   * }</pre>
+   *
+   * @since 1.14.0
+   * @param s The input column to get last value
+   * @return column object from last function.
+   */
+  public static Column log10(String s) {
+    return new Column(functions.log10(s));
+  }
+
+  /**
+   * Computes the logarithm of the given value in base 10.
+   *
+   * <pre>{@code
+   * DataFrame df = getSession().sql("select * from values (0.1) as T(a)");
+   * df.select(Functions.log1p(df.col("a")).as("log1p")).show();
+   * -----------------------
+   * |"LOG1P"              |
+   * -----------------------
+   * |0.09531017980432493  |
+   * -----------------------
+   * }</pre>
+   *
+   * @since 1.14.0
+   * @param col The input column to get last value
+   * @return column object from last function.
+   */
+  public static Column log1p(Column col) {
+    return new Column(functions.log1p(col.toScalaColumn()));
+  }
+
+  /**
+   * Computes the logarithm of the given value in base 10.
+   *
+   * <pre>{@code
+   * DataFrame df = getSession().sql("select * from values (0.1) as T(a)");
+   * df.select(Functions.log1p("a").as("log1p")).show();
+   * -----------------------
+   * |"LOG1P"              |
+   * -----------------------
+   * |0.09531017980432493  |
+   * -----------------------
+   * }</pre>
+   *
+   * @since 1.14.0
+   * @param s The input column to get last value
+   * @return column object from last function.
+   */
+  public static Column log1p(String s) {
+    return new Column(functions.log1p(s));
+  }
+
+  /**
    * Calls a user-defined function (UDF) by name.
    *
    * @since 0.12.0
