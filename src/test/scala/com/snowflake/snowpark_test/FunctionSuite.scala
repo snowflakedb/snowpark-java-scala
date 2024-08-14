@@ -2247,37 +2247,25 @@ trait FunctionSuite extends TestData {
   test("log10 Column function") {
     val input = session.createDataFrame(Seq(100)).toDF("a")
     val expected = Seq(2.0).toDF("log10")
-    checkAnswer(
-      input.select(log10(col("a")).as("log10")),
-      expected,
-      sort = false)
+    checkAnswer(input.select(log10(col("a")).as("log10")), expected, sort = false)
   }
 
   test("log10 String function") {
     val input = session.createDataFrame(Seq("100")).toDF("a")
     val expected = Seq(2.0).toDF("log10")
-    checkAnswer(
-      input.select(log10("a").as("log10")),
-      expected,
-      sort = false)
+    checkAnswer(input.select(log10("a").as("log10")), expected, sort = false)
   }
 
   test("log1p Column function") {
     val input = session.createDataFrame(Seq(0.1)).toDF("a")
     val expected = Seq(0.09531017980432493).toDF("log1p")
-    checkAnswer(
-      input.select(log1p(col("a")).as("log10")),
-      expected,
-      sort = false)
+    checkAnswer(input.select(log1p(col("a")).as("log10")), expected, sort = false)
   }
 
   test("log1p String function") {
     val input = session.createDataFrame(Seq(0.1)).toDF("a")
     val expected = Seq(0.09531017980432493).toDF("log1p")
-    checkAnswer(
-      input.select(log1p("a").as("log1p")),
-      expected,
-      sort = false)
+    checkAnswer(input.select(log1p("a").as("log1p")), expected, sort = false)
   }
 
 }
