@@ -3313,6 +3313,62 @@ object functions {
     builtin("LAST_VALUE")(c)
 
   /**
+   * Computes the logarithm of the given value in base 10.
+   * Example
+   * {{{
+   *  val df = session.createDataFrame(Seq(100)).toDF("a")
+   *  df.select(log10(col("a"))).show()
+   *
+   * -----------
+   * |"LOG10"  |
+   * -----------
+   * |2.0      |
+   * -----------
+   * }}}
+   *
+   * @since 1.14.0
+   * @param c Column to apply logarithm operation
+   * @return log10 of the given column
+   */
+  def log10(c: Column): Column = builtin("LOG")(10, c)
+
+  /**
+   * Computes the logarithm of the given column in base 10.
+   * Example
+   * {{{
+   *  val df = session.createDataFrame(Seq(100)).toDF("a")
+   *  df.select(log10("a"))).show()
+   * -----------
+   * |"LOG10"  |
+   * -----------
+   * |2.0      |
+   * -----------
+   *
+   * }}}
+   *
+   * @since 1.14.0
+   * @param columnName Column to apply logarithm operation
+   * @return log10 of the given column
+   */
+  def log10(columnName: String): Column = builtin("LOG")(10, col(columnName))
+
+  /**
+   * Computes the natural logarithm of the given value plus one.
+   * @since 1.14.0
+   * @param c the value to use
+   * @return the natural logarithm of the given value plus one.
+   */
+  def log1p(c: Column): Column = callBuiltin("ln", lit(1) + c)
+
+  /**
+   * Computes the natural logarithm of the given value plus one.
+   * @since 1.14.0
+   * @param columnName the value to use
+   * @return the natural logarithm of the given value plus one.
+   */
+  def log1p(columnName: String): Column = callBuiltin("ln", lit(1) + col(columnName))
+
+  /**
    * Invokes a built-in snowflake function with the specified name and arguments.
    * Arguments can be of two types
    *
