@@ -3354,16 +3354,40 @@ object functions {
 
   /**
    * Computes the natural logarithm of the given value plus one.
+   *Example
+   * {{{
+   *  val df = session.createDataFrame(Seq(0.1)).toDF("a")
+   *  df.select(log1p(col("a"))).show()
+   * -----------------------
+   * |"LOG1P"              |
+   * -----------------------
+   * |0.09531017980432493  |
+   * -----------------------
+   *
+   * }}}
+   *
    * @since 1.14.0
-   * @param c the value to use
+   * @param c Column to apply logarithm operation
    * @return the natural logarithm of the given value plus one.
    */
   def log1p(c: Column): Column = callBuiltin("ln", lit(1) + c)
 
   /**
    * Computes the natural logarithm of the given value plus one.
+   *Example
+   * {{{
+   *  val df = session.createDataFrame(Seq(0.1)).toDF("a")
+   *  df.select(log1p("a").as("log1p")).show()
+   * -----------------------
+   * |"LOG1P"              |
+   * -----------------------
+   * |0.09531017980432493  |
+   * -----------------------
+   *
+   * }}}
+   *
    * @since 1.14.0
-   * @param columnName the value to use
+   * @param columnName Column to apply logarithm operation
    * @return the natural logarithm of the given value plus one.
    */
   def log1p(columnName: String): Column = callBuiltin("ln", lit(1) + col(columnName))
