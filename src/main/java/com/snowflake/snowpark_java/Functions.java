@@ -4067,8 +4067,8 @@ public final class Functions {
    * }</pre>
    *
    * @since 1.14.0
-   * @param col The input column to get last value
-   * @return column object from last function.
+   * @param col The input column to get logarithm value
+   * @return column object from logarithm function.
    */
   public static Column log10(Column col) {
     return new Column(functions.log10(col.toScalaColumn()));
@@ -4088,8 +4088,8 @@ public final class Functions {
    * }</pre>
    *
    * @since 1.14.0
-   * @param s The input column to get last value
-   * @return column object from last function.
+   * @param s The input columnName in string to get logarithm value
+   * @return column object from logarithm function.
    */
   public static Column log10(String s) {
     return new Column(functions.log10(s));
@@ -4109,8 +4109,8 @@ public final class Functions {
    * }</pre>
    *
    * @since 1.14.0
-   * @param col The input column to get last value
-   * @return column object from last function.
+   * @param col The input column to get logarithm value
+   * @return column object from logarithm function.
    */
   public static Column log1p(Column col) {
     return new Column(functions.log1p(col.toScalaColumn()));
@@ -4130,8 +4130,8 @@ public final class Functions {
    * }</pre>
    *
    * @since 1.14.0
-   * @param s The input column to get last value
-   * @return column object from last function.
+   * @param s The input columnName in string to get logarithm value
+   * @return column object from logarithm function.
    */
   public static Column log1p(String s) {
     return new Column(functions.log1p(s));

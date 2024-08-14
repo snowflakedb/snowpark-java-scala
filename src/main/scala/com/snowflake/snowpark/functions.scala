@@ -3347,7 +3347,7 @@ object functions {
    * }}}
    *
    * @since 1.14.0
-   * @param columnName Column to apply logarithm operation
+   * @param columnName ColumnName in String to apply logarithm operation
    * @return log10 of the given column
    */
   def log10(columnName: String): Column = builtin("LOG")(10, col(columnName))
@@ -3387,7 +3387,7 @@ object functions {
    * }}}
    *
    * @since 1.14.0
-   * @param columnName Column to apply logarithm operation
+   * @param columnName ColumnName in String to apply logarithm operation
    * @return the natural logarithm of the given value plus one.
    */
   def log1p(columnName: String): Column = callBuiltin("ln", lit(1) + col(columnName))
