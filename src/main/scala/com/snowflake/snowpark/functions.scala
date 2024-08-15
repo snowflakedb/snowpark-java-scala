@@ -3393,6 +3393,47 @@ object functions {
   def log1p(columnName: String): Column = callBuiltin("ln", lit(1) + col(columnName))
 
   /**
+   * Computes the BASE64 encoding of a column and returns it as a string column.
+   * This is the reverse of unbase64.
+   *Example
+   * {{{
+   *  val df = session.createDataFrame(Seq("test")).toDF("a")
+   *  df.select(base64(col("a")).as("base64")).show()
+   * ------------
+   * |"BASE64"  |
+   * ------------
+   * |dGVzdA==  |
+   * ------------
+   *
+   * }}}
+   *
+   * @since 1.14.0
+   * @param columnName ColumnName to apply base64 operation
+   * @return base64 encoded value of the given input column.
+   */
+  def base64(col: Column): Column = callBuiltin("BASE64_ENCODE", col)
+
+  /**
+   * Decodes a BASE64 encoded string column and returns it as a column.
+   *Example
+   * {{{
+   *  val df = session.createDataFrame(Seq("dGVzdA==")).toDF("a")
+   *  df.select(unbase64(col("a")).as("unbase64")).show()
+   * --------------
+   * |"UNBASE64"  |
+   * --------------
+   * |test        |
+   * --------------
+   *
+   * }}}
+   *
+   * @since 1.14.0
+   * @param columnName ColumnName to apply unbase64 operation
+   * @return the decoded value of the given encoded value.
+   */
+  def unbase64(col: Column): Column = callBuiltin("BASE64_DECODE_STRING", col)
+
+  /**
    * Invokes a built-in snowflake function with the specified name and arguments.
    * Arguments can be of two types
    *

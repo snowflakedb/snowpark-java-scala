@@ -4138,6 +4138,49 @@ public final class Functions {
   }
 
   /**
+   * Computes the BASE64 encoding of a column and returns it as a string column. This is the reverse
+   * of unbase64.
+   *
+   * <pre>{@code
+   * DataFrame df = getSession().sql("select * from values ('test') as T(a)");
+   * df.select(Functions.base64(Functions.col("a")).as("base64")).show();
+   * ------------
+   * |"BASE64"  |
+   * ------------
+   * |dGVzdA==  |
+   * ------------
+   * }</pre>
+   *
+   * @since 1.14.0
+   * @param c ColumnName to apply base64 operation
+   * @return base64 encoded value of the given input column.
+   */
+  public static Column base64(Column c) {
+    return new Column(functions.base64(c.toScalaColumn()));
+  }
+
+  /**
+   * Decodes a BASE64 encoded string column and returns it as a column.
+   *
+   * <pre>{@code
+   * DataFrame df = getSession().sql("select * from values ('dGVzdA==') as T(a)");
+   * df.select(Functions.unbase64(Functions.col("a")).as("unbase64")).show();
+   * --------------
+   * |"UNBASE64"  |
+   * --------------
+   * |test        |
+   * --------------
+   * }</pre>
+   *
+   * @since 1.14.0
+   * @param c ColumnName to apply unbase64 operation
+   * @return the decoded value of the given encoded value.
+   */
+  public static Column unbase64(Column c) {
+    return new Column(functions.unbase64(c.toScalaColumn()));
+  }
+
+  /**
    * Calls a user-defined function (UDF) by name.
    *
    * @since 0.12.0

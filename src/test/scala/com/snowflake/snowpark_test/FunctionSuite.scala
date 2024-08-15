@@ -2268,6 +2268,18 @@ trait FunctionSuite extends TestData {
     checkAnswer(input.select(log1p("a").as("log1p")), expected, sort = false)
   }
 
+  test("base64 function") {
+    val input = session.createDataFrame(Seq("test")).toDF("a")
+    val expected = Seq("dGVzdA==").toDF("base64")
+    checkAnswer(input.select(base64(col("a")).as("base64")), expected, sort = false)
+  }
+
+  test("unbase64 function") {
+    val input = session.createDataFrame(Seq("dGVzdA==")).toDF("a")
+    val expected = Seq("test").toDF("unbase64")
+    checkAnswer(input.select(unbase64(col("a")).as("unbase64")), expected, sort = false)
+  }
+
 }
 
 class EagerFunctionSuite extends FunctionSuite with EagerSession

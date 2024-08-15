@@ -2860,4 +2860,18 @@ public class JavaFunctionSuite extends TestBase {
 
     checkAnswer(df.select(Functions.log1p("a")), expected, false);
   }
+
+  @Test
+  public void base64() {
+    DataFrame df = getSession().sql("select * from values ('test') as T(a)");
+    Row[] expected = {Row.create("dGVzdA==")};
+    checkAnswer(df.select(Functions.base64(Functions.col("a"))), expected, false);
+  }
+
+  @Test
+  public void unbase64() {
+    DataFrame df = getSession().sql("select * from values ('dGVzdA==') as T(a)");
+    Row[] expected = {Row.create("test")};
+    checkAnswer(df.select(Functions.unbase64(Functions.col("a"))), expected, false);
+  }
 }
