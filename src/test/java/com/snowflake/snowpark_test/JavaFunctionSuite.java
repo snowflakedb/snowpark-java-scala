@@ -2766,7 +2766,6 @@ public class JavaFunctionSuite extends TestBase {
   }
 
   @Test
-
   public void regexp_extract() {
     DataFrame df = getSession().sql("select * from values('A MAN A PLAN A CANAL') as T(a)");
     Row[] expected = {Row.create("MAN")};
@@ -2813,6 +2812,8 @@ public class JavaFunctionSuite extends TestBase {
     checkAnswer(
         df.select(Functions.substring_index(df.col("a"), "was", 1)),
         new Row[] {Row.create(7)},
+        false);
+  }
 
   public void test_asc() {
     DataFrame df = getSession().sql("select * from values(3),(1),(2) as t(a)");
@@ -2874,7 +2875,6 @@ public class JavaFunctionSuite extends TestBase {
             Functions.last(df.col("name"))
                 .over(Window.partitionBy(df.col("grade")).orderBy(df.col("score").desc()))),
         expected,
-
         false);
   }
 }
