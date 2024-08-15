@@ -3142,7 +3142,193 @@ object functions {
   def listagg(col: Column): Column = listagg(col, "", isDistinct = false)
 
   /**
-   * Returns a Column expression with values sorted in descending order.
+
+   * Signature - snowflake.snowpark.functions.regexp_extract
+   * (value: Union[Column, str], regexp: Union[Column, str], idx: int)
+   *   Column
+   * Extract a specific group matched by a regex, from the specified string
+   * column. If the regex did not match, or the specified group did not match,
+   * an empty string is returned.
+   * <pr>Example:
+   * from snowflake.snowpark.functions import regexp_extract
+   * df = session.createDataFrame([["id_20_30", 10], ["id_40_50", 30]],
+   *  ["id", "age"])
+   * df.select(regexp_extract("id", r"(\d+)", 1).alias("RES")).show()
+   *</pr>
+   *<pr>
+   *     ---------
+   *     |"RES"  |
+   *     ---------
+   *     |20     |
+   *     |40     |
+   *     ---------
+   *</pr>
+   * Note: non-greedy tokens such as  are not supported
+   * @since 1.12.1
+   * @return Column object.
+   */
+  def regexp_extract(
+      colName: Column,
+      exp: String,
+      position: Int,
+      Occurences: Int,
+      grpIdx: Int): Column = {
+    when(colName.is_null, lit(null))
+      .otherwise(
+        coalesce(
+          builtin("REGEX_SUBSTR")(
+            colName,
+            lit(exp),
+            lit(position),
+            lit(Occurences),
+            lit("ce"),
+            lit(grpIdx)),
+          lit("")))
+  }
+
+  /**
+   *    Returns the sign of its argument:
+   *
+   *     - -1 if the argument is negative.
+   *     - 1 if it is positive.
+   *     - 0 if it is 0.
+   *
+   * Args:
+   *     col: The column to evaluate its sign
+   *<pr>
+   * Example::
+   *     >>> df = session.create_dataframe([(-2, 2, 0)], ["a", "b", "c"])
+   *     >>> df.select(sign("a").alias("a_sign"), sign("b").alias("b_sign"),
+   * sign("c").alias("c_sign")).show()
+   *     ----------------------------------
+   *     |"A_SIGN"  |"B_SIGN"  |"C_SIGN"  |
+   *     ----------------------------------
+   *     |-1        |1         |0         |
+   *     ----------------------------------
+   * </pr>
+   * @since 1.12.1
+   * @param e Column to calculate the sign.
+   * @return Column object.
+   */
+  def sign(colName: Column): Column = {
+    builtin("SIGN")(colName)
+  }
+
+  /**
+   *    Returns the sign of its argument:
+   *
+   *     - -1 if the argument is negative.
+   *     - 1 if it is positive.
+   *     - 0 if it is 0.
+   *
+   * Args:
+   *     col: The column to evaluate its sign
+   *<pr>
+   * Example::
+   *     >>> df = session.create_dataframe([(-2, 2, 0)], ["a", "b", "c"])
+   *     >>> df.select(sign("a").alias("a_sign"), sign("b").alias("b_sign"),
+   * sign("c").alias("c_sign")).show()
+   *     ----------------------------------
+   *     |"A_SIGN"  |"B_SIGN"  |"C_SIGN"  |
+   *     ----------------------------------
+   *     |-1        |1         |0         |
+   *     ----------------------------------
+   * </pr>
+   * @since 1.12.1
+   * @param e Column to calculate the sign.
+   * @return Column object.
+   */
+  def signum(colName: Column): Column = {
+    builtin("SIGN")(colName)
+  }
+
+  /**
+   * Returns the sign of the given column. Returns either 1 for positive,
+   *  0 for 0 or
+   * NaN, -1 for negative and null for null.
+   * NOTE: if string values are provided snowflake will attempts to cast.
+   *  If it casts correctly, returns the calculation,
+   *  if not an error will be thrown
+   * @since 1.12.1
+   * @param columnName Name of the column to calculate the sign.
+   * @return Column object.
+   */
+  def signum(columnName: String): Column = {
+    signum(col(columnName))
+  }
+
+  /**
+   * Returns the substring from string str before count occurrences
+   * of the delimiter delim. If count is positive,
+   * everything the left of the final delimiter (counting from left)
+   *  is returned. If count is negative, every to the right of the
+   * final delimiter (counting from the right) is returned.
+   * substring_index performs a case-sensitive match when searching for delim.
+   *   @since 1.12.1
+   */
+  def substring_index(str: Column, delim: String, count: Int): Column = {
+    when(
+      lit(count) < lit(0),
+      callBuiltin(
+        "substring",
+        lit(str),
+        callBuiltin("regexp_instr", sqlExpr(s"reverse(${str}, ${delim}, 1, abs(${count}), 0"))))
+      .otherwise(
+        callBuiltin(
+          "substring",
+          lit(str),
+          1,
+          callBuiltin("regexp_instr", col("str"), lit(delim), 1, lit(count), 1)))
+  }
+
+  /**
+   *
+   * Returns the input values, pivoted into an ARRAY. If the input is empty, an empty
+   * ARRAY is returned.
+   *<pr>
+   * Example::
+   *     >>> df = session.create_dataframe([[1], [2], [3], [1]], schema=["a"])
+   *     >>> df.select(array_agg("a", True).alias("result")).show()
+   *     ------------
+   *     |"RESULT"  |
+   *     ------------
+   *     |[         |
+   *     |  1,      |
+   *     |  2,      |
+   *     |  3       |
+   *     |]         |
+   *     ------------
+   * </pr>
+   * @since 1.10.0
+   * @param c Column to be collect.
+   * @return The array.
+   */
+  def collect_list(c: Column): Column = array_agg(c)
+
+  /**
+   *
+   * Returns the input values, pivoted into an ARRAY. If the input is empty, an empty
+   * ARRAY is returned.
+   *
+   * Example::
+   *     >>> df = session.create_dataframe([[1], [2], [3], [1]], schema=["a"])
+   *     >>> df.select(array_agg("a", True).alias("result")).show()
+   *     ------------
+   *     |"RESULT"  |
+   *     ------------
+   *     |[         |
+   *     |  1,      |
+   *     |  2,      |
+   *     |  3       |
+   *     |]         |
+   *     ------------
+   * @since 1.10.0
+   * @param s Column name to be collected.
+   * @return The array.
+   */
+  def collect_list(s: String): Column = array_agg(col(s))
+
+  /* Returns a Column expression with values sorted in descending order.
    * Example:
    * {{{
    *   val df = session.createDataFrame(Seq(1, 2, 3)).toDF("id")
