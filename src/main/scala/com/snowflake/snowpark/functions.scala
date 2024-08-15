@@ -3164,7 +3164,7 @@ object functions {
    *     ---------
    *</pr>
    * Note: non-greedy tokens such as  are not supported
-   * @since 1.12.1
+   * @since 1.14.0
    * @return Column object.
    */
   def regexp_extract(
@@ -3206,7 +3206,7 @@ object functions {
    *     |-1        |1         |0         |
    *     ----------------------------------
    * </pr>
-   * @since 1.12.1
+   * @since 1.14.0
    * @param e Column to calculate the sign.
    * @return Column object.
    */
@@ -3234,7 +3234,7 @@ object functions {
    *     |-1        |1         |0         |
    *     ----------------------------------
    * </pr>
-   * @since 1.12.1
+   * @since 1.14.0
    * @param e Column to calculate the sign.
    * @return Column object.
    */
@@ -3249,7 +3249,7 @@ object functions {
    * NOTE: if string values are provided snowflake will attempts to cast.
    *  If it casts correctly, returns the calculation,
    *  if not an error will be thrown
-   * @since 1.12.1
+   * @since 1.14.0
    * @param columnName Name of the column to calculate the sign.
    * @return Column object.
    */
@@ -3264,7 +3264,7 @@ object functions {
    *  is returned. If count is negative, every to the right of the
    * final delimiter (counting from the right) is returned.
    * substring_index performs a case-sensitive match when searching for delim.
-   *   @since 1.12.1
+   *   @since 1.14.0
    */
   def substring_index(str: Column, delim: String, count: Int): Column = {
     when(
@@ -3299,7 +3299,7 @@ object functions {
    *     |]         |
    *     ------------
    * </pr>
-   * @since 1.10.0
+   * @since 1.14.0
    * @param c Column to be collect.
    * @return The array.
    */
@@ -3322,7 +3322,7 @@ object functions {
    *     |  3       |
    *     |]         |
    *     ------------
-   * @since 1.10.0
+   * @since 1.14.0
    * @param s Column name to be collected.
    * @return The array.
    */

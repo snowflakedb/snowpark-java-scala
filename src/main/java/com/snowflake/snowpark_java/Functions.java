@@ -3900,7 +3900,7 @@ public final class Functions {
    *     ---------
    * }</pr>
    *
-   * @since 1.12.1
+   * @since 1.14.0
    * @return Column object.
    */
   public static Column regexp_extract(
@@ -3928,7 +3928,7 @@ public final class Functions {
    *     ----------------------------------
    * }</pr>
    *
-   * @since 1.12.1
+   * @since 1.14.0
    * @param e Column to calculate the sign.
    * @return Column object.
    */
@@ -3954,7 +3954,7 @@ public final class Functions {
    *     ----------------------------------
    * }</pr>
    *
-   * @since 1.12.1
+   * @since 1.14.0
    * @param e Column to calculate the sign.
    * @return Column object.
    */
@@ -3968,7 +3968,7 @@ public final class Functions {
    * count is negative, every to the right of the final delimiter (counting from the right) is
    * returned. substring_index performs a case-sensitive match when searching for delim.
    *
-   * @since 1.12.1
+   * @since 1.14.0
    */
   public static Column substring_index(Column col, String delim, Integer count) {
     return new Column(
@@ -3987,7 +3987,7 @@ public final class Functions {
    * "RESULT" [ 1, 2, 3 ]
    * }</pre>
    *
-   * @since 1.10.0
+   * @since 1.14.0
    * @param c Column to be collect.
    * @return The array.
    */
