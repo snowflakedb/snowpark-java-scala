@@ -2764,4 +2764,10 @@ public class JavaFunctionSuite extends TestBase {
     assert result.length == 1;
     assert result[0].getInt(0) == 1 || result[0].getInt(0) == 2 || result[0].getInt(0) == 3;
   }
+
+  @Test
+  public void reverse() {
+    DataFrame df = getSession().sql("select * from values('cat') as t(a)");
+    checkAnswer(df.select(Functions.reverse(df.col("a"))), new Row[] {Row.create("tac")}, false);
+  }
 }

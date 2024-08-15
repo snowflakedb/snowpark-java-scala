@@ -2178,22 +2178,23 @@ trait FunctionSuite extends TestData {
       sort = false)
   }
 
-   test("reverse") {
+  test("reverse") {
     val data = Seq("cat").toDF("a")
-    checkAnswer(
-      data.select(reverse(col("a"))),
-      Seq(Row("tac")),
-      sort = false)
-  }
- 
-  test("isnull") {
-    val data = Seq("cat").toDF("a")
-    checkAnswer(
-      data.select(isnull(col("a"))),
-      Seq(Row("tac")),
-      sort = false)
+    checkAnswer(data.select(reverse(col("a"))), Seq(Row("tac")), sort = false)
   }
 
+  test("isnull") {
+    val data = Seq("1", null).toDF("a")
+    checkAnswer(data.select(isnull(col("a"))), Seq(Row(true, false)), sort = false)
+  }
+  test("conv") {
+    val data = Seq("010101").toDF("a")
+    checkAnswer(data.select(conv(col("a"), 2, 16)), Seq(Row("15")), sort = false)
+  }
+  test("unix_timestamp") {
+    val data = Seq("2024-04-08T23:39:20.123-07:00").toDF("a")
+    checkAnswer(data.select(unix_timestamp(col("a"))), Seq(Row("1712619560123")), sort = false)
+  }
 }
 
 class EagerFunctionSuite extends FunctionSuite with EagerSession

@@ -11,6 +11,7 @@ import com.snowflake.snowpark.internal.{
 
 import scala.reflect.runtime.universe.TypeTag
 import scala.util.Random
+import java.util.StringJoiner
 
 /**
  * Provides utility functions that generate [[Column]] expressions that you can pass to
@@ -3202,8 +3203,8 @@ object functions {
    * @since 1.12.0
    * @note All calls of `unix_timestamp` within the same query return the same value
    */
-  def unix_timestamp(): Column = {
-    builtin("date_part")("epoch_second", current_timestamp())
+  def unix_timestamp(c: Column): Column = {
+    builtin("date_part")("epoch_second", c)
   }
 
   /**
