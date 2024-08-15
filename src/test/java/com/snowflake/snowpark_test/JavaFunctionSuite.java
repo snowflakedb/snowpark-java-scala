@@ -2877,4 +2877,50 @@ public class JavaFunctionSuite extends TestBase {
         expected,
         false);
   }
+
+  @Test
+  public void log10_col() {
+    DataFrame df = getSession().sql("select * from values (100) as T(a)");
+    Row[] expected = {Row.create(2.0)};
+
+    checkAnswer(df.select(Functions.log10(df.col("a"))), expected, false);
+  }
+
+  @Test
+  public void log10_str() {
+    DataFrame df = getSession().sql("select * from values (100) as T(a)");
+    Row[] expected = {Row.create(2.0)};
+
+    checkAnswer(df.select(Functions.log10("a")), expected, false);
+  }
+
+  @Test
+  public void log1p_col() {
+    DataFrame df = getSession().sql("select * from values (0.1) as T(a)");
+    Row[] expected = {Row.create(0.09531017980432493)};
+
+    checkAnswer(df.select(Functions.log1p(df.col("a"))), expected, false);
+  }
+
+  @Test
+  public void log1p_str() {
+    DataFrame df = getSession().sql("select * from values (0.1) as T(a)");
+    Row[] expected = {Row.create(0.09531017980432493)};
+
+    checkAnswer(df.select(Functions.log1p("a")), expected, false);
+  }
+
+  @Test
+  public void base64() {
+    DataFrame df = getSession().sql("select * from values ('test') as T(a)");
+    Row[] expected = {Row.create("dGVzdA==")};
+    checkAnswer(df.select(Functions.base64(Functions.col("a"))), expected, false);
+  }
+
+  @Test
+  public void unbase64() {
+    DataFrame df = getSession().sql("select * from values ('dGVzdA==') as T(a)");
+    Row[] expected = {Row.create("test")};
+    checkAnswer(df.select(Functions.unbase64(Functions.col("a"))), expected, false);
+  }
 }
