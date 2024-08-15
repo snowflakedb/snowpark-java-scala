@@ -2233,7 +2233,6 @@ trait FunctionSuite extends TestData {
   }
 
   test("last function") {
-
     val input =
       Seq((5, "a", 10), (5, "b", 20), (3, "d", 15), (3, "e", 40)).toDF("grade", "name", "score")
     val window = Window.partitionBy(col("grade")).orderBy(col("score").desc)
@@ -2243,6 +2242,42 @@ trait FunctionSuite extends TestData {
       input.select(last(col("name")).over(window).as("last_score_name")),
       expected,
       sort = false)
+  }
+
+  test("log10 Column function") {
+    val input = session.createDataFrame(Seq(100)).toDF("a")
+    val expected = Seq(2.0).toDF("log10")
+    checkAnswer(input.select(log10(col("a")).as("log10")), expected, sort = false)
+  }
+
+  test("log10 String function") {
+    val input = session.createDataFrame(Seq("100")).toDF("a")
+    val expected = Seq(2.0).toDF("log10")
+    checkAnswer(input.select(log10("a").as("log10")), expected, sort = false)
+  }
+
+  test("log1p Column function") {
+    val input = session.createDataFrame(Seq(0.1)).toDF("a")
+    val expected = Seq(0.09531017980432493).toDF("log1p")
+    checkAnswer(input.select(log1p(col("a")).as("log10")), expected, sort = false)
+  }
+
+  test("log1p String function") {
+    val input = session.createDataFrame(Seq(0.1)).toDF("a")
+    val expected = Seq(0.09531017980432493).toDF("log1p")
+    checkAnswer(input.select(log1p("a").as("log1p")), expected, sort = false)
+  }
+
+  test("base64 function") {
+    val input = session.createDataFrame(Seq("test")).toDF("a")
+    val expected = Seq("dGVzdA==").toDF("base64")
+    checkAnswer(input.select(base64(col("a")).as("base64")), expected, sort = false)
+  }
+
+  test("unbase64 function") {
+    val input = session.createDataFrame(Seq("dGVzdA==")).toDF("a")
+    val expected = Seq("test").toDF("unbase64")
+    checkAnswer(input.select(unbase64(col("a")).as("unbase64")), expected, sort = false)
   }
 
 }
