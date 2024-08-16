@@ -3187,7 +3187,7 @@ object functions {
   }
 
   /**
-   *    Returns the sign of its argument as mentioned:
+   *    Returns the sign of its argument :
    *
    *     - -1 if the argument is negative.
    *     - 1 if it is positive.
