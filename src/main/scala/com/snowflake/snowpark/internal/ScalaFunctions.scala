@@ -559,10 +559,10 @@ object ScalaFunctions {
       .foreach(isSupported(_))
     isSupported(typeOf[RT])
     val returnColumn = schemaForWrapper[RT]
-    val inputColumns
-        : Seq[UdfColumnSchema] = schemaForWrapper[A1] :: schemaForWrapper[A2] :: schemaForWrapper[
-      A3
-    ] :: schemaForWrapper[A4] :: schemaForWrapper[A5] :: schemaForWrapper[A6] :: Nil
+    val inputColumns: Seq[UdfColumnSchema] =
+      schemaForWrapper[A1] :: schemaForWrapper[A2] :: schemaForWrapper[
+        A3
+      ] :: schemaForWrapper[A4] :: schemaForWrapper[A5] :: schemaForWrapper[A6] :: Nil
     UserDefinedFunction(func, returnColumn, inputColumns)
   }
 
@@ -694,12 +694,12 @@ object ScalaFunctions {
     ).foreach(isSupported(_))
     isSupported(typeOf[RT])
     val returnColumn = schemaForWrapper[RT]
-    val inputColumns
-        : Seq[UdfColumnSchema] = schemaForWrapper[A1] :: schemaForWrapper[A2] :: schemaForWrapper[
-      A3
-    ] :: schemaForWrapper[A4] :: schemaForWrapper[A5] :: schemaForWrapper[A6] :: schemaForWrapper[
-      A7
-    ] :: schemaForWrapper[A8] :: schemaForWrapper[A9] :: schemaForWrapper[A10] :: Nil
+    val inputColumns: Seq[UdfColumnSchema] =
+      schemaForWrapper[A1] :: schemaForWrapper[A2] :: schemaForWrapper[
+        A3
+      ] :: schemaForWrapper[A4] :: schemaForWrapper[A5] :: schemaForWrapper[A6] :: schemaForWrapper[
+        A7
+      ] :: schemaForWrapper[A8] :: schemaForWrapper[A9] :: schemaForWrapper[A10] :: Nil
     UserDefinedFunction(func, returnColumn, inputColumns)
   }
 
@@ -882,14 +882,16 @@ object ScalaFunctions {
     ).foreach(isSupported(_))
     isSupported(typeOf[RT])
     val returnColumn = schemaForWrapper[RT]
-    val inputColumns
-        : Seq[UdfColumnSchema] = schemaForWrapper[A1] :: schemaForWrapper[A2] :: schemaForWrapper[
-      A3
-    ] :: schemaForWrapper[A4] :: schemaForWrapper[A5] :: schemaForWrapper[A6] :: schemaForWrapper[
-      A7
-    ] :: schemaForWrapper[A8] :: schemaForWrapper[A9] :: schemaForWrapper[A10] :: schemaForWrapper[
-      A11
-    ] :: schemaForWrapper[A12] :: schemaForWrapper[A13] :: schemaForWrapper[A14] :: Nil
+    val inputColumns: Seq[UdfColumnSchema] =
+      schemaForWrapper[A1] :: schemaForWrapper[A2] :: schemaForWrapper[
+        A3
+      ] :: schemaForWrapper[A4] :: schemaForWrapper[A5] :: schemaForWrapper[A6] :: schemaForWrapper[
+        A7
+      ] :: schemaForWrapper[A8] :: schemaForWrapper[A9] :: schemaForWrapper[
+        A10
+      ] :: schemaForWrapper[
+        A11
+      ] :: schemaForWrapper[A12] :: schemaForWrapper[A13] :: schemaForWrapper[A14] :: Nil
     UserDefinedFunction(func, returnColumn, inputColumns)
   }
 
@@ -1071,16 +1073,18 @@ object ScalaFunctions {
     ).foreach(isSupported(_))
     isSupported(typeOf[RT])
     val returnColumn = schemaForWrapper[RT]
-    val inputColumns
-        : Seq[UdfColumnSchema] = schemaForWrapper[A1] :: schemaForWrapper[A2] :: schemaForWrapper[
-      A3
-    ] :: schemaForWrapper[A4] :: schemaForWrapper[A5] :: schemaForWrapper[A6] :: schemaForWrapper[
-      A7
-    ] :: schemaForWrapper[A8] :: schemaForWrapper[A9] :: schemaForWrapper[A10] :: schemaForWrapper[
-      A11
-    ] :: schemaForWrapper[A12] :: schemaForWrapper[A13] :: schemaForWrapper[
-      A14
-    ] :: schemaForWrapper[A15] :: schemaForWrapper[A16] :: schemaForWrapper[A17] :: Nil
+    val inputColumns: Seq[UdfColumnSchema] =
+      schemaForWrapper[A1] :: schemaForWrapper[A2] :: schemaForWrapper[
+        A3
+      ] :: schemaForWrapper[A4] :: schemaForWrapper[A5] :: schemaForWrapper[A6] :: schemaForWrapper[
+        A7
+      ] :: schemaForWrapper[A8] :: schemaForWrapper[A9] :: schemaForWrapper[
+        A10
+      ] :: schemaForWrapper[
+        A11
+      ] :: schemaForWrapper[A12] :: schemaForWrapper[A13] :: schemaForWrapper[
+        A14
+      ] :: schemaForWrapper[A15] :: schemaForWrapper[A16] :: schemaForWrapper[A17] :: Nil
     UserDefinedFunction(func, returnColumn, inputColumns)
   }
 
@@ -1328,18 +1332,20 @@ object ScalaFunctions {
     ).foreach(isSupported(_))
     isSupported(typeOf[RT])
     val returnColumn = schemaForWrapper[RT]
-    val inputColumns
-        : Seq[UdfColumnSchema] = schemaForWrapper[A1] :: schemaForWrapper[A2] :: schemaForWrapper[
-      A3
-    ] :: schemaForWrapper[A4] :: schemaForWrapper[A5] :: schemaForWrapper[A6] :: schemaForWrapper[
-      A7
-    ] :: schemaForWrapper[A8] :: schemaForWrapper[A9] :: schemaForWrapper[A10] :: schemaForWrapper[
-      A11
-    ] :: schemaForWrapper[A12] :: schemaForWrapper[A13] :: schemaForWrapper[
-      A14
-    ] :: schemaForWrapper[A15] :: schemaForWrapper[A16] :: schemaForWrapper[
-      A17
-    ] :: schemaForWrapper[A18] :: schemaForWrapper[A19] :: schemaForWrapper[A20] :: Nil
+    val inputColumns: Seq[UdfColumnSchema] =
+      schemaForWrapper[A1] :: schemaForWrapper[A2] :: schemaForWrapper[
+        A3
+      ] :: schemaForWrapper[A4] :: schemaForWrapper[A5] :: schemaForWrapper[A6] :: schemaForWrapper[
+        A7
+      ] :: schemaForWrapper[A8] :: schemaForWrapper[A9] :: schemaForWrapper[
+        A10
+      ] :: schemaForWrapper[
+        A11
+      ] :: schemaForWrapper[A12] :: schemaForWrapper[A13] :: schemaForWrapper[
+        A14
+      ] :: schemaForWrapper[A15] :: schemaForWrapper[A16] :: schemaForWrapper[
+        A17
+      ] :: schemaForWrapper[A18] :: schemaForWrapper[A19] :: schemaForWrapper[A20] :: Nil
     UserDefinedFunction(func, returnColumn, inputColumns)
   }
 
@@ -1843,10 +1849,10 @@ object ScalaFunctions {
       .foreach(isSupported)
     isSupported(typeOf[RT])
     val returnColumn = schemaForWrapper[RT]
-    val inputColumns
-        : Seq[UdfColumnSchema] = schemaForWrapper[A1] :: schemaForWrapper[A2] :: schemaForWrapper[
-      A3
-    ] :: schemaForWrapper[A4] :: schemaForWrapper[A5] :: schemaForWrapper[A6] :: Nil
+    val inputColumns: Seq[UdfColumnSchema] =
+      schemaForWrapper[A1] :: schemaForWrapper[A2] :: schemaForWrapper[
+        A3
+      ] :: schemaForWrapper[A4] :: schemaForWrapper[A5] :: schemaForWrapper[A6] :: Nil
     StoredProcedure(sp, returnColumn, inputColumns)
   }
 
@@ -1978,12 +1984,12 @@ object ScalaFunctions {
     ).foreach(isSupported)
     isSupported(typeOf[RT])
     val returnColumn = schemaForWrapper[RT]
-    val inputColumns
-        : Seq[UdfColumnSchema] = schemaForWrapper[A1] :: schemaForWrapper[A2] :: schemaForWrapper[
-      A3
-    ] :: schemaForWrapper[A4] :: schemaForWrapper[A5] :: schemaForWrapper[A6] :: schemaForWrapper[
-      A7
-    ] :: schemaForWrapper[A8] :: schemaForWrapper[A9] :: schemaForWrapper[A10] :: Nil
+    val inputColumns: Seq[UdfColumnSchema] =
+      schemaForWrapper[A1] :: schemaForWrapper[A2] :: schemaForWrapper[
+        A3
+      ] :: schemaForWrapper[A4] :: schemaForWrapper[A5] :: schemaForWrapper[A6] :: schemaForWrapper[
+        A7
+      ] :: schemaForWrapper[A8] :: schemaForWrapper[A9] :: schemaForWrapper[A10] :: Nil
     StoredProcedure(sp, returnColumn, inputColumns)
   }
 
@@ -2166,14 +2172,16 @@ object ScalaFunctions {
     ).foreach(isSupported)
     isSupported(typeOf[RT])
     val returnColumn = schemaForWrapper[RT]
-    val inputColumns
-        : Seq[UdfColumnSchema] = schemaForWrapper[A1] :: schemaForWrapper[A2] :: schemaForWrapper[
-      A3
-    ] :: schemaForWrapper[A4] :: schemaForWrapper[A5] :: schemaForWrapper[A6] :: schemaForWrapper[
-      A7
-    ] :: schemaForWrapper[A8] :: schemaForWrapper[A9] :: schemaForWrapper[A10] :: schemaForWrapper[
-      A11
-    ] :: schemaForWrapper[A12] :: schemaForWrapper[A13] :: schemaForWrapper[A14] :: Nil
+    val inputColumns: Seq[UdfColumnSchema] =
+      schemaForWrapper[A1] :: schemaForWrapper[A2] :: schemaForWrapper[
+        A3
+      ] :: schemaForWrapper[A4] :: schemaForWrapper[A5] :: schemaForWrapper[A6] :: schemaForWrapper[
+        A7
+      ] :: schemaForWrapper[A8] :: schemaForWrapper[A9] :: schemaForWrapper[
+        A10
+      ] :: schemaForWrapper[
+        A11
+      ] :: schemaForWrapper[A12] :: schemaForWrapper[A13] :: schemaForWrapper[A14] :: Nil
     StoredProcedure(sp, returnColumn, inputColumns)
   }
 
@@ -2375,16 +2383,18 @@ object ScalaFunctions {
     ).foreach(isSupported)
     isSupported(typeOf[RT])
     val returnColumn = schemaForWrapper[RT]
-    val inputColumns
-        : Seq[UdfColumnSchema] = schemaForWrapper[A1] :: schemaForWrapper[A2] :: schemaForWrapper[
-      A3
-    ] :: schemaForWrapper[A4] :: schemaForWrapper[A5] :: schemaForWrapper[A6] :: schemaForWrapper[
-      A7
-    ] :: schemaForWrapper[A8] :: schemaForWrapper[A9] :: schemaForWrapper[A10] :: schemaForWrapper[
-      A11
-    ] :: schemaForWrapper[A12] :: schemaForWrapper[A13] :: schemaForWrapper[
-      A14
-    ] :: schemaForWrapper[A15] :: schemaForWrapper[A16] :: schemaForWrapper[A17] :: Nil
+    val inputColumns: Seq[UdfColumnSchema] =
+      schemaForWrapper[A1] :: schemaForWrapper[A2] :: schemaForWrapper[
+        A3
+      ] :: schemaForWrapper[A4] :: schemaForWrapper[A5] :: schemaForWrapper[A6] :: schemaForWrapper[
+        A7
+      ] :: schemaForWrapper[A8] :: schemaForWrapper[A9] :: schemaForWrapper[
+        A10
+      ] :: schemaForWrapper[
+        A11
+      ] :: schemaForWrapper[A12] :: schemaForWrapper[A13] :: schemaForWrapper[
+        A14
+      ] :: schemaForWrapper[A15] :: schemaForWrapper[A16] :: schemaForWrapper[A17] :: Nil
     StoredProcedure(sp, returnColumn, inputColumns)
   }
 
@@ -2635,18 +2645,20 @@ object ScalaFunctions {
     ).foreach(isSupported)
     isSupported(typeOf[RT])
     val returnColumn = schemaForWrapper[RT]
-    val inputColumns
-        : Seq[UdfColumnSchema] = schemaForWrapper[A1] :: schemaForWrapper[A2] :: schemaForWrapper[
-      A3
-    ] :: schemaForWrapper[A4] :: schemaForWrapper[A5] :: schemaForWrapper[A6] :: schemaForWrapper[
-      A7
-    ] :: schemaForWrapper[A8] :: schemaForWrapper[A9] :: schemaForWrapper[A10] :: schemaForWrapper[
-      A11
-    ] :: schemaForWrapper[A12] :: schemaForWrapper[A13] :: schemaForWrapper[
-      A14
-    ] :: schemaForWrapper[A15] :: schemaForWrapper[A16] :: schemaForWrapper[
-      A17
-    ] :: schemaForWrapper[A18] :: schemaForWrapper[A19] :: schemaForWrapper[A20] :: Nil
+    val inputColumns: Seq[UdfColumnSchema] =
+      schemaForWrapper[A1] :: schemaForWrapper[A2] :: schemaForWrapper[
+        A3
+      ] :: schemaForWrapper[A4] :: schemaForWrapper[A5] :: schemaForWrapper[A6] :: schemaForWrapper[
+        A7
+      ] :: schemaForWrapper[A8] :: schemaForWrapper[A9] :: schemaForWrapper[
+        A10
+      ] :: schemaForWrapper[
+        A11
+      ] :: schemaForWrapper[A12] :: schemaForWrapper[A13] :: schemaForWrapper[
+        A14
+      ] :: schemaForWrapper[A15] :: schemaForWrapper[A16] :: schemaForWrapper[
+        A17
+      ] :: schemaForWrapper[A18] :: schemaForWrapper[A19] :: schemaForWrapper[A20] :: Nil
     StoredProcedure(sp, returnColumn, inputColumns)
   }
 

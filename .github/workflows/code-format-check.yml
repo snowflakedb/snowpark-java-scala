@@ -4,16 +4,16 @@ on:
     branches: [ main ]
   pull_request:
     branches: '**'
+
 jobs:
-  test:
+  build:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-      - name: Setup JDK
-        uses: actions/setup-java@v3
+      - name: Checkout Code
+        uses: actions/checkout@v2
+      - name: Install Java
+        uses: actions/setup-java@v1
         with:
-          distribution: temurin
-          java-version: 8
-      - name: Check Code Format
+          java-version: 1.8
+      - name: Check Format
         run: scripts/format_checker.sh

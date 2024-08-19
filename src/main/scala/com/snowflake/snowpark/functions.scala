@@ -1024,8 +1024,7 @@ object functions {
     *                  Seq(("many-many-words", "-"), ("hello--hello", "--"))).toDF("V", "D")
     *   df.select(split(col("V"), col("D"))).show()
     * }}}
-    * -------------------------
-    * \|"SPLIT(""V"", ""D"")" | -------------------------
+    * ------------------------- \|"SPLIT(""V"", ""D"")" | -------------------------
     * | [        |
     * |:---------|
     * | "many",  |
@@ -1043,8 +1042,7 @@ object functions {
     *   val df = session.createDataFrame(Seq("many-many-words", "hello-hi-hello")).toDF("V")
     *   df.select(split(col("V"), lit("-"))).show()
     * }}}
-    * -------------------------
-    * \|"SPLIT(""V"", ""D"")" | -------------------------
+    * ------------------------- \|"SPLIT(""V"", ""D"")" | -------------------------
     * | [        |
     * |:---------|
     * | "many",  |
