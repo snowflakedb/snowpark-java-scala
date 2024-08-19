@@ -19,9 +19,11 @@ class ScalaGeographySuite extends SNTestBase {
 
     assert(
       Geography.fromGeoJSON(testData).hashCode() ==
-        Geography.fromGeoJSON(testData).hashCode())
+        Geography.fromGeoJSON(testData).hashCode()
+    )
     assert(
       Geography.fromGeoJSON(testData).hashCode() !=
-        Geography.fromGeoJSON(testData2).hashCode())
+        Geography.fromGeoJSON(testData2).hashCode()
+    )
   }
 }

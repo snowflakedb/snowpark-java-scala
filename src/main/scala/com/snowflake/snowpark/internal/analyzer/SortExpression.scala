@@ -31,8 +31,8 @@ private[snowpark] case class SortOrder(
     child: Expression,
     direction: SortDirection,
     nullOrdering: NullOrdering,
-    sameOrderExpressions: Set[Expression])
-    extends Expression {
+    sameOrderExpressions: Set[Expression]
+) extends Expression {
   override def children: Seq[Expression] = child +: sameOrderExpressions.toSeq
 
   override protected def createAnalyzedExpression(analyzedChildren: Seq[Expression]): Expression =
@@ -43,7 +43,8 @@ private[snowpark] object SortOrder {
   def apply(
       child: Expression,
       direction: SortDirection,
-      sameOrderExpressions: Set[Expression] = Set.empty): SortOrder = {
+      sameOrderExpressions: Set[Expression] = Set.empty
+  ): SortOrder = {
     new SortOrder(child, direction, direction.defaultNullOrdering, sameOrderExpressions)
   }
 }

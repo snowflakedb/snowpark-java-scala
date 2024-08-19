@@ -32,7 +32,8 @@ class ParameterSuite extends SNTestBase {
 
     assert(
       sessionWithApplicationName.conn.connection.getSFBaseSession.getConnectionPropertiesMap
-        .get(SFSessionProperty.APPLICATION) == applicationName)
+        .get(SFSessionProperty.APPLICATION) == applicationName
+    )
   }
 
   test("url") {

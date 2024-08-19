@@ -49,10 +49,9 @@ object TypeToSchemaConverter {
       case t
           if t <:< typeOf[Product] && tpe.typeArgs.nonEmpty &&
             tpe.typeSymbol.name.toString.startsWith("Tuple") =>
-        tpe.typeArgs.zipWithIndex.map {
-          case (value, i) =>
-            val (dt, nullable) = analyzeType(value)
-            StructField(s"_${i + 1}", dt, nullable) // same name as tuple
+        tpe.typeArgs.zipWithIndex.map { case (value, i) =>
+          val (dt, nullable) = analyzeType(value)
+          StructField(s"_${i + 1}", dt, nullable) // same name as tuple
         }
       // single value
       case _ =>
@@ -79,31 +78,31 @@ object TypeToSchemaConverter {
 
       // default math context of BigDecimal is (34,6)
       // can't reflect precision and scale
-      case t if t =:= typeOf[BigDecimal] => (DecimalType(34, 6), true)
+      case t if t =:= typeOf[BigDecimal]     => (DecimalType(34, 6), true)
       case t if t =:= typeOf[JavaBigDecimal] => (DecimalType(34, 6), true)
 
-      case t if t =:= typeOf[Variant] => (VariantType, true)
-      case t if t =:= typeOf[Geography] => (GeographyType, true)
-      case t if t =:= typeOf[Geometry] => (GeometryType, true)
-      case t if t =:= typeOf[Date] => (DateType, true)
-      case t if t =:= typeOf[Timestamp] => (TimestampType, true)
-      case t if t =:= typeOf[Time] => (TimeType, true)
-      case t if t =:= typeOf[Boolean] => (BooleanType, false)
+      case t if t =:= typeOf[Variant]     => (VariantType, true)
+      case t if t =:= typeOf[Geography]   => (GeographyType, true)
+      case t if t =:= typeOf[Geometry]    => (GeometryType, true)
+      case t if t =:= typeOf[Date]        => (DateType, true)
+      case t if t =:= typeOf[Timestamp]   => (TimestampType, true)
+      case t if t =:= typeOf[Time]        => (TimeType, true)
+      case t if t =:= typeOf[Boolean]     => (BooleanType, false)
       case t if t =:= typeOf[JavaBoolean] => (BooleanType, true)
-      case t if t =:= typeOf[Byte] => (ByteType, false)
-      case t if t =:= typeOf[JavaByte] => (ByteType, true)
-      case t if t =:= typeOf[Short] => (ShortType, false)
-      case t if t =:= typeOf[JavaShort] => (ShortType, true)
-      case t if t =:= typeOf[Int] => (IntegerType, false)
+      case t if t =:= typeOf[Byte]        => (ByteType, false)
+      case t if t =:= typeOf[JavaByte]    => (ByteType, true)
+      case t if t =:= typeOf[Short]       => (ShortType, false)
+      case t if t =:= typeOf[JavaShort]   => (ShortType, true)
+      case t if t =:= typeOf[Int]         => (IntegerType, false)
       case t if t =:= typeOf[JavaInteger] => (IntegerType, true)
-      case t if t =:= typeOf[Long] => (LongType, false)
-      case t if t =:= typeOf[JavaLong] => (LongType, true)
-      case t if t =:= typeOf[String] => (StringType, true)
-      case t if t =:= typeOf[Float] => (FloatType, false)
-      case t if t =:= typeOf[JavaFloat] => (FloatType, true)
-      case t if t =:= typeOf[Double] => (DoubleType, false)
-      case t if t =:= typeOf[JavaDouble] => (DoubleType, true)
-      case t if t =:= typeOf[Variant] => (VariantType, true)
+      case t if t =:= typeOf[Long]        => (LongType, false)
+      case t if t =:= typeOf[JavaLong]    => (LongType, true)
+      case t if t =:= typeOf[String]      => (StringType, true)
+      case t if t =:= typeOf[Float]       => (FloatType, false)
+      case t if t =:= typeOf[JavaFloat]   => (FloatType, true)
+      case t if t =:= typeOf[Double]      => (DoubleType, false)
+      case t if t =:= typeOf[JavaDouble]  => (DoubleType, true)
+      case t if t =:= typeOf[Variant]     => (VariantType, true)
       // content type of variant can't be reflected
       // add more data types
       case _ =>

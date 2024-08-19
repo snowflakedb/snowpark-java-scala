@@ -58,23 +58,27 @@ class DataFrameAliasSuite extends TestData with BeforeAndAfterEach with EagerSes
       df1
         .join(df2, $"id1" === $"id2")
         .select(df1.col("A.num1")),
-      Seq(Row(4), Row(5), Row(6)))
+      Seq(Row(4), Row(5), Row(6))
+    )
     checkAnswer(
       df1
         .join(df2, $"id1" === $"id2")
         .select(df2.col("B.num2")),
-      Seq(Row(7), Row(8), Row(9)))
+      Seq(Row(7), Row(8), Row(9))
+    )
 
     checkAnswer(
       df1
         .join(df2, $"id1" === $"id2")
         .select($"A.num1"),
-      Seq(Row(4), Row(5), Row(6)))
+      Seq(Row(4), Row(5), Row(6))
+    )
     checkAnswer(
       df1
         .join(df2, $"id1" === $"id2")
         .select($"B.num2"),
-      Seq(Row(7), Row(8), Row(9)))
+      Seq(Row(7), Row(8), Row(9))
+    )
   }
 
   test("Test for alias with join with column renaming") {
@@ -88,12 +92,14 @@ class DataFrameAliasSuite extends TestData with BeforeAndAfterEach with EagerSes
       df1
         .join(df2, df1.col("id") === df2.col("id"))
         .select(df1.col("A.num")),
-      Seq(Row(4), Row(5), Row(6)))
+      Seq(Row(4), Row(5), Row(6))
+    )
     checkAnswer(
       df1
         .join(df2, df1.col("id") === df2.col("id"))
         .select(df2.col("B.num")),
-      Seq(Row(7), Row(8), Row(9)))
+      Seq(Row(7), Row(8), Row(9))
+    )
   }
 
   test("Test for alias conflict") {
@@ -104,7 +110,8 @@ class DataFrameAliasSuite extends TestData with BeforeAndAfterEach with EagerSes
     assertThrows[SnowparkClientException](
       df1
         .join(df2, df1.col("id") === df2.col("id"))
-        .select(df1.col("A.num")))
+        .select(df1.col("A.num"))
+    )
   }
 
   test("snow-1335123") {
@@ -112,13 +119,15 @@ class DataFrameAliasSuite extends TestData with BeforeAndAfterEach with EagerSes
       "col_a",
       "col_b",
       "col_c",
-      "col_d")
+      "col_d"
+    )
 
     val df2 = Seq((1, 2, 5, 6), (11, 12, 15, 16), (41, 12, 25, 26), (11, 42, 35, 36)).toDF(
       "col_a",
       "col_b",
       "col_e",
-      "col_f")
+      "col_f"
+    )
 
     val df3 = df1
       .alias("a")
@@ -126,7 +135,8 @@ class DataFrameAliasSuite extends TestData with BeforeAndAfterEach with EagerSes
         df2.alias("b"),
         col("a.col_a") === col("b.col_a")
           && col("a.col_b") === col("b.col_b"),
-        "left")
+        "left"
+      )
       .select("a.col_a", "a.col_b", "col_c", "col_d", "col_e", "col_f")
 
     checkAnswer(
@@ -135,6 +145,8 @@ class DataFrameAliasSuite extends TestData with BeforeAndAfterEach with EagerSes
         Row(1, 2, 3, 4, 5, 6),
         Row(11, 12, 13, 14, 15, 16),
         Row(11, 32, 33, 34, null, null),
-        Row(21, 12, 23, 24, null, null)))
+        Row(21, 12, 23, 24, null, null)
+      )
+    )
   }
 }

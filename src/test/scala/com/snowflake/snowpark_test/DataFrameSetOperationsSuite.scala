@@ -37,7 +37,8 @@ class DataFrameSetOperationsSuite extends TestData {
     check(
       lit(null).cast(IntegerType),
       $"c".is_null,
-      Seq(Row(1, 1, null, 100), Row(1, 1, null, 100)))
+      Seq(Row(1, 1, null, 100), Row(1, 1, null, 100))
+    )
     check(lit(null).cast(IntegerType), $"c".is_not_null, Seq())
     check(lit(2).cast(IntegerType), $"c".is_null, Seq())
     check(lit(2).cast(IntegerType), $"c".is_not_null, Seq(Row(1, 1, 2, 100), Row(1, 1, 2, 100)))
@@ -51,7 +52,8 @@ class DataFrameSetOperationsSuite extends TestData {
       Row(1, "a") ::
         Row(2, "b") ::
         Row(3, "c") ::
-        Row(4, "d") :: Nil)
+        Row(4, "d") :: Nil
+    )
     checkAnswer(lowerCaseData.except(lowerCaseData), Nil)
     checkAnswer(upperCaseData.except(upperCaseData), Nil)
 
@@ -69,7 +71,8 @@ class DataFrameSetOperationsSuite extends TestData {
       df.except(df.filter(lit(0) === 1)),
       Row("id", 1) ::
         Row("id1", 1) ::
-        Row("id1", 2) :: Nil)
+        Row("id1", 2) :: Nil
+    )
 
     // check if the empty set on the left side works
     checkAnswer(allNulls.filter(lit(0) === 1).except(allNulls), Nil)
@@ -246,10 +249,11 @@ class DataFrameSetOperationsSuite extends TestData {
   test("SN - Performing set operations that combine non-scala native types") {
     val dates = Seq(
       (new Date(0), BigDecimal.valueOf(1), new Timestamp(2)),
-      (new Date(3), BigDecimal.valueOf(4), new Timestamp(5))).toDF("date", "decimal", "timestamp")
+      (new Date(3), BigDecimal.valueOf(4), new Timestamp(5))
+    ).toDF("date", "decimal", "timestamp")
 
     val widenTypedRows =
-      Seq((new Timestamp(2), 10.5D, (new Timestamp(10)).toString))
+      Seq((new Timestamp(2), 10.5d, (new Timestamp(10)).toString))
         .toDF("date", "decimal", "timestamp")
 
     dates.union(widenTypedRows).collect()
@@ -297,7 +301,8 @@ class DataFrameSetOperationsSuite extends TestData {
       Row(1, "a") ::
         Row(2, "b") ::
         Row(3, "c") ::
-        Row(4, "d") :: Nil)
+        Row(4, "d") :: Nil
+    )
     checkAnswer(lowerCaseData.intersect(upperCaseData), Nil)
 
     // check null equality
@@ -306,7 +311,8 @@ class DataFrameSetOperationsSuite extends TestData {
       Row(1) ::
         Row(2) ::
         Row(3) ::
-        Row(null) :: Nil)
+        Row(null) :: Nil
+    )
 
     // check if values are de-duplicated
     checkAnswer(allNulls.intersect(allNulls), Row(null) :: Nil)
@@ -317,7 +323,8 @@ class DataFrameSetOperationsSuite extends TestData {
       df.intersect(df),
       Row("id", 1) ::
         Row("id1", 1) ::
-        Row("id1", 2) :: Nil)
+        Row("id1", 2) :: Nil
+    )
   }
 
   test("Project should not be pushed down through Intersect or Except") {
@@ -366,7 +373,8 @@ class DataFrameSetOperationsSuite extends TestData {
     checkAnswer(
       df1.union(df2).intersect(df2.union(df3)).union(df3),
       df2.union(df3).collect(),
-      sort = false)
+      sort = false
+    )
 
     checkAnswer(df1.union(df2).except(df2.union(df3).intersect(df1.union(df2))), df1.collect())
   }

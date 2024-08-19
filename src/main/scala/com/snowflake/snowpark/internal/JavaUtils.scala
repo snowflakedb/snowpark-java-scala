@@ -41,100 +41,117 @@ object JavaUtils {
 
   def notMatchedClauseBuilder_insert(
       assignments: java.util.Map[Column, Column],
-      builder: NotMatchedClauseBuilder): MergeBuilder =
+      builder: NotMatchedClauseBuilder
+  ): MergeBuilder =
     builder.insert(assignments.asScala.toMap)
 
   def notMatchedClauseBuilder_insertRow(
       assignments: java.util.Map[String, Column],
-      builder: NotMatchedClauseBuilder): MergeBuilder =
+      builder: NotMatchedClauseBuilder
+  ): MergeBuilder =
     builder.insert(assignments.asScala.toMap)
 
   def matchedClauseBuilder_update(
       assignments: java.util.Map[Column, Column],
-      builder: MatchedClauseBuilder): MergeBuilder =
+      builder: MatchedClauseBuilder
+  ): MergeBuilder =
     builder.update(assignments.asScala.toMap)
 
   def matchedClauseBuilder_updateColumn(
       assignments: java.util.Map[String, Column],
-      builder: MatchedClauseBuilder): MergeBuilder =
+      builder: MatchedClauseBuilder
+  ): MergeBuilder =
     builder.update(assignments.asScala.toMap)
 
   def updatable_updateColumn(
       assignments: java.util.Map[String, Column],
       condition: Column,
       sourceData: DataFrame,
-      updatable: Updatable): UpdateResult =
+      updatable: Updatable
+  ): UpdateResult =
     updatable.update(assignments.asScala.toMap, condition, sourceData)
 
   def async_updatable_updateColumn(
       assignments: java.util.Map[String, Column],
       condition: Column,
       sourceData: DataFrame,
-      updatable: UpdatableAsyncActor): TypedAsyncJob[UpdateResult] =
+      updatable: UpdatableAsyncActor
+  ): TypedAsyncJob[UpdateResult] =
     updatable.update(assignments.asScala.toMap, condition, sourceData)
 
   def updatable_update(
       assignments: java.util.Map[Column, Column],
       condition: Column,
       sourceData: DataFrame,
-      updatable: Updatable): UpdateResult =
+      updatable: Updatable
+  ): UpdateResult =
     updatable.update(assignments.asScala.toMap, condition, sourceData)
 
   def async_updatable_update(
       assignments: java.util.Map[Column, Column],
       condition: Column,
       sourceData: DataFrame,
-      updatable: UpdatableAsyncActor): TypedAsyncJob[UpdateResult] =
+      updatable: UpdatableAsyncActor
+  ): TypedAsyncJob[UpdateResult] =
     updatable.update(assignments.asScala.toMap, condition, sourceData)
 
   def updatable_updateColumn(
       assignments: java.util.Map[String, Column],
       condition: Column,
-      updatable: Updatable): UpdateResult =
+      updatable: Updatable
+  ): UpdateResult =
     updatable.update(assignments.asScala.toMap, condition)
 
   def async_updatable_updateColumn(
       assignments: java.util.Map[String, Column],
       condition: Column,
-      updatable: UpdatableAsyncActor): TypedAsyncJob[UpdateResult] =
+      updatable: UpdatableAsyncActor
+  ): TypedAsyncJob[UpdateResult] =
     updatable.update(assignments.asScala.toMap, condition)
 
   def updatable_update(
       assignments: java.util.Map[Column, Column],
       condition: Column,
-      updatable: Updatable): UpdateResult =
+      updatable: Updatable
+  ): UpdateResult =
     updatable.update(assignments.asScala.toMap, condition)
 
   def async_updatable_update(
       assignments: java.util.Map[Column, Column],
       condition: Column,
-      updatable: UpdatableAsyncActor): TypedAsyncJob[UpdateResult] =
+      updatable: UpdatableAsyncActor
+  ): TypedAsyncJob[UpdateResult] =
     updatable.update(assignments.asScala.toMap, condition)
 
   def updatable_updateColumn(
       assignments: java.util.Map[String, Column],
-      updatable: Updatable): UpdateResult =
+      updatable: Updatable
+  ): UpdateResult =
     updatable.update(assignments.asScala.toMap)
 
   def async_updatable_updateColumn(
       assignments: java.util.Map[String, Column],
-      updatable: UpdatableAsyncActor): TypedAsyncJob[UpdateResult] =
+      updatable: UpdatableAsyncActor
+  ): TypedAsyncJob[UpdateResult] =
     updatable.update(assignments.asScala.toMap)
 
   def updatable_update(
       assignments: java.util.Map[Column, Column],
-      updatable: Updatable): UpdateResult =
+      updatable: Updatable
+  ): UpdateResult =
     updatable.update(assignments.asScala.toMap)
 
   def async_updatable_update(
       assignments: java.util.Map[Column, Column],
-      updatable: UpdatableAsyncActor): TypedAsyncJob[UpdateResult] =
+      updatable: UpdatableAsyncActor
+  ): TypedAsyncJob[UpdateResult] =
     updatable.update(assignments.asScala.toMap)
 
   def replacement(
       colName: String,
       replacement: java.util.Map[_, _],
-      func: DataFrameNaFunctions): DataFrame =
+      func: DataFrameNaFunctions
+  ): DataFrame =
     func.replace(colName, replacement.asScala.toMap)
 
   def fill(map: java.util.Map[String, _], func: DataFrameNaFunctions): DataFrame =
@@ -143,9 +160,10 @@ object JavaUtils {
   def sampleBy(
       col: Column,
       fractions: java.util.Map[_, _],
-      func: DataFrameStatFunctions): DataFrame = {
-    val scalaMap = fractions.asScala.map {
-      case (key, value) => key -> value.asInstanceOf[Double]
+      func: DataFrameStatFunctions
+  ): DataFrame = {
+    val scalaMap = fractions.asScala.map { case (key, value) =>
+      key -> value.asInstanceOf[Double]
     }.toMap
     func.sampleBy(col, scalaMap)
   }
@@ -153,15 +171,17 @@ object JavaUtils {
   def sampleBy(
       col: String,
       fractions: java.util.Map[_, _],
-      func: DataFrameStatFunctions): DataFrame = {
-    val scalaMap = fractions.asScala.map {
-      case (key, value) => key -> value.asInstanceOf[Double]
+      func: DataFrameStatFunctions
+  ): DataFrame = {
+    val scalaMap = fractions.asScala.map { case (key, value) =>
+      key -> value.asInstanceOf[Double]
     }.toMap
     func.sampleBy(col, scalaMap)
   }
 
   def javaSaveModeToScala(
-      mode: com.snowflake.snowpark_java.SaveMode): com.snowflake.snowpark.SaveMode = {
+      mode: com.snowflake.snowpark_java.SaveMode
+  ): com.snowflake.snowpark.SaveMode = {
     mode match {
       case com.snowflake.snowpark_java.SaveMode.Append => com.snowflake.snowpark.SaveMode.Append
       case com.snowflake.snowpark_java.SaveMode.Ignore => com.snowflake.snowpark.SaveMode.Ignore
@@ -213,7 +233,8 @@ object JavaUtils {
     if (v == null) null else v.asMap().map(e => (e._1, e._2.toString)).asJava
 
   def variantToStringMap(
-      v: com.snowflake.snowpark_java.types.Variant): java.util.Map[String, String] =
+      v: com.snowflake.snowpark_java.types.Variant
+  ): java.util.Map[String, String] =
     if (v == null) null
     else {
       InternalUtils
@@ -232,14 +253,16 @@ object JavaUtils {
     if (v == null) null else v.map(e => variantToString(e))
 
   def variantArrayToStringArray(
-      v: Array[com.snowflake.snowpark_java.types.Variant]): Array[String] =
+      v: Array[com.snowflake.snowpark_java.types.Variant]
+  ): Array[String] =
     if (v == null) null else v.map(e => variantToString(e))
 
   def stringArrayToVariantArray(v: Array[String]): Array[Variant] =
     if (v == null) null else v.map(e => stringToVariant(e))
 
   def stringArrayToJavaVariantArray(
-      v: Array[String]): Array[com.snowflake.snowpark_java.types.Variant] =
+      v: Array[String]
+  ): Array[com.snowflake.snowpark_java.types.Variant] =
     if (v == null) null else v.map(e => stringToJavaVariant(e))
 
   def variantMapToStringMap(v: mutable.Map[String, Variant]): java.util.Map[String, String] =
@@ -255,8 +278,8 @@ object JavaUtils {
     }
 
   def javaVariantMapToStringMap(
-      v: java.util.Map[String, com.snowflake.snowpark_java.types.Variant])
-    : java.util.Map[String, String] =
+      v: java.util.Map[String, com.snowflake.snowpark_java.types.Variant]
+  ): java.util.Map[String, String] =
     if (v == null) null
     else {
       val result = new java.util.HashMap[String, String]()
@@ -275,8 +298,7 @@ object JavaUtils {
     if (v == null) null
     else JavaConverters.mapAsScalaMap(v).map(e => (e._1, stringToVariant(e._2)))
 
-  def stringMapToVariantJavaMap(
-      v: java.util.Map[String, String]): java.util.Map[String, Variant] =
+  def stringMapToVariantJavaMap(v: java.util.Map[String, String]): java.util.Map[String, Variant] =
     if (v == null) null
     else {
       val result = new java.util.HashMap[String, Variant]()
@@ -284,8 +306,9 @@ object JavaUtils {
       result
     }
 
-  def stringMapToJavaVariantMap(v: java.util.Map[String, String])
-    : java.util.Map[String, com.snowflake.snowpark_java.types.Variant] =
+  def stringMapToJavaVariantMap(
+      v: java.util.Map[String, String]
+  ): java.util.Map[String, com.snowflake.snowpark_java.types.Variant] =
     if (v == null) null
     else {
       val result = new java.util.HashMap[String, com.snowflake.snowpark_java.types.Variant]()
@@ -325,21 +348,24 @@ object JavaUtils {
       udfRegistration: UDFRegistration,
       name: String,
       udf: UserDefinedFunction,
-      stageLocation: String): UserDefinedFunction =
+      stageLocation: String
+  ): UserDefinedFunction =
     udfRegistration.register(Option(name), udf, Option(stageLocation))
 
   def registerJavaUDTF(
       udtfRegistration: UDTFRegistration,
       name: String,
       javaUdtf: JavaUDTF,
-      stageLocation: String): TableFunction =
+      stageLocation: String
+  ): TableFunction =
     udtfRegistration.registerJavaUDTF(Option(name), javaUdtf, Option(stageLocation))
 
   def registerJavaSProc(
       sprocRegistration: SProcRegistration,
       name: String,
       sp: StoredProcedure,
-      stageLocation: String): StoredProcedure =
+      stageLocation: String
+  ): StoredProcedure =
     sprocRegistration.register(Option(name), sp, Option(stageLocation))
 
   def registerJavaSProc(
@@ -347,7 +373,8 @@ object JavaUtils {
       name: String,
       sp: StoredProcedure,
       stageLocation: String,
-      isCallerMode: Boolean): StoredProcedure =
+      isCallerMode: Boolean
+  ): StoredProcedure =
     sprocRegistration.register(Option(name), sp, Option(stageLocation), isCallerMode)
 
   def getActiveSession: Session =

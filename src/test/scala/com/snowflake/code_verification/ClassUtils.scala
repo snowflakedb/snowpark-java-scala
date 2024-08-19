@@ -28,17 +28,16 @@ object ClassUtils extends Logging {
       .toSeq
   }
 
-  /**
-   * Check if two classes have same function names.
-   * It is not perfect since it can only check function
-   * names but not args.
-   */
+  /** Check if two classes have same function names. It is not perfect since it can only check
+    * function names but not args.
+    */
   def containsSameFunctionNames[A: TypeTag, B: TypeTag](
       class1: Class[A],
       class2: Class[B],
       class1Only: Set[String] = Set.empty,
       class2Only: Set[String] = Set.empty,
-      class1To2NameMap: Map[String, String] = Map.empty): Boolean = {
+      class1To2NameMap: Map[String, String] = Map.empty
+  ): Boolean = {
     val nameList1 = getAllPublicFunctionNames(class1)
     val nameList2 = mutable.Set[String](getAllPublicFunctionNames(class2): _*)
     var missed = false
@@ -64,7 +63,8 @@ object ClassUtils extends Logging {
         list2Cache.remove(name)
       } else {
         logError(s"${class1.getName} misses function $name")
-    })
+      }
+    )
     !missed && list2Cache.isEmpty
   }
 }

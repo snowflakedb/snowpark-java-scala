@@ -29,7 +29,8 @@ class ResultSchemaSuite extends TestData {
         .map(row => s"""${row.colName} ${row.sfType}, "${row.colName}" ${row.sfType} not null,""")
         .reduce((x, y) => x + y)
         .dropRight(1)
-        .stripMargin)
+        .stripMargin
+    )
 
     createTable(
       fullTypesTable2,
@@ -37,7 +38,8 @@ class ResultSchemaSuite extends TestData {
         .map(row => s"""${row.colName} ${row.sfType},""")
         .reduce((x, y) => x + y)
         .dropRight(1)
-        .stripMargin)
+        .stripMargin
+    )
   }
 
   override def afterAll: Unit = {
@@ -57,7 +59,8 @@ class ResultSchemaSuite extends TestData {
   test("alter") {
     verifySchema(
       "alter session set ABORT_DETACHED_QUERY=false",
-      session.sql("alter session set ABORT_DETACHED_QUERY=false").schema)
+      session.sql("alter session set ABORT_DETACHED_QUERY=false").schema
+    )
   }
 
   test("list, remove file") {
@@ -67,14 +70,16 @@ class ResultSchemaSuite extends TestData {
     uploadFileToStage(stageName, testFile2Csv, compress = false)
     verifySchema(
       s"rm @$stageName/$testFileCsv",
-      session.sql(s"rm @$stageName/$testFile2Csv").schema)
+      session.sql(s"rm @$stageName/$testFile2Csv").schema
+    )
 
     // Re-upload to test remove
     uploadFileToStage(stageName, testFileCsv, compress = false)
     uploadFileToStage(stageName, testFile2Csv, compress = false)
     verifySchema(
       s"remove @$stageName/$testFileCsv",
-      session.sql(s"remove @$stageName/$testFile2Csv").schema)
+      session.sql(s"remove @$stageName/$testFile2Csv").schema
+    )
   }
 
   test("select") {
@@ -89,7 +94,8 @@ class ResultSchemaSuite extends TestData {
     val df2 = df1.filter(col("\"int\"") > 0)
     verifySchema(
       s"""select string, "int", array, "date" from $fullTypesTable where \"int\" > 0""",
-      df2.schema)
+      df2.schema
+    )
   }
 
   // ignore it for now since we are modifying the analyzer system.
@@ -132,7 +138,7 @@ class ResultSchemaSuite extends TestData {
     val columnCount = resultMeta.getColumnCount
     val tsSchema = session.table(fullTypesTable2).schema
     (0 until columnCount)
-    // todo: remove this line after JDBC is released
+      // todo: remove this line after JDBC is released
       .filter(x => x != 31 && x != 32) // temporarily skip object for incoming behavior change
       .foreach(index => {
         assert(resultMeta.getColumnType(index + 1) == typeMap(index).jdbcType)
@@ -142,7 +148,9 @@ class ResultSchemaSuite extends TestData {
             resultMeta.getColumnTypeName(index + 1),
             resultMeta.getPrecision(index + 1),
             resultMeta.getScale(index + 1),
-            resultMeta.isSigned(index + 1)) == typeMap(index).tsType)
+            resultMeta.isSigned(index + 1)
+          ) == typeMap(index).tsType
+        )
         assert(tsSchema(index).dataType == typeMap(index).tsType)
       })
     statement.close()

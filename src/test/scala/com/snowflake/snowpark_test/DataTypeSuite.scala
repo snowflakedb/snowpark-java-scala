@@ -91,7 +91,8 @@ class DataTypeSuite extends SNTestBase {
     assert(tpe.typeName == "Struct")
     assert(
       tpe.toString == "StructType[StructField(COL1, Integer, Nullable = true), " +
-        "StructField(COL2, String, Nullable = false)]")
+        "StructField(COL2, String, Nullable = false)]"
+    )
 
     assert(tpe(1) == StructField("col2", StringType, nullable = false))
     assert(tpe("col1") == StructField("col1", IntegerType))
@@ -115,22 +116,30 @@ class DataTypeSuite extends SNTestBase {
         StructField(
           "col14",
           StructType(Seq(StructField("col15", TimestampType, nullable = false))),
-          nullable = false),
+          nullable = false
+        ),
         StructField("col3", DateType, nullable = false),
         StructField(
           "col4",
-          StructType(Seq(
-            StructField("col5", ByteType),
-            StructField("col6", ShortType),
-            StructField("col7", IntegerType, nullable = false),
-            StructField("col8", LongType),
-            StructField(
-              "col12",
-              StructType(Seq(StructField("col13", StringType))),
-              nullable = false),
-            StructField("col9", FloatType),
-            StructField("col10", DoubleType),
-            StructField("col11", DecimalType(10, 1)))))))
+          StructType(
+            Seq(
+              StructField("col5", ByteType),
+              StructField("col6", ShortType),
+              StructField("col7", IntegerType, nullable = false),
+              StructField("col8", LongType),
+              StructField(
+                "col12",
+                StructType(Seq(StructField("col13", StringType))),
+                nullable = false
+              ),
+              StructField("col9", FloatType),
+              StructField("col10", DoubleType),
+              StructField("col11", DecimalType(10, 1))
+            )
+          )
+        )
+      )
+    )
 
     assert(
       TestUtils.treeString(schema, 0) ==
@@ -150,7 +159,8 @@ class DataTypeSuite extends SNTestBase {
            |   |--COL9: Float (nullable = true)
            |   |--COL10: Double (nullable = true)
            |   |--COL11: Decimal(10, 1) (nullable = true)
-           |""".stripMargin)
+           |""".stripMargin
+    )
   }
 
   test("ColumnIdentifier") {
@@ -173,16 +183,15 @@ class DataTypeSuite extends SNTestBase {
 
     val df = session
       .range(1)
-      .select(
-        lit(0.05).cast(DecimalType(5, 2)).as("a"),
-        lit(0.01).cast(DecimalType(7, 2)).as("b"))
+      .select(lit(0.05).cast(DecimalType(5, 2)).as("a"), lit(0.01).cast(DecimalType(7, 2)).as("b"))
 
     assert(
       TestUtils.treeString(df.schema, 0) ==
         s"""root
            | |--A: Decimal(5, 2) (nullable = false)
            | |--B: Decimal(7, 2) (nullable = false)
-           |""".stripMargin)
+           |""".stripMargin
+    )
   }
 
   test("read Structured Array") {
@@ -222,7 +231,9 @@ class DataTypeSuite extends SNTestBase {
             Array("{\n  \"name\": 1\n}"),
             Array(Array(1L, 2L), Array(3L, 4L)),
             Array(java.math.BigDecimal.valueOf(1.234)),
-            Array(Time.valueOf("10:03:56"))))
+            Array(Time.valueOf("10:03:56"))
+          )
+        )
       } finally {
         TimeZone.setDefault(oldTimeZone)
       }
@@ -249,7 +260,9 @@ class DataTypeSuite extends SNTestBase {
           Map(2 -> Array(4L, 5L, 6L), 1 -> Array(1L, 2L, 3L)),
           Map(2 -> Map("c" -> 3), 1 -> Map("a" -> 1, "b" -> 2)),
           Array(Map("a" -> 1, "b" -> 2), Map("c" -> 3)),
-          "{\n  \"a\": 1,\n  \"b\": 2\n}"))
+          "{\n  \"a\": 1,\n  \"b\": 2\n}"
+        )
+      )
     }
   }
 
@@ -353,7 +366,8 @@ class DataTypeSuite extends SNTestBase {
              | |--ARR10: Array[Map nullable = true] (nullable = true)
              | |--ARR11: Array[Array[Long nullable = true] nullable = true] (nullable = true)
              | |--ARR0: Array (nullable = true)
-             |""".stripMargin)
+             |""".stripMargin
+      )
       // schema string: nullable
       assert(
         // since we retrieved the schema of df before, df.select("*") will use the
@@ -372,7 +386,8 @@ class DataTypeSuite extends SNTestBase {
              | |--ARR10: Array[Map nullable = true] (nullable = true)
              | |--ARR11: Array[Array[Long nullable = true] nullable = true] (nullable = true)
              | |--ARR0: Array (nullable = true)
-             |""".stripMargin)
+             |""".stripMargin
+      )
 
       // schema string: not nullable
       val query2 =
@@ -387,7 +402,8 @@ class DataTypeSuite extends SNTestBase {
           s"""root
              | |--ARR1: Array[Long nullable = false] (nullable = true)
              | |--ARR11: Array[Array[Long nullable = false] nullable = false] (nullable = true)
-             |""".stripMargin)
+             |""".stripMargin
+      )
       // scalastyle:on
 
       assert(
@@ -396,7 +412,8 @@ class DataTypeSuite extends SNTestBase {
           s"""root
              | |--ARR1: Array[Long nullable = false] (nullable = true)
              | |--ARR11: Array[Array[Long nullable = false] nullable = false] (nullable = true)
-             |""".stripMargin)
+             |""".stripMargin
+      )
       // scalastyle:on
     }
   }
@@ -421,7 +438,8 @@ class DataTypeSuite extends SNTestBase {
              | |--MAP3: Map[Long, Array[Long nullable = true] nullable = true] (nullable = true)
              | |--MAP4: Map[Long, Map[String, Long nullable = true] nullable = true] (nullable = true)
              | |--MAP0: Map (nullable = true)
-             |""".stripMargin)
+             |""".stripMargin
+      )
       // scalastyle:on
 
       assert(
@@ -435,7 +453,8 @@ class DataTypeSuite extends SNTestBase {
              | |--MAP3: Map[Long, Array[Long nullable = true] nullable = true] (nullable = true)
              | |--MAP4: Map[Long, Map[String, Long nullable = true] nullable = true] (nullable = true)
              | |--MAP0: Map (nullable = true)
-             |""".stripMargin)
+             |""".stripMargin
+      )
       // scalastyle:on
 
       // nullable
@@ -453,7 +472,8 @@ class DataTypeSuite extends SNTestBase {
              | |--MAP1: Map[String, Long nullable = false] (nullable = true)
              | |--MAP3: Map[Long, Array[Long nullable = false] nullable = true] (nullable = true)
              | |--MAP4: Map[Long, Map[String, Long nullable = false] nullable = true] (nullable = true)
-             |""".stripMargin)
+             |""".stripMargin
+      )
       // scalastyle:on
 
       assert(
@@ -463,7 +483,8 @@ class DataTypeSuite extends SNTestBase {
              | |--MAP1: Map[String, Long nullable = false] (nullable = true)
              | |--MAP3: Map[Long, Array[Long nullable = false] nullable = true] (nullable = true)
              | |--MAP4: Map[Long, Map[String, Long nullable = false] nullable = true] (nullable = true)
-             |""".stripMargin)
+             |""".stripMargin
+      )
       // scalastyle:on
     }
   }
@@ -498,7 +519,8 @@ class DataTypeSuite extends SNTestBase {
              |   |--A: Struct (nullable = true)
              |     |--B: Struct (nullable = true)
              |       |--C: Long (nullable = true)
-             |""".stripMargin)
+             |""".stripMargin
+      )
       // scalastyle:on
 
       // schema string: nullable
@@ -520,7 +542,8 @@ class DataTypeSuite extends SNTestBase {
              |   |--A: Struct (nullable = true)
              |     |--B: Struct (nullable = true)
              |       |--C: Long (nullable = true)
-             |""".stripMargin)
+             |""".stripMargin
+      )
       // scalastyle:on
 
       // schema query: not null
@@ -553,7 +576,8 @@ class DataTypeSuite extends SNTestBase {
              |   |--A: Struct (nullable = false)
              |     |--B: Struct (nullable = false)
              |       |--C: Long (nullable = false)
-             |""".stripMargin)
+             |""".stripMargin
+      )
       // scalastyle:on
 
       assert(
@@ -574,7 +598,8 @@ class DataTypeSuite extends SNTestBase {
              |   |--A: Struct (nullable = false)
              |     |--B: Struct (nullable = false)
              |       |--C: Long (nullable = false)
-             |""".stripMargin)
+             |""".stripMargin
+      )
       // scalastyle:on
     }
   }

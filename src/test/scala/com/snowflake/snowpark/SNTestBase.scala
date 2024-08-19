@@ -80,7 +80,8 @@ trait SNTestBase extends FunSuite with BeforeAndAfterAll with SFTestUtils with S
     TypeMap("object", "object", Types.VARCHAR, MapType(StringType, StringType)),
     TypeMap("array", "array", Types.VARCHAR, ArrayType(StringType)),
     TypeMap("geography", "geography", Types.VARCHAR, GeographyType),
-    TypeMap("geometry", "geometry", Types.VARCHAR, GeometryType))
+    TypeMap("geometry", "geometry", Types.VARCHAR, GeometryType)
+  )
 
   implicit lazy val session: Session = {
     TestUtils.tryToLoadFipsProvider()
@@ -96,14 +97,13 @@ trait SNTestBase extends FunSuite with BeforeAndAfterAll with SFTestUtils with S
   def equalsIgnoreCase(a: Option[String], b: Option[String]): Boolean = {
     (a, b) match {
       case (Some(l), Some(r)) => l.equalsIgnoreCase(r)
-      case _ => a == b
+      case _                  => a == b
     }
   }
 
   def checkAnswer(df1: DataFrame, df2: DataFrame, sort: Boolean): Unit = {
     if (sort) {
-      assert(
-        TestUtils.compare(df1.collect().sortBy(_.toString), df2.collect().sortBy(_.toString)))
+      assert(TestUtils.compare(df1.collect().sortBy(_.toString), df2.collect().sortBy(_.toString)))
     } else {
       assert(TestUtils.compare(df1.collect(), df2.collect()))
     }
@@ -124,8 +124,8 @@ trait SNTestBase extends FunSuite with BeforeAndAfterAll with SFTestUtils with S
     // scalastyle:off
     Session
       .loadConfFromFile(defaultProfile)
-      .map {
-        case (key, value) => key.toLowerCase -> value
+      .map { case (key, value) =>
+        key.toLowerCase -> value
       }
       .get(key.toLowerCase)
     // scalastyle:on
@@ -171,7 +171,8 @@ trait SNTestBase extends FunSuite with BeforeAndAfterAll with SFTestUtils with S
       thunk: => T,
       parameter: String,
       value: String,
-      skipIfParamNotExist: Boolean = false): Unit = {
+      skipIfParamNotExist: Boolean = false
+  ): Unit = {
     var parameterNotExist = false
     try {
       session.runQuery(s"alter session set $parameter = $value")
@@ -211,7 +212,8 @@ trait SNTestBase extends FunSuite with BeforeAndAfterAll with SFTestUtils with S
       columnTypeName: String,
       precision: Int,
       scale: Int,
-      signed: Boolean): DataType =
+      signed: Boolean
+  ): DataType =
     ServerConnection.getDataType(sqlType, columnTypeName, precision, scale, signed)
 
   def loadConfFromFile(path: String): Map[String, String] = Session.loadConfFromFile(path)
@@ -225,7 +227,8 @@ trait SNTestBase extends FunSuite with BeforeAndAfterAll with SFTestUtils with S
       s"select query_text from " +
         s"table(information_schema.QUERY_HISTORY_BY_SESSION()) " +
         s"where query_tag ='$tag'",
-      sess)
+      sess
+    )
     val result = statement.getResultSet
     val resArray = new ArrayBuffer[String]()
     while (result.next()) {
@@ -240,7 +243,8 @@ trait SNTestBase extends FunSuite with BeforeAndAfterAll with SFTestUtils with S
       s"select query_tag from " +
         s"table(information_schema.QUERY_HISTORY_BY_SESSION()) " +
         s"where query_text ilike '%$queryText%'",
-      session)
+      session
+    )
     val result = statement.getResultSet
     val resArray = new ArrayBuffer[String]()
 
@@ -286,17 +290,17 @@ trait SNTestBase extends FunSuite with BeforeAndAfterAll with SFTestUtils with S
   def withSessionParameters(
       params: Seq[(String, String)],
       currentSession: Session,
-      skipPreprod: Boolean = false)(thunk: => Unit): Unit = {
+      skipPreprod: Boolean = false
+  )(thunk: => Unit): Unit = {
     if (!(skipPreprod && isPreprodAccount)) {
       try {
-        params.foreach {
-          case (paramName, value) =>
-            runQuery(s"alter session set $paramName = $value", currentSession)
+        params.foreach { case (paramName, value) =>
+          runQuery(s"alter session set $paramName = $value", currentSession)
         }
         thunk
       } finally {
-        params.foreach {
-          case (paramName, _) => runQuery(s"alter session unset $paramName", currentSession)
+        params.foreach { case (paramName, _) =>
+          runQuery(s"alter session unset $paramName", currentSession)
         }
       }
     }
@@ -309,9 +313,11 @@ trait SNTestBase extends FunSuite with BeforeAndAfterAll with SFTestUtils with S
         ("IGNORE_CLIENT_VESRION_IN_STRUCTURED_TYPES_RESPONSE", "true"),
         ("FORCE_ENABLE_STRUCTURED_TYPES_NATIVE_ARROW_FORMAT", "true"),
         ("ENABLE_STRUCTURED_TYPES_NATIVE_ARROW_FORMAT", "true"),
-        ("ENABLE_STRUCTURED_TYPES_IN_BINDS", "enable")),
+        ("ENABLE_STRUCTURED_TYPES_IN_BINDS", "enable")
+      ),
       currentSession,
-      skipPreprod = true)(thunk)
+      skipPreprod = true
+    )(thunk)
     // disable these tests on preprod daily tests until these parameters are enabled by default.
   }
 }

@@ -25,12 +25,14 @@ class UDTFInternalSuite extends SNTestBase {
     assert(
       udtfHandler
         .generateUDTFClassSignature(udtf0, udtf0.inputColumns)
-        .equals("com.snowflake.snowpark.udtf.UDTF0"))
+        .equals("com.snowflake.snowpark.udtf.UDTF0")
+    )
     val udtf00 = new TestUDTF0()
     assert(
       udtfHandler
         .generateUDTFClassSignature(udtf00, udtf00.inputColumns)
-        .equals("com.snowflake.snowpark.udtf.UDTF0"))
+        .equals("com.snowflake.snowpark.udtf.UDTF0")
+    )
   }
 
   test("Unit test for UDTF1") {
@@ -49,12 +51,14 @@ class UDTFInternalSuite extends SNTestBase {
     assert(
       udtfHandler
         .generateUDTFClassSignature(udtf1, udtf1.inputColumns)
-        .equals("com.snowflake.snowpark.udtf.UDTF1<java.lang.Integer>"))
+        .equals("com.snowflake.snowpark.udtf.UDTF1<java.lang.Integer>")
+    )
     val udtf11 = new TestUDTF1()
     assert(
       udtfHandler
         .generateUDTFClassSignature(udtf11, udtf11.inputColumns)
-        .equals("com.snowflake.snowpark.udtf.UDTF1<java.lang.String>"))
+        .equals("com.snowflake.snowpark.udtf.UDTF1<java.lang.String>")
+    )
 
   }
 
@@ -75,12 +79,14 @@ class UDTFInternalSuite extends SNTestBase {
     assert(
       udtfHandler
         .generateUDTFClassSignature(udtf2, udtf2.inputColumns)
-        .equals("com.snowflake.snowpark.udtf.UDTF2<java.lang.Integer, java.lang.Integer>"))
+        .equals("com.snowflake.snowpark.udtf.UDTF2<java.lang.Integer, java.lang.Integer>")
+    )
     val udtf22 = new TestUDTF2()
     assert(
       udtfHandler
         .generateUDTFClassSignature(udtf22, udtf22.inputColumns)
-        .equals("com.snowflake.snowpark.udtf.UDTF2<java.lang.String, java.lang.String>"))
+        .equals("com.snowflake.snowpark.udtf.UDTF2<java.lang.String, java.lang.String>")
+    )
   }
 
   test("negative test: Unsupported type is used") {

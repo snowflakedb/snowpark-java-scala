@@ -15,8 +15,8 @@ private[snowpark] class StagedFileReader(
     var userSchema: Option[StructType],
     var tableName: Option[String],
     var columnNames: Seq[String],
-    var transformations: Seq[Expression])
-    extends Logging {
+    var transformations: Seq[Expression]
+) extends Logging {
 
   def this(session: Session) = {
     this(session, Map.empty, "", "CSV", "", None, None, Seq.empty, Seq.empty)
@@ -32,7 +32,8 @@ private[snowpark] class StagedFileReader(
       stagedFileReader.userSchema,
       stagedFileReader.tableName,
       stagedFileReader.columnNames,
-      stagedFileReader.transformations)
+      stagedFileReader.transformations
+    )
   }
 
   private final val supportedFileTypes = Set("CSV", "JSON", "PARQUET", "AVRO", "ORC", "XML")
@@ -59,8 +60,8 @@ private[snowpark] class StagedFileReader(
   }
 
   def options(configs: Map[String, Any]): StagedFileReader = {
-    configs.foreach {
-      case (k, v) => option(k, v)
+    configs.foreach { case (k, v) =>
+      option(k, v)
     }
     this
   }
@@ -101,7 +102,8 @@ private[snowpark] class StagedFileReader(
         fullyQualifiedSchema,
         columnNames,
         transformations.map(SqlGenerator.expressionToSql),
-        userSchema)
+        userSchema
+      )
     } else if (formatType.equals("CSV")) {
       if (userSchema.isEmpty) {
         throw ErrorMessage.DF_MUST_PROVIDE_SCHEMA_FOR_READING_FILE()
@@ -111,7 +113,8 @@ private[snowpark] class StagedFileReader(
           formatType,
           curOptions,
           fullyQualifiedSchema,
-          userSchema.get.toAttributes)
+          userSchema.get.toAttributes
+        )
       }
     } else {
       require(userSchema.isEmpty, s"Read $formatType does not support user schema")
@@ -120,7 +123,8 @@ private[snowpark] class StagedFileReader(
         formatType,
         curOptions,
         fullyQualifiedSchema,
-        Seq(Attribute("\"$1\"", VariantType)))
+        Seq(Attribute("\"$1\"", VariantType))
+      )
     }
   }
 

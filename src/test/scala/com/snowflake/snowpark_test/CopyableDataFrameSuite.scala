@@ -13,10 +13,8 @@ class CopyableDataFrameSuite extends SNTestBase {
   val testTableName: String = randomName()
 
   private val userSchema: StructType = StructType(
-    Seq(
-      StructField("a", IntegerType),
-      StructField("b", StringType),
-      StructField("c", DoubleType)))
+    Seq(StructField("a", IntegerType), StructField("b", StringType), StructField("c", DoubleType))
+  )
 
   override def beforeAll(): Unit = {
     super.beforeAll()
@@ -68,7 +66,8 @@ class CopyableDataFrameSuite extends SNTestBase {
       .copyInto(testTableName)
     checkAnswer(
       session.table(testTableName),
-      Seq(Row(1, "one", 1.2), Row(2, "two", 2.2), Row(1, "one", 1.2), Row(2, "two", 2.2)))
+      Seq(Row(1, "one", 1.2), Row(2, "two", 2.2), Row(1, "one", 1.2), Row(2, "two", 2.2))
+    )
   }
 
   test("copy csv test: create target table automatically if not exists") {
@@ -85,7 +84,8 @@ class CopyableDataFrameSuite extends SNTestBase {
            | |--A: Long (nullable = true)
            | |--B: String (nullable = true)
            | |--C: Double (nullable = true)
-           |""".stripMargin)
+           |""".stripMargin
+    )
 
     // run COPY again, the loaded files will be skipped by default
     df.copyInto(testTableName)
@@ -107,7 +107,8 @@ class CopyableDataFrameSuite extends SNTestBase {
         | |--C1: Long (nullable = true)
         | |--C2: String (nullable = true)
         | |--C3: Double (nullable = true)
-        |""".stripMargin)
+        |""".stripMargin
+    )
 
     // run COPY again, the loaded files will be skipped by default
     df.copyInto(testTableName)
@@ -117,7 +118,8 @@ class CopyableDataFrameSuite extends SNTestBase {
     df.write.saveAsTable(testTableName)
     checkAnswer(
       session.table(testTableName),
-      Seq(Row(1, "one", 1.2), Row(2, "two", 2.2), Row(1, "one", 1.2), Row(2, "two", 2.2)))
+      Seq(Row(1, "one", 1.2), Row(2, "two", 2.2), Row(1, "one", 1.2), Row(2, "two", 2.2))
+    )
 
     // Write data with saveAsTable() again, loaded file are NOT skipped.
     df.write.saveAsTable(testTableName)
@@ -129,7 +131,9 @@ class CopyableDataFrameSuite extends SNTestBase {
         Row(1, "one", 1.2),
         Row(2, "two", 2.2),
         Row(1, "one", 1.2),
-        Row(2, "two", 2.2)))
+        Row(2, "two", 2.2)
+      )
+    )
   }
 
   test("copy csv test: copy transformation") {
@@ -146,7 +150,8 @@ class CopyableDataFrameSuite extends SNTestBase {
            | |--C1: String (nullable = true)
            | |--C2: String (nullable = true)
            | |--C3: String (nullable = true)
-           |""".stripMargin)
+           |""".stripMargin
+    )
     checkAnswer(session.table(testTableName), Seq(Row("1", "one", "1.2"), Row("2", "two", "2.2")))
 
     // Copy data in order of $3, $2, $1 with FORCE = TRUE
@@ -157,13 +162,16 @@ class CopyableDataFrameSuite extends SNTestBase {
         Row("1", "one", "1.2"),
         Row("2", "two", "2.2"),
         Row("1.2", "one", "1"),
-        Row("2.2", "two", "2")))
+        Row("2.2", "two", "2")
+      )
+    )
 
     // Copy data in order of $2, $3, $1 with FORCE = TRUE and skip_header = 1
     df.copyInto(
       testTableName,
       Seq(col("$2"), col("$3"), col("$1")),
-      Map("FORCE" -> "TRUE", "skip_header" -> 1))
+      Map("FORCE" -> "TRUE", "skip_header" -> 1)
+    )
     checkAnswer(
       session.table(testTableName),
       Seq(
@@ -171,7 +179,9 @@ class CopyableDataFrameSuite extends SNTestBase {
         Row("2", "two", "2.2"),
         Row("1.2", "one", "1"),
         Row("2.2", "two", "2"),
-        Row("two", "2.2", "2")))
+        Row("two", "2.2", "2")
+      )
+    )
   }
 
   test("copy csv test: negative test") {
@@ -186,7 +196,9 @@ class CopyableDataFrameSuite extends SNTestBase {
     assert(
       ex1.errorCode.equals("0122") && ex1.message.contains(
         s"Cannot create the target table $testTableName because Snowpark cannot determine" +
-          " the column names to use. You should create the table before calling copyInto()."))
+          " the column names to use. You should create the table before calling copyInto()."
+      )
+    )
 
     // case 2: copyInto transformation doesn't match table schema.
     createTable(testTableName, "c1 String")
@@ -219,7 +231,8 @@ class CopyableDataFrameSuite extends SNTestBase {
            | |--C1: String (nullable = true)
            | |--C2: String (nullable = true)
            | |--C3: String (nullable = true)
-           |""".stripMargin)
+           |""".stripMargin
+    )
     checkAnswer(session.table(testTableName), Seq(Row("1", "one", null), Row("2", "two", null)))
 
     // Copy data in order of $3, $2 to column c3 and c2 with FORCE = TRUE
@@ -230,14 +243,17 @@ class CopyableDataFrameSuite extends SNTestBase {
         Row("1", "one", null),
         Row("2", "two", null),
         Row(null, "one", "1.2"),
-        Row(null, "two", "2.2")))
+        Row(null, "two", "2.2")
+      )
+    )
 
     // Copy data $1 to column c3 with FORCE = TRUE and skip_header = 1
     df.copyInto(
       testTableName,
       Seq("c3"),
       Seq(col("$1")),
-      Map("FORCE" -> "TRUE", "skip_header" -> 1))
+      Map("FORCE" -> "TRUE", "skip_header" -> 1)
+    )
     checkAnswer(
       session.table(testTableName),
       Seq(
@@ -245,7 +261,9 @@ class CopyableDataFrameSuite extends SNTestBase {
         Row("2", "two", null),
         Row(null, "one", "1.2"),
         Row(null, "two", "2.2"),
-        Row(null, null, "2")))
+        Row(null, null, "2")
+      )
+    )
   }
 
   test("copy csv test: copy into column names without transformation") {
@@ -263,10 +281,12 @@ class CopyableDataFrameSuite extends SNTestBase {
            | |--C2: String (nullable = true)
            | |--C3: String (nullable = true)
            | |--C4: String (nullable = true)
-           |""".stripMargin)
+           |""".stripMargin
+    )
     checkAnswer(
       session.table(testTableName),
-      Seq(Row("1", "one", "1.2", null), Row("2", "two", "2.2", null)))
+      Seq(Row("1", "one", "1.2", null), Row("2", "two", "2.2", null))
+    )
 
     // case 2: select more columns from csv than it have
     // There is only 3 columns in the schema of the csv file.
@@ -277,7 +297,9 @@ class CopyableDataFrameSuite extends SNTestBase {
         Row("1", "one", "1.2", null),
         Row("2", "two", "2.2", null),
         Row("1", "one", "1.2", null),
-        Row("2", "two", "2.2", null)))
+        Row("2", "two", "2.2", null)
+      )
+    )
   }
 
   test("copy json test: write with column names") {
@@ -290,14 +312,16 @@ class CopyableDataFrameSuite extends SNTestBase {
       testTableName,
       Seq("c1", "c2"),
       Seq(sqlExpr("$1:color"), sqlExpr("$1:fruit")),
-      Map.empty)
+      Map.empty
+    )
     assert(
       TestUtils.treeString(session.table(testTableName).schema, 0) ==
         s"""root
            | |--C1: String (nullable = true)
            | |--C2: Variant (nullable = true)
            | |--C3: String (nullable = true)
-           |""".stripMargin)
+           |""".stripMargin
+    )
     checkAnswer(session.table(testTableName), Seq(Row("Red", "\"Apple\"", null)))
   }
 
@@ -313,13 +337,14 @@ class CopyableDataFrameSuite extends SNTestBase {
            | |--C1: String (nullable = true)
            | |--C2: Variant (nullable = true)
            | |--C3: String (nullable = true)
-           |""".stripMargin)
+           |""".stripMargin
+    )
     val ex = intercept[SnowflakeSQLException] {
       df.copyInto(testTableName, Seq("c1", "c2"), Seq.empty, Map.empty)
     }
     assert(
-      ex.getMessage.contains(
-        "JSON file format can produce one and only one column of type variant"))
+      ex.getMessage.contains("JSON file format can produce one and only one column of type variant")
+    )
   }
 
   test("copy csv test: negative test with column names") {
@@ -333,15 +358,21 @@ class CopyableDataFrameSuite extends SNTestBase {
       df.copyInto(testTableName, Seq("c1"), Seq(col("$1"), col("$2")), Map.empty)
     }
     assert(
-      ex2.getMessage.contains("Number of column names provided to copy " +
-        "into does not match the number of transformations"))
+      ex2.getMessage.contains(
+        "Number of column names provided to copy " +
+          "into does not match the number of transformations"
+      )
+    )
     // table has 3 column, transformation has 2 columns, column name has 3
     val ex3 = intercept[SnowparkClientException] {
       df.copyInto(testTableName, Seq("c1", "c2", "c3"), Seq(col("$1"), col("$2")), Map.empty)
     }
     assert(
-      ex3.getMessage.contains("Number of column names provided to copy " +
-        "into does not match the number of transformations"))
+      ex3.getMessage.contains(
+        "Number of column names provided to copy " +
+          "into does not match the number of transformations"
+      )
+    )
 
     // case 2: column names contains unknown columns
     // table has 3 column, transformation has 4 columns, column name has 4
@@ -350,7 +381,8 @@ class CopyableDataFrameSuite extends SNTestBase {
         testTableName,
         Seq("c1", "c2", "c3", "c4"),
         Seq(col("$1"), col("$2"), col("$3"), col("$4")),
-        Map.empty)
+        Map.empty
+      )
     }
     assert(ex4.getMessage.contains("invalid identifier 'C4'"))
   }
@@ -377,16 +409,19 @@ class CopyableDataFrameSuite extends SNTestBase {
       TestUtils.treeString(session.table(testTableName).schema, 0) ==
         s"""root
            | |--C1: Variant (nullable = true)
-           |""".stripMargin)
+           |""".stripMargin
+    )
     checkAnswer(
       session.table(testTableName),
-      Seq(Row("{\n  \"color\": \"Red\",\n  \"fruit\": \"Apple\",\n  \"size\": \"Large\"\n}")))
+      Seq(Row("{\n  \"color\": \"Red\",\n  \"fruit\": \"Apple\",\n  \"size\": \"Large\"\n}"))
+    )
 
     // copy again: loaded file is skipped.
     df.copyInto(testTableName, Seq(col("$1").as("B")))
     checkAnswer(
       session.table(testTableName),
-      Seq(Row("{\n  \"color\": \"Red\",\n  \"fruit\": \"Apple\",\n  \"size\": \"Large\"\n}")))
+      Seq(Row("{\n  \"color\": \"Red\",\n  \"fruit\": \"Apple\",\n  \"size\": \"Large\"\n}"))
+    )
 
     // copy again with FORCE = true.
     df.copyInto(testTableName, Seq(col("$1").as("B")), Map("FORCE" -> true))
@@ -394,7 +429,9 @@ class CopyableDataFrameSuite extends SNTestBase {
       session.table(testTableName),
       Seq(
         Row("{\n  \"color\": \"Red\",\n  \"fruit\": \"Apple\",\n  \"size\": \"Large\"\n}"),
-        Row("{\n  \"color\": \"Red\",\n  \"fruit\": \"Apple\",\n  \"size\": \"Large\"\n}")))
+        Row("{\n  \"color\": \"Red\",\n  \"fruit\": \"Apple\",\n  \"size\": \"Large\"\n}")
+      )
+    )
   }
 
   test("copy json test: write with transformation") {
@@ -408,14 +445,17 @@ class CopyableDataFrameSuite extends SNTestBase {
       Seq(
         sqlExpr("$1:color").as("color"),
         sqlExpr("$1:fruit").as("fruit"),
-        sqlExpr("$1:size").as("size")))
+        sqlExpr("$1:size").as("size")
+      )
+    )
     assert(
       TestUtils.treeString(session.table(testTableName).schema, 0) ==
         s"""root
            | |--C1: String (nullable = true)
            | |--C2: Variant (nullable = true)
            | |--C3: String (nullable = true)
-           |""".stripMargin)
+           |""".stripMargin
+    )
     checkAnswer(session.table(testTableName), Seq(Row("Red", "\"Apple\"", "Large")))
 
     // copy again with existed table and FORCE = true.
@@ -425,18 +465,22 @@ class CopyableDataFrameSuite extends SNTestBase {
       Seq(
         sqlExpr("$1:size").as("size"),
         sqlExpr("$1:fruit").as("fruit"),
-        sqlExpr("$1:color").as("color")),
-      Map("FORCE" -> true))
+        sqlExpr("$1:color").as("color")
+      ),
+      Map("FORCE" -> true)
+    )
     assert(
       TestUtils.treeString(session.table(testTableName).schema, 0) ==
         s"""root
            | |--C1: String (nullable = true)
            | |--C2: Variant (nullable = true)
            | |--C3: String (nullable = true)
-           |""".stripMargin)
+           |""".stripMargin
+    )
     checkAnswer(
       session.table(testTableName),
-      Seq(Row("Red", "\"Apple\"", "Large"), Row("Large", "\"Apple\"", "Red")))
+      Seq(Row("Red", "\"Apple\"", "Large"), Row("Large", "\"Apple\"", "Red"))
+    )
   }
 
   test("copy json test: negative test") {
@@ -451,7 +495,9 @@ class CopyableDataFrameSuite extends SNTestBase {
     assert(
       ex1.errorCode.equals("0122") && ex1.message.contains(
         s"Cannot create the target table $testTableName because Snowpark cannot determine" +
-          " the column names to use. You should create the table before calling copyInto()."))
+          " the column names to use. You should create the table before calling copyInto()."
+      )
+    )
 
     // case 2: copy with transformation when target table doesn't exist
     dropTable(testTableName)(session)
@@ -461,7 +507,9 @@ class CopyableDataFrameSuite extends SNTestBase {
     assert(
       ex2.errorCode.equals("0122") && ex2.message.contains(
         s"Cannot create the target table $testTableName because Snowpark cannot determine" +
-          " the column names to use. You should create the table before calling copyInto()."))
+          " the column names to use. You should create the table before calling copyInto()."
+      )
+    )
 
     // case 3: COPY transformation doesn't match target table
     createTable(testTableName, "c1 String")
@@ -482,12 +530,15 @@ class CopyableDataFrameSuite extends SNTestBase {
       TestUtils.treeString(session.table(testTableName).schema, 0) ==
         s"""root
            | |--A: Variant (nullable = true)
-           |""".stripMargin)
+           |""".stripMargin
+    )
     checkAnswer(
       session.table(testTableName),
       Seq(
         Row("{\n  \"num\": 1,\n  \"str\": \"str1\"\n}"),
-        Row("{\n  \"num\": 2,\n  \"str\": \"str2\"\n}")))
+        Row("{\n  \"num\": 2,\n  \"str\": \"str2\"\n}")
+      )
+    )
 
     // copy again, skip loaded files
     df.copyInto(testTableName, Seq(col("$1").as("A")))
@@ -495,7 +546,9 @@ class CopyableDataFrameSuite extends SNTestBase {
       session.table(testTableName),
       Seq(
         Row("{\n  \"num\": 1,\n  \"str\": \"str1\"\n}"),
-        Row("{\n  \"num\": 2,\n  \"str\": \"str2\"\n}")))
+        Row("{\n  \"num\": 2,\n  \"str\": \"str2\"\n}")
+      )
+    )
 
     // copy again with FORCE = true.
     df.copyInto(testTableName, Seq(col("$1").as("B")), Map("FORCE" -> true))
@@ -505,7 +558,9 @@ class CopyableDataFrameSuite extends SNTestBase {
         Row("{\n  \"num\": 1,\n  \"str\": \"str1\"\n}"),
         Row("{\n  \"num\": 2,\n  \"str\": \"str2\"\n}"),
         Row("{\n  \"num\": 1,\n  \"str\": \"str1\"\n}"),
-        Row("{\n  \"num\": 2,\n  \"str\": \"str2\"\n}")))
+        Row("{\n  \"num\": 2,\n  \"str\": \"str2\"\n}")
+      )
+    )
   }
 
   test("copy parquet test: write with transformation") {
@@ -518,7 +573,9 @@ class CopyableDataFrameSuite extends SNTestBase {
       Seq(
         sqlExpr("$1:num").cast(IntegerType).as("num"),
         sqlExpr("$1:str").as("str"),
-        length(sqlExpr("$1:str")).as("str_length")))
+        length(sqlExpr("$1:str")).as("str_length")
+      )
+    )
 
     assert(
       TestUtils.treeString(session.table(testTableName).schema, 0) ==
@@ -526,7 +583,8 @@ class CopyableDataFrameSuite extends SNTestBase {
            | |--NUM: Long (nullable = true)
            | |--STR: Variant (nullable = true)
            | |--STR_LENGTH: Long (nullable = true)
-           |""".stripMargin)
+           |""".stripMargin
+    )
     checkAnswer(session.table(testTableName), Seq(Row(1, "\"str1\"", 4), Row(2, "\"str2\"", 4)))
 
     // copy again with existed table and FORCE = true.
@@ -536,15 +594,18 @@ class CopyableDataFrameSuite extends SNTestBase {
       Seq(
         length(sqlExpr("$1:str")).as("str_length"),
         sqlExpr("$1:str").as("str"),
-        sqlExpr("$1:num").cast(IntegerType).as("num")),
-      Map("FORCE" -> true))
+        sqlExpr("$1:num").cast(IntegerType).as("num")
+      ),
+      Map("FORCE" -> true)
+    )
     assert(
       TestUtils.treeString(session.table(testTableName).schema, 0) ==
         s"""root
            | |--NUM: Long (nullable = true)
            | |--STR: Variant (nullable = true)
            | |--STR_LENGTH: Long (nullable = true)
-           |""".stripMargin)
+           |""".stripMargin
+    )
 
     checkAnswer(
       session.table(testTableName),
@@ -552,7 +613,9 @@ class CopyableDataFrameSuite extends SNTestBase {
         Row(1, "\"str1\"", 4),
         Row(2, "\"str2\"", 4),
         Row(4, "\"str1\"", 1),
-        Row(4, "\"str2\"", 2)))
+        Row(4, "\"str2\"", 2)
+      )
+    )
   }
 
   test("copy parquet test: negative test") {
@@ -567,7 +630,9 @@ class CopyableDataFrameSuite extends SNTestBase {
     assert(
       ex1.errorCode.equals("0122") && ex1.message.contains(
         s"Cannot create the target table $testTableName because Snowpark cannot determine" +
-          " the column names to use. You should create the table before calling copyInto()."))
+          " the column names to use. You should create the table before calling copyInto()."
+      )
+    )
 
     // case 2: copy with transformation when target table doesn't exist
     dropTable(testTableName)(session)
@@ -577,7 +642,9 @@ class CopyableDataFrameSuite extends SNTestBase {
     assert(
       ex2.errorCode.equals("0122") && ex2.message.contains(
         s"Cannot create the target table $testTableName because Snowpark cannot determine" +
-          " the column names to use. You should create the table before calling copyInto()."))
+          " the column names to use. You should create the table before calling copyInto()."
+      )
+    )
 
     // case 3: COPY transformation doesn't match target table
     createTable(testTableName, "c1 String")
@@ -598,12 +665,15 @@ class CopyableDataFrameSuite extends SNTestBase {
       TestUtils.treeString(session.table(testTableName).schema, 0) ==
         s"""root
            | |--A: Variant (nullable = true)
-           |""".stripMargin)
+           |""".stripMargin
+    )
     checkAnswer(
       session.table(testTableName),
       Seq(
         Row("{\n  \"num\": 1,\n  \"str\": \"str1\"\n}"),
-        Row("{\n  \"num\": 2,\n  \"str\": \"str2\"\n}")))
+        Row("{\n  \"num\": 2,\n  \"str\": \"str2\"\n}")
+      )
+    )
 
     // copy again, skip loaded files
     df.copyInto(testTableName, Seq(col("$1").as("A")))
@@ -611,7 +681,9 @@ class CopyableDataFrameSuite extends SNTestBase {
       session.table(testTableName),
       Seq(
         Row("{\n  \"num\": 1,\n  \"str\": \"str1\"\n}"),
-        Row("{\n  \"num\": 2,\n  \"str\": \"str2\"\n}")))
+        Row("{\n  \"num\": 2,\n  \"str\": \"str2\"\n}")
+      )
+    )
 
     // copy again with FORCE = true.
     df.copyInto(testTableName, Seq(col("$1").as("B")), Map("FORCE" -> true))
@@ -621,7 +693,9 @@ class CopyableDataFrameSuite extends SNTestBase {
         Row("{\n  \"num\": 1,\n  \"str\": \"str1\"\n}"),
         Row("{\n  \"num\": 2,\n  \"str\": \"str2\"\n}"),
         Row("{\n  \"num\": 1,\n  \"str\": \"str1\"\n}"),
-        Row("{\n  \"num\": 2,\n  \"str\": \"str2\"\n}")))
+        Row("{\n  \"num\": 2,\n  \"str\": \"str2\"\n}")
+      )
+    )
   }
 
   test("copy avro test: write with transformation") {
@@ -634,7 +708,9 @@ class CopyableDataFrameSuite extends SNTestBase {
       Seq(
         sqlExpr("$1:num").cast(IntegerType).as("num"),
         sqlExpr("$1:str").as("str"),
-        length(sqlExpr("$1:str")).as("str_length")))
+        length(sqlExpr("$1:str")).as("str_length")
+      )
+    )
 
     assert(
       TestUtils.treeString(session.table(testTableName).schema, 0) ==
@@ -642,7 +718,8 @@ class CopyableDataFrameSuite extends SNTestBase {
            | |--NUM: Long (nullable = true)
            | |--STR: Variant (nullable = true)
            | |--STR_LENGTH: Long (nullable = true)
-           |""".stripMargin)
+           |""".stripMargin
+    )
     checkAnswer(session.table(testTableName), Seq(Row(1, "\"str1\"", 4), Row(2, "\"str2\"", 4)))
 
     // copy again with existed table and FORCE = true.
@@ -652,22 +729,27 @@ class CopyableDataFrameSuite extends SNTestBase {
       Seq(
         length(sqlExpr("$1:str")).as("str_length"),
         sqlExpr("$1:str").as("str"),
-        sqlExpr("$1:num").cast(IntegerType).as("num")),
-      Map("FORCE" -> true))
+        sqlExpr("$1:num").cast(IntegerType).as("num")
+      ),
+      Map("FORCE" -> true)
+    )
     assert(
       TestUtils.treeString(session.table(testTableName).schema, 0) ==
         s"""root
            | |--NUM: Long (nullable = true)
            | |--STR: Variant (nullable = true)
            | |--STR_LENGTH: Long (nullable = true)
-           |""".stripMargin)
+           |""".stripMargin
+    )
     checkAnswer(
       session.table(testTableName),
       Seq(
         Row(1, "\"str1\"", 4),
         Row(2, "\"str2\"", 4),
         Row(4, "\"str1\"", 1),
-        Row(4, "\"str2\"", 2)))
+        Row(4, "\"str2\"", 2)
+      )
+    )
   }
 
   test("copy avro test: negative test") {
@@ -682,7 +764,9 @@ class CopyableDataFrameSuite extends SNTestBase {
     assert(
       ex1.errorCode.equals("0122") && ex1.message.contains(
         s"Cannot create the target table $testTableName because Snowpark cannot determine" +
-          " the column names to use. You should create the table before calling copyInto()."))
+          " the column names to use. You should create the table before calling copyInto()."
+      )
+    )
 
     // case 2: copy with transformation when target table doesn't exist
     dropTable(testTableName)(session)
@@ -692,7 +776,9 @@ class CopyableDataFrameSuite extends SNTestBase {
     assert(
       ex2.errorCode.equals("0122") && ex2.message.contains(
         s"Cannot create the target table $testTableName because Snowpark cannot determine" +
-          " the column names to use. You should create the table before calling copyInto()."))
+          " the column names to use. You should create the table before calling copyInto()."
+      )
+    )
 
     // case 3: COPY transformation doesn't match target table
     createTable(testTableName, "c1 String")
@@ -713,12 +799,15 @@ class CopyableDataFrameSuite extends SNTestBase {
       TestUtils.treeString(session.table(testTableName).schema, 0) ==
         s"""root
            | |--A: Variant (nullable = true)
-           |""".stripMargin)
+           |""".stripMargin
+    )
     checkAnswer(
       session.table(testTableName),
       Seq(
         Row("{\n  \"num\": 1,\n  \"str\": \"str1\"\n}"),
-        Row("{\n  \"num\": 2,\n  \"str\": \"str2\"\n}")))
+        Row("{\n  \"num\": 2,\n  \"str\": \"str2\"\n}")
+      )
+    )
 
     // copy again, skip loaded files
     df.copyInto(testTableName, Seq(col("$1").as("A")))
@@ -726,7 +815,9 @@ class CopyableDataFrameSuite extends SNTestBase {
       session.table(testTableName),
       Seq(
         Row("{\n  \"num\": 1,\n  \"str\": \"str1\"\n}"),
-        Row("{\n  \"num\": 2,\n  \"str\": \"str2\"\n}")))
+        Row("{\n  \"num\": 2,\n  \"str\": \"str2\"\n}")
+      )
+    )
 
     // copy again with FORCE = true.
     df.copyInto(testTableName, Seq(col("$1").as("B")), Map("FORCE" -> true))
@@ -736,7 +827,9 @@ class CopyableDataFrameSuite extends SNTestBase {
         Row("{\n  \"num\": 1,\n  \"str\": \"str1\"\n}"),
         Row("{\n  \"num\": 2,\n  \"str\": \"str2\"\n}"),
         Row("{\n  \"num\": 1,\n  \"str\": \"str1\"\n}"),
-        Row("{\n  \"num\": 2,\n  \"str\": \"str2\"\n}")))
+        Row("{\n  \"num\": 2,\n  \"str\": \"str2\"\n}")
+      )
+    )
   }
 
   test("copy orc test: write with transformation") {
@@ -749,7 +842,9 @@ class CopyableDataFrameSuite extends SNTestBase {
       Seq(
         sqlExpr("$1:num").cast(IntegerType).as("num"),
         sqlExpr("$1:str").as("str"),
-        length(sqlExpr("$1:str")).as("str_length")))
+        length(sqlExpr("$1:str")).as("str_length")
+      )
+    )
 
     assert(
       TestUtils.treeString(session.table(testTableName).schema, 0) ==
@@ -757,7 +852,8 @@ class CopyableDataFrameSuite extends SNTestBase {
            | |--NUM: Long (nullable = true)
            | |--STR: Variant (nullable = true)
            | |--STR_LENGTH: Long (nullable = true)
-           |""".stripMargin)
+           |""".stripMargin
+    )
     checkAnswer(session.table(testTableName), Seq(Row(1, "\"str1\"", 4), Row(2, "\"str2\"", 4)))
 
     // copy again with existed table and FORCE = true.
@@ -767,22 +863,27 @@ class CopyableDataFrameSuite extends SNTestBase {
       Seq(
         length(sqlExpr("$1:str")).as("str_length"),
         sqlExpr("$1:str").as("str"),
-        sqlExpr("$1:num").cast(IntegerType).as("num")),
-      Map("FORCE" -> true))
+        sqlExpr("$1:num").cast(IntegerType).as("num")
+      ),
+      Map("FORCE" -> true)
+    )
     assert(
       TestUtils.treeString(session.table(testTableName).schema, 0) ==
         s"""root
            | |--NUM: Long (nullable = true)
            | |--STR: Variant (nullable = true)
            | |--STR_LENGTH: Long (nullable = true)
-           |""".stripMargin)
+           |""".stripMargin
+    )
     checkAnswer(
       session.table(testTableName),
       Seq(
         Row(1, "\"str1\"", 4),
         Row(2, "\"str2\"", 4),
         Row(4, "\"str1\"", 1),
-        Row(4, "\"str2\"", 2)))
+        Row(4, "\"str2\"", 2)
+      )
+    )
   }
 
   test("copy orc test: negative test") {
@@ -797,7 +898,9 @@ class CopyableDataFrameSuite extends SNTestBase {
     assert(
       ex1.errorCode.equals("0122") && ex1.message.contains(
         s"Cannot create the target table $testTableName because Snowpark cannot determine" +
-          " the column names to use. You should create the table before calling copyInto()."))
+          " the column names to use. You should create the table before calling copyInto()."
+      )
+    )
 
     // case 2: copy with transformation when target table doesn't exist
     dropTable(testTableName)(session)
@@ -807,7 +910,9 @@ class CopyableDataFrameSuite extends SNTestBase {
     assert(
       ex2.errorCode.equals("0122") && ex2.message.contains(
         s"Cannot create the target table $testTableName because Snowpark cannot determine" +
-          " the column names to use. You should create the table before calling copyInto()."))
+          " the column names to use. You should create the table before calling copyInto()."
+      )
+    )
 
     // case 3: COPY transformation doesn't match target table
     createTable(testTableName, "c1 String")
@@ -828,12 +933,15 @@ class CopyableDataFrameSuite extends SNTestBase {
       TestUtils.treeString(session.table(testTableName).schema, 0) ==
         s"""root
            | |--A: Variant (nullable = true)
-           |""".stripMargin)
+           |""".stripMargin
+    )
     checkAnswer(
       session.table(testTableName),
       Seq(
         Row("<test>\n  <num>1</num>\n  <str>str1</str>\n</test>"),
-        Row("<test>\n  <num>2</num>\n  <str>str2</str>\n</test>")))
+        Row("<test>\n  <num>2</num>\n  <str>str2</str>\n</test>")
+      )
+    )
 
     // copy again, skip loaded files
     df.copyInto(testTableName, Seq(col("$1").as("A")))
@@ -841,7 +949,9 @@ class CopyableDataFrameSuite extends SNTestBase {
       session.table(testTableName),
       Seq(
         Row("<test>\n  <num>1</num>\n  <str>str1</str>\n</test>"),
-        Row("<test>\n  <num>2</num>\n  <str>str2</str>\n</test>")))
+        Row("<test>\n  <num>2</num>\n  <str>str2</str>\n</test>")
+      )
+    )
 
     // copy again with FORCE = true.
     df.copyInto(testTableName, Seq(col("$1").as("B")), Map("FORCE" -> true))
@@ -851,7 +961,9 @@ class CopyableDataFrameSuite extends SNTestBase {
         Row("<test>\n  <num>1</num>\n  <str>str1</str>\n</test>"),
         Row("<test>\n  <num>2</num>\n  <str>str2</str>\n</test>"),
         Row("<test>\n  <num>1</num>\n  <str>str1</str>\n</test>"),
-        Row("<test>\n  <num>2</num>\n  <str>str2</str>\n</test>")))
+        Row("<test>\n  <num>2</num>\n  <str>str2</str>\n</test>")
+      )
+    )
   }
 
   test("copy xml test: write with transformation") {
@@ -864,14 +976,17 @@ class CopyableDataFrameSuite extends SNTestBase {
       Seq(
         get(xmlget(col("$1"), lit("num"), lit(0)), lit("$")).cast(IntegerType).as("num"),
         get(xmlget(col("$1"), lit("str"), lit(0)), lit("$")).as("str"),
-        length(get(xmlget(col("$1"), lit("str"), lit(0)), lit("$"))).as("str_length")))
+        length(get(xmlget(col("$1"), lit("str"), lit(0)), lit("$"))).as("str_length")
+      )
+    )
     assert(
       TestUtils.treeString(session.table(testTableName).schema, 0) ==
         s"""root
            | |--NUM: Long (nullable = true)
            | |--STR: Variant (nullable = true)
            | |--STR_LENGTH: Long (nullable = true)
-           |""".stripMargin)
+           |""".stripMargin
+    )
     checkAnswer(session.table(testTableName), Seq(Row(1, "\"str1\"", 4), Row(2, "\"str2\"", 4)))
 
     // copy again, skip loaded files
@@ -880,7 +995,9 @@ class CopyableDataFrameSuite extends SNTestBase {
       Seq(
         get(xmlget(col("$1"), lit("num"), lit(0)), lit("$")).cast(IntegerType).as("num"),
         get(xmlget(col("$1"), lit("str"), lit(0)), lit("$")).as("str"),
-        length(get(xmlget(col("$1"), lit("str"), lit(0)), lit("$"))).as("str_length")))
+        length(get(xmlget(col("$1"), lit("str"), lit(0)), lit("$"))).as("str_length")
+      )
+    )
     checkAnswer(session.table(testTableName), Seq(Row(1, "\"str1\"", 4), Row(2, "\"str2\"", 4)))
 
     // copy again with existed table and FORCE = true.
@@ -890,15 +1007,19 @@ class CopyableDataFrameSuite extends SNTestBase {
       Seq(
         length(get(xmlget(col("$1"), lit("str"), lit(0)), lit("$"))).as("str_length"),
         get(xmlget(col("$1"), lit("str"), lit(0)), lit("$")).as("str"),
-        get(xmlget(col("$1"), lit("num"), lit(0)), lit("$")).cast(IntegerType).as("num")),
-      Map("FORCE" -> true))
+        get(xmlget(col("$1"), lit("num"), lit(0)), lit("$")).cast(IntegerType).as("num")
+      ),
+      Map("FORCE" -> true)
+    )
     checkAnswer(
       session.table(testTableName),
       Seq(
         Row(1, "\"str1\"", 4),
         Row(2, "\"str2\"", 4),
         Row(4, "\"str1\"", 1),
-        Row(4, "\"str2\"", 2)))
+        Row(4, "\"str2\"", 2)
+      )
+    )
   }
 
   test("copy xml test: negative test") {
@@ -913,7 +1034,9 @@ class CopyableDataFrameSuite extends SNTestBase {
     assert(
       ex1.errorCode.equals("0122") && ex1.message.contains(
         s"Cannot create the target table $testTableName because Snowpark cannot determine" +
-          " the column names to use. You should create the table before calling copyInto()."))
+          " the column names to use. You should create the table before calling copyInto()."
+      )
+    )
 
     // case 2: copy with transformation when target table doesn't exist
     dropTable(testTableName)(session)
@@ -923,7 +1046,9 @@ class CopyableDataFrameSuite extends SNTestBase {
     assert(
       ex2.errorCode.equals("0122") && ex2.message.contains(
         s"Cannot create the target table $testTableName because Snowpark cannot determine" +
-          " the column names to use. You should create the table before calling copyInto()."))
+          " the column names to use. You should create the table before calling copyInto()."
+      )
+    )
 
     // case 3: COPY transformation doesn't match target table
     createTable(testTableName, "c1 String")
@@ -995,19 +1120,22 @@ class CopyableDataFrameSuite extends SNTestBase {
     val asyncJob2 = df.async.copyInto(
       testTableName,
       Seq(col("$1"), col("$1"), col("$1")),
-      Map("skip_header" -> 1, "FORCE" -> "true"))
+      Map("skip_header" -> 1, "FORCE" -> "true")
+    )
     val res2 = asyncJob2.getResult()
     assert(res2.isInstanceOf[Unit]) // Check result in target table
     checkAnswer(
       session.table(testTableName),
-      Seq(Row("1.2", "one", "1"), Row("2.2", "two", "2"), Row("2", "2", "2")))
+      Seq(Row("1.2", "one", "1"), Row("2.2", "two", "2"), Row("2", "2", "2"))
+    )
 
     // copy data with transformation, options and target columns
     val asyncJob3 = df.async.copyInto(
       testTableName,
       Seq("c3", "c2", "c1"),
       Seq(length(col("$1")), col("$2"), length(col("$3"))),
-      Map("FORCE" -> "true"))
+      Map("FORCE" -> "true")
+    )
     asyncJob3.getResult()
     val res3 = asyncJob3.getResult()
     assert(res3.isInstanceOf[Unit])
@@ -1019,7 +1147,9 @@ class CopyableDataFrameSuite extends SNTestBase {
         Row("2.2", "two", "2"),
         Row("2", "2", "2"),
         Row("3", "one", "1"),
-        Row("3", "two", "1")))
+        Row("3", "two", "1")
+      )
+    )
   }
 
 }

@@ -72,7 +72,9 @@ class SimplifierSuite extends TestData {
       query.contains(
         "WHERE ((\"A\" < 5 :: int) AND " +
           "((\"A\" > 1 :: int) AND ((\"B\" <> 10 :: int) AND " +
-          "(\"C\" = 100 :: int))))"))
+          "(\"C\" = 100 :: int))))"
+      )
+    )
 
     val result1 = df
       .filter((df("a") === 2) or (df("a") === 0))
@@ -81,8 +83,11 @@ class SimplifierSuite extends TestData {
     checkAnswer(result1, Seq(Row(2, 10, 100)))
     val query1 = result1.snowflakePlan.queries.last.sql
     assert(
-      query1.contains("WHERE (((\"A\" = 2 :: int) OR (\"A\" = 0 :: int))" +
-        " AND ((\"B\" = 10 :: int) OR (\"B\" = 20 :: int)))"))
+      query1.contains(
+        "WHERE (((\"A\" = 2 :: int) OR (\"A\" = 0 :: int))" +
+          " AND ((\"B\" = 10 :: int) OR (\"B\" = 20 :: int)))"
+      )
+    )
     assert(query1.split("WHERE").length == 2)
   }
 
@@ -136,7 +141,8 @@ class SimplifierSuite extends TestData {
 
     checkAnswer(
       newDf,
-      Seq(Row(1, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29)))
+      Seq(Row(1, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29))
+    )
   }
 
   test("withColumns 2") {

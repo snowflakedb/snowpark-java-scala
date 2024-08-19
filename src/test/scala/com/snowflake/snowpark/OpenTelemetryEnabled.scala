@@ -39,7 +39,8 @@ trait OpenTelemetryEnabled extends TestData {
       funcName: String,
       fileName: String,
       lineNumber: Int,
-      methodChain: String): Unit =
+      methodChain: String
+  ): Unit =
     checkSpan(className, funcName) { span =>
       {
         assert(span.getTotalAttributeCount == 3)
@@ -56,7 +57,8 @@ trait OpenTelemetryEnabled extends TestData {
       lineNumber: Int,
       execName: String,
       execHandler: String,
-      execFilePath: String): Unit =
+      execFilePath: String
+  ): Unit =
     checkSpan(className, funcName) { span =>
       {
         assert(span.getTotalAttributeCount == 5)
@@ -65,10 +67,12 @@ trait OpenTelemetryEnabled extends TestData {
         assert(span.getAttributes.get(AttributeKey.stringKey("snow.executable.name")) == execName)
         assert(
           span.getAttributes
-            .get(AttributeKey.stringKey("snow.executable.handler")) == execHandler)
+            .get(AttributeKey.stringKey("snow.executable.handler")) == execHandler
+        )
         assert(
           span.getAttributes
-            .get(AttributeKey.stringKey("snow.executable.filepath")) == execFilePath)
+            .get(AttributeKey.stringKey("snow.executable.filepath")) == execFilePath
+        )
       }
     }
 

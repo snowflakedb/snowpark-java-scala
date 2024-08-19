@@ -32,12 +32,14 @@ class UpdatableSuite extends TestData {
       s"insert into $semiStructuredTable select parse_json(a), parse_json(b), " +
         s"parse_json(a), to_geography(c) from values('[1,2]', '{a:1}', 'POINT(-122.35 37.55)')," +
         s"('[1,2,3]', '{b:2}', 'POINT(-12 37)') as T(a,b,c)",
-      session)
+      session
+    )
     createTable(timeTable, "time time")
     runQuery(
       s"insert into $timeTable select to_time(a) from values('09:15:29')," +
         s"('09:15:29.99999999') as T(a)",
-      session)
+      session
+    )
   }
 
   override def afterAll: Unit = {
@@ -98,7 +100,8 @@ class UpdatableSuite extends TestData {
     checkAnswer(
       t2,
       Seq(Row(0, "A"), Row(0, "B"), Row(0, "C"), Row(4, "D"), Row(5, "E"), Row(6, "F")),
-      sort = false)
+      sort = false
+    )
 
     testData2.write.mode(SaveMode.Overwrite).saveAsTable(tableName)
     upperCaseData.write.mode(SaveMode.Overwrite).saveAsTable(tableName2)
@@ -106,7 +109,8 @@ class UpdatableSuite extends TestData {
     checkAnswer(
       t2,
       Seq(Row(0, "A"), Row(0, "B"), Row(0, "C"), Row(4, "D"), Row(5, "E"), Row(6, "F")),
-      sort = false)
+      sort = false
+    )
 
     upperCaseData.write.mode(SaveMode.Overwrite).saveAsTable(tableName2)
     import session.implicits._
@@ -114,7 +118,8 @@ class UpdatableSuite extends TestData {
     assert(t2.update(Map("n" -> lit(0)), t2("L") === sd("c"), sd) == UpdateResult(4, 0))
     checkAnswer(
       t2,
-      Seq(Row(0, "A"), Row(0, "B"), Row(0, "D"), Row(0, "E"), Row(3, "C"), Row(6, "F")))
+      Seq(Row(0, "A"), Row(0, "B"), Row(0, "D"), Row(0, "E"), Row(3, "C"), Row(6, "F"))
+    )
   }
 
   test("update with join involving ambiguous columns") {
@@ -126,7 +131,8 @@ class UpdatableSuite extends TestData {
     checkAnswer(
       t1,
       Seq(Row(0, 1), Row(0, 2), Row(0, 1), Row(0, 2), Row(3, 1), Row(3, 2)),
-      sort = false)
+      sort = false
+    )
 
     upperCaseData.write.mode(SaveMode.Overwrite).saveAsTable(tableName3)
     val up = session.table(tableName3)
@@ -135,7 +141,8 @@ class UpdatableSuite extends TestData {
     assert(up.update(Map("n" -> lit(0)), up("L") === sd("L"), sd) == UpdateResult(4, 0))
     checkAnswer(
       up,
-      Seq(Row(0, "A"), Row(0, "B"), Row(0, "D"), Row(0, "E"), Row(3, "C"), Row(6, "F")))
+      Seq(Row(0, "A"), Row(0, "B"), Row(0, "D"), Row(0, "E"), Row(3, "C"), Row(6, "F"))
+    )
   }
 
   test("update with join with aggregated source data") {
@@ -148,7 +155,8 @@ class UpdatableSuite extends TestData {
     val b = src.groupBy(col("k")).agg(min(col("v")).as("v"))
     assert(
       target.update(Map(target("v") -> b("v")), target("k") === b("k"), b)
-        == UpdateResult(1, 0))
+        == UpdateResult(1, 0)
+    )
     checkAnswer(target, Seq(Row(0, 11)))
   }
 
@@ -207,7 +215,8 @@ class UpdatableSuite extends TestData {
         .merge(source, target("id") === source("id"))
         .whenMatched
         .update(Map(target("desc") -> source("desc")))
-        .collect() == MergeResult(0, 2, 0))
+        .collect() == MergeResult(0, 2, 0)
+    )
     checkAnswer(target, Seq(Row(10, "new"), Row(10, "new"), Row(11, "old")))
 
     targetDF.write.mode(SaveMode.Overwrite).saveAsTable(tableName)
@@ -216,7 +225,8 @@ class UpdatableSuite extends TestData {
         .merge(source, target("id") === source("id"))
         .whenMatched
         .update(Map("desc" -> source("desc")))
-        .collect() == MergeResult(0, 2, 0))
+        .collect() == MergeResult(0, 2, 0)
+    )
     checkAnswer(target, Seq(Row(10, "new"), Row(10, "new"), Row(11, "old")))
 
     targetDF.write.mode(SaveMode.Overwrite).saveAsTable(tableName)
@@ -225,7 +235,8 @@ class UpdatableSuite extends TestData {
         .merge(source, target("id") === source("id"))
         .whenMatched(target("desc") === lit("old"))
         .update(Map(target("desc") -> source("desc")))
-        .collect() == MergeResult(0, 1, 0))
+        .collect() == MergeResult(0, 1, 0)
+    )
     checkAnswer(target, Seq(Row(10, "new"), Row(10, "too_old"), Row(11, "old")))
   }
 
@@ -241,7 +252,8 @@ class UpdatableSuite extends TestData {
         .merge(source, target("id") === source("id"))
         .whenMatched
         .delete()
-        .collect() == MergeResult(0, 0, 2))
+        .collect() == MergeResult(0, 0, 2)
+    )
     checkAnswer(target, Seq(Row(11, "old")))
 
     targetDF.write.mode(SaveMode.Overwrite).saveAsTable(tableName)
@@ -250,7 +262,8 @@ class UpdatableSuite extends TestData {
         .merge(source, target("id") === source("id"))
         .whenMatched(target("desc") === lit("old"))
         .delete()
-        .collect() == MergeResult(0, 0, 1))
+        .collect() == MergeResult(0, 0, 1)
+    )
     checkAnswer(target, Seq(Row(10, "too_old"), Row(11, "old")))
   }
 
@@ -266,7 +279,8 @@ class UpdatableSuite extends TestData {
         .merge(source, target("id") === source("id"))
         .whenNotMatched
         .insert(Map(target("id") -> source("id"), target("desc") -> source("desc")))
-        .collect() == MergeResult(2, 0, 0))
+        .collect() == MergeResult(2, 0, 0)
+    )
     checkAnswer(target, Seq(Row(10, "old"), Row(11, "new"), Row(12, "new"), Row(12, "old")))
 
     targetDF.write.mode(SaveMode.Overwrite).saveAsTable(tableName)
@@ -275,7 +289,8 @@ class UpdatableSuite extends TestData {
         .merge(source, target("id") === source("id"))
         .whenNotMatched
         .insert(Seq(source("id"), source("desc")))
-        .collect() == MergeResult(2, 0, 0))
+        .collect() == MergeResult(2, 0, 0)
+    )
     checkAnswer(target, Seq(Row(10, "old"), Row(11, "new"), Row(12, "new"), Row(12, "old")))
 
     targetDF.write.mode(SaveMode.Overwrite).saveAsTable(tableName)
@@ -284,7 +299,8 @@ class UpdatableSuite extends TestData {
         .merge(source, target("id") === source("id"))
         .whenNotMatched
         .insert(Map("id" -> source("id"), "desc" -> source("desc")))
-        .collect() == MergeResult(2, 0, 0))
+        .collect() == MergeResult(2, 0, 0)
+    )
     checkAnswer(target, Seq(Row(10, "old"), Row(11, "new"), Row(12, "new"), Row(12, "old")))
 
     targetDF.write.mode(SaveMode.Overwrite).saveAsTable(tableName)
@@ -293,7 +309,8 @@ class UpdatableSuite extends TestData {
         .merge(source, target("id") === source("id"))
         .whenNotMatched(source("desc") === lit("new"))
         .insert(Map(target("id") -> source("id"), target("desc") -> source("desc")))
-        .collect() == MergeResult(1, 0, 0))
+        .collect() == MergeResult(1, 0, 0)
+    )
     checkAnswer(target, Seq(Row(10, "old"), Row(11, "new"), Row(12, "new")))
   }
 
@@ -315,7 +332,8 @@ class UpdatableSuite extends TestData {
         .insert(Map(target("id") -> source("id"), target("desc") -> lit("new")))
         .whenNotMatched
         .insert(Map(target("id") -> source("id"), target("desc") -> source("desc")))
-        .collect() == MergeResult(2, 1, 1))
+        .collect() == MergeResult(2, 1, 1)
+    )
     checkAnswer(target, Seq(Row(10, "new"), Row(11, "old"), Row(12, "new"), Row(13, "new")))
   }
 
@@ -334,7 +352,8 @@ class UpdatableSuite extends TestData {
         .update(Map(target("v") -> source("v")))
         .whenNotMatched
         .insert(Map(target("k") -> source("k"), target("v") -> source("v")))
-        .collect() == MergeResult(0, 1, 0))
+        .collect() == MergeResult(0, 1, 0)
+    )
     checkAnswer(target, Seq(Row(0, 12)))
   }
 
@@ -365,10 +384,12 @@ class UpdatableSuite extends TestData {
         .insert(Map(target("v") -> source("v")))
         .whenNotMatched
         .insert(Map("k" -> source("k"), "v" -> source("v")))
-        .collect() == MergeResult(4, 2, 2))
+        .collect() == MergeResult(4, 2, 2)
+    )
     checkAnswer(
       target,
-      Seq(Row(1, 21), Row(3, 3), Row(4, 4), Row(5, 25), Row(7, null), Row(null, 26)))
+      Seq(Row(1, 21), Row(3, 3), Row(4, 4), Row(5, 25), Row(7, null), Row(null, 26))
+    )
   }
 
   test("clone") {
@@ -389,4 +410,3 @@ class UpdatableSuite extends TestData {
     }
   }
 }
-

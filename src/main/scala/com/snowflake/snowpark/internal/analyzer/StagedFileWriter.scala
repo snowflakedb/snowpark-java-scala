@@ -47,7 +47,7 @@ private[snowpark] class StagedFileWriter(val dataframeWriter: DataFrameWriter) e
   def mode(saveMode: SaveMode): StagedFileWriter = {
     saveMode match {
       case SaveMode.ErrorIfExists => this.saveMode = saveMode
-      case SaveMode.Overwrite => this.saveMode = saveMode
+      case SaveMode.Overwrite     => this.saveMode = saveMode
       case _ => throw ErrorMessage.DF_WRITER_INVALID_MODE(saveMode.toString, "file")
     }
     this
@@ -93,7 +93,7 @@ private[snowpark] class StagedFileWriter(val dataframeWriter: DataFrameWriter) e
   private def getCopyOptionClause(): String = {
     val adjustCopyOptions = saveMode match {
       case SaveMode.ErrorIfExists => copyOptions + ("OVERWRITE" -> "FALSE")
-      case SaveMode.Overwrite => copyOptions + ("OVERWRITE" -> "TRUE")
+      case SaveMode.Overwrite     => copyOptions + ("OVERWRITE" -> "TRUE")
     }
     val copyOptionsClause = adjustCopyOptions.map(x => s"${x._1} = ${x._2}").mkString(" ")
     copyOptionsClause

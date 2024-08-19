@@ -18,7 +18,8 @@ class JavaScalaAPISuite extends FunSuite {
     "productArity",
     "unapply",
     "tupled",
-    "curried")
+    "curried"
+  )
 
   // used to get list of Scala Seq functions
   class FakeSeq extends Seq[String] {
@@ -43,8 +44,11 @@ class JavaScalaAPISuite extends FunSuite {
           "column", // Java API has "col", Scala API has both "col" and "column"
           "callBuiltin", // Java API has "callUDF", Scala API has both "callBuiltin" and "callUDF"
           "typedLit", // Scala API only, Java API has lit
-          "builtin"),
-        class1To2NameMap = Map("chr" -> "char")))
+          "builtin"
+        ),
+        class1To2NameMap = Map("chr" -> "char")
+      )
+    )
   }
 
   test("AsyncJob") {
@@ -65,9 +69,12 @@ class JavaScalaAPISuite extends FunSuite {
           "unary_not", // Scala API has "unary_!"
           "unary_minus" // Scala API has "unary_-"
         ),
-        class2Only = Set("name" // Java API has "alias"
+        class2Only = Set(
+          "name" // Java API has "alias"
         ) ++ scalaCaseClassFunctions,
-        class1To2NameMap = Map("subField" -> "apply")))
+        class1To2NameMap = Map("subField" -> "apply")
+      )
+    )
   }
 
   test("CaseExpr") {
@@ -78,7 +85,9 @@ class JavaScalaAPISuite extends FunSuite {
         classOf[JavaCaseExpr],
         classOf[ScalaCaseExpr],
         // Java API has "otherwise", Scala API has both "otherwise" and "else"
-        class2Only = Set("else")))
+        class2Only = Set("else")
+      )
+    )
   }
 
   test("DataFrame") {
@@ -93,7 +102,10 @@ class JavaScalaAPISuite extends FunSuite {
           "getUnaliased",
           "methodChainCache",
           "buildMethodChain",
-          "generatePrefix") ++ scalaCaseClassFunctions))
+          "generatePrefix"
+        ) ++ scalaCaseClassFunctions
+      )
+    )
   }
 
   test("CopyableDataFrame") {
@@ -104,20 +116,22 @@ class JavaScalaAPISuite extends FunSuite {
         classOf[JavaCopyableDataFrame],
         classOf[ScalaCopyableDataFrame],
         // package private
-        class2Only = Set("getCopyDataFrame")))
+        class2Only = Set("getCopyDataFrame")
+      )
+    )
   }
 
   test("CopyableDataFrameAsyncActor") {
-    import com.snowflake.snowpark.{
-      CopyableDataFrameAsyncActor => ScalaCopyableDataFrameAsyncActor
-    }
+    import com.snowflake.snowpark.{CopyableDataFrameAsyncActor => ScalaCopyableDataFrameAsyncActor}
     import com.snowflake.snowpark_java.{
       CopyableDataFrameAsyncActor => JavaCopyableDataFrameAsyncActor
     }
     assert(
       ClassUtils.containsSameFunctionNames(
         classOf[JavaCopyableDataFrameAsyncActor],
-        classOf[ScalaCopyableDataFrameAsyncActor]))
+        classOf[ScalaCopyableDataFrameAsyncActor]
+      )
+    )
   }
 
   test("DataFrameAsyncActor") {
@@ -126,7 +140,9 @@ class JavaScalaAPISuite extends FunSuite {
     assert(
       ClassUtils.containsSameFunctionNames(
         classOf[JavaDataFrameAsyncActor],
-        classOf[ScalaDataFrameAsyncActor]))
+        classOf[ScalaDataFrameAsyncActor]
+      )
+    )
   }
 
   test("DataFrameNaFunctions") {
@@ -135,7 +151,9 @@ class JavaScalaAPISuite extends FunSuite {
     assert(
       ClassUtils.containsSameFunctionNames(
         classOf[JavaDataFrameNaFunctions],
-        classOf[ScalaDataFrameNaFunctions]))
+        classOf[ScalaDataFrameNaFunctions]
+      )
+    )
   }
 
   test("DataFrameReader") {
@@ -143,7 +161,8 @@ class JavaScalaAPISuite extends FunSuite {
     import com.snowflake.snowpark.{DataFrameReader => ScalaDataFrameReader}
     assert(
       ClassUtils
-        .containsSameFunctionNames(classOf[JavaDataFrameReader], classOf[ScalaDataFrameReader]))
+        .containsSameFunctionNames(classOf[JavaDataFrameReader], classOf[ScalaDataFrameReader])
+    )
   }
 
   test("DataFrameStatFunctions") {
@@ -152,7 +171,9 @@ class JavaScalaAPISuite extends FunSuite {
     assert(
       ClassUtils.containsSameFunctionNames(
         classOf[JavaDataFrameStatFunctions],
-        classOf[ScalaDataFrameStatFunctions]))
+        classOf[ScalaDataFrameStatFunctions]
+      )
+    )
   }
 
   test("DataFrameWriter") {
@@ -163,18 +184,20 @@ class JavaScalaAPISuite extends FunSuite {
         classOf[JavaDataFrameWriter],
         classOf[ScalaDataFrameWriter],
         // package private
-        class2Only = Set("getWritePlan")))
+        class2Only = Set("getWritePlan")
+      )
+    )
   }
 
   test("DataFrameWriterAsyncActor") {
-    import com.snowflake.snowpark_java.{
-      DataFrameWriterAsyncActor => JavaDataFrameWriterAsyncActor
-    }
+    import com.snowflake.snowpark_java.{DataFrameWriterAsyncActor => JavaDataFrameWriterAsyncActor}
     import com.snowflake.snowpark.{DataFrameWriterAsyncActor => ScalaDataFrameWriterAsyncActor}
     assert(
       ClassUtils.containsSameFunctionNames(
         classOf[JavaDataFrameWriterAsyncActor],
-        classOf[ScalaDataFrameWriterAsyncActor]))
+        classOf[ScalaDataFrameWriterAsyncActor]
+      )
+    )
   }
 
   test("DeleteResult") {
@@ -186,7 +209,9 @@ class JavaScalaAPISuite extends FunSuite {
         classOf[ScalaDeleteResult],
         class1Only = Set(),
         class2Only = scalaCaseClassFunctions,
-        class1To2NameMap = Map("getRowsDeleted" -> "rowsDeleted")))
+        class1To2NameMap = Map("getRowsDeleted" -> "rowsDeleted")
+      )
+    )
   }
 
   test("FileOperation") {
@@ -194,7 +219,8 @@ class JavaScalaAPISuite extends FunSuite {
     import com.snowflake.snowpark.{FileOperation => ScalaFileOperation}
     assert(
       ClassUtils
-        .containsSameFunctionNames(classOf[JavaFileOperation], classOf[ScalaFileOperation]))
+        .containsSameFunctionNames(classOf[JavaFileOperation], classOf[ScalaFileOperation])
+    )
   }
 
   test("GetResult") {
@@ -211,7 +237,10 @@ class JavaScalaAPISuite extends FunSuite {
           "getStatus" -> "status",
           "getSizeBytes" -> "sizeBytes",
           "getMessage" -> "message",
-          "getFileName" -> "fileName")))
+          "getFileName" -> "fileName"
+        )
+      )
+    )
   }
 
   test("GroupingSets") {
@@ -223,7 +252,9 @@ class JavaScalaAPISuite extends FunSuite {
         classOf[ScalaGroupingSets],
         class1Only = Set(),
         class2Only = Set("sets", "toExpression") ++ scalaCaseClassFunctions,
-        class1To2NameMap = Map("create" -> "apply")))
+        class1To2NameMap = Map("create" -> "apply")
+      )
+    )
   }
 
   test("HasCachedResult") {
@@ -231,7 +262,8 @@ class JavaScalaAPISuite extends FunSuite {
     import com.snowflake.snowpark.{HasCachedResult => ScalaHasCachedResult}
     assert(
       ClassUtils
-        .containsSameFunctionNames(classOf[JavaHasCachedResult], classOf[ScalaHasCachedResult]))
+        .containsSameFunctionNames(classOf[JavaHasCachedResult], classOf[ScalaHasCachedResult])
+    )
   }
 
   test("MatchedClauseBuilder") {
@@ -242,14 +274,17 @@ class JavaScalaAPISuite extends FunSuite {
         classOf[JavaMatchedClauseBuilder],
         classOf[ScalaMatchedClauseBuilder],
         // scala api has update[T]
-        class1Only = Set("updateColumn")))
+        class1Only = Set("updateColumn")
+      )
+    )
   }
 
   test("MergeBuilder") {
     import com.snowflake.snowpark_java.{MergeBuilder => JavaMergeBuilder}
     import com.snowflake.snowpark.{MergeBuilder => ScalaMergeBuilder}
     assert(
-      ClassUtils.containsSameFunctionNames(classOf[JavaMergeBuilder], classOf[ScalaMergeBuilder]))
+      ClassUtils.containsSameFunctionNames(classOf[JavaMergeBuilder], classOf[ScalaMergeBuilder])
+    )
   }
 
   test("MergeResult") {
@@ -264,7 +299,10 @@ class JavaScalaAPISuite extends FunSuite {
         class1To2NameMap = Map(
           "getRowsInserted" -> "rowsInserted",
           "getRowsUpdated" -> "rowsUpdated",
-          "getRowsDeleted" -> "rowsDeleted")))
+          "getRowsDeleted" -> "rowsDeleted"
+        )
+      )
+    )
   }
 
   test("NotMatchedClauseBuilder") {
@@ -274,7 +312,9 @@ class JavaScalaAPISuite extends FunSuite {
       ClassUtils.containsSameFunctionNames(
         classOf[JavaNotMatchedClauseBuilder],
         classOf[ScalaNotMatchedClauseBuilder],
-        class1Only = Set("insertRow")))
+        class1Only = Set("insertRow")
+      )
+    )
   }
 
   test("PutResult") {
@@ -295,7 +335,10 @@ class JavaScalaAPISuite extends FunSuite {
           "getSourceFileName" -> "sourceFileName",
           "getSourceCompression" -> "sourceCompression",
           "getTargetSizeBytes" -> "targetSizeBytes",
-          "getSourceSizeBytes" -> "sourceSizeBytes")))
+          "getSourceSizeBytes" -> "sourceSizeBytes"
+        )
+      )
+    )
   }
 
   test("RelationalGroupedDataFrame") {
@@ -306,7 +349,9 @@ class JavaScalaAPISuite extends FunSuite {
     assert(
       ClassUtils.containsSameFunctionNames(
         classOf[JavaRelationalGroupedDataFrame],
-        classOf[ScalaRelationalGroupedDataFrame]))
+        classOf[ScalaRelationalGroupedDataFrame]
+      )
+    )
   }
 
   test("Row") {
@@ -317,13 +362,19 @@ class JavaScalaAPISuite extends FunSuite {
         classOf[JavaRow],
         classOf[ScalaRow],
         class1Only = Set(),
-        class2Only = Set("fromArray", "fromSeq", "length" // Java API has "size"
+        class2Only = Set(
+          "fromArray",
+          "fromSeq",
+          "length" // Java API has "size"
         ) ++ scalaCaseClassFunctions,
         class1To2NameMap = Map(
           "toList" -> "toSeq",
           "create" -> "apply",
           "getListOfVariant" -> "getSeqOfVariant",
-          "getList" -> "getSeq")))
+          "getList" -> "getSeq"
+        )
+      )
+    )
   }
 
   // Java SaveMode is an Enum,
@@ -341,7 +392,10 @@ class JavaScalaAPISuite extends FunSuite {
           "storedProcedure", // todo in snow-683655
           "sproc", // todo in snow-683653
           "getDependenciesAsJavaSet", // Java API renamed to "getDependencies"
-          "implicits")))
+          "implicits"
+        )
+      )
+    )
   }
 
   test("SessionBuilder") {
@@ -349,7 +403,8 @@ class JavaScalaAPISuite extends FunSuite {
     import com.snowflake.snowpark.Session.{SessionBuilder => ScalaSessionBuilder}
     assert(
       ClassUtils
-        .containsSameFunctionNames(classOf[JavaSessionBuilder], classOf[ScalaSessionBuilder]))
+        .containsSameFunctionNames(classOf[JavaSessionBuilder], classOf[ScalaSessionBuilder])
+    )
   }
 
   test("TableFunction") {
@@ -360,7 +415,9 @@ class JavaScalaAPISuite extends FunSuite {
         classOf[JavaTableFunction],
         classOf[ScalaTableFunction],
         class1Only = Set("call"), // `call` in Scala is `apply`
-        class2Only = Set("funcName") ++ scalaCaseClassFunctions))
+        class2Only = Set("funcName") ++ scalaCaseClassFunctions
+      )
+    )
   }
 
   test("TableFunctions") {
@@ -368,7 +425,8 @@ class JavaScalaAPISuite extends FunSuite {
     import com.snowflake.snowpark.{tableFunctions => ScalaTableFunctions}
     assert(
       ClassUtils
-        .containsSameFunctionNames(classOf[JavaTableFunctions], ScalaTableFunctions.getClass))
+        .containsSameFunctionNames(classOf[JavaTableFunctions], ScalaTableFunctions.getClass)
+    )
   }
 
   test("TypedAsyncJob") {
@@ -376,7 +434,8 @@ class JavaScalaAPISuite extends FunSuite {
     import com.snowflake.snowpark.{TypedAsyncJob => ScalaTypedAsyncJob}
     assert(
       ClassUtils
-        .containsSameFunctionNames(classOf[JavaTypedAsyncJob[_]], classOf[ScalaTypedAsyncJob[_]]))
+        .containsSameFunctionNames(classOf[JavaTypedAsyncJob[_]], classOf[ScalaTypedAsyncJob[_]])
+    )
   }
 
   test("UDFRegistration") {
@@ -384,7 +443,8 @@ class JavaScalaAPISuite extends FunSuite {
     import com.snowflake.snowpark.{UDFRegistration => ScalaUDFRegistration}
     assert(
       ClassUtils
-        .containsSameFunctionNames(classOf[JavaUDFRegistration], classOf[ScalaUDFRegistration]))
+        .containsSameFunctionNames(classOf[JavaUDFRegistration], classOf[ScalaUDFRegistration])
+    )
   }
 
   test("Updatable") {
@@ -394,7 +454,9 @@ class JavaScalaAPISuite extends FunSuite {
       ClassUtils.containsSameFunctionNames(
         classOf[JavaUpdatable],
         classOf[ScalaUpdatable],
-        class1Only = Set("updateColumn")))
+        class1Only = Set("updateColumn")
+      )
+    )
   }
 
   test("UpdatableAsyncActor") {
@@ -404,7 +466,9 @@ class JavaScalaAPISuite extends FunSuite {
       ClassUtils.containsSameFunctionNames(
         classOf[JavaUpdatableAsyncActor],
         classOf[ScalaUpdatableAsyncActor],
-        class1Only = Set("updateColumn")))
+        class1Only = Set("updateColumn")
+      )
+    )
   }
 
   test("UpdateResult") {
@@ -418,7 +482,10 @@ class JavaScalaAPISuite extends FunSuite {
         class2Only = scalaCaseClassFunctions,
         class1To2NameMap = Map(
           "getRowsUpdated" -> "rowsUpdated",
-          "getMultiJoinedRowsUpdated" -> "multiJoinedRowsUpdated")))
+          "getMultiJoinedRowsUpdated" -> "multiJoinedRowsUpdated"
+        )
+      )
+    )
   }
 
   test("UserDefinedFunction") {
@@ -430,7 +497,9 @@ class JavaScalaAPISuite extends FunSuite {
         classOf[ScalaUserDefinedFunction],
         class1Only = Set(),
         class2Only = Set("f", "returnType", "name", "inputTypes", "withName") ++
-          scalaCaseClassFunctions))
+          scalaCaseClassFunctions
+      )
+    )
   }
 
   test("Windows") {
@@ -442,8 +511,7 @@ class JavaScalaAPISuite extends FunSuite {
   test("WindowSpec") {
     import com.snowflake.snowpark_java.{WindowSpec => JavaWindowSpec}
     import com.snowflake.snowpark.{WindowSpec => ScalaWindowSpec}
-    assert(
-      ClassUtils.containsSameFunctionNames(classOf[JavaWindowSpec], classOf[ScalaWindowSpec]))
+    assert(ClassUtils.containsSameFunctionNames(classOf[JavaWindowSpec], classOf[ScalaWindowSpec]))
   }
 
   // types
@@ -456,7 +524,9 @@ class JavaScalaAPISuite extends FunSuite {
         classOf[ScalaArrayType],
         class1Only = Set(),
         class2Only = scalaCaseClassFunctions,
-        class1To2NameMap = Map("getElementType" -> "elementType")))
+        class1To2NameMap = Map("getElementType" -> "elementType")
+      )
+    )
   }
 
   test("BinaryType") {
@@ -467,7 +537,9 @@ class JavaScalaAPISuite extends FunSuite {
         classOf[JavaBinaryType],
         ScalaBinaryType.getClass,
         class1Only = Set(),
-        class2Only = scalaCaseClassFunctions))
+        class2Only = scalaCaseClassFunctions
+      )
+    )
   }
 
   test("BooleanType") {
@@ -478,7 +550,9 @@ class JavaScalaAPISuite extends FunSuite {
         classOf[JavaBooleanType],
         ScalaBooleanType.getClass,
         class1Only = Set(),
-        class2Only = scalaCaseClassFunctions))
+        class2Only = scalaCaseClassFunctions
+      )
+    )
   }
 
   test("ByteType") {
@@ -489,7 +563,9 @@ class JavaScalaAPISuite extends FunSuite {
         classOf[JavaByteType],
         ScalaByteType.getClass,
         class1Only = Set(),
-        class2Only = scalaCaseClassFunctions))
+        class2Only = scalaCaseClassFunctions
+      )
+    )
   }
 
   test("ColumnIdentifier") {
@@ -500,7 +576,9 @@ class JavaScalaAPISuite extends FunSuite {
         classOf[JavaColumnIdentifier],
         classOf[ScalaColumnIdentifier],
         class1Only = Set(),
-        class2Only = scalaCaseClassFunctions))
+        class2Only = scalaCaseClassFunctions
+      )
+    )
   }
 
   test("DateType") {
@@ -511,7 +589,9 @@ class JavaScalaAPISuite extends FunSuite {
         classOf[JavaDateType],
         ScalaDateType.getClass,
         class1Only = Set(),
-        class2Only = scalaCaseClassFunctions))
+        class2Only = scalaCaseClassFunctions
+      )
+    )
   }
 
   test("DecimalType") {
@@ -523,14 +603,15 @@ class JavaScalaAPISuite extends FunSuite {
         ScalaDecimalType.getClass,
         class1Only = Set("getPrecision", "getScale"),
         class2Only = Set("MAX_SCALE", "MAX_PRECISION") ++
-          scalaCaseClassFunctions))
+          scalaCaseClassFunctions
+      )
+    )
   }
 
   test("DoubleType") {
     import com.snowflake.snowpark_java.types.{DoubleType => JavaDoubleType}
     import com.snowflake.snowpark.types.{DoubleType => ScalaDoubleType}
-    assert(
-      ClassUtils.containsSameFunctionNames(classOf[JavaDoubleType], ScalaDoubleType.getClass))
+    assert(ClassUtils.containsSameFunctionNames(classOf[JavaDoubleType], ScalaDoubleType.getClass))
   }
 
   test("FloatType") {
@@ -546,7 +627,9 @@ class JavaScalaAPISuite extends FunSuite {
       ClassUtils.containsSameFunctionNames(
         classOf[JavaGeography],
         classOf[ScalaGeograhy],
-        class2Only = Set("getString")))
+        class2Only = Set("getString")
+      )
+    )
   }
 
   test("GeographyType") {
@@ -554,7 +637,8 @@ class JavaScalaAPISuite extends FunSuite {
     import com.snowflake.snowpark.types.{GeographyType => ScalaGeograhyType}
     assert(
       ClassUtils
-        .containsSameFunctionNames(classOf[JavaGeographyType], ScalaGeograhyType.getClass))
+        .containsSameFunctionNames(classOf[JavaGeographyType], ScalaGeograhyType.getClass)
+    )
   }
 
   test("Geometry") {
@@ -568,14 +652,16 @@ class JavaScalaAPISuite extends FunSuite {
     import com.snowflake.snowpark.types.{GeometryType => ScalaGeometryType}
     assert(
       ClassUtils
-        .containsSameFunctionNames(classOf[JavaGeometryType], ScalaGeometryType.getClass))
+        .containsSameFunctionNames(classOf[JavaGeometryType], ScalaGeometryType.getClass)
+    )
   }
 
   test("IntegerType") {
     import com.snowflake.snowpark_java.types.{IntegerType => JavaIntegerType}
     import com.snowflake.snowpark.types.{IntegerType => ScalaIntegerType}
     assert(
-      ClassUtils.containsSameFunctionNames(classOf[JavaIntegerType], ScalaIntegerType.getClass))
+      ClassUtils.containsSameFunctionNames(classOf[JavaIntegerType], ScalaIntegerType.getClass)
+    )
   }
 
   test("LongType") {
@@ -592,7 +678,9 @@ class JavaScalaAPISuite extends FunSuite {
         classOf[JavaMapType],
         ScalaMapType.getClass,
         class1Only = Set("getValueType", "getKeyType"),
-        class2Only = Set("unapply")))
+        class2Only = Set("unapply")
+      )
+    )
   }
 
   test("ShortType") {
@@ -604,8 +692,7 @@ class JavaScalaAPISuite extends FunSuite {
   test("StringType") {
     import com.snowflake.snowpark_java.types.{StringType => JavaStringType}
     import com.snowflake.snowpark.types.{StringType => ScalaStringType}
-    assert(
-      ClassUtils.containsSameFunctionNames(classOf[JavaStringType], ScalaStringType.getClass))
+    assert(ClassUtils.containsSameFunctionNames(classOf[JavaStringType], ScalaStringType.getClass))
   }
 
   test("TimestampType") {
@@ -613,7 +700,8 @@ class JavaScalaAPISuite extends FunSuite {
     import com.snowflake.snowpark.types.{TimestampType => ScalaTimestampType}
     assert(
       ClassUtils
-        .containsSameFunctionNames(classOf[JavaTimestampType], ScalaTimestampType.getClass))
+        .containsSameFunctionNames(classOf[JavaTimestampType], ScalaTimestampType.getClass)
+    )
   }
 
   test("TimeType") {
@@ -626,7 +714,8 @@ class JavaScalaAPISuite extends FunSuite {
     import com.snowflake.snowpark_java.types.{VariantType => JavaVariantType}
     import com.snowflake.snowpark.types.{VariantType => ScalaVariantType}
     assert(
-      ClassUtils.containsSameFunctionNames(classOf[JavaVariantType], ScalaVariantType.getClass))
+      ClassUtils.containsSameFunctionNames(classOf[JavaVariantType], ScalaVariantType.getClass)
+    )
   }
 
   test("Variant") {
@@ -638,7 +727,9 @@ class JavaScalaAPISuite extends FunSuite {
         classOf[ScalaVariant],
         class1Only = Set(),
         class2Only = Set("dataType", "value"),
-        class1To2NameMap = Map("asBigInteger" -> "asBigInt", "asList" -> "asSeq")))
+        class1To2NameMap = Map("asBigInteger" -> "asBigInt", "asList" -> "asSeq")
+      )
+    )
   }
 
   test("StructField") {
@@ -649,7 +740,9 @@ class JavaScalaAPISuite extends FunSuite {
         classOf[JavaStructField],
         classOf[ScalaStructField],
         class1Only = Set(),
-        class2Only = Set("treeString") ++ scalaCaseClassFunctions))
+        class2Only = Set("treeString") ++ scalaCaseClassFunctions
+      )
+    )
   }
 
   test("StructType") {
@@ -663,10 +756,13 @@ class JavaScalaAPISuite extends FunSuite {
           // Java Iterable
           "forEach",
           "get",
-          "spliterator"),
+          "spliterator"
+        ),
         class2Only = Set("fields") ++ scalaSeqFunctions ++
           scalaCaseClassFunctions,
-        class1To2NameMap = Map("create" -> "apply")))
+        class1To2NameMap = Map("create" -> "apply")
+      )
+    )
   }
 
 }

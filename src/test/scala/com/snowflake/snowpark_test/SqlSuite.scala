@@ -32,7 +32,8 @@ trait SqlSuite extends SNTestBase {
                         |return 'Done'
                         |$$$$
                         |""".stripMargin,
-      session)
+      session
+    )
   }
 
   override def afterAll: Unit = {
@@ -242,7 +243,8 @@ class LazySqlSuite extends SqlSuite with LazySession {
     // test for insertion to a non-existing table
     session.sql(s"insert into $tableName2 values(1),(2),(3)") // no error
     assertThrows[SnowflakeSQLException](
-      session.sql(s"insert into $tableName2 values(1),(2),(3)").collect())
+      session.sql(s"insert into $tableName2 values(1),(2),(3)").collect()
+    )
 
     // test for insertion with wrong type of data, throws exception when collect
     val insert2 = session.sql(s"insert into $tableName1 values(1.4),('test')")

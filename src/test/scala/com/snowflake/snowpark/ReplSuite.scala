@@ -75,10 +75,12 @@ class ReplSuite extends TestData {
     Files.copy(
       Paths.get(defaultProfile),
       Paths.get(s"$workDir/$defaultProfile"),
-      StandardCopyOption.REPLACE_EXISTING)
+      StandardCopyOption.REPLACE_EXISTING
+    )
     Files.write(
       Paths.get(s"$workDir/file.txt"),
-      (preLoad + code + "sys.exit\n").getBytes(StandardCharsets.UTF_8))
+      (preLoad + code + "sys.exit\n").getBytes(StandardCharsets.UTF_8)
+    )
     s"cat $workDir/file.txt ".#|(s"$workDir/run.sh").!!.replaceAll("scala> ", "")
   }
 

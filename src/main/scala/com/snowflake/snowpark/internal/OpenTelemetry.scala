@@ -21,13 +21,15 @@ object OpenTelemetry extends Logging {
       funcName: String,
       execName: String,
       execFilePath: String,
-      func: Supplier[JavaUDF]): JavaUDF = {
+      func: Supplier[JavaUDF]
+  ): JavaUDF = {
     udx(
       className,
       funcName,
       execName,
       s"${UDXRegistrationHandler.className}.${UDXRegistrationHandler.methodName}",
-      execFilePath)(func.get())
+      execFilePath
+    )(func.get())
   }
 
   def javaUDTF(
@@ -35,22 +37,26 @@ object OpenTelemetry extends Logging {
       funcName: String,
       execName: String,
       execFilePath: String,
-      func: Supplier[JavaTableFunction]): JavaTableFunction = {
+      func: Supplier[JavaTableFunction]
+  ): JavaTableFunction = {
     udx(className, funcName, execName, UDXRegistrationHandler.udtfClassName, execFilePath)(
-      func.get())
+      func.get()
+    )
   }
   def javaSProc(
       className: String,
       funcName: String,
       execName: String,
       execFilePath: String,
-      func: Supplier[JavaSProc]): JavaSProc = {
+      func: Supplier[JavaSProc]
+  ): JavaSProc = {
     udx(
       className,
       funcName,
       execName,
       s"${UDXRegistrationHandler.className}.${UDXRegistrationHandler.methodName}",
-      execFilePath)(func.get())
+      execFilePath
+    )(func.get())
   }
 
   // Scala API
@@ -59,7 +65,8 @@ object OpenTelemetry extends Logging {
       funcName: String,
       execName: String,
       execHandler: String,
-      execFilePath: String)(func: => T): T = {
+      execFilePath: String
+  )(func: => T): T = {
     try {
       spanInfo.withValue[T](spanInfo.value match {
         // empty info means this is the entry of the recursion
@@ -67,14 +74,8 @@ object OpenTelemetry extends Logging {
           val stacks = Thread.currentThread().getStackTrace
           val (fileName, lineNumber) = findLineNumber(stacks)
           Some(
-            UdfInfo(
-              className,
-              funcName,
-              fileName,
-              lineNumber,
-              execName,
-              execHandler,
-              execFilePath))
+            UdfInfo(className, funcName, fileName, lineNumber, execName, execHandler, execFilePath)
+          )
         // if value is not empty, this function call should be recursion.
         // do not issue new SpanInfo, use the info inherited from previous.
         case other => other
@@ -123,9 +124,11 @@ object OpenTelemetry extends Logging {
       // if can't find open telemetry class, make it N/A
       ("N/A", 0)
     } else {
-      while (index < stacks.length &&
-             (stacks(index).getClassName.startsWith("com.snowflake.snowpark.") ||
-             stacks(index).getClassName.startsWith("com.snowflake.snowpark_java."))) {
+      while (
+        index < stacks.length &&
+        (stacks(index).getClassName.startsWith("com.snowflake.snowpark.") ||
+          stacks(index).getClassName.startsWith("com.snowflake.snowpark_java."))
+      ) {
         index += 1
       }
       if (index == stacks.length) {
@@ -195,8 +198,8 @@ case class ActionInfo(
     override val funcName: String,
     override val fileName: String,
     override val lineNumber: Int,
-    methodChain: String)
-    extends SpanInfo
+    methodChain: String
+) extends SpanInfo
 
 case class UdfInfo(
     override val className: String,
@@ -205,5 +208,5 @@ case class UdfInfo(
     override val lineNumber: Int,
     execName: String,
     execHandler: String,
-    execFilePath: String)
-    extends SpanInfo
+    execFilePath: String
+) extends SpanInfo

@@ -50,7 +50,8 @@ class ServerConnectionSuite extends SNTestBase {
       }
       assert(
         ex1.errorCode.equals("0318") &&
-          ex1.message.contains("The function call has been running for 19 seconds"))
+          ex1.message.contains("The function call has been running for 19 seconds")
+      )
     } finally {
       session.cancelAll()
       statement.close()
@@ -89,7 +90,8 @@ class ServerConnectionSuite extends SNTestBase {
       s"create or replace temporary table $tableName (c1 int, c2 string)",
       s"insert into $tableName values (1, 'abc'), (123, 'dfdffdfdf')",
       "select SYSTEM$WAIT(2)",
-      s"select max(c1) from $tableName").map(Query(_))
+      s"select max(c1) from $tableName"
+    ).map(Query(_))
     val attrs = Seq(Attribute("C1", LongType))
     plan = new SnowflakePlan(
       queries,
@@ -97,7 +99,8 @@ class ServerConnectionSuite extends SNTestBase {
       Seq(Query(s"drop table if exists $tableName", true)),
       session,
       None,
-      supportAsyncMode = true)
+      supportAsyncMode = true
+    )
     asyncJob = session.conn.executeAsync(plan)
     iterator = session.conn.getAsyncResult(asyncJob.getQueryId(), Int.MaxValue, Some(plan))._1
     rows = iterator.toSeq
@@ -120,21 +123,22 @@ class ServerConnectionSuite extends SNTestBase {
       s"create or replace temporary table $tableName (c1 int, c2 string)",
       s"insert into $tableName values (1, 'abc'), (123, 'dfdffdfdf')",
       "select SYSTEM$WAIT(2)",
-      s"select to_number('not_a_number') as C1").map(Query(_))
+      s"select to_number('not_a_number') as C1"
+    ).map(Query(_))
     plan = new SnowflakePlan(
       queries2,
       schemaValueStatement(attrs),
       Seq(Query(s"drop table if exists $tableName", true)),
       session,
       None,
-      supportAsyncMode = true)
+      supportAsyncMode = true
+    )
     asyncJob = session.conn.executeAsync(plan)
     val ex2 = intercept[SnowflakeSQLException] {
       session.conn.getAsyncResult(asyncJob.getQueryId(), Int.MaxValue, Some(plan))._1
     }
     assert(ex2.getMessage.contains("Numeric value 'not_a_number' is not recognized"))
-    assert(
-      ex2.getMessage.contains("Uncaught Execution of multiple statements failed on statement"))
+    assert(ex2.getMessage.contains("Uncaught Execution of multiple statements failed on statement"))
   }
 
   test("ServerConnection.getStatementParameters()") {
@@ -144,7 +148,9 @@ class ServerConnectionSuite extends SNTestBase {
     val parameters2 = session.conn.getStatementParameters(true)
     assert(
       parameters2.size == 2 && parameters2.contains("QUERY_TAG") && parameters2.contains(
-        "SNOWPARK_SKIP_TXN_COMMIT_IN_DDL"))
+        "SNOWPARK_SKIP_TXN_COMMIT_IN_DDL"
+      )
+    )
 
     try {
       session.setQueryTag("test_tag_123")

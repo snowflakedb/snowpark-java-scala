@@ -53,8 +53,7 @@ private[snowpark] case class Except(left: LogicalPlan, right: LogicalPlan) exten
     Except
 }
 
-private[snowpark] case class Intersect(left: LogicalPlan, right: LogicalPlan)
-    extends SetOperation {
+private[snowpark] case class Intersect(left: LogicalPlan, right: LogicalPlan) extends SetOperation {
   override def sql: String = "INTERSECT"
 
   override protected def createFromAnalyzedChildren: (LogicalPlan, LogicalPlan) => LogicalPlan =
@@ -73,8 +72,7 @@ private[snowpark] case class Union(left: LogicalPlan, right: LogicalPlan) extend
     Union
 }
 
-private[snowpark] case class UnionAll(left: LogicalPlan, right: LogicalPlan)
-    extends SetOperation {
+private[snowpark] case class UnionAll(left: LogicalPlan, right: LogicalPlan) extends SetOperation {
   override def sql: String = "UNION ALL"
 
   override protected def createFromAnalyzedChildren: (LogicalPlan, LogicalPlan) => LogicalPlan =
@@ -87,13 +85,13 @@ private[snowpark] case class UnionAll(left: LogicalPlan, right: LogicalPlan)
 private[snowpark] object JoinType {
   def apply(joinType: String): JoinType =
     joinType.toLowerCase(Locale.ROOT).replace("_", "") match {
-      case "inner" => Inner
+      case "inner"                        => Inner
       case "outer" | "full" | "fullouter" => FullOuter
-      case "leftouter" | "left" => LeftOuter
-      case "rightouter" | "right" => RightOuter
-      case "leftsemi" | "semi" => LeftSemi
-      case "leftanti" | "anti" => LeftAnti
-      case "cross" => Cross
+      case "leftouter" | "left"           => LeftOuter
+      case "rightouter" | "right"         => RightOuter
+      case "leftsemi" | "semi"            => LeftSemi
+      case "leftanti" | "anti"            => LeftAnti
+      case "cross"                        => Cross
       case _ =>
         val supported = Seq(
           "inner",
@@ -113,7 +111,8 @@ private[snowpark] object JoinType {
           "leftanti",
           "left_anti",
           "anti",
-          "cross")
+          "cross"
+        )
 
         throw ErrorMessage.DF_JOIN_INVALID_JOIN_TYPE(joinType, supported.mkString(", "))
     }
@@ -172,8 +171,8 @@ private[snowpark] case class Join(
     left: LogicalPlan,
     right: LogicalPlan,
     joinType: JoinType,
-    condition: Option[Expression])
-    extends BinaryNode {
+    condition: Option[Expression]
+) extends BinaryNode {
   override def sql: String = joinType.sql
 
   override protected def createFromAnalyzedChildren: (LogicalPlan, LogicalPlan) => LogicalPlan =

@@ -19,14 +19,10 @@ trait SFTestUtils {
   def randomTableName(): String = TestUtils.randomTableName()
 
   // todo: need support StructType schema
-  def createTable(name: String, schema: String)(
-      implicit
-      session: Session): Unit =
+  def createTable(name: String, schema: String)(implicit session: Session): Unit =
     TestUtils.createTable(name, schema, session)
 
-  def createStage(name: String, isTemporary: Boolean = true)(
-      implicit
-      session: Session): Unit =
+  def createStage(name: String, isTemporary: Boolean = true)(implicit session: Session): Unit =
     TestUtils.createStage(name, isTemporary, session)
 
   def dropStage(name: String)(implicit session: Session): Unit =
@@ -35,13 +31,12 @@ trait SFTestUtils {
   def dropTable(name: String)(implicit session: Session): Unit =
     TestUtils.dropTable(name, session)
 
-  def insertIntoTable(name: String, data: Seq[Any])(
-      implicit
-      session: Session): Unit =
+  def insertIntoTable(name: String, data: Seq[Any])(implicit session: Session): Unit =
     TestUtils.insertIntoTable(name, data, session)
 
-  def uploadFileToStage(stageName: String, fileName: String, compress: Boolean)(
-      implicit session: Session): Unit =
+  def uploadFileToStage(stageName: String, fileName: String, compress: Boolean)(implicit
+      session: Session
+  ): Unit =
     TestUtils.uploadFileToStage(stageName, fileName, compress, session)
 
   def verifySchema(sql: String, expectedSchema: StructType)(implicit session: Session): Unit =

@@ -25,6 +25,7 @@ class SnowparkSFConnectionHandler(conStr: SnowflakeConnectString)
     super.initialize(
       connStr,
       LoginInfoDTO.SF_SNOWPARK_APP_ID,
-      extractValidVersionNumber(Utils.Version))
+      extractValidVersionNumber(Utils.Version)
+    )
   }
 }

@@ -34,7 +34,8 @@ class FileOperationSuite extends SNTestBase {
   private def createTempFile(
       prefix: String = "test_file_",
       suffix: String = ".csv",
-      content: String = "abc, 123,\n"): String = {
+      content: String = "abc, 123,\n"
+  ): String = {
     val file = File.createTempFile(prefix, suffix, sourceDirectoryFile)
     FileUtils.write(file, content)
     file.getCanonicalPath
@@ -110,12 +111,12 @@ class FileOperationSuite extends SNTestBase {
     assert(secondResult(0).sourceCompression.equals("NONE"))
     assert(secondResult(0).targetCompression.equals("GZIP"))
     assert(secondResult(0).status.equals("SKIPPED") || secondResult(0).status.equals("UPLOADED"))
-    assert(
-      secondResult(0).encryption.equals("") || secondResult(0).encryption.equals("ENCRYPTED"))
+    assert(secondResult(0).encryption.equals("") || secondResult(0).encryption.equals("ENCRYPTED"))
     assert(
       secondResult(0).message.isEmpty ||
         secondResult(0).message
-          .contains("File with same destination name and checksum already exists"))
+          .contains("File with same destination name and checksum already exists")
+    )
   }
 
   test("put() with one relative path file") {
@@ -180,7 +181,8 @@ class FileOperationSuite extends SNTestBase {
     }
     assert(
       stageNotExistException.getMessage.contains("Stage") &&
-        stageNotExistException.getMessage.contains("does not exist or not authorized."))
+        stageNotExistException.getMessage.contains("does not exist or not authorized.")
+    )
   }
 
   test("get() one file") {
@@ -200,7 +202,8 @@ class FileOperationSuite extends SNTestBase {
           results(0).sizeBytes == 30L &&
           results(0).status.equals("DOWNLOADED") &&
           results(0).encryption.equals("DECRYPTED") &&
-          results(0).message.equals(""))
+          results(0).message.equals("")
+      )
 
       // Check downloaded file
       assert(fileExists(s"$targetDirectoryPath/${getFileName(path1)}.gz"))
@@ -229,7 +232,8 @@ class FileOperationSuite extends SNTestBase {
           results(0).sizeBytes == 30L &&
           results(0).status.equals("DOWNLOADED") &&
           results(0).encryption.equals("DECRYPTED") &&
-          results(0).message.equals(""))
+          results(0).message.equals("")
+      )
 
       // Check downloaded file
       assert(fileExists(s"$targetDirectoryPath/${getFileName(path1)}.gz"))
@@ -259,12 +263,13 @@ class FileOperationSuite extends SNTestBase {
       assert(results(0).sizeBytes == 30L)
       assert(results(1).sizeBytes == 30L)
       assert(results(2).sizeBytes == 10L)
-      results.foreach(
-        r =>
-          assert(
-            r.status.equals("DOWNLOADED") &&
-              r.encryption.equals("DECRYPTED") &&
-              r.message.equals("")))
+      results.foreach(r =>
+        assert(
+          r.status.equals("DOWNLOADED") &&
+            r.encryption.equals("DECRYPTED") &&
+            r.message.equals("")
+        )
+      )
 
       // Check downloaded files
       assert(fileExists(s"$targetDirectoryPath/${getFileName(path1)}.gz"))
@@ -296,12 +301,13 @@ class FileOperationSuite extends SNTestBase {
       assert(results(1).fileName.equals(s"$stagePrefix/${getFileName(path2)}.gz"))
       assert(results(0).sizeBytes == 30L)
       assert(results(1).sizeBytes == 30L)
-      results.foreach(
-        r =>
-          assert(
-            r.status.equals("DOWNLOADED") &&
-              r.encryption.equals("DECRYPTED") &&
-              r.message.equals("")))
+      results.foreach(r =>
+        assert(
+          r.status.equals("DOWNLOADED") &&
+            r.encryption.equals("DECRYPTED") &&
+            r.message.equals("")
+        )
+      )
 
       // Check downloaded files
       assert(fileExists(getFileName(path1) + ".gz"))
@@ -323,7 +329,8 @@ class FileOperationSuite extends SNTestBase {
     }
     assert(
       stageNotExistException.getMessage.contains("Stage") &&
-        stageNotExistException.getMessage.contains("does not exist or not authorized."))
+        stageNotExistException.getMessage.contains("does not exist or not authorized.")
+    )
 
     // If stage name exists but prefix doesn't exist, download nothing
     var getResults = session.file.get(s"@$tempStage/not_exist_prefix_test/", ".")
@@ -359,7 +366,8 @@ class FileOperationSuite extends SNTestBase {
       assert(
         results(0).sizeBytes == 30L &&
           results(0).status.equals("DOWNLOADED") &&
-          results(0).message.equals(""))
+          results(0).message.equals("")
+      )
       // The error message is like:
       // prefix/prefix_1/file_1.csv.gz has same name as prefix/prefix_2/file_1.csv.gz
       // GET on GCP doesn't detect this download collision.
@@ -369,7 +377,8 @@ class FileOperationSuite extends SNTestBase {
           results(1).message.contains("has same name as")) ||
           (results(1).sizeBytes == 30L &&
             results(1).status.equals("DOWNLOADED") &&
-            results(1).message.equals("")))
+            results(1).message.equals(""))
+      )
 
       // Check downloaded files
       assert(fileExists(targetDirectoryPath + "/" + (getFileName(path1) + ".gz")))
@@ -415,28 +424,32 @@ class FileOperationSuite extends SNTestBase {
     testStreamRoundTrip(
       s"$tempStage/$stagePrefix/$fileName",
       s"$tempStage/$stagePrefix/$fileName",
-      false)
+      false
+    )
 
     // Test with @ prefix
     stagePrefix = "prefix_" + TestUtils.randomString(5)
     testStreamRoundTrip(
       s"@$tempStage/$stagePrefix/$fileName",
       s"@$tempStage/$stagePrefix/$fileName",
-      false)
+      false
+    )
 
     // Test compression with .gz extension
     stagePrefix = "prefix_" + TestUtils.randomString(5)
     testStreamRoundTrip(
       s"$tempStage/$stagePrefix/$fileName.gz",
       s"$tempStage/$stagePrefix/$fileName.gz",
-      true)
+      true
+    )
 
     // Test compression without .gz extension
     stagePrefix = "prefix_" + TestUtils.randomString(5)
     testStreamRoundTrip(
       s"$tempStage/$stagePrefix/$fileName",
       s"$tempStage/$stagePrefix/$fileName.gz",
-      true)
+      true
+    )
 
     // Test no path
     fileName = s"streamFile_${TestUtils.randomString(5)}.csv"
@@ -449,7 +462,8 @@ class FileOperationSuite extends SNTestBase {
     testStreamRoundTrip(
       s"$database.$schema.$tempStage/$fileName",
       s"$database.$schema.$tempStage/$fileName.gz",
-      true)
+      true
+    )
 
     fileName = s"streamFile_${TestUtils.randomString(5)}.csv"
     testStreamRoundTrip(s"$schema.$tempStage/$fileName", s"$schema.$tempStage/$fileName.gz", true)
@@ -468,7 +482,8 @@ class FileOperationSuite extends SNTestBase {
       testStreamRoundTrip(
         s"$randomNewSchema.$tempStage/$fileName",
         s"$randomNewSchema.$tempStage/$fileName.gz",
-        true)
+        true
+      )
     } finally {
       session.sql(s"DROP SCHEMA $randomNewSchema").collect()
     }
@@ -477,47 +492,53 @@ class FileOperationSuite extends SNTestBase {
   test("Negative test uploadStream and downloadStream") {
 
     // Test no file name
-    assertThrows[SnowparkClientException](
-      testStreamRoundTrip(s"$tempStage", s"$tempStage", false))
+    assertThrows[SnowparkClientException](testStreamRoundTrip(s"$tempStage", s"$tempStage", false))
 
     // Test no file name
     assertThrows[SnowparkClientException](
-      testStreamRoundTrip(s"$tempStage/", s"$tempStage/", false))
+      testStreamRoundTrip(s"$tempStage/", s"$tempStage/", false)
+    )
 
     var stagePrefix = "prefix_" + TestUtils.randomString(5)
     var fileName = s"streamFile_${TestUtils.randomString(5)}.csv"
 
     // Test upload no stage
     assertThrows[SnowflakeSQLException](
-      testStreamRoundTrip(s"nonExistStage/$fileName", s"nonExistStage/$fileName", false))
+      testStreamRoundTrip(s"nonExistStage/$fileName", s"nonExistStage/$fileName", false)
+    )
 
     // Test download no stage
     assertThrows[SnowflakeSQLException](
-      testStreamRoundTrip(s"$tempStage/$fileName", s"nonExistStage/$fileName", false))
+      testStreamRoundTrip(s"$tempStage/$fileName", s"nonExistStage/$fileName", false)
+    )
 
     stagePrefix = "prefix_" + TestUtils.randomString(5)
     fileName = s"streamFile_${TestUtils.randomString(5)}.csv"
 
     // Test download no file
     assertThrows[SnowparkClientException](
-      testStreamRoundTrip(s"$tempStage/$fileName", s"$tempStage/$stagePrefix/$fileName", false))
+      testStreamRoundTrip(s"$tempStage/$fileName", s"$tempStage/$stagePrefix/$fileName", false)
+    )
 
   }
 
   private def testStreamRoundTrip(
       uploadLocation: String,
       downloadLocation: String,
-      compress: Boolean): Unit = {
+      compress: Boolean
+  ): Unit = {
     val fileContent = "test, file, csv"
     session.file.uploadStream(
       uploadLocation,
       new ByteArrayInputStream(fileContent.getBytes),
-      compress)
+      compress
+    )
     assert(
       Source
         .fromInputStream(session.file.downloadStream(downloadLocation, compress))
         .mkString
-        .equals(fileContent))
+        .equals(fileContent)
+    )
   }
 
 }

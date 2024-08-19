@@ -85,12 +85,16 @@ object Utils extends Logging {
     val stackTrace = new ArrayBuffer[String]()
     val stackDepth = 3 // TODO: Configurable ?
     Thread.currentThread.getStackTrace().foreach { ste: StackTraceElement =>
-      if (ste != null && ste.getMethodName != null
-          && !ste.getMethodName.contains("getStackTrace")) {
+      if (
+        ste != null && ste.getMethodName != null
+        && !ste.getMethodName.contains("getStackTrace")
+      ) {
         if (internalCode) {
-          if (ste.getClassName.startsWith("net.snowflake.client.")
-              || ste.getClassName.startsWith("com.snowflake.snowpark.")
-              || ste.getClassName.startsWith("scala.")) {
+          if (
+            ste.getClassName.startsWith("net.snowflake.client.")
+            || ste.getClassName.startsWith("com.snowflake.snowpark.")
+            || ste.getClassName.startsWith("scala.")
+          ) {
             lastInternalLine = ste.getClassName + "." + ste.getMethodName
 
           } else {
@@ -106,7 +110,8 @@ object Utils extends Logging {
 
   def addToDataframeAliasMap(
       result: Map[String, Seq[Attribute]],
-      child: LogicalPlan): Map[String, Seq[Attribute]] = {
+      child: LogicalPlan
+  ): Map[String, Seq[Attribute]] = {
     if (child != null) {
       val map = child.dfAliasMap
       val duplicatedAlias = result.keySet.intersect(map.keySet)
@@ -172,7 +177,8 @@ object Utils extends Logging {
     val buffer = new Array[Byte](8192)
     val md5 = MessageDigest.getInstance("MD5")
     val dis = new DigestInputStream(new FileInputStream(file), md5)
-    try { while (dis.read(buffer) != -1) {} } finally { dis.close() }
+    try { while (dis.read(buffer) != -1) {} }
+    finally { dis.close() }
     md5.digest.map("%02x".format(_)).mkString
   }
 
@@ -217,18 +223,19 @@ object Utils extends Logging {
     res
   }
 
-  /**
-   * Parses a stage file location into stageName, path and fileName
-   * @param stageLocation a string that represent a file on a stage
-   * @return stageName, path and fileName
-   */
-  private[snowpark] def parseStageFileLocation(
-      stageLocation: String): (String, String, String) = {
+  /** Parses a stage file location into stageName, path and fileName
+    * @param stageLocation
+    *   a string that represent a file on a stage
+    * @return
+    *   stageName, path and fileName
+    */
+  private[snowpark] def parseStageFileLocation(stageLocation: String): (String, String, String) = {
     val normalized = normalizeStageLocation(stageLocation)
     if (stageLocation.endsWith("/")) {
       throw ErrorMessage.MISC_INVALID_STAGE_LOCATION(
         stageLocation,
-        "Stage file location must point to a file, not a folder")
+        "Stage file location must point to a file, not a folder"
+      )
     }
 
     var isQuoted: Boolean = false
@@ -242,7 +249,8 @@ object Utils extends Logging {
           if (pathAndFileName.isEmpty) {
             throw ErrorMessage.MISC_INVALID_STAGE_LOCATION(
               stageLocation,
-              "Missing file name after the stage name")
+              "Missing file name after the stage name"
+            )
           }
           val pathList = pathAndFileName.split("/")
           val path = pathList.take(pathList.size - 1).mkString("/")
@@ -252,7 +260,8 @@ object Utils extends Logging {
     }
     throw ErrorMessage.MISC_INVALID_STAGE_LOCATION(
       stageLocation,
-      "Missing '/' to separate stage name and file name")
+      "Missing '/' to separate stage name and file name"
+    )
   }
 
   // Refactored as a wrapper for testing purpose
@@ -262,12 +271,15 @@ object Utils extends Logging {
 
   private[snowpark] def checkScalaVersionCompatibility(inputScalaVersion: String): Unit = {
     // Check that version starts with 2.12 and is greater than 2.12.9
-    if (!inputScalaVersion.startsWith(ScalaCompatVersion) ||
-        compareVersion(inputScalaVersion, ScalaMinimumMinorVersion) < 0) {
+    if (
+      !inputScalaVersion.startsWith(ScalaCompatVersion) ||
+      compareVersion(inputScalaVersion, ScalaMinimumMinorVersion) < 0
+    ) {
       throw ErrorMessage.MISC_SCALA_VERSION_NOT_SUPPORTED(
         inputScalaVersion,
         ScalaCompatVersion,
-        ScalaMinimumMinorVersion)
+        ScalaMinimumMinorVersion
+      )
     }
   }
 
@@ -320,9 +332,8 @@ object Utils extends Logging {
     override def toString: String = this.getClass.getName.split("\\$").last.stripSuffix("$")
   }
 
-  /**
-   * Define types of temporary objects that will be created by Snowpark.
-   */
+  /** Define types of temporary objects that will be created by Snowpark.
+    */
   private[snowpark] object TempObjectType {
     case object Table extends TempObjectType
     case object Stage extends TempObjectType
@@ -344,12 +355,14 @@ object Utils extends Logging {
 
     assert(
       name.matches(TempObjectNamePattern),
-      "Generated temp object name does not match the required pattern")
+      "Generated temp object name does not match the required pattern"
+    )
     name
   }
 
   private[snowpark] def escapePath(path: String): String =
-    if (isWindows) { path.replace("\\", "\\\\") } else { path }
+    if (isWindows) { path.replace("\\", "\\\\") }
+    else { path }
 
   private val RETRY_SLEEP_TIME_UNIT_IN_MS: Int = 1500
   private val MAX_SLEEP_TIME_IN_MS: Int = 60 * 1000
@@ -385,14 +398,16 @@ object Utils extends Logging {
         case t: Throwable if isRetryable(t) =>
           logError(
             s"withRetry() failed: $logPrefix, sleep ${retrySleepTimeInMS(retry)} ms" +
-              s" and retry: $retry error message: ${t.getMessage}")
+              s" and retry: $retry error message: ${t.getMessage}"
+          )
           Thread.sleep(retrySleepTimeInMS(retry))
           lastError = Some(t)
           retry = retry + 1
         case t: Throwable =>
           logError(
             s"withRetry() failed: $logPrefix, but don't retry because it is not retryable," +
-              s" error message: ${t.getMessage}")
+              s" error message: ${t.getMessage}"
+          )
           throw t
       }
     }
@@ -421,9 +436,9 @@ object Utils extends Logging {
    */
   private[snowpark] def quoteForOption(v: Any): String = {
     v match {
-      case b: Boolean => b.toString
-      case i: Int => i.toString
-      case it: Integer => it.toString
+      case b: Boolean                                                             => b.toString
+      case i: Int                                                                 => i.toString
+      case it: Integer                                                            => it.toString
       case s: String if s.equalsIgnoreCase("true") || s.equalsIgnoreCase("false") => s
       case _ => singleQuote(v.toString)
     }
@@ -432,19 +447,20 @@ object Utils extends Logging {
   // rename the internal alias to its original name
   private[snowpark] def getDisplayColumnNames(
       attrs: Seq[Attribute],
-      renamedColumns: Map[String, String]): Seq[Attribute] = {
-    attrs.map(
-      att =>
-        renamedColumns
-          .get(att.name)
-          .map(newName => Attribute(newName, att.dataType, att.nullable, att.exprId))
-          .getOrElse(att))
+      renamedColumns: Map[String, String]
+  ): Seq[Attribute] = {
+    attrs.map(att =>
+      renamedColumns
+        .get(att.name)
+        .map(newName => Attribute(newName, att.dataType, att.nullable, att.exprId))
+        .getOrElse(att)
+    )
   }
 
   private[snowpark] def getTableFunctionExpression(col: Column): TableFunctionExpression = {
     col.expr match {
       case tf: TableFunctionExpression => tf
-      case _ => throw ErrorMessage.DF_JOIN_WITH_WRONG_ARGUMENT()
+      case _                           => throw ErrorMessage.DF_JOIN_WITH_WRONG_ARGUMENT()
     }
   }
 }

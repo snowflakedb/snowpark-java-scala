@@ -18,10 +18,8 @@ class AsyncJobSuite extends TestData with BeforeAndAfterEach {
   val tableName1: String = randomName()
   val tableName2: String = randomName()
   private val userSchema: StructType = StructType(
-    Seq(
-      StructField("a", IntegerType),
-      StructField("b", StringType),
-      StructField("c", DoubleType)))
+    Seq(StructField("a", IntegerType), StructField("b", StringType), StructField("c", DoubleType))
+  )
 
   // session to verify permanent udf
   lazy private val newSession = Session.builder.configFile(defaultProfile).create
@@ -130,8 +128,11 @@ class AsyncJobSuite extends TestData with BeforeAndAfterEach {
       }
       assert(ex1.errorCode.equals("0318"))
       assert(
-        ex1.getMessage.matches(".*The query with the ID .* is still running and " +
-          "has the current status RUNNING. The function call has been running for 2 seconds,.*"))
+        ex1.getMessage.matches(
+          ".*The query with the ID .* is still running and " +
+            "has the current status RUNNING. The function call has been running for 2 seconds,.*"
+        )
+      )
 
       // getIterator() raises exception
       val ex2 = intercept[SnowparkClientException] {
@@ -352,7 +353,8 @@ class AsyncJobSuite extends TestData with BeforeAndAfterEach {
 
   // This function is copied from DataFrameReader.testReadFile
   def testReadFile(testName: String, testTags: Tag*)(
-      thunk: (() => DataFrameReader) => Unit): Unit = {
+      thunk: (() => DataFrameReader) => Unit
+  ): Unit = {
     // test select
     test(testName + " - SELECT", testTags: _*) {
       thunk(() => session.read)
@@ -382,7 +384,9 @@ class AsyncJobSuite extends TestData with BeforeAndAfterEach {
       Seq(
         StructField("a", IntegerType),
         StructField("b", IntegerType),
-        StructField("c", IntegerType)))
+        StructField("c", IntegerType)
+      )
+    )
     val df2 = reader().schema(incorrectSchema).csv(testFileOnStage)
     assertThrows[SnowflakeSQLException](df2.async.collect().getResult())
   })
@@ -401,18 +405,22 @@ class AsyncJobSuite extends TestData with BeforeAndAfterEach {
       val df = session.createDataFrame(Seq(1, 2)).toDF(Seq("a"))
       checkResult(
         df.select(callUDF(tempFuncName, df("a"))).async.collect().getResult(),
-        Seq(Row(2), Row(3)))
+        Seq(Row(2), Row(3))
+      )
       checkResult(
         df.select(callUDF(permFuncName, df("a"))).async.collect().getResult(),
-        Seq(Row(2), Row(3)))
+        Seq(Row(2), Row(3))
+      )
 
       // another session
       val df2 = newSession.createDataFrame(Seq(1, 2)).toDF(Seq("a"))
       checkResult(
         df2.select(callUDF(permFuncName, df("a"))).async.collect().getResult(),
-        Seq(Row(2), Row(3)))
+        Seq(Row(2), Row(3))
+      )
       assertThrows[SnowflakeSQLException](
-        df2.select(callUDF(tempFuncName, df("a"))).async.collect().getResult())
+        df2.select(callUDF(tempFuncName, df("a"))).async.collect().getResult()
+      )
 
     } finally {
       runQuery(s"drop function if exists $tempFuncName(INT)", session)
@@ -477,7 +485,8 @@ class AsyncJobSuite extends TestData with BeforeAndAfterEach {
       val rows = asyncJob1.getRows()
       assert(
         rows.length == 1 && rows.head.length == 1 &&
-          rows.head.getString(0).contains(s"Table $tableName successfully created"))
+          rows.head.getString(0).contains(s"Table $tableName successfully created")
+      )
       // all session.table
       checkAnswer(session.table(tableName), Seq(Row(1), Row(2), Row(3)))
       checkAnswer(session.table(Seq(db, sc, tableName)), Seq(Row(1), Row(2), Row(3)))
@@ -520,7 +529,8 @@ class AsyncJobSuite extends TestData with BeforeAndAfterEach {
       checkAnswer(
         session.table(tableName),
         Seq(Row(1, "one", 1.2), Row(2, "two", 2.2), Row(1, "one", 1.2), Row(2, "two", 2.2)),
-        false)
+        false
+      )
     } finally {
       dropTable(tableName)
     }
@@ -564,7 +574,8 @@ class AsyncJobSuite extends TestData with BeforeAndAfterEach {
     checkAnswer(
       t2,
       Seq(Row(0, "A"), Row(0, "B"), Row(0, "C"), Row(4, "D"), Row(5, "E"), Row(6, "F")),
-      sort = false)
+      sort = false
+    )
 
     testData2.write.mode(SaveMode.Overwrite).saveAsTable(tableName1)
     upperCaseData.write.mode(SaveMode.Overwrite).saveAsTable(tableName2)
@@ -573,7 +584,8 @@ class AsyncJobSuite extends TestData with BeforeAndAfterEach {
     checkAnswer(
       t2,
       Seq(Row(0, "A"), Row(0, "B"), Row(0, "C"), Row(4, "D"), Row(5, "E"), Row(6, "F")),
-      sort = false)
+      sort = false
+    )
 
     upperCaseData.write.mode(SaveMode.Overwrite).saveAsTable(tableName2)
     import session.implicits._
@@ -582,7 +594,8 @@ class AsyncJobSuite extends TestData with BeforeAndAfterEach {
     assert(asyncJob3.getResult() == UpdateResult(4, 0))
     checkAnswer(
       t2,
-      Seq(Row(0, "A"), Row(0, "B"), Row(0, "D"), Row(0, "E"), Row(3, "C"), Row(6, "F")))
+      Seq(Row(0, "A"), Row(0, "B"), Row(0, "D"), Row(0, "E"), Row(3, "C"), Row(6, "F"))
+    )
   }
 
   // Copy UpdatableSuite.test("delete rows from table") and
@@ -653,7 +666,8 @@ class AsyncJobSuite extends TestData with BeforeAndAfterEach {
     assert(mergeBuilder.async.collect().getResult() == MergeResult(4, 2, 2))
     checkAnswer(
       target,
-      Seq(Row(1, 21), Row(3, 3), Row(4, 4), Row(5, 25), Row(7, null), Row(null, 26)))
+      Seq(Row(1, 21), Row(3, 3), Row(4, 4), Row(5, 25), Row(7, null), Row(null, 26))
+    )
   }
 
   // Async executes Merge and get result in another session.
@@ -690,7 +704,8 @@ class AsyncJobSuite extends TestData with BeforeAndAfterEach {
     checkResult(mergeResultRows, Seq(Row(4, 2, 2)))
     checkAnswer(
       newSession.table(tableName),
-      Seq(Row(1, 21), Row(3, 3), Row(4, 4), Row(5, 25), Row(7, null), Row(null, 26)))
+      Seq(Row(1, 21), Row(3, 3), Row(4, 4), Row(5, 25), Row(7, null), Row(null, 26))
+    )
   }
 
   private def runCSvTestAsync(
@@ -699,7 +714,8 @@ class AsyncJobSuite extends TestData with BeforeAndAfterEach {
       options: Map[String, Any],
       expectedWriteResult: Array[Row],
       outputFileExtension: String,
-      saveMode: Option[SaveMode] = None) = {
+      saveMode: Option[SaveMode] = None
+  ) = {
     // Execute COPY INTO location and check result
     val writer = df.write.options(options)
     saveMode.foreach(writer.mode)
@@ -717,7 +733,8 @@ class AsyncJobSuite extends TestData with BeforeAndAfterEach {
       options: Map[String, Any],
       expectedWriteResult: Array[Row],
       outputFileExtension: String,
-      saveMode: Option[SaveMode] = None) = {
+      saveMode: Option[SaveMode] = None
+  ) = {
     // Execute COPY INTO location and check result
     val writer = df.write.options(options)
     saveMode.foreach(writer.mode)
@@ -735,7 +752,8 @@ class AsyncJobSuite extends TestData with BeforeAndAfterEach {
       options: Map[String, Any],
       expectedNumberOfRow: Int,
       outputFileExtension: String,
-      saveMode: Option[SaveMode] = None) = {
+      saveMode: Option[SaveMode] = None
+  ) = {
     // Execute COPY INTO location and check result
     val writer = df.write.options(options)
     saveMode.foreach(writer.mode)
@@ -753,14 +771,14 @@ class AsyncJobSuite extends TestData with BeforeAndAfterEach {
   // modify it to run it in async mode
   test("async: write CSV files: save mode and file format options") {
     createTable(tableName, "c1 int, c2 double, c3 string")
-    runQuery(
-      s"insert into $tableName values (1,1.1,'one'),(2,2.2,'two'),(null,null,null)",
-      session)
+    runQuery(s"insert into $tableName values (1,1.1,'one'),(2,2.2,'two'),(null,null,null)", session)
     val schema = StructType(
       Seq(
         StructField("c1", IntegerType),
         StructField("c2", DoubleType),
-        StructField("c3", StringType)))
+        StructField("c3", StringType)
+      )
+    )
     val df = session.table(tableName)
     val path = s"@$targetStageName/p_${Random.nextInt().abs}"
 
@@ -768,7 +786,8 @@ class AsyncJobSuite extends TestData with BeforeAndAfterEach {
     runCSvTestAsync(df, path, Map.empty, Array(Row(3, 32, 46)), ".csv.gz")
     checkAnswer(
       session.read.schema(schema).csv(path),
-      Seq(Row(1, 1.1, "one"), Row(2, 2.2, "two"), Row(null, null, null)))
+      Seq(Row(1, 1.1, "one"), Row(2, 2.2, "two"), Row(null, null, null))
+    )
 
     // by default, the mode is ErrorIfExist
     val ex = intercept[SnowflakeSQLException] {
@@ -777,16 +796,11 @@ class AsyncJobSuite extends TestData with BeforeAndAfterEach {
     assert(ex.getMessage.contains("Files already existing at the unload destination"))
 
     // Test overwrite mode
-    runCSvTestAsync(
-      df,
-      path,
-      Map.empty,
-      Array(Row(3, 32, 46)),
-      ".csv.gz",
-      Some(SaveMode.Overwrite))
+    runCSvTestAsync(df, path, Map.empty, Array(Row(3, 32, 46)), ".csv.gz", Some(SaveMode.Overwrite))
     checkAnswer(
       session.read.schema(schema).csv(path),
-      Seq(Row(1, 1.1, "one"), Row(2, 2.2, "two"), Row(null, null, null)))
+      Seq(Row(1, 1.1, "one"), Row(2, 2.2, "two"), Row(null, null, null))
+    )
 
     // test some file format options and values
     session.sql(s"remove $path").collect()
@@ -794,11 +808,13 @@ class AsyncJobSuite extends TestData with BeforeAndAfterEach {
       "FIELD_DELIMITER" -> "'aa'",
       "RECORD_DELIMITER" -> "bbbb",
       "COMPRESSION" -> "NONE",
-      "FILE_EXTENSION" -> "mycsv")
+      "FILE_EXTENSION" -> "mycsv"
+    )
     runCSvTestAsync(df, path, options1, Array(Row(3, 47, 47)), ".mycsv")
     checkAnswer(
       session.read.schema(schema).options(options1).csv(path),
-      Seq(Row(1, 1.1, "one"), Row(2, 2.2, "two"), Row(null, null, null)))
+      Seq(Row(1, 1.1, "one"), Row(2, 2.2, "two"), Row(null, null, null))
+    )
 
     // Test file format name only
     val fileFormatName = randomTableName()
@@ -806,7 +822,8 @@ class AsyncJobSuite extends TestData with BeforeAndAfterEach {
       .sql(
         s"CREATE OR REPLACE TEMPORARY FILE FORMAT $fileFormatName " +
           s"TYPE = CSV FIELD_DELIMITER = 'aa' RECORD_DELIMITER = 'bbbb' " +
-          s"COMPRESSION = 'NONE' FILE_EXTENSION = 'mycsv'")
+          s"COMPRESSION = 'NONE' FILE_EXTENSION = 'mycsv'"
+      )
       .collect()
     runCSvTestAsync(
       df,
@@ -814,17 +831,20 @@ class AsyncJobSuite extends TestData with BeforeAndAfterEach {
       Map("FORMAT_NAME" -> fileFormatName),
       Array(Row(3, 47, 47)),
       ".mycsv",
-      Some(SaveMode.Overwrite))
+      Some(SaveMode.Overwrite)
+    )
     checkAnswer(
       session.read.schema(schema).options(options1).csv(path),
-      Seq(Row(1, 1.1, "one"), Row(2, 2.2, "two"), Row(null, null, null)))
+      Seq(Row(1, 1.1, "one"), Row(2, 2.2, "two"), Row(null, null, null))
+    )
 
     // Test file format name and some extra format options
     val fileFormatName2 = randomTableName()
     session
       .sql(
         s"CREATE OR REPLACE TEMPORARY FILE FORMAT $fileFormatName2 " +
-          s"TYPE = CSV FIELD_DELIMITER = 'aa' RECORD_DELIMITER = 'bbbb'")
+          s"TYPE = CSV FIELD_DELIMITER = 'aa' RECORD_DELIMITER = 'bbbb'"
+      )
       .collect()
     val formatNameAndOptions =
       Map("FORMAT_NAME" -> fileFormatName2, "COMPRESSION" -> "NONE", "FILE_EXTENSION" -> "mycsv")
@@ -834,10 +854,12 @@ class AsyncJobSuite extends TestData with BeforeAndAfterEach {
       formatNameAndOptions,
       Array(Row(3, 47, 47)),
       ".mycsv",
-      Some(SaveMode.Overwrite))
+      Some(SaveMode.Overwrite)
+    )
     checkAnswer(
       session.read.schema(schema).options(options1).csv(path),
-      Seq(Row(1, 1.1, "one"), Row(2, 2.2, "two"), Row(null, null, null)))
+      Seq(Row(1, 1.1, "one"), Row(2, 2.2, "two"), Row(null, null, null))
+    )
   }
 
   // Copy DataFrameWriterSuiter.test("write JSON files: file format options"") and
@@ -852,7 +874,8 @@ class AsyncJobSuite extends TestData with BeforeAndAfterEach {
     runJsonTestAsync(df, path, Map.empty, Array(Row(2, 20, 40)), ".json.gz")
     checkAnswer(
       session.read.json(path),
-      Seq(Row("[\n  1,\n  \"one\"\n]"), Row("[\n  2,\n  \"two\"\n]")))
+      Seq(Row("[\n  1,\n  \"one\"\n]"), Row("[\n  2,\n  \"two\"\n]"))
+    )
 
     // write one column and overwrite
     val df2 = session.table(tableName).select(to_variant(col("c2")))
@@ -862,7 +885,8 @@ class AsyncJobSuite extends TestData with BeforeAndAfterEach {
       Map.empty,
       Array(Row(2, 12, 32)),
       ".json.gz",
-      Some(SaveMode.Overwrite))
+      Some(SaveMode.Overwrite)
+    )
     checkAnswer(session.read.json(path), Seq(Row("\"one\""), Row("\"two\"")))
 
     // write with format_name
@@ -875,7 +899,8 @@ class AsyncJobSuite extends TestData with BeforeAndAfterEach {
       Map("FORMAT_NAME" -> formatName),
       Array(Row(2, 4, 24)),
       ".json.gz",
-      Some(SaveMode.Overwrite))
+      Some(SaveMode.Overwrite)
+    )
     session.read.json(path).show()
     checkAnswer(session.read.json(path), Seq(Row("1"), Row("2")))
 
@@ -885,13 +910,11 @@ class AsyncJobSuite extends TestData with BeforeAndAfterEach {
     runJsonTestAsync(
       df4,
       path,
-      Map(
-        "FORMAT_NAME" -> formatName,
-        "FILE_EXTENSION" -> "myjson.json",
-        "COMPRESSION" -> "NONE"),
+      Map("FORMAT_NAME" -> formatName, "FILE_EXTENSION" -> "myjson.json", "COMPRESSION" -> "NONE"),
       Array(Row(2, 4, 4)),
       ".myjson.json",
-      Some(SaveMode.Overwrite))
+      Some(SaveMode.Overwrite)
+    )
     session.read.json(path).show()
     checkAnswer(session.read.json(path), Seq(Row("1"), Row("2")))
   }
@@ -910,7 +933,9 @@ class AsyncJobSuite extends TestData with BeforeAndAfterEach {
       session.read.parquet(path),
       Seq(
         Row("{\n  \"_COL_0\": 1,\n  \"_COL_1\": \"one\"\n}"),
-        Row("{\n  \"_COL_0\": 2,\n  \"_COL_1\": \"two\"\n}")))
+        Row("{\n  \"_COL_0\": 2,\n  \"_COL_1\": \"two\"\n}")
+      )
+    )
 
     // write with overwrite
     runParquetTest(df, path, Map.empty, 2, ".snappy.parquet", Some(SaveMode.Overwrite))
@@ -918,7 +943,9 @@ class AsyncJobSuite extends TestData with BeforeAndAfterEach {
       session.read.parquet(path),
       Seq(
         Row("{\n  \"_COL_0\": 1,\n  \"_COL_1\": \"one\"\n}"),
-        Row("{\n  \"_COL_0\": 2,\n  \"_COL_1\": \"two\"\n}")))
+        Row("{\n  \"_COL_0\": 2,\n  \"_COL_1\": \"two\"\n}")
+      )
+    )
 
     // write with format_name
     val formatName = randomTableName()
@@ -931,12 +958,15 @@ class AsyncJobSuite extends TestData with BeforeAndAfterEach {
       Map("FORMAT_NAME" -> formatName),
       2,
       ".snappy.parquet",
-      Some(SaveMode.Overwrite))
+      Some(SaveMode.Overwrite)
+    )
     checkAnswer(
       session.read.parquet(path),
       Seq(
         Row("{\n  \"_COL_0\": 1,\n  \"_COL_1\": \"one\"\n}"),
-        Row("{\n  \"_COL_0\": 2,\n  \"_COL_1\": \"two\"\n}")))
+        Row("{\n  \"_COL_0\": 2,\n  \"_COL_1\": \"two\"\n}")
+      )
+    )
 
     // write with format_name format and some extra option
     session.sql(s"rm $path").collect()
@@ -947,12 +977,15 @@ class AsyncJobSuite extends TestData with BeforeAndAfterEach {
       Map("FORMAT_NAME" -> formatName, "COMPRESSION" -> "LZO"),
       2,
       ".lzo.parquet",
-      Some(SaveMode.Overwrite))
+      Some(SaveMode.Overwrite)
+    )
     checkAnswer(
       session.read.parquet(path),
       Seq(
         Row("{\n  \"_COL_0\": 1,\n  \"_COL_1\": \"one\"\n}"),
-        Row("{\n  \"_COL_0\": 2,\n  \"_COL_1\": \"two\"\n}")))
+        Row("{\n  \"_COL_0\": 2,\n  \"_COL_1\": \"two\"\n}")
+      )
+    )
   }
 
   // Copy DataFrameWriterSuiter.test("Catch COPY INTO LOCATION output schema change") and

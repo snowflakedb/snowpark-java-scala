@@ -57,7 +57,9 @@ class RowSuite extends SNTestBase {
       Array[Byte](1, 9),
       Geography.fromGeoJSON("{\"type\":\"Point\",\"coordinates\":[30,10]}"),
       Geometry.fromGeoJSON(
-        "{\"coordinates\": [3.000000000000000e+01,1.000000000000000e+01],\"type\": \"Point\"}"))
+        "{\"coordinates\": [3.000000000000000e+01,1.000000000000000e+01],\"type\": \"Point\"}"
+      )
+    )
 
     assert(row.length == 20)
     assert(row.isNullAt(0))
@@ -78,16 +80,20 @@ class RowSuite extends SNTestBase {
     assertThrows[ClassCastException](row.getBinary(6))
     assert(
       row.getGeography(18) ==
-        Geography.fromGeoJSON("{\"type\":\"Point\",\"coordinates\":[30,10]}"))
+        Geography.fromGeoJSON("{\"type\":\"Point\",\"coordinates\":[30,10]}")
+    )
     assertThrows[ClassCastException](row.getBinary(18))
     assert(row.getString(18) == "{\"type\":\"Point\",\"coordinates\":[30,10]}")
     assert(
       row.getGeometry(19) ==
         Geometry.fromGeoJSON(
-          "{\"coordinates\": [3.000000000000000e+01,1.000000000000000e+01],\"type\": \"Point\"}"))
+          "{\"coordinates\": [3.000000000000000e+01,1.000000000000000e+01],\"type\": \"Point\"}"
+        )
+    )
     assert(
       row.getString(19) ==
-        "{\"coordinates\": [3.000000000000000e+01,1.000000000000000e+01],\"type\": \"Point\"}")
+        "{\"coordinates\": [3.000000000000000e+01,1.000000000000000e+01],\"type\": \"Point\"}"
+    )
   }
 
   test("number getters") {
@@ -104,7 +110,9 @@ class RowSuite extends SNTestBase {
         Float.MinValue,
         Double.MaxValue,
         Double.MinValue,
-        "Str"))
+        "Str"
+      )
+    )
 
     // getByte
     assert(testRow.getByte(0) == 1.toByte)

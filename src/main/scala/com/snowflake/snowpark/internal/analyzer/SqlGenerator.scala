@@ -38,7 +38,8 @@ private object SqlGenerator extends Logging {
           expressionToSql(tableFunction),
           resolveChild(child),
           over.map(expressionToSql),
-          Some(plan))
+          Some(plan)
+        )
       case TableFunctionRelation(tableFunction) =>
         fromTableFunction(expressionToSql(tableFunction))
       case StoredProcedureRelation(spName, args) =>
@@ -50,7 +51,8 @@ private object SqlGenerator extends Logging {
           groupingExpressions.map(toSqlAvoidOffset),
           aggregateExpressions.map(expressionToSql),
           resolveChild(child),
-          Some(plan))
+          Some(plan)
+        )
       case Project(projectList, child, _) =>
         project(projectList.map(expressionToSql), resolveChild(child), Some(plan))
       case Filter(condition, child) =>
@@ -60,7 +62,8 @@ private object SqlGenerator extends Logging {
           projectList.map(expressionToSql),
           expressionToSql(condition),
           resolveChild(child),
-          Some(plan))
+          Some(plan)
+        )
       case SnowflakeSampleNode(probabilityFraction, rowCount, child) =>
         sample(probabilityFraction, rowCount, resolveChild(child), Some(plan))
       case Sort(order, child) =>
@@ -80,7 +83,8 @@ private object SqlGenerator extends Logging {
           resolveChild(right),
           joinType,
           condition.map(expressionToSql),
-          Some(plan))
+          Some(plan)
+        )
       // relations
       case Range(start, end, step) =>
         // The column name id lower-case is hard-coded as the output
@@ -115,12 +119,18 @@ private object SqlGenerator extends Logging {
           resolveChild(child),
           toSqlAvoidOffset(offset),
           order.map(expressionToSql),
-          Some(plan))
+          Some(plan)
+        )
       // update
       case TableUpdate(tableName, assignments, condition, sourceData) =>
-        update(tableName, assignments.map {
-          case (k, v) => (expressionToSql(k), expressionToSql(v))
-        }, condition.map(expressionToSql), sourceData.map(resolveChild))
+        update(
+          tableName,
+          assignments.map { case (k, v) =>
+            (expressionToSql(k), expressionToSql(v))
+          },
+          condition.map(expressionToSql),
+          sourceData.map(resolveChild)
+        )
       // delete
       case TableDelete(tableName, condition, sourceData) =>
         delete(tableName, condition.map(expressionToSql), sourceData.map(resolveChild))
@@ -130,7 +140,8 @@ private object SqlGenerator extends Logging {
           tableName,
           resolveChild(source),
           expressionToSql(joinExpr),
-          clauses.map(expressionToSql))
+          clauses.map(expressionToSql)
+        )
 
       case Pivot(pivotColumn, pivotValues, aggregates, child) =>
         require(aggregates.size == 1, "Only one aggregate is supported with pivot")
@@ -139,7 +150,8 @@ private object SqlGenerator extends Logging {
           pivotValues.map(expressionToSql),
           expressionToSql(aggregates.head), // only support single aggregation function
           resolveChild(child),
-          Some(plan))
+          Some(plan)
+        )
 
       case CreateViewCommand(name, child, viewType) =>
         val isTemp = viewType match {
@@ -165,8 +177,8 @@ private object SqlGenerator extends Logging {
     expr match {
       case GroupingSetsExpression(args) => groupingSetExpression(args.map(_.map(expressionToSql)))
       case TableFunctionExpressionExtractor(str) => str
-      case SubfieldString(expr, field) => subfieldExpression(expressionToSql(expr), field)
-      case SubfieldInt(expr, field) => subfieldExpression(expressionToSql(expr), field)
+      case SubfieldString(expr, field)           => subfieldExpression(expressionToSql(expr), field)
+      case SubfieldInt(expr, field)              => subfieldExpression(expressionToSql(expr), field)
       case Like(expr, pattern) => likeExpression(expressionToSql(expr), expressionToSql(pattern))
       case RegExp(expr, pattern) =>
         regexpExpression(expressionToSql(expr), expressionToSql(pattern))
@@ -176,12 +188,15 @@ private object SqlGenerator extends Logging {
       case CaseWhen(branches, elseValue) =>
         // translated to
         // CASE WHEN condition1 THEN value1 WHEN condition2 THEN value2 ELSE value3 END
-        caseWhenExpression(branches.map {
-          case (condition, value) => (expressionToSql(condition), expressionToSql(value))
-        }, elseValue match {
-          case Some(value) => expressionToSql(value)
-          case _ => "NULL"
-        })
+        caseWhenExpression(
+          branches.map { case (condition, value) =>
+            (expressionToSql(condition), expressionToSql(value))
+          },
+          elseValue match {
+            case Some(value) => expressionToSql(value)
+            case _           => "NULL"
+          }
+        )
       case MultipleExpression(expressions) => blockExpression(expressions.map(expressionToSql))
       case InExpression(column, values) =>
         inExpression(expressionToSql(column), values.map(expressionToSql))
@@ -195,13 +210,15 @@ private object SqlGenerator extends Logging {
         windowSpecExpressions(
           partitionSpec.map(toSqlAvoidOffset),
           orderSpec.map(toSqlAvoidOffset),
-          expressionToSql(frameSpecification))
+          expressionToSql(frameSpecification)
+        )
       case SpecifiedWindowFrame(frameType, lower, upper) =>
         specifiedWindowFrameExpression(
           frameType.sql,
           windowFrameBoundary(toSqlAvoidOffset(lower)),
-          windowFrameBoundary(toSqlAvoidOffset(upper)))
-      case UnspecifiedFrame => ""
+          windowFrameBoundary(toSqlAvoidOffset(upper))
+        )
+      case UnspecifiedFrame                   => ""
       case SpecialFrameBoundaryExtractor(str) => str
 
       case Literal(value, dataType) =>
@@ -230,11 +247,15 @@ private object SqlGenerator extends Logging {
         insertMergeStatement(
           condition.map(expressionToSql),
           keys.map(expressionToSql),
-          values.map(expressionToSql))
+          values.map(expressionToSql)
+        )
       case UpdateMergeExpression(condition, assignments) =>
-        updateMergeStatement(condition.map(expressionToSql), assignments.map {
-          case (k, v) => (expressionToSql(k), expressionToSql(v))
-        })
+        updateMergeStatement(
+          condition.map(expressionToSql),
+          assignments.map { case (k, v) =>
+            (expressionToSql(k), expressionToSql(v))
+          }
+        )
       case DeleteMergeExpression(condition) =>
         deleteMergeStatement(condition.map(expressionToSql))
       case ListAgg(expr, delimiter, isDistinct) =>
@@ -254,9 +275,12 @@ private object SqlGenerator extends Logging {
         case TableFunction(functionName, args) =>
           functionExpression(functionName, args.map(expressionToSql), isDistinct = false)
         case NamedArgumentsTableFunction(funcName, args) =>
-          namedArgumentsFunction(funcName, args.map {
-            case (str, expression) => str -> expressionToSql(expression)
-          })
+          namedArgumentsFunction(
+            funcName,
+            args.map { case (str, expression) =>
+              str -> expressionToSql(expression)
+            }
+          )
       })
   }
 
@@ -265,9 +289,9 @@ private object SqlGenerator extends Logging {
       Option(expr match {
         case Alias(child: Attribute, name, _) =>
           aliasExpression(expressionToSql(child), quoteName(name))
-        case Alias(child, name, _) => aliasExpression(expressionToSql(child), quoteName(name))
+        case Alias(child, name, _)     => aliasExpression(expressionToSql(child), quoteName(name))
         case UnresolvedAlias(child, _) => expressionToSql(child)
-        case Cast(child, dataType) => castExpression(expressionToSql(child), dataType)
+        case Cast(child, dataType)     => castExpression(expressionToSql(child), dataType)
         case _ =>
           unaryExpression(expressionToSql(expr.child), expr.sqlOperator, expr.operatorFirst)
       })
@@ -287,12 +311,14 @@ private object SqlGenerator extends Logging {
           binaryArithmeticExpression(
             expr.sqlOperator,
             expressionToSql(expr.left),
-            expressionToSql(expr.right))
+            expressionToSql(expr.right)
+          )
         case _ =>
           functionExpression(
             expr.sqlOperator,
             Seq(expressionToSql(expr.left), expressionToSql(expr.right)),
-            isDistinct = false)
+            isDistinct = false
+          )
       })
   }
 
@@ -319,9 +345,12 @@ private object SqlGenerator extends Logging {
                  */
                 expr.children.map {
                   case Alias(child, _, _) => child
-                  case child => child
+                  case child              => child
                 },
-                isDistinct = false)))
+                isDistinct = false
+              )
+            )
+          )
         case _ => None
       }
   }

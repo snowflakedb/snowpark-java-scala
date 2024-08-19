@@ -56,14 +56,13 @@ private[snowpark] object ParameterUtils extends Logging {
     // Set JDBC memory to 10G by default, it can be override by user config
     config.put(client_memory_limit, "10240")
 
-    options.foreach {
-      case (key, value) =>
-        if (forwardNameSet.contains(key)) {
-          // directly forward to JDBC
-          config.put(key, value)
-        } else if (key == PrivateKey) { // parse private key
-          config.put(PrivateKey, parsePrivateKey(value))
-        }
+    options.foreach { case (key, value) =>
+      if (forwardNameSet.contains(key)) {
+        // directly forward to JDBC
+        config.put(key, value)
+      } else if (key == PrivateKey) { // parse private key
+        config.put(PrivateKey, parsePrivateKey(value))
+      }
     }
     /*
      * Add this config so that the JDBC connector validates the user-provided
@@ -76,7 +75,8 @@ private[snowpark] object ParameterUtils extends Logging {
 
     config.put(
       SFSessionProperty.CLIENT_INFO.getPropertyKey,
-      s"""{"client_language": "${if (isScalaAPI) "Scala" else "Java"}"}""".stripMargin)
+      s"""{"client_language": "${if (isScalaAPI) "Scala" else "Java"}"}""".stripMargin
+    )
 
     // log JDBC memory limit
     logInfo(s"set JDBC client memory limit to ${config.get(client_memory_limit).toString}")
@@ -89,7 +89,7 @@ private[snowpark] object ParameterUtils extends Logging {
     // scalastyle:on
     lowerCase match {
       case "true" | "on" | "yes" => true
-      case _ => false
+      case _                     => false
     }
   }
 
@@ -141,7 +141,8 @@ private[snowpark] object ParameterUtils extends Logging {
             prime2,
             exp1,
             exp2,
-            crtCoef)
+            crtCoef
+          )
           val keyFactory = KeyFactory.getInstance("RSA")
           keyFactory.generatePrivate(keySpec)
         } catch {

@@ -40,7 +40,8 @@ class UDFInternalSuite extends TestData {
       mockSession
         .createDataFrame(Seq(1, 2))
         .select(doubleUDF(col("value"))),
-      Seq(Row(2), Row(4)))
+      Seq(Row(2), Row(4))
+    )
     if (mockSession.isVersionSupportedByServerPackages) {
       verify(mockSession, times(0)).addDependency(path)
     } else {
@@ -97,7 +98,9 @@ class UDFInternalSuite extends TestData {
       case e: SQLException =>
         assert(
           e.getMessage.contains(
-            s"SQL compilation error: Package '${Utils.clientPackageName}' is not supported"))
+            s"SQL compilation error: Package '${Utils.clientPackageName}' is not supported"
+          )
+        )
       case _ => fail("Unexpected error from server")
     }
     val path = UDFClassPath.getPathForClass(classOf[com.snowflake.snowpark.Session]).get
@@ -122,19 +125,22 @@ class UDFInternalSuite extends TestData {
 
       session.udf.registerTemporary(quotedTempFuncName, udf)
       assert(
-        session.sql(s"ls ${session.getSessionStage}/$quotedTempFuncName/").collect().length == 0)
+        session.sql(s"ls ${session.getSessionStage}/$quotedTempFuncName/").collect().length == 0
+      )
       assert(
         session
           .sql(s"ls ${session.getSessionStage}/${Utils.getUDFUploadPrefix(quotedTempFuncName)}/")
           .collect()
-          .length == 2)
+          .length == 2
+      )
       session.udf.registerPermanent(quotedPermFuncName, udf, stageName)
       assert(session.sql(s"ls @$stageName/$quotedPermFuncName/").collect().length == 0)
       assert(
         session
           .sql(s"ls @$stageName/${Utils.getUDFUploadPrefix(quotedPermFuncName)}/")
           .collect()
-          .length == 2)
+          .length == 2
+      )
     } finally {
       session.runQuery(s"drop function if exists $tempFuncName(INT)")
       session.runQuery(s"drop function if exists $permFuncName(INT)")
@@ -146,16 +152,21 @@ class UDFInternalSuite extends TestData {
 
   test("Scoped temp UDF") {
     import newSession.implicits._
-    testWithAlteredSessionParameter({
-      // If scoped temp objects are not enabled, skip this test.
-      if (newSession.useScopedTempObjects) {
-        val df = Seq(1).toDF("a")
-        val doubleUDF = newSession.udf.registerTemporary((x: Int) => x + x)
-        val df2 = df.select(doubleUDF(col("a")))
-        checkAnswer(df2, Seq(Row(2)))
-        assertEquals(0, newSession.getTempObjectMap.size)
-      }
-    }, "snowpark_use_scoped_temp_objects", "true", skipIfParamNotExist = true)
+    testWithAlteredSessionParameter(
+      {
+        // If scoped temp objects are not enabled, skip this test.
+        if (newSession.useScopedTempObjects) {
+          val df = Seq(1).toDF("a")
+          val doubleUDF = newSession.udf.registerTemporary((x: Int) => x + x)
+          val df2 = df.select(doubleUDF(col("a")))
+          checkAnswer(df2, Seq(Row(2)))
+          assertEquals(0, newSession.getTempObjectMap.size)
+        }
+      },
+      "snowpark_use_scoped_temp_objects",
+      "true",
+      skipIfParamNotExist = true
+    )
   }
 
   test("register UDF should not upload duplicated dependencies", JavaStoredProcExclude) {

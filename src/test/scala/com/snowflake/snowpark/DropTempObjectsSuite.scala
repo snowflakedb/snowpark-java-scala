@@ -12,10 +12,8 @@ class DropTempObjectsSuite extends SNTestBase {
   val randomSchema: String = randomName()
   val tmpStageName: String = randomStageName()
   private val userSchema: StructType = StructType(
-    Seq(
-      StructField("a", IntegerType),
-      StructField("b", StringType),
-      StructField("c", DoubleType)))
+    Seq(StructField("a", IntegerType), StructField("b", StringType), StructField("c", DoubleType))
+  )
 
   override def beforeAll(): Unit = {
     super.beforeAll()
@@ -62,7 +60,8 @@ class DropTempObjectsSuite extends SNTestBase {
 
       },
       ParameterUtils.SnowparkUseScopedTempObjects,
-      "true")
+      "true"
+    )
   }
 
   test("test session dropAllTempObjects with scoped temp object turned off") {
@@ -92,7 +91,10 @@ class DropTempObjectsSuite extends SNTestBase {
               TempObjectType.Stage,
               TempObjectType.Table,
               TempObjectType.FileFormat,
-              TempObjectType.Function)))
+              TempObjectType.Function
+            )
+          )
+        )
         dropMap.keys.foreach(k => {
           // Make sure name is fully qualified
           assert(k.split("\\.")(2).startsWith("SNOWPARK_TEMP_"))
@@ -101,24 +103,28 @@ class DropTempObjectsSuite extends SNTestBase {
         session.dropAllTempObjects()
       },
       ParameterUtils.SnowparkUseScopedTempObjects,
-      "false")
+      "false"
+    )
   }
 
   test("Test recordTempObjectIfNecessary") {
     session.recordTempObjectIfNecessary(
       TempObjectType.Table,
       "db.schema.tempName1",
-      TempType.Temporary)
+      TempType.Temporary
+    )
     assertTrue(session.getTempObjectMap.contains("db.schema.tempName1"))
     session.recordTempObjectIfNecessary(
       TempObjectType.Table,
       "db.schema.tempName2",
-      TempType.ScopedTemporary)
+      TempType.ScopedTemporary
+    )
     assertFalse(session.getTempObjectMap.contains("db.schema.tempName2"))
     session.recordTempObjectIfNecessary(
       TempObjectType.Table,
       "db.schema.tempName3",
-      TempType.Permanent)
+      TempType.Permanent
+    )
     assertFalse(session.getTempObjectMap.contains("db.schema.tempName3"))
   }
 }

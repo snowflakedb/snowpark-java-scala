@@ -34,7 +34,8 @@ class UtilsSuite extends SNTestBase {
       "snowpark-0.3.0.jar",
       "snowpark-SNAPSHOT-0.4.0.jar",
       "SNOWPARK-0.2.1.jar",
-      "snowpark-0.3.0.jar.gz").foreach(jarName => {
+      "snowpark-0.3.0.jar.gz"
+    ).foreach(jarName => {
       assert(Utils.isSnowparkJar(jarName))
     })
     Seq("random.jar", "snow-0.3.0.jar", "snowpark", "snowpark.tar.gz").foreach(jarName => {
@@ -123,16 +124,18 @@ class UtilsSuite extends SNTestBase {
     assert(TypeToSchemaConverter.inferSchema[BigDecimal]().head.dataType == DecimalType(34, 6))
     assert(
       TypeToSchemaConverter.inferSchema[JavaBigDecimal]().head.dataType ==
-        DecimalType(34, 6))
+        DecimalType(34, 6)
+    )
     assert(TypeToSchemaConverter.inferSchema[Date]().head.dataType == DateType)
     assert(TypeToSchemaConverter.inferSchema[Timestamp]().head.dataType == TimestampType)
     assert(TypeToSchemaConverter.inferSchema[Time]().head.dataType == TimeType)
-    assert(
-      TypeToSchemaConverter.inferSchema[Array[Int]]().head.dataType == ArrayType(IntegerType))
+    assert(TypeToSchemaConverter.inferSchema[Array[Int]]().head.dataType == ArrayType(IntegerType))
     assert(
       TypeToSchemaConverter.inferSchema[Map[String, Boolean]]().head.dataType == MapType(
         StringType,
-        BooleanType))
+        BooleanType
+      )
+    )
     assert(TypeToSchemaConverter.inferSchema[Variant]().head.dataType == VariantType)
     assert(TypeToSchemaConverter.inferSchema[Geography]().head.dataType == GeographyType)
     assert(TypeToSchemaConverter.inferSchema[Geometry]().head.dataType == GeometryType)
@@ -149,7 +152,8 @@ class UtilsSuite extends SNTestBase {
       | |--_4: Geography (nullable = true)
       | |--_5: Map (nullable = true)
       | |--_6: Geometry (nullable = true)
-      |""".stripMargin)
+      |""".stripMargin
+    )
 
     // case class
     assert(
@@ -161,7 +165,8 @@ class UtilsSuite extends SNTestBase {
         | |--DOUBLE: Double (nullable = false)
         | |--VARIANT: Variant (nullable = true)
         | |--ARRAY: Array (nullable = true)
-        |""".stripMargin)
+        |""".stripMargin
+    )
   }
 
   case class Table1(int: Int, double: Double, variant: Variant, array: Array[String])
@@ -178,7 +183,8 @@ class UtilsSuite extends SNTestBase {
                                      | |--LONG: Long (nullable = true)
                                      | |--FLOAT: Float (nullable = true)
                                      | |--DOUBLE: Double (nullable = true)
-                                     |""".stripMargin)
+                                     |""".stripMargin
+    )
   }
 
   case class Table2(
@@ -188,7 +194,8 @@ class UtilsSuite extends SNTestBase {
       int: Integer,
       long: java.lang.Long,
       float: java.lang.Float,
-      double: java.lang.Double)
+      double: java.lang.Double
+  )
 
   test("Non-nullable types") {
     TypeToSchemaConverter
@@ -207,25 +214,28 @@ class UtilsSuite extends SNTestBase {
 
   test("Nullable types") {
     TypeToSchemaConverter
-      .inferSchema[(
-          Option[Int],
-          JavaBoolean,
-          JavaByte,
-          JavaShort,
-          JavaInteger,
-          JavaLong,
-          JavaFloat,
-          JavaDouble,
-          Array[Boolean],
-          Map[String, Double],
-          JavaBigDecimal,
-          BigDecimal,
-          Variant,
-          Geography,
-          Date,
-          Time,
-          Timestamp,
-          Geometry)]()
+      .inferSchema[
+        (
+            Option[Int],
+            JavaBoolean,
+            JavaByte,
+            JavaShort,
+            JavaInteger,
+            JavaLong,
+            JavaFloat,
+            JavaDouble,
+            Array[Boolean],
+            Map[String, Double],
+            JavaBigDecimal,
+            BigDecimal,
+            Variant,
+            Geography,
+            Date,
+            Time,
+            Timestamp,
+            Geometry
+        )
+      ]()
       .treeString(0) ==
       """root
           | |--_1: Integer (nullable = true)
@@ -275,7 +285,8 @@ class UtilsSuite extends SNTestBase {
 
     assert(
       Utils.calculateMD5(file) ==
-        "85bd7b9363853f1815254b1cbc608c22") // pragma: allowlist secret
+        "85bd7b9363853f1815254b1cbc608c22"
+    ) // pragma: allowlist secret
   }
 
   test("stage file prefix length") {
@@ -369,10 +380,12 @@ class UtilsSuite extends SNTestBase {
     assert(Utils.parseStageFileLocation("@stage/file") == ("@stage", "", "file"))
     assert(
       Utils.parseStageFileLocation("@\"st\\age\"/path/file")
-        == ("@\"st\\age\"", "path", "file"))
+        == ("@\"st\\age\"", "path", "file")
+    )
     assert(
       Utils.parseStageFileLocation("@\"\\db\".\"\\Schema\".\"\\stage\"/path/file")
-        == ("@\"\\db\".\"\\Schema\".\"\\stage\"", "path", "file"))
+        == ("@\"\\db\".\"\\Schema\".\"\\stage\"", "path", "file")
+    )
     assert(Utils.parseStageFileLocation("@stage/////file") == ("@stage", "///", "file"))
   }
 
@@ -407,7 +420,8 @@ class UtilsSuite extends SNTestBase {
     "\"\"\"na.me\"\"\"",
     "\"n\"\"a..m\"\"e\"",
     "\"schema\"\"\".\"n\"\"a..m\"\"e\"",
-    "\"\"\"db\".\"schema\"\"\".\"n\"\"a..m\"\"e\"")
+    "\"\"\"db\".\"schema\"\"\".\"n\"\"a..m\"\"e\""
+  )
 
   test("test Utils.validateObjectName()") {
     validIdentifiers.foreach { name =>
@@ -425,8 +439,7 @@ class UtilsSuite extends SNTestBase {
     assert(Utils.getUDFUploadPrefix("schema.view").equals("schemaview_1055679790"))
     assert(Utils.getUDFUploadPrefix(""""SCHEMA"."VIEW"""").equals("SCHEMAVIEW_1919772726"))
     assert(Utils.getUDFUploadPrefix("db.schema.table").equals("dbschematable_848839503"))
-    assert(
-      Utils.getUDFUploadPrefix(""""db"."schema"."table"""").equals("dbschematable_964272755"))
+    assert(Utils.getUDFUploadPrefix(""""db"."schema"."table"""").equals("dbschematable_964272755"))
 
     validIdentifiers.foreach { name =>
       // println(s"test: $name")
@@ -477,7 +490,8 @@ class UtilsSuite extends SNTestBase {
       "a\"\"b\".c.t",
       ".\"name..\"",
       "..\"name\"",
-      "\"\".\"name\"")
+      "\"\".\"name\""
+    )
 
     names.foreach { name =>
       // println(s"negative test: $name")
@@ -501,7 +515,8 @@ class UtilsSuite extends SNTestBase {
       ("com/snowflake/snowpark/", "com/snowflake/snowpark/"),
       ("com/snowflake/snowpark", "com/snowflake/snowpark"),
       ("d:", "d:"),
-      ("d:\\dir", "d:/dir"))
+      ("d:\\dir", "d:/dir")
+    )
 
     testItems.foreach { item =>
       assert(Utils.convertWindowsPathToLinux(item._1).equals(item._2))
@@ -614,16 +629,20 @@ class UtilsSuite extends SNTestBase {
   test("java utils javaSaveModeToScala") {
     assert(
       JavaUtils.javaSaveModeToScala(com.snowflake.snowpark_java.SaveMode.Append)
-        == SaveMode.Append)
+        == SaveMode.Append
+    )
     assert(
       JavaUtils.javaSaveModeToScala(com.snowflake.snowpark_java.SaveMode.Ignore)
-        == SaveMode.Ignore)
+        == SaveMode.Ignore
+    )
     assert(
       JavaUtils.javaSaveModeToScala(com.snowflake.snowpark_java.SaveMode.Overwrite)
-        == SaveMode.Overwrite)
+        == SaveMode.Overwrite
+    )
     assert(
       JavaUtils.javaSaveModeToScala(com.snowflake.snowpark_java.SaveMode.ErrorIfExists)
-        == SaveMode.ErrorIfExists)
+        == SaveMode.ErrorIfExists
+    )
   }
 
   test("isValidateJavaIdentifier()") {
@@ -649,8 +668,7 @@ class UtilsSuite extends SNTestBase {
     val ex = intercept[Exception] {
       JavaUtils.readFileAsByteArray("not_exist_file")
     }
-    assert(
-      ex.getMessage.equals("JavaUtils.readFileAsByteArray() cannot find file: not_exist_file"))
+    assert(ex.getMessage.equals("JavaUtils.readFileAsByteArray() cannot find file: not_exist_file"))
   }
 
   test("invalid private key") {

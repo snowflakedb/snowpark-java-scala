@@ -76,7 +76,8 @@ class UDFClasspathSuite extends SNTestBase {
       randomStage,
       "",
       jarFileName,
-      Map.empty)
+      Map.empty
+    )
     mockSession.addDependency("@" + randomStage + "/" + jarFileName)
     val func = "func_" + Random.nextInt().abs
     udfR.registerUDF(Some(func), _toUdf((a: Int) => a + a), None)
@@ -89,7 +90,8 @@ class UDFClasspathSuite extends SNTestBase {
 
   test(
     "Test that snowpark jar is automatically added" +
-      " if there is classNotFound error in first attempt") {
+      " if there is classNotFound error in first attempt"
+  ) {
     val newSession = Session.builder.configFile(defaultProfile).create
     TestUtils.addDepsToClassPath(newSession)
     val udfR = spy(new UDXRegistrationHandler(newSession))

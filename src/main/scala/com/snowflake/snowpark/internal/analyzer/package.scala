@@ -150,7 +150,8 @@ package object analyzer {
       path: String,
       outer: Boolean,
       recursive: Boolean,
-      mode: String): String = {
+      mode: String
+  ): String = {
     // flatten(input => , path => , outer => , recursive => , mode =>)
     _Flatten + _LeftParenthesis + _Input + _RightArrow + input + _Comma + _Path +
       _RightArrow + _SingleQuote + path + _SingleQuote + _Comma + _Outer +
@@ -162,7 +163,8 @@ package object analyzer {
   private[analyzer] def joinTableFunctionStatement(
       func: String,
       child: String,
-      over: Option[String]): String =
+      over: Option[String]
+  ): String =
     _Select + _Star + _From + _LeftParenthesis + child + _RightParenthesis + _Join +
       table(func, over)
 
@@ -178,9 +180,10 @@ package object analyzer {
 
   private[analyzer] def caseWhenExpression(
       branches: Seq[(String, String)],
-      elseValue: String): String =
-    _Case + branches.map {
-      case (condition, value) => _When + condition + _Then + value
+      elseValue: String
+  ): String =
+    _Case + branches.map { case (condition, value) =>
+      _When + condition + _Then + value
     }.mkString + _Else + elseValue + _End
 
   private[analyzer] def resultScanStatement(uuidPlaceHolder: String): String =
@@ -211,15 +214,17 @@ package object analyzer {
   private[analyzer] def functionExpression(
       name: String,
       children: Seq[String],
-      isDistinct: Boolean): String =
+      isDistinct: Boolean
+  ): String =
     name + _LeftParenthesis + (if (isDistinct) _Distinct else _EmptyString) + children.mkString(
-      _Comma) +
+      _Comma
+    ) +
       _RightParenthesis
 
   private[analyzer] def namedArgumentsFunction(name: String, args: Map[String, String]): String =
     name + args
-      .map {
-        case (key, value) => key + _RightArrow + value
+      .map { case (key, value) =>
+        key + _RightArrow + value
       }
       .mkString(_LeftParenthesis, _Comma, _RightParenthesis)
 
@@ -233,7 +238,8 @@ package object analyzer {
   private[analyzer] def unaryExpression(
       child: String,
       sqlOperator: String,
-      operatorFirst: Boolean): String =
+      operatorFirst: Boolean
+  ): String =
     if (operatorFirst) {
       sqlOperator + _Space + child
     } else {
@@ -250,7 +256,8 @@ package object analyzer {
   private[analyzer] def windowSpecExpressions(
       partitionSpec: Seq[String],
       orderSpec: Seq[String],
-      frameSpec: String): String =
+      frameSpec: String
+  ): String =
     (if (partitionSpec.nonEmpty) _PartitionBy + partitionSpec.mkString(_Comma) else _EmptyString) +
       (if (orderSpec.nonEmpty) _OrderBy + orderSpec.mkString(_Comma) else _EmptyString) + frameSpec
 
@@ -258,18 +265,21 @@ package object analyzer {
       input: String,
       offset: String,
       default: String,
-      op: String): String =
+      op: String
+  ): String =
     op + _LeftParenthesis + input + _Comma + offset + _Comma + default + _RightParenthesis
 
   private[analyzer] def specifiedWindowFrameExpression(
       frameType: String,
       lower: String,
-      upper: String): String =
+      upper: String
+  ): String =
     _Space + frameType + _Between + lower + _And + upper + _Space
 
   private[analyzer] def windowFrameBoundaryExpression(
       offset: String,
-      isFollowing: Boolean): String =
+      isFollowing: Boolean
+  ): String =
     offset + (if (isFollowing) _Following else _Preceding)
 
   private[analyzer] def castExpression(child: String, dataType: DataType): String =
@@ -279,7 +289,8 @@ package object analyzer {
   private[analyzer] def orderExpression(
       name: String,
       direction: String,
-      nullOrdering: String): String =
+      nullOrdering: String
+  ): String =
     name + _Space + direction + _Space + nullOrdering
 
   private[analyzer] def aliasExpression(origin: String, alias: String): String =
@@ -292,7 +303,8 @@ package object analyzer {
   private[analyzer] def binaryArithmeticExpression(
       op: String,
       left: String,
-      right: String): String =
+      right: String
+  ): String =
     _LeftParenthesis + left + _Space + op + _Space + right + _RightParenthesis
 
   private[analyzer] def limitExpression(num: Int): String =
@@ -306,7 +318,8 @@ package object analyzer {
   private[analyzer] def projectStatement(
       project: Seq[String],
       child: String,
-      isDistinct: Boolean = false): String =
+      isDistinct: Boolean = false
+  ): String =
     _Select + (if (isDistinct) _Distinct else _EmptyString) +
       (if (project.isEmpty) _Star else project.mkString(_Comma)) +
       _From + _LeftParenthesis + child + _RightParenthesis
@@ -317,7 +330,8 @@ package object analyzer {
   private[analyzer] def projectAndFilterStatement(
       project: Seq[String],
       condition: String,
-      child: String): String =
+      child: String
+  ): String =
     _Select + (if (project.isEmpty) _Star else project.mkString(_Comma)) + _From +
       _LeftParenthesis + child + _RightParenthesis + _Where + condition
 
@@ -325,7 +339,8 @@ package object analyzer {
       tableName: String,
       assignments: Map[String, String],
       condition: Option[String],
-      sourceData: Option[String]): String = {
+      sourceData: Option[String]
+  ): String = {
     _Update + tableName +
       _Set + assignments.toSeq.map { case (k, v) => k + _Equals + v }.mkString(_Comma) +
       (if (sourceData.isDefined) {
@@ -337,7 +352,8 @@ package object analyzer {
   private[analyzer] def deleteStatement(
       tableName: String,
       condition: Option[String],
-      sourceData: Option[String]): String = {
+      sourceData: Option[String]
+  ): String = {
     _Delete + _From + tableName +
       (if (sourceData.isDefined) {
          _Using + _LeftParenthesis + sourceData.get + _RightParenthesis
@@ -348,7 +364,8 @@ package object analyzer {
   private[analyzer] def insertMergeStatement(
       condition: Option[String],
       keys: Seq[String],
-      values: Seq[String]): String =
+      values: Seq[String]
+  ): String =
     _When + _Not + _Matched +
       (if (condition.isDefined) _And + condition.get else _EmptyString) +
       _Then + _Insert +
@@ -359,13 +376,14 @@ package object analyzer {
 
   private[analyzer] def updateMergeStatement(
       condition: Option[String],
-      assignments: Map[String, String]) =
+      assignments: Map[String, String]
+  ) =
     _When + _Matched + (if (condition.isDefined) _And + condition.get else _EmptyString) +
       _Then + _Update + _Set + assignments.toSeq
-      .map {
-        case (k, v) => k + _Equals + v
-      }
-      .mkString(_Comma)
+        .map { case (k, v) =>
+          k + _Equals + v
+        }
+        .mkString(_Comma)
 
   private[analyzer] def deleteMergeStatement(condition: Option[String]) =
     _When + _Matched + (if (condition.isDefined) _And + condition.get else _EmptyString) +
@@ -375,7 +393,8 @@ package object analyzer {
       tableName: String,
       source: String,
       joinExpr: String,
-      clauses: Seq[String]): String = {
+      clauses: Seq[String]
+  ): String = {
     _Merge + _Into + tableName + _Using + _LeftParenthesis + source + _RightParenthesis +
       _On + joinExpr + clauses.mkString(_EmptyString)
   }
@@ -383,7 +402,8 @@ package object analyzer {
   private[analyzer] def sampleStatement(
       probabilityFraction: Option[Double],
       rowCount: Option[Long],
-      child: String): String =
+      child: String
+  ): String =
     if (probabilityFraction.isDefined) {
       // Snowflake uses percentage as probability
       projectStatement(Seq.empty, child) + _Sample +
@@ -398,7 +418,8 @@ package object analyzer {
   private[analyzer] def aggregateStatement(
       groupingExpressions: Seq[String],
       aggregatedExpressions: Seq[String],
-      child: String): String =
+      child: String
+  ): String =
     projectStatement(aggregatedExpressions, child) +
       // add limit 1 because user may aggregate on non-aggregate function in a scalar aggregation
       // for example, df.agg(lit(1))
@@ -415,7 +436,8 @@ package object analyzer {
       start: Long,
       end: Long,
       step: Long,
-      columnName: String): String = {
+      columnName: String
+  ): String = {
     // use BigInt for extreme case Long.Min to Long.Max
     val range = BigInt(end) - BigInt(start)
     val count =
@@ -423,9 +445,10 @@ package object analyzer {
         0
       } else {
         (range / BigInt(step)).toLong +
-          (if (range % BigInt(step) != 0 // ceil
-               && range * step > 0 // has result
-               ) {
+          (if (
+             range % BigInt(step) != 0 // ceil
+             && range * step > 0 // has result
+           ) {
              1
            } else {
              0
@@ -437,16 +460,18 @@ package object analyzer {
         _LeftParenthesis + _RowNumber + _Over + _LeftParenthesis + _OrderBy + _Seq8 +
           _RightParenthesis + _Minus + _One + _RightParenthesis + _Star + _LeftParenthesis +
           step + _RightParenthesis + _Plus + _LeftParenthesis + start + _RightParenthesis +
-          _As + columnName),
-      table(generator(if (count < 0) 0 else count)))
+          _As + columnName
+      ),
+      table(generator(if (count < 0) 0 else count))
+    )
   }
 
   private[analyzer] def valuesStatement(output: Seq[Attribute], data: Seq[Row]): String = {
     val tableName = randomNameForTempObject(TempObjectType.Table)
     val types = output.map(_.dataType)
     val rows = data.map { row =>
-      val cells = row.toSeq.zip(types).map {
-        case (v, dType) => DataTypeMapper.toSql(v, Option(dType))
+      val cells = row.toSeq.zip(types).map { case (v, dType) =>
+        DataTypeMapper.toSql(v, Option(dType))
       }
       cells.mkString(_LeftParenthesis, _Comma, _RightParenthesis)
     }
@@ -467,7 +492,8 @@ package object analyzer {
   private[analyzer] def setOperatorStatement(
       left: String,
       right: String,
-      operator: String): String = {
+      operator: String
+  ): String = {
     _LeftParenthesis + left + _RightParenthesis + _Space + operator + _Space +
       _LeftParenthesis + right + _RightParenthesis
   }
@@ -485,7 +511,8 @@ package object analyzer {
       left: String,
       right: String,
       joinType: JoinType,
-      condition: Option[String]): String = {
+      condition: Option[String]
+  ): String = {
 
     val leftAlias = randomNameForTempObject(TempObjectType.Table)
     val rightAlias = randomNameForTempObject(TempObjectType.Table)
@@ -514,7 +541,8 @@ package object analyzer {
       left: String,
       right: String,
       joinType: JoinType,
-      condition: Option[String]): String = {
+      condition: Option[String]
+  ): String = {
 
     val leftAlias = randomNameForTempObject(TempObjectType.Table)
     val rightAlias = randomNameForTempObject(TempObjectType.Table)
@@ -563,7 +591,8 @@ package object analyzer {
       left: String,
       right: String,
       joinType: JoinType,
-      condition: Option[String]): String = {
+      condition: Option[String]
+  ): String = {
 
     joinType match {
       case LeftSemi =>
@@ -586,7 +615,8 @@ package object analyzer {
       schema: String,
       replace: Boolean = false,
       error: Boolean = true,
-      tempType: TempType = TempType.Permanent): String =
+      tempType: TempType = TempType.Permanent
+  ): String =
     _Create + (if (replace) _Or + _Replace else _EmptyString) + tempType + _Table + tableName +
       (if (!replace && !error) _If + _Not + _Exists else _EmptyString) + _LeftParenthesis +
       schema + _RightParenthesis
@@ -596,7 +626,8 @@ package object analyzer {
 
   private[analyzer] def batchInsertIntoStatement(
       tableName: String,
-      columnNames: Seq[String]): String = {
+      columnNames: Seq[String]
+  ): String = {
     val columns = columnNames.mkString(_Comma)
     val questionMarks = columnNames
       .map { _ =>
@@ -611,7 +642,8 @@ package object analyzer {
       tableName: String,
       child: String,
       replace: Boolean = false,
-      error: Boolean = true): String =
+      error: Boolean = true
+  ): String =
     _Create + (if (replace) _Or + _Replace else _EmptyString) + _Table +
       (if (!replace && !error) _If + _Not + _Exists else _EmptyString) + tableName + _As +
       projectStatement(Seq.empty, child)
@@ -619,18 +651,18 @@ package object analyzer {
   private[analyzer] def limitOnSortStatement(
       child: String,
       rowCount: String,
-      order: Seq[String]): String =
+      order: Seq[String]
+  ): String =
     projectStatement(Seq.empty, child) + _OrderBy + order.mkString(_Comma) + _Limit + rowCount
 
   private[analyzer] def limitStatement(rowCount: String, child: String): String =
     projectStatement(Seq.empty, child) + _Limit + rowCount
 
   private[analyzer] def schemaCastSeq(schema: Seq[Attribute]): Seq[String] = {
-    schema.zipWithIndex.map {
-      case (attr, index) =>
-        val name = _Dollar + (index + 1) + _DoubleColon +
-          convertToSFType(attr.dataType)
-        name + _As + quoteName(attr.name)
+    schema.zipWithIndex.map { case (attr, index) =>
+      val name = _Dollar + (index + 1) + _DoubleColon +
+        convertToSFType(attr.dataType)
+      name + _As + quoteName(attr.name)
     }
   }
 
@@ -639,7 +671,8 @@ package object analyzer {
       fileType: String,
       options: Map[String, String],
       tempType: TempType,
-      ifNotExist: Boolean = false): String = {
+      ifNotExist: Boolean = false
+  ): String = {
     val optionsStr = _Type + _Equals + fileType + getOptionsStatement(options)
     _Create + tempType + _File + _Format +
       (if (ifNotExist) _If + _Not + _Exists else "") + formatName + optionsStr
@@ -649,7 +682,8 @@ package object analyzer {
       command: FileOperationCommand,
       fileName: String,
       stageLocation: String,
-      options: Map[String, String]): String =
+      options: Map[String, String]
+  ): String =
     command match {
       case PutCommand =>
         _Put + fileName + _Space + stageLocation + _Space + getOptionsStatement(options)
@@ -672,7 +706,8 @@ package object analyzer {
       project: Seq[String],
       path: String,
       formatName: Option[String],
-      pattern: Option[String]): String = {
+      pattern: Option[String]
+  ): String = {
     val selectStatement = _Select +
       (if (project.isEmpty) _Star else project.mkString(_Comma)) + _From + path
     val formatStatement = formatName.map(name => _FileFormat + _RightArrow + singleQuote(name))
@@ -687,7 +722,8 @@ package object analyzer {
   private[analyzer] def createOrReplaceViewStatement(
       name: String,
       child: String,
-      tempType: TempType): String =
+      tempType: TempType
+  ): String =
     _Create + _Or + _Replace + tempType +
       _View + name + _As + projectStatement(Seq.empty, child)
 
@@ -695,16 +731,15 @@ package object analyzer {
       pivotColumn: String,
       pivotValues: Seq[String],
       aggregate: String,
-      child: String): String =
+      child: String
+  ): String =
     _Select + _Star + _From + _LeftParenthesis + child + _RightParenthesis + _Pivot +
       _LeftParenthesis + aggregate + _For + pivotColumn + _In +
       pivotValues.mkString(_LeftParenthesis, _Comma, _RightParenthesis) + _RightParenthesis
 
-  /**
-   * copy into <tableName> from <filePath>
-   *   file_format = (type = <format> <formatTypeOptions>)
-   *   <copyOptions>
-   */
+  /** copy into <tableName> from <filePath> file_format = (type = <format> <formatTypeOptions>)
+    * <copyOptions>
+    */
   private[snowpark] def copyIntoTable(
       tableName: String,
       filePath: String,
@@ -713,7 +748,8 @@ package object analyzer {
       copyOptions: Map[String, String],
       pattern: Option[String],
       columnNames: Seq[String],
-      transformations: Seq[String]): String = {
+      transformations: Seq[String]
+  ): String = {
     _Copy + _Into + tableName +
       (if (columnNames.nonEmpty) {
          columnNames.mkString(_LeftParenthesis, _Comma, _RightParenthesis)
@@ -730,16 +766,16 @@ package object analyzer {
       _FileFormat + _Equals + _LeftParenthesis + _Type + _Equals + format +
       (if (formatTypeOptions.nonEmpty) {
          formatTypeOptions
-           .map {
-             case (k, v) => s"$k = $v"
+           .map { case (k, v) =>
+             s"$k = $v"
            }
            .mkString(_Space, _Space, _Space)
        } else "") +
       _RightParenthesis +
       (if (copyOptions.nonEmpty) {
          copyOptions
-           .map {
-             case (k, v) => s"$k = $v"
+           .map { case (k, v) =>
+             s"$k = $v"
            }
            .mkString(_Space, _Space, _Space)
        } else "")
@@ -757,10 +793,10 @@ package object analyzer {
   // use values to represent schema
   private[snowpark] def schemaValueStatement(output: Seq[Attribute]): String =
     _Select + output
-      .map(
-        attr =>
-          DataTypeMapper.schemaExpression(attr.dataType, attr.nullable) +
-            _As + quoteName(attr.name))
+      .map(attr =>
+        DataTypeMapper.schemaExpression(attr.dataType, attr.nullable) +
+          _As + quoteName(attr.name)
+      )
       .mkString(_Comma)
 
   private[snowpark] def listAgg(col: String, delimiter: String, isDistinct: Boolean): String =
@@ -784,21 +820,16 @@ package object analyzer {
     }
   }
 
-  /**
-   * Use this function to normalize all user input and client generated names
-   *
-   * Rule:
-   * Name with quote: Do nothing
-   * Without quote:
-   *    Starts with _A-Za-z or and only contains _A-Za-z0-9$,
-   *        upper case all letters and quote
-   *    otherwise, quote without upper casing
-   */
+  /** Use this function to normalize all user input and client generated names
+    *
+    * Rule: Name with quote: Do nothing Without quote: Starts with _A-Za-z or and only contains
+    * _A-Za-z0-9$, upper case all letters and quote otherwise, quote without upper casing
+    */
   def quoteName(name: String): String = {
     val alreadyQuoted = "^(\".+\")$".r
     val unquotedCaseInsenstive = "^([_A-Za-z]+[_A-Za-z0-9$]*)$".r
     name.trim match {
-      case alreadyQuoted(n) => validateQuotedName(n)
+      case alreadyQuoted(n)          => validateQuotedName(n)
       case unquotedCaseInsenstive(n) =>
         // scalastyle:off caselocale
         _DoubleQuote + escapeQuotes(n.toUpperCase) + _DoubleQuote
@@ -817,11 +848,9 @@ package object analyzer {
     }
   }
 
-  /**
-   * Quotes name without upper casing if not quoted
-   * NOTE:
-   *   All characters in name are DATA so "c1" will be converted to """c1""".
-   */
+  /** Quotes name without upper casing if not quoted NOTE: All characters in name are DATA so "c1"
+    * will be converted to """c1""".
+    */
   def quoteNameWithoutUpperCasing(name: String): String =
     _DoubleQuote + escapeQuotes(name) + _DoubleQuote
 

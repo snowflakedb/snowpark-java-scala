@@ -45,12 +45,10 @@ class ColumnSuite extends TestData {
   }
 
   test("unary operators") {
+    assert(testData1.select(-testData1("NUM")).collect() sameElements Array[Row](Row(-1), Row(-2)))
     assert(
-      testData1.select(-testData1("NUM")).collect() sameElements Array[Row](Row(-1), Row(-2)))
-    assert(
-      testData1.select(!testData1("BOOL")).collect() sameElements Array[Row](
-        Row(false),
-        Row(true)))
+      testData1.select(!testData1("BOOL")).collect() sameElements Array[Row](Row(false), Row(true))
+    )
   }
 
   test("alias") {
@@ -63,46 +61,67 @@ class ColumnSuite extends TestData {
   test("equal and not equal") {
     assert(
       testData1.where(testData1("BOOL") === true).collect() sameElements Array[Row](
-        Row(1, true, "a")))
+        Row(1, true, "a")
+      )
+    )
     assert(
       testData1.where(testData1("BOOL") equal_to lit(true)).collect() sameElements Array[Row](
-        Row(1, true, "a")))
+        Row(1, true, "a")
+      )
+    )
     assert(
       testData1.where(testData1("BOOL") =!= true).collect() sameElements Array[Row](
-        Row(2, false, "b")))
+        Row(2, false, "b")
+      )
+    )
     assert(
       testData1.where(testData1("BOOL") not_equal lit(true)).collect() sameElements Array[Row](
-        Row(2, false, "b")))
+        Row(2, false, "b")
+      )
+    )
   }
 
   test("gt and lt") {
     assert(
-      testData1.where(testData1("NUM") > 1).collect() sameElements Array[Row](Row(2, false, "b")))
+      testData1.where(testData1("NUM") > 1).collect() sameElements Array[Row](Row(2, false, "b"))
+    )
     assert(
       testData1.where(testData1("NUM") gt lit(1)).collect() sameElements Array[Row](
-        Row(2, false, "b")))
+        Row(2, false, "b")
+      )
+    )
     assert(
-      testData1.where(testData1("NUM") < 2).collect() sameElements Array[Row](Row(1, true, "a")))
+      testData1.where(testData1("NUM") < 2).collect() sameElements Array[Row](Row(1, true, "a"))
+    )
     assert(
       testData1.where(testData1("NUM") lt lit(2)).collect() sameElements Array[Row](
-        Row(1, true, "a")))
+        Row(1, true, "a")
+      )
+    )
   }
 
   test("leq and geq") {
     assert(
-      testData1.where(testData1("NUM") >= 2).collect() sameElements Array[Row](
-        Row(2, false, "b")))
+      testData1.where(testData1("NUM") >= 2).collect() sameElements Array[Row](Row(2, false, "b"))
+    )
     assert(
       testData1.where(testData1("NUM") geq lit(2)).collect() sameElements Array[Row](
-        Row(2, false, "b")))
+        Row(2, false, "b")
+      )
+    )
     assert(
-      testData1.where(testData1("NUM") <= 1).collect() sameElements Array[Row](Row(1, true, "a")))
+      testData1.where(testData1("NUM") <= 1).collect() sameElements Array[Row](Row(1, true, "a"))
+    )
     assert(
       testData1.where(testData1("NUM") leq lit(1)).collect() sameElements Array[Row](
-        Row(1, true, "a")))
+        Row(1, true, "a")
+      )
+    )
     assert(
       testData1.where(testData1("NUM").between(lit(0), lit(1))).collect() sameElements Array[Row](
-        Row(1, true, "a")))
+        Row(1, true, "a")
+      )
+    )
 
   }
 
@@ -111,11 +130,13 @@ class ColumnSuite extends TestData {
 
     assert(
       df.select(df("A") <=> df("B")).collect() sameElements
-        Array[Row](Row(false), Row(true), Row(true)))
+        Array[Row](Row(false), Row(true), Row(true))
+    )
 
     assert(
       df.select(df("A").equal_null(df("B"))).collect() sameElements
-        Array[Row](Row(false), Row(true), Row(true)))
+        Array[Row](Row(false), Row(true), Row(true))
+    )
   }
 
   test("NaN and Null") {
@@ -127,21 +148,26 @@ class ColumnSuite extends TestData {
     assert(
       df.where(df("A").is_not_null).collect() sameElements Array[Row](
         Row(1.1, 1),
-        Row(Double.NaN, 3)))
+        Row(Double.NaN, 3)
+      )
+    )
   }
 
   test("&& ||") {
     val df = session.sql(
-      "select * from values(true,true),(true,false),(false, true), (false, false) as T(a, b)")
+      "select * from values(true,true),(true,false),(false, true), (false, false) as T(a, b)"
+    )
 
     assert(df.where(df("A") && df("B")).collect() sameElements Array[Row](Row(true, true)))
     assert(df.where(df("A") and df("B")).collect() sameElements Array[Row](Row(true, true)))
     assert(
       df.where(df("A") || df("B"))
-        .collect() sameElements Array[Row](Row(true, true), Row(true, false), Row(false, true)))
+        .collect() sameElements Array[Row](Row(true, true), Row(true, false), Row(false, true))
+    )
     assert(
       df.where(df("A") or df("B"))
-        .collect() sameElements Array[Row](Row(true, true), Row(true, false), Row(false, true)))
+        .collect() sameElements Array[Row](Row(true, true), Row(true, false), Row(false, true))
+    )
   }
 
   test("+ - * / %") {
@@ -171,35 +197,43 @@ class ColumnSuite extends TestData {
     val sc = testData1.select(testData1("NUM").cast(StringType)).schema
     assert(
       sc == StructType(
-        Array(StructField("\"CAST (\"\"NUM\"\" AS STRING)\"", StringType, nullable = false))))
+        Array(StructField("\"CAST (\"\"NUM\"\" AS STRING)\"", StringType, nullable = false))
+      )
+    )
   }
 
   test("order") {
     assert(
       nullData1
         .sort(nullData1("A").asc)
-        .collect() sameElements Array[Row](Row(null), Row(null), Row(1), Row(2), Row(3)))
+        .collect() sameElements Array[Row](Row(null), Row(null), Row(1), Row(2), Row(3))
+    )
     assert(
       nullData1
         .sort(nullData1("A").asc_nulls_first)
-        .collect() sameElements Array[Row](Row(null), Row(null), Row(1), Row(2), Row(3)))
+        .collect() sameElements Array[Row](Row(null), Row(null), Row(1), Row(2), Row(3))
+    )
     assert(
       nullData1
         .sort(nullData1("A").asc_nulls_last)
-        .collect() sameElements Array[Row](Row(1), Row(2), Row(3), Row(null), Row(null)))
+        .collect() sameElements Array[Row](Row(1), Row(2), Row(3), Row(null), Row(null))
+    )
 
     assert(
       nullData1
         .sort(nullData1("A").desc)
-        .collect() sameElements Array[Row](Row(3), Row(2), Row(1), Row(null), Row(null)))
+        .collect() sameElements Array[Row](Row(3), Row(2), Row(1), Row(null), Row(null))
+    )
     assert(
       nullData1
         .sort(nullData1("A").desc_nulls_last)
-        .collect() sameElements Array[Row](Row(3), Row(2), Row(1), Row(null), Row(null)))
+        .collect() sameElements Array[Row](Row(3), Row(2), Row(1), Row(null), Row(null))
+    )
     assert(
       nullData1
         .sort(nullData1("A").desc_nulls_first)
-        .collect() sameElements Array[Row](Row(null), Row(null), Row(3), Row(2), Row(1)))
+        .collect() sameElements Array[Row](Row(null), Row(null), Row(3), Row(2), Row(1))
+    )
   }
 
   test("bitwise operator") {
@@ -271,11 +305,12 @@ class ColumnSuite extends TestData {
     assert(
       df.drop(Seq.empty[String]).schema.fields.map(_.name).toSeq.sorted equals Seq(
         """"One"""",
-        """ONE"""))
+        """ONE"""
+      )
+    )
     assert(
-      df.drop(""""one"""").schema.fields.map(_.name).toSeq.sorted equals Seq(
-        """"One"""",
-        """ONE"""))
+      df.drop(""""one"""").schema.fields.map(_.name).toSeq.sorted equals Seq(""""One"""", """ONE""")
+    )
 
     val ex = intercept[SnowparkClientException] {
       df.drop("ONE", """"One"""").collect()
@@ -291,11 +326,15 @@ class ColumnSuite extends TestData {
     assert(
       df.drop(col(""""one"""")).schema.fields.map(_.name).toSeq.sorted equals Seq(
         """"One"""",
-        """ONE"""))
+        """ONE"""
+      )
+    )
     assert(
       df.drop(Seq.empty[Column]).schema.fields.map(_.name).toSeq.sorted equals Seq(
         """"One"""",
-        """ONE"""))
+        """ONE"""
+      )
+    )
 
     var ex = intercept[SnowparkClientException] {
       df.drop(df("ONE"), col(""""One"""")).collect()
@@ -323,9 +362,11 @@ class ColumnSuite extends TestData {
     try {
       session.sql(s"""create table ${temp}.${rName} ("d(" int)""").collect()
       session.sql(s"""create table ${temp}.${sName} ("c(" int)""").collect()
-      session.sql(s"""create function ${temp}.${udfName}(v integer)
+      session
+        .sql(s"""create function ${temp}.${udfName}(v integer)
         returns float
-        as '3.141592654::FLOAT'""").collect()
+        as '3.141592654::FLOAT'""")
+        .collect()
       val df = session.sql(s"""select ${temp}.${rName}."d(",
           ${temp}.${sName}."c(", ${temp}.${udfName}(1 :: INT)
           FROM ${temp}.${rName}, ${temp}.${sName}""")
@@ -463,31 +504,32 @@ class ColumnSuite extends TestData {
     checkAnswer(
       string4.where(col("A").like(lit("%p%"))),
       Seq(Row("apple"), Row("peach")),
-      sort = false)
+      sort = false
+    )
   }
 
   test("subfield") {
     checkAnswer(
       nullJson1.select(col("v")("a")),
       Seq(Row("null"), Row("\"foo\""), Row(null)),
-      sort = false)
+      sort = false
+    )
 
     checkAnswer(array2.select(col("arr1")(0)), Seq(Row("1"), Row("6")), sort = false)
 
-    checkAnswer(
-      array2.select(parse_json(col("f"))(0)("a")),
-      Seq(Row("1"), Row("1")),
-      sort = false)
+    checkAnswer(array2.select(parse_json(col("f"))(0)("a")), Seq(Row("1"), Row("1")), sort = false)
 
     // Row name is not case-sensitive. field name is case-sensitive
     checkAnswer(
       variant2.select(col("src")("vehicle")(0)("make")),
       Seq(Row("\"Honda\"")),
-      sort = false)
+      sort = false
+    )
     checkAnswer(
       variant2.select(col("SRC")("vehicle")(0)("make")),
       Seq(Row("\"Honda\"")),
-      sort = false)
+      sort = false
+    )
     checkAnswer(variant2.select(col("src")("vehicle")(0)("MAKE")), Seq(Row(null)), sort = false)
     checkAnswer(variant2.select(col("src")("VEHICLE")(0)("make")), Seq(Row(null)), sort = false)
 
@@ -495,7 +537,8 @@ class ColumnSuite extends TestData {
     checkAnswer(
       variant2.select(col("src")("date with '' and .")),
       Seq(Row("\"2017-04-28\"")),
-      sort = false)
+      sort = false
+    )
 
     // path is not accepted
     checkAnswer(variant2.select(col("src")("salesperson.id")), Seq(Row(null)), sort = false)
@@ -521,9 +564,11 @@ class ColumnSuite extends TestData {
           .when(col("a").is_null, lit(5))
           .when(col("a") === 1, lit(6))
           .otherwise(lit(7))
-          .as("a")),
+          .as("a")
+      ),
       Seq(Row(5), Row(7), Row(6), Row(7), Row(5)),
-      sort = false)
+      sort = false
+    )
 
     checkAnswer(
       nullData1.select(
@@ -531,9 +576,11 @@ class ColumnSuite extends TestData {
           .when(col("a").is_null, lit(5))
           .when(col("a") === 1, lit(6))
           .`else`(lit(7))
-          .as("a")),
+          .as("a")
+      ),
       Seq(Row(5), Row(7), Row(6), Row(7), Row(5)),
-      sort = false)
+      sort = false
+    )
 
     // empty otherwise
     checkAnswer(
@@ -541,9 +588,11 @@ class ColumnSuite extends TestData {
         functions
           .when(col("a").is_null, lit(5))
           .when(col("a") === 1, lit(6))
-          .as("a")),
+          .as("a")
+      ),
       Seq(Row(5), Row(null), Row(6), Row(null), Row(5)),
-      sort = false)
+      sort = false
+    )
 
     // wrong type, snowflake sql exception
     assertThrows[SnowflakeSQLException](
@@ -552,8 +601,10 @@ class ColumnSuite extends TestData {
           functions
             .when(col("a").is_null, lit("a"))
             .when(col("a") === 1, lit(6))
-            .as("a"))
-        .collect())
+            .as("a")
+        )
+        .collect()
+    )
   }
 
   test("lit contains '") {
@@ -571,7 +622,8 @@ class ColumnSuite extends TestData {
           |-------------------------
           ||'616263'  |''   |NULL  |
           |-------------------------
-          |""".stripMargin)
+          |""".stripMargin
+    )
   }
 
   test("In Expression 1: IN with constant value list") {
@@ -588,7 +640,8 @@ class ColumnSuite extends TestData {
           ||1    |a    |1    |1    |
           ||2    |b    |2    |2    |
           |-------------------------
-          |""".stripMargin)
+          |""".stripMargin
+    )
 
     // filter with NOT
     val df2 = df.filter(!col("a").in(Seq(lit(1), lit(2))))
@@ -599,7 +652,8 @@ class ColumnSuite extends TestData {
           |-------------------------
           ||3    |b    |33   |33   |
           |-------------------------
-          |""".stripMargin)
+          |""".stripMargin
+    )
 
     // select without NOT
     val df3 = df.select(col("a").in(Seq(1, 2)).as("in_result"))
@@ -612,7 +666,8 @@ class ColumnSuite extends TestData {
           ||true         |
           ||false        |
           |---------------
-          |""".stripMargin)
+          |""".stripMargin
+    )
 
     // select with NOT
     val df4 = df.select(!col("a").in(Seq(1, 2)).as("in_result"))
@@ -625,7 +680,8 @@ class ColumnSuite extends TestData {
           ||false        |
           ||true         |
           |---------------
-          |""".stripMargin)
+          |""".stripMargin
+    )
   }
 
   test("In Expression 2: In with sub query") {
@@ -652,7 +708,8 @@ class ColumnSuite extends TestData {
           ||false        |
           ||false        |
           |---------------
-          |""".stripMargin)
+          |""".stripMargin
+    )
 
     // select with NOT
     val df4 = df.select(!df("a").in(df0.filter(col("a") < 2)).as("in_result"))
@@ -665,7 +722,8 @@ class ColumnSuite extends TestData {
           ||true         |
           ||true         |
           |---------------
-          |""".stripMargin)
+          |""".stripMargin
+    )
   }
 
   test("In Expression 3: IN with all types") {
@@ -687,7 +745,9 @@ class ColumnSuite extends TestData {
           StructField("boolean", BooleanType),
           StructField("binary", BinaryType),
           StructField("timestamp", TimestampType),
-          StructField("date", DateType)))
+          StructField("date", DateType)
+        )
+      )
 
       val timestamp: Long = 1606179541282L
       val largeData = new ArrayBuffer[Row]()
@@ -700,13 +760,15 @@ class ColumnSuite extends TestData {
             2.toShort,
             3,
             4L,
-            1.1F,
-            1.2D,
+            1.1f,
+            1.2d,
             new java.math.BigDecimal(1.2),
             true,
             Array(1.toByte, 2.toByte),
             new Timestamp(timestamp - 100),
-            new Date(timestamp - 100)))
+            new Date(timestamp - 100)
+          )
+        )
       }
 
       val df = session.createDataFrame(largeData, schema)
@@ -719,18 +781,22 @@ class ColumnSuite extends TestData {
           col("short").in(Seq(2, 3)) &&
           col("int").in(Seq(3, 4)) &&
           col("long").in(Seq(4, 5)) &&
-          col("float").in(Seq(1.1F, 1.2F)) &&
-          col("double").in(Seq(1.2D, 1.3D)) &&
+          col("float").in(Seq(1.1f, 1.2f)) &&
+          col("double").in(Seq(1.2d, 1.3d)) &&
           col("decimal").in(
             Seq(
               new java.math.BigDecimal(1.2).setScale(3, RoundingMode.HALF_UP),
-              new java.math.BigDecimal(1.3).setScale(3, RoundingMode.HALF_UP))))
+              new java.math.BigDecimal(1.3).setScale(3, RoundingMode.HALF_UP)
+            )
+          )
+      )
       val df3 = df2.filter(
         col("boolean").in(Seq(true, false)) &&
           col("binary").in(Seq(Array(1.toByte, 2.toByte), Array(2.toByte, 3.toByte))) &&
           col("timestamp")
             .in(Seq(new Timestamp(timestamp - 100), new Timestamp(timestamp - 200))) &&
-          col("date").in(Seq(new Date(timestamp - 100), new Date(timestamp - 200))))
+          col("date").in(Seq(new Date(timestamp - 100), new Date(timestamp - 200)))
+      )
 
       df3.show()
       // scalastyle:off
@@ -742,7 +808,8 @@ class ColumnSuite extends TestData {
             ||1     |a         |1       |2        |3      |4       |1.1      |1.2       |1.200      |true       |'0102'    |2020-11-23 16:59:01.182  |2020-11-23  |
             ||2     |a         |1       |2        |3      |4       |1.1      |1.2       |1.200      |true       |'0102'    |2020-11-23 16:59:01.182  |2020-11-23  |
             |------------------------------------------------------------------------------------------------------------------------------------------------------
-            |""".stripMargin)
+            |""".stripMargin
+      )
       // scalastyle:on
     } finally {
       TimeZone.setDefault(oldTimeZone)
@@ -793,8 +860,7 @@ class ColumnSuite extends TestData {
 
     // filter with NOT
     val df2 =
-      df.filter(
-        !functions.in(Seq(col("a"), col("b")), Seq(Seq(1, "a"), Seq(2, "b"), Seq(3, "c"))))
+      df.filter(!functions.in(Seq(col("a"), col("b")), Seq(Seq(1, "a"), Seq(2, "b"), Seq(3, "c"))))
     checkAnswer(df2, Seq(Row(3, "b", 33, 33)))
 
     // select without NOT
@@ -802,7 +868,8 @@ class ColumnSuite extends TestData {
       df.select(
         functions
           .in(Seq(col("a"), col("c")), Seq(Seq(1, 1), Seq(2, 2), Seq(3, 3)))
-          .as("in_result"))
+          .as("in_result")
+      )
     assert(
       getShowString(df3, 10, 50) ==
         """---------------
@@ -812,13 +879,15 @@ class ColumnSuite extends TestData {
           ||true         |
           ||false        |
           |---------------
-          |""".stripMargin)
+          |""".stripMargin
+    )
 
     // select with NOT
     val df4 =
       df.select(
         (!functions.in(Seq(col("a"), col("c")), Seq(Seq(1, 1), Seq(2, 2), Seq(3, 3))))
-          .as("in_result"))
+          .as("in_result")
+      )
     assert(
       getShowString(df4, 10, 50) ==
         """---------------
@@ -828,7 +897,8 @@ class ColumnSuite extends TestData {
           ||false        |
           ||true         |
           |---------------
-          |""".stripMargin)
+          |""".stripMargin
+    )
   }
 
   test("In Expression 7: multiple columns with sub query") {
@@ -855,7 +925,8 @@ class ColumnSuite extends TestData {
           ||true         |
           ||false        |
           |---------------
-          |""".stripMargin)
+          |""".stripMargin
+    )
 
     // select with NOT
     val df4 = df.select((!functions.in(Seq(col("a"), col("b")), df0)).as("in_result"))
@@ -868,7 +939,8 @@ class ColumnSuite extends TestData {
           ||false        |
           ||true         |
           |---------------
-          |""".stripMargin)
+          |""".stripMargin
+    )
   }
 
   // Below cases are supported by snowflake SQL, but they are confusing,

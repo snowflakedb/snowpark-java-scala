@@ -261,10 +261,8 @@ class OpenTelemetrySuite extends OpenTelemetryEnabled {
     val stageName = randomName()
     val tableName = randomName()
     val userSchema: StructType = StructType(
-      Seq(
-        StructField("a", IntegerType),
-        StructField("b", StringType),
-        StructField("c", DoubleType)))
+      Seq(StructField("a", IntegerType), StructField("b", StringType), StructField("c", DoubleType))
+    )
     try {
       createStage(stageName)
       uploadFileToStage(stageName, testFileCsv, compress = false)
@@ -293,10 +291,8 @@ class OpenTelemetrySuite extends OpenTelemetryEnabled {
     val tableName = randomName()
     val className = "snow.snowpark.CopyableDataFrameAsyncActor"
     val userSchema: StructType = StructType(
-      Seq(
-        StructField("a", IntegerType),
-        StructField("b", StringType),
-        StructField("c", DoubleType)))
+      Seq(StructField("a", IntegerType), StructField("b", StringType), StructField("c", DoubleType))
+    )
     try {
       createStage(stageName)
       uploadFileToStage(stageName, testFileCsv, compress = false)
@@ -455,12 +451,7 @@ class OpenTelemetrySuite extends OpenTelemetryEnabled {
   def checkSpan(className: String, funcName: String, methodChain: String): Unit = {
     val stack = Thread.currentThread().getStackTrace
     val file = stack(2) // this file
-    checkSpan(
-      className,
-      funcName,
-      "OpenTelemetrySuite.scala",
-      file.getLineNumber - 1,
-      methodChain)
+    checkSpan(className, funcName, "OpenTelemetrySuite.scala", file.getLineNumber - 1, methodChain)
   }
 
   def checkSpan(className: String, funcName: String): Unit = {
@@ -471,6 +462,7 @@ class OpenTelemetrySuite extends OpenTelemetryEnabled {
       funcName,
       "OpenTelemetrySuite.scala",
       file.getLineNumber - 1,
-      s"DataFrame.$funcName")
+      s"DataFrame.$funcName"
+    )
   }
 }

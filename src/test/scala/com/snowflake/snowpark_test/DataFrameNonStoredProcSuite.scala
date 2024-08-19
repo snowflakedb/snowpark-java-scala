@@ -14,7 +14,8 @@ class DataFrameNonStoredProcSuite extends TestData {
           ||1        |2        |2        |2        |2        |
           ||2        |2        |2        |2        |2        |
           |---------------------------------------------------
-          |""".stripMargin)
+          |""".stripMargin
+    )
 
     assert(
       getShowString(monthlySales.stat.crosstab("month", "empid").sort(col("month")), 10) ==
@@ -26,7 +27,8 @@ class DataFrameNonStoredProcSuite extends TestData {
           ||JAN      |2                          |2                          |
           ||MAR      |2                          |2                          |
           |-------------------------------------------------------------------
-          |""".stripMargin)
+          |""".stripMargin
+    )
 
     assert(
       getShowString(date1.stat.crosstab("a", "b").sort(col("a")), 10) ==
@@ -36,7 +38,8 @@ class DataFrameNonStoredProcSuite extends TestData {
           ||2010-12-01  |0                          |1                          |
           ||2020-08-01  |1                          |0                          |
           |----------------------------------------------------------------------
-          |""".stripMargin)
+          |""".stripMargin
+    )
 
     assert(
       getShowString(date1.stat.crosstab("b", "a").sort(col("b")), 10) ==
@@ -46,7 +49,8 @@ class DataFrameNonStoredProcSuite extends TestData {
           ||1    |1                        |0                        |
           ||2    |0                        |1                        |
           |-----------------------------------------------------------
-          |""".stripMargin)
+          |""".stripMargin
+    )
 
     assert(
       getShowString(string7.stat.crosstab("a", "b").sort(col("a")), 10) ==
@@ -56,7 +60,8 @@ class DataFrameNonStoredProcSuite extends TestData {
           ||NULL  |0                          |1                          |
           ||str   |1                          |0                          |
           |----------------------------------------------------------------
-          |""".stripMargin)
+          |""".stripMargin
+    )
 
     assert(
       getShowString(string7.stat.crosstab("b", "a").sort(col("b")), 10) ==
@@ -66,7 +71,8 @@ class DataFrameNonStoredProcSuite extends TestData {
           ||1    |1        |0       |
           ||2    |0        |0       |
           |--------------------------
-          |""".stripMargin)
+          |""".stripMargin
+    )
   }
 
   test("df.stat.pivot") {
@@ -74,13 +80,15 @@ class DataFrameNonStoredProcSuite extends TestData {
       testDataframeStatPivot(),
       "ENABLE_PIVOT_VIEW_WITH_OBJECT_AGG",
       "disable",
-      skipIfParamNotExist = true)
+      skipIfParamNotExist = true
+    )
 
     testWithAlteredSessionParameter(
       testDataframeStatPivot(),
       "ENABLE_PIVOT_VIEW_WITH_OBJECT_AGG",
       "enable",
-      skipIfParamNotExist = true)
+      skipIfParamNotExist = true
+    )
   }
 
   test("ERROR_ON_NONDETERMINISTIC_UPDATE = true") {
@@ -92,8 +100,7 @@ class DataFrameNonStoredProcSuite extends TestData {
         testData2.write.mode(SaveMode.Overwrite).saveAsTable(tableName)
         val updatable = session.table(tableName)
         testData2.write.mode(SaveMode.Overwrite).saveAsTable(tableName)
-        assert(
-          updatable.update(Map(col("a") -> lit(1), col("b") -> lit(0))) == UpdateResult(6, 0))
+        assert(updatable.update(Map(col("a") -> lit(1), col("b") -> lit(0))) == UpdateResult(6, 0))
       }
     } finally {
       dropTable(tableName)

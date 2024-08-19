@@ -68,7 +68,8 @@ class UDTFSuite extends TestData {
           """root
             | |--WORD: String (nullable = true)
             | |--COUNT: Long (nullable = true)
-            |""".stripMargin)
+            |""".stripMargin
+      )
       checkAnswer(df1, Seq(Row("w1", 1), Row("w2", 2), Row("w3", 3)))
 
       // Call the UDTF with funcName and named parameters, result should be the same
@@ -80,12 +81,14 @@ class UDTFSuite extends TestData {
           """root
             | |--COUNT: Long (nullable = true)
             | |--WORD: String (nullable = true)
-            |""".stripMargin)
+            |""".stripMargin
+      )
       checkAnswer(df2, Seq(Row(1, "w1"), Row(2, "w2"), Row(3, "w3")))
 
       // Use UDTF with table join
       val df3 = session.sql(
-        s"select * from $wordCountTableName, table($funcName(c1) over (partition by c2))")
+        s"select * from $wordCountTableName, table($funcName(c1) over (partition by c2))"
+      )
       assert(
         getSchemaString(df3.schema) ==
           """root
@@ -93,13 +96,16 @@ class UDTFSuite extends TestData {
             | |--C2: String (nullable = true)
             | |--WORD: String (nullable = true)
             | |--COUNT: Long (nullable = true)
-            |""".stripMargin)
+            |""".stripMargin
+      )
       checkAnswer(
         df3,
         Seq(
           Row("w1 w2", "g1", "w2", 1),
           Row("w1 w2", "g1", "w1", 1),
-          Row("w1 w1 w1", "g2", "w1", 3)))
+          Row("w1 w1 w1", "g2", "w1", 3)
+        )
+      )
     } finally {
       runQuery(s"drop function if exists $funcName(STRING)", session)
     }
@@ -141,26 +147,31 @@ class UDTFSuite extends TestData {
           """root
             | |--WORD: String (nullable = true)
             | |--COUNT: Long (nullable = true)
-            |""".stripMargin)
+            |""".stripMargin
+      )
       checkAnswer(
         df1,
-        Seq(Row("w3", 6), Row("w2", 4), Row("w1", 2), Row("w3", 6), Row("w2", 4), Row("w1", 2)))
+        Seq(Row("w3", 6), Row("w2", 4), Row("w1", 2), Row("w3", 6), Row("w2", 4), Row("w1", 2))
+      )
 
       // Call the UDTF with funcName and named parameters, result should be the same
       val df2 = session
         .tableFunction(
           TableFunction(funcName),
-          Map("arg1" -> lit("w1 w2 w2 w3 w3 w3"), "arg2" -> lit("w1 w2 w2 w3 w3 w3")))
+          Map("arg1" -> lit("w1 w2 w2 w3 w3 w3"), "arg2" -> lit("w1 w2 w2 w3 w3 w3"))
+        )
         .select("count", "word")
       assert(
         getSchemaString(df2.schema) ==
           """root
             | |--COUNT: Long (nullable = true)
             | |--WORD: String (nullable = true)
-            |""".stripMargin)
+            |""".stripMargin
+      )
       checkAnswer(
         df2,
-        Seq(Row(6, "w3"), Row(4, "w2"), Row(2, "w1"), Row(6, "w3"), Row(4, "w2"), Row(2, "w1")))
+        Seq(Row(6, "w3"), Row(4, "w2"), Row(2, "w1"), Row(6, "w3"), Row(4, "w2"), Row(2, "w1"))
+      )
 
       // scalastyle:off
       // Use UDTF with table join
@@ -176,7 +187,8 @@ class UDTFSuite extends TestData {
       // scalastyle:on
       val df3 = session.sql(
         s"select * from $wordCountTableName, " +
-          s"table($funcName(c1, c2) over (partition by 1))")
+          s"table($funcName(c1, c2) over (partition by 1))"
+      )
       assert(
         getSchemaString(df3.schema) ==
           """root
@@ -184,7 +196,8 @@ class UDTFSuite extends TestData {
             | |--C2: String (nullable = true)
             | |--WORD: String (nullable = true)
             | |--COUNT: Long (nullable = true)
-            |""".stripMargin)
+            |""".stripMargin
+      )
       checkAnswer(
         df3,
         Seq(
@@ -196,11 +209,14 @@ class UDTFSuite extends TestData {
           Row(null, null, "g2", 1),
           Row(null, null, "w2", 1),
           Row(null, null, "g1", 1),
-          Row(null, null, "w1", 4)))
+          Row(null, null, "w1", 4)
+        )
+      )
 
       // Use UDTF with table function + over partition
       val df4 = session.sql(
-        s"select * from $wordCountTableName, table($funcName(c1, c2) over (partition by c2))")
+        s"select * from $wordCountTableName, table($funcName(c1, c2) over (partition by c2))"
+      )
       checkAnswer(
         df4,
         Seq(
@@ -213,7 +229,9 @@ class UDTFSuite extends TestData {
           Row("w1 w1 w1", "g2", "g2", 1),
           Row("w1 w1 w1", "g2", "w1", 3),
           Row(null, "g2", "g2", 1),
-          Row(null, "g2", "w1", 3)))
+          Row(null, "g2", "w1", 3)
+        )
+      )
     } finally {
       runQuery(s"drop function if exists $funcName(VARCHAR,VARCHAR)", session)
     }
@@ -239,7 +257,8 @@ class UDTFSuite extends TestData {
         getSchemaString(df1.schema) ==
           """root
             | |--C1: Long (nullable = true)
-            |""".stripMargin)
+            |""".stripMargin
+      )
       checkAnswer(df1, Seq(Row(10), Row(11), Row(12), Row(13), Row(14)))
 
       val df2 = session.tableFunction(TableFunction(funcName), lit(20), lit(5))
@@ -247,7 +266,8 @@ class UDTFSuite extends TestData {
         getSchemaString(df2.schema) ==
           """root
             | |--C1: Long (nullable = true)
-            |""".stripMargin)
+            |""".stripMargin
+      )
       checkAnswer(df2, Seq(Row(20), Row(21), Row(22), Row(23), Row(24)))
 
       val df3 = session
@@ -256,7 +276,8 @@ class UDTFSuite extends TestData {
         getSchemaString(df3.schema) ==
           """root
             | |--C1: Long (nullable = true)
-            |""".stripMargin)
+            |""".stripMargin
+      )
       checkAnswer(df3, Seq(Row(30), Row(31), Row(32), Row(33), Row(34)))
     } finally {
       runQuery(s"drop function if exists $funcName(NUMBER, NUMBER)", session)
@@ -313,7 +334,8 @@ class UDTFSuite extends TestData {
           StructType(
             StructField("word", StringType),
             StructField("count", IntegerType),
-            StructField("size", IntegerType))
+            StructField("size", IntegerType)
+          )
       }
 
       val largeUdTF = new LargeUDTF()
@@ -329,7 +351,8 @@ class UDTFSuite extends TestData {
             | |--WORD: String (nullable = true)
             | |--COUNT: Long (nullable = true)
             | |--SIZE: Long (nullable = true)
-            |""".stripMargin)
+            |""".stripMargin
+      )
       checkAnswer(df1, Seq(Row("w1", 1, dataLength), Row("w2", 1, dataLength)))
     } finally {
       runQuery(s"drop function if exists $funcName(STRING)", session)
@@ -371,7 +394,8 @@ class UDTFSuite extends TestData {
         getSchemaString(df1.schema) ==
           """root
             | |--C1: Long (nullable = true)
-            |""".stripMargin)
+            |""".stripMargin
+      )
       checkAnswer(df1, Seq(Row(10), Row(11), Row(20), Row(21), Row(22), Row(23)))
 
       val df2 = session.tableFunction(TableFunction(funcName), sourceDF("b"), sourceDF("c"))
@@ -379,7 +403,8 @@ class UDTFSuite extends TestData {
         getSchemaString(df2.schema) ==
           """root
             | |--C1: Long (nullable = true)
-            |""".stripMargin)
+            |""".stripMargin
+      )
       checkAnswer(df2, Seq(Row(100), Row(101), Row(200), Row(201), Row(202), Row(203)))
 
       // Check table function with df column arguments as Map
@@ -390,7 +415,8 @@ class UDTFSuite extends TestData {
         getSchemaString(df3.schema) ==
           """root
             | |--C1: Long (nullable = true)
-            |""".stripMargin)
+            |""".stripMargin
+      )
       checkAnswer(df3, Seq(Row(30), Row(31), Row(32), Row(33), Row(34)))
 
       // Check table function with nested functions on df column
@@ -399,7 +425,8 @@ class UDTFSuite extends TestData {
         getSchemaString(df4.schema) ==
           """root
             | |--C1: Long (nullable = true)
-            |""".stripMargin)
+            |""".stripMargin
+      )
       checkAnswer(df4, Seq(Row(10), Row(11), Row(20), Row(21)))
 
       // Check result df column filtering with duplicate column names
@@ -413,7 +440,8 @@ class UDTFSuite extends TestData {
           getSchemaString(df.schema) ==
             """root
               | |--C1: Long (nullable = true)
-              |""".stripMargin)
+              |""".stripMargin
+        )
         checkAnswer(df, Seq(Row(30), Row(31), Row(32), Row(33), Row(34)))
       }
     } finally {
@@ -585,13 +613,7 @@ class UDTFSuite extends TestData {
 
   test("test UDTFX of UDTF6", JavaStoredProcExclude) {
     class MyUDTF6 extends UDTF6[Int, Int, Int, Int, Int, Int] {
-      override def process(
-          a1: Int,
-          a2: Int,
-          a3: Int,
-          a4: Int,
-          a5: Int,
-          a6: Int): Iterable[Row] = {
+      override def process(a1: Int, a2: Int, a3: Int, a4: Int, a5: Int, a6: Int): Iterable[Row] = {
         val sum = Seq(a1, a2, a3, a4, a5, a6).sum
         Seq(Row(sum), Row(sum))
       }
@@ -608,7 +630,7 @@ class UDTFSuite extends TestData {
   test("test UDTFX of UDTF7", JavaStoredProcExclude) {
     class MyUDTF7 extends UDTF7[Int, Int, Int, Int, Int, Int, Int] {
       override def process(a1: Int, a2: Int, a3: Int, a4: Int, a5: Int, a6: Int, a7: Int)
-        : Iterable[Row] = {
+          : Iterable[Row] = {
         val sum = Seq(a1, a2, a3, a4, a5, a6, a7).sum
         Seq(Row(sum), Row(sum))
       }
@@ -626,7 +648,7 @@ class UDTFSuite extends TestData {
   test("test UDTFX of UDTF8", JavaStoredProcExclude) {
     class MyUDTF8 extends UDTF8[Int, Int, Int, Int, Int, Int, Int, Int] {
       override def process(a1: Int, a2: Int, a3: Int, a4: Int, a5: Int, a6: Int, a7: Int, a8: Int)
-        : Iterable[Row] = {
+          : Iterable[Row] = {
         val sum = Seq(a1, a2, a3, a4, a5, a6, a7, a8).sum
         Seq(Row(sum), Row(sum))
       }
@@ -644,7 +666,8 @@ class UDTFSuite extends TestData {
       lit(5),
       lit(6),
       lit(7),
-      lit(8))
+      lit(8)
+    )
     val result = (1 to 8).sum
     checkAnswer(df1, Seq(Row(result), Row(result)))
   }
@@ -660,7 +683,8 @@ class UDTFSuite extends TestData {
           a6: Int,
           a7: Int,
           a8: Int,
-          a9: Int): Iterable[Row] = {
+          a9: Int
+      ): Iterable[Row] = {
         val sum = Seq(a1, a2, a3, a4, a5, a6, a7, a8, a9).sum
         Seq(Row(sum), Row(sum))
       }
@@ -679,7 +703,8 @@ class UDTFSuite extends TestData {
       lit(6),
       lit(7),
       lit(8),
-      lit(9))
+      lit(9)
+    )
     val result = (1 to 9).sum
     checkAnswer(df1, Seq(Row(result), Row(result)))
   }
@@ -696,7 +721,8 @@ class UDTFSuite extends TestData {
           a7: Int,
           a8: Int,
           a9: Int,
-          a10: Int): Iterable[Row] = {
+          a10: Int
+      ): Iterable[Row] = {
         val sum = Seq(a1, a2, a3, a4, a5, a6, a7, a8, a9, a10).sum
         Seq(Row(sum), Row(sum))
       }
@@ -716,7 +742,8 @@ class UDTFSuite extends TestData {
       lit(7),
       lit(8),
       lit(9),
-      lit(10))
+      lit(10)
+    )
     val result = (1 to 10).sum
     checkAnswer(df1, Seq(Row(result), Row(result)))
   }
@@ -735,7 +762,8 @@ class UDTFSuite extends TestData {
           a8: Int,
           a9: Int,
           a10: Int,
-          a11: Int): Iterable[Row] = {
+          a11: Int
+      ): Iterable[Row] = {
         val sum = Seq(a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11).sum
         Seq(Row(sum), Row(sum))
       }
@@ -757,7 +785,8 @@ class UDTFSuite extends TestData {
       lit(8),
       lit(9),
       lit(10),
-      lit(11))
+      lit(11)
+    )
     val result = (1 to 11).sum
     checkAnswer(df1, Seq(Row(result), Row(result)))
   }
@@ -777,7 +806,8 @@ class UDTFSuite extends TestData {
           a9: Int,
           a10: Int,
           a11: Int,
-          a12: Int): Iterable[Row] = {
+          a12: Int
+      ): Iterable[Row] = {
         val sum = Seq(a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12).sum
         Seq(Row(sum), Row(sum))
       }
@@ -800,14 +830,14 @@ class UDTFSuite extends TestData {
       lit(9),
       lit(10),
       lit(11),
-      lit(12))
+      lit(12)
+    )
     val result = (1 to 12).sum
     checkAnswer(df1, Seq(Row(result), Row(result)))
   }
 
   test("test UDTFX of UDTF13", JavaStoredProcExclude) {
-    class MyUDTF13
-        extends UDTF13[Int, Int, Int, Int, Int, Int, Int, Int, Int, Int, Int, Int, Int] {
+    class MyUDTF13 extends UDTF13[Int, Int, Int, Int, Int, Int, Int, Int, Int, Int, Int, Int, Int] {
       // scalastyle:off
       override def process(
           a1: Int,
@@ -822,7 +852,8 @@ class UDTFSuite extends TestData {
           a10: Int,
           a11: Int,
           a12: Int,
-          a13: Int): Iterable[Row] = {
+          a13: Int
+      ): Iterable[Row] = {
         val sum = Seq(a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12, a13).sum
         Seq(Row(sum), Row(sum))
       }
@@ -846,7 +877,8 @@ class UDTFSuite extends TestData {
       lit(10),
       lit(11),
       lit(12),
-      lit(13))
+      lit(13)
+    )
     val result = (1 to 13).sum
     checkAnswer(df1, Seq(Row(result), Row(result)))
   }
@@ -869,7 +901,8 @@ class UDTFSuite extends TestData {
           a11: Int,
           a12: Int,
           a13: Int,
-          a14: Int): Iterable[Row] = {
+          a14: Int
+      ): Iterable[Row] = {
         val sum = Seq(a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12, a13, a14).sum
         Seq(Row(sum), Row(sum))
       }
@@ -894,7 +927,8 @@ class UDTFSuite extends TestData {
       lit(11),
       lit(12),
       lit(13),
-      lit(14))
+      lit(14)
+    )
     val result = (1 to 14).sum
     checkAnswer(df1, Seq(Row(result), Row(result)))
   }
@@ -917,7 +951,8 @@ class UDTFSuite extends TestData {
           a12: Int,
           a13: Int,
           a14: Int,
-          a15: Int): Iterable[Row] = {
+          a15: Int
+      ): Iterable[Row] = {
         val sum = Seq(a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12, a13, a14, a15).sum
         Seq(Row(sum), Row(sum))
       }
@@ -942,7 +977,8 @@ class UDTFSuite extends TestData {
       lit(12),
       lit(13),
       lit(14),
-      lit(15))
+      lit(15)
+    )
     val result = (1 to 15).sum
     checkAnswer(df1, Seq(Row(result), Row(result)))
   }
@@ -965,7 +1001,8 @@ class UDTFSuite extends TestData {
           Int,
           Int,
           Int,
-          Int] {
+          Int
+        ] {
       override def process(
           a1: Int,
           a2: Int,
@@ -982,7 +1019,8 @@ class UDTFSuite extends TestData {
           a13: Int,
           a14: Int,
           a15: Int,
-          a16: Int): Iterable[Row] = {
+          a16: Int
+      ): Iterable[Row] = {
         val sum = Seq(a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12, a13, a14, a15, a16).sum
         Seq(Row(sum), Row(sum))
       }
@@ -1008,7 +1046,8 @@ class UDTFSuite extends TestData {
       lit(13),
       lit(14),
       lit(15),
-      lit(16))
+      lit(16)
+    )
     val result = (1 to 16).sum
     checkAnswer(df1, Seq(Row(result), Row(result)))
   }
@@ -1032,7 +1071,8 @@ class UDTFSuite extends TestData {
           Int,
           Int,
           Int,
-          Int] {
+          Int
+        ] {
       override def process(
           a1: Int,
           a2: Int,
@@ -1050,7 +1090,8 @@ class UDTFSuite extends TestData {
           a14: Int,
           a15: Int,
           a16: Int,
-          a17: Int): Iterable[Row] = {
+          a17: Int
+      ): Iterable[Row] = {
         val sum =
           Seq(a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12, a13, a14, a15, a16, a17).sum
         Seq(Row(sum), Row(sum))
@@ -1078,7 +1119,8 @@ class UDTFSuite extends TestData {
       lit(14),
       lit(15),
       lit(16),
-      lit(17))
+      lit(17)
+    )
     val result = (1 to 17).sum
     checkAnswer(df1, Seq(Row(result), Row(result)))
   }
@@ -1103,7 +1145,8 @@ class UDTFSuite extends TestData {
           Int,
           Int,
           Int,
-          Int] {
+          Int
+        ] {
       override def process(
           a1: Int,
           a2: Int,
@@ -1122,7 +1165,8 @@ class UDTFSuite extends TestData {
           a15: Int,
           a16: Int,
           a17: Int,
-          a18: Int): Iterable[Row] = {
+          a18: Int
+      ): Iterable[Row] = {
         val sum =
           Seq(a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12, a13, a14, a15, a16, a17, a18).sum
         Seq(Row(sum), Row(sum))
@@ -1151,7 +1195,8 @@ class UDTFSuite extends TestData {
       lit(15),
       lit(16),
       lit(17),
-      lit(18))
+      lit(18)
+    )
     val result = (1 to 18).sum
     checkAnswer(df1, Seq(Row(result), Row(result)))
   }
@@ -1177,7 +1222,8 @@ class UDTFSuite extends TestData {
           Int,
           Int,
           Int,
-          Int] {
+          Int
+        ] {
       override def process(
           a1: Int,
           a2: Int,
@@ -1197,7 +1243,8 @@ class UDTFSuite extends TestData {
           a16: Int,
           a17: Int,
           a18: Int,
-          a19: Int): Iterable[Row] = {
+          a19: Int
+      ): Iterable[Row] = {
         val sum = Seq(
           a1,
           a2,
@@ -1217,7 +1264,8 @@ class UDTFSuite extends TestData {
           a16,
           a17,
           a18,
-          a19).sum
+          a19
+        ).sum
         Seq(Row(sum), Row(sum))
       }
       override def endPartition(): Iterable[Row] = Seq.empty
@@ -1245,7 +1293,8 @@ class UDTFSuite extends TestData {
       lit(16),
       lit(17),
       lit(18),
-      lit(19))
+      lit(19)
+    )
     val result = (1 to 19).sum
     checkAnswer(df1, Seq(Row(result), Row(result)))
   }
@@ -1272,7 +1321,8 @@ class UDTFSuite extends TestData {
           Int,
           Int,
           Int,
-          Int] {
+          Int
+        ] {
       override def process(
           a1: Int,
           a2: Int,
@@ -1293,7 +1343,8 @@ class UDTFSuite extends TestData {
           a17: Int,
           a18: Int,
           a19: Int,
-          a20: Int): Iterable[Row] = {
+          a20: Int
+      ): Iterable[Row] = {
         val sum = Seq(
           a1,
           a2,
@@ -1314,7 +1365,8 @@ class UDTFSuite extends TestData {
           a17,
           a18,
           a19,
-          a20).sum
+          a20
+        ).sum
         Seq(Row(sum), Row(sum))
       }
       override def endPartition(): Iterable[Row] = Seq.empty
@@ -1343,7 +1395,8 @@ class UDTFSuite extends TestData {
       lit(17),
       lit(18),
       lit(19),
-      lit(20))
+      lit(20)
+    )
     val result = (1 to 20).sum
     checkAnswer(df1, Seq(Row(result), Row(result)))
   }
@@ -1371,7 +1424,8 @@ class UDTFSuite extends TestData {
           Int,
           Int,
           Int,
-          Int] {
+          Int
+        ] {
       override def process(
           a1: Int,
           a2: Int,
@@ -1393,7 +1447,8 @@ class UDTFSuite extends TestData {
           a18: Int,
           a19: Int,
           a20: Int,
-          a21: Int): Iterable[Row] = {
+          a21: Int
+      ): Iterable[Row] = {
         val sum = Seq(
           a1,
           a2,
@@ -1415,7 +1470,8 @@ class UDTFSuite extends TestData {
           a18,
           a19,
           a20,
-          a21).sum
+          a21
+        ).sum
         Seq(Row(sum), Row(sum))
       }
       override def endPartition(): Iterable[Row] = Seq.empty
@@ -1445,7 +1501,8 @@ class UDTFSuite extends TestData {
       lit(18),
       lit(19),
       lit(20),
-      lit(21))
+      lit(21)
+    )
     val result = (1 to 21).sum
     checkAnswer(df1, Seq(Row(result), Row(result)))
   }
@@ -1474,7 +1531,8 @@ class UDTFSuite extends TestData {
           Int,
           Int,
           Int,
-          Int] {
+          Int
+        ] {
       override def process(
           a1: Int,
           a2: Int,
@@ -1497,7 +1555,8 @@ class UDTFSuite extends TestData {
           a19: Int,
           a20: Int,
           a21: Int,
-          a22: Int): Iterable[Row] = {
+          a22: Int
+      ): Iterable[Row] = {
         val sum = Seq(
           a1,
           a2,
@@ -1520,7 +1579,8 @@ class UDTFSuite extends TestData {
           a19,
           a20,
           a21,
-          a22).sum
+          a22
+        ).sum
         Seq(Row(sum), Row(sum))
       }
       override def endPartition(): Iterable[Row] = Seq.empty
@@ -1551,34 +1611,33 @@ class UDTFSuite extends TestData {
       lit(19),
       lit(20),
       lit(21),
-      lit(22))
+      lit(22)
+    )
     val result = (1 to 22).sum
     checkAnswer(df1, Seq(Row(result), Row(result)))
   }
 
   test("test input Type: Option[_]") {
     class UDTFInputOptionTypes
-        extends UDTF6[
-          Option[Short],
-          Option[Int],
-          Option[Long],
-          Option[Float],
-          Option[Double],
-          Option[Boolean]] {
+        extends UDTF6[Option[Short], Option[Int], Option[Long], Option[Float], Option[
+          Double
+        ], Option[Boolean]] {
       override def process(
           si2: Option[Short],
           i2: Option[Int],
           li2: Option[Long],
           f2: Option[Float],
           d2: Option[Double],
-          b2: Option[Boolean]): Iterable[Row] = {
+          b2: Option[Boolean]
+      ): Iterable[Row] = {
         val row = Row(
           si2.map(_.toString).orNull,
           i2.map(_.toString).orNull,
           li2.map(_.toString).orNull,
           f2.map(_.toString).orNull,
           d2.map(_.toString).orNull,
-          b2.map(_.toString).orNull)
+          b2.map(_.toString).orNull
+        )
         Seq(row)
       }
       override def endPartition(): Iterable[Row] = Seq.empty
@@ -1589,14 +1648,16 @@ class UDTFSuite extends TestData {
           StructField("bi2_str", StringType),
           StructField("f2_str", StringType),
           StructField("d2_str", StringType),
-          StructField("b2_str", StringType))
+          StructField("b2_str", StringType)
+        )
     }
 
     createTable(tableName, "si2 smallint, i2 int, bi2 bigint, f2 float, d2 double, b2 boolean")
     runQuery(
       s"insert into $tableName values (1, 2, 3, 4.4, 8.8, true)," +
         s" (null, null, null, null, null, null)",
-      session)
+      session
+    )
     val tableFunction = session.udtf.registerTemporary(new UDTFInputOptionTypes)
     val df1 = session
       .table(tableName)
@@ -1616,12 +1677,15 @@ class UDTFSuite extends TestData {
           | |--F2_STR: String (nullable = true)
           | |--D2_STR: String (nullable = true)
           | |--B2_STR: String (nullable = true)
-          |""".stripMargin)
+          |""".stripMargin
+    )
     checkAnswer(
       df1,
       Seq(
         Row(1, 2, 3, 4.4, 8.8, true, "1", "2", "3", "4.4", "8.8", "true"),
-        Row(null, null, null, null, null, null, null, null, null, null, null, null)))
+        Row(null, null, null, null, null, null, null, null, null, null, null, null)
+      )
+    )
   }
 
   test("test input Type: basic types") {
@@ -1636,7 +1700,8 @@ class UDTFSuite extends TestData {
           java.math.BigDecimal,
           String,
           java.lang.String,
-          Array[Byte]] {
+          Array[Byte]
+        ] {
       override def process(
           si1: Short,
           i1: Int,
@@ -1647,7 +1712,8 @@ class UDTFSuite extends TestData {
           decimal: java.math.BigDecimal,
           str: String,
           str2: java.lang.String,
-          bytes: Array[Byte]): Iterable[Row] = {
+          bytes: Array[Byte]
+      ): Iterable[Row] = {
         val row = Row(
           si1.toString,
           i1.toString,
@@ -1658,7 +1724,8 @@ class UDTFSuite extends TestData {
           decimal.toString,
           str,
           str2,
-          bytes.map { _.toChar }.mkString)
+          bytes.map { _.toChar }.mkString
+        )
         Seq(row)
       }
       override def endPartition(): Iterable[Row] = Seq.empty
@@ -1673,7 +1740,8 @@ class UDTFSuite extends TestData {
           StructField("decimal_str", StringType),
           StructField("str1_str", StringType),
           StructField("str2_str", StringType),
-          StructField("bytes_str", StringType))
+          StructField("bytes_str", StringType)
+        )
     }
 
     val tableFunction = session.udtf.registerTemporary(new UDTFInputBasicTypes)
@@ -1689,7 +1757,8 @@ class UDTFSuite extends TestData {
       lit(decimal).cast(DecimalType(38, 18)),
       lit("scala"),
       lit(new java.lang.String("java")),
-      lit("bytes".getBytes()))
+      lit("bytes".getBytes())
+    )
     assert(
       getSchemaString(df1.schema) ==
         """root
@@ -1703,21 +1772,14 @@ class UDTFSuite extends TestData {
           | |--STR1_STR: String (nullable = true)
           | |--STR2_STR: String (nullable = true)
           | |--BYTES_STR: String (nullable = true)
-          |""".stripMargin)
+          |""".stripMargin
+    )
     checkAnswer(
       df1,
       Seq(
-        Row(
-          "1",
-          "2",
-          "3",
-          "4.4",
-          "8.8",
-          "true",
-          "123.456000000000000000",
-          "scala",
-          "java",
-          "bytes")))
+        Row("1", "2", "3", "4.4", "8.8", "true", "123.456000000000000000", "scala", "java", "bytes")
+      )
+    )
   }
 
   test("test input Type: Date/Time/TimeStamp", JavaStoredProcExclude) {
@@ -1739,7 +1801,8 @@ class UDTFSuite extends TestData {
           StructType(
             StructField("date_str", StringType),
             StructField("time_str", StringType),
-            StructField("timestamp_str", StringType))
+            StructField("timestamp_str", StringType)
+          )
       }
 
       createTable(tableName, "date Date, time Time, ts timestamp_ntz")
@@ -1747,7 +1810,8 @@ class UDTFSuite extends TestData {
         s"insert into $tableName values " +
           s"('2022-01-25', '00:00:00', '2022-01-25 00:00:00.000')," +
           s"('2022-01-25', '12:13:14', '2022-01-25 12:13:14.123')",
-        session)
+        session
+      )
 
       val tableFunction = session.udtf.registerTemporary(new UDTFInputTimestampTypes)
       val df1 = session.table(tableName).join(tableFunction, col("date"), col("time"), col("ts"))
@@ -1760,7 +1824,8 @@ class UDTFSuite extends TestData {
             | |--DATE_STR: String (nullable = true)
             | |--TIME_STR: String (nullable = true)
             | |--TIMESTAMP_STR: String (nullable = true)
-            |""".stripMargin)
+            |""".stripMargin
+      )
       checkAnswer(
         df1,
         Seq(
@@ -1770,14 +1835,18 @@ class UDTFSuite extends TestData {
             Timestamp.valueOf("2022-01-25 00:00:00.0"),
             "2022-01-25",
             "00:00:00",
-            "2022-01-25 00:00:00.0"),
+            "2022-01-25 00:00:00.0"
+          ),
           Row(
             Date.valueOf("2022-01-25"),
             Time.valueOf("12:13:14"),
             Timestamp.valueOf("2022-01-25 12:13:14.123"),
             "2022-01-25",
             "12:13:14",
-            "2022-01-25 12:13:14.123")))
+            "2022-01-25 12:13:14.123"
+          )
+        )
+      )
     } finally {
       TimeZone.setDefault(oldTimeZone)
       session.sql(s"alter session set TIMEZONE = '$sfTimezone'").collect()
@@ -1790,13 +1859,15 @@ class UDTFSuite extends TestData {
       Array[String],
       Array[Variant],
       mutable.Map[String, String],
-      mutable.Map[String, Variant]] {
+      mutable.Map[String, Variant]
+    ] {
       override def process(
           v: Variant,
           a1: Array[String],
           a2: Array[Variant],
           m1: mutable.Map[String, String],
-          m2: mutable.Map[String, Variant]): Iterable[Row] = {
+          m2: mutable.Map[String, Variant]
+      ): Iterable[Row] = {
         val (r1, r2) = (a1.mkString("[", ",", "]"), a2.map(_.asString()).mkString("[", ",", "]"))
         val r3 = m1
           .map { x =>
@@ -1818,7 +1889,8 @@ class UDTFSuite extends TestData {
           StructField("a1_str", StringType),
           StructField("a2_str", StringType),
           StructField("m1_str", StringType),
-          StructField("m2_str", StringType))
+          StructField("m2_str", StringType)
+        )
     }
     val tableFunction = session.udtf.registerTemporary(udtf)
     createTable(tableName, "v variant, a1 array, a2 array, m1 object, m2 object")
@@ -1826,7 +1898,8 @@ class UDTFSuite extends TestData {
       s"insert into $tableName " +
         s"select to_variant('v1'), array_construct('a1', 'a1'), array_construct('a2', 'a2'), " +
         s"object_construct('m1', 'one'), object_construct('m2', 'two')",
-      session)
+      session
+    )
 
     val df1 = session
       .table(tableName)
@@ -1840,7 +1913,8 @@ class UDTFSuite extends TestData {
           | |--A2_STR: String (nullable = true)
           | |--M1_STR: String (nullable = true)
           | |--M2_STR: String (nullable = true)
-          |""".stripMargin)
+          |""".stripMargin
+    )
     checkAnswer(df1, Seq(Row("v1", "[a1,a1]", "[a2,a2]", "{(m1 -> one)}", "{(m2 -> two)}")))
   }
 
@@ -1873,9 +1947,7 @@ class UDTFSuite extends TestData {
     val tableFunction200 = session.udtf.registerTemporary(new ReturnManyColumns(200))
     val df200 = session.tableFunction(tableFunction200, lit(100))
     assert(df200.schema.length == 200)
-    checkAnswer(
-      df200,
-      Seq(Row.fromArray((101 to 300).toArray), Row.fromArray((1 to 200).toArray)))
+    checkAnswer(df200, Seq(Row.fromArray((101 to 300).toArray), Row.fromArray((1 to 200).toArray)))
   }
 
   test("test output type: basic types") {
@@ -1892,7 +1964,8 @@ class UDTFSuite extends TestData {
           floatValue.toDouble,
           java.math.BigDecimal.valueOf(floatValue).setScale(3, RoundingMode.HALF_DOWN),
           data,
-          data.getBytes())
+          data.getBytes()
+        )
         Seq(row, row)
       }
       override def endPartition(): Iterable[Row] = Seq.empty
@@ -1906,7 +1979,8 @@ class UDTFSuite extends TestData {
           StructField("double", DoubleType),
           StructField("decimal", DecimalType(10, 3)),
           StructField("string", StringType),
-          StructField("binary", BinaryType))
+          StructField("binary", BinaryType)
+        )
     }
 
     val tableFunction = session.udtf.registerTemporary(new ReturnBasicTypes())
@@ -1928,7 +2002,8 @@ class UDTFSuite extends TestData {
           | |--DECIMAL: Decimal(10, 3) (nullable = true)
           | |--STRING: String (nullable = true)
           | |--BINARY: Binary (nullable = true)
-          |""".stripMargin)
+          |""".stripMargin
+    )
     val b1 = "-128".getBytes()
     checkAnswer(
       df1,
@@ -1936,7 +2011,9 @@ class UDTFSuite extends TestData {
         Row("-128", false, -128, -128, -128, -128.128, -128.128, -128.128, "-128", b1),
         Row("-128", false, -128, -128, -128, -128.128, -128.128, -128.128, "-128", b1),
         Row("128", true, 128, 128, 128, 128.128, 128.128, 128.128, "128", "128".getBytes()),
-        Row("128", true, 128, 128, 128, 128.128, 128.128, 128.128, "128", "128".getBytes())))
+        Row("128", true, 128, 128, 128, 128.128, 128.128, 128.128, "128", "128".getBytes())
+      )
+    )
   }
 
   test("test output type: Time, Date, Timestamp", JavaStoredProcExclude) {
@@ -1960,7 +2037,8 @@ class UDTFSuite extends TestData {
           StructType(
             StructField("time", TimeType),
             StructField("date", DateType),
-            StructField("timestamp", TimestampType))
+            StructField("timestamp", TimestampType)
+          )
       }
 
       val tableFunction = session.udtf.registerTemporary(new ReturnTimestampTypes3)
@@ -1977,12 +2055,15 @@ class UDTFSuite extends TestData {
             | |--TIME: Time (nullable = true)
             | |--DATE: Date (nullable = true)
             | |--TIMESTAMP: Timestamp (nullable = true)
-            |""".stripMargin)
+            |""".stripMargin
+      )
       checkAnswer(
         df1,
         Seq(
           Row(ts, Time.valueOf(time), Date.valueOf(date), Timestamp.valueOf(ts)),
-          Row(ts, Time.valueOf(time), Date.valueOf(date), Timestamp.valueOf(ts))))
+          Row(ts, Time.valueOf(time), Date.valueOf(date), Timestamp.valueOf(ts))
+        )
+      )
     } finally {
       TimeZone.setDefault(oldTimeZone)
       session.sql(s"alter session set TIMEZONE = '$sfTimezone'").collect()
@@ -1991,7 +2072,8 @@ class UDTFSuite extends TestData {
 
   test(
     "test output type: VariantType/ArrayType(StringType|VariantType)/" +
-      "MapType(StringType, StringType|VariantType)") {
+      "MapType(StringType, StringType|VariantType)"
+  ) {
     class ReturnComplexTypes extends UDTF1[String] {
       override def process(data: String): Iterable[Row] = {
         val arr = data.split(" ")
@@ -2000,7 +2082,8 @@ class UDTFSuite extends TestData {
         val variantMap = Map(arr(0) -> new Variant(arr(1)))
         Seq(
           Row(data, new Variant(data), arr, arr.map(new Variant(_)), stringMap, variantMap),
-          Row(data, new Variant(data), seq, seq.map(new Variant(_)), stringMap, variantMap))
+          Row(data, new Variant(data), seq, seq.map(new Variant(_)), stringMap, variantMap)
+        )
       }
       override def endPartition(): Iterable[Row] = Seq.empty
       override def outputSchema(): StructType =
@@ -2010,7 +2093,8 @@ class UDTFSuite extends TestData {
           StructField("string_array", ArrayType(StringType)),
           StructField("variant_array", ArrayType(VariantType)),
           StructField("string_map", MapType(StringType, StringType)),
-          StructField("variant_map", MapType(StringType, VariantType)))
+          StructField("variant_map", MapType(StringType, VariantType))
+        )
     }
 
     val tableFunction = session.udtf.registerTemporary(new ReturnComplexTypes())
@@ -2024,7 +2108,8 @@ class UDTFSuite extends TestData {
           | |--VARIANT_ARRAY: Array (nullable = true)
           | |--STRING_MAP: Map (nullable = true)
           | |--VARIANT_MAP: Map (nullable = true)
-          |""".stripMargin)
+          |""".stripMargin
+    )
     checkAnswer(
       df1,
       Seq(
@@ -2034,14 +2119,18 @@ class UDTFSuite extends TestData {
           "[\n  \"v1\",\n  \"v2\"\n]",
           "[\n  \"v1\",\n  \"v2\"\n]",
           "{\n  \"v1\": \"v2\"\n}",
-          "{\n  \"v1\": \"v2\"\n}"),
+          "{\n  \"v1\": \"v2\"\n}"
+        ),
         Row(
           "v1 v2",
           "\"v1 v2\"",
           "[\n  \"v1\",\n  \"v2\"\n]",
           "[\n  \"v1\",\n  \"v2\"\n]",
           "{\n  \"v1\": \"v2\"\n}",
-          "{\n  \"v1\": \"v2\"\n}")))
+          "{\n  \"v1\": \"v2\"\n}"
+        )
+      )
+    )
   }
 
   test("use UDF and UDTF in one session", JavaStoredProcExclude) {
@@ -2108,25 +2197,30 @@ class UDTFSuite extends TestData {
     val tf = session.udtf.registerTemporary(TableFunc1)
     checkAnswer(
       df.join(tf, Seq(df("b")), Seq(df("a")), Seq(df("b"))),
-      Seq(Row("a", null, "Map(b -> 2, c -> 1)"), Row("d", null, "Map(e -> 1)")))
+      Seq(Row("a", null, "Map(b -> 2, c -> 1)"), Row("d", null, "Map(e -> 1)"))
+    )
 
     checkAnswer(
       df.join(tf, Seq(df("b")), Seq(df("a")), Seq.empty),
-      Seq(Row("a", null, "Map(b -> 2, c -> 1)"), Row("d", null, "Map(e -> 1)")))
+      Seq(Row("a", null, "Map(b -> 2, c -> 1)"), Row("d", null, "Map(e -> 1)"))
+    )
     df.join(tf, Seq(df("b")), Seq.empty, Seq(df("b"))).show()
     df.join(tf, Seq(df("b")), Seq.empty, Seq.empty).show()
 
     checkAnswer(
       df.join(tf, Map("arg1" -> df("b")), Seq(df("a")), Seq(df("b"))),
-      Seq(Row("a", null, "Map(b -> 2, c -> 1)"), Row("d", null, "Map(e -> 1)")))
+      Seq(Row("a", null, "Map(b -> 2, c -> 1)"), Row("d", null, "Map(e -> 1)"))
+    )
 
     checkAnswer(
       df.join(tf(Map("arg1" -> df("b"))), Seq(df("a")), Seq(df("b"))),
-      Seq(Row("a", null, "Map(b -> 2, c -> 1)"), Row("d", null, "Map(e -> 1)")))
+      Seq(Row("a", null, "Map(b -> 2, c -> 1)"), Row("d", null, "Map(e -> 1)"))
+    )
 
     checkAnswer(
       df.join(tf, Map("arg1" -> df("b")), Seq(df("a")), Seq.empty),
-      Seq(Row("a", null, "Map(b -> 2, c -> 1)"), Row("d", null, "Map(e -> 1)")))
+      Seq(Row("a", null, "Map(b -> 2, c -> 1)"), Row("d", null, "Map(e -> 1)"))
+    )
     df.join(tf, Map("arg1" -> df("b")), Seq.empty, Seq(df("b"))).show()
     df.join(tf, Map("arg1" -> df("b")), Seq.empty, Seq.empty).show()
   }

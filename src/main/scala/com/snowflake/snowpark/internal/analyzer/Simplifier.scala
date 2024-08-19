@@ -11,13 +11,14 @@ class Simplifier(session: Session) {
       SortPlusLimitPolicy,
       WithColumnPolicy(session),
       DropColumnPolicy(session),
-      ProjectPlusFilterPolicy)
-  val default: PartialFunction[LogicalPlan, LogicalPlan] = {
-    case p => p.updateChildren(simplify)
+      ProjectPlusFilterPolicy
+    )
+  val default: PartialFunction[LogicalPlan, LogicalPlan] = { case p =>
+    p.updateChildren(simplify)
   }
   val policy: PartialFunction[LogicalPlan, LogicalPlan] =
-    policies.foldRight(default) {
-      case (prev, curr) => prev.rule orElse curr
+    policies.foldRight(default) { case (prev, curr) =>
+      prev.rule orElse curr
     }
   def simplify(plan: LogicalPlan): LogicalPlan = {
     var changed = true
@@ -50,15 +51,15 @@ object ProjectPlusFilterPolicy extends SimplificationPolicy {
   def canMerge(projectList: Seq[NamedExpression], condition: Expression): Boolean = {
     val canAnalyzeProject: Boolean = projectList.forall {
       case _: UnresolvedAttribute => false
-      case _: UnresolvedAlias => false
-      case _ => true
+      case _: UnresolvedAlias     => false
+      case _                      => true
     }
     val canAnalyzeCondition: Boolean = condition.dependentColumnNames.isDefined
     // don't merge if can't analyze
     if (canAnalyzeCondition && canAnalyzeProject) {
       val newProjectColumns: Set[String] = projectList.flatMap {
         case Alias(_, name, _) => Some(quoteName(name))
-        case _ => None
+        case _                 => None
       }.toSet
       val conditionDependencies = condition.dependentColumnNames.get
       // merge if no intersection
@@ -79,14 +80,14 @@ object UnionPlusUnionPolicy extends SimplificationPolicy {
       case Union(left, right) =>
         val newChildren: Seq[LogicalPlan] = Seq(process(left), process(right)).flatMap {
           case SimplifiedUnion(children) => children
-          case other => Seq(other)
+          case other                     => Seq(other)
         }
         SimplifiedUnion(newChildren)
 
       case UnionAll(left, right) =>
         val newChildren: Seq[LogicalPlan] = Seq(process(left), process(right)).flatMap {
           case SimplifiedUnionAll(children) => children
-          case other => Seq(other)
+          case other                        => Seq(other)
         }
         SimplifiedUnionAll(newChildren)
 
@@ -108,13 +109,12 @@ object SortPlusLimitPolicy extends SimplificationPolicy {
 }
 
 case class DropColumnPolicy(session: Session) extends SimplificationPolicy {
-  override val rule: PartialFunction[LogicalPlan, LogicalPlan] = {
-    case plan: DropColumns =>
-      val (cols, leaf) = process(plan)
-      if (cols.isEmpty) {
-        throw ErrorMessage.DF_CANNOT_DROP_ALL_COLUMNS()
-      }
-      Project(cols, leaf)
+  override val rule: PartialFunction[LogicalPlan, LogicalPlan] = { case plan: DropColumns =>
+    val (cols, leaf) = process(plan)
+    if (cols.isEmpty) {
+      throw ErrorMessage.DF_CANNOT_DROP_ALL_COLUMNS()
+    }
+    Project(cols, leaf)
   }
   // return remaining columns and leaf node
   private def process(plan: DropColumns): (Seq[NamedExpression], LogicalPlan) = {
@@ -132,14 +132,13 @@ case class DropColumnPolicy(session: Session) extends SimplificationPolicy {
 }
 
 case class WithColumnPolicy(session: Session) extends SimplificationPolicy {
-  override val rule: PartialFunction[LogicalPlan, LogicalPlan] = {
-    case plan: WithColumns =>
-      val (leaf, _, newCols) = process(plan)
-      if (newCols.isEmpty) {
-        leaf
-      } else {
-        Project(UnresolvedAttribute("*") +: newCols, leaf)
-      }
+  override val rule: PartialFunction[LogicalPlan, LogicalPlan] = { case plan: WithColumns =>
+    val (leaf, _, newCols) = process(plan)
+    if (newCols.isEmpty) {
+      leaf
+    } else {
+      Project(UnresolvedAttribute("*") +: newCols, leaf)
+    }
   }
 
   /*
@@ -149,7 +148,8 @@ case class WithColumnPolicy(session: Session) extends SimplificationPolicy {
    * new columns
    */
   private def process(
-      plan: WithColumns): (LogicalPlan, Seq[NamedExpression], Seq[NamedExpression]) =
+      plan: WithColumns
+  ): (LogicalPlan, Seq[NamedExpression], Seq[NamedExpression]) =
     plan match {
       case WithColumns(newCols, child: WithColumns) =>
         val (leaf, l_output, c_columns) = process(child)
@@ -163,7 +163,8 @@ case class WithColumnPolicy(session: Session) extends SimplificationPolicy {
       leaf: LogicalPlan,
       l_output: Seq[NamedExpression], // leaf schema
       c_columns: Seq[NamedExpression], // staging new columns
-      newCols: Seq[NamedExpression]): // new columns
+      newCols: Seq[NamedExpression]
+  ): // new columns
   (LogicalPlan, Seq[NamedExpression], Seq[NamedExpression]) = {
     val childrenNames = (l_output ++ c_columns).map(_.name).toSet
     val canAnalyze = newCols.forall(_.dependentColumnNames.isDefined)
