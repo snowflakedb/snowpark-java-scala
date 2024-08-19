@@ -3176,7 +3176,7 @@ object functions {
     when(colName.is_null, lit(null))
       .otherwise(
         coalesce(
-          builtin("REGEX_SUBSTR")(
+          builtin("REGEXP_SUBSTR")(
             colName,
             lit(exp),
             lit(position),
@@ -3266,19 +3266,25 @@ object functions {
    * substring_index performs a case-sensitive match when searching for delim.
    *   @since 1.14.0
    */
-  def substring_index(str: Column, delim: String, count: Int): Column = {
+  def substring_index(str: String, delim: String, count: Int): Column = {
     when(
       lit(count) < lit(0),
       callBuiltin(
         "substring",
         lit(str),
-        callBuiltin("regexp_instr", sqlExpr(s"reverse(${str}, ${delim}, 1, abs(${count}), 0"))))
+        callBuiltin(
+          "regexp_instr",
+          sqlExpr(s"reverse(${str})"),
+          lit(delim),
+          1,
+          abs(lit(count)),
+          lit(0))))
       .otherwise(
         callBuiltin(
           "substring",
           lit(str),
           1,
-          callBuiltin("regexp_instr", col("str"), lit(delim), 1, lit(count), 1)))
+          callBuiltin("regexp_instr", lit(str), lit(delim), 1, lit(count), 1)))
   }
 
   /**

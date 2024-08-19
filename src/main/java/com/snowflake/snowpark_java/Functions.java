@@ -3882,13 +3882,12 @@ public final class Functions {
   }
 
   /**
-   *
    * Signature - snowflake.snowpark.functions.regexp_extract (value: Union[Column, str], regexp:
    * Union[Column, str], idx: int) Column Extract a specific group matched by a regex, from the
    * specified string column. If the regex did not match, or the specified group did not match, an
-   * empty string is returned.
-   * Example:
-   *  <pre>{@code
+   * empty string is returned. Example:
+   *
+   * <pre>{@code
    * from snowflake.snowpark.functions import regexp_extract
    * df = session.createDataFrame([["id_20_30", 10], ["id_40_50", 30]], ["id", "age"])
    * df.select(regexp_extract("id", r"(\d+)", 1).alias("RES")).show()
@@ -3898,9 +3897,14 @@ public final class Functions {
    *     |20     |
    *     |40     |
    *     ---------
-   * }</pr>
+   * }</pre>
    *
    * @since 1.14.0
+   * @param col Column.
+   * @param exp String
+   * @param position Integer.
+   * @param Occurences Integer.
+   * @param grpIdx Integer.
    * @return Column object.
    */
   public static Column regexp_extract(
@@ -3915,9 +3919,9 @@ public final class Functions {
    *
    * <p>- -1 if the argument is negative. - 1 if it is positive. - 0 if it is 0.
    *
-   * <p>Args: col: The column to evaluate its sign
-   *  Example::
-   * * <pre>{@code df =
+   * <p>Args: col: The column to evaluate its sign Example:: *
+   *
+   * <pre>{@code df =
    * session.create_dataframe([(-2, 2, 0)], ["a", "b", "c"]) >>>
    * df.select(sign("a").alias("a_sign"), sign("b").alias("b_sign"),
    * sign("c").alias("c_sign")).show()
@@ -3926,10 +3930,10 @@ public final class Functions {
    *     ----------------------------------
    *     |-1        |1         |0         |
    *     ----------------------------------
-   * }</pr>
+   * }</pre>
    *
    * @since 1.14.0
-   * @param e Column to calculate the sign.
+   * @param col Column to calculate the sign.
    * @return Column object.
    */
   public static Column signum(Column col) {
@@ -3941,8 +3945,8 @@ public final class Functions {
    *
    * <p>- -1 if the argument is negative. - 1 if it is positive. - 0 if it is 0.
    *
-   * <p>Args: col: The column to evaluate its sign
-   * Example::
+   * <p>Args: col: The column to evaluate its sign Example::
+   *
    * <pre>{@code df =
    * session.create_dataframe([(-2, 2, 0)], ["a", "b", "c"]) >>>
    * df.select(sign("a").alias("a_sign"), sign("b").alias("b_sign"),
@@ -3952,10 +3956,10 @@ public final class Functions {
    *     ----------------------------------
    *     |-1        |1         |0         |
    *     ----------------------------------
-   * }</pr>
+   * }</pre>
    *
    * @since 1.14.0
-   * @param e Column to calculate the sign.
+   * @param col Column to calculate the sign.
    * @return Column object.
    */
   public static Column sign(Column col) {
@@ -3968,11 +3972,14 @@ public final class Functions {
    * count is negative, every to the right of the final delimiter (counting from the right) is
    * returned. substring_index performs a case-sensitive match when searching for delim.
    *
+   * @param col String.
+   * @param delim String
+   * @param count Integer.
+   * @return Column object.
    * @since 1.14.0
    */
-  public static Column substring_index(Column col, String delim, Integer count) {
-    return new Column(
-        com.snowflake.snowpark.functions.substring_index(col.toScalaColumn(), delim, count));
+  public static Column substring_index(String col, String delim, Integer count) {
+    return new Column(com.snowflake.snowpark.functions.substring_index(col, delim, count));
   }
 
   /**
@@ -3991,8 +3998,8 @@ public final class Functions {
    * @param c Column to be collect.
    * @return The array.
    */
-  public static Column collect_list(Column col) {
-    return new Column(com.snowflake.snowpark.functions.collect_list(col.toScalaColumn()));
+  public static Column collect_list(Column c) {
+    return new Column(com.snowflake.snowpark.functions.collect_list(c.toScalaColumn()));
   }
 
   /* Returns a Column expression with values sorted in descending order.

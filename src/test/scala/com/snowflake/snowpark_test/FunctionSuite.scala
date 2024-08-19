@@ -1090,6 +1090,7 @@ trait FunctionSuite extends TestData {
         .collect()(0)
         .getTimestamp(0)
         .toString == "2020-10-28 13:35:47.001234567")
+
   }
 
   test("timestamp_ltz_from_parts") {
@@ -2218,7 +2219,10 @@ trait FunctionSuite extends TestData {
   }
   test("substring_index") {
     val df = Seq("It was the best of times, it was the worst of times").toDF("a")
-    checkAnswer(df.select(substring_index(col("a"), "was", 1)), Seq(Row(7)), sort = false)
+    checkAnswer(
+      df.select(substring_index("It was the best of times, it was the worst of times", "was", 1)),
+      Seq(Row(7)),
+      sort = false)
   }
 
   test("desc column order") {

@@ -2810,9 +2810,7 @@ public class JavaFunctionSuite extends TestBase {
             .sql(
                 "select * from values ('It was the best of times,it was the worst of times') as T(a)");
     checkAnswer(
-        df.select(Functions.substring_index(df.col("a"), "was", 1)),
-        new Row[] {Row.create(7)},
-        false);
+        df.select(Functions.substring_index("a", "was", 1)), new Row[] {Row.create(7)}, false);
   }
 
   public void test_asc() {
