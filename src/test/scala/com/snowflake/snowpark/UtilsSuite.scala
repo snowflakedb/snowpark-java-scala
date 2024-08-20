@@ -677,18 +677,8 @@ class UtilsSuite extends SNTestBase {
     val map = Map(
       "integerKey" -> 1.1,
       "stringKey" -> "stringValue",
-      "nestedMap" -> Map(
-        "insideKey" -> "stringValue",
-        "insideList" -> Seq(1, 2, 3)
-      ),
-      "nestedList" -> Seq(
-        1,
-        Map(
-          "nestedKey" -> "nestedValue"
-        ),
-        List(1, 2, 3)
-      )
-    )
+      "nestedMap" -> Map("insideKey" -> "stringValue", "insideList" -> Seq(1, 2, 3)),
+      "nestedList" -> Seq(1, Map("nestedKey" -> "nestedValue"), List(1, 2, 3)))
     val jsonString = Utils.mapToJson(map)
     val readMap = Utils.jsonToMap(jsonString.getOrElse(""))
     val transformedString = Utils.mapToJson(readMap.getOrElse(Map()))

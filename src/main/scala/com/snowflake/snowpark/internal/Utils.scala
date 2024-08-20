@@ -1,7 +1,14 @@
 package com.snowflake.snowpark.internal
 
+import com.fasterxml.jackson.databind.{JsonNode, ObjectMapper}
+import com.fasterxml.jackson.databind.node.JsonNodeType
 import com.snowflake.snowpark.Column
-import com.snowflake.snowpark.internal.analyzer.{Attribute, LogicalPlan, TableFunctionExpression, singleQuote}
+import com.snowflake.snowpark.internal.analyzer.{
+  Attribute,
+  LogicalPlan,
+  TableFunctionExpression,
+  singleQuote
+}
 
 import java.io.{File, FileInputStream}
 import java.lang.invoke.SerializedLambda
@@ -9,8 +16,6 @@ import java.security.{DigestInputStream, MessageDigest}
 import java.util.Locale
 import com.snowflake.snowpark.udtf.UDTF
 import net.snowflake.client.jdbc.SnowflakeSQLException
-import net.snowflake.client.jdbc.internal.fasterxml.jackson.databind.{JsonNode, ObjectMapper}
-import net.snowflake.client.jdbc.internal.fasterxml.jackson.databind.node.JsonNodeType
 
 import scala.collection.JavaConverters.asScalaIteratorConverter
 import scala.collection.mutable
@@ -465,9 +470,13 @@ object Utils extends Logging {
       case JsonNodeType.STRING => node.asText()
       case JsonNodeType.NULL => null
       case JsonNodeType.OBJECT =>
-        node.fields().asScala.map(entry => {
-          entry.getKey -> jsonToScala(entry.getValue)
-        }).toMap
+        node
+          .fields()
+          .asScala
+          .map(entry => {
+            entry.getKey -> jsonToScala(entry.getValue)
+          })
+          .toMap
       case JsonNodeType.ARRAY =>
         node.elements().asScala.map(entry => jsonToScala(entry)).toList
       case JsonNodeType.BOOLEAN => node.asBoolean()
