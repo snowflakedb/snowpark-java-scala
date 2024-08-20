@@ -501,28 +501,28 @@ object Utils extends Logging {
       case n: Map[String, Any] =>
         val mapRes = n.map {
           case (key, value: Map[String, Any]) =>
-            s""""${key}": ${scalaToJson(value)}"""
+            s""""${key}":${scalaToJson(value)}"""
           case (key, value: List[Any]) =>
-            s""""${key}": ${scalaToJson(value)}"""
+            s""""${key}":${scalaToJson(value)}"""
           case (key, value: Number) =>
-            s""""${key}": ${value}"""
+            s""""${key}":${value}"""
           case (key, value: String) =>
-            s""""${key}": "${value}""""
+            s""""${key}":"${value}""""
           case (key, value: Boolean) =>
-            s""""${key}": ${value}"""
+            s""""${key}":${value}"""
           case (key, None) =>
-            s""""${key}": null"""
+            s""""${key}":null"""
           case other =>
             throw new UnsupportedOperationException(s"Unsupported Type: ${other.getClass}")
         }
-        s"{${mapRes.mkString(", ")}}"
+        s"{${mapRes.mkString(",")}}"
       case n: List[Any] =>
         val listRes = n.map {
           case v: List[Any] => scalaToJson(v)
           case v: Map[String, Any] => scalaToJson(v)
           case v => v.toString
         }
-        s"[${listRes.mkString(", ")}]"
+        s"[${listRes.mkString(",")}]"
       case other =>
         throw new UnsupportedOperationException(s"Unsupported Type: ${other.getClass}")
     }
