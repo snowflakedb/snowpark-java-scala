@@ -2778,11 +2778,6 @@ public class JavaFunctionSuite extends TestBase {
     checkAnswer(df.select(Functions.isnull(df.col("a"))), expected, false);
   }
 
-  public void conv() {
-    DataFrame df = getSession().sql("select * from values('010101') as t(a)");
-    checkAnswer(df.select(Functions.conv(df.col("a"), 2, 16)), new Row[] {Row.create("15")}, false);
-  }
-
   public void unix_timestamp() {
     DataFrame df =
         getSession().sql("select * from values('2024-04-08T23:39:20.123-07:00') as t(a)");

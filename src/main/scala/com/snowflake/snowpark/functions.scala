@@ -3177,17 +3177,6 @@ object functions {
   def isnull(c: Column): Column = is_null(c)
 
   /**
-   * Wrapper for Snowflake built-in conv function. Convert number with from and to base.
-   * @since 1.14.0
-   * @param c Column to be converted.
-   * @param fromBase Column from base format.
-   * @param toBase Column to base format.
-   * @return Column object.
-   */
-  def conv(c: Column, fromBase: Int, toBase: Int): Column =
-    callBuiltin("conv", c, fromBase, toBase)
-
-  /**
    * Returns the current Unix timestamp (in seconds) as a long.
    * Extracts a specified date or time portion from a date, time, or timestamp.
    * how:

@@ -3926,18 +3926,6 @@ public final class Functions {
   }
 
   /**
-   * Wrapper for Snowflake built-in conv function. Convert number with from and to base.
-   *
-   * @since 1.14.0
-   * @param c Column to be converted.
-   * @param fromBase Column from base format.
-   * @param toBase Column to base format.
-   * @return Column object.
-   */
-  public static Column conv(Column c, Integer fromBase, Integer toBase) {
-    return new Column(com.snowflake.snowpark.functions.conv(c.toScalaColumn(), fromBase, toBase));
-  }
-  /**
    * Returns the current Unix timestamp (in seconds) as a long. Extracts a specified date or time
    * portion from a date, time, or timestamp. All calls of `unix_timestamp` within the same query
    * return the same value
