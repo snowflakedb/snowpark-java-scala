@@ -2766,6 +2766,7 @@ public class JavaFunctionSuite extends TestBase {
   }
 
   @Test
+
   public void reverse() {
     DataFrame df = getSession().sql("select * from values('cat') as t(a)");
     checkAnswer(df.select(Functions.reverse(df.col("a"))), new Row[] {Row.create("tac")}, false);
@@ -2786,4 +2787,167 @@ public class JavaFunctionSuite extends TestBase {
         new Row[] {Row.create("1712619560123")},
         false);
   }
+
+  public void regexp_extract() {
+    DataFrame df = getSession().sql("select * from values('A MAN A PLAN A CANAL') as T(a)");
+    Row[] expected = {Row.create("MAN")};
+    checkAnswer(
+        df.select(Functions.regexp_extract(df.col("a"), "A\\W+(\\w+)", 1, 1, 1)), expected, false);
+    Row[] expected2 = {Row.create("PLAN")};
+    checkAnswer(
+        df.select(Functions.regexp_extract(df.col("a"), "A\\W+(\\w+)", 1, 2, 1)), expected2, false);
+    Row[] expected3 = {Row.create("CANAL")};
+    checkAnswer(
+        df.select(Functions.regexp_extract(df.col("a"), "A\\W+(\\w+)", 1, 3, 1)), expected3, false);
+  }
+
+  @Test
+  public void signum() {
+    DataFrame df = getSession().sql("select * from values(1) as T(a)");
+    checkAnswer(df.select(Functions.signum(df.col("a"))), new Row[] {Row.create(1)}, false);
+    DataFrame df1 = getSession().sql("select * from values(-2) as T(a)");
+    checkAnswer(df1.select(Functions.signum(df1.col("a"))), new Row[] {Row.create(-1)}, false);
+    DataFrame df2 = getSession().sql("select * from values(0) as T(a)");
+    checkAnswer(df2.select(Functions.signum(df2.col("a"))), new Row[] {Row.create(0)}, false);
+  }
+
+  @Test
+  public void sign() {
+    DataFrame df = getSession().sql("select * from values(1) as T(a)");
+    checkAnswer(df.select(Functions.signum(df.col("a"))), new Row[] {Row.create(1)}, false);
+    DataFrame df1 = getSession().sql("select * from values(-2) as T(a)");
+    checkAnswer(df1.select(Functions.signum(df1.col("a"))), new Row[] {Row.create(-1)}, false);
+    DataFrame df2 = getSession().sql("select * from values(0) as T(a)");
+    checkAnswer(df2.select(Functions.signum(df2.col("a"))), new Row[] {Row.create(0)}, false);
+  }
+
+  @Test
+  public void collect_list() {
+    DataFrame df = getSession().sql("select * from values(1), (2), (3) as T(a)");
+    df.select(Functions.collect_list(df.col("a"))).show();
+  }
+
+  @Test
+  public void substring_index() {
+    DataFrame df =
+        getSession()
+            .sql(
+                "select * from values ('It was the best of times,it was the worst of times') as T(a)");
+    checkAnswer(
+        df.select(
+            Functions.substring_index(
+                "It was the best of times,it was the worst of times", "was", 1)),
+        new Row[] {Row.create("It was ")},
+        false);
+  }
+
+  public void test_asc() {
+    DataFrame df = getSession().sql("select * from values(3),(1),(2) as t(a)");
+    Row[] expected = {Row.create(1), Row.create(2), Row.create(3)};
+
+    checkAnswer(df.sort(Functions.asc("a")), expected, false);
+  }
+
+  @Test
+  public void test_desc() {
+    DataFrame df = getSession().sql("select * from values(2),(1),(3) as t(a)");
+    Row[] expected = {Row.create(3), Row.create(2), Row.create(1)};
+
+    checkAnswer(df.sort(Functions.desc("a")), expected, false);
+  }
+
+  @Test
+  public void test_size() {
+    DataFrame df =
+        getSession().sql("select array_construct(a,b,c) as arr from values(1,2,3) as T(a,b,c)");
+    Row[] expected = {Row.create(3)};
+
+    checkAnswer(df.select(Functions.size(Functions.col("arr"))), expected, false);
+  }
+
+  @Test
+  public void test_expr() {
+    DataFrame df = getSession().sql("select * from values(1), (2), (3) as T(a)");
+    Row[] expected = {Row.create(3)};
+    checkAnswer(df.filter(Functions.expr("a > 2")), expected, false);
+  }
+
+  @Test
+  public void test_array() {
+    DataFrame df = getSession().sql("select * from values(1,2,3) as T(a,b,c)");
+    Row[] expected = {Row.create("[\n  1,\n  2,\n  3\n]")};
+    checkAnswer(df.select(Functions.array(df.col("a"), df.col("b"), df.col("c"))), expected, false);
+  }
+
+  @Test
+  public void date_format() {
+    DataFrame df = getSession().sql("select * from values ('2023-10-10'), ('2022-05-15') as T(a)");
+    Row[] expected = {Row.create("2023/10/10"), Row.create("2022/05/15")};
+
+    checkAnswer(df.select(Functions.date_format(df.col("a"), "YYYY/MM/DD")), expected, false);
+  }
+
+  @Test
+  public void last() {
+    DataFrame df =
+        getSession()
+            .sql(
+                "select * from values (5, 'a', 10), (5, 'b', 20),\n"
+                    + "    (3, 'd', 15), (3, 'e', 40) as T(grade,name,score)");
+
+    Row[] expected = {Row.create("a"), Row.create("a"), Row.create("d"), Row.create("d")};
+    checkAnswer(
+        df.select(
+            Functions.last(df.col("name"))
+                .over(Window.partitionBy(df.col("grade")).orderBy(df.col("score").desc()))),
+        expected,
+        false);
+  }
+
+  @Test
+  public void log10_col() {
+    DataFrame df = getSession().sql("select * from values (100) as T(a)");
+    Row[] expected = {Row.create(2.0)};
+
+    checkAnswer(df.select(Functions.log10(df.col("a"))), expected, false);
+  }
+
+  @Test
+  public void log10_str() {
+    DataFrame df = getSession().sql("select * from values (100) as T(a)");
+    Row[] expected = {Row.create(2.0)};
+
+    checkAnswer(df.select(Functions.log10("a")), expected, false);
+  }
+
+  @Test
+  public void log1p_col() {
+    DataFrame df = getSession().sql("select * from values (0.1) as T(a)");
+    Row[] expected = {Row.create(0.09531017980432493)};
+
+    checkAnswer(df.select(Functions.log1p(df.col("a"))), expected, false);
+  }
+
+  @Test
+  public void log1p_str() {
+    DataFrame df = getSession().sql("select * from values (0.1) as T(a)");
+    Row[] expected = {Row.create(0.09531017980432493)};
+
+    checkAnswer(df.select(Functions.log1p("a")), expected, false);
+  }
+
+  @Test
+  public void base64() {
+    DataFrame df = getSession().sql("select * from values ('test') as T(a)");
+    Row[] expected = {Row.create("dGVzdA==")};
+    checkAnswer(df.select(Functions.base64(Functions.col("a"))), expected, false);
+  }
+
+  @Test
+  public void unbase64() {
+    DataFrame df = getSession().sql("select * from values ('dGVzdA==') as T(a)");
+    Row[] expected = {Row.create("test")};
+    checkAnswer(df.select(Functions.unbase64(Functions.col("a"))), expected, false);
+  }
+
 }
