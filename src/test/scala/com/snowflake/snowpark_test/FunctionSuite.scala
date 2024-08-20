@@ -2282,8 +2282,8 @@ trait FunctionSuite extends TestData {
   }
 
   test("locate Column function") {
-    val input = session.createDataFrame(Seq
-                      (("scala", "java scala python"), ("b", "abcd"))).toDF("a", "b")
+    val input =
+      session.createDataFrame(Seq(("scala", "java scala python"), ("b", "abcd"))).toDF("a", "b")
     val expected = Seq((6), (2)).toDF("locate")
     checkAnswer(input.select(locate(col("a"), col("b"), 1).as("locate")), expected, sort = false)
   }
@@ -2305,7 +2305,7 @@ trait FunctionSuite extends TestData {
   test("randn seed function") {
     val input = session.createDataFrame(Seq((1), (2), (3))).toDF("a")
     val expected = Seq((5777523539921853504L), (-8190739547906189845L), (-1138438814981368515L))
-                      .toDF("randn_with_seed")
+      .toDF("randn_with_seed")
     val df = input.withColumn("randn_with_seed", randn(123L)).select("randn_with_seed")
 
     checkAnswer(df, expected, sort = false)

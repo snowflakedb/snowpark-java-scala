@@ -2,7 +2,12 @@ package com.snowflake.snowpark
 
 import com.snowflake.snowpark.internal.analyzer._
 import com.snowflake.snowpark.internal.ScalaFunctions._
-import com.snowflake.snowpark.internal.{ErrorMessage, OpenTelemetry, UDXRegistrationHandler, Utils}
+import com.snowflake.snowpark.internal.{
+  ErrorMessage,
+  OpenTelemetry,
+  UDXRegistrationHandler,
+  Utils
+}
 import com.snowflake.snowpark.types.{FloatType, TimestampType}
 
 import scala.reflect.runtime.universe.TypeTag
@@ -3523,7 +3528,7 @@ object functions {
    * |-1231198046297539927  |
    * ------------------------
    * }}}
- *
+   *
    * @since 1.14.0
    * @return Random number.
    */
