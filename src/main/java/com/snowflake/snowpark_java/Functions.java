@@ -2,6 +2,7 @@ package com.snowflake.snowpark_java;
 
 import static com.snowflake.snowpark.internal.OpenTelemetry.javaUDF;
 
+import com.snowflake.snowpark.functions;
 import com.snowflake.snowpark.internal.JavaUtils;
 import com.snowflake.snowpark_java.types.DataType;
 import com.snowflake.snowpark_java.udf.*;
@@ -3960,6 +3961,425 @@ public final class Functions {
    */
   public static Column unix_timestamp(Column C) {
     return new Column(com.snowflake.snowpark.functions.unix_timestamp(C.toScalaColumn()));
+  }
+
+  /**
+   * Signature - snowflake.snowpark.functions.regexp_extract (value: Union[Column, str], regexp:
+   * Union[Column, str], idx: int) Column Extract a specific group matched by a regex, from the
+   * specified string column. If the regex did not match, or the specified group did not match, an
+   * empty string is returned. Example:
+   *
+   * <pre>{@code
+   * from snowflake.snowpark.functions import regexp_extract
+   * df = session.createDataFrame([["id_20_30", 10], ["id_40_50", 30]], ["id", "age"])
+   * df.select(regexp_extract("id", r"(\d+)", 1).alias("RES")).show()
+   *    ---------
+   *     |"RES"  |
+   *     ---------
+   *     |20     |
+   *     |40     |
+   *     ---------
+   * }</pre>
+   *
+   * @since 1.14.0
+   * @param col Column.
+   * @param exp String
+   * @param position Integer.
+   * @param Occurences Integer.
+   * @param grpIdx Integer.
+   * @return Column object.
+   */
+  public static Column regexp_extract(
+      Column col, String exp, Integer position, Integer Occurences, Integer grpIdx) {
+    return new Column(
+        com.snowflake.snowpark.functions.regexp_extract(
+            col.toScalaColumn(), exp, position, Occurences, grpIdx));
+  }
+
+  /**
+   * Returns the sign of its argument:
+   *
+   * <p>- -1 if the argument is negative. - 1 if it is positive. - 0 if it is 0.
+   *
+   * <p>Args: col: The column to evaluate its sign Example:: *
+   *
+   * <pre>{@code df =
+   * session.create_dataframe([(-2, 2, 0)], ["a", "b", "c"]) >>>
+   * df.select(sign("a").alias("a_sign"), sign("b").alias("b_sign"),
+   * sign("c").alias("c_sign")).show()
+   *   ----------------------------------
+   *     |"A_SIGN"  |"B_SIGN"  |"C_SIGN"  |
+   *     ----------------------------------
+   *     |-1        |1         |0         |
+   *     ----------------------------------
+   * }</pre>
+   *
+   * @since 1.14.0
+   * @param col Column to calculate the sign.
+   * @return Column object.
+   */
+  public static Column signum(Column col) {
+    return new Column(com.snowflake.snowpark.functions.signum(col.toScalaColumn()));
+  }
+
+  /**
+   * Returns the sign of its argument:
+   *
+   * <p>- -1 if the argument is negative. - 1 if it is positive. - 0 if it is 0.
+   *
+   * <p>Args: col: The column to evaluate its sign Example::
+   *
+   * <pre>{@code df =
+   * session.create_dataframe([(-2, 2, 0)], ["a", "b", "c"]) >>>
+   * df.select(sign("a").alias("a_sign"), sign("b").alias("b_sign"),
+   * sign("c").alias("c_sign")).show()
+   *   ----------------------------------
+   *     |"A_SIGN"  |"B_SIGN"  |"C_SIGN"  |
+   *     ----------------------------------
+   *     |-1        |1         |0         |
+   *     ----------------------------------
+   * }</pre>
+   *
+   * @since 1.14.0
+   * @param col Column to calculate the sign.
+   * @return Column object.
+   */
+  public static Column sign(Column col) {
+    return new Column(com.snowflake.snowpark.functions.sign(col.toScalaColumn()));
+  }
+
+  /**
+   * Returns the substring from string str before count occurrences of the delimiter delim. If count
+   * is positive, everything the left of the final delimiter (counting from left) is returned. If
+   * count is negative, every to the right of the final delimiter (counting from the right) is
+   * returned. substring_index performs a case-sensitive match when searching for delim.
+   *
+   * @param col String.
+   * @param delim String
+   * @param count Integer.
+   * @return Column object.
+   * @since 1.14.0
+   */
+  public static Column substring_index(String col, String delim, Integer count) {
+    return new Column(com.snowflake.snowpark.functions.substring_index(col, delim, count));
+  }
+
+  /**
+   * Returns the input values, pivoted into an ARRAY. If the input is empty, an empty ARRAY is
+   * returned.
+   *
+   * <p>Example::
+   *
+   * <pre>{@code
+   * df = session.create_dataframe([[1], [2], [3], [1]], schema=["a"])
+   * df.select(array_agg("a", True).alias("result")).show()
+   * "RESULT" [ 1, 2, 3 ]
+   * }</pre>
+   *
+   * @since 1.14.0
+   * @param c Column to be collect.
+   * @return The array.
+   */
+  public static Column collect_list(Column c) {
+    return new Column(com.snowflake.snowpark.functions.collect_list(c.toScalaColumn()));
+  }
+
+  /* Returns a Column expression with values sorted in descending order.
+   *
+   * <p>Example: order column values in descending
+   *
+   * <pre>{@code
+   * DataFrame df = getSession().sql("select * from values(1),(2),(3) as t(a)");
+   * df.sort(Functions.desc("a")).show();
+   * -------
+   * |"A"  |
+   * -------
+   * |3    |
+   * |2    |
+   * |1    |
+   * -------
+   * }</pre>
+   *
+   * @since 1.14.0
+   * @param name The input column name
+   * @return Column object ordered in descending manner.
+   */
+  public static Column desc(String name) {
+    return new Column(functions.desc(name));
+  }
+
+  /**
+   * Returns a Column expression with values sorted in ascending order.
+   *
+   * <p>Example: order column values in ascending
+   *
+   * <pre>{@code
+   * DataFrame df = getSession().sql("select * from values(3),(1),(2) as t(a)");
+   * df.sort(Functions.asc("a")).show();
+   * -------
+   * |"A"  |
+   * -------
+   * |1    |
+   * |2    |
+   * |3    |
+   * -------
+   * }</pre>
+   *
+   * @since 1.14.0
+   * @param name The input column name
+   * @return Column object ordered in ascending manner.
+   */
+  public static Column asc(String name) {
+    return new Column(functions.asc(name));
+  }
+
+  /**
+   * Returns the size of the input ARRAY.
+   *
+   * <p>If the specified column contains a VARIANT value that contains an ARRAY, the size of the
+   * ARRAY is returned; otherwise, NULL is returned if the value is not an ARRAY.
+   *
+   * <p>Example: calculate size of the array in a column
+   *
+   * <pre>{@code
+   * DataFrame df = getSession().sql("select array_construct(a,b,c) as arr from values(1,2,3) as T(a,b,c)");
+   * df.select(Functions.size(Functions.col("arr"))).show();
+   * -------------------------
+   * |"ARRAY_SIZE(""ARR"")"  |
+   * -------------------------
+   * |3                      |
+   * -------------------------
+   * }</pre>
+   *
+   * @since 1.14.0
+   * @param col The input column name
+   * @return size of the input ARRAY.
+   */
+  public static Column size(Column col) {
+    return array_size(col);
+  }
+
+  /**
+   * Creates a Column expression from row SQL text.
+   *
+   * <p>Note that the function does not interpret or check the SQL text.
+   *
+   * <pre>{@code
+   * DataFrame df = getSession().sql("select a from values(1), (2), (3) as T(a)");
+   * df.filter(Functions.expr("a > 2")).show();
+   * -------
+   * |"A"  |
+   * -------
+   * |3    |
+   * -------
+   * }</pre>
+   *
+   * @since 1.14.0
+   * @param s The SQL text
+   * @return column expression from input statement.
+   */
+  public static Column expr(String s) {
+    return sqlExpr(s);
+  }
+
+  /**
+   * Returns an ARRAY constructed from zero, one, or more inputs.
+   *
+   * <pre>{@code
+   * DataFrame df = getSession().sql("select * from values(1,2,3) as T(a,b,c)");
+   * df.select(Functions.array(df.col("a"), df.col("b"), df.col("c")).as("array")).show();
+   * -----------
+   * |"ARRAY"  |
+   * -----------
+   * |[        |
+   * |  1,     |
+   * |  2,     |
+   * |  3      |
+   * |]        |
+   * -----------
+   * }</pre>
+   *
+   * @since 1.14.0
+   * @param cols The input column names
+   * @return Column object as array.
+   */
+  public static Column array(Column... cols) {
+    return array_construct(cols);
+  }
+
+  /**
+   * Converts an input expression into the corresponding date in the specified date format.
+   *
+   * <pre>{@code
+   * DataFrame df = getSession().sql("select * from values ('2023-10-10'), ('2022-05-15') as T(a)");
+   * df.select(Functions.date_format(df.col("a"), "YYYY/MM/DD").as("formatted_date")).show();
+   * --------------------
+   * |"FORMATTED_DATE"  |
+   * --------------------
+   * |2023/10/10        |
+   * |2022/05/15        |
+   * --------------------
+   * }</pre>
+   *
+   * @since 1.14.0
+   * @param col The input date column name
+   * @param s string format
+   * @return formatted column object.
+   */
+  public static Column date_format(Column col, String s) {
+    return new Column(functions.date_format(col.toScalaColumn(), s));
+  }
+
+  /**
+   * Returns the last value of the column in a group.
+   *
+   * <pre>{@code
+   * DataFrame df = getSession().sql("select * from values (5, 'a', 10), (5, 'b', 20),\n" +
+   *             "    (3, 'd', 15), (3, 'e', 40) as T(grade,name,score)");
+   * df.select(Functions.last(df.col("name")).over(Window.partitionBy(df.col("grade")).orderBy(df.col("score").desc()))).show();
+   * ----------------
+   * |"LAST_VALUE"  |
+   * ----------------
+   * |a             |
+   * |a             |
+   * |d             |
+   * |d             |
+   * ----------------
+   * }</pre>
+   *
+   * @since 1.14.0
+   * @param col The input column to get last value
+   * @return column object from last function.
+   */
+  public static Column last(Column col) {
+    return new Column(functions.last(col.toScalaColumn()));
+  }
+
+  /**
+   * Computes the logarithm of the given value in base 10.
+   *
+   * <pre>{@code
+   * DataFrame df = getSession().sql("select * from values (100) as T(a)");
+   * df.select(Functions.log10(df.col("a")).as("log10")).show();
+   * -----------
+   * |"LOG10"  |
+   * -----------
+   * |2.0      |
+   * -----------
+   * }</pre>
+   *
+   * @since 1.14.0
+   * @param col The input column to get logarithm value
+   * @return column object from logarithm function.
+   */
+  public static Column log10(Column col) {
+    return new Column(functions.log10(col.toScalaColumn()));
+  }
+
+  /**
+   * Computes the logarithm of the given value in base 10.
+   *
+   * <pre>{@code
+   * DataFrame df = getSession().sql("select * from values (100) as T(a)");
+   * df.select(Functions.log10("a").as("log10")).show();
+   * -----------
+   * |"LOG10"  |
+   * -----------
+   * |2.0      |
+   * -----------
+   * }</pre>
+   *
+   * @since 1.14.0
+   * @param s The input columnName in string to get logarithm value
+   * @return column object from logarithm function.
+   */
+  public static Column log10(String s) {
+    return new Column(functions.log10(s));
+  }
+
+  /**
+   * Computes the logarithm of the given value in base 10.
+   *
+   * <pre>{@code
+   * DataFrame df = getSession().sql("select * from values (0.1) as T(a)");
+   * df.select(Functions.log1p(df.col("a")).as("log1p")).show();
+   * -----------------------
+   * |"LOG1P"              |
+   * -----------------------
+   * |0.09531017980432493  |
+   * -----------------------
+   * }</pre>
+   *
+   * @since 1.14.0
+   * @param col The input column to get logarithm value
+   * @return column object from logarithm function.
+   */
+  public static Column log1p(Column col) {
+    return new Column(functions.log1p(col.toScalaColumn()));
+  }
+
+  /**
+   * Computes the logarithm of the given value in base 10.
+   *
+   * <pre>{@code
+   * DataFrame df = getSession().sql("select * from values (0.1) as T(a)");
+   * df.select(Functions.log1p("a").as("log1p")).show();
+   * -----------------------
+   * |"LOG1P"              |
+   * -----------------------
+   * |0.09531017980432493  |
+   * -----------------------
+   * }</pre>
+   *
+   * @since 1.14.0
+   * @param s The input columnName in string to get logarithm value
+   * @return column object from logarithm function.
+   */
+  public static Column log1p(String s) {
+    return new Column(functions.log1p(s));
+  }
+
+  /**
+   * Computes the BASE64 encoding of a column and returns it as a string column. This is the reverse
+   * of unbase64.
+   *
+   * <pre>{@code
+   * DataFrame df = getSession().sql("select * from values ('test') as T(a)");
+   * df.select(Functions.base64(Functions.col("a")).as("base64")).show();
+   * ------------
+   * |"BASE64"  |
+   * ------------
+   * |dGVzdA==  |
+   * ------------
+   * }</pre>
+   *
+   * @since 1.14.0
+   * @param c ColumnName to apply base64 operation
+   * @return base64 encoded value of the given input column.
+   */
+  public static Column base64(Column c) {
+    return new Column(functions.base64(c.toScalaColumn()));
+  }
+
+  /**
+   * Decodes a BASE64 encoded string column and returns it as a column.
+   *
+   * <pre>{@code
+   * DataFrame df = getSession().sql("select * from values ('dGVzdA==') as T(a)");
+   * df.select(Functions.unbase64(Functions.col("a")).as("unbase64")).show();
+   * --------------
+   * |"UNBASE64"  |
+   * --------------
+   * |test        |
+   * --------------
+   * }</pre>
+   *
+   * @since 1.14.0
+   * @param c ColumnName to apply unbase64 operation
+   * @return the decoded value of the given encoded value.
+   */
+  public static Column unbase64(Column c) {
+    return new Column(functions.unbase64(c.toScalaColumn()));
   }
 
   /**
