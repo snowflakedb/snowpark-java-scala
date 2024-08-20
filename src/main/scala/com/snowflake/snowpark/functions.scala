@@ -8,7 +8,7 @@ import com.snowflake.snowpark.internal.{
   UDXRegistrationHandler,
   Utils
 }
-import com.snowflake.snowpark.types.{FloatType, TimestampType}
+import com.snowflake.snowpark.types.TimestampType
 
 import scala.reflect.runtime.universe.TypeTag
 import scala.util.Random
