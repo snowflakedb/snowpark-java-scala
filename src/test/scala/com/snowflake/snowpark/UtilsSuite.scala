@@ -672,6 +672,28 @@ class UtilsSuite extends SNTestBase {
     assert(Utils.quoteForOption("FALSE").equals("FALSE"))
     assert(Utils.quoteForOption("abc").equals("'abc'"))
   }
+
+  test("Scala and Json format transformation") {
+    val map = Map(
+      "integerKey" -> 1.1,
+      "stringKey" -> "stringValue",
+      "nestedMap" -> Map(
+        "insideKey" -> "stringValue",
+        "insideList" -> Seq(1, 2, 3)
+      ),
+      "nestedList" -> Seq(
+        1,
+        Map(
+          "nestedKey" -> "nestedValue"
+        ),
+        List(1, 2, 3)
+      )
+    )
+    val jsonString = Utils.mapToJson(map)
+    val readMap = Utils.jsonToMap(jsonString.getOrElse(""))
+    val transformedString = Utils.mapToJson(readMap.getOrElse(Map()))
+    assert(jsonString.equals(transformedString))
+  }
 }
 
 object LoggingTester extends Logging {

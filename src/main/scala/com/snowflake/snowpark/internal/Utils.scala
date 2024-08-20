@@ -1,12 +1,7 @@
 package com.snowflake.snowpark.internal
 
 import com.snowflake.snowpark.Column
-import com.snowflake.snowpark.internal.analyzer.{
-  Attribute,
-  LogicalPlan,
-  TableFunctionExpression,
-  singleQuote
-}
+import com.snowflake.snowpark.internal.analyzer.{Attribute, LogicalPlan, TableFunctionExpression, singleQuote}
 
 import java.io.{File, FileInputStream}
 import java.lang.invoke.SerializedLambda
@@ -14,7 +9,10 @@ import java.security.{DigestInputStream, MessageDigest}
 import java.util.Locale
 import com.snowflake.snowpark.udtf.UDTF
 import net.snowflake.client.jdbc.SnowflakeSQLException
+import net.snowflake.client.jdbc.internal.fasterxml.jackson.databind.{JsonNode, ObjectMapper}
+import net.snowflake.client.jdbc.internal.fasterxml.jackson.databind.node.JsonNodeType
 
+import scala.collection.JavaConverters.asScalaIteratorConverter
 import scala.collection.mutable
 import scala.collection.mutable.ArrayBuffer
 import scala.util.Random
@@ -445,6 +443,79 @@ object Utils extends Logging {
     col.expr match {
       case tf: TableFunctionExpression => tf
       case _ => throw ErrorMessage.DF_JOIN_WITH_WRONG_ARGUMENT()
+    }
+  }
+
+  private val objectMapper = new ObjectMapper()
+
+  private[snowpark] def jsonToMap(jsonString: String): Option[Map[String, Any]] = {
+    try {
+      val node = objectMapper.readTree(jsonString)
+      assert(node.getNodeType == JsonNodeType.OBJECT)
+      Some(jsonToScala(node).asInstanceOf[Map[String, Any]])
+    } catch {
+      case ex: Exception =>
+        logError(ex.getMessage)
+        None
+    }
+  }
+
+  private def jsonToScala(node: JsonNode): Any = {
+    node.getNodeType match {
+      case JsonNodeType.STRING => node.asText()
+      case JsonNodeType.NULL => null
+      case JsonNodeType.OBJECT =>
+        node.fields().asScala.map(entry => {
+          entry.getKey -> jsonToScala(entry.getValue)
+        }).toMap
+      case JsonNodeType.ARRAY =>
+        node.elements().asScala.map(entry => jsonToScala(entry)).toList
+      case JsonNodeType.BOOLEAN => node.asBoolean()
+      case JsonNodeType.NUMBER => node.numberValue()
+      case other =>
+        throw new UnsupportedOperationException(s"Unsupported Type: ${other.name()}")
+    }
+  }
+
+  private[snowpark] def mapToJson(map: Map[String, Any]): Option[String] = {
+    try {
+      Some(scalaToJson(map))
+    } catch {
+      case ex: Exception =>
+        logError(ex.getMessage)
+        None
+    }
+  }
+
+  private def scalaToJson(node: Any): String = {
+    node match {
+      case n: Map[String, Any] =>
+        val mapRes = n.map {
+          case (key, value: Map[String, Any]) =>
+            s""""${key}": ${scalaToJson(value)}"""
+          case (key, value: List[Any]) =>
+            s""""${key}": ${scalaToJson(value)}"""
+          case (key, value: Number) =>
+            s""""${key}": ${value}"""
+          case (key, value: String) =>
+            s""""${key}": "${value}""""
+          case (key, value: Boolean) =>
+            s""""${key}": ${value}"""
+          case (key, None) =>
+            s""""${key}": null"""
+          case other =>
+            throw new UnsupportedOperationException(s"Unsupported Type: ${other.getClass}")
+        }
+        s"{${mapRes.mkString(", ")}}"
+      case n: List[Any] =>
+        val listRes = n.map {
+          case v: List[Any] => scalaToJson(v)
+          case v: Map[String, Any] => scalaToJson(v)
+          case v => v.toString
+        }
+        s"[${listRes.mkString(", ")}]"
+      case other =>
+        throw new UnsupportedOperationException(s"Unsupported Type: ${other.getClass}")
     }
   }
 }

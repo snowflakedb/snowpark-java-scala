@@ -46,7 +46,6 @@
         <scalaPluginVersion>4.3.0</scalaPluginVersion>
         <jackson.version>2.13.2</jackson.version>
         <jackson.databind.version>2.13.4.2</jackson.databind.version>
-        <jackson.module.scala.version>2.13.5</jackson.module.scala.version>
 
     </properties>
     <dependencyManagement>
@@ -132,11 +131,6 @@
             <groupId>com.fasterxml.jackson.core</groupId>
             <artifactId>jackson-annotations</artifactId>
             <version>${jackson.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>com.fasterxml.jackson.module</groupId>
-            <artifactId>jackson-module-scala_2.12</artifactId>
-            <version>${jackson.module.scala.version}</version>
         </dependency>
 
         <!-- Test -->
