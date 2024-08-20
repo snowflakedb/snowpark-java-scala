@@ -2770,4 +2770,25 @@ public class JavaFunctionSuite extends TestBase {
     DataFrame df = getSession().sql("select * from values('cat') as t(a)");
     checkAnswer(df.select(Functions.reverse(df.col("a"))), new Row[] {Row.create("tac")}, false);
   }
+
+  @Test
+  public void isnull() {
+    DataFrame df = getSession().sql("select * from values(1.2),(null),(2.3) as T(a)");
+    Row[] expected = {Row.create(false), Row.create(true), Row.create(false)};
+    checkAnswer(df.select(Functions.isnull(df.col("a"))), expected, false);
+  }
+
+  public void conv() {
+    DataFrame df = getSession().sql("select * from values('010101') as t(a)");
+    checkAnswer(df.select(Functions.conv(df.col("a"), 2, 16)), new Row[] {Row.create("15")}, false);
+  }
+
+  public void unix_timestamp() {
+    DataFrame df =
+        getSession().sql("select * from values('2024-04-08T23:39:20.123-07:00') as t(a)");
+    checkAnswer(
+        df.select(Functions.unix_timestamp(df.col("a"))),
+        new Row[] {Row.create("1712619560123")},
+        false);
+  }
 }

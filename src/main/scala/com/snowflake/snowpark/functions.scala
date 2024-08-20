@@ -3153,7 +3153,7 @@ object functions {
    *| !dlrow ,olleH            |
    *+--------------------------+
 
-   * @since 1.12.0
+   * @since 1.14.0
    * @param c Column to be reverse.
    * @return Column object.
    */
@@ -3170,7 +3170,7 @@ object functions {
    *  schema=["a"])
    * >>> df.select(is_null("a").as_("a")).collect()
    * [Row(A=False), Row(A=False), Row(A=True), Row(A=False)]
-   * @since 1.12.0
+   * @since 1.14.0
    * @param c Column to qnalize if it is null value.
    * @return Column object.
    */
@@ -3178,7 +3178,7 @@ object functions {
 
   /**
    * Wrapper for Snowflake built-in conv function. Convert number with from and to base.
-   * @since 1.10.0
+   * @since 1.14.0
    * @param c Column to be converted.
    * @param fromBase Column from base format.
    * @param toBase Column to base format.
@@ -3200,7 +3200,7 @@ object functions {
    * |-------------------------+------------------------|
    * | 2013-05-08 23:39:20.123 |             1368056360 |
    * +-------------------------+------------------------+
-   * @since 1.12.0
+   * @since 1.14.0
    * @note All calls of `unix_timestamp` within the same query return the same value
    */
   def unix_timestamp(c: Column): Column = {
