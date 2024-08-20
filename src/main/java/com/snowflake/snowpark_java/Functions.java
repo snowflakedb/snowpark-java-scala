@@ -4327,6 +4327,7 @@ public final class Functions {
 
   /**
    * Locate the position of the first occurrence of substr in a string column, after position pos.
+   * default to 1.
    *
    * <pre>{@code
    * DataFrame df = getSession().sql("select * from values ('abcd') as T(s)");

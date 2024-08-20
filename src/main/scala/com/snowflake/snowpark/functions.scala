@@ -3670,7 +3670,7 @@ object functions {
    * @since 1.14.0
    * @param substr string to search
    * @param str value where string will be searched
-   * @param pos index for starting the search
+   * @param pos index for starting the search. default to 1.
    * @return Returns the position of the first occurrence
    */
   def locate(substr: String, str: Column, pos: Int = 1): Column =
