@@ -2766,7 +2766,6 @@ public class JavaFunctionSuite extends TestBase {
   }
 
   @Test
-
   public void reverse() {
     DataFrame df = getSession().sql("select * from values('cat') as t(a)");
     checkAnswer(df.select(Functions.reverse(df.col("a"))), new Row[] {Row.create("tac")}, false);
@@ -2949,5 +2948,4 @@ public class JavaFunctionSuite extends TestBase {
     Row[] expected = {Row.create("test")};
     checkAnswer(df.select(Functions.unbase64(Functions.col("a"))), expected, false);
   }
-
 }

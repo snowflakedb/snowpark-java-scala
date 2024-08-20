@@ -2329,13 +2329,15 @@ trait FunctionSuite extends TestData {
     checkAnswer(data.select(reverse(col("a"))), Seq(Row("tac")), sort = false)
   }
 
-  test("isnull") {
-    val data = Seq("1", null).toDF("a")
-    checkAnswer(data.select(isnull(col("a"))), Seq(Row(true), Row(false)), sort = false)
+  test("NaN and Null") {
+    checkAnswer(
+      nanData1.select(equal_nan(col("A")), isnull(col("A"))),
+      Seq(Row(false, false), Row(true, false), Row(null, true), Row(false, false)),
+      sort = false)
   }
 
   test("unix_timestamp") {
-    val data = Seq("2024-04-08T23:39:20.123-07:00").toDF("a")
+    val data = Seq(Timestamp.valueOf("2024-04-08T23:39:20.123-07:00")).toDF("a")
     checkAnswer(data.select(unix_timestamp(col("a"))), Seq(Row("1712619560123")), sort = false)
   }
 }
