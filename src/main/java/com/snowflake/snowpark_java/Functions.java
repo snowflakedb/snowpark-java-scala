@@ -3882,7 +3882,127 @@ public final class Functions {
   }
 
   /**
-   * Returns a Column expression with values sorted in descending order.
+   * Signature - snowflake.snowpark.functions.regexp_extract (value: Union[Column, str], regexp:
+   * Union[Column, str], idx: int) Column Extract a specific group matched by a regex, from the
+   * specified string column. If the regex did not match, or the specified group did not match, an
+   * empty string is returned. Example:
+   *
+   * <pre>{@code
+   * from snowflake.snowpark.functions import regexp_extract
+   * df = session.createDataFrame([["id_20_30", 10], ["id_40_50", 30]], ["id", "age"])
+   * df.select(regexp_extract("id", r"(\d+)", 1).alias("RES")).show()
+   *    ---------
+   *     |"RES"  |
+   *     ---------
+   *     |20     |
+   *     |40     |
+   *     ---------
+   * }</pre>
+   *
+   * @since 1.14.0
+   * @param col Column.
+   * @param exp String
+   * @param position Integer.
+   * @param Occurences Integer.
+   * @param grpIdx Integer.
+   * @return Column object.
+   */
+  public static Column regexp_extract(
+      Column col, String exp, Integer position, Integer Occurences, Integer grpIdx) {
+    return new Column(
+        com.snowflake.snowpark.functions.regexp_extract(
+            col.toScalaColumn(), exp, position, Occurences, grpIdx));
+  }
+
+  /**
+   * Returns the sign of its argument:
+   *
+   * <p>- -1 if the argument is negative. - 1 if it is positive. - 0 if it is 0.
+   *
+   * <p>Args: col: The column to evaluate its sign Example:: *
+   *
+   * <pre>{@code df =
+   * session.create_dataframe([(-2, 2, 0)], ["a", "b", "c"]) >>>
+   * df.select(sign("a").alias("a_sign"), sign("b").alias("b_sign"),
+   * sign("c").alias("c_sign")).show()
+   *   ----------------------------------
+   *     |"A_SIGN"  |"B_SIGN"  |"C_SIGN"  |
+   *     ----------------------------------
+   *     |-1        |1         |0         |
+   *     ----------------------------------
+   * }</pre>
+   *
+   * @since 1.14.0
+   * @param col Column to calculate the sign.
+   * @return Column object.
+   */
+  public static Column signum(Column col) {
+    return new Column(com.snowflake.snowpark.functions.signum(col.toScalaColumn()));
+  }
+
+  /**
+   * Returns the sign of its argument:
+   *
+   * <p>- -1 if the argument is negative. - 1 if it is positive. - 0 if it is 0.
+   *
+   * <p>Args: col: The column to evaluate its sign Example::
+   *
+   * <pre>{@code df =
+   * session.create_dataframe([(-2, 2, 0)], ["a", "b", "c"]) >>>
+   * df.select(sign("a").alias("a_sign"), sign("b").alias("b_sign"),
+   * sign("c").alias("c_sign")).show()
+   *   ----------------------------------
+   *     |"A_SIGN"  |"B_SIGN"  |"C_SIGN"  |
+   *     ----------------------------------
+   *     |-1        |1         |0         |
+   *     ----------------------------------
+   * }</pre>
+   *
+   * @since 1.14.0
+   * @param col Column to calculate the sign.
+   * @return Column object.
+   */
+  public static Column sign(Column col) {
+    return new Column(com.snowflake.snowpark.functions.sign(col.toScalaColumn()));
+  }
+
+  /**
+   * Returns the substring from string str before count occurrences of the delimiter delim. If count
+   * is positive, everything the left of the final delimiter (counting from left) is returned. If
+   * count is negative, every to the right of the final delimiter (counting from the right) is
+   * returned. substring_index performs a case-sensitive match when searching for delim.
+   *
+   * @param col String.
+   * @param delim String
+   * @param count Integer.
+   * @return Column object.
+   * @since 1.14.0
+   */
+  public static Column substring_index(String col, String delim, Integer count) {
+    return new Column(com.snowflake.snowpark.functions.substring_index(col, delim, count));
+  }
+
+  /**
+   * Returns the input values, pivoted into an ARRAY. If the input is empty, an empty ARRAY is
+   * returned.
+   *
+   * <p>Example::
+   *
+   * <pre>{@code
+   * df = session.create_dataframe([[1], [2], [3], [1]], schema=["a"])
+   * df.select(array_agg("a", True).alias("result")).show()
+   * "RESULT" [ 1, 2, 3 ]
+   * }</pre>
+   *
+   * @since 1.14.0
+   * @param c Column to be collect.
+   * @return The array.
+   */
+  public static Column collect_list(Column c) {
+    return new Column(com.snowflake.snowpark.functions.collect_list(c.toScalaColumn()));
+  }
+
+  /* Returns a Column expression with values sorted in descending order.
    *
    * <p>Example: order column values in descending
    *

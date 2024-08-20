@@ -1091,6 +1091,7 @@ trait FunctionSuite extends TestData {
         .collect()(0)
         .getTimestamp(0)
         .toString == "2020-10-28 13:35:47.001234567")
+
   }
 
   test("timestamp_ltz_from_parts") {
@@ -2176,6 +2177,49 @@ trait FunctionSuite extends TestData {
     checkAnswer(
       data.select(regexp_replace(data("a"), pattern, replacement)),
       expected,
+      sort = false)
+  }
+  test("regexp_extract") {
+    val data = Seq("A MAN A PLAN A CANAL").toDF("a")
+    var expected = Seq(Row("MAN"))
+    checkAnswer(
+      data.select(regexp_extract(col("a"), "A\\W+(\\w+)", 1, 1, 1)),
+      expected,
+      sort = false)
+    expected = Seq(Row("PLAN"))
+    checkAnswer(
+      data.select(regexp_extract(col("a"), "A\\W+(\\w+)", 1, 2, 1)),
+      expected,
+      sort = false)
+    expected = Seq(Row("CANAL"))
+    checkAnswer(
+      data.select(regexp_extract(col("a"), "A\\W+(\\w+)", 1, 3, 1)),
+      expected,
+      sort = false)
+
+  }
+  test("signum") {
+    val df = Seq(1).toDF("a")
+    checkAnswer(df.select(sign(col("a"))), Seq(Row(1)), sort = false)
+    val df1 = Seq(-2).toDF("a")
+    checkAnswer(df1.select(sign(col("a"))), Seq(Row(-1)), sort = false)
+    val df2 = Seq(0).toDF("a")
+    checkAnswer(df2.select(sign(col("a"))), Seq(Row(0)), sort = false)
+  }
+  test("sign") {
+    val df = Seq(1).toDF("a")
+    checkAnswer(df.select(sign(col("a"))), Seq(Row(1)), sort = false)
+    val df1 = Seq(-2).toDF("a")
+    checkAnswer(df1.select(sign(col("a"))), Seq(Row(-1)), sort = false)
+    val df2 = Seq(0).toDF("a")
+    checkAnswer(df2.select(sign(col("a"))), Seq(Row(0)), sort = false)
+  }
+
+  test("substring_index") {
+    val df = Seq("It was the best of times, it was the worst of times").toDF("a")
+    checkAnswer(
+      df.select(substring_index("It was the best of times, it was the worst of times", "was", 1)),
+      Seq(Row("It was ")),
       sort = false)
   }
 
