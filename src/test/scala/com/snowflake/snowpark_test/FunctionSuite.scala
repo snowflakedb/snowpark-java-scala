@@ -2329,7 +2329,7 @@ trait FunctionSuite extends TestData {
     checkAnswer(data.select(reverse(col("a"))), Seq(Row("tac")), sort = false)
   }
 
-  test("NaN and Null") {
+  test("isnull") {
     checkAnswer(
       nanData1.select(equal_nan(col("A")), isnull(col("A"))),
       Seq(Row(false, false), Row(true, false), Row(null, true), Row(false, false)),
