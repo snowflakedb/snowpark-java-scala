@@ -3274,7 +3274,7 @@ object functions {
         lit(str),
         callBuiltin(
           "regexp_instr",
-          sqlExpr(s"reverse(${str})"),
+          sqlExpr(s"reverse('${str}')"),
           lit(delim),
           1,
           abs(lit(count)),

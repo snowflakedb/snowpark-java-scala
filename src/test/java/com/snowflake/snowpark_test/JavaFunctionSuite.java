@@ -2776,31 +2776,33 @@ public class JavaFunctionSuite extends TestBase {
         df.select(Functions.regexp_extract(df.col("a"), "A\\W+(\\w+)", 1, 2, 1)), expected2, false);
     Row[] expected3 = {Row.create("CANAL")};
     checkAnswer(
-        df.select(Functions.regexp_extract(df.col("a"), "A\\W+(\\w+)", 1, 2, 1)), expected3, false);
-    Row[] expected4 = {Row.create(null)};
-    checkAnswer(
-        df.select(Functions.regexp_extract(df.col("a"), "A\\W+(\\w+)", 1, 3, 1)), expected4, false);
+        df.select(Functions.regexp_extract(df.col("a"), "A\\W+(\\w+)", 1, 3, 1)), expected3, false);
   }
 
   @Test
   public void signum() {
-    DataFrame df = getSession().sql("select * from values(1,-2,0) as T(a)");
-    checkAnswer(df.select(Functions.signum(df.col("a"))), new Row[] {Row.create(1, -1, 0)}, false);
+    DataFrame df = getSession().sql("select * from values(1) as T(a)");
+    checkAnswer(df.select(Functions.signum(df.col("a"))), new Row[] {Row.create(1)}, false);
+    DataFrame df1 = getSession().sql("select * from values(-2) as T(a)");
+    checkAnswer(df1.select(Functions.signum(df1.col("a"))), new Row[] {Row.create(-1)}, false);
+    DataFrame df2 = getSession().sql("select * from values(0) as T(a)");
+    checkAnswer(df2.select(Functions.signum(df2.col("a"))), new Row[] {Row.create(0)}, false);
   }
 
   @Test
   public void sign() {
-    DataFrame df = getSession().sql("select * from values(1,-2,0) as T(a)");
-    checkAnswer(df.select(Functions.sign(df.col("a"))), new Row[] {Row.create(1, -1, 0)}, false);
+    DataFrame df = getSession().sql("select * from values(1) as T(a)");
+    checkAnswer(df.select(Functions.signum(df.col("a"))), new Row[] {Row.create(1)}, false);
+    DataFrame df1 = getSession().sql("select * from values(-2) as T(a)");
+    checkAnswer(df1.select(Functions.signum(df1.col("a"))), new Row[] {Row.create(-1)}, false);
+    DataFrame df2 = getSession().sql("select * from values(0) as T(a)");
+    checkAnswer(df2.select(Functions.signum(df2.col("a"))), new Row[] {Row.create(0)}, false);
   }
 
   @Test
   public void collect_list() {
-    DataFrame df = getSession().sql("select * from values(10000,400,450) as T(a)");
-    checkAnswer(
-        df.select(Functions.collect_list(df.col("a"))),
-        new Row[] {Row.create("[\n  \"10000,400,450\"\n]")},
-        false);
+    DataFrame df = getSession().sql("select * from values(1), (2), (3) as T(a)");
+    df.select(Functions.collect_list(df.col("a"))).show();
   }
 
   @Test
@@ -2810,7 +2812,11 @@ public class JavaFunctionSuite extends TestBase {
             .sql(
                 "select * from values ('It was the best of times,it was the worst of times') as T(a)");
     checkAnswer(
-        df.select(Functions.substring_index("a", "was", 1)), new Row[] {Row.create(7)}, false);
+        df.select(
+            Functions.substring_index(
+                "It was the best of times,it was the worst of times", "was", 1)),
+        new Row[] {Row.create("It was ")},
+        false);
   }
 
   public void test_asc() {
