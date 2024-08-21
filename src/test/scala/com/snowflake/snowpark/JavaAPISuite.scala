@@ -18,7 +18,6 @@ class JavaAPISuite extends FunSuite {
     Console.withOut(outContent) {
       df.explain()
     }
-    println(df.explain())
     val result = outContent.toString("UTF-8")
     assert(result.contains("Query List:"))
     assert(result.contains("select\n" + "  *\n" + "from\n" + "values(1, 2),(3, 4) as t(a, b)"))

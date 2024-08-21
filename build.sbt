@@ -6,6 +6,7 @@ val slf4jVersion = "2.0.4"
 
 lazy val root = (project in file("."))
   .configs(CodeVerificationTests)
+  .configs(JavaAPITests)
   .settings(
     name := "snowpark",
     version := "1.15.0-SNAPSHOT",
@@ -47,13 +48,15 @@ lazy val root = (project in file("."))
     ),
     scalafmtOnCompile := true,
     javafmtOnCompile := true,
-    Test / testOptions := Seq(Tests.Argument(TestFrameworks.JUnit, "-a")),
+    Test / testOptions := Seq(Tests.Argument(TestFrameworks.JUnit, "-a", "-v", "-q")),
 //    Test / crossPaths := false,
     Test / fork := false,
 //    Test / javaOptions ++= Seq("-Xms1024M", "-Xmx4096M"),
+    // Test Groups
     inConfig(CodeVerificationTests)(Defaults.testTasks),
     CodeVerificationTests / testOptions += Tests.Filter(isCodeVerification),
-    // default test
+    inConfig(JavaAPITests)(Defaults.testTasks),
+    JavaAPITests / testOptions += Tests.Filter(isJavaAPITests),
     // Release settings
     // usePgpKeyHex(Properties.envOrElse("GPG_SIGNATURE", "12345")),
     Global / pgpPassphrase := Properties.envOrNone("GPG_KEY_PASSPHRASE").map(_.toCharArray),
@@ -91,9 +94,17 @@ def isCodeVerification(name: String): Boolean = {
   name.startsWith("com.snowflake.code_verification")
 }
 lazy val CodeVerificationTests = config("CodeVerificationTests") extend Test
-
+lazy val udxNames: Seq[String] = Seq(
+  "UDF", "UDTF", "SProc", "JavaStoredProcedureSuite"
+)
 
 // Java API Tests
+def isJavaAPITests(name: String): Boolean = {
+  name.startsWith("com.snowflake.snowpark.Java") ||
+    (name.startsWith("com.snowflake.snowpark_test.Java") &&
+      !udxNames.exists(x => name.contains(x)))
+}
+lazy val JavaAPITests = config("JavaAPITests") extend Test
 // Java UDx Tests
 // Scala UDx Tests
 // FIPS Tests
