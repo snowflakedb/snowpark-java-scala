@@ -96,8 +96,7 @@ class StoredProcedureSuite extends SNTestBase {
       session.sql(query).show()
       checkAnswer(
         session.storedProcedure(spName, "a", 1, 1.1, true),
-        Seq(Row("input: a, 1, 1.1, true"))
-      )
+        Seq(Row("input: a, 1, 1.1, true")))
     } finally {
       session.sql(s"drop procedure if exists $spName (STRING, INT, FLOAT, BOOLEAN)").show()
     }
@@ -131,12 +130,10 @@ class StoredProcedureSuite extends SNTestBase {
           val num = num1 + num2 + num3
           val float = (num4 + num5).ceil
           s"$num, $float, $bool"
-        }
-    )
+        })
     checkAnswer(
       session.storedProcedure(sp, 1, 2L, 3.toShort, 4.4f, 5.5, false),
-      Seq(Row(s"6, 10.0, false"))
-    )
+      Seq(Row(s"6, 10.0, false")))
   }
 
   test("decimal input") {
@@ -170,8 +167,7 @@ class StoredProcedureSuite extends SNTestBase {
         spName,
         (_: Session) => s"SUCCESS",
         stageName,
-        isCallerMode = true
-      )
+        isCallerMode = true)
       checkAnswer(session.storedProcedure(sp), Seq(Row("SUCCESS")))
       checkAnswer(session.storedProcedure(spName), Seq(Row("SUCCESS")))
     } finally {
@@ -189,8 +185,7 @@ class StoredProcedureSuite extends SNTestBase {
         spName,
         (_: Session, num1: Int) => num1 + 100,
         stageName,
-        isCallerMode = true
-      )
+        isCallerMode = true)
       checkAnswer(session.storedProcedure(sp, 1), Seq(Row(101)))
       checkAnswer(session.storedProcedure(spName, 1), Seq(Row(101)))
     } finally {
@@ -238,8 +233,7 @@ class StoredProcedureSuite extends SNTestBase {
         spName,
         (_: Session, num1: Int, num2: Int) => num1 + num2 + 100,
         stageName,
-        isCallerMode = true
-      )
+        isCallerMode = true)
       checkAnswer(session.storedProcedure(sp, 1, 2), Seq(Row(103)))
       checkAnswer(session.storedProcedure(spName, 1, 2), Seq(Row(103)))
     } finally {
@@ -257,8 +251,7 @@ class StoredProcedureSuite extends SNTestBase {
         spName,
         (_: Session, num1: Int, num2: Int, num3: Int) => num1 + num2 + num3 + 100,
         stageName,
-        isCallerMode = true
-      )
+        isCallerMode = true)
       checkAnswer(session.storedProcedure(sp, 1, 2, 3), Seq(Row(106)))
       checkAnswer(session.storedProcedure(spName, 1, 2, 3), Seq(Row(106)))
     } finally {
@@ -276,8 +269,7 @@ class StoredProcedureSuite extends SNTestBase {
         spName,
         (_: Session, num1: Int, num2: Int, num3: Int, num4: Int) => num1 + num2 + num3 + num4 + 100,
         stageName,
-        isCallerMode = true
-      )
+        isCallerMode = true)
       checkAnswer(session.storedProcedure(sp, 1, 2, 3, 4), Seq(Row(110)))
       checkAnswer(session.storedProcedure(spName, 1, 2, 3, 4), Seq(Row(110)))
     } finally {
@@ -296,8 +288,7 @@ class StoredProcedureSuite extends SNTestBase {
         (_: Session, num1: Int, num2: Int, num3: Int, num4: Int, num5: Int) =>
           num1 + num2 + num3 + num4 + num5 + 100,
         stageName,
-        isCallerMode = true
-      )
+        isCallerMode = true)
       checkAnswer(session.storedProcedure(sp, 1, 2, 3, 4, 5), Seq(Row(115)))
       checkAnswer(session.storedProcedure(spName, 1, 2, 3, 4, 5), Seq(Row(115)))
     } finally {
@@ -316,8 +307,7 @@ class StoredProcedureSuite extends SNTestBase {
         (_: Session, num1: Int, num2: Int, num3: Int, num4: Int, num5: Int, num6: Int) =>
           num1 + num2 + num3 + num4 + num5 + num6 + 100,
         stageName,
-        isCallerMode = true
-      )
+        isCallerMode = true)
       checkAnswer(session.storedProcedure(sp, 1, 2, 3, 4, 5, 6), Seq(Row(121)))
       checkAnswer(session.storedProcedure(spName, 1, 2, 3, 4, 5, 6), Seq(Row(121)))
     } finally {
@@ -336,8 +326,7 @@ class StoredProcedureSuite extends SNTestBase {
         (_: Session, num1: Int, num2: Int, num3: Int, num4: Int, num5: Int, num6: Int, num7: Int) =>
           num1 + num2 + num3 + num4 + num5 + num6 + num7 + 100,
         stageName,
-        isCallerMode = true
-      )
+        isCallerMode = true)
       checkAnswer(session.storedProcedure(sp, 1, 2, 3, 4, 5, 6, 7), Seq(Row(128)))
       checkAnswer(session.storedProcedure(spName, 1, 2, 3, 4, 5, 6, 7), Seq(Row(128)))
     } finally {
@@ -362,11 +351,9 @@ class StoredProcedureSuite extends SNTestBase {
             num5: Int,
             num6: Int,
             num7: Int,
-            num8: Int
-        ) => num1 + num2 + num3 + num4 + num5 + num6 + num7 + num8 + 100,
+            num8: Int) => num1 + num2 + num3 + num4 + num5 + num6 + num7 + num8 + 100,
         stageName,
-        isCallerMode = true
-      )
+        isCallerMode = true)
       checkAnswer(session.storedProcedure(sp, 1, 2, 3, 4, 5, 6, 7, 8), Seq(Row(136)))
       checkAnswer(session.storedProcedure(spName, 1, 2, 3, 4, 5, 6, 7, 8), Seq(Row(136)))
     } finally {
@@ -392,11 +379,9 @@ class StoredProcedureSuite extends SNTestBase {
             num6: Int,
             num7: Int,
             num8: Int,
-            num9: Int
-        ) => num1 + num2 + num3 + num4 + num5 + num6 + num7 + num8 + num9 + 100,
+            num9: Int) => num1 + num2 + num3 + num4 + num5 + num6 + num7 + num8 + num9 + 100,
         stageName,
-        isCallerMode = true
-      )
+        isCallerMode = true)
       checkAnswer(session.storedProcedure(sp, 1, 2, 3, 4, 5, 6, 7, 8, 9), Seq(Row(145)))
       checkAnswer(session.storedProcedure(spName, 1, 2, 3, 4, 5, 6, 7, 8, 9), Seq(Row(145)))
     } finally {
@@ -425,11 +410,10 @@ class StoredProcedureSuite extends SNTestBase {
             num7: Int,
             num8: Int,
             num9: Int,
-            num10: Int
-        ) => num1 + num2 + num3 + num4 + num5 + num6 + num7 + num8 + num9 + num10 + 100,
+            num10: Int) =>
+          num1 + num2 + num3 + num4 + num5 + num6 + num7 + num8 + num9 + num10 + 100,
         stageName,
-        isCallerMode = true
-      )
+        isCallerMode = true)
       checkAnswer(session.storedProcedure(sp, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10), Seq(Row(155)))
       checkAnswer(session.storedProcedure(spName, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10), Seq(Row(155)))
     } finally {
@@ -459,11 +443,10 @@ class StoredProcedureSuite extends SNTestBase {
             num8: Int,
             num9: Int,
             num10: Int,
-            num11: Int
-        ) => num1 + num2 + num3 + num4 + num5 + num6 + num7 + num8 + num9 + num10 + num11 + 100,
+            num11: Int) =>
+          num1 + num2 + num3 + num4 + num5 + num6 + num7 + num8 + num9 + num10 + num11 + 100,
         stageName,
-        isCallerMode = true
-      )
+        isCallerMode = true)
       checkAnswer(session.storedProcedure(sp, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11), Seq(Row(166)))
       checkAnswer(session.storedProcedure(spName, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11), Seq(Row(166)))
     } finally {
@@ -494,18 +477,15 @@ class StoredProcedureSuite extends SNTestBase {
             num9: Int,
             num10: Int,
             num11: Int,
-            num12: Int
-        ) =>
+            num12: Int) =>
           num1 + num2 + num3 + num4 + num5 + num6 + num7 + num8 + num9 +
             num10 + num11 + num12 + 100,
         stageName,
-        isCallerMode = true
-      )
+        isCallerMode = true)
       checkAnswer(session.storedProcedure(sp, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12), Seq(Row(178)))
       checkAnswer(
         session.storedProcedure(spName, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12),
-        Seq(Row(178))
-      )
+        Seq(Row(178)))
     } finally {
       dropStage(stageName)
       session
@@ -535,27 +515,22 @@ class StoredProcedureSuite extends SNTestBase {
             num10: Int,
             num11: Int,
             num12: Int,
-            num13: Int
-        ) =>
+            num13: Int) =>
           num1 + num2 + num3 + num4 + num5 + num6 + num7 + num8 + num9 +
             num10 + num11 + num12 + num13 + 100,
         stageName,
-        isCallerMode = true
-      )
+        isCallerMode = true)
       checkAnswer(
         session.storedProcedure(sp, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13),
-        Seq(Row(191))
-      )
+        Seq(Row(191)))
       checkAnswer(
         session.storedProcedure(spName, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13),
-        Seq(Row(191))
-      )
+        Seq(Row(191)))
     } finally {
       dropStage(stageName)
       session
         .sql(
-          s"drop procedure if exists $spName (INT,INT,INT,INT,INT,INT,INT,INT,INT,INT,INT,INT,INT)"
-        )
+          s"drop procedure if exists $spName (INT,INT,INT,INT,INT,INT,INT,INT,INT,INT,INT,INT,INT)")
         .show()
     }
   }
@@ -582,28 +557,23 @@ class StoredProcedureSuite extends SNTestBase {
             num11: Int,
             num12: Int,
             num13: Int,
-            num14: Int
-        ) =>
+            num14: Int) =>
           num1 + num2 + num3 + num4 + num5 + num6 + num7 + num8 + num9 +
             num10 + num11 + num12 + num13 + num14 + 100,
         stageName,
-        isCallerMode = true
-      )
+        isCallerMode = true)
       checkAnswer(
         session.storedProcedure(sp, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14),
-        Seq(Row(205))
-      )
+        Seq(Row(205)))
       checkAnswer(
         session.storedProcedure(spName, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14),
-        Seq(Row(205))
-      )
+        Seq(Row(205)))
     } finally {
       dropStage(stageName)
       session
         .sql(
           s"drop procedure if exists $spName (INT,INT,INT,INT,INT,INT,INT," +
-            "INT,INT,INT,INT,INT,INT,INT)"
-        )
+            "INT,INT,INT,INT,INT,INT,INT)")
         .show()
     }
   }
@@ -631,28 +601,23 @@ class StoredProcedureSuite extends SNTestBase {
             num12: Int,
             num13: Int,
             num14: Int,
-            num15: Int
-        ) =>
+            num15: Int) =>
           num1 + num2 + num3 + num4 + num5 + num6 + num7 + num8 + num9 +
             num10 + num11 + num12 + num13 + num14 + num15 + 100,
         stageName,
-        isCallerMode = true
-      )
+        isCallerMode = true)
       checkAnswer(
         session.storedProcedure(sp, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15),
-        Seq(Row(220))
-      )
+        Seq(Row(220)))
       checkAnswer(
         session.storedProcedure(spName, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15),
-        Seq(Row(220))
-      )
+        Seq(Row(220)))
     } finally {
       dropStage(stageName)
       session
         .sql(
           s"drop procedure if exists $spName (INT,INT,INT,INT,INT,INT,INT," +
-            "INT,INT,INT,INT,INT,INT,INT,INT)"
-        )
+            "INT,INT,INT,INT,INT,INT,INT,INT)")
         .show()
     }
   }
@@ -681,28 +646,23 @@ class StoredProcedureSuite extends SNTestBase {
             num13: Int,
             num14: Int,
             num15: Int,
-            num16: Int
-        ) =>
+            num16: Int) =>
           num1 + num2 + num3 + num4 + num5 + num6 + num7 + num8 + num9 +
             num10 + num11 + num12 + num13 + num14 + num15 + num16 + 100,
         stageName,
-        isCallerMode = true
-      )
+        isCallerMode = true)
       checkAnswer(
         session.storedProcedure(sp, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16),
-        Seq(Row(236))
-      )
+        Seq(Row(236)))
       checkAnswer(
         session.storedProcedure(spName, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16),
-        Seq(Row(236))
-      )
+        Seq(Row(236)))
     } finally {
       dropStage(stageName)
       session
         .sql(
           s"drop procedure if exists $spName (INT,INT,INT,INT,INT,INT,INT," +
-            "INT,INT,INT,INT,INT,INT,INT,INT,INT)"
-        )
+            "INT,INT,INT,INT,INT,INT,INT,INT,INT)")
         .show()
     }
   }
@@ -732,29 +692,24 @@ class StoredProcedureSuite extends SNTestBase {
             num14: Int,
             num15: Int,
             num16: Int,
-            num17: Int
-        ) =>
+            num17: Int) =>
           num1 + num2 + num3 + num4 + num5 + num6 + num7 + num8 + num9 +
             num10 + num11 + num12 + num13 + num14 + num15 + num16 + num17 + 100,
         stageName,
-        isCallerMode = true
-      )
+        isCallerMode = true)
       checkAnswer(
         session.storedProcedure(sp, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17),
-        Seq(Row(253))
-      )
+        Seq(Row(253)))
       checkAnswer(
         session
           .storedProcedure(spName, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17),
-        Seq(Row(253))
-      )
+        Seq(Row(253)))
     } finally {
       dropStage(stageName)
       session
         .sql(
           s"drop procedure if exists $spName (INT,INT,INT,INT,INT,INT,INT,INT," +
-            "INT,INT,INT,INT,INT,INT,INT,INT,INT)"
-        )
+            "INT,INT,INT,INT,INT,INT,INT,INT,INT)")
         .show()
     }
   }
@@ -785,30 +740,25 @@ class StoredProcedureSuite extends SNTestBase {
             num15: Int,
             num16: Int,
             num17: Int,
-            num18: Int
-        ) =>
+            num18: Int) =>
           num1 + num2 + num3 + num4 + num5 + num6 + num7 + num8 + num9 +
             num10 + num11 + num12 + num13 + num14 + num15 + num16 + num17 + num18 + 100,
         stageName,
-        isCallerMode = true
-      )
+        isCallerMode = true)
       checkAnswer(
         session
           .storedProcedure(sp, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18),
-        Seq(Row(271))
-      )
+        Seq(Row(271)))
       checkAnswer(
         session
           .storedProcedure(spName, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18),
-        Seq(Row(271))
-      )
+        Seq(Row(271)))
     } finally {
       dropStage(stageName)
       session
         .sql(
           s"drop procedure if exists $spName (INT,INT,INT,INT,INT,INT,INT,INT,INT," +
-            "INT,INT,INT,INT,INT,INT,INT,INT,INT)"
-        )
+            "INT,INT,INT,INT,INT,INT,INT,INT,INT)")
         .show()
     }
   }
@@ -840,18 +790,15 @@ class StoredProcedureSuite extends SNTestBase {
             num16: Int,
             num17: Int,
             num18: Int,
-            num19: Int
-        ) =>
+            num19: Int) =>
           num1 + num2 + num3 + num4 + num5 + num6 + num7 + num8 + num9 +
             num10 + num11 + num12 + num13 + num14 + num15 + num16 + num17 + num18 + num19 + 100,
         stageName,
-        isCallerMode = true
-      )
+        isCallerMode = true)
       checkAnswer(
         session
           .storedProcedure(sp, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19),
-        Seq(Row(290))
-      )
+        Seq(Row(290)))
       checkAnswer(
         session.storedProcedure(
           spName,
@@ -873,17 +820,14 @@ class StoredProcedureSuite extends SNTestBase {
           16,
           17,
           18,
-          19
-        ),
-        Seq(Row(290))
-      )
+          19),
+        Seq(Row(290)))
     } finally {
       dropStage(stageName)
       session
         .sql(
           s"drop procedure if exists $spName (INT,INT,INT,INT,INT,INT,INT," +
-            "INT,INT,INT,INT,INT,INT,INT,INT,INT,INT,INT,INT)"
-        )
+            "INT,INT,INT,INT,INT,INT,INT,INT,INT,INT,INT,INT)")
         .show()
     }
   }
@@ -916,14 +860,12 @@ class StoredProcedureSuite extends SNTestBase {
             num17: Int,
             num18: Int,
             num19: Int,
-            num20: Int
-        ) =>
+            num20: Int) =>
           num1 + num2 + num3 + num4 + num5 + num6 + num7 + num8 + num9 +
             num10 + num11 + num12 + num13 + num14 + num15 + num16 + num17 +
             num18 + num19 + num20 + 100,
         stageName,
-        isCallerMode = true
-      )
+        isCallerMode = true)
       checkAnswer(
         session.storedProcedure(
           sp,
@@ -946,10 +888,8 @@ class StoredProcedureSuite extends SNTestBase {
           17,
           18,
           19,
-          20
-        ),
-        Seq(Row(310))
-      )
+          20),
+        Seq(Row(310)))
       checkAnswer(
         session.storedProcedure(
           spName,
@@ -972,17 +912,14 @@ class StoredProcedureSuite extends SNTestBase {
           17,
           18,
           19,
-          20
-        ),
-        Seq(Row(310))
-      )
+          20),
+        Seq(Row(310)))
     } finally {
       dropStage(stageName)
       session
         .sql(
           s"drop procedure if exists $spName (INT,INT,INT,INT,INT,INT,INT,INT," +
-            "INT,INT,INT,INT,INT,INT,INT,INT,INT,INT,INT,INT)"
-        )
+            "INT,INT,INT,INT,INT,INT,INT,INT,INT,INT,INT,INT)")
         .show()
     }
   }
@@ -1016,14 +953,12 @@ class StoredProcedureSuite extends SNTestBase {
             num18: Int,
             num19: Int,
             num20: Int,
-            num21: Int
-        ) =>
+            num21: Int) =>
           num1 + num2 + num3 + num4 + num5 + num6 + num7 + num8 + num9 +
             num10 + num11 + num12 + num13 + num14 + num15 + num16 + num17 +
             num18 + num19 + num20 + num21 + 100,
         stageName,
-        isCallerMode = true
-      )
+        isCallerMode = true)
       checkAnswer(
         session.storedProcedure(
           sp,
@@ -1047,10 +982,8 @@ class StoredProcedureSuite extends SNTestBase {
           18,
           19,
           20,
-          21
-        ),
-        Seq(Row(331))
-      )
+          21),
+        Seq(Row(331)))
       checkAnswer(
         session.storedProcedure(
           spName,
@@ -1074,17 +1007,14 @@ class StoredProcedureSuite extends SNTestBase {
           18,
           19,
           20,
-          21
-        ),
-        Seq(Row(331))
-      )
+          21),
+        Seq(Row(331)))
     } finally {
       dropStage(stageName)
       session
         .sql(
           s"drop procedure if exists $spName (INT,INT,INT,INT,INT,INT,INT," +
-            "INT,INT,INT,INT,INT,INT,INT,INT,INT,INT,INT,INT,INT,INT)"
-        )
+            "INT,INT,INT,INT,INT,INT,INT,INT,INT,INT,INT,INT,INT,INT)")
         .show()
     }
   }
@@ -1099,8 +1029,7 @@ class StoredProcedureSuite extends SNTestBase {
         spName,
         (_: Session) => s"SUCCESS",
         stageName,
-        isCallerMode = true
-      )
+        isCallerMode = true)
       checkAnswer(session.storedProcedure(spName), Seq(Row("SUCCESS")))
       // works in other sessions
       checkAnswer(newSession.storedProcedure(spName), Seq(Row("SUCCESS")))
@@ -1121,30 +1050,26 @@ class StoredProcedureSuite extends SNTestBase {
         spName1,
         (_: Session) => s"SUCCESS",
         stageName,
-        isCallerMode = true
-      )
+        isCallerMode = true)
       import com.snowflake.snowpark.functions.col
       checkAnswer(
         session
           .sql(s"describe procedure $spName1()")
           .where(col(""""property"""") === "execute as")
           .select(col(""""value"""")),
-        Seq(Row("CALLER"))
-      )
+        Seq(Row("CALLER")))
 
       session.sproc.registerPermanent(
         spName2,
         (_: Session) => s"SUCCESS",
         stageName,
-        isCallerMode = false
-      )
+        isCallerMode = false)
       checkAnswer(
         session
           .sql(s"describe procedure $spName2()")
           .where(col(""""property"""") === "execute as")
           .select(col(""""value"""")),
-        Seq(Row("OWNER"))
-      )
+        Seq(Row("OWNER")))
     } finally {
       dropStage(stageName)
       session.sql(s"drop procedure if exists $spName1()").show()
@@ -1250,8 +1175,7 @@ println(s"""
         num5: Int,
         num6: Int,
         num7: Int,
-        num8: Int
-    ) => num1 + num2 + num3 + num4 + num5 + num6 + num7 + num8 + 100
+        num8: Int) => num1 + num2 + num3 + num4 + num5 + num6 + num7 + num8 + 100
     val sp = session.sproc.registerTemporary(func)
     val result = session.sproc.runLocally(func, 1, 2, 3, 4, 5, 6, 7, 8)
     assert(result == 136)
@@ -1269,8 +1193,7 @@ println(s"""
         num6: Int,
         num7: Int,
         num8: Int,
-        num9: Int
-    ) => num1 + num2 + num3 + num4 + num5 + num6 + num7 + num8 + num9 + 100
+        num9: Int) => num1 + num2 + num3 + num4 + num5 + num6 + num7 + num8 + num9 + 100
     val sp = session.sproc.registerTemporary(func)
     val result = session.sproc.runLocally(func, 1, 2, 3, 4, 5, 6, 7, 8, 9)
     assert(result == 145)
@@ -1289,8 +1212,7 @@ println(s"""
         num7: Int,
         num8: Int,
         num9: Int,
-        num10: Int
-    ) => num1 + num2 + num3 + num4 + num5 + num6 + num7 + num8 + num9 + num10 + 100
+        num10: Int) => num1 + num2 + num3 + num4 + num5 + num6 + num7 + num8 + num9 + num10 + 100
     val sp = session.sproc.registerTemporary(func)
     val result = session.sproc.runLocally(func, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10)
     assert(result == 155)
@@ -1310,8 +1232,8 @@ println(s"""
         num8: Int,
         num9: Int,
         num10: Int,
-        num11: Int
-    ) => num1 + num2 + num3 + num4 + num5 + num6 + num7 + num8 + num9 + num10 + num11 + 100
+        num11: Int) =>
+      num1 + num2 + num3 + num4 + num5 + num6 + num7 + num8 + num9 + num10 + num11 + 100
     val sp = session.sproc.registerTemporary(func)
     val result = session.sproc.runLocally(func, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11)
     assert(result == 166)
@@ -1332,15 +1254,14 @@ println(s"""
         num9: Int,
         num10: Int,
         num11: Int,
-        num12: Int
-    ) => num1 + num2 + num3 + num4 + num5 + num6 + num7 + num8 + num9 + num10 + num11 + num12 + 100
+        num12: Int) =>
+      num1 + num2 + num3 + num4 + num5 + num6 + num7 + num8 + num9 + num10 + num11 + num12 + 100
     val sp = session.sproc.registerTemporary(func)
     val result = session.sproc.runLocally(func, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12)
     assert(result == 178)
     checkAnswer(
       session.storedProcedure(sp, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12),
-      Seq(Row(result))
-    )
+      Seq(Row(result)))
   }
 
   test("anonymous temporary: 13 args", JavaStoredProcExclude) {
@@ -1358,8 +1279,7 @@ println(s"""
         num10: Int,
         num11: Int,
         num12: Int,
-        num13: Int
-    ) =>
+        num13: Int) =>
       num1 + num2 + num3 + num4 + num5 + num6 + num7 + num8 + num9 +
         num10 + num11 + num12 + num13 + 100
     val sp = session.sproc.registerTemporary(func)
@@ -1367,8 +1287,7 @@ println(s"""
     assert(result == 191)
     checkAnswer(
       session.storedProcedure(sp, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13),
-      Seq(Row(result))
-    )
+      Seq(Row(result)))
   }
 
   test("anonymous temporary: 14 args", JavaStoredProcExclude) {
@@ -1387,8 +1306,7 @@ println(s"""
         num11: Int,
         num12: Int,
         num13: Int,
-        num14: Int
-    ) =>
+        num14: Int) =>
       num1 + num2 + num3 + num4 + num5 + num6 + num7 + num8 + num9 +
         num10 + num11 + num12 + num13 + num14 + 100
     val sp = session.sproc.registerTemporary(func)
@@ -1396,8 +1314,7 @@ println(s"""
     assert(result == 205)
     checkAnswer(
       session.storedProcedure(sp, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14),
-      Seq(Row(result))
-    )
+      Seq(Row(result)))
   }
 
   test("anonymous temporary: 15 args", JavaStoredProcExclude) {
@@ -1417,8 +1334,7 @@ println(s"""
         num12: Int,
         num13: Int,
         num14: Int,
-        num15: Int
-    ) =>
+        num15: Int) =>
       num1 + num2 + num3 + num4 + num5 + num6 + num7 + num8 + num9 +
         num10 + num11 + num12 + num13 + num14 + num15 + 100
     val sp = session.sproc.registerTemporary(func)
@@ -1426,8 +1342,7 @@ println(s"""
     assert(result == 220)
     checkAnswer(
       session.storedProcedure(sp, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15),
-      Seq(Row(result))
-    )
+      Seq(Row(result)))
   }
 
   test("anonymous temporary: 16 args", JavaStoredProcExclude) {
@@ -1448,8 +1363,7 @@ println(s"""
         num13: Int,
         num14: Int,
         num15: Int,
-        num16: Int
-    ) =>
+        num16: Int) =>
       num1 + num2 + num3 + num4 + num5 + num6 + num7 + num8 + num9 +
         num10 + num11 + num12 + num13 + num14 + num15 + num16 + 100
     val sp = session.sproc.registerTemporary(func)
@@ -1458,8 +1372,7 @@ println(s"""
     assert(result == 236)
     checkAnswer(
       session.storedProcedure(sp, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16),
-      Seq(Row(result))
-    )
+      Seq(Row(result)))
   }
 
   test("anonymous temporary: 17 args", JavaStoredProcExclude) {
@@ -1481,8 +1394,7 @@ println(s"""
         num14: Int,
         num15: Int,
         num16: Int,
-        num17: Int
-    ) =>
+        num17: Int) =>
       num1 + num2 + num3 + num4 + num5 + num6 + num7 + num8 + num9 +
         num10 + num11 + num12 + num13 + num14 + num15 + num16 + num17 + 100
     val sp = session.sproc.registerTemporary(func)
@@ -1491,8 +1403,7 @@ println(s"""
     assert(result == 253)
     checkAnswer(
       session.storedProcedure(sp, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17),
-      Seq(Row(result))
-    )
+      Seq(Row(result)))
   }
 
   test("anonymous temporary: 18 args", JavaStoredProcExclude) {
@@ -1515,8 +1426,7 @@ println(s"""
         num15: Int,
         num16: Int,
         num17: Int,
-        num18: Int
-    ) =>
+        num18: Int) =>
       num1 + num2 + num3 + num4 + num5 + num6 + num7 + num8 + num9 +
         num10 + num11 + num12 + num13 + num14 + num15 + num16 + num17 + num18 + 100
     val sp = session.sproc.registerTemporary(func)
@@ -1525,8 +1435,7 @@ println(s"""
     assert(result == 271)
     checkAnswer(
       session.storedProcedure(sp, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18),
-      Seq(Row(result))
-    )
+      Seq(Row(result)))
   }
 
   test("anonymous temporary: 19 args", JavaStoredProcExclude) {
@@ -1550,8 +1459,7 @@ println(s"""
         num16: Int,
         num17: Int,
         num18: Int,
-        num19: Int
-    ) =>
+        num19: Int) =>
       num1 + num2 + num3 + num4 + num5 + num6 + num7 + num8 + num9 +
         num10 + num11 + num12 + num13 + num14 + num15 + num16 + num17 + num18 + num19 + 100
     val sp = session.sproc.registerTemporary(func)
@@ -1575,14 +1483,12 @@ println(s"""
       16,
       17,
       18,
-      19
-    )
+      19)
     assert(result == 290)
     checkAnswer(
       session
         .storedProcedure(sp, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19),
-      Seq(Row(result))
-    )
+      Seq(Row(result)))
   }
 
   test("anonymous temporary: 20 args", JavaStoredProcExclude) {
@@ -1607,8 +1513,7 @@ println(s"""
         num17: Int,
         num18: Int,
         num19: Int,
-        num20: Int
-    ) =>
+        num20: Int) =>
       num1 + num2 + num3 + num4 + num5 + num6 + num7 + num8 + num9 +
         num10 + num11 + num12 + num13 + num14 + num15 + num16 + num17 + num18 + num19 + num20 + 100
     val sp = session.sproc.registerTemporary(func)
@@ -1633,14 +1538,12 @@ println(s"""
       17,
       18,
       19,
-      20
-    )
+      20)
     assert(result == 310)
     checkAnswer(
       session
         .storedProcedure(sp, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20),
-      Seq(Row(result))
-    )
+      Seq(Row(result)))
   }
 
   test("anonymous temporary: 21 args", JavaStoredProcExclude) {
@@ -1666,8 +1569,7 @@ println(s"""
         num18: Int,
         num19: Int,
         num20: Int,
-        num21: Int
-    ) =>
+        num21: Int) =>
       num1 + num2 + num3 + num4 + num5 + num6 + num7 + num8 + num9 +
         num10 + num11 + num12 + num13 + num14 + num15 + num16 + num17 +
         num18 + num19 + num20 + num21 + 100
@@ -1694,8 +1596,7 @@ println(s"""
       18,
       19,
       20,
-      21
-    )
+      21)
     assert(result == 331)
     checkAnswer(
       session.storedProcedure(
@@ -1720,18 +1621,15 @@ println(s"""
         18,
         19,
         20,
-        21
-      ),
-      Seq(Row(result))
-    )
+        21),
+      Seq(Row(result)))
   }
 
   test("named temporary: duplicated name") {
     val name = randomName()
     val sp1 = session.sproc.registerTemporary(name, (_: Session) => s"SP 1")
     val msg = intercept[SnowflakeSQLException](
-      session.sproc.registerTemporary(name, (_: Session) => s"SP 2")
-    ).getMessage
+      session.sproc.registerTemporary(name, (_: Session) => s"SP 2")).getMessage
     assert(msg.contains("already exists"))
   }
 
@@ -1779,8 +1677,7 @@ println(s"""
     val name = randomName()
     val sp = session.sproc.registerTemporary(
       name,
-      (_: Session, num1: Int, num2: Int, num3: Int) => num1 + num2 + num3 + 100
-    )
+      (_: Session, num1: Int, num2: Int, num3: Int) => num1 + num2 + num3 + 100)
     checkAnswer(session.storedProcedure(sp, 1, 2, 3), Seq(Row(106)))
     checkAnswer(session.storedProcedure(name, 1, 2, 3), Seq(Row(106)))
   }
@@ -1789,8 +1686,7 @@ println(s"""
     val name = randomName()
     val sp = session.sproc.registerTemporary(
       name,
-      (_: Session, num1: Int, num2: Int, num3: Int, num4: Int) => num1 + num2 + num3 + num4 + 100
-    )
+      (_: Session, num1: Int, num2: Int, num3: Int, num4: Int) => num1 + num2 + num3 + num4 + 100)
     checkAnswer(session.storedProcedure(sp, 1, 2, 3, 4), Seq(Row(110)))
     checkAnswer(session.storedProcedure(name, 1, 2, 3, 4), Seq(Row(110)))
   }
@@ -1800,8 +1696,7 @@ println(s"""
     val sp = session.sproc.registerTemporary(
       name,
       (_: Session, num1: Int, num2: Int, num3: Int, num4: Int, num5: Int) =>
-        num1 + num2 + num3 + num4 + num5 + 100
-    )
+        num1 + num2 + num3 + num4 + num5 + 100)
     checkAnswer(session.storedProcedure(sp, 1, 2, 3, 4, 5), Seq(Row(115)))
     checkAnswer(session.storedProcedure(name, 1, 2, 3, 4, 5), Seq(Row(115)))
   }
@@ -1811,8 +1706,7 @@ println(s"""
     val sp = session.sproc.registerTemporary(
       name,
       (_: Session, num1: Int, num2: Int, num3: Int, num4: Int, num5: Int, num6: Int) =>
-        num1 + num2 + num3 + num4 + num5 + num6 + 100
-    )
+        num1 + num2 + num3 + num4 + num5 + num6 + 100)
     checkAnswer(session.storedProcedure(sp, 1, 2, 3, 4, 5, 6), Seq(Row(121)))
     checkAnswer(session.storedProcedure(name, 1, 2, 3, 4, 5, 6), Seq(Row(121)))
   }
@@ -1822,8 +1716,7 @@ println(s"""
     val sp = session.sproc.registerTemporary(
       name,
       (_: Session, num1: Int, num2: Int, num3: Int, num4: Int, num5: Int, num6: Int, num7: Int) =>
-        num1 + num2 + num3 + num4 + num5 + num6 + num7 + 100
-    )
+        num1 + num2 + num3 + num4 + num5 + num6 + num7 + 100)
     checkAnswer(session.storedProcedure(sp, 1, 2, 3, 4, 5, 6, 7), Seq(Row(128)))
     checkAnswer(session.storedProcedure(name, 1, 2, 3, 4, 5, 6, 7), Seq(Row(128)))
   }
@@ -1841,9 +1734,7 @@ println(s"""
           num5: Int,
           num6: Int,
           num7: Int,
-          num8: Int
-      ) => num1 + num2 + num3 + num4 + num5 + num6 + num7 + num8 + 100
-    )
+          num8: Int) => num1 + num2 + num3 + num4 + num5 + num6 + num7 + num8 + 100)
     checkAnswer(session.storedProcedure(sp, 1, 2, 3, 4, 5, 6, 7, 8), Seq(Row(136)))
     checkAnswer(session.storedProcedure(name, 1, 2, 3, 4, 5, 6, 7, 8), Seq(Row(136)))
   }
@@ -1862,9 +1753,7 @@ println(s"""
           num6: Int,
           num7: Int,
           num8: Int,
-          num9: Int
-      ) => num1 + num2 + num3 + num4 + num5 + num6 + num7 + num8 + num9 + 100
-    )
+          num9: Int) => num1 + num2 + num3 + num4 + num5 + num6 + num7 + num8 + num9 + 100)
     checkAnswer(session.storedProcedure(sp, 1, 2, 3, 4, 5, 6, 7, 8, 9), Seq(Row(145)))
     checkAnswer(session.storedProcedure(name, 1, 2, 3, 4, 5, 6, 7, 8, 9), Seq(Row(145)))
   }
@@ -1884,9 +1773,7 @@ println(s"""
           num7: Int,
           num8: Int,
           num9: Int,
-          num10: Int
-      ) => num1 + num2 + num3 + num4 + num5 + num6 + num7 + num8 + num9 + num10 + 100
-    )
+          num10: Int) => num1 + num2 + num3 + num4 + num5 + num6 + num7 + num8 + num9 + num10 + 100)
     checkAnswer(session.storedProcedure(sp, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10), Seq(Row(155)))
     checkAnswer(session.storedProcedure(name, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10), Seq(Row(155)))
   }
@@ -1907,9 +1794,8 @@ println(s"""
           num8: Int,
           num9: Int,
           num10: Int,
-          num11: Int
-      ) => num1 + num2 + num3 + num4 + num5 + num6 + num7 + num8 + num9 + num10 + num11 + 100
-    )
+          num11: Int) =>
+        num1 + num2 + num3 + num4 + num5 + num6 + num7 + num8 + num9 + num10 + num11 + 100)
     checkAnswer(session.storedProcedure(sp, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11), Seq(Row(166)))
     checkAnswer(session.storedProcedure(name, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11), Seq(Row(166)))
   }
@@ -1931,10 +1817,8 @@ println(s"""
           num9: Int,
           num10: Int,
           num11: Int,
-          num12: Int
-      ) =>
-        num1 + num2 + num3 + num4 + num5 + num6 + num7 + num8 + num9 + num10 + num11 + num12 + 100
-    )
+          num12: Int) =>
+        num1 + num2 + num3 + num4 + num5 + num6 + num7 + num8 + num9 + num10 + num11 + num12 + 100)
     checkAnswer(session.storedProcedure(sp, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12), Seq(Row(178)))
     checkAnswer(session.storedProcedure(name, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12), Seq(Row(178)))
   }
@@ -1957,19 +1841,15 @@ println(s"""
           num10: Int,
           num11: Int,
           num12: Int,
-          num13: Int
-      ) =>
+          num13: Int) =>
         num1 + num2 + num3 + num4 + num5 + num6 + num7 + num8 + num9 +
-          num10 + num11 + num12 + num13 + 100
-    )
+          num10 + num11 + num12 + num13 + 100)
     checkAnswer(
       session.storedProcedure(sp, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13),
-      Seq(Row(191))
-    )
+      Seq(Row(191)))
     checkAnswer(
       session.storedProcedure(name, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13),
-      Seq(Row(191))
-    )
+      Seq(Row(191)))
   }
 
   test("named temporary: 14 args", JavaStoredProcExclude) {
@@ -1991,19 +1871,15 @@ println(s"""
           num11: Int,
           num12: Int,
           num13: Int,
-          num14: Int
-      ) =>
+          num14: Int) =>
         num1 + num2 + num3 + num4 + num5 + num6 + num7 + num8 + num9 +
-          num10 + num11 + num12 + num13 + num14 + 100
-    )
+          num10 + num11 + num12 + num13 + num14 + 100)
     checkAnswer(
       session.storedProcedure(sp, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14),
-      Seq(Row(205))
-    )
+      Seq(Row(205)))
     checkAnswer(
       session.storedProcedure(name, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14),
-      Seq(Row(205))
-    )
+      Seq(Row(205)))
   }
 
   test("named temporary: 15 args", JavaStoredProcExclude) {
@@ -2026,19 +1902,15 @@ println(s"""
           num12: Int,
           num13: Int,
           num14: Int,
-          num15: Int
-      ) =>
+          num15: Int) =>
         num1 + num2 + num3 + num4 + num5 + num6 + num7 + num8 + num9 +
-          num10 + num11 + num12 + num13 + num14 + num15 + 100
-    )
+          num10 + num11 + num12 + num13 + num14 + num15 + 100)
     checkAnswer(
       session.storedProcedure(sp, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15),
-      Seq(Row(220))
-    )
+      Seq(Row(220)))
     checkAnswer(
       session.storedProcedure(name, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15),
-      Seq(Row(220))
-    )
+      Seq(Row(220)))
   }
 
   test("named temporary: 16 args", JavaStoredProcExclude) {
@@ -2062,19 +1934,15 @@ println(s"""
           num13: Int,
           num14: Int,
           num15: Int,
-          num16: Int
-      ) =>
+          num16: Int) =>
         num1 + num2 + num3 + num4 + num5 + num6 + num7 + num8 + num9 +
-          num10 + num11 + num12 + num13 + num14 + num15 + num16 + 100
-    )
+          num10 + num11 + num12 + num13 + num14 + num15 + num16 + 100)
     checkAnswer(
       session.storedProcedure(sp, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16),
-      Seq(Row(236))
-    )
+      Seq(Row(236)))
     checkAnswer(
       session.storedProcedure(name, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16),
-      Seq(Row(236))
-    )
+      Seq(Row(236)))
   }
 
   test("named temporary: 17 args", JavaStoredProcExclude) {
@@ -2099,19 +1967,15 @@ println(s"""
           num14: Int,
           num15: Int,
           num16: Int,
-          num17: Int
-      ) =>
+          num17: Int) =>
         num1 + num2 + num3 + num4 + num5 + num6 + num7 + num8 + num9 +
-          num10 + num11 + num12 + num13 + num14 + num15 + num16 + num17 + 100
-    )
+          num10 + num11 + num12 + num13 + num14 + num15 + num16 + num17 + 100)
     checkAnswer(
       session.storedProcedure(sp, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17),
-      Seq(Row(253))
-    )
+      Seq(Row(253)))
     checkAnswer(
       session.storedProcedure(name, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17),
-      Seq(Row(253))
-    )
+      Seq(Row(253)))
   }
 
   test("named temporary: 18 args", JavaStoredProcExclude) {
@@ -2137,20 +2001,16 @@ println(s"""
           num15: Int,
           num16: Int,
           num17: Int,
-          num18: Int
-      ) =>
+          num18: Int) =>
         num1 + num2 + num3 + num4 + num5 + num6 + num7 + num8 + num9 +
-          num10 + num11 + num12 + num13 + num14 + num15 + num16 + num17 + num18 + 100
-    )
+          num10 + num11 + num12 + num13 + num14 + num15 + num16 + num17 + num18 + 100)
     checkAnswer(
       session.storedProcedure(sp, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18),
-      Seq(Row(271))
-    )
+      Seq(Row(271)))
     checkAnswer(
       session
         .storedProcedure(name, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18),
-      Seq(Row(271))
-    )
+      Seq(Row(271)))
   }
 
   test("named temporary: 19 args", JavaStoredProcExclude) {
@@ -2177,21 +2037,17 @@ println(s"""
           num16: Int,
           num17: Int,
           num18: Int,
-          num19: Int
-      ) =>
+          num19: Int) =>
         num1 + num2 + num3 + num4 + num5 + num6 + num7 + num8 + num9 +
-          num10 + num11 + num12 + num13 + num14 + num15 + num16 + num17 + num18 + num19 + 100
-    )
+          num10 + num11 + num12 + num13 + num14 + num15 + num16 + num17 + num18 + num19 + 100)
     checkAnswer(
       session
         .storedProcedure(sp, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19),
-      Seq(Row(290))
-    )
+      Seq(Row(290)))
     checkAnswer(
       session
         .storedProcedure(name, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19),
-      Seq(Row(290))
-    )
+      Seq(Row(290)))
   }
 
   test("named temporary: 20 args", JavaStoredProcExclude) {
@@ -2219,17 +2075,14 @@ println(s"""
           num17: Int,
           num18: Int,
           num19: Int,
-          num20: Int
-      ) =>
+          num20: Int) =>
         num1 + num2 + num3 + num4 + num5 + num6 + num7 + num8 + num9 +
           num10 + num11 + num12 + num13 + num14 + num15 + num16 + num17 +
-          num18 + num19 + num20 + 100
-    )
+          num18 + num19 + num20 + 100)
     checkAnswer(
       session
         .storedProcedure(sp, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20),
-      Seq(Row(310))
-    )
+      Seq(Row(310)))
     checkAnswer(
       session.storedProcedure(
         name,
@@ -2252,10 +2105,8 @@ println(s"""
         17,
         18,
         19,
-        20
-      ),
-      Seq(Row(310))
-    )
+        20),
+      Seq(Row(310)))
   }
 
   test("named temporary: 21 args", JavaStoredProcExclude) {
@@ -2284,12 +2135,10 @@ println(s"""
           num18: Int,
           num19: Int,
           num20: Int,
-          num21: Int
-      ) =>
+          num21: Int) =>
         num1 + num2 + num3 + num4 + num5 + num6 + num7 + num8 + num9 +
           num10 + num11 + num12 + num13 + num14 + num15 + num16 + num17 +
-          num18 + num19 + num20 + num21 + 100
-    )
+          num18 + num19 + num20 + num21 + 100)
     checkAnswer(
       session.storedProcedure(
         sp,
@@ -2313,10 +2162,8 @@ println(s"""
         18,
         19,
         20,
-        21
-      ),
-      Seq(Row(331))
-    )
+        21),
+      Seq(Row(331)))
     checkAnswer(
       session.storedProcedure(
         name,
@@ -2340,10 +2187,8 @@ println(s"""
         18,
         19,
         20,
-        21
-      ),
-      Seq(Row(331))
-    )
+        21),
+      Seq(Row(331)))
   }
 
   test("temp is temp") {

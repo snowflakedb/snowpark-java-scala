@@ -12,23 +12,21 @@ class PomSuite extends FunSuite {
   private val fipsPomFileName = "fips-pom.xml"
   private val javaDocPomFileName = "java_doc.xml"
 
-  test("project versions should be updated together") {
+  // todo: should be replaced by SBT
+  ignore("project versions should be updated together") {
     assert(
       PomUtils.getProjectVersion(pomFileName) ==
-        PomUtils.getProjectVersion(javaDocPomFileName)
-    )
+        PomUtils.getProjectVersion(javaDocPomFileName))
     assert(
       PomUtils.getProjectVersion(pomFileName) ==
-        PomUtils.getProjectVersion(fipsPomFileName)
-    )
+        PomUtils.getProjectVersion(fipsPomFileName))
     assert(
       PomUtils
         .getProjectVersion(pomFileName)
-        .matches("\\d+\\.\\d+\\.\\d+(-SNAPSHOT)?")
-    )
+        .matches("\\d+\\.\\d+\\.\\d+(-SNAPSHOT)?"))
   }
 
-  test("dependencies of pom and fips should be updated together") {
+  ignore("dependencies of pom and fips should be updated together") {
     val pomDependencies = PomUtils.getProductDependencies(pomFileName)
     val fipsDependencies = PomUtils.getProductDependencies(fipsPomFileName)
 

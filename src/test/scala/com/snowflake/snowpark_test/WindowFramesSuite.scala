@@ -20,8 +20,7 @@ class WindowFramesSuite extends TestData {
 
     checkAnswer(
       df.select($"key", lead($"value", 1).over(window), lag($"value", 1).over(window)),
-      Row(1, "3", null) :: Row(1, null, "1") :: Row(2, "4", null) :: Row(2, null, "2") :: Nil
-    )
+      Row(1, "3", null) :: Row(1, null, "1") :: Row(2, "4", null) :: Row(2, null, "2") :: Nil)
   }
 
   test("reverse lead/lag with positive offset") {
@@ -30,8 +29,7 @@ class WindowFramesSuite extends TestData {
 
     checkAnswer(
       df.select($"key", lead($"value", 1).over(window), lag($"value", 1).over(window)),
-      Row(1, "1", null) :: Row(1, null, "3") :: Row(2, "2", null) :: Row(2, null, "4") :: Nil
-    )
+      Row(1, "1", null) :: Row(1, null, "3") :: Row(2, "2", null) :: Row(2, null, "4") :: Nil)
   }
 
   test("lead/lag with negative offset") {
@@ -40,8 +38,7 @@ class WindowFramesSuite extends TestData {
 
     checkAnswer(
       df.select($"key", lead($"value", -1).over(window), lag($"value", -1).over(window)),
-      Row(1, "1", null) :: Row(1, null, "3") :: Row(2, "2", null) :: Row(2, null, "4") :: Nil
-    )
+      Row(1, "1", null) :: Row(1, null, "3") :: Row(2, "2", null) :: Row(2, null, "4") :: Nil)
   }
 
   test("reverse lead/lag with negative offset") {
@@ -50,8 +47,7 @@ class WindowFramesSuite extends TestData {
 
     checkAnswer(
       df.select($"key", lead($"value", -1).over(window), lag($"value", -1).over(window)),
-      Row(1, "3", null) :: Row(1, null, "1") :: Row(2, "4", null) :: Row(2, null, "2") :: Nil
-    )
+      Row(1, "3", null) :: Row(1, null, "1") :: Row(2, "4", null) :: Row(2, null, "2") :: Nil)
   }
 
   test("lead/lag with default value") {
@@ -65,12 +61,10 @@ class WindowFramesSuite extends TestData {
         lead($"value", 2).over(window),
         lag($"value", 2).over(window),
         lead($"value", -2).over(window),
-        lag($"value", -2).over(window)
-      ),
+        lag($"value", -2).over(window)),
       Row(1, default, default, default, default) :: Row(1, default, default, default, default) ::
         Row(2, "5", default, default, "5") :: Row(2, default, "2", "2", default) ::
-        Row(2, default, default, default, default) :: Nil
-    )
+        Row(2, default, default, default, default) :: Nil)
   }
 
   test("unbounded rows/range between with aggregation") {
@@ -83,10 +77,8 @@ class WindowFramesSuite extends TestData {
         sum($"value")
           .over(window.rowsBetween(Window.unboundedPreceding, Window.unboundedFollowing)),
         sum($"value")
-          .over(window.rangeBetween(Window.unboundedPreceding, Window.unboundedFollowing))
-      ),
-      Row("one", 4, 4) :: Row("one", 4, 4) :: Row("two", 6, 6) :: Row("two", 6, 6) :: Nil
-    )
+          .over(window.rangeBetween(Window.unboundedPreceding, Window.unboundedFollowing))),
+      Row("one", 4, 4) :: Row("one", 4, 4) :: Row("two", 6, 6) :: Row("two", 6, 6) :: Nil)
   }
 
   test("SN - rows between should accept int/long values as boundary") {
@@ -97,21 +89,17 @@ class WindowFramesSuite extends TestData {
     checkAnswer(
       df.select(
         $"key",
-        count($"key").over(Window.partitionBy($"value").orderBy($"key").rowsBetween(0, 100))
-      ),
-      Seq(Row(1, 3), Row(1, 4), Row(2, 2), Row(2147483650L, 1), Row(2147483650L, 1), Row(3, 2))
-    )
+        count($"key").over(Window.partitionBy($"value").orderBy($"key").rowsBetween(0, 100))),
+      Seq(Row(1, 3), Row(1, 4), Row(2, 2), Row(2147483650L, 1), Row(2147483650L, 1), Row(3, 2)))
 
     val e = intercept[SnowparkClientException](
       df.select(
         $"key",
         count($"key")
-          .over(Window.partitionBy($"value").orderBy($"key").rowsBetween(0, 2147483648L))
-      )
-    )
+          .over(Window.partitionBy($"value").orderBy($"key").rowsBetween(0, 2147483648L))))
     assert(
-      e.message.contains("The ending point for the window frame is not a valid integer: 2147483648")
-    )
+      e.message.contains(
+        "The ending point for the window frame is not a valid integer: 2147483648"))
 
   }
 
@@ -123,22 +111,17 @@ class WindowFramesSuite extends TestData {
       df.select(
         $"key",
         min($"key")
-          .over(window.rangeBetween(Window.unboundedPreceding, Window.unboundedFollowing))
-      ),
-      Seq(Row(1, 1))
-    )
+          .over(window.rangeBetween(Window.unboundedPreceding, Window.unboundedFollowing))),
+      Seq(Row(1, 1)))
 
     intercept[SnowflakeSQLException](
-      df.select(min($"key").over(window.rangeBetween(Window.unboundedPreceding, 1))).collect
-    )
+      df.select(min($"key").over(window.rangeBetween(Window.unboundedPreceding, 1))).collect)
 
     intercept[SnowflakeSQLException](
-      df.select(min($"key").over(window.rangeBetween(-1, Window.unboundedFollowing))).collect
-    )
+      df.select(min($"key").over(window.rangeBetween(-1, Window.unboundedFollowing))).collect)
 
     intercept[SnowflakeSQLException](
-      df.select(min($"key").over(window.rangeBetween(-1, 1))).collect
-    )
+      df.select(min($"key").over(window.rangeBetween(-1, 1))).collect)
   }
 
   test("SN - range between should accept numeric values only when bounded") {
@@ -149,23 +132,18 @@ class WindowFramesSuite extends TestData {
       df.select(
         $"value",
         min($"value")
-          .over(window.rangeBetween(Window.unboundedPreceding, Window.unboundedFollowing))
-      ),
-      Row("non_numeric", "non_numeric") :: Nil
-    )
+          .over(window.rangeBetween(Window.unboundedPreceding, Window.unboundedFollowing))),
+      Row("non_numeric", "non_numeric") :: Nil)
 
     // TODO: Add another test with eager mode enabled
     intercept[SnowflakeSQLException](
-      df.select(min($"value").over(window.rangeBetween(Window.unboundedPreceding, 1))).collect()
-    )
+      df.select(min($"value").over(window.rangeBetween(Window.unboundedPreceding, 1))).collect())
 
     intercept[SnowflakeSQLException](
-      df.select(min($"value").over(window.rangeBetween(-1, Window.unboundedFollowing))).collect()
-    )
+      df.select(min($"value").over(window.rangeBetween(-1, Window.unboundedFollowing))).collect())
 
     intercept[SnowflakeSQLException](
-      df.select(min($"value").over(window.rangeBetween(-1, 1))).collect()
-    )
+      df.select(min($"value").over(window.rangeBetween(-1, 1))).collect())
   }
 
   test("SN - sliding rows between with aggregation") {
@@ -175,8 +153,7 @@ class WindowFramesSuite extends TestData {
     checkAnswer(
       df.select($"key", avg($"key").over(window)),
       Row(1, 1.333) :: Row(1, 1.333) :: Row(2, 1.500) :: Row(2, 2.000) ::
-        Row(2, 2.000) :: Nil
-    )
+        Row(2, 2.000) :: Nil)
   }
 
   test("SN - reverse sliding rows between with aggregation") {
@@ -186,8 +163,7 @@ class WindowFramesSuite extends TestData {
     checkAnswer(
       df.select($"key", avg($"key").over(window)),
       Row(1, 1.000) :: Row(1, 1.333) :: Row(2, 1.333) :: Row(2, 2.000) ::
-        Row(2, 2.000) :: Nil
-    )
+        Row(2, 2.000) :: Nil)
   }
 
   test("Window function any_value()") {
@@ -200,8 +176,7 @@ class WindowFramesSuite extends TestData {
       .select(
         $"key",
         any_value($"value1").over(Window.partitionBy($"key")),
-        any_value($"value2").over(Window.partitionBy($"key"))
-      )
+        any_value($"value2").over(Window.partitionBy($"key")))
       .collect()
     assert(rows.length == 4)
     rows.foreach { row =>

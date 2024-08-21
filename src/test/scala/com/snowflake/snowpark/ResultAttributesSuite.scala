@@ -24,8 +24,7 @@ class ResultAttributesSuite extends SNTestBase {
           .map { case (tpe, index) =>
             s"col_$index $tpe"
           }
-          .mkString(",")
-      )
+          .mkString(","))
       attribute = getTableAttributes(tableName)
     } finally {
       dropTable(name)
@@ -80,8 +79,7 @@ class ResultAttributesSuite extends SNTestBase {
       "timestamp" -> TimestampType,
       "timestamp_ltz" -> TimestampType,
       "timestamp_ntz" -> TimestampType,
-      "timestamp_tz" -> TimestampType
-    )
+      "timestamp_tz" -> TimestampType)
     val attribute = getAttributesWithTypes(tableName, dates.map(_._1))
     assert(attribute.length == dates.length)
     dates.indices.foreach(index => assert(attribute(index).dataType == dates(index)._2))
@@ -94,12 +92,10 @@ class ResultAttributesSuite extends SNTestBase {
 
     assert(
       attribute(0).dataType ==
-        VariantType
-    )
+        VariantType)
     assert(
       attribute(1).dataType ==
-        MapType(StringType, StringType)
-    )
+        MapType(StringType, StringType))
   }
 
   test("Array Type") {
@@ -109,8 +105,6 @@ class ResultAttributesSuite extends SNTestBase {
     variants.indices.foreach(index =>
       assert(
         attribute(index).dataType ==
-          ArrayType(StringType)
-      )
-    )
+          ArrayType(StringType)))
   }
 }

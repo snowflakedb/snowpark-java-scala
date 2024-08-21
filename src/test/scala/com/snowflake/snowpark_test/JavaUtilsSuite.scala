@@ -50,50 +50,40 @@ class JavaUtilsSuite extends FunSuite {
   test("variant array to string array") {
     assert(
       variantArrayToStringArray(Array(new com.snowflake.snowpark.types.Variant(1)))
-        .isInstanceOf[Array[String]]
-    )
+        .isInstanceOf[Array[String]])
     assert(
       variantArrayToStringArray(Array(new com.snowflake.snowpark_java.types.Variant(1)))
-        .isInstanceOf[Array[String]]
-    )
+        .isInstanceOf[Array[String]])
   }
 
   test("string array to variant array") {
     assert(
       stringArrayToVariantArray(Array("1"))
-        .isInstanceOf[Array[com.snowflake.snowpark.types.Variant]]
-    )
+        .isInstanceOf[Array[com.snowflake.snowpark.types.Variant]])
     assert(
       stringArrayToJavaVariantArray(Array("1"))
-        .isInstanceOf[Array[com.snowflake.snowpark_java.types.Variant]]
-    )
+        .isInstanceOf[Array[com.snowflake.snowpark_java.types.Variant]])
   }
 
   test("string map to variant map") {
     assert(
       stringMapToVariantMap(new util.HashMap[String, String]())
-        .isInstanceOf[scala.collection.mutable.Map[String, com.snowflake.snowpark.types.Variant]]
-    )
+        .isInstanceOf[scala.collection.mutable.Map[String, com.snowflake.snowpark.types.Variant]])
     assert(
       stringMapToJavaVariantMap(new util.HashMap[String, String]())
-        .isInstanceOf[util.Map[String, com.snowflake.snowpark_java.types.Variant]]
-    )
+        .isInstanceOf[util.Map[String, com.snowflake.snowpark_java.types.Variant]])
   }
 
   test("variant map to string map") {
     assert(
       variantMapToStringMap(
-        collection.mutable.Map.empty[String, com.snowflake.snowpark.types.Variant]
-      )
-        .isInstanceOf[util.Map[String, String]]
-    )
+        collection.mutable.Map.empty[String, com.snowflake.snowpark.types.Variant])
+        .isInstanceOf[util.Map[String, String]])
 
     assert(
       javaVariantMapToStringMap(
-        new util.HashMap[String, com.snowflake.snowpark_java.types.Variant]()
-      )
-        .isInstanceOf[util.Map[String, String]]
-    )
+        new util.HashMap[String, com.snowflake.snowpark_java.types.Variant]())
+        .isInstanceOf[util.Map[String, String]])
   }
 
   test("variant to string array") {
@@ -101,8 +91,7 @@ class JavaUtilsSuite extends FunSuite {
     assert(variantToStringArray(new Variant(Array("a", "b"))).sameElements(Array("a", "b")))
     assert(
       variantToStringArray(new Variant(Array(new Variant("a"), new Variant("b"))))
-        .sameElements(Array("a", "b"))
-    )
+        .sameElements(Array("a", "b")))
   }
 
   test("java variant to string array") {
@@ -110,8 +99,7 @@ class JavaUtilsSuite extends FunSuite {
     assert(variantToStringArray(new JavaVariant(Array("a", "b"))).sameElements(Array("a", "b")))
     assert(
       variantToStringArray(new JavaVariant(Array(new JavaVariant("a"), new JavaVariant("b"))))
-        .sameElements(Array("a", "b"))
-    )
+        .sameElements(Array("a", "b")))
   }
 
   test("variant to string map") {

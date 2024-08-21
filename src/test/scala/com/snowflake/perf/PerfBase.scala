@@ -12,9 +12,9 @@ trait PerfBase extends SNTestBase {
   // to enable perf test use maven flag `-DargLine="-DPERF_TEST=true"`
   lazy val isPerfTest: Boolean =
     System.getProperty("PERF_TEST") match {
-      case null                                   => false
+      case null => false
       case value if value.toLowerCase() == "true" => true
-      case _                                      => false
+      case _ => false
     }
 
   lazy val snowhouseProfile: String = "snowhouse.properties"
@@ -34,8 +34,7 @@ trait PerfBase extends SNTestBase {
       Paths.get(resultFileName),
       data.getBytes,
       StandardOpenOption.CREATE,
-      StandardOpenOption.APPEND
-    )
+      StandardOpenOption.APPEND)
   }
 
   override def beforeAll: Unit = {
@@ -51,8 +50,7 @@ trait PerfBase extends SNTestBase {
       snowhouseSession.file.put(s"file://$resultFileName", s"@$tmpStageName")
       val fileSchema = StructType(
         StructField("TEST_NAME", StringType),
-        StructField("TIME_CONSUMPTION", DoubleType)
-      )
+        StructField("TIME_CONSUMPTION", DoubleType))
       snowhouseSession.read
         .schema(fileSchema)
         .csv(s"@$tmpStageName")

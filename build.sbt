@@ -5,6 +5,7 @@ val openTelemetryVersion = "1.41.0"
 val slf4jVersion = "2.0.4"
 
 lazy val root = (project in file("."))
+  .configs(CodeVerificationTests)
   .settings(
     name := "snowpark",
     version := "1.15.0-SNAPSHOT",
@@ -31,7 +32,7 @@ lazy val root = (project in file("."))
       "commons-codec" % "commons-codec" % "1.17.0",
       "io.opentelemetry" % "opentelemetry-api" % openTelemetryVersion,
       "net.snowflake" % "snowflake-jdbc" % "3.17.0",
-      "com.github.vertical-blank" % "sql-formatter" % "2.0.5",
+      "com.github.vertical-blank" % "sql-formatter" % "1.0.2",
       "com.fasterxml.jackson.core" % "jackson-databind" % jacksonVersion,
       "com.fasterxml.jackson.core" % "jackson-core" % jacksonVersion,
       "com.fasterxml.jackson.core" % "jackson-annotations" % jacksonVersion,
@@ -48,8 +49,12 @@ lazy val root = (project in file("."))
     javafmtOnCompile := true,
     Test / testOptions := Seq(Tests.Argument(TestFrameworks.JUnit, "-a")),
 //    Test / crossPaths := false,
-    Test / fork := true,
-    Test / javaOptions ++= Seq("-Xms1024M", "-Xmx4096M"),
+    Test / fork := false,
+//    Test / javaOptions ++= Seq("-Xms1024M", "-Xmx4096M"),
+    inConfig(CodeVerificationTests)(Defaults.testTasks),
+    CodeVerificationTests / testOptions += Tests.Filter(isCodeVerification),
+    // default test
+    Test / testOptions += Tests.Filter(isRemainingTest),
     // Release settings
     // usePgpKeyHex(Properties.envOrElse("GPG_SIGNATURE", "12345")),
     Global / pgpPassphrase := Properties.envOrNone("GPG_KEY_PASSPHRASE").map(_.toCharArray),
@@ -80,3 +85,20 @@ lazy val root = (project in file("."))
       }
     )
   )
+
+// Test Groups
+// Code Verification
+def isCodeVerification(name: String): Boolean = {
+  name.startsWith("com.snowflake.code_verification")
+}
+lazy val CodeVerificationTests = config("CodeVerificationTests") extend Test
+
+
+// Java API Tests
+// Java UDx Tests
+// Scala UDx Tests
+// FIPS Tests
+
+// other Tests
+def isRemainingTest(name: String): Boolean = name.endsWith("JavaAPISuite")
+//  ! isCodeVerification(name)

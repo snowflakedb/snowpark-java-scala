@@ -12,30 +12,25 @@ class TableFunctionSuite extends TestData {
     checkAnswer(
       df.join(tableFunctions.flatten, Map("input" -> parse_json(df("a")))).select("value"),
       Seq(Row("1"), Row("2"), Row("3"), Row("4")),
-      sort = false
-    )
+      sort = false)
     checkAnswer(
       df.join(TableFunction("flatten"), Map("input" -> parse_json(df("a"))))
         .select("value"),
       Seq(Row("1"), Row("2"), Row("3"), Row("4")),
-      sort = false
-    )
+      sort = false)
 
     checkAnswer(
       df.join(tableFunctions.split_to_table, df("a"), lit(",")).select("value"),
       Seq(Row("[1"), Row("2]"), Row("[3"), Row("4]")),
-      sort = false
-    )
+      sort = false)
     checkAnswer(
       df.join(tableFunctions.split_to_table, Seq(df("a"), lit(","))).select("value"),
       Seq(Row("[1"), Row("2]"), Row("[3"), Row("4]")),
-      sort = false
-    )
+      sort = false)
     checkAnswer(
       df.join(TableFunction("split_to_table"), df("a"), lit(",")).select("value"),
       Seq(Row("[1"), Row("2]"), Row("[3"), Row("4]")),
-      sort = false
-    )
+      sort = false)
   }
 
   test("session table functions") {
@@ -44,37 +39,32 @@ class TableFunctionSuite extends TestData {
         .tableFunction(tableFunctions.flatten, Map("input" -> parse_json(lit("[1,2]"))))
         .select("value"),
       Seq(Row("1"), Row("2")),
-      sort = false
-    )
+      sort = false)
     checkAnswer(
       session
         .tableFunction(TableFunction("flatten"), Map("input" -> parse_json(lit("[1,2]"))))
         .select("value"),
       Seq(Row("1"), Row("2")),
-      sort = false
-    )
+      sort = false)
 
     checkAnswer(
       session
         .tableFunction(tableFunctions.split_to_table, lit("split by space"), lit(" "))
         .select("value"),
       Seq(Row("split"), Row("by"), Row("space")),
-      sort = false
-    )
+      sort = false)
     checkAnswer(
       session
         .tableFunction(tableFunctions.split_to_table, Seq(lit("split by space"), lit(" ")))
         .select("value"),
       Seq(Row("split"), Row("by"), Row("space")),
-      sort = false
-    )
+      sort = false)
     checkAnswer(
       session
         .tableFunction(TableFunction("split_to_table"), lit("split by space"), lit(" "))
         .select("value"),
       Seq(Row("split"), Row("by"), Row("space")),
-      sort = false
-    )
+      sort = false)
   }
 
   test("session table functions with dataframe columns") {
@@ -84,15 +74,13 @@ class TableFunctionSuite extends TestData {
         .tableFunction(tableFunctions.split_to_table, Seq(df("a"), lit(" ")))
         .select("value"),
       Seq(Row("split"), Row("by"), Row("space")),
-      sort = false
-    )
+      sort = false)
     checkAnswer(
       session
         .tableFunction(TableFunction("split_to_table"), Seq(df("a"), lit(" ")))
         .select("value"),
       Seq(Row("split"), Row("by"), Row("space")),
-      sort = false
-    )
+      sort = false)
 
     val df2 = Seq(("[1,2]", "[5,6]"), ("[3,4]", "[7,8]")).toDF(Seq("a", "b"))
     checkAnswer(
@@ -100,15 +88,13 @@ class TableFunctionSuite extends TestData {
         .tableFunction(tableFunctions.flatten, Map("input" -> parse_json(df2("b"))))
         .select("value"),
       Seq(Row("5"), Row("6"), Row("7"), Row("8")),
-      sort = false
-    )
+      sort = false)
     checkAnswer(
       session
         .tableFunction(TableFunction("flatten"), Map("input" -> parse_json(df2("b"))))
         .select("value"),
       Seq(Row("5"), Row("6"), Row("7"), Row("8")),
-      sort = false
-    )
+      sort = false)
 
     val df3 = Seq("[9, 10]").toDF("c")
     val dfJoined = df2.join(df3)
@@ -117,8 +103,7 @@ class TableFunctionSuite extends TestData {
         .tableFunction(tableFunctions.flatten, Map("input" -> parse_json(dfJoined("b"))))
         .select("value"),
       Seq(Row("5"), Row("6"), Row("7"), Row("8")),
-      sort = false
-    )
+      sort = false)
 
     val tableName = randomName()
     try {
@@ -129,8 +114,7 @@ class TableFunctionSuite extends TestData {
           .tableFunction(tableFunctions.split_to_table, Seq(df4("a"), lit(" ")))
           .select("value"),
         Seq(Row("split"), Row("by"), Row("space")),
-        sort = false
-      )
+        sort = false)
     } finally {
       dropTable(tableName)
     }
@@ -146,8 +130,7 @@ class TableFunctionSuite extends TestData {
       val flattened = table.flatten(table("value"))
       checkAnswer(
         flattened.select(table("value"), flattened("value").as("newValue")),
-        Seq(Row("[\n  \"a\",\n  \"b\"\n]", "\"a\""), Row("[\n  \"a\",\n  \"b\"\n]", "\"b\""))
-      )
+        Seq(Row("[\n  \"a\",\n  \"b\"\n]", "\"a\""), Row("[\n  \"a\",\n  \"b\"\n]", "\"b\"")))
     } finally {
       dropTable(tableName)
     }
@@ -160,8 +143,7 @@ class TableFunctionSuite extends TestData {
       "Obs1\t-0.74\t-0.2\t0.3",
       "Obs2\t5442\t0.19\t0.16",
       "Obs3\t0.34\t0.46\t0.72",
-      "Obs4\t-0.15\t0.71\t0.13"
-    ).toDF("line")
+      "Obs4\t-0.15\t0.71\t0.13").toDF("line")
 
     val flattenedMatrix = df
       .withColumn("rowLabel", split(col("line"), lit("\t"))(0))
@@ -198,28 +180,22 @@ class TableFunctionSuite extends TestData {
      ||"Obs3"      |Sample3    |0.72         |
      ||"Obs4"      |Sample3    |0.13         |
      |----------------------------------------
-     |""".stripMargin
-    )
+     |""".stripMargin)
   }
 
   test("Argument in table function: flatten") {
     val df = Seq(
       (1, Array(1, 2, 3), Map("a" -> "b", "c" -> "d")),
-      (2, Array(11, 22, 33), Map("a1" -> "b1", "c1" -> "d1"))
-    ).toDF("idx", "arr", "map")
+      (2, Array(11, 22, 33), Map("a1" -> "b1", "c1" -> "d1"))).toDF("idx", "arr", "map")
     checkAnswer(
       df.join(tableFunctions.flatten(df("arr")))
         .select("value"),
-      Seq(Row("1"), Row("2"), Row("3"), Row("11"), Row("22"), Row("33"))
-    )
+      Seq(Row("1"), Row("2"), Row("3"), Row("11"), Row("22"), Row("33")))
     // error if it is not a table function
     val error1 = intercept[SnowparkClientException] { df.join(lit("dummy")) }
     assert(
-      error1.message.contains(
-        "Unsupported join operations, Dataframes can join " +
-          "with other Dataframes or TableFunctions only"
-      )
-    )
+      error1.message.contains("Unsupported join operations, Dataframes can join " +
+        "with other Dataframes or TableFunctions only"))
   }
 
   test("Argument in table function: flatten2") {
@@ -232,12 +208,9 @@ class TableFunctionSuite extends TestData {
             path = "b",
             outer = true,
             recursive = true,
-            mode = "both"
-          )
-        )
+            mode = "both"))
         .select("value"),
-      Seq(Row("77"), Row("88"))
-    )
+      Seq(Row("77"), Row("88")))
 
     val df2 = Seq("[]").toDF("col")
     checkAnswer(
@@ -248,12 +221,9 @@ class TableFunctionSuite extends TestData {
             path = "",
             outer = true,
             recursive = true,
-            mode = "both"
-          )
-        )
+            mode = "both"))
         .select("value"),
-      Seq(Row(null))
-    )
+      Seq(Row(null)))
 
     assert(
       df1
@@ -263,11 +233,8 @@ class TableFunctionSuite extends TestData {
             path = "",
             outer = true,
             recursive = true,
-            mode = "both"
-          )
-        )
-        .count() == 4
-    )
+            mode = "both"))
+        .count() == 4)
     assert(
       df1
         .join(
@@ -276,11 +243,8 @@ class TableFunctionSuite extends TestData {
             path = "",
             outer = true,
             recursive = false,
-            mode = "both"
-          )
-        )
-        .count() == 2
-    )
+            mode = "both"))
+        .count() == 2)
     assert(
       df1
         .join(
@@ -289,11 +253,8 @@ class TableFunctionSuite extends TestData {
             path = "",
             outer = true,
             recursive = true,
-            mode = "array"
-          )
-        )
-        .count() == 1
-    )
+            mode = "array"))
+        .count() == 1)
     assert(
       df1
         .join(
@@ -302,32 +263,24 @@ class TableFunctionSuite extends TestData {
             path = "",
             outer = true,
             recursive = true,
-            mode = "object"
-          )
-        )
-        .count() == 2
-    )
+            mode = "object"))
+        .count() == 2)
   }
 
   test("Argument in table function: flatten - session") {
     val df = Seq(
       (1, Array(1, 2, 3), Map("a" -> "b", "c" -> "d")),
-      (2, Array(11, 22, 33), Map("a1" -> "b1", "c1" -> "d1"))
-    ).toDF("idx", "arr", "map")
+      (2, Array(11, 22, 33), Map("a1" -> "b1", "c1" -> "d1"))).toDF("idx", "arr", "map")
     checkAnswer(
       session.tableFunction(tableFunctions.flatten(df("arr"))).select("value"),
-      Seq(Row("1"), Row("2"), Row("3"), Row("11"), Row("22"), Row("33"))
-    )
+      Seq(Row("1"), Row("2"), Row("3"), Row("11"), Row("22"), Row("33")))
     // error if it is not a table function
     val error1 = intercept[SnowparkClientException] {
       session.tableFunction(lit("dummy"))
     }
     assert(
-      error1.message.contains(
-        "Invalid input argument, " +
-          "Session.tableFunction only supports table function arguments"
-      )
-    )
+      error1.message.contains("Invalid input argument, " +
+        "Session.tableFunction only supports table function arguments"))
   }
 
   test("Argument in table function: flatten - session 2") {
@@ -340,12 +293,9 @@ class TableFunctionSuite extends TestData {
             path = "b",
             outer = true,
             recursive = true,
-            mode = "both"
-          )
-        )
+            mode = "both"))
         .select("value"),
-      Seq(Row("77"), Row("88"))
-    )
+      Seq(Row("77"), Row("88")))
   }
 
   test("Argument in table function: split_to_table") {
@@ -353,15 +303,13 @@ class TableFunctionSuite extends TestData {
 
     checkAnswer(
       df.join(tableFunctions.split_to_table(df("data"), ",")).select("value"),
-      Seq(Row("1"), Row("2"), Row("3"), Row("4"))
-    )
+      Seq(Row("1"), Row("2"), Row("3"), Row("4")))
 
     checkAnswer(
       session
         .tableFunction(tableFunctions.split_to_table(df("data"), ","))
         .select("value"),
-      Seq(Row("1"), Row("2"), Row("3"), Row("4"))
-    )
+      Seq(Row("1"), Row("2"), Row("3"), Row("4")))
   }
 
   test("Argument in table function: table function") {
@@ -370,8 +318,7 @@ class TableFunctionSuite extends TestData {
     checkAnswer(
       df.join(TableFunction("split_to_table")(df("data"), lit(",")))
         .select("value"),
-      Seq(Row("1"), Row("2"), Row("3"), Row("4"))
-    )
+      Seq(Row("1"), Row("2"), Row("3"), Row("4")))
 
     val df1 = Seq("{\"a\":1, \"b\":[77, 88]}").toDF("col")
     checkAnswer(
@@ -383,13 +330,9 @@ class TableFunctionSuite extends TestData {
               "path" -> lit("b"),
               "outer" -> lit(true),
               "recursive" -> lit(true),
-              "mode" -> lit("both")
-            )
-          )
-        )
+              "mode" -> lit("both"))))
         .select("value"),
-      Seq(Row("77"), Row("88"))
-    )
+      Seq(Row("77"), Row("88")))
   }
 
   test("table function in select") {
@@ -404,23 +347,20 @@ class TableFunctionSuite extends TestData {
     assert(result2.schema.map(_.name) == Seq("IDX", "SEQ", "INDEX", "VALUE"))
     checkAnswer(
       result2,
-      Seq(Row(1, 1, 1, "1"), Row(1, 1, 2, "2"), Row(2, 2, 1, "3"), Row(2, 2, 2, "4"))
-    )
+      Seq(Row(1, 1, 1, "1"), Row(1, 1, 2, "2"), Row(2, 2, 1, "3"), Row(2, 2, 2, "4")))
 
     // columns + tf + columns
     val result3 = df.select(df("idx"), tableFunctions.split_to_table(df("data"), ","), df("idx"))
     assert(result3.schema.map(_.name) == Seq("IDX", "SEQ", "INDEX", "VALUE", "IDX"))
     checkAnswer(
       result3,
-      Seq(Row(1, 1, 1, "1", 1), Row(1, 1, 2, "2", 1), Row(2, 2, 1, "3", 2), Row(2, 2, 2, "4", 2))
-    )
+      Seq(Row(1, 1, 1, "1", 1), Row(1, 1, 2, "2", 1), Row(2, 2, 1, "3", 2), Row(2, 2, 2, "4", 2)))
 
     // tf + other express
     val result4 = df.select(tableFunctions.split_to_table(df("data"), ","), df("idx") + 100)
     checkAnswer(
       result4,
-      Seq(Row(1, 1, "1", 101), Row(1, 2, "2", 101), Row(2, 1, "3", 102), Row(2, 2, "4", 102))
-    )
+      Seq(Row(1, 1, "1", 101), Row(1, 2, "2", 101), Row(2, 1, "3", 102), Row(2, 2, "4", 102)))
   }
 
   test("table function join with duplicated column name") {
@@ -448,8 +388,7 @@ class TableFunctionSuite extends TestData {
     val df1 = df.select(parse_json(df("a")).cast(types.ArrayType(types.IntegerType)).as("a"))
     checkAnswer(
       df1.select(lit(1), tableFunctions.explode(df1("a")), df1("a")(1)),
-      Seq(Row(1, "1", "2"), Row(1, "2", "2"))
-    )
+      Seq(Row(1, "1", "2"), Row(1, "2", "2")))
   }
 
   test("explode with map column") {
@@ -457,28 +396,23 @@ class TableFunctionSuite extends TestData {
     val df1 = df.select(
       parse_json(df("a"))
         .cast(types.MapType(types.StringType, types.IntegerType))
-        .as("a")
-    )
+        .as("a"))
     checkAnswer(
       df1.select(lit(1), tableFunctions.explode(df1("a")), df1("a")("a")),
-      Seq(Row(1, "a", "1", "1"), Row(1, "b", "2", "1"))
-    )
+      Seq(Row(1, "a", "1", "1"), Row(1, "b", "2", "1")))
   }
 
   test("explode with other column") {
     val df = Seq("""{"a":1, "b": 2}""").toDF("a")
     val df1 = df.select(
       parse_json(df("a"))
-        .as("a")
-    )
+        .as("a"))
     val error = intercept[SnowparkClientException] {
       df1.select(tableFunctions.explode(df1("a"))).show()
     }
     assert(
       error.message.contains(
-        "the input argument type of Explode function should be either Map or Array types"
-      )
-    )
+        "the input argument type of Explode function should be either Map or Array types"))
     assert(error.message.contains("The input argument type: Variant"))
   }
 
@@ -494,21 +428,17 @@ class TableFunctionSuite extends TestData {
     val df1 = df.select(
       parse_json(df("a"))
         .cast(types.MapType(types.StringType, types.IntegerType))
-        .as("a")
-    )
+        .as("a"))
     checkAnswer(
       session.tableFunction(tableFunctions.explode(df1("a"))),
-      Seq(Row("a", "1"), Row("b", "2"))
-    )
+      Seq(Row("a", "1"), Row("b", "2")))
 
     // with literal value
     checkAnswer(
       session.tableFunction(
         tableFunctions
-          .explode(parse_json(lit("[1, 2]")).cast(types.ArrayType(types.IntegerType)))
-      ),
-      Seq(Row("1"), Row("2"))
-    )
+          .explode(parse_json(lit("[1, 2]")).cast(types.ArrayType(types.IntegerType)))),
+      Seq(Row("1"), Row("2")))
   }
 
 }

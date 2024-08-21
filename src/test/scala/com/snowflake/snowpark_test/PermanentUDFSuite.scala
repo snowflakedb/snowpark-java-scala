@@ -200,8 +200,7 @@ class PermanentUDFSuite extends TestData {
                          |    return x;
                          |  }
                          |}'""".stripMargin,
-        session
-      )
+        session)
       // Before the UDF registration, there is no file in @$stageName1/$permFuncName/
       assert(session.sql(s"ls @$stageName1/$permFuncName/").collect().length == 0)
       // The same name UDF registration will fail.
@@ -282,13 +281,11 @@ class PermanentUDFSuite extends TestData {
       checkAnswer(
         df.select(callUDF(funcName, df("a1"), df("a2"))),
         Seq(Row(3), Row(23)),
-        sort = false
-      )
+        sort = false)
       checkAnswer(
         newDf.select(callUDF(funcName, newDf("a1"), newDf("a2"))),
         Seq(Row(3), Row(23)),
-        sort = false
-      )
+        sort = false)
     } finally {
       runQuery(s"drop function $funcName(INT,INT)", session)
     }
@@ -308,13 +305,11 @@ class PermanentUDFSuite extends TestData {
       checkAnswer(
         df.select(callUDF(funcName, df("a1"), df("a2"), df("a3"))),
         Seq(Row(6), Row(36)),
-        sort = false
-      )
+        sort = false)
       checkAnswer(
         newDf.select(callUDF(funcName, newDf("a1"), newDf("a2"), newDf("a3"))),
         Seq(Row(6), Row(36)),
-        sort = false
-      )
+        sort = false)
     } finally {
       runQuery(s"drop function $funcName(INT,INT,INT)", session)
     }
@@ -337,13 +332,11 @@ class PermanentUDFSuite extends TestData {
       checkAnswer(
         df.select(callUDF(funcName, df("a1"), df("a2"), df("a3"), df("a4"))),
         Seq(Row(10), Row(50)),
-        sort = false
-      )
+        sort = false)
       checkAnswer(
         newDf.select(callUDF(funcName, newDf("a1"), newDf("a2"), newDf("a3"), newDf("a4"))),
         Seq(Row(10), Row(50)),
-        sort = false
-      )
+        sort = false)
     } finally {
       runQuery(s"drop function $funcName(INT,INT,INT,INT)", session)
     }
@@ -366,15 +359,12 @@ class PermanentUDFSuite extends TestData {
       checkAnswer(
         df.select(callUDF(funcName, df("a1"), df("a2"), df("a3"), df("a4"), df("a5"))),
         Seq(Row(15), Row(65)),
-        sort = false
-      )
+        sort = false)
       checkAnswer(
         newDf.select(
-          callUDF(funcName, newDf("a1"), newDf("a2"), newDf("a3"), newDf("a4"), newDf("a5"))
-        ),
+          callUDF(funcName, newDf("a1"), newDf("a2"), newDf("a3"), newDf("a4"), newDf("a5"))),
         Seq(Row(15), Row(65)),
-        sort = false
-      )
+        sort = false)
     } finally {
       runQuery(s"drop function $funcName(INT,INT,INT,INT,INT)", session)
     }
@@ -398,8 +388,7 @@ class PermanentUDFSuite extends TestData {
       checkAnswer(
         df.select(callUDF(funcName, df("a1"), df("a2"), df("a3"), df("a4"), df("a5"), df("a6"))),
         Seq(Row(21), Row(81)),
-        sort = false
-      )
+        sort = false)
       checkAnswer(
         newDf.select(
           callUDF(
@@ -409,12 +398,9 @@ class PermanentUDFSuite extends TestData {
             newDf("a3"),
             newDf("a4"),
             newDf("a5"),
-            newDf("a6")
-          )
-        ),
+            newDf("a6"))),
         Seq(Row(21), Row(81)),
-        sort = false
-      )
+        sort = false)
     } finally {
       runQuery(s"drop function $funcName(INT,INT,INT,INT,INT,INT)", session)
     }
@@ -437,11 +423,9 @@ class PermanentUDFSuite extends TestData {
       session.udf.registerPermanent(funcName, func, stageName)
       checkAnswer(
         df.select(
-          callUDF(funcName, df("a1"), df("a2"), df("a3"), df("a4"), df("a5"), df("a6"), df("a7"))
-        ),
+          callUDF(funcName, df("a1"), df("a2"), df("a3"), df("a4"), df("a5"), df("a6"), df("a7"))),
         Seq(Row(28), Row(98)),
-        sort = false
-      )
+        sort = false)
       checkAnswer(
         newDf.select(
           callUDF(
@@ -452,12 +436,9 @@ class PermanentUDFSuite extends TestData {
             newDf("a4"),
             newDf("a5"),
             newDf("a6"),
-            newDf("a7")
-          )
-        ),
+            newDf("a7"))),
         Seq(Row(28), Row(98)),
-        sort = false
-      )
+        sort = false)
     } finally {
       runQuery(s"drop function $funcName(INT,INT,INT,INT,INT,INT,INT)", session)
     }
@@ -489,12 +470,9 @@ class PermanentUDFSuite extends TestData {
             df("a5"),
             df("a6"),
             df("a7"),
-            df("a8")
-          )
-        ),
+            df("a8"))),
         Seq(Row(36), Row(116)),
-        sort = false
-      )
+        sort = false)
       checkAnswer(
         newDf.select(
           callUDF(
@@ -506,12 +484,9 @@ class PermanentUDFSuite extends TestData {
             newDf("a5"),
             newDf("a6"),
             newDf("a7"),
-            newDf("a8")
-          )
-        ),
+            newDf("a8"))),
         Seq(Row(36), Row(116)),
-        sort = false
-      )
+        sort = false)
     } finally {
       runQuery(s"drop function $funcName(INT,INT,INT,INT,INT,INT,INT,INT)", session)
     }
@@ -545,12 +520,9 @@ class PermanentUDFSuite extends TestData {
             df("a6"),
             df("a7"),
             df("a8"),
-            df("a9")
-          )
-        ),
+            df("a9"))),
         Seq(Row(45), Row(135)),
-        sort = false
-      )
+        sort = false)
       checkAnswer(
         newDf.select(
           callUDF(
@@ -563,12 +535,9 @@ class PermanentUDFSuite extends TestData {
             newDf("a6"),
             newDf("a7"),
             newDf("a8"),
-            newDf("a9")
-          )
-        ),
+            newDf("a9"))),
         Seq(Row(45), Row(135)),
-        sort = false
-      )
+        sort = false)
     } finally {
       runQuery(s"drop function $funcName(INT,INT,INT,INT,INT,INT,INT,INT,INT)", session)
     }
@@ -580,8 +549,7 @@ class PermanentUDFSuite extends TestData {
     import functions.callUDF
     val df = session
       .createDataFrame(
-        Seq((1, 2, 3, 4, 5, 6, 7, 8, 9, 10), (11, 12, 13, 14, 15, 16, 17, 18, 19, 20))
-      )
+        Seq((1, 2, 3, 4, 5, 6, 7, 8, 9, 10), (11, 12, 13, 14, 15, 16, 17, 18, 19, 20)))
       .toDF(Seq("a1", "a2", "a3", "a4", "a5", "a6", "a7", "a8", "a9", "a10"))
     val func =
       (a1: Int, a2: Int, a3: Int, a4: Int, a5: Int, a6: Int, a7: Int, a8: Int, a9: Int, a10: Int) =>
@@ -589,8 +557,7 @@ class PermanentUDFSuite extends TestData {
     val funcName: String = randomName()
     val newDf = newSession
       .createDataFrame(
-        Seq((1, 2, 3, 4, 5, 6, 7, 8, 9, 10), (11, 12, 13, 14, 15, 16, 17, 18, 19, 20))
-      )
+        Seq((1, 2, 3, 4, 5, 6, 7, 8, 9, 10), (11, 12, 13, 14, 15, 16, 17, 18, 19, 20)))
       .toDF(Seq("a1", "a2", "a3", "a4", "a5", "a6", "a7", "a8", "a9", "a10"))
     try {
       session.udf.registerPermanent(funcName, func, stageName)
@@ -607,12 +574,9 @@ class PermanentUDFSuite extends TestData {
             df("a7"),
             df("a8"),
             df("a9"),
-            df("a10")
-          )
-        ),
+            df("a10"))),
         Seq(Row(55), Row(155)),
-        sort = false
-      )
+        sort = false)
       checkAnswer(
         newDf.select(
           callUDF(
@@ -626,12 +590,9 @@ class PermanentUDFSuite extends TestData {
             newDf("a7"),
             newDf("a8"),
             newDf("a9"),
-            newDf("a10")
-          )
-        ),
+            newDf("a10"))),
         Seq(Row(55), Row(155)),
-        sort = false
-      )
+        sort = false)
     } finally {
       runQuery(s"drop function $funcName(INT,INT,INT,INT,INT,INT,INT,INT,INT,INT)", session)
     }
@@ -643,8 +604,7 @@ class PermanentUDFSuite extends TestData {
     import functions.callUDF
     val df = session
       .createDataFrame(
-        Seq((1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11), (11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21))
-      )
+        Seq((1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11), (11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21)))
       .toDF(Seq("a1", "a2", "a3", "a4", "a5", "a6", "a7", "a8", "a9", "a10", "a11"))
     val func = (
         a1: Int,
@@ -657,13 +617,11 @@ class PermanentUDFSuite extends TestData {
         a8: Int,
         a9: Int,
         a10: Int,
-        a11: Int
-    ) => a1 + a2 + a3 + a4 + a5 + a6 + a7 + a8 + a9 + a10 + a11
+        a11: Int) => a1 + a2 + a3 + a4 + a5 + a6 + a7 + a8 + a9 + a10 + a11
     val funcName: String = randomName()
     val newDf = newSession
       .createDataFrame(
-        Seq((1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11), (11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21))
-      )
+        Seq((1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11), (11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21)))
       .toDF(Seq("a1", "a2", "a3", "a4", "a5", "a6", "a7", "a8", "a9", "a10", "a11"))
     try {
       session.udf.registerPermanent(funcName, func, stageName)
@@ -681,12 +639,9 @@ class PermanentUDFSuite extends TestData {
             df("a8"),
             df("a9"),
             df("a10"),
-            df("a11")
-          )
-        ),
+            df("a11"))),
         Seq(Row(66), Row(176)),
-        sort = false
-      )
+        sort = false)
       checkAnswer(
         newDf.select(
           callUDF(
@@ -701,12 +656,9 @@ class PermanentUDFSuite extends TestData {
             newDf("a8"),
             newDf("a9"),
             newDf("a10"),
-            newDf("a11")
-          )
-        ),
+            newDf("a11"))),
         Seq(Row(66), Row(176)),
-        sort = false
-      )
+        sort = false)
     } finally {
       runQuery(s"drop function $funcName(INT,INT,INT,INT,INT,INT,INT,INT,INT,INT,INT)", session)
     }
@@ -720,9 +672,7 @@ class PermanentUDFSuite extends TestData {
       .createDataFrame(
         Seq(
           (1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12),
-          (11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22)
-        )
-      )
+          (11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22)))
       .toDF(Seq("a1", "a2", "a3", "a4", "a5", "a6", "a7", "a8", "a9", "a10", "a11", "a12"))
     val func = (
         a1: Int,
@@ -736,16 +686,13 @@ class PermanentUDFSuite extends TestData {
         a9: Int,
         a10: Int,
         a11: Int,
-        a12: Int
-    ) => a1 + a2 + a3 + a4 + a5 + a6 + a7 + a8 + a9 + a10 + a11 + a12
+        a12: Int) => a1 + a2 + a3 + a4 + a5 + a6 + a7 + a8 + a9 + a10 + a11 + a12
     val funcName: String = randomName()
     val newDf = newSession
       .createDataFrame(
         Seq(
           (1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12),
-          (11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22)
-        )
-      )
+          (11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22)))
       .toDF(Seq("a1", "a2", "a3", "a4", "a5", "a6", "a7", "a8", "a9", "a10", "a11", "a12"))
     try {
       session.udf.registerPermanent(funcName, func, stageName)
@@ -764,12 +711,9 @@ class PermanentUDFSuite extends TestData {
             df("a9"),
             df("a10"),
             df("a11"),
-            df("a12")
-          )
-        ),
+            df("a12"))),
         Seq(Row(78), Row(198)),
-        sort = false
-      )
+        sort = false)
       checkAnswer(
         newDf.select(
           callUDF(
@@ -785,12 +729,9 @@ class PermanentUDFSuite extends TestData {
             newDf("a9"),
             newDf("a10"),
             newDf("a11"),
-            newDf("a12")
-          )
-        ),
+            newDf("a12"))),
         Seq(Row(78), Row(198)),
-        sort = false
-      )
+        sort = false)
     } finally {
       runQuery(s"drop function $funcName(INT,INT,INT,INT,INT,INT,INT,INT,INT,INT,INT,INT)", session)
     }
@@ -804,9 +745,7 @@ class PermanentUDFSuite extends TestData {
       .createDataFrame(
         Seq(
           (1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13),
-          (11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23)
-        )
-      )
+          (11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23)))
       .toDF(Seq("a1", "a2", "a3", "a4", "a5", "a6", "a7", "a8", "a9", "a10", "a11", "a12", "a13"))
     val func = (
         a1: Int,
@@ -821,16 +760,13 @@ class PermanentUDFSuite extends TestData {
         a10: Int,
         a11: Int,
         a12: Int,
-        a13: Int
-    ) => a1 + a2 + a3 + a4 + a5 + a6 + a7 + a8 + a9 + a10 + a11 + a12 + a13
+        a13: Int) => a1 + a2 + a3 + a4 + a5 + a6 + a7 + a8 + a9 + a10 + a11 + a12 + a13
     val funcName: String = randomName()
     val newDf = newSession
       .createDataFrame(
         Seq(
           (1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13),
-          (11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23)
-        )
-      )
+          (11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23)))
       .toDF(Seq("a1", "a2", "a3", "a4", "a5", "a6", "a7", "a8", "a9", "a10", "a11", "a12", "a13"))
     try {
       session.udf.registerPermanent(funcName, func, stageName)
@@ -850,12 +786,9 @@ class PermanentUDFSuite extends TestData {
             df("a10"),
             df("a11"),
             df("a12"),
-            df("a13")
-          )
-        ),
+            df("a13"))),
         Seq(Row(91), Row(221)),
-        sort = false
-      )
+        sort = false)
       checkAnswer(
         newDf.select(
           callUDF(
@@ -872,17 +805,13 @@ class PermanentUDFSuite extends TestData {
             newDf("a10"),
             newDf("a11"),
             newDf("a12"),
-            newDf("a13")
-          )
-        ),
+            newDf("a13"))),
         Seq(Row(91), Row(221)),
-        sort = false
-      )
+        sort = false)
     } finally {
       runQuery(
         s"drop function $funcName(INT,INT,INT,INT,INT,INT,INT,INT,INT,INT,INT,INT,INT)",
-        session
-      )
+        session)
     }
     // scalastyle:on
   }
@@ -894,12 +823,23 @@ class PermanentUDFSuite extends TestData {
       .createDataFrame(
         Seq(
           (1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14),
-          (11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24)
-        )
-      )
+          (11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24)))
       .toDF(
-        Seq("a1", "a2", "a3", "a4", "a5", "a6", "a7", "a8", "a9", "a10", "a11", "a12", "a13", "a14")
-      )
+        Seq(
+          "a1",
+          "a2",
+          "a3",
+          "a4",
+          "a5",
+          "a6",
+          "a7",
+          "a8",
+          "a9",
+          "a10",
+          "a11",
+          "a12",
+          "a13",
+          "a14"))
     val func = (
         a1: Int,
         a2: Int,
@@ -914,19 +854,29 @@ class PermanentUDFSuite extends TestData {
         a11: Int,
         a12: Int,
         a13: Int,
-        a14: Int
-    ) => a1 + a2 + a3 + a4 + a5 + a6 + a7 + a8 + a9 + a10 + a11 + a12 + a13 + a14
+        a14: Int) => a1 + a2 + a3 + a4 + a5 + a6 + a7 + a8 + a9 + a10 + a11 + a12 + a13 + a14
     val funcName: String = randomName()
     val newDf = newSession
       .createDataFrame(
         Seq(
           (1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14),
-          (11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24)
-        )
-      )
+          (11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24)))
       .toDF(
-        Seq("a1", "a2", "a3", "a4", "a5", "a6", "a7", "a8", "a9", "a10", "a11", "a12", "a13", "a14")
-      )
+        Seq(
+          "a1",
+          "a2",
+          "a3",
+          "a4",
+          "a5",
+          "a6",
+          "a7",
+          "a8",
+          "a9",
+          "a10",
+          "a11",
+          "a12",
+          "a13",
+          "a14"))
     try {
       session.udf.registerPermanent(funcName, func, stageName)
       checkAnswer(
@@ -946,12 +896,9 @@ class PermanentUDFSuite extends TestData {
             df("a11"),
             df("a12"),
             df("a13"),
-            df("a14")
-          )
-        ),
+            df("a14"))),
         Seq(Row(105), Row(245)),
-        sort = false
-      )
+        sort = false)
       checkAnswer(
         newDf.select(
           callUDF(
@@ -969,17 +916,13 @@ class PermanentUDFSuite extends TestData {
             newDf("a11"),
             newDf("a12"),
             newDf("a13"),
-            newDf("a14")
-          )
-        ),
+            newDf("a14"))),
         Seq(Row(105), Row(245)),
-        sort = false
-      )
+        sort = false)
     } finally {
       runQuery(
         s"drop function $funcName(INT,INT,INT,INT,INT,INT,INT,INT,INT,INT,INT,INT,INT,INT)",
-        session
-      )
+        session)
     }
     // scalastyle:on
   }
@@ -991,9 +934,7 @@ class PermanentUDFSuite extends TestData {
       .createDataFrame(
         Seq(
           (1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15),
-          (11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25)
-        )
-      )
+          (11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25)))
       .toDF(
         Seq(
           "a1",
@@ -1010,9 +951,7 @@ class PermanentUDFSuite extends TestData {
           "a12",
           "a13",
           "a14",
-          "a15"
-        )
-      )
+          "a15"))
     val func = (
         a1: Int,
         a2: Int,
@@ -1028,16 +967,13 @@ class PermanentUDFSuite extends TestData {
         a12: Int,
         a13: Int,
         a14: Int,
-        a15: Int
-    ) => a1 + a2 + a3 + a4 + a5 + a6 + a7 + a8 + a9 + a10 + a11 + a12 + a13 + a14 + a15
+        a15: Int) => a1 + a2 + a3 + a4 + a5 + a6 + a7 + a8 + a9 + a10 + a11 + a12 + a13 + a14 + a15
     val funcName: String = randomName()
     val newDf = newSession
       .createDataFrame(
         Seq(
           (1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15),
-          (11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25)
-        )
-      )
+          (11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25)))
       .toDF(
         Seq(
           "a1",
@@ -1054,9 +990,7 @@ class PermanentUDFSuite extends TestData {
           "a12",
           "a13",
           "a14",
-          "a15"
-        )
-      )
+          "a15"))
     try {
       session.udf.registerPermanent(funcName, func, stageName)
       checkAnswer(
@@ -1077,12 +1011,9 @@ class PermanentUDFSuite extends TestData {
             df("a12"),
             df("a13"),
             df("a14"),
-            df("a15")
-          )
-        ),
+            df("a15"))),
         Seq(Row(120), Row(270)),
-        sort = false
-      )
+        sort = false)
       checkAnswer(
         newDf.select(
           callUDF(
@@ -1101,17 +1032,13 @@ class PermanentUDFSuite extends TestData {
             newDf("a12"),
             newDf("a13"),
             newDf("a14"),
-            newDf("a15")
-          )
-        ),
+            newDf("a15"))),
         Seq(Row(120), Row(270)),
-        sort = false
-      )
+        sort = false)
     } finally {
       runQuery(
         s"drop function $funcName(INT,INT,INT,INT,INT,INT,INT,INT,INT,INT,INT,INT,INT,INT,INT)",
-        session
-      )
+        session)
     }
     // scalastyle:on
   }
@@ -1123,9 +1050,7 @@ class PermanentUDFSuite extends TestData {
       .createDataFrame(
         Seq(
           (1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16),
-          (11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26)
-        )
-      )
+          (11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26)))
       .toDF(
         Seq(
           "a1",
@@ -1143,9 +1068,7 @@ class PermanentUDFSuite extends TestData {
           "a13",
           "a14",
           "a15",
-          "a16"
-        )
-      )
+          "a16"))
     val func = (
         a1: Int,
         a2: Int,
@@ -1162,16 +1085,14 @@ class PermanentUDFSuite extends TestData {
         a13: Int,
         a14: Int,
         a15: Int,
-        a16: Int
-    ) => a1 + a2 + a3 + a4 + a5 + a6 + a7 + a8 + a9 + a10 + a11 + a12 + a13 + a14 + a15 + a16
+        a16: Int) =>
+      a1 + a2 + a3 + a4 + a5 + a6 + a7 + a8 + a9 + a10 + a11 + a12 + a13 + a14 + a15 + a16
     val funcName: String = randomName()
     val newDf = newSession
       .createDataFrame(
         Seq(
           (1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16),
-          (11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26)
-        )
-      )
+          (11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26)))
       .toDF(
         Seq(
           "a1",
@@ -1189,9 +1110,7 @@ class PermanentUDFSuite extends TestData {
           "a13",
           "a14",
           "a15",
-          "a16"
-        )
-      )
+          "a16"))
     try {
       session.udf.registerPermanent(funcName, func, stageName)
       checkAnswer(
@@ -1213,12 +1132,9 @@ class PermanentUDFSuite extends TestData {
             df("a13"),
             df("a14"),
             df("a15"),
-            df("a16")
-          )
-        ),
+            df("a16"))),
         Seq(Row(136), Row(296)),
-        sort = false
-      )
+        sort = false)
       checkAnswer(
         newDf.select(
           callUDF(
@@ -1238,17 +1154,13 @@ class PermanentUDFSuite extends TestData {
             newDf("a13"),
             newDf("a14"),
             newDf("a15"),
-            newDf("a16")
-          )
-        ),
+            newDf("a16"))),
         Seq(Row(136), Row(296)),
-        sort = false
-      )
+        sort = false)
     } finally {
       runQuery(
         s"drop function $funcName(INT,INT,INT,INT,INT,INT,INT,INT,INT,INT,INT,INT,INT,INT,INT,INT)",
-        session
-      )
+        session)
     }
     // scalastyle:on
   }
@@ -1260,9 +1172,7 @@ class PermanentUDFSuite extends TestData {
       .createDataFrame(
         Seq(
           (1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17),
-          (11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27)
-        )
-      )
+          (11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27)))
       .toDF(
         Seq(
           "a1",
@@ -1281,9 +1191,7 @@ class PermanentUDFSuite extends TestData {
           "a14",
           "a15",
           "a16",
-          "a17"
-        )
-      )
+          "a17"))
     val func = (
         a1: Int,
         a2: Int,
@@ -1301,16 +1209,14 @@ class PermanentUDFSuite extends TestData {
         a14: Int,
         a15: Int,
         a16: Int,
-        a17: Int
-    ) => a1 + a2 + a3 + a4 + a5 + a6 + a7 + a8 + a9 + a10 + a11 + a12 + a13 + a14 + a15 + a16 + a17
+        a17: Int) =>
+      a1 + a2 + a3 + a4 + a5 + a6 + a7 + a8 + a9 + a10 + a11 + a12 + a13 + a14 + a15 + a16 + a17
     val funcName: String = randomName()
     val newDf = newSession
       .createDataFrame(
         Seq(
           (1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17),
-          (11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27)
-        )
-      )
+          (11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27)))
       .toDF(
         Seq(
           "a1",
@@ -1329,9 +1235,7 @@ class PermanentUDFSuite extends TestData {
           "a14",
           "a15",
           "a16",
-          "a17"
-        )
-      )
+          "a17"))
     try {
       session.udf.registerPermanent(funcName, func, stageName)
       checkAnswer(
@@ -1354,12 +1258,9 @@ class PermanentUDFSuite extends TestData {
             df("a14"),
             df("a15"),
             df("a16"),
-            df("a17")
-          )
-        ),
+            df("a17"))),
         Seq(Row(153), Row(323)),
-        sort = false
-      )
+        sort = false)
       checkAnswer(
         newDf.select(
           callUDF(
@@ -1380,17 +1281,13 @@ class PermanentUDFSuite extends TestData {
             newDf("a14"),
             newDf("a15"),
             newDf("a16"),
-            newDf("a17")
-          )
-        ),
+            newDf("a17"))),
         Seq(Row(153), Row(323)),
-        sort = false
-      )
+        sort = false)
     } finally {
       runQuery(
         s"drop function $funcName(INT,INT,INT,INT,INT,INT,INT,INT,INT,INT,INT,INT,INT,INT,INT,INT,INT)",
-        session
-      )
+        session)
     }
     // scalastyle:on
   }
@@ -1402,9 +1299,7 @@ class PermanentUDFSuite extends TestData {
       .createDataFrame(
         Seq(
           (1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18),
-          (11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28)
-        )
-      )
+          (11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28)))
       .toDF(
         Seq(
           "a1",
@@ -1424,9 +1319,7 @@ class PermanentUDFSuite extends TestData {
           "a15",
           "a16",
           "a17",
-          "a18"
-        )
-      )
+          "a18"))
     val func = (
         a1: Int,
         a2: Int,
@@ -1445,17 +1338,14 @@ class PermanentUDFSuite extends TestData {
         a15: Int,
         a16: Int,
         a17: Int,
-        a18: Int
-    ) =>
+        a18: Int) =>
       a1 + a2 + a3 + a4 + a5 + a6 + a7 + a8 + a9 + a10 + a11 + a12 + a13 + a14 + a15 + a16 + a17 + a18
     val funcName: String = randomName()
     val newDf = newSession
       .createDataFrame(
         Seq(
           (1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18),
-          (11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28)
-        )
-      )
+          (11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28)))
       .toDF(
         Seq(
           "a1",
@@ -1475,9 +1365,7 @@ class PermanentUDFSuite extends TestData {
           "a15",
           "a16",
           "a17",
-          "a18"
-        )
-      )
+          "a18"))
     try {
       session.udf.registerPermanent(funcName, func, stageName)
       checkAnswer(
@@ -1501,12 +1389,9 @@ class PermanentUDFSuite extends TestData {
             df("a15"),
             df("a16"),
             df("a17"),
-            df("a18")
-          )
-        ),
+            df("a18"))),
         Seq(Row(171), Row(351)),
-        sort = false
-      )
+        sort = false)
       checkAnswer(
         newDf.select(
           callUDF(
@@ -1528,17 +1413,13 @@ class PermanentUDFSuite extends TestData {
             newDf("a15"),
             newDf("a16"),
             newDf("a17"),
-            newDf("a18")
-          )
-        ),
+            newDf("a18"))),
         Seq(Row(171), Row(351)),
-        sort = false
-      )
+        sort = false)
     } finally {
       runQuery(
         s"drop function $funcName(INT,INT,INT,INT,INT,INT,INT,INT,INT,INT,INT,INT,INT,INT,INT,INT,INT,INT)",
-        session
-      )
+        session)
     }
     // scalastyle:on
   }
@@ -1550,9 +1431,7 @@ class PermanentUDFSuite extends TestData {
       .createDataFrame(
         Seq(
           (1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19),
-          (11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29)
-        )
-      )
+          (11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29)))
       .toDF(
         Seq(
           "a1",
@@ -1573,9 +1452,7 @@ class PermanentUDFSuite extends TestData {
           "a16",
           "a17",
           "a18",
-          "a19"
-        )
-      )
+          "a19"))
     val func = (
         a1: Int,
         a2: Int,
@@ -1595,17 +1472,14 @@ class PermanentUDFSuite extends TestData {
         a16: Int,
         a17: Int,
         a18: Int,
-        a19: Int
-    ) =>
+        a19: Int) =>
       a1 + a2 + a3 + a4 + a5 + a6 + a7 + a8 + a9 + a10 + a11 + a12 + a13 + a14 + a15 + a16 + a17 + a18 + a19
     val funcName: String = randomName()
     val newDf = newSession
       .createDataFrame(
         Seq(
           (1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19),
-          (11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29)
-        )
-      )
+          (11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29)))
       .toDF(
         Seq(
           "a1",
@@ -1626,9 +1500,7 @@ class PermanentUDFSuite extends TestData {
           "a16",
           "a17",
           "a18",
-          "a19"
-        )
-      )
+          "a19"))
     try {
       session.udf.registerPermanent(funcName, func, stageName)
       checkAnswer(
@@ -1653,12 +1525,9 @@ class PermanentUDFSuite extends TestData {
             df("a16"),
             df("a17"),
             df("a18"),
-            df("a19")
-          )
-        ),
+            df("a19"))),
         Seq(Row(190), Row(380)),
-        sort = false
-      )
+        sort = false)
       checkAnswer(
         newDf.select(
           callUDF(
@@ -1681,17 +1550,13 @@ class PermanentUDFSuite extends TestData {
             newDf("a16"),
             newDf("a17"),
             newDf("a18"),
-            newDf("a19")
-          )
-        ),
+            newDf("a19"))),
         Seq(Row(190), Row(380)),
-        sort = false
-      )
+        sort = false)
     } finally {
       runQuery(
         s"drop function $funcName(INT,INT,INT,INT,INT,INT,INT,INT,INT,INT,INT,INT,INT,INT,INT,INT,INT,INT,INT)",
-        session
-      )
+        session)
     }
     // scalastyle:on
   }
@@ -1703,9 +1568,7 @@ class PermanentUDFSuite extends TestData {
       .createDataFrame(
         Seq(
           (1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20),
-          (11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30)
-        )
-      )
+          (11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30)))
       .toDF(
         Seq(
           "a1",
@@ -1727,9 +1590,7 @@ class PermanentUDFSuite extends TestData {
           "a17",
           "a18",
           "a19",
-          "a20"
-        )
-      )
+          "a20"))
     val func = (
         a1: Int,
         a2: Int,
@@ -1750,17 +1611,14 @@ class PermanentUDFSuite extends TestData {
         a17: Int,
         a18: Int,
         a19: Int,
-        a20: Int
-    ) =>
+        a20: Int) =>
       a1 + a2 + a3 + a4 + a5 + a6 + a7 + a8 + a9 + a10 + a11 + a12 + a13 + a14 + a15 + a16 + a17 + a18 + a19 + a20
     val funcName: String = randomName()
     val newDf = newSession
       .createDataFrame(
         Seq(
           (1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20),
-          (11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30)
-        )
-      )
+          (11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30)))
       .toDF(
         Seq(
           "a1",
@@ -1782,9 +1640,7 @@ class PermanentUDFSuite extends TestData {
           "a17",
           "a18",
           "a19",
-          "a20"
-        )
-      )
+          "a20"))
     try {
       session.udf.registerPermanent(funcName, func, stageName)
       checkAnswer(
@@ -1810,12 +1666,9 @@ class PermanentUDFSuite extends TestData {
             df("a17"),
             df("a18"),
             df("a19"),
-            df("a20")
-          )
-        ),
+            df("a20"))),
         Seq(Row(210), Row(410)),
-        sort = false
-      )
+        sort = false)
       checkAnswer(
         newDf.select(
           callUDF(
@@ -1839,17 +1692,13 @@ class PermanentUDFSuite extends TestData {
             newDf("a17"),
             newDf("a18"),
             newDf("a19"),
-            newDf("a20")
-          )
-        ),
+            newDf("a20"))),
         Seq(Row(210), Row(410)),
-        sort = false
-      )
+        sort = false)
     } finally {
       runQuery(
         s"drop function $funcName(INT,INT,INT,INT,INT,INT,INT,INT,INT,INT,INT,INT,INT,INT,INT,INT,INT,INT,INT,INT)",
-        session
-      )
+        session)
     }
     // scalastyle:on
   }
@@ -1861,9 +1710,7 @@ class PermanentUDFSuite extends TestData {
       .createDataFrame(
         Seq(
           (1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21),
-          (11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31)
-        )
-      )
+          (11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31)))
       .toDF(
         Seq(
           "a1",
@@ -1886,9 +1733,7 @@ class PermanentUDFSuite extends TestData {
           "a18",
           "a19",
           "a20",
-          "a21"
-        )
-      )
+          "a21"))
     val func = (
         a1: Int,
         a2: Int,
@@ -1910,17 +1755,14 @@ class PermanentUDFSuite extends TestData {
         a18: Int,
         a19: Int,
         a20: Int,
-        a21: Int
-    ) =>
+        a21: Int) =>
       a1 + a2 + a3 + a4 + a5 + a6 + a7 + a8 + a9 + a10 + a11 + a12 + a13 + a14 + a15 + a16 + a17 + a18 + a19 + a20 + a21
     val funcName: String = randomName()
     val newDf = newSession
       .createDataFrame(
         Seq(
           (1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21),
-          (11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31)
-        )
-      )
+          (11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31)))
       .toDF(
         Seq(
           "a1",
@@ -1943,9 +1785,7 @@ class PermanentUDFSuite extends TestData {
           "a18",
           "a19",
           "a20",
-          "a21"
-        )
-      )
+          "a21"))
     try {
       session.udf.registerPermanent(funcName, func, stageName)
       checkAnswer(
@@ -1972,12 +1812,9 @@ class PermanentUDFSuite extends TestData {
             df("a18"),
             df("a19"),
             df("a20"),
-            df("a21")
-          )
-        ),
+            df("a21"))),
         Seq(Row(231), Row(441)),
-        sort = false
-      )
+        sort = false)
       checkAnswer(
         newDf.select(
           callUDF(
@@ -2002,17 +1839,13 @@ class PermanentUDFSuite extends TestData {
             newDf("a18"),
             newDf("a19"),
             newDf("a20"),
-            newDf("a21")
-          )
-        ),
+            newDf("a21"))),
         Seq(Row(231), Row(441)),
-        sort = false
-      )
+        sort = false)
     } finally {
       runQuery(
         s"drop function $funcName(INT,INT,INT,INT,INT,INT,INT,INT,INT,INT,INT,INT,INT,INT,INT,INT,INT,INT,INT,INT,INT)",
-        session
-      )
+        session)
     }
     // scalastyle:on
   }
@@ -2024,9 +1857,7 @@ class PermanentUDFSuite extends TestData {
       .createDataFrame(
         Seq(
           (1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22),
-          (11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32)
-        )
-      )
+          (11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32)))
       .toDF(
         Seq(
           "a1",
@@ -2050,9 +1881,7 @@ class PermanentUDFSuite extends TestData {
           "a19",
           "a20",
           "a21",
-          "a22"
-        )
-      )
+          "a22"))
     val func = (
         a1: Int,
         a2: Int,
@@ -2075,17 +1904,14 @@ class PermanentUDFSuite extends TestData {
         a19: Int,
         a20: Int,
         a21: Int,
-        a22: Int
-    ) =>
+        a22: Int) =>
       a1 + a2 + a3 + a4 + a5 + a6 + a7 + a8 + a9 + a10 + a11 + a12 + a13 + a14 + a15 + a16 + a17 + a18 + a19 + a20 + a21 + a22
     val funcName: String = randomName()
     val newDf = newSession
       .createDataFrame(
         Seq(
           (1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22),
-          (11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32)
-        )
-      )
+          (11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32)))
       .toDF(
         Seq(
           "a1",
@@ -2109,9 +1935,7 @@ class PermanentUDFSuite extends TestData {
           "a19",
           "a20",
           "a21",
-          "a22"
-        )
-      )
+          "a22"))
     try {
       session.udf.registerPermanent(funcName, func, stageName)
       checkAnswer(
@@ -2139,12 +1963,9 @@ class PermanentUDFSuite extends TestData {
             df("a19"),
             df("a20"),
             df("a21"),
-            df("a22")
-          )
-        ),
+            df("a22"))),
         Seq(Row(253), Row(473)),
-        sort = false
-      )
+        sort = false)
       checkAnswer(
         newDf.select(
           callUDF(
@@ -2170,17 +1991,13 @@ class PermanentUDFSuite extends TestData {
             newDf("a19"),
             newDf("a20"),
             newDf("a21"),
-            newDf("a22")
-          )
-        ),
+            newDf("a22"))),
         Seq(Row(253), Row(473)),
-        sort = false
-      )
+        sort = false)
     } finally {
       runQuery(
         s"drop function $funcName(INT,INT,INT,INT,INT,INT,INT,INT,INT,INT,INT,INT,INT,INT,INT,INT,INT,INT,INT,INT,INT,INT)",
-        session
-      )
+        session)
     }
     // scalastyle:on
   }
@@ -2317,11 +2134,9 @@ class PermanentUDFSuite extends TestData {
       session.file.put(
         TestUtils.escapePath(
           tempDirectory1.getCanonicalPath +
-            TestUtils.fileSeparator + fileName
-        ),
+            TestUtils.fileSeparator + fileName),
         stageName1,
-        Map("AUTO_COMPRESS" -> "FALSE")
-      )
+        Map("AUTO_COMPRESS" -> "FALSE"))
       session.addDependency(s"@$stageName1/" + fileName)
       val df1 = session.createDataFrame(Seq(fileName)).toDF(Seq("a"))
 
@@ -2350,8 +2165,7 @@ class PermanentUDFSuite extends TestData {
       4L,
       1.1f,
       1.2d,
-      new java.math.BigDecimal(1.3).setScale(3, RoundingMode.HALF_DOWN)
-    )
+      new java.math.BigDecimal(1.3).setScale(3, RoundingMode.HALF_DOWN))
 
     val func = (a: Short, b: Int, c: Long, d: Float, e: Double, f: java.math.BigDecimal) =>
       s"$a $b $c $d $e $f"
@@ -2368,8 +2182,7 @@ class PermanentUDFSuite extends TestData {
       val df2 = session
         .range(1)
         .select(
-          callBuiltin(funcName, values._1, values._2, values._3, values._4, values._5, values._6)
-        )
+          callBuiltin(funcName, values._1, values._2, values._3, values._4, values._5, values._6))
       checkAnswer(df2, Seq(Row("2 3 4 1.1 1.2 1.300000000000000000")))
       // test builtin()()
       val df3 = session
@@ -2379,8 +2192,7 @@ class PermanentUDFSuite extends TestData {
     } finally {
       runQuery(
         s"drop function if exists $funcName(SMALLINT,INT,BIGINT,FLOAT,DOUBLE,NUMBER(38,18))",
-        session
-      )
+        session)
     }
   }
 
@@ -2391,8 +2203,7 @@ class PermanentUDFSuite extends TestData {
       true,
       Array(61.toByte, 62.toByte),
       new Timestamp(timestamp - 100),
-      new Date(timestamp - 100)
-    )
+      new Date(timestamp - 100))
 
     val func = (a: String, b: Boolean, c: Array[Byte], d: Timestamp, e: Date) =>
       s"$a $b 0x${c.map { _.toHexString }.mkString("")} $d $e"

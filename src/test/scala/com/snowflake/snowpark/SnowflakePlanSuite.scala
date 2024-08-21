@@ -43,8 +43,7 @@ class SnowflakePlanSuite extends SNTestBase {
     val queries = Seq(
       s"create or replace temporary table $tableName1 as select * from " +
         "values(1::INT, 'a'::STRING),(2::INT, 'b'::STRING) as T(A,B)",
-      s"select * from $tableName1"
-    ).map(Query(_))
+      s"select * from $tableName1").map(Query(_))
     val attrs =
       Seq(Attribute("A", IntegerType, nullable = true), Attribute("B", StringType, nullable = true))
 
@@ -55,8 +54,7 @@ class SnowflakePlanSuite extends SNTestBase {
         Seq.empty,
         session,
         None,
-        supportAsyncMode = true
-      )
+        supportAsyncMode = true)
     val plan1 = session.plans.project(Seq("A"), plan, None)
 
     assert(plan1.attributes.length == 1)
@@ -75,8 +73,7 @@ class SnowflakePlanSuite extends SNTestBase {
     val queries2 = Seq(
       s"create or replace temporary table $tableName2 as select * from " +
         "values(3::INT),(4::INT) as T(A)",
-      s"select * from $tableName2"
-    ).map(Query(_))
+      s"select * from $tableName2").map(Query(_))
     val attrs2 = Seq(Attribute("C", LongType))
 
     val plan2 =
@@ -86,8 +83,7 @@ class SnowflakePlanSuite extends SNTestBase {
         Seq.empty,
         session,
         None,
-        supportAsyncMode = true
-      )
+        supportAsyncMode = true)
     val plan3 = session.plans.setOperator(plan1, plan2, "UNION ALL", None)
 
     assert(plan3.attributes.length == 1)
@@ -102,8 +98,13 @@ class SnowflakePlanSuite extends SNTestBase {
 
   test("empty schema query") {
     assertThrows[SnowflakeSQLException](
-      new SnowflakePlan(Seq.empty, "", Seq.empty, session, None, supportAsyncMode = true).attributes
-    )
+      new SnowflakePlan(
+        Seq.empty,
+        "",
+        Seq.empty,
+        session,
+        None,
+        supportAsyncMode = true).attributes)
   }
 
   test("test SnowflakePlan.supportAsyncMode()") {
@@ -184,8 +185,7 @@ class SnowflakePlanSuite extends SNTestBase {
         Seq.empty,
         session,
         None,
-        supportAsyncMode = true
-      )
+        supportAsyncMode = true)
     val df = DataFrame(session, plan)
     var queryTag = Utils.getUserCodeMeta()
 

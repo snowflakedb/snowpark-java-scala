@@ -106,8 +106,7 @@ object TestUtils extends Logging {
       stageName: String,
       fileName: String,
       compress: Boolean,
-      session: Session
-  ): Unit = {
+      session: Session): Unit = {
     val input = getClass.getResourceAsStream(s"/$fileName")
     session.conn.uploadStream(stageName, null, input, fileName, compress)
   }
@@ -116,8 +115,7 @@ object TestUtils extends Logging {
   def addDepsToClassPath(
       sess: Session,
       stageName: Option[String],
-      usePackages: Boolean = false
-  ): Unit = {
+      usePackages: Boolean = false): Unit = {
     // Initialize the lazy val so the defaultURIs are added to session
     sess.udf
     sess.udtf
@@ -146,8 +144,7 @@ object TestUtils extends Logging {
       classOf[BeforeAndAfterAll], // scala test jar
       classOf[org.scalactic.TripleEquals], // scalactic jar
       classOf[io.opentelemetry.exporters.inmemory.InMemorySpanExporter],
-      classOf[io.opentelemetry.sdk.trace.export.SpanExporter]
-    )
+      classOf[io.opentelemetry.sdk.trace.export.SpanExporter])
       .flatMap(UDFClassPath.getPathForClass(_))
       .foreach(path => {
         val file = new File(path)
@@ -176,8 +173,7 @@ object TestUtils extends Logging {
       classOf[BeforeAndAfterAll], // scala test jar
       classOf[org.scalactic.TripleEquals], // scalactic jar
       classOf[io.opentelemetry.exporters.inmemory.InMemorySpanExporter],
-      classOf[io.opentelemetry.sdk.trace.export.SpanExporter]
-    )
+      classOf[io.opentelemetry.sdk.trace.export.SpanExporter])
       .flatMap(UDFClassPath.getPathForClass(_))
       .foreach(path => {
         val file = new File(path)
@@ -203,23 +199,17 @@ object TestUtils extends Logging {
     (0 until columnCount).foreach(index => {
       assert(
         quoteNameWithoutUpperCasing(resultMeta.getColumnLabel(index + 1)) == expectedSchema(
-          index
-        ).columnIdentifier.quotedName
-      )
+          index).columnIdentifier.quotedName)
       assert(
         (resultMeta.isNullable(index + 1) != ResultSetMetaData.columnNoNulls) == expectedSchema(
-          index
-        ).nullable
-      )
+          index).nullable)
       assert(
         ServerConnection.getDataType(
           resultMeta.getColumnType(index + 1),
           resultMeta.getColumnTypeName(index + 1),
           resultMeta.getPrecision(index + 1),
           resultMeta.getScale(index + 1),
-          resultMeta.isSigned(index + 1)
-        ) == expectedSchema(index).dataType
-      )
+          resultMeta.isSigned(index + 1)) == expectedSchema(index).dataType)
     })
     statement.close()
   }
@@ -237,8 +227,8 @@ object TestUtils extends Logging {
   def compare(obj1: Any, obj2: Any): Boolean = {
     val res = (obj1, obj2) match {
       case (null, null) => true
-      case (null, _)    => false
-      case (_, null)    => false
+      case (null, _) => false
+      case (_, null) => false
       case (a: Array[_], b: Array[_]) =>
         a.length == b.length && a.zip(b).forall { case (l, r) => compare(l, r) }
       case (a: Map[_, _], b: Map[_, _]) =>
@@ -252,20 +242,20 @@ object TestUtils extends Logging {
       case (a: Row, b: Row) =>
         compare(a.toSeq, b.toSeq)
       // Note this returns 0.0 and -0.0 as same
-      case (a: BigDecimal, b)                           => compare(a.bigDecimal, b)
-      case (a, b: BigDecimal)                           => compare(a, b.bigDecimal)
-      case (a: Float, b)                                => compare(a.toDouble, b)
-      case (a, b: Float)                                => compare(a, b.toDouble)
+      case (a: BigDecimal, b) => compare(a.bigDecimal, b)
+      case (a, b: BigDecimal) => compare(a, b.bigDecimal)
+      case (a: Float, b) => compare(a.toDouble, b)
+      case (a, b: Float) => compare(a, b.toDouble)
       case (a: Double, b: Double) if a.isNaN && b.isNaN => true
-      case (a: Double, b: Double)                       => (a - b).abs < 0.0001
-      case (a: Double, b: java.math.BigDecimal)         => (a - b.toString.toDouble).abs < 0.0001
-      case (a: java.math.BigDecimal, b: Double)         => (a.toString.toDouble - b).abs < 0.0001
+      case (a: Double, b: Double) => (a - b).abs < 0.0001
+      case (a: Double, b: java.math.BigDecimal) => (a - b.toString.toDouble).abs < 0.0001
+      case (a: java.math.BigDecimal, b: Double) => (a.toString.toDouble - b).abs < 0.0001
       case (a: java.math.BigDecimal, b: java.math.BigDecimal) =>
         // BigDecimal(1.2) isn't equal to BigDecimal(1.200), so can't use function
         // equal to verify
         a.subtract(b).abs().compareTo(java.math.BigDecimal.valueOf(0.0001)) == -1
-      case (a: Date, b: Date)           => a.toString == b.toString
-      case (a: Time, b: Time)           => a.toString == b.toString
+      case (a: Date, b: Date) => a.toString == b.toString
+      case (a: Time, b: Time) => a.toString == b.toString
       case (a: Timestamp, b: Timestamp) => a.toString == b.toString
       case (a: Geography, b: Geography) =>
         // todo: improve Geography.equals method
@@ -279,8 +269,7 @@ object TestUtils extends Logging {
       println(
         s"Find different elements: " +
           s"$obj1${if (obj1 != null) s":${obj1.getClass.getSimpleName}" else ""} != " +
-          s"$obj2${if (obj2 != null) s":${obj2.getClass.getSimpleName}" else ""}"
-      )
+          s"$obj2${if (obj2 != null) s":${obj2.getClass.getSimpleName}" else ""}")
       // scalastyle:on println
     }
     res
@@ -292,8 +281,7 @@ object TestUtils extends Logging {
     assert(
       compare(sorted, sortedExpected.toArray[Row]),
       s"${sorted.map(_.toString).mkString("[", ", ", "]")} != " +
-        s"${sortedExpected.map(_.toString).mkString("[", ", ", "]")}"
-    )
+        s"${sortedExpected.map(_.toString).mkString("[", ", ", "]")}")
   }
 
   def checkResult(result: Array[Row], expected: java.util.List[Row], sort: Boolean): Unit =
@@ -335,8 +323,7 @@ object TestUtils extends Logging {
       packageName: String,
       className: String,
       pathPrefix: String,
-      jarFileName: String
-  ): String = {
+      jarFileName: String): String = {
     val dummyCode =
       s"""
          | package $packageName;
@@ -383,9 +370,9 @@ object TestUtils extends Logging {
   def tryToLoadFipsProvider(): Unit = {
     val isFipsTest = {
       System.getProperty("FIPS_TEST") match {
-        case null                                   => false
+        case null => false
         case value if value.toLowerCase() == "true" => true
-        case _                                      => false
+        case _ => false
       }
     }
 

@@ -85,8 +85,7 @@ class UdxOpenTelemetrySuite extends OpenTelemetryEnabled {
       className: String,
       funcName: String,
       execName: String,
-      execFilePath: String
-  ): Unit = {
+      execFilePath: String): Unit = {
     val stack = Thread.currentThread().getStackTrace
     val file = stack(2) // this file
     checkSpan(
@@ -96,16 +95,14 @@ class UdxOpenTelemetrySuite extends OpenTelemetryEnabled {
       file.getLineNumber - 1,
       execName,
       "SnowUDF.compute",
-      execFilePath
-    )
+      execFilePath)
   }
 
   def checkUdtfSpan(
       className: String,
       funcName: String,
       execName: String,
-      execFilePath: String
-  ): Unit = {
+      execFilePath: String): Unit = {
     val stack = Thread.currentThread().getStackTrace
     val file = stack(2) // this file
     checkSpan(
@@ -115,7 +112,6 @@ class UdxOpenTelemetrySuite extends OpenTelemetryEnabled {
       file.getLineNumber - 1,
       execName,
       "SnowparkGeneratedUDTF",
-      execFilePath
-    )
+      execFilePath)
   }
 }

@@ -33,8 +33,7 @@ class NewColumnReferenceSuite extends SNTestBase {
       | |--B: Long (nullable = false)
       | |--B: Long (nullable = false)
       | |--C: Long (nullable = false)
-      |""".stripMargin
-    )
+      |""".stripMargin)
   }
 
   test("show", JavaStoredProcExclude) {
@@ -45,8 +44,7 @@ class NewColumnReferenceSuite extends SNTestBase {
       |-------------------------
       ||1    |2    |2    |3    |
       |-------------------------
-      |""".stripMargin
-    )
+      |""".stripMargin)
 
     assert(!df1_disabled.join(df2_disabled).showString(10).contains(""""B""""))
   }
@@ -65,14 +63,11 @@ class NewColumnReferenceSuite extends SNTestBase {
         "b",
         TestInternalAlias("c"),
         TestInternalAlias("d"),
-        "e"
-      )
-    )
+        "e"))
     val df5 = df4.drop(df2("c"))
     verifyOutputName(
       df5.output,
-      Seq("a", "c", TestInternalAlias("d"), "b", TestInternalAlias("d"), "e")
-    )
+      Seq("a", "c", TestInternalAlias("d"), "b", TestInternalAlias("d"), "e"))
     val df1_disabled1 = disabledHideInternalAliasSession
       .createDataFrame(Seq((1, 2, 3, 4)))
       .toDF("a", "b", "c", "d")
@@ -90,9 +85,7 @@ class NewColumnReferenceSuite extends SNTestBase {
         TestInternalAlias("b"),
         TestInternalAlias("c"),
         TestInternalAlias("d"),
-        "e"
-      )
-    )
+        "e"))
     val df8 = df7.drop(df2_disabled1("c"))
     verifyOutputName(
       df8.output,
@@ -102,9 +95,7 @@ class NewColumnReferenceSuite extends SNTestBase {
         TestInternalAlias("d"),
         TestInternalAlias("b"),
         TestInternalAlias("d"),
-        "e"
-      )
-    )
+        "e"))
   }
 
   test("dedup - select", JavaStoredProcExclude) {
@@ -114,8 +105,7 @@ class NewColumnReferenceSuite extends SNTestBase {
     val df4 = df3.select(df1("a"), df1("b"), df1("d"), df2("c"), df2("d"), df2("e"))
     verifyOutputName(
       df4.output,
-      Seq("a", "b", TestInternalAlias("d"), "c", TestInternalAlias("d"), "e")
-    )
+      Seq("a", "b", TestInternalAlias("d"), "c", TestInternalAlias("d"), "e"))
     assert(
       df4.showString(10) ==
         """-------------------------------------
@@ -123,8 +113,7 @@ class NewColumnReferenceSuite extends SNTestBase {
       |-------------------------------------
       ||1    |2    |4    |3    |4    |5    |
       |-------------------------------------
-      |""".stripMargin
-    )
+      |""".stripMargin)
     assert(
       df4.schema.treeString(0) ==
         """root
@@ -134,8 +123,7 @@ class NewColumnReferenceSuite extends SNTestBase {
       | |--C: Long (nullable = false)
       | |--D: Long (nullable = false)
       | |--E: Long (nullable = false)
-      |""".stripMargin
-    )
+      |""".stripMargin)
     val df1_disabled1 = disabledHideInternalAliasSession
       .createDataFrame(Seq((1, 2, 3, 4)))
       .toDF("a", "b", "c", "d")
@@ -149,8 +137,7 @@ class NewColumnReferenceSuite extends SNTestBase {
       df1_disabled1("d"),
       df2_disabled1("c"),
       df2_disabled1("d"),
-      df2_disabled1("e")
-    )
+      df2_disabled1("e"))
     verifyOutputName(
       df6.output,
       Seq(
@@ -159,9 +146,7 @@ class NewColumnReferenceSuite extends SNTestBase {
         TestInternalAlias("d"),
         TestInternalAlias("c"),
         TestInternalAlias("d"),
-        "e"
-      )
-    )
+        "e"))
     val showString = df6.showString(10)
     assert(!showString.contains(""""B""""))
     assert(!showString.contains(""""C""""))
@@ -187,8 +172,7 @@ class NewColumnReferenceSuite extends SNTestBase {
         |-------------------------------------
         ||1    |2    |2    |3    |5    |10   |
         |-------------------------------------
-        |""".stripMargin
-    )
+        |""".stripMargin)
     val df1_disabled1 = disabledHideInternalAliasSession
       .createDataFrame(Seq((1, 2, 3, 4)))
       .toDF("a", "b", "c", "d")
@@ -203,12 +187,10 @@ class NewColumnReferenceSuite extends SNTestBase {
         df2_disabled1("b").as("f"),
         df2_disabled1("c"),
         df2_disabled1("e"),
-        lit(10).as("c")
-      )
+        lit(10).as("c"))
     verifyOutputName(
       df6.output,
-      Seq("a", TestInternalAlias("b"), "f", TestInternalAlias("c"), "e", "c")
-    )
+      Seq("a", TestInternalAlias("b"), "f", TestInternalAlias("c"), "e", "c"))
     val showString = df6.showString(10)
     assert(!showString.contains(""""B""""))
     assert(showString.contains(""""C""""))
@@ -323,8 +305,7 @@ class NewColumnReferenceSuite extends SNTestBase {
     verifyNode(_ => func, Seq.empty)
   private def verifyNode(
       func: Seq[LogicalPlan] => LogicalPlan,
-      children: Seq[LogicalPlan]
-  ): Unit = {
+      children: Seq[LogicalPlan]): Unit = {
     val plan = func(children)
     val expected = children
       .map(_.internalRenamedColumns)

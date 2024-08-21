@@ -12,8 +12,7 @@ class DataFrameReaderSuite extends SNTestBase {
   val tmpStageName: String = randomStageName()
   val tmpStageName2: String = randomStageName()
   private val userSchema: StructType = StructType(
-    Seq(StructField("a", IntegerType), StructField("b", StringType), StructField("c", DoubleType))
-  )
+    Seq(StructField("a", IntegerType), StructField("b", StringType), StructField("c", DoubleType)))
 
   override def beforeAll(): Unit = {
     super.beforeAll()
@@ -68,9 +67,7 @@ class DataFrameReaderSuite extends SNTestBase {
       Seq(
         StructField("a", IntegerType),
         StructField("b", IntegerType),
-        StructField("c", IntegerType)
-      )
-    )
+        StructField("c", IntegerType)))
     val df2 = reader().schema(incorrectSchema).csv(testFileOnStage)
     assertThrows[SnowflakeSQLException](df2.collect())
   })
@@ -86,9 +83,7 @@ class DataFrameReaderSuite extends SNTestBase {
         StructField("a", IntegerType),
         StructField("b", StringType),
         StructField("c", IntegerType),
-        StructField("d", IntegerType)
-      )
-    )
+        StructField("d", IntegerType)))
     val df = session.read.schema(incorrectSchema2).csv(testFileOnStage)
     assert(df.collect() sameElements Array[Row](Row(1, "one", 1, null), Row(2, "two", 2, null)))
   }
@@ -100,9 +95,7 @@ class DataFrameReaderSuite extends SNTestBase {
         StructField("a", IntegerType),
         StructField("b", StringType),
         StructField("c", IntegerType),
-        StructField("d", IntegerType)
-      )
-    )
+        StructField("d", IntegerType)))
     val df = session.read.option("purge", false).schema(incorrectSchema2).csv(testFileOnStage)
     // throw exception from COPY
     assertThrows[SnowflakeSQLException](df.collect())
@@ -125,9 +118,7 @@ class DataFrameReaderSuite extends SNTestBase {
         Row(1, "one", 1.2),
         Row(2, "two", 2.2),
         Row(1, "one", 1.2),
-        Row(2, "two", 2.2)
-      )
-    )
+        Row(2, "two", 2.2)))
 
     // test for union between two stages
     val testFileOnStage2 = s"@$tmpStageName2/$testFileCsv"
@@ -140,9 +131,7 @@ class DataFrameReaderSuite extends SNTestBase {
         Row(1, "one", 1.2),
         Row(2, "two", 2.2),
         Row(1, "one", 1.2),
-        Row(2, "two", 2.2)
-      )
-    )
+        Row(2, "two", 2.2)))
   }
 
   testReadFile("read csv with formatTypeOptions")(reader => {
@@ -175,9 +164,7 @@ class DataFrameReaderSuite extends SNTestBase {
         Row(1, "one", 1.2),
         Row(2, "two", 2.2),
         Row(1, "one", 1.2),
-        Row(2, "two", 2.2)
-      )
-    )
+        Row(2, "two", 2.2)))
 
     val df6 = df1.union(df4)
     assert(df6.collect() sameElements Array[Row](Row(1, "one", 1.2), Row(2, "two", 2.2)))
@@ -197,8 +184,7 @@ class DataFrameReaderSuite extends SNTestBase {
         .csv(s"@$dataFilesStage/")
       checkAnswer(
         df,
-        Seq(Row(1, "one", 1.2), Row(2, "two", 2.2), Row(3, "three", 3.3), Row(4, "four", 4.4))
-      )
+        Seq(Row(1, "one", 1.2), Row(2, "two", 2.2), Row(3, "three", 3.3), Row(4, "four", 4.4)))
     } finally {
       runQuery(s"DROP STAGE IF EXISTS $dataFilesStage", session)
     }
@@ -226,8 +212,7 @@ class DataFrameReaderSuite extends SNTestBase {
           .sql(
             s"copy into $path from" +
               s" ( select * from $tmpTable) file_format=(format_name='$formatName'" +
-              s" compression='$ctype')"
-          )
+              s" compression='$ctype')")
           .collect()
 
         // Read the data
@@ -236,8 +221,7 @@ class DataFrameReaderSuite extends SNTestBase {
             .option("COMPRESSION", ctype)
             .schema(userSchema)
             .csv(path),
-          result
-        )
+          result)
       })
     } finally {
       runQuery(s"drop file format $formatName", session)
@@ -250,9 +234,7 @@ class DataFrameReaderSuite extends SNTestBase {
         StructField("a", IntegerType),
         StructField("b", StringType),
         StructField("c", DoubleType),
-        StructField("d", IntegerType)
-      )
-    )
+        StructField("d", IntegerType)))
     val testFile = s"@$tmpStageName/$testFileCsvQuotes"
     val df1 = reader()
       .schema(schema1)
@@ -273,9 +255,7 @@ class DataFrameReaderSuite extends SNTestBase {
         StructField("a", IntegerType),
         StructField("b", StringType),
         StructField("c", DoubleType),
-        StructField("d", StringType)
-      )
-    )
+        StructField("d", StringType)))
     val df3 = reader().schema(schema2).csv(testFile)
     val res = df3.collect()
     checkAnswer(df3.select("d"), Seq(Row("\"1\""), Row("\"2\"")))
@@ -287,14 +267,12 @@ class DataFrameReaderSuite extends SNTestBase {
 
     checkAnswer(
       df1,
-      Seq(Row("{\n  \"color\": \"Red\",\n  \"fruit\": \"Apple\",\n  \"size\": \"Large\"\n}"))
-    )
+      Seq(Row("{\n  \"color\": \"Red\",\n  \"fruit\": \"Apple\",\n  \"size\": \"Large\"\n}")))
 
     // query test
     checkAnswer(
       df1.where(sqlExpr("$1:color") === "Red"),
-      Seq(Row("{\n  \"color\": \"Red\",\n  \"fruit\": \"Apple\",\n  \"size\": \"Large\"\n}"))
-    )
+      Seq(Row("{\n  \"color\": \"Red\",\n  \"fruit\": \"Apple\",\n  \"size\": \"Large\"\n}")))
 
     // assert user cannot input a schema to read json
     assertThrows[IllegalArgumentException](reader().schema(userSchema).json(jsonPath))
@@ -303,8 +281,7 @@ class DataFrameReaderSuite extends SNTestBase {
     val df2 = reader().option("FILE_EXTENSION", "json").json(jsonPath)
     checkAnswer(
       df2,
-      Seq(Row("{\n  \"color\": \"Red\",\n  \"fruit\": \"Apple\",\n  \"size\": \"Large\"\n}"))
-    )
+      Seq(Row("{\n  \"color\": \"Red\",\n  \"fruit\": \"Apple\",\n  \"size\": \"Large\"\n}")))
   })
 
   testReadFile("read avro with no schema")(reader => {
@@ -314,16 +291,13 @@ class DataFrameReaderSuite extends SNTestBase {
       df1,
       Seq(
         Row("{\n  \"num\": 1,\n  \"str\": \"str1\"\n}"),
-        Row("{\n  \"num\": 2,\n  \"str\": \"str2\"\n}")
-      ),
-      sort = false
-    )
+        Row("{\n  \"num\": 2,\n  \"str\": \"str2\"\n}")),
+      sort = false)
 
     // query test
     checkAnswer(
       df1.where(sqlExpr("$1:num") > 1),
-      Seq(Row("{\n  \"num\": 2,\n  \"str\": \"str2\"\n}"))
-    )
+      Seq(Row("{\n  \"num\": 2,\n  \"str\": \"str2\"\n}")))
 
     // assert user cannot input a schema to read avro
     assertThrows[IllegalArgumentException](session.read.schema(userSchema).avro(avroPath))
@@ -334,10 +308,8 @@ class DataFrameReaderSuite extends SNTestBase {
       df2,
       Seq(
         Row("{\n  \"num\": 1,\n  \"str\": \"str1\"\n}"),
-        Row("{\n  \"num\": 2,\n  \"str\": \"str2\"\n}")
-      ),
-      sort = false
-    )
+        Row("{\n  \"num\": 2,\n  \"str\": \"str2\"\n}")),
+      sort = false)
   })
 
   testReadFile("Test for all parquet compression types")(reader => {
@@ -354,8 +326,7 @@ class DataFrameReaderSuite extends SNTestBase {
         .sql(
           s"copy into @$tmpStageName/$ctype/ from" +
             s" ( select * from $tmpTable) file_format=(format_name='$formatName'" +
-            s" compression='$ctype') overwrite = true"
-        )
+            s" compression='$ctype') overwrite = true")
         .collect()
 
       // Read the data
@@ -373,17 +344,14 @@ class DataFrameReaderSuite extends SNTestBase {
       df1,
       Seq(
         Row("{\n  \"num\": 1,\n  \"str\": \"str1\"\n}"),
-        Row("{\n  \"num\": 2,\n  \"str\": \"str2\"\n}")
-      ),
-      sort = false
-    )
+        Row("{\n  \"num\": 2,\n  \"str\": \"str2\"\n}")),
+      sort = false)
 
     // query test
     checkAnswer(
       df1.where(sqlExpr("$1:num") > 1),
       Seq(Row("{\n  \"num\": 2,\n  \"str\": \"str2\"\n}")),
-      sort = false
-    )
+      sort = false)
 
     // assert user cannot input a schema to read parquet
     assertThrows[IllegalArgumentException](session.read.schema(userSchema).parquet(path))
@@ -394,10 +362,8 @@ class DataFrameReaderSuite extends SNTestBase {
       df2,
       Seq(
         Row("{\n  \"num\": 1,\n  \"str\": \"str1\"\n}"),
-        Row("{\n  \"num\": 2,\n  \"str\": \"str2\"\n}")
-      ),
-      sort = false
-    )
+        Row("{\n  \"num\": 2,\n  \"str\": \"str2\"\n}")),
+      sort = false)
   })
 
   testReadFile("read orc with no schema")(reader => {
@@ -407,17 +373,14 @@ class DataFrameReaderSuite extends SNTestBase {
       df1,
       Seq(
         Row("{\n  \"num\": 1,\n  \"str\": \"str1\"\n}"),
-        Row("{\n  \"num\": 2,\n  \"str\": \"str2\"\n}")
-      ),
-      sort = false
-    )
+        Row("{\n  \"num\": 2,\n  \"str\": \"str2\"\n}")),
+      sort = false)
 
     // query test
     checkAnswer(
       df1.where(sqlExpr("$1:num") > 1),
       Seq(Row("{\n  \"num\": 2,\n  \"str\": \"str2\"\n}")),
-      sort = false
-    )
+      sort = false)
 
     // assert user cannot input a schema to read avro
     assertThrows[IllegalArgumentException](session.read.schema(userSchema).orc(path))
@@ -428,10 +391,8 @@ class DataFrameReaderSuite extends SNTestBase {
       df2,
       Seq(
         Row("{\n  \"num\": 1,\n  \"str\": \"str1\"\n}"),
-        Row("{\n  \"num\": 2,\n  \"str\": \"str2\"\n}")
-      ),
-      sort = false
-    )
+        Row("{\n  \"num\": 2,\n  \"str\": \"str2\"\n}")),
+      sort = false)
   })
 
   testReadFile("read xml with no schema")(reader => {
@@ -441,18 +402,15 @@ class DataFrameReaderSuite extends SNTestBase {
       df1,
       Seq(
         Row("<test>\n  <num>1</num>\n  <str>str1</str>\n</test>"),
-        Row("<test>\n  <num>2</num>\n  <str>str2</str>\n</test>")
-      ),
-      sort = false
-    )
+        Row("<test>\n  <num>2</num>\n  <str>str2</str>\n</test>")),
+      sort = false)
 
     // query test
     checkAnswer(
       df1
         .where(sqlExpr("xmlget($1, 'num', 0):\"$\"") > 1),
       Seq(Row("<test>\n  <num>2</num>\n  <str>str2</str>\n</test>")),
-      sort = false
-    )
+      sort = false)
 
     // assert user cannot input a schema to read avro
     assertThrows[IllegalArgumentException](session.read.schema(userSchema).xml(path))
@@ -463,10 +421,8 @@ class DataFrameReaderSuite extends SNTestBase {
       df2,
       Seq(
         Row("<test>\n  <num>1</num>\n  <str>str1</str>\n</test>"),
-        Row("<test>\n  <num>2</num>\n  <str>str2</str>\n</test>")
-      ),
-      sort = false
-    )
+        Row("<test>\n  <num>2</num>\n  <str>str2</str>\n</test>")),
+      sort = false)
   })
 
   test("read file on_error = continue on CSV") {
@@ -479,8 +435,7 @@ class DataFrameReaderSuite extends SNTestBase {
         .option("on_error", "continue")
         .option("COMPRESSION", "none")
         .csv(brokenFile),
-      Seq(Row(1, "one", 1.1), Row(3, "three", 3.3))
-    )
+      Seq(Row(1, "one", 1.1), Row(3, "three", 3.3)))
 
   }
 
@@ -493,8 +448,7 @@ class DataFrameReaderSuite extends SNTestBase {
         .option("on_error", "continue")
         .option("COMPRESSION", "none")
         .avro(brokenFile),
-      Seq.empty
-    )
+      Seq.empty)
   }
 
   test("SELECT and COPY on non CSV format have same result schema") {
@@ -530,8 +484,7 @@ class DataFrameReaderSuite extends SNTestBase {
         .option("COMPRESSION", "none")
         .option("pattern", ".*CSV[.]csv")
         .csv(s"@$tmpStageName")
-        .count() == 4
-    )
+        .count() == 4)
   })
 
   testReadFile("table function on csv dataframe reader test")(reader => {
@@ -542,13 +495,11 @@ class DataFrameReaderSuite extends SNTestBase {
       session
         .tableFunction(TableFunction("split_to_table"), Seq(df1("b"), lit(" ")))
         .select("VALUE"),
-      Seq(Row("one"), Row("two"))
-    )
+      Seq(Row("one"), Row("two")))
   })
 
   def testReadFile(testName: String, testTags: Tag*)(
-      thunk: (() => DataFrameReader) => Unit
-  ): Unit = {
+      thunk: (() => DataFrameReader) => Unit): Unit = {
     // test select
     test(testName + " - SELECT", testTags: _*) {
       thunk(() => session.read)

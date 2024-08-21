@@ -37,8 +37,7 @@ class LiteralSuite extends TestData {
           | |--LONG: Long (nullable = false)
           | |--FLOAT: Double (nullable = false)
           | |--DOUBLE: Double (nullable = false)
-          |""".stripMargin
-    )
+          |""".stripMargin)
     df.show()
 
     // scalastyle:off
@@ -50,8 +49,7 @@ class LiteralSuite extends TestData {
           ||0     |NULL    |string  |C       |true    |10      |11       |12     |13      |14.0     |15.0      |
           ||1     |NULL    |string  |C       |true    |10      |11       |12     |13      |14.0     |15.0      |
           |-----------------------------------------------------------------------------------------------------
-          |""".stripMargin
-    )
+          |""".stripMargin)
     // scalastyle:on
   }
 
@@ -83,8 +81,7 @@ class LiteralSuite extends TestData {
           | |--LONG: Long (nullable = false)
           | |--FLOAT: Double (nullable = false)
           | |--DOUBLE: Double (nullable = false)
-          |""".stripMargin
-    )
+          |""".stripMargin)
 
     // scalastyle:off
     assert(
@@ -95,8 +92,7 @@ class LiteralSuite extends TestData {
           ||0     |NULL    |string  |C       |true    |10      |11       |12     |13      |14.0     |15.0      |
           ||1     |NULL    |string  |C       |true    |10      |11       |12     |13      |14.0     |15.0      |
           |-----------------------------------------------------------------------------------------------------
-          |""".stripMargin
-    )
+          |""".stripMargin)
     // scalastyle:on
   }
 
@@ -128,8 +124,7 @@ class LiteralSuite extends TestData {
           | |--LONG: Long (nullable = false)
           | |--FLOAT: Double (nullable = false)
           | |--DOUBLE: Double (nullable = false)
-          |""".stripMargin
-    )
+          |""".stripMargin)
 
     // scalastyle:off
     assert(
@@ -140,8 +135,7 @@ class LiteralSuite extends TestData {
           ||0     |NULL    |string  |C       |true    |10      |11       |12     |13      |14.0     |15.0      |
           ||1     |NULL    |string  |C       |true    |10      |11       |12     |13      |14.0     |15.0      |
           |-----------------------------------------------------------------------------------------------------
-          |""".stripMargin
-    )
+          |""".stripMargin)
     // scalastyle:on
   }
 
@@ -157,8 +151,7 @@ class LiteralSuite extends TestData {
           | |--ID: Long (nullable = false)
           | |--SCALA: Binary (nullable = false)
           | |--JAVA: Binary (nullable = false)
-          |""".stripMargin
-    )
+          |""".stripMargin)
 
     assert(
       getShowString(df, 10) ==
@@ -168,8 +161,7 @@ class LiteralSuite extends TestData {
           ||0     |'616263'  |'656667'  |
           ||1     |'616263'  |'656667'  |
           |------------------------------
-          |""".stripMargin
-    )
+          |""".stripMargin)
   }
 
   test("Literal TimeStamp and Instant") {
@@ -190,8 +182,7 @@ class LiteralSuite extends TestData {
             | |--ID: Long (nullable = false)
             | |--TIMESTAMP: Timestamp (nullable = false)
             | |--INSTANT: Timestamp (nullable = false)
-            |""".stripMargin
-      )
+            |""".stripMargin)
 
       assert(
         getShowString(df, 10) ==
@@ -201,8 +192,7 @@ class LiteralSuite extends TestData {
             ||0     |2018-10-11 12:13:14.123  |2020-10-11 12:13:14.123  |
             ||1     |2018-10-11 12:13:14.123  |2020-10-11 12:13:14.123  |
             |------------------------------------------------------------
-            |""".stripMargin
-      )
+            |""".stripMargin)
     } finally {
       TimeZone.setDefault(oldTimeZone)
     }
@@ -223,8 +213,7 @@ class LiteralSuite extends TestData {
             | |--ID: Long (nullable = false)
             | |--LOCAL_DATE: Date (nullable = false)
             | |--DATE: Date (nullable = false)
-            |""".stripMargin
-      )
+            |""".stripMargin)
 
       assert(
         getShowString(df, 10) ==
@@ -234,8 +223,7 @@ class LiteralSuite extends TestData {
             ||0     |2020-10-11    |2018-10-11  |
             ||1     |2020-10-11    |2018-10-11  |
             |------------------------------------
-            |""".stripMargin
-      )
+            |""".stripMargin)
     } finally {
       TimeZone.setDefault(oldTimeZone)
     }
@@ -255,8 +243,7 @@ class LiteralSuite extends TestData {
           | |--ID: Long (nullable = false)
           | |--NULL: String (nullable = true)
           | |--LITERAL: Long (nullable = false)
-          |""".stripMargin
-    )
+          |""".stripMargin)
 
     assert(
       getShowString(df, 10) ==
@@ -266,7 +253,6 @@ class LiteralSuite extends TestData {
           ||0     |NULL    |123        |
           ||1     |NULL    |123        |
           |-----------------------------
-          |""".stripMargin
-    )
+          |""".stripMargin)
   }
 }

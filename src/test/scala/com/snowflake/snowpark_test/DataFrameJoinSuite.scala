@@ -28,8 +28,7 @@ trait DataFrameJoinSuite extends SNTestBase {
 
     checkAnswer(
       df.join(df2, "int"),
-      Row(1, "1", "2") :: Row(2, "2", "3") :: Row(3, "3", "4") :: Nil
-    )
+      Row(1, "1", "2") :: Row(2, "2", "3") :: Row(3, "3", "4") :: Nil)
   }
 
   test("join - join using multiple columns") {
@@ -38,8 +37,7 @@ trait DataFrameJoinSuite extends SNTestBase {
 
     checkAnswer(
       df.join(df2, Seq("int", "int2")),
-      Row(1, 2, "1", "2") :: Row(2, 3, "2", "3") :: Row(3, 4, "3", "4") :: Nil
-    )
+      Row(1, 2, "1", "2") :: Row(2, 3, "2", "3") :: Row(3, 4, "3", "4") :: Nil)
   }
 
   test("Full outer join followed by inner join") {
@@ -66,8 +64,7 @@ trait DataFrameJoinSuite extends SNTestBase {
 
     checkAnswer(
       df.join(df2),
-      Seq(Row(1, 1, "test1"), Row(1, 2, "test2"), Row(2, 1, "test1"), Row(2, 2, "test2"))
-    )
+      Seq(Row(1, 1, "test1"), Row(1, 2, "test2"), Row(2, 1, "test1"), Row(2, 2, "test2")))
   }
 
   test("default inner join with using column") {
@@ -92,8 +89,7 @@ trait DataFrameJoinSuite extends SNTestBase {
     val df2 = Seq(1, 2).map(i => (i, s"num$i")).toDF("num", "val")
     checkAnswer(
       df.join(df2, df("a") === df2("num")),
-      Seq(Row(1, "test1", 1, "num1"), Row(2, "test2", 2, "num2"))
-    )
+      Seq(Row(1, "test1", 1, "num1"), Row(2, "test2", 2, "num2")))
   }
 
   test("join with multiple conditions") {
@@ -125,18 +121,15 @@ trait DataFrameJoinSuite extends SNTestBase {
 
     checkAnswer(
       df.join(df2, Seq("int", "str"), "left"),
-      Seq(Row(1, "1", 2, 3), Row(3, "3", 4, null))
-    )
+      Seq(Row(1, "1", 2, 3), Row(3, "3", 4, null)))
 
     checkAnswer(
       df.join(df2, Seq("int", "str"), "right"),
-      Seq(Row(1, "1", 2, 3), Row(5, "5", null, 6))
-    )
+      Seq(Row(1, "1", 2, 3), Row(5, "5", null, 6)))
 
     checkAnswer(
       df.join(df2, Seq("int", "str"), "outer"),
-      Seq(Row(1, "1", 2, 3), Row(3, "3", 4, null), Row(5, "5", null, 6))
-    )
+      Seq(Row(1, "1", 2, 3), Row(3, "3", 4, null), Row(5, "5", null, 6)))
 
     checkAnswer(df.join(df2, Seq("int", "str"), "left_semi"), Seq(Row(1, 2, "1")))
 
@@ -183,8 +176,7 @@ trait DataFrameJoinSuite extends SNTestBase {
 
     checkAnswer(
       df1.naturalJoin(df2, "outer"),
-      Seq(Row(1, "1", "1"), Row(3, "3", null), Row(4, null, "4"))
-    )
+      Seq(Row(1, "1", "1"), Row(3, "3", null), Row(4, null, "4")))
   }
 
   test("join - cross join") {
@@ -194,14 +186,12 @@ trait DataFrameJoinSuite extends SNTestBase {
     checkAnswer(
       df1.crossJoin(df2),
       Row(1, "1", 2, "2") :: Row(1, "1", 4, "4") ::
-        Row(3, "3", 2, "2") :: Row(3, "3", 4, "4") :: Nil
-    )
+        Row(3, "3", 2, "2") :: Row(3, "3", 4, "4") :: Nil)
 
     checkAnswer(
       df2.crossJoin(df1),
       Row(2, "2", 1, "1") :: Row(2, "2", 3, "3") ::
-        Row(4, "4", 1, "1") :: Row(4, "4", 3, "3") :: Nil
-    )
+        Row(4, "4", 1, "1") :: Row(4, "4", 3, "3") :: Nil)
   }
 
   test("join -- ambiguous columns with specified sources") {
@@ -210,8 +200,7 @@ trait DataFrameJoinSuite extends SNTestBase {
     checkAnswer(df.join(df2, df("a") === df2("a")), Row(1, 1, "test1") :: Row(2, 2, "test2") :: Nil)
     checkAnswer(
       df.join(df2, df("a") === df2("a")).select(df("a") * df2("a"), 'b),
-      Row(1, "test1") :: Row(4, "test2") :: Nil
-    )
+      Row(1, "test1") :: Row(4, "test2") :: Nil)
   }
 
   test("join -- ambiguous columns without specified sources") {
@@ -240,8 +229,7 @@ trait DataFrameJoinSuite extends SNTestBase {
       lhs
         .join(rhs, lhs("intcol") === rhs("intcol"))
         .select(lhs("intcol") + rhs("intcol"), lhs("negcol"), rhs("negcol"), 'lhscol, 'rhscol),
-      Row(2, -1, -10, "one", "one") :: Row(4, -2, -20, "two", "two") :: Nil
-    )
+      Row(2, -1, -10, "one", "one") :: Row(4, -2, -20, "two", "two") :: Nil)
   }
 
   test("Semi joins with absent columns") {
@@ -266,34 +254,29 @@ trait DataFrameJoinSuite extends SNTestBase {
 
     checkAnswer(
       lhs.join(rhs, lhs("intcol") === rhs("intcol"), "leftsemi").select('intcol),
-      Row(1) :: Row(2) :: Nil
-    )
+      Row(1) :: Row(2) :: Nil)
 
     checkAnswer(
       lhs.join(rhs, lhs("intcol") === rhs("intcol"), "leftsemi").select(lhs("intcol")),
-      Row(1) :: Row(2) :: Nil
-    )
+      Row(1) :: Row(2) :: Nil)
 
     checkAnswer(
       lhs
         .join(rhs, lhs("intcol") === rhs("intcol") && lhs("negcol") === rhs("negcol"), "leftsemi")
         .select(lhs("intcol")),
-      Nil
-    )
+      Nil)
 
     checkAnswer(lhs.join(rhs, lhs("intcol") === rhs("intcol"), "leftanti").select('intcol), Nil)
 
     checkAnswer(
       lhs.join(rhs, lhs("intcol") === rhs("intcol"), "leftanti").select(lhs("intcol")),
-      Nil
-    )
+      Nil)
 
     checkAnswer(
       lhs
         .join(rhs, lhs("intcol") === rhs("intcol") && lhs("negcol") === rhs("negcol"), "leftanti")
         .select(lhs("intcol")),
-      Row(1) :: Row(2) :: Nil
-    )
+      Row(1) :: Row(2) :: Nil)
   }
 
   test("Using joins") {
@@ -303,12 +286,10 @@ trait DataFrameJoinSuite extends SNTestBase {
     Seq("inner", "leftouter", "rightouter", "full_outer").foreach { joinType =>
       checkAnswer(
         lhs.join(rhs, Seq("intcol"), joinType).select("*"),
-        Row(1, -1, "one", -10, "one") :: Row(2, -2, "two", -20, "two") :: Nil
-      )
+        Row(1, -1, "one", -10, "one") :: Row(2, -2, "two", -20, "two") :: Nil)
       checkAnswer(
         lhs.join(rhs, Seq("intcol"), joinType),
-        Row(1, -1, "one", -10, "one") :: Row(2, -2, "two", -20, "two") :: Nil
-      )
+        Row(1, -1, "one", -10, "one") :: Row(2, -2, "two", -20, "two") :: Nil)
 
       val ex2 = intercept[SnowparkClientException] {
         lhs.join(rhs, Seq("intcol"), joinType).select('negcol).collect()
@@ -319,8 +300,7 @@ trait DataFrameJoinSuite extends SNTestBase {
       checkAnswer(lhs.join(rhs, Seq("intcol"), joinType).select('intcol), Row(1) :: Row(2) :: Nil)
       checkAnswer(
         lhs.join(rhs, Seq("intcol"), joinType).select(lhs("negcol"), rhs("negcol")),
-        Row(-1, -10) :: Row(-2, -20) :: Nil
-      )
+        Row(-1, -10) :: Row(-2, -20) :: Nil)
     }
 
   }
@@ -332,23 +312,20 @@ trait DataFrameJoinSuite extends SNTestBase {
       lhs
         .join(rhs, lhs("intcol") === rhs("intcol"))
         .select(lhs(""""INTCOL""""), rhs("intcol"), 'doublecol, col(""""DoubleCol"""")),
-      Row(1, 1, 1.0, 2.0) :: Nil
-    )
+      Row(1, 1, 1.0, 2.0) :: Nil)
 
     checkAnswer(
       lhs
         .join(rhs, lhs("doublecol") === rhs("\"DoubleCol\""))
         .select(lhs(""""INTCOL""""), rhs("intcol"), 'doublecol, rhs(""""DoubleCol"""")),
-      Nil
-    )
+      Nil)
 
     // Below LHS and RHS are swapped but we still default to using the column name as is.
     checkAnswer(
       lhs
         .join(rhs, col("doublecol") === col("\"DoubleCol\""))
         .select(lhs(""""INTCOL""""), rhs("intcol"), 'doublecol, col(""""DoubleCol"""")),
-      Nil
-    )
+      Nil)
 
     var ex = intercept[SnowparkClientException] {
       lhs.join(rhs, col("intcol") === rhs(""""INTCOL"""")).collect()
@@ -365,8 +342,7 @@ trait DataFrameJoinSuite extends SNTestBase {
         .join(rhs, lhs("intcol") === rhs("intcol"))
         .select((lhs("negcol") + rhs("negcol")) as "newCol", lhs("intcol"), rhs("intcol"))
         .select(lhs("intcol") + rhs("intcol"), 'newCol),
-      Row(2, -11) :: Row(4, -22) :: Nil
-    )
+      Row(2, -11) :: Row(4, -22) :: Nil)
   }
 
   test("join - sql as the backing dataframe") {
@@ -376,25 +352,21 @@ trait DataFrameJoinSuite extends SNTestBase {
     val df = session.sql(s"select * from $tableName1 where int2 < 10")
     val df2 = session.sql(
       s"select 1 as INT, 3 as INT2, '1' as STR "
-        + "UNION select 5 as INT, 6 as INT2, '5' as STR"
-    )
+        + "UNION select 5 as INT, 6 as INT2, '5' as STR")
 
     checkAnswer(df.join(df2, Seq("int", "str"), "inner"), Seq(Row(1, "1", 2, 3)))
 
     checkAnswer(
       df.join(df2, Seq("int", "str"), "left"),
-      Seq(Row(1, "1", 2, 3), Row(3, "3", 4, null))
-    )
+      Seq(Row(1, "1", 2, 3), Row(3, "3", 4, null)))
 
     checkAnswer(
       df.join(df2, Seq("int", "str"), "right"),
-      Seq(Row(1, "1", 2, 3), Row(5, "5", null, 6))
-    )
+      Seq(Row(1, "1", 2, 3), Row(5, "5", null, 6)))
 
     checkAnswer(
       df.join(df2, Seq("int", "str"), "outer"),
-      Seq(Row(1, "1", 2, 3), Row(3, "3", 4, null), Row(5, "5", null, 6))
-    )
+      Seq(Row(1, "1", 2, 3), Row(3, "3", 4, null), Row(5, "5", null, 6)))
     val res = df.join(df2, Seq("int", "str"), "left_semi").collect
     checkAnswer(df.join(df2, Seq("int", "str"), "left_semi"), Seq(Row(1, 2, "1")))
 
@@ -440,21 +412,18 @@ trait DataFrameJoinSuite extends SNTestBase {
     // "left" self join
     checkAnswer(
       df.join(clonedDF, df("c1") === clonedDF("c2"), "left"),
-      Seq(Row(1, 2, null, null), Row(2, 3, 1, 2))
-    )
+      Seq(Row(1, 2, null, null), Row(2, 3, 1, 2)))
 
     // "right" self join
     checkAnswer(
       df.join(clonedDF, df("c1") === clonedDF("c2"), "right"),
-      Seq(Row(2, 3, 1, 2), Row(null, null, 2, 3))
-    )
+      Seq(Row(2, 3, 1, 2), Row(null, null, 2, 3)))
 
     // "outer" self join
     checkAnswer(
       df.join(clonedDF, df("c1") === clonedDF("c2"), "outer"),
       Seq(Row(2, 3, 1, 2), Row(null, null, 2, 3), Row(1, 2, null, null)),
-      false
-    )
+      false)
   }
 
   test("test natural/cross join") {
@@ -471,12 +440,10 @@ trait DataFrameJoinSuite extends SNTestBase {
     // "cross join" supports self join.
     checkAnswer(
       df.crossJoin(df2),
-      Seq(Row(1, 2, 1, 2), Row(1, 2, 2, 3), Row(2, 3, 1, 2), Row(2, 3, 2, 3))
-    )
+      Seq(Row(1, 2, 1, 2), Row(1, 2, 2, 3), Row(2, 3, 1, 2), Row(2, 3, 2, 3)))
     checkAnswer(
       df.crossJoin(clonedDF),
-      Seq(Row(1, 2, 1, 2), Row(1, 2, 2, 3), Row(2, 3, 1, 2), Row(2, 3, 2, 3))
-    )
+      Seq(Row(1, 2, 1, 2), Row(1, 2, 2, 3), Row(2, 3, 1, 2), Row(2, 3, 2, 3)))
   }
 
   test("clone with join DataFrame") {
@@ -579,8 +546,7 @@ trait DataFrameJoinSuite extends SNTestBase {
           .join(df2, df1("c") === df2("c"))
           .drop(df1("b"), df2("b"), df1("c"))
           .withColumn("newColumn", df1("a") + df2("a")),
-        Seq(Row(1, 3, true, 4), Row(2, 4, false, 6))
-      )
+        Seq(Row(1, 3, true, 4), Row(2, 4, false, 6)))
     } finally {
       dropTable(tableName1)
       dropTable(tableName2)
@@ -595,8 +561,7 @@ trait DataFrameJoinSuite extends SNTestBase {
       df1.join(df2, df1("id") === df2("id"), "left_outer").filter(is_null(df2("count"))),
       Row(2, 0, null, null) ::
         Row(3, 0, null, null) ::
-        Row(4, 0, null, null) :: Nil
-    )
+        Row(4, 0, null, null) :: Nil)
 
     // Coalesce data using non-nullable columns in input tables
     val df3 = Seq((1, 1)).toDF("a", "b")
@@ -605,8 +570,7 @@ trait DataFrameJoinSuite extends SNTestBase {
       df3
         .join(df4, df3("a") === df4("a"), "outer")
         .select(coalesce(df3("a"), df3("b")), coalesce(df4("a"), df4("b"))),
-      Row(1, null) :: Row(null, 2) :: Nil
-    )
+      Row(1, null) :: Row(null, 2) :: Nil)
   }
 
   test("SN: join - outer join conversion") {
@@ -642,8 +606,7 @@ trait DataFrameJoinSuite extends SNTestBase {
 
   test(
     "Don't throw Analysis Exception in CheckCartesianProduct when join condition " +
-      "is false or null"
-  ) {
+      "is false or null") {
     val df = session.range(10).toDF("id")
     val dfNull = session.range(10).select(lit(null).as("b"))
     df.join(dfNull, $"id" === $"b", "left").collect()
@@ -660,13 +623,11 @@ trait DataFrameJoinSuite extends SNTestBase {
       runQuery(
         s"create or replace table $tableTrips " +
           "(starttime timestamp, start_station_id int, end_station_id int)",
-        session
-      )
+        session)
       runQuery(
         s"create or replace table $tableStations " +
           "(station_id int, station_name string)",
-        session
-      )
+        session)
 
       val df_trips = session.table(tableTrips)
       val df_start_stations = session.table(tableStations)
@@ -680,8 +641,7 @@ trait DataFrameJoinSuite extends SNTestBase {
         .select(
           df_start_stations("station_name"),
           df_end_stations("station_name"),
-          df_trips("starttime")
-        )
+          df_trips("starttime"))
         .collect()
 
     } finally {
@@ -697,13 +657,11 @@ trait DataFrameJoinSuite extends SNTestBase {
       runQuery(
         s"create or replace table $tableTrips " +
           "(starttime timestamp, \"start<station>id\" int, \"end+station+id\" int)",
-        session
-      )
+        session)
       runQuery(
         s"create or replace table $tableStations " +
           "(\"station^id\" int, \"station%name\" string)",
-        session
-      )
+        session)
 
       val df_trips = session.table(tableTrips)
       val df_start_stations = session.table(tableStations)
@@ -717,8 +675,7 @@ trait DataFrameJoinSuite extends SNTestBase {
         .select(
           df_start_stations("station%name"),
           df_end_stations("station%name"),
-          df_trips("starttime")
-        )
+          df_trips("starttime"))
         .collect()
 
     } finally {
@@ -754,8 +711,7 @@ trait DataFrameJoinSuite extends SNTestBase {
           |-------------------------
           ||1    |2    |3    |4    |
           |-------------------------
-          |""".stripMargin
-    )
+          |""".stripMargin)
     assert(
       getShowString(df.select(df("*")), 10) ==
         """-------------------------
@@ -763,8 +719,7 @@ trait DataFrameJoinSuite extends SNTestBase {
           |-------------------------
           ||1    |2    |3    |4    |
           |-------------------------
-          |""".stripMargin
-    )
+          |""".stripMargin)
     assert(
       getShowString(df.select(dfLeft("*"), dfRight("*")), 10) ==
         """-------------------------
@@ -772,8 +727,7 @@ trait DataFrameJoinSuite extends SNTestBase {
           |-------------------------
           ||1    |2    |3    |4    |
           |-------------------------
-          |""".stripMargin
-    )
+          |""".stripMargin)
     assert(
       getShowString(df.select(dfRight("*"), dfLeft("*")), 10) ==
         """-------------------------
@@ -781,8 +735,7 @@ trait DataFrameJoinSuite extends SNTestBase {
           |-------------------------
           ||3    |4    |1    |2    |
           |-------------------------
-          |""".stripMargin
-    )
+          |""".stripMargin)
   }
 
   test("select left/right on join result") {
@@ -798,8 +751,7 @@ trait DataFrameJoinSuite extends SNTestBase {
           |-------------
           ||1    |2    |
           |-------------
-          |""".stripMargin
-    )
+          |""".stripMargin)
     assert(
       getShowString(df.select(dfRight("*")), 10) ==
         """-------------
@@ -807,8 +759,7 @@ trait DataFrameJoinSuite extends SNTestBase {
           |-------------
           ||3    |4    |
           |-------------
-          |""".stripMargin
-    )
+          |""".stripMargin)
   }
 
   test("select left/right combination on join result") {
@@ -824,8 +775,7 @@ trait DataFrameJoinSuite extends SNTestBase {
           |-------------------
           ||1    |2    |3    |
           |-------------------
-          |""".stripMargin
-    )
+          |""".stripMargin)
     // Select left(*) and left("a")
     assert(
       getShowString(df.select(dfLeft("*"), dfLeft("a").as("l_a")), 10) ==
@@ -834,8 +784,7 @@ trait DataFrameJoinSuite extends SNTestBase {
           |---------------------
           ||1    |2    |1      |
           |---------------------
-          |""".stripMargin
-    )
+          |""".stripMargin)
     // Select right(*) and right("c")
     assert(
       getShowString(df.select(dfRight("*"), dfRight("c").as("R_C")), 10) ==
@@ -844,8 +793,7 @@ trait DataFrameJoinSuite extends SNTestBase {
           |---------------------
           ||3    |4    |3      |
           |---------------------
-          |""".stripMargin
-    )
+          |""".stripMargin)
     // Select right(*) and left("a")
     assert(
       getShowString(df.select(dfRight("*"), dfLeft("a")), 10) ==
@@ -854,8 +802,7 @@ trait DataFrameJoinSuite extends SNTestBase {
           |-------------------
           ||3    |4    |1    |
           |-------------------
-          |""".stripMargin
-    )
+          |""".stripMargin)
     df.select(dfRight("*"), dfRight("c")).show()
   }
 

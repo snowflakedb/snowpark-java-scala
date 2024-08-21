@@ -2858,8 +2858,8 @@ object functions {
     * specified string column. If the regex did not match, or the specified group did not match, an
     * empty string is returned. <pr>Example: from snowflake.snowpark.functions import regexp_extract
     * df = session.createDataFrame([["id_20_30", 10], ["id_40_50", 30]], ["id", "age"])
-    * df.select(regexp_extract("id", r"(\d+)", 1).alias("RES")).show() </pr> <pr> ---------
-    * \|"RES" | ---------
+    * df.select(regexp_extract("id", r"(\d+)", 1).alias("RES")).show() </pr> <pr> --------- \|"RES"
+    * \| ---------
     * | 20 |
     * |:---|
     * | 40 |
@@ -2896,9 +2896,9 @@ object functions {
     * Args: col: The column to evaluate its sign <pr> Example:: >>> df =
     * session.create_dataframe([(-2, 2, 0)], ["a", "b", "c"]) >>>
     * df.select(sign("a").alias("a_sign"), sign("b").alias("b_sign"),
-    * sign("c").alias("c_sign")).show() ----------------------------------
-    * \|"A_SIGN" |"B_SIGN" |"C_SIGN" | ----------------------------------
-    * \|-1 |1 |0 | ---------------------------------- </pr>
+    * sign("c").alias("c_sign")).show() ---------------------------------- \|"A_SIGN" |"B_SIGN"
+    * \|"C_SIGN" | ---------------------------------- \|-1 |1 |0 |
+    * ---------------------------------- </pr>
     * @since 1.14.0
     * @param e
     *   Column to calculate the sign.
@@ -2918,9 +2918,9 @@ object functions {
     * Args: col: The column to evaluate its sign <pr> Example:: >>> df =
     * session.create_dataframe([(-2, 2, 0)], ["a", "b", "c"]) >>>
     * df.select(sign("a").alias("a_sign"), sign("b").alias("b_sign"),
-    * sign("c").alias("c_sign")).show() ----------------------------------
-    * \|"A_SIGN" |"B_SIGN" |"C_SIGN" | ----------------------------------
-    * \|-1 |1 |0 | ---------------------------------- </pr>
+    * sign("c").alias("c_sign")).show() ---------------------------------- \|"A_SIGN" |"B_SIGN"
+    * \|"C_SIGN" | ---------------------------------- \|-1 |1 |0 |
+    * ---------------------------------- </pr>
     * @since 1.14.0
     * @param e
     *   Column to calculate the sign.
@@ -2973,8 +2973,8 @@ object functions {
 
   /** Returns the input values, pivoted into an ARRAY. If the input is empty, an empty ARRAY is
     * returned. <pr> Example:: >>> df = session.create_dataframe([[1], [2], [3], [1]], schema=["a"])
-    * >>> df.select(array_agg("a", True).alias("result")).show() ------------
-    * \|"RESULT" | ------------
+    * >>> df.select(array_agg("a", True).alias("result")).show() ------------ \|"RESULT" |
+    * ------------
     * | [  |
     * |:---|
     * | 1, |
@@ -2994,8 +2994,7 @@ object functions {
     * returned.
     *
     * Example:: >>> df = session.create_dataframe([[1], [2], [3], [1]], schema=["a"]) >>>
-    * df.select(array_agg("a", True).alias("result")).show() ------------
-    * \|"RESULT" | ------------
+    * df.select(array_agg("a", True).alias("result")).show() ------------ \|"RESULT" | ------------
     * | [  |
     * |:---|
     * | 1, |

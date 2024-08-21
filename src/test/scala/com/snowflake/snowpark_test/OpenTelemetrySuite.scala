@@ -261,8 +261,10 @@ class OpenTelemetrySuite extends OpenTelemetryEnabled {
     val stageName = randomName()
     val tableName = randomName()
     val userSchema: StructType = StructType(
-      Seq(StructField("a", IntegerType), StructField("b", StringType), StructField("c", DoubleType))
-    )
+      Seq(
+        StructField("a", IntegerType),
+        StructField("b", StringType),
+        StructField("c", DoubleType)))
     try {
       createStage(stageName)
       uploadFileToStage(stageName, testFileCsv, compress = false)
@@ -291,8 +293,10 @@ class OpenTelemetrySuite extends OpenTelemetryEnabled {
     val tableName = randomName()
     val className = "snow.snowpark.CopyableDataFrameAsyncActor"
     val userSchema: StructType = StructType(
-      Seq(StructField("a", IntegerType), StructField("b", StringType), StructField("c", DoubleType))
-    )
+      Seq(
+        StructField("a", IntegerType),
+        StructField("b", StringType),
+        StructField("c", DoubleType)))
     try {
       createStage(stageName)
       uploadFileToStage(stageName, testFileCsv, compress = false)
@@ -462,7 +466,6 @@ class OpenTelemetrySuite extends OpenTelemetryEnabled {
       funcName,
       "OpenTelemetrySuite.scala",
       file.getLineNumber - 1,
-      s"DataFrame.$funcName"
-    )
+      s"DataFrame.$funcName")
   }
 }

@@ -33,8 +33,7 @@ class UDFRegistrationSuite extends SNTestBase with FileUtils {
       tempStage,
       stagePrefix,
       jarFileName,
-      funcBytesMap
-    )
+      funcBytesMap)
     val stageFile = "@" + tempStage + "/" + stagePrefix + "/" + jarFileName
     // Download file from stage
     session.runQuery(s"get $stageFile file://${TestUtils.tempDirWithEscape}")
@@ -42,8 +41,7 @@ class UDFRegistrationSuite extends SNTestBase with FileUtils {
     // Check that classes in directories in UDFClasspath are included
     assert(
       classesInJar.contains("com/snowflake/snowpark/Session.class") || session.packageNames
-        .contains(clientPackageName)
-    )
+        .contains(clientPackageName))
     // Check that classes in jars in UDFClasspath are NOT included
     assert(!classesInJar.contains("scala/Function1.class"))
     // Check that function class is included
@@ -62,8 +60,7 @@ class UDFRegistrationSuite extends SNTestBase with FileUtils {
         tempStage,
         stagePrefix,
         jarFileName,
-        funcBytesMap
-      )
+        funcBytesMap)
     }
     assert(ex1.isInstanceOf[NoSuchFileException])
 
@@ -75,21 +72,18 @@ class UDFRegistrationSuite extends SNTestBase with FileUtils {
         "not_exist_stage_name",
         stagePrefix,
         jarFileName,
-        funcBytesMap
-      )
+        funcBytesMap)
     }
     assert(
       ex2.getMessage.contains("Stage") &&
-        ex2.getMessage.contains("does not exist or not authorized.")
-    )
+        ex2.getMessage.contains("does not exist or not authorized."))
   }
 
   // Dynamic Compile scala code
   private def generateDynamicClass(
       packageName: String,
       className: String,
-      inMemory: Boolean
-  ): Class[_] = {
+      inMemory: Boolean): Class[_] = {
     // Generate a temp file for the scala code.
     val classContent =
       s"package $packageName\n class $className {\n class InnerClass {}\n}\nclass OuterClass {}\n"

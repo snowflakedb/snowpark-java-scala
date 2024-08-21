@@ -7,7 +7,6 @@ class RequestTimeoutSuite extends UploadTimeoutSession {
   // Jar upload timeout is set to 0 second
   test("Test udf jar upload timeout") {
     assertThrows[SnowparkClientException](
-      mockSession.udf.registerTemporary((a: Int, b: Int) => a == b)
-    )
+      mockSession.udf.registerTemporary((a: Int, b: Int) => a == b))
   }
 }

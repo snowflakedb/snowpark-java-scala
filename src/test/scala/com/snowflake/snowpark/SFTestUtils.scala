@@ -35,8 +35,7 @@ trait SFTestUtils {
     TestUtils.insertIntoTable(name, data, session)
 
   def uploadFileToStage(stageName: String, fileName: String, compress: Boolean)(implicit
-      session: Session
-  ): Unit =
+      session: Session): Unit =
     TestUtils.uploadFileToStage(stageName, fileName, compress, session)
 
   def verifySchema(sql: String, expectedSchema: StructType)(implicit session: Session): Unit =

@@ -6,8 +6,7 @@ import com.snowflake.snowpark.types._
 class StagedFileReaderSuite extends SNTestBase {
 
   private val userSchema: StructType = StructType(
-    Seq(StructField("a", IntegerType), StructField("b", StringType), StructField("c", DoubleType))
-  )
+    Seq(StructField("a", IntegerType), StructField("b", StringType), StructField("c", DoubleType)))
 
   test("File Format Type") {
     val fileReadOrCopyPlanBuilder = new StagedFileReader(session)
@@ -40,8 +39,7 @@ class StagedFileReaderSuite extends SNTestBase {
       "Integer" -> java.lang.Integer.valueOf("1"),
       "true" -> "True",
       "false" -> "false",
-      "string" -> "string"
-    )
+      "string" -> "string")
     val savedOptions = fileReadOrCopyPlanBuilder.options(configs).curOptions
     assert(savedOptions.size == 6)
     assert(savedOptions("BOOLEAN").equals("true"))
@@ -67,8 +65,7 @@ class StagedFileReaderSuite extends SNTestBase {
     val crt = plan.queries.head.sql
     assert(
       TestUtils
-        .containIgnoreCaseAndWhiteSpaces(crt, s"create table test_table_name if not exists")
-    )
+        .containIgnoreCaseAndWhiteSpaces(crt, s"create table test_table_name if not exists"))
     val copy = plan.queries.last.sql
     assert(TestUtils.containIgnoreCaseAndWhiteSpaces(copy, s"copy into test_table_name"))
     assert(TestUtils.containIgnoreCaseAndWhiteSpaces(copy, "skip_header = 10"))

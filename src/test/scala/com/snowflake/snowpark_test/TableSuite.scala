@@ -36,14 +36,12 @@ class TableSuite extends TestData {
       s"insert into $semiStructuredTable select parse_json(a), parse_json(b), " +
         s"parse_json(a), to_geography(c) from values('[1,2]', '{a:1}', 'POINT(-122.35 37.55)')," +
         s"('[1,2,3]', '{b:2}', 'POINT(-12 37)') as T(a,b,c)",
-      session
-    )
+      session)
     createTable(timeTable, "time time")
     runQuery(
       s"insert into $timeTable select to_time(a) from values('09:15:29')," +
         s"('09:15:29.99999999') as T(a)",
-      session
-    )
+      session)
   }
 
   override def afterAll: Unit = {
@@ -111,8 +109,7 @@ class TableSuite extends TestData {
 
     // ErrorIfExists Mode
     assertThrows[SnowflakeSQLException](
-      df.write.mode(SaveMode.ErrorIfExists).saveAsTable(tableName2)
-    )
+      df.write.mode(SaveMode.ErrorIfExists).saveAsTable(tableName2))
   }
 
   test("Save as Snowflake Table - String Argument") {
@@ -209,9 +206,7 @@ class TableSuite extends TestData {
         ArrayType(StringType),
         MapType(StringType, StringType),
         VariantType,
-        GeographyType
-      )
-    )
+        GeographyType))
     checkAnswer(
       df,
       Seq(
@@ -220,20 +215,14 @@ class TableSuite extends TestData {
           "{\n  \"a\": 1\n}",
           "[\n  1,\n  2\n]",
           Geography.fromGeoJSON(
-            "{\n  \"coordinates\": [\n    -122.35,\n    37.55\n  ],\n  \"type\": \"Point\"\n}"
-          )
-        ),
+            "{\n  \"coordinates\": [\n    -122.35,\n    37.55\n  ],\n  \"type\": \"Point\"\n}")),
         Row(
           "[\n  1,\n  2,\n  3\n]",
           "{\n  \"b\": 2\n}",
           "[\n  1,\n  2,\n  3\n]",
           Geography.fromGeoJSON(
-            "{\n  \"coordinates\": [\n    -12,\n    37\n  ],\n  \"type\": \"Point\"\n}"
-          )
-        )
-      ),
-      sort = false
-    )
+            "{\n  \"coordinates\": [\n    -12,\n    37\n  ],\n  \"type\": \"Point\"\n}"))),
+      sort = false)
   }
 
   // Contains 'alter session', which is not supported by owner's right java sp
@@ -241,8 +230,7 @@ class TableSuite extends TestData {
     val df2 = session.table(semiStructuredTable).select(col("g1"))
     assert(
       df2.collect()(0).getString(0) ==
-        "{\n  \"coordinates\": [\n    -122.35,\n    37.55\n  ],\n  \"type\": \"Point\"\n}"
-    )
+        "{\n  \"coordinates\": [\n    -122.35,\n    37.55\n  ],\n  \"type\": \"Point\"\n}")
     assertThrows[ClassCastException](df2.collect()(0).getBinary(0))
     assert(
       getShowString(df2, 10) ==
@@ -264,16 +252,14 @@ class TableSuite extends TestData {
           ||  "type": "Point"   |
           ||}                   |
           |----------------------
-        |""".stripMargin
-    )
+        |""".stripMargin)
 
     testWithAlteredSessionParameter(
       {
         assertThrows[SnowparkClientException](df2.collect())
       },
       "GEOGRAPHY_OUTPUT_FORMAT",
-      "'WKT'"
-    )
+      "'WKT'")
   }
 
   test("table with time type") {
@@ -282,8 +268,7 @@ class TableSuite extends TestData {
     checkAnswer(
       df2,
       Seq(Row(Time.valueOf("09:15:29")), Row(Time.valueOf("09:15:29"))),
-      sort = false
-    )
+      sort = false)
   }
 
   // getDatabaseFromProperties will read local files, which is not supported in Java SP yet.

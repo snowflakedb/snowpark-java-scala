@@ -8,8 +8,7 @@ trait ComplexDataFrameSuite extends SNTestBase {
   val tableName: String = randomName()
   val tmpStageName: String = randomStageName()
   private val userSchema: StructType = StructType(
-    Seq(StructField("a", IntegerType), StructField("b", StringType), StructField("c", DoubleType))
-  )
+    Seq(StructField("a", IntegerType), StructField("b", StringType), StructField("c", DoubleType)))
 
   override def beforeAll: Unit = {
     super.beforeAll()
@@ -37,13 +36,11 @@ trait ComplexDataFrameSuite extends SNTestBase {
 
     checkAnswer(
       df1.join(df2, "a").union(df2.filter($"a" < 2).union(df2.filter($"a" >= 2))),
-      Seq(Row(1, "test1"), Row(2, "test2"))
-    )
+      Seq(Row(1, "test1"), Row(2, "test2")))
 
     checkAnswer(
       df1.join(df2, "a").unionAll(df2.filter($"a" < 2).unionAll(df2.filter($"a" >= 2))),
-      Seq(Row(1, "test1"), Row(1, "test1"), Row(2, "test2"), Row(2, "test2"))
-    )
+      Seq(Row(1, "test1"), Row(1, "test1"), Row(2, "test2"), Row(2, "test2")))
   }
 
   test("Combination of multiple operators with filters") {
@@ -56,8 +53,7 @@ trait ComplexDataFrameSuite extends SNTestBase {
 
     checkAnswer(
       df1.filter($"a" < 6).join(df2, "a").union(df2.filter($"a" > 5)),
-      (1 to 10).map(i => Row(i, s"test$i"))
-    )
+      (1 to 10).map(i => Row(i, s"test$i")))
   }
 
   test("join on top of unions") {
@@ -68,8 +64,7 @@ trait ComplexDataFrameSuite extends SNTestBase {
     checkAnswer(
       df1.union(df2).join(df3.union(df4), "a").sort(functions.col("a")),
       (1 to 10).map(i => Row(i, s"test$i")),
-      false
-    )
+      false)
   }
 
   test("Combination of multiple data sources") {
@@ -78,13 +73,11 @@ trait ComplexDataFrameSuite extends SNTestBase {
     val df2 = session.table(tableName)
     checkAnswer(
       df2.join(df1, df1("a") === df2("num")),
-      Seq(Row(1, 1, "one", 1.2), Row(2, 2, "two", 2.2))
-    )
+      Seq(Row(1, 1, "one", 1.2), Row(2, 2, "two", 2.2)))
 
     checkAnswer(
       df2.filter($"num" === 1).join(df1.select("a", "b"), df1("a") === df2("num")),
-      Seq(Row(1, 1, "one"))
-    )
+      Seq(Row(1, 1, "one")))
   }
 }
 

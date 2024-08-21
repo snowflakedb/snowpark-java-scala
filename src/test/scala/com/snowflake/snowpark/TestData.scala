@@ -8,8 +8,7 @@ trait TestData extends SNTestBase {
 
   lazy val testData2: DataFrame =
     session.createDataFrame(
-      Seq(Data2(1, 1), Data2(1, 2), Data2(2, 1), Data2(2, 2), Data2(3, 1), Data2(3, 2))
-    )
+      Seq(Data2(1, 1), Data2(1, 2), Data2(2, 1), Data2(2, 2), Data2(3, 1), Data2(3, 2)))
 
   lazy val testData3: DataFrame =
     session.createDataFrame(Seq(Data3(1, None), Data3(2, Some(2))))
@@ -22,8 +21,7 @@ trait TestData extends SNTestBase {
       LowerCaseData(1, "a") ::
         LowerCaseData(2, "b") ::
         LowerCaseData(3, "c") ::
-        LowerCaseData(4, "d") :: Nil
-    )
+        LowerCaseData(4, "d") :: Nil)
 
   lazy val upperCaseData: DataFrame =
     session.createDataFrame(
@@ -32,24 +30,21 @@ trait TestData extends SNTestBase {
         UpperCaseData(3, "C") ::
         UpperCaseData(4, "D") ::
         UpperCaseData(5, "E") ::
-        UpperCaseData(6, "F") :: Nil
-    )
+        UpperCaseData(6, "F") :: Nil)
 
   lazy val nullInts: DataFrame =
     session.createDataFrame(
       NullInts(1) ::
         NullInts(2) ::
         NullInts(3) ::
-        NullInts(null) :: Nil
-    )
+        NullInts(null) :: Nil)
 
   lazy val allNulls: DataFrame =
     session.createDataFrame(
       NullInts(null) ::
         NullInts(null) ::
         NullInts(null) ::
-        NullInts(null) :: Nil
-    )
+        NullInts(null) :: Nil)
 
   lazy val nullData1: DataFrame =
     session.sql("select * from values(null),(2),(1),(3),(null) as T(a)")
@@ -57,15 +52,13 @@ trait TestData extends SNTestBase {
   lazy val nullData2: DataFrame =
     session.sql(
       "select * from values(1,2,3),(null,2,3),(null,null,3),(null,null,null)," +
-        "(1,null,3),(1,null,null),(1,2,null) as T(a,b,c)"
-    )
+        "(1,null,3),(1,null,null),(1,2,null) as T(a,b,c)")
 
   lazy val nullData3: DataFrame =
     session.sql(
       "select * from values(1.0, 1, true, 'a'),('NaN'::Double, 2, null, 'b')," +
         "(null, 3, false, null), (4.0, null, null, 'd'), (null, null, null, null), " +
-        "('NaN'::Double, null, null, null) as T(flo, int, boo, str)"
-    )
+        "('NaN'::Double, null, null, null) as T(flo, int, boo, str)")
 
   lazy val integer1: DataFrame = session.sql("select * from values(1),(2),(3) as T(a)")
 
@@ -78,8 +71,7 @@ trait TestData extends SNTestBase {
   lazy val double3: DataFrame =
     session.sql(
       "select * from values(1.0, 1),('NaN'::Double, 2),(null, 3)," +
-        " (4.0, null), (null, null), ('NaN'::Double, null) as T(a, b)"
-    )
+        " (4.0, null), (null, null), ('NaN'::Double, null) as T(a, b)")
 
   lazy val double4: DataFrame =
     session.sql("select * from values(1.0, 1) as T(a, b)")
@@ -96,8 +88,7 @@ trait TestData extends SNTestBase {
   lazy val approxNumbers2: DataFrame =
     session.sql(
       "select * from values(1, 1),(2, 1),(3, 3),(4, 3),(5, 3),(6, 3),(7, 3)," +
-        "(8, 5),(9, 5),(0, 5) as T(a, T)"
-    )
+        "(8, 5),(9, 5),(0, 5) as T(a, T)")
 
   lazy val string1: DataFrame =
     session.sql("select * from values('test1', 'a'),('test2', 'b'),('test3', 'c') as T(a, b)")
@@ -123,39 +114,33 @@ trait TestData extends SNTestBase {
   lazy val array1: DataFrame =
     session.sql(
       "select array_construct(a,b,c) as arr1, array_construct(d,e,f) as arr2 " +
-        "from values(1,2,3,3,4,5),(6,7,8,9,0,1) as T(a,b,c,d,e,f)"
-    )
+        "from values(1,2,3,3,4,5),(6,7,8,9,0,1) as T(a,b,c,d,e,f)")
 
   lazy val array2: DataFrame =
     session.sql(
       "select array_construct(a,b,c) as arr1, d, e, f " +
-        "from values(1,2,3,2,'e1','[{a:1}]'),(6,7,8,1,'e2','[{a:1},{b:2}]') as T(a,b,c,d,e,f)"
-    )
+        "from values(1,2,3,2,'e1','[{a:1}]'),(6,7,8,1,'e2','[{a:1},{b:2}]') as T(a,b,c,d,e,f)")
 
   lazy val array3: DataFrame =
     session.sql(
       "select array_construct(a,b,c) as arr1, d, e, f " +
-        "from values(1,2,3,1,2,','),(4,5,6,1,-1,', '),(6,7,8,0,2,';') as T(a,b,c,d,e,f)"
-    )
+        "from values(1,2,3,1,2,','),(4,5,6,1,-1,', '),(6,7,8,0,2,';') as T(a,b,c,d,e,f)")
 
   lazy val object1: DataFrame =
     session.sql(
       "select key, to_variant(value) as value from values('age', 21),('zip', " +
-        "94401) as T(key,value)"
-    )
+        "94401) as T(key,value)")
 
   lazy val object2: DataFrame =
     session.sql(
       "select object_construct(a,b,c,d,e,f) as obj, k, v, flag from values('age', 21, 'zip', " +
         "21021, 'name', 'Joe', 'age', 0, true),('age', 26, 'zip', 94021, 'name', 'Jay', 'key', " +
-        "0, false) as T(a,b,c,d,e,f,k,v,flag)"
-    )
+        "0, false) as T(a,b,c,d,e,f,k,v,flag)")
 
   lazy val nullArray1: DataFrame =
     session.sql(
       "select array_construct(a,b,c) as arr1, array_construct(d,e,f) as arr2 " +
-        "from values(1,null,3,3,null,5),(6,null,8,9,null,1) as T(a,b,c,d,e,f)"
-    )
+        "from values(1,null,3,3,null,5),(6,null,8,9,null,1) as T(a,b,c,d,e,f)")
 
   lazy val variant1: DataFrame =
     session.sql(
@@ -171,8 +156,7 @@ trait TestData extends SNTestBase {
         " to_variant(to_timestamp_tz('2017-02-24 13:00:00.123 +01:00')) as timestamp_tz1, " +
         " to_variant(1.23::decimal(6, 3)) as decimal1, " +
         " to_variant(3.21::double) as double1, " +
-        " to_variant(15) as num1 "
-    )
+        " to_variant(15) as num1 ")
 
   lazy val variant2: DataFrame =
     session.sql("""
@@ -194,27 +178,23 @@ trait TestData extends SNTestBase {
         |""".stripMargin)
 
   lazy val nullJson1: DataFrame = session.sql(
-    "select parse_json(column1) as v  from values ('{\"a\": null}'), ('{\"a\": \"foo\"}'), (null)"
-  )
+    "select parse_json(column1) as v  from values ('{\"a\": null}'), ('{\"a\": \"foo\"}'), (null)")
 
   lazy val validJson1: DataFrame = session.sql(
     "select parse_json(column1) as v, column2 as k from values ('{\"a\": null}','a'), " +
-      "('{\"a\": \"foo\"}','a'), ('{\"a\": \"foo\"}','b'), (null,'a')"
-  )
+      "('{\"a\": \"foo\"}','a'), ('{\"a\": \"foo\"}','b'), (null,'a')")
 
   lazy val invalidJson1: DataFrame =
     session.sql("select (column1) as v from values ('{\"a\": null'), ('{\"a: \"foo\"}'), ('{\"a:')")
 
   lazy val nullXML1: DataFrame = session.sql(
     "select (column1) as v from values ('<t1>foo<t2>bar</t2><t3></t3></t1>'), " +
-      "('<t1></t1>'), (null), ('')"
-  )
+      "('<t1></t1>'), (null), ('')")
 
   lazy val validXML1: DataFrame = session.sql(
     "select parse_xml(a) as v, b as t2, c as t3, d as instance from values" +
       "('<t1>foo<t2>bar</t2><t3></t3></t1>','t2','t3',0),('<t1></t1>','t2','t3',0)," +
-      "('<t1><t2>foo</t2><t2>bar</t2></t1>','t2','t3',1) as T(a,b,c,d)"
-  )
+      "('<t1><t2>foo</t2><t2>bar</t2></t1>','t2','t3',1) as T(a,b,c,d)")
 
   lazy val invalidXML1: DataFrame =
     session.sql("select (column1) as v from values ('<t1></t>'), ('<t1><t1>'), ('<t1</t1>')")
@@ -224,8 +204,7 @@ trait TestData extends SNTestBase {
 
   lazy val date2: DataFrame =
     session.sql(
-      "select * from values('2020-08-01'::Date, 'mo'),('2010-12-01'::Date, 'we') as T(a,b)"
-    )
+      "select * from values('2020-08-01'::Date, 'mo'),('2010-12-01'::Date, 'we') as T(a,b)")
 
   lazy val date3: DataFrame =
     Seq((2020, 10, 28, 13, 35, 47, 1234567, "America/Los_Angeles")).toDF(
@@ -236,8 +215,7 @@ trait TestData extends SNTestBase {
       "minute",
       "second",
       "nanosecond",
-      "timezone"
-    )
+      "timezone")
 
   lazy val number1: DataFrame = session.createDataFrame(
     Seq(
@@ -245,9 +223,7 @@ trait TestData extends SNTestBase {
       Number1(2, 10.0, 11.0),
       Number1(2, 20.0, 22.0),
       Number1(2, 25.0, 0),
-      Number1(2, 30.0, 35.0)
-    )
-  )
+      Number1(2, 30.0, 35.0)))
 
   lazy val decimalData: DataFrame =
     session.createDataFrame(
@@ -256,8 +232,7 @@ trait TestData extends SNTestBase {
         DecimalData(2, 1) ::
         DecimalData(2, 2) ::
         DecimalData(3, 1) ::
-        DecimalData(3, 2) :: Nil
-    )
+        DecimalData(3, 2) :: Nil)
 
   lazy val number2: DataFrame =
     session.createDataFrame(Seq(Number2(1, 2, 3), Number2(0, -1, 4), Number2(-5, 0, -9)))
@@ -268,18 +243,20 @@ trait TestData extends SNTestBase {
 
   lazy val timestamp1: DataFrame = session.sql(
     "select * from values('2020-05-01 13:11:20.000' :: timestamp)," +
-      "('2020-08-21 01:30:05.000' :: timestamp) as T(a)"
-  )
+      "('2020-08-21 01:30:05.000' :: timestamp) as T(a)")
 
   lazy val timestampNTZ: DataFrame = session.sql(
     "select * from values('2020-05-01 13:11:20.000' :: timestamp_ntz)," +
-      "('2020-08-21 01:30:05.000' :: timestamp_ntz) as T(a)"
-  )
+      "('2020-08-21 01:30:05.000' :: timestamp_ntz) as T(a)")
 
   lazy val xyz: DataFrame =
     session.createDataFrame(
-      Seq(Number2(1, 2, 1), Number2(1, 2, 3), Number2(2, 1, 10), Number2(2, 2, 1), Number2(2, 2, 3))
-    )
+      Seq(
+        Number2(1, 2, 1),
+        Number2(1, 2, 3),
+        Number2(2, 1, 10),
+        Number2(2, 2, 1),
+        Number2(2, 2, 3)))
 
   lazy val long1: DataFrame =
     session.sql("select * from values(1561479557),(1565479557),(1161479557) as T(a)")
@@ -291,8 +268,7 @@ trait TestData extends SNTestBase {
           CourseSales("Java", 2012, 20000) ::
           CourseSales("dotNET", 2012, 5000) ::
           CourseSales("dotNET", 2013, 48000) ::
-          CourseSales("Java", 2013, 30000) :: Nil
-      )
+          CourseSales("Java", 2013, 30000) :: Nil)
 
   lazy val monthlySales: DataFrame = session.createDataFrame(
     Seq(
@@ -311,9 +287,7 @@ trait TestData extends SNTestBase {
       MonthlySales(1, 8000, "APR"),
       MonthlySales(1, 10000, "APR"),
       MonthlySales(2, 800, "APR"),
-      MonthlySales(2, 4500, "APR")
-    )
-  )
+      MonthlySales(2, 4500, "APR")))
 
   lazy val columnNameHasSpecialCharacter: DataFrame = {
     Seq((1, 2), (3, 4)).toDF("\"col %\"", "\"col *\"")
@@ -326,8 +300,7 @@ trait TestData extends SNTestBase {
     (471, "Andrea Renee Nouveau", "RN", "Amateur Extra"),
     (101, "Lily Vine", "LVN", null),
     (102, "Larry Vancouver", "LVN", null),
-    (172, "Rhonda Nova", "RN", null)
-  ).toDF("id", "full_name", "medical_license", "radio_license")
+    (172, "Rhonda Nova", "RN", null)).toDF("id", "full_name", "medical_license", "radio_license")
 
 }
 

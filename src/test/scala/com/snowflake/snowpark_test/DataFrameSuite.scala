@@ -40,8 +40,7 @@ trait DataFrameSuite extends TestData with BeforeAndAfterEach {
     checkAnswer(
       df.sort(col("b").asc_nulls_last),
       Seq(Row(2, "NotNull"), Row(1, null), Row(3, null)),
-      false
-    )
+      false)
   }
 
   test("Project null values") {
@@ -82,8 +81,7 @@ trait DataFrameSuite extends TestData with BeforeAndAfterEach {
           ||1    |NULL  |
           ||2    |N...  |
           |--------------
-          |""".stripMargin
-    )
+          |""".stripMargin)
   }
 
   test("show with null data") {
@@ -99,8 +97,7 @@ trait DataFrameSuite extends TestData with BeforeAndAfterEach {
           ||1    |NULL     |
           ||2    |NotNull  |
           |-----------------
-          |""".stripMargin
-    )
+          |""".stripMargin)
   }
 
   test("show multi-lines row") {
@@ -117,8 +114,7 @@ trait DataFrameSuite extends TestData with BeforeAndAfterEach {
           ||             |one more line  |
           ||             |last line      |
           |-------------------------------
-          |""".stripMargin
-    )
+          |""".stripMargin)
   }
 
   test("show") {
@@ -133,8 +129,7 @@ trait DataFrameSuite extends TestData with BeforeAndAfterEach {
           ||1      |true    |a      |
           ||2      |false   |b      |
           |--------------------------
-          |""".stripMargin
-    )
+          |""".stripMargin)
 
     session.sql("show tables").show()
 
@@ -147,8 +142,7 @@ trait DataFrameSuite extends TestData with BeforeAndAfterEach {
            |------------------------------------------------------
            ||Drop statement executed successfully (TEST_TABL...  |
            |------------------------------------------------------
-           |""".stripMargin
-    )
+           |""".stripMargin)
   }
 
   test("cacheResult") {
@@ -162,8 +156,7 @@ trait DataFrameSuite extends TestData with BeforeAndAfterEach {
       testCacheResult(),
       "snowpark_use_scoped_temp_objects",
       "true",
-      skipIfParamNotExist = true
-    )
+      skipIfParamNotExist = true)
   }
 
   private def testCacheResult(): Unit = {
@@ -256,8 +249,7 @@ trait DataFrameSuite extends TestData with BeforeAndAfterEach {
           .select(""""name"""")
           .filter(col(""""name"""") === tableName)
           .collect()
-          .length == 1
-      )
+          .length == 1)
     } finally {
       runQuery(s"drop table if exists $tableName", session)
     }
@@ -275,8 +267,7 @@ trait DataFrameSuite extends TestData with BeforeAndAfterEach {
           .select(""""name"""")
           .filter(col(""""name"""") === tableName)
           .collect()
-          .length == 2
-      )
+          .length == 2)
     } finally {
       runQuery(s"drop table if exists $tableName", session)
     }
@@ -296,8 +287,7 @@ trait DataFrameSuite extends TestData with BeforeAndAfterEach {
     checkAnswer(double3.na.drop(1, Seq("a")), Seq(Row(1.0, 1), Row(4.0, null)))
     checkAnswer(
       double3.na.drop(1, Seq("a", "b")),
-      Seq(Row(1.0, 1), Row(4.0, null), Row(Double.NaN, 2), Row(null, 3))
-    )
+      Seq(Row(1.0, 1), Row(4.0, null), Row(Double.NaN, 2), Row(null, 3)))
     assert(double3.na.drop(0, Seq("a")).count() == 6)
     assert(double3.na.drop(3, Seq("a", "b")).count() == 0)
     assert(double3.na.drop(1, Seq()).count() == 6)
@@ -313,10 +303,8 @@ trait DataFrameSuite extends TestData with BeforeAndAfterEach {
         Row(12.3, 3, false, "f"),
         Row(4.0, 11, false, "d"),
         Row(12.3, 11, false, "f"),
-        Row(12.3, 11, false, "f")
-      ),
-      sort = false
-    )
+        Row(12.3, 11, false, "f")),
+      sort = false)
     checkAnswer(
       nullData3.na.fill(Map("flo" -> 22.3f, "int" -> 22L, "boo" -> false, "str" -> "f")),
       Seq(
@@ -325,38 +313,30 @@ trait DataFrameSuite extends TestData with BeforeAndAfterEach {
         Row(22.3, 3, false, "f"),
         Row(4.0, 22, false, "d"),
         Row(22.3, 22, false, "f"),
-        Row(22.3, 22, false, "f")
-      ),
-      sort = false
-    )
+        Row(22.3, 22, false, "f")),
+      sort = false)
     checkAnswer(
       nullData3.na.fill(
-        Map("flo" -> 12.3, "int" -> 33.asInstanceOf[Short], "boo" -> false, "str" -> "f")
-      ),
+        Map("flo" -> 12.3, "int" -> 33.asInstanceOf[Short], "boo" -> false, "str" -> "f")),
       Seq(
         Row(1.0, 1, true, "a"),
         Row(12.3, 2, false, "b"),
         Row(12.3, 3, false, "f"),
         Row(4.0, 33, false, "d"),
         Row(12.3, 33, false, "f"),
-        Row(12.3, 33, false, "f")
-      ),
-      sort = false
-    )
+        Row(12.3, 33, false, "f")),
+      sort = false)
     checkAnswer(
       nullData3.na.fill(
-        Map("flo" -> 12.3, "int" -> 44.asInstanceOf[Byte], "boo" -> false, "str" -> "f")
-      ),
+        Map("flo" -> 12.3, "int" -> 44.asInstanceOf[Byte], "boo" -> false, "str" -> "f")),
       Seq(
         Row(1.0, 1, true, "a"),
         Row(12.3, 2, false, "b"),
         Row(12.3, 3, false, "f"),
         Row(4.0, 44, false, "d"),
         Row(12.3, 44, false, "f"),
-        Row(12.3, 44, false, "f")
-      ),
-      sort = false
-    )
+        Row(12.3, 44, false, "f")),
+      sort = false)
     // wrong type
     checkAnswer(
       nullData3.na.fill(Map("flo" -> 12.3, "int" -> "11", "boo" -> false, "str" -> 1)),
@@ -366,10 +346,8 @@ trait DataFrameSuite extends TestData with BeforeAndAfterEach {
         Row(12.3, 3, false, null),
         Row(4.0, null, false, "d"),
         Row(12.3, null, false, null),
-        Row(12.3, null, false, null)
-      ),
-      sort = false
-    )
+        Row(12.3, null, false, null)),
+      sort = false)
 
     // wrong column name
     assertThrows[SnowparkClientException](nullData3.na.fill(Map("wrong" -> 11)))
@@ -384,10 +362,8 @@ trait DataFrameSuite extends TestData with BeforeAndAfterEach {
         Row(null, 3, false, null),
         Row(4.0, null, null, "d"),
         Row(null, null, null, null),
-        Row(Double.NaN, null, null, null)
-      ),
-      sort = false
-    )
+        Row(Double.NaN, null, null, null)),
+      sort = false)
     // replace null
     checkAnswer(
       nullData3.na.replace("boo", Map(None -> true)),
@@ -397,10 +373,8 @@ trait DataFrameSuite extends TestData with BeforeAndAfterEach {
         Row(null, 3, false, null),
         Row(4.0, null, true, "d"),
         Row(null, null, true, null),
-        Row(Double.NaN, null, true, null)
-      ),
-      sort = false
-    )
+        Row(Double.NaN, null, true, null)),
+      sort = false)
 
     // replace NaN
     checkAnswer(
@@ -411,10 +385,8 @@ trait DataFrameSuite extends TestData with BeforeAndAfterEach {
         Row(null, 3, false, null),
         Row(4.0, null, null, "d"),
         Row(null, null, null, null),
-        Row(11, null, null, null)
-      ),
-      sort = false
-    )
+        Row(11, null, null, null)),
+      sort = false)
 
     // incompatible type
     assertThrows[SnowflakeSQLException](nullData3.na.replace("flo", Map(None -> "aa")).collect())
@@ -428,10 +400,8 @@ trait DataFrameSuite extends TestData with BeforeAndAfterEach {
         Row(null, 3, false, null),
         Row(4.0, null, null, "d"),
         Row(null, null, null, null),
-        Row(null, null, null, null)
-      ),
-      sort = false
-    )
+        Row(null, null, null, null)),
+      sort = false)
 
     assert(
       getSchemaString(nullData3.na.replace("flo", Map(Double.NaN -> null)).schema) ==
@@ -440,8 +410,7 @@ trait DataFrameSuite extends TestData with BeforeAndAfterEach {
           | |--INT: Long (nullable = true)
           | |--BOO: Boolean (nullable = true)
           | |--STR: String (nullable = true)
-          |""".stripMargin
-    )
+          |""".stripMargin)
 
   }
 
@@ -478,8 +447,7 @@ trait DataFrameSuite extends TestData with BeforeAndAfterEach {
     assert(approxNumbers.stat.approxQuantile("a", Array(0.5))(0).get == 4.5)
     assert(
       approxNumbers.stat.approxQuantile("a", Array(0, 0.1, 0.4, 0.6, 1)).deep ==
-        Array(Some(0.0), Some(0.9), Some(3.6), Some(5.3999999999999995), Some(9.0)).deep
-    )
+        Array(Some(0.0), Some(0.9), Some(3.6), Some(5.3999999999999995), Some(9.0)).deep)
 
     // Probability out of range error and apply on string column error.
     assertThrows[SnowflakeSQLException](approxNumbers.stat.approxQuantile("a", Array(-1d)))
@@ -516,8 +484,7 @@ trait DataFrameSuite extends TestData with BeforeAndAfterEach {
           ||2        |800       |APR      |
           ||2        |4500      |APR      |
           |--------------------------------
-          |""".stripMargin
-    )
+          |""".stripMargin)
 
     assert(
       getShowString(monthlySales.stat.sampleBy(col("month"), Map("JAN" -> 1.0)), 10) ==
@@ -529,8 +496,7 @@ trait DataFrameSuite extends TestData with BeforeAndAfterEach {
           ||2        |4500      |JAN      |
           ||2        |35000     |JAN      |
           |--------------------------------
-          |""".stripMargin
-    )
+          |""".stripMargin)
 
     assert(
       getShowString(monthlySales.stat.sampleBy(col("month"), Map()), 10) ==
@@ -538,8 +504,7 @@ trait DataFrameSuite extends TestData with BeforeAndAfterEach {
           ||"EMPID"  |"AMOUNT"  |"MONTH"  |
           |--------------------------------
           |--------------------------------
-          |""".stripMargin
-    )
+          |""".stripMargin)
   }
 
   // On GitHub Action this test time out. But locally it passed.
@@ -573,8 +538,7 @@ trait DataFrameSuite extends TestData with BeforeAndAfterEach {
           |-----------------------------------
           ||1    |1000                       |
           |-----------------------------------
-          |""".stripMargin
-    )
+          |""".stripMargin)
 
     val df4 = Seq
       .fill(1001) {
@@ -588,8 +552,7 @@ trait DataFrameSuite extends TestData with BeforeAndAfterEach {
           |-----------------------------------
           ||1    |1001                       |
           |-----------------------------------
-          |""".stripMargin
-    )
+          |""".stripMargin)
   }
 
   test("select *") {
@@ -636,8 +599,7 @@ trait DataFrameSuite extends TestData with BeforeAndAfterEach {
     val halfRowCount = Math.max(rowCount * 0.5, 1)
     assert(
       Math.abs(df1.sample(0.50).count() - halfRowCount) <
-        halfRowCount * samplingDeviation
-    )
+        halfRowCount * samplingDeviation)
     // Sample all rows
     assert(df1.sample(1.0).count() == rowCount)
   }
@@ -665,8 +627,7 @@ trait DataFrameSuite extends TestData with BeforeAndAfterEach {
     assert(result.sample(sampleRowCount).count() == sampleRowCount)
     assert(
       Math.abs(result.sample(0.10).count() - sampleRowCount) <
-        sampleRowCount * samplingDeviation
-    )
+        sampleRowCount * samplingDeviation)
   }
 
   test("sample() on union") {
@@ -680,16 +641,14 @@ trait DataFrameSuite extends TestData with BeforeAndAfterEach {
     assert(result.sample(sampleRowCount).count() == sampleRowCount)
     assert(
       Math.abs(result.sample(0.10).count() - sampleRowCount) <
-        sampleRowCount * samplingDeviation
-    )
+        sampleRowCount * samplingDeviation)
     // Test union all
     result = df1.unionAll(df2)
     sampleRowCount = Math.max(result.count() / 10, 1)
     assert(result.sample(sampleRowCount).count() == sampleRowCount)
     assert(
       Math.abs(result.sample(0.10).count() - sampleRowCount) <
-        sampleRowCount * samplingDeviation
-    )
+        sampleRowCount * samplingDeviation)
   }
 
   test("randomSplit()") {
@@ -703,8 +662,7 @@ trait DataFrameSuite extends TestData with BeforeAndAfterEach {
         weights: Array[Double],
         index: Int,
         count: Long,
-        TotalCount: Long
-    ): Unit = {
+        TotalCount: Long): Unit = {
       val expectedRowCount = TotalCount * weights(index) / weights.sum
       assert(Math.abs(expectedRowCount - count) < expectedRowCount * samplingDeviation)
     }
@@ -831,8 +789,7 @@ trait DataFrameSuite extends TestData with BeforeAndAfterEach {
       assert(
         sortedRows(i - 1).getLong(0) < sortedRows(i).getLong(0) ||
           (sortedRows(i - 1).getLong(0) == sortedRows(i).getLong(0) &&
-            sortedRows(i - 1).getLong(1) <= sortedRows(i).getLong(1))
-      )
+            sortedRows(i - 1).getLong(1) <= sortedRows(i).getLong(1)))
     }
     // order DESC with 2 column
     sortedRows = df.sort(col("a").desc, col("b").desc).collect()
@@ -840,8 +797,7 @@ trait DataFrameSuite extends TestData with BeforeAndAfterEach {
       assert(
         sortedRows(i - 1).getLong(0) > sortedRows(i).getLong(0) ||
           (sortedRows(i - 1).getLong(0) == sortedRows(i).getLong(0) &&
-            sortedRows(i - 1).getLong(1) >= sortedRows(i).getLong(1))
-      )
+            sortedRows(i - 1).getLong(1) >= sortedRows(i).getLong(1)))
     }
 
     // Negative test: sort() needs at least one sort expression.
@@ -978,8 +934,7 @@ trait DataFrameSuite extends TestData with BeforeAndAfterEach {
       ("country B", "state A", 100),
       ("country B", "state A", 100),
       ("country B", "state B", 10),
-      ("country B", "state B", 10)
-    )
+      ("country B", "state B", 10))
       .toDF("country", "state", "value")
 
     // At least one column needs to be provided ( negative test )
@@ -1005,36 +960,31 @@ trait DataFrameSuite extends TestData with BeforeAndAfterEach {
       Row("country A", "state B", 10),
       Row("country B", null, 220),
       Row("country B", "state A", 200),
-      Row("country B", "state B", 20)
-    )
+      Row("country B", "state B", 20))
     checkAnswer(
       df.rollup("country", "state")
         .agg(sum(col("value")))
         .sort(col("country"), col("state")),
       expectedResult,
-      false
-    )
+      false)
     checkAnswer(
       df.rollup(Seq("country", "state"))
         .agg(sum(col("value")))
         .sort(col("country"), col("state")),
       expectedResult,
-      false
-    )
+      false)
     checkAnswer(
       df.rollup(col("country"), col("state"))
         .agg(sum(col("value")))
         .sort(col("country"), col("state")),
       expectedResult,
-      false
-    )
+      false)
     checkAnswer(
       df.rollup(Seq(col("country"), col("state")))
         .agg(sum(col("value")))
         .sort(col("country"), col("state")),
       expectedResult,
-      false
-    )
+      false)
   }
 
   test("groupBy()") {
@@ -1046,8 +996,7 @@ trait DataFrameSuite extends TestData with BeforeAndAfterEach {
       ("country B", "state A", 100),
       ("country B", "state A", 100),
       ("country B", "state B", 10),
-      ("country B", "state B", 10)
-    )
+      ("country B", "state B", 10))
       .toDF("country", "state", "value")
 
     // groupBy() without column
@@ -1067,28 +1016,23 @@ trait DataFrameSuite extends TestData with BeforeAndAfterEach {
       Row("country A", "state A", 100),
       Row("country A", "state B", 10),
       Row("country B", "state A", 200),
-      Row("country B", "state B", 20)
-    )
+      Row("country B", "state B", 20))
     checkAnswer(
       df.groupBy("country", "state")
         .agg(sum(col("value"))),
-      expectedResult
-    )
+      expectedResult)
     checkAnswer(
       df.groupBy(Seq("country", "state"))
         .agg(sum(col("value"))),
-      expectedResult
-    )
+      expectedResult)
     checkAnswer(
       df.groupBy(col("country"), col("state"))
         .agg(sum(col("value"))),
-      expectedResult
-    )
+      expectedResult)
     checkAnswer(
       df.groupBy(Seq(col("country"), col("state")))
         .agg(sum(col("value"))),
-      expectedResult
-    )
+      expectedResult)
   }
 
   test("cube()") {
@@ -1100,8 +1044,7 @@ trait DataFrameSuite extends TestData with BeforeAndAfterEach {
       ("country B", "state A", 100),
       ("country B", "state A", 100),
       ("country B", "state B", 10),
-      ("country B", "state B", 10)
-    )
+      ("country B", "state B", 10))
       .toDF("country", "state", "value")
 
     // At least one column needs to be provided ( negative test )
@@ -1130,36 +1073,31 @@ trait DataFrameSuite extends TestData with BeforeAndAfterEach {
       Row("country A", "state B", 10),
       Row("country B", null, 220),
       Row("country B", "state A", 200),
-      Row("country B", "state B", 20)
-    )
+      Row("country B", "state B", 20))
     checkAnswer(
       df.cube("country", "state")
         .agg(sum(col("value")))
         .sort(col("country"), col("state")),
       expectedResult,
-      false
-    )
+      false)
     checkAnswer(
       df.cube(Seq("country", "state"))
         .agg(sum(col("value")))
         .sort(col("country"), col("state")),
       expectedResult,
-      false
-    )
+      false)
     checkAnswer(
       df.cube(col("country"), col("state"))
         .agg(sum(col("value")))
         .sort(col("country"), col("state")),
       expectedResult,
-      false
-    )
+      false)
     checkAnswer(
       df.cube(Seq(col("country"), col("state")))
         .agg(sum(col("value")))
         .sort(col("country"), col("state")),
       expectedResult,
-      false
-    )
+      false)
   }
 
   test("flatten") {
@@ -1172,8 +1110,7 @@ trait DataFrameSuite extends TestData with BeforeAndAfterEach {
     checkAnswer(
       flatten.select(table1("value"), flatten("value")),
       Seq(Row("[\n  1,\n  2\n]", "1"), Row("[\n  1,\n  2\n]", "2")),
-      sort = false
-    )
+      sort = false)
 
     // multiple flatten
     val flatten1 =
@@ -1181,13 +1118,11 @@ trait DataFrameSuite extends TestData with BeforeAndAfterEach {
     checkAnswer(
       flatten1.select(table1("value"), flatten("value"), flatten1("value")),
       Seq(Row("[\n  1,\n  2\n]", "1", "1"), Row("[\n  1,\n  2\n]", "2", "1")),
-      sort = false
-    )
+      sort = false)
 
     // wrong mode
     assertThrows[SnowparkClientException](
-      flatten.flatten(col("value"), "", outer = false, recursive = false, "wrong")
-    )
+      flatten.flatten(col("value"), "", outer = false, recursive = false, "wrong"))
 
     // contains multiple query
     val df = session.sql("show tables").limit(1)
@@ -1210,34 +1145,29 @@ trait DataFrameSuite extends TestData with BeforeAndAfterEach {
     checkAnswer(
       df2.join(df3, df2("value") === df3("value")).select(df3("value")),
       Seq(Row("1"), Row("2")),
-      sort = false
-    )
+      sort = false)
 
     // union
     checkAnswer(
       df2.union(df3).select(col("value")),
       Seq(Row("1"), Row("2"), Row("1"), Row("2")),
-      sort = false
-    )
+      sort = false)
   }
 
   test("flatten in session") {
     checkAnswer(
       session.flatten(parse_json(lit("""["a","'"]"""))).select(col("value")),
       Seq(Row("\"a\""), Row("\"'\"")),
-      sort = false
-    )
+      sort = false)
 
     checkAnswer(
       session
         .flatten(parse_json(lit("""{"a":[1,2]}""")), "a", outer = true, recursive = true, "ARRAY")
         .select("value"),
-      Seq(Row("1"), Row("2"))
-    )
+      Seq(Row("1"), Row("2")))
 
     assertThrows[SnowparkClientException](
-      session.flatten(parse_json(lit("[1]")), "", outer = false, recursive = false, "wrong")
-    )
+      session.flatten(parse_json(lit("[1]")), "", outer = false, recursive = false, "wrong"))
 
     val df1 = session.flatten(parse_json(lit("[1,2]")))
     val df2 =
@@ -1246,15 +1176,13 @@ trait DataFrameSuite extends TestData with BeforeAndAfterEach {
         "a",
         outer = false,
         recursive = false,
-        "BOTH"
-      )
+        "BOTH")
 
     // union
     checkAnswer(
       df1.union(df2).select("path"),
       Seq(Row("[0]"), Row("[1]"), Row("a[0]"), Row("a[1]")),
-      sort = false
-    )
+      sort = false)
 
     // join
     checkAnswer(
@@ -1262,8 +1190,7 @@ trait DataFrameSuite extends TestData with BeforeAndAfterEach {
         .join(df2, df1("value") === df2("value"))
         .select(df1("path").as("path1"), df2("path").as("path2")),
       Seq(Row("[0]", "a[0]"), Row("[1]", "a[1]")),
-      sort = false
-    )
+      sort = false)
 
   }
 
@@ -1281,9 +1208,7 @@ trait DataFrameSuite extends TestData with BeforeAndAfterEach {
         StructField("boolean", BooleanType),
         StructField("binary", BinaryType),
         StructField("timestamp", TimestampType),
-        StructField("date", DateType)
-      )
-    )
+        StructField("date", DateType)))
 
     val timestamp: Long = 1606179541282L
     val data = Seq(
@@ -1299,10 +1224,8 @@ trait DataFrameSuite extends TestData with BeforeAndAfterEach {
         true,
         Array(1.toByte, 2.toByte),
         new Timestamp(timestamp - 100),
-        new Date(timestamp - 100)
-      ),
-      Row(null, null, null, null, null, null, null, null, null, null, null, null)
-    )
+        new Date(timestamp - 100)),
+      Row(null, null, null, null, null, null, null, null, null, null, null, null))
 
     val result = session.createDataFrame(data, schema)
     // byte, short, int, long are converted to long
@@ -1323,8 +1246,7 @@ trait DataFrameSuite extends TestData with BeforeAndAfterEach {
           | |--BINARY: Binary (nullable = true)
           | |--TIMESTAMP: Timestamp (nullable = true)
           | |--DATE: Date (nullable = true)
-          |""".stripMargin
-    )
+          |""".stripMargin)
     checkAnswer(result, data, sort = false)
   }
 
@@ -1339,8 +1261,7 @@ trait DataFrameSuite extends TestData with BeforeAndAfterEach {
       getSchemaString(df.schema) ===
         """root
           | |--TIME: Time (nullable = true)
-          |""".stripMargin
-    )
+          |""".stripMargin)
   }
 
   // In the result, Array, Map and Geography are String data
@@ -1351,19 +1272,15 @@ trait DataFrameSuite extends TestData with BeforeAndAfterEach {
         StructField("map", MapType(null, null)),
         StructField("variant", VariantType),
         StructField("geography", GeographyType),
-        StructField("geometry", GeometryType)
-      )
-    )
+        StructField("geometry", GeometryType)))
     val data = Seq(
       Row(
         Array("'", 2),
         Map("'" -> 1),
         new Variant(1),
         Geography.fromGeoJSON("POINT(30 10)"),
-        Geometry.fromGeoJSON("POINT(20 40)")
-      ),
-      Row(null, null, null, null, null)
-    )
+        Geometry.fromGeoJSON("POINT(20 40)")),
+      Row(null, null, null, null, null))
 
     val df = session.createDataFrame(data, schema)
     assert(
@@ -1374,8 +1291,7 @@ trait DataFrameSuite extends TestData with BeforeAndAfterEach {
           | |--VARIANT: Variant (nullable = true)
           | |--GEOGRAPHY: Geography (nullable = true)
           | |--GEOMETRY: Geometry (nullable = true)
-          |""".stripMargin
-    )
+          |""".stripMargin)
     df.show()
     val expected =
       Seq(
@@ -1396,17 +1312,14 @@ trait DataFrameSuite extends TestData with BeforeAndAfterEach {
               |    4.000000000000000e+01
               |  ],
               |  "type": "Point"
-              |}""".stripMargin)
-        ),
-        Row(null, null, null, null, null)
-      )
+              |}""".stripMargin)),
+        Row(null, null, null, null, null))
     checkAnswer(df, expected, sort = false)
   }
 
   test("variant in array and map") {
     val schema = StructType(
-      Seq(StructField("array", ArrayType(null)), StructField("map", MapType(null, null)))
-    )
+      Seq(StructField("array", ArrayType(null)), StructField("map", MapType(null, null))))
     val data = Seq(Row(Array(new Variant(1), new Variant("\"'")), Map("a" -> new Variant("\"'"))))
     val df = session.createDataFrame(data, schema)
     checkAnswer(df, Seq(Row("[\n  1,\n  \"\\\"'\"\n]", "{\n  \"a\": \"\\\"'\"\n}")))
@@ -1418,38 +1331,24 @@ trait DataFrameSuite extends TestData with BeforeAndAfterEach {
       Row(
         Array(
           Geography.fromGeoJSON("point(30 10)"),
-          Geography.fromGeoJSON("{\"type\":\"Point\",\"coordinates\":[30,10]}")
-        )
-      )
-    )
+          Geography.fromGeoJSON("{\"type\":\"Point\",\"coordinates\":[30,10]}"))))
     checkAnswer(
       session.createDataFrame(data, schema),
       Seq(
-        Row(
-          "[\n  \"point(30 10)\",\n  {\n    \"coordinates\": [\n" +
-            "      30,\n      10\n    ],\n    \"type\": \"Point\"\n  }\n]"
-        )
-      )
-    )
+        Row("[\n  \"point(30 10)\",\n  {\n    \"coordinates\": [\n" +
+          "      30,\n      10\n    ],\n    \"type\": \"Point\"\n  }\n]")))
 
     val schema1 = StructType(Seq(StructField("map", MapType(null, null))))
     val data1 = Seq(
       Row(
         Map(
           "a" -> Geography.fromGeoJSON("point(30 10)"),
-          "b" -> Geography.fromGeoJSON("{\"type\":\"Point\",\"coordinates\":[30,10]}")
-        )
-      )
-    )
+          "b" -> Geography.fromGeoJSON("{\"type\":\"Point\",\"coordinates\":[30,10]}"))))
     checkAnswer(
       session.createDataFrame(data1, schema1),
       Seq(
-        Row(
-          "{\n  \"a\": \"point(30 10)\",\n  \"b\": {\n    \"coordinates\": [\n" +
-            "      30,\n      10\n    ],\n    \"type\": \"Point\"\n  }\n}"
-        )
-      )
-    )
+        Row("{\n  \"a\": \"point(30 10)\",\n  \"b\": {\n    \"coordinates\": [\n" +
+          "      30,\n      10\n    ],\n    \"type\": \"Point\"\n  }\n}")))
   }
 
   test("escaped character") {
@@ -1511,10 +1410,7 @@ trait DataFrameSuite extends TestData with BeforeAndAfterEach {
           Table1(
             new Variant(1),
             Geography.fromGeoJSON("point(10 10)"),
-            Geometry.fromGeoJSON("point(20 40)")
-          )
-        )
-      )
+            Geometry.fromGeoJSON("point(20 40)"))))
     df3.schema.printTreeString()
     checkAnswer(
       df3,
@@ -1534,10 +1430,7 @@ trait DataFrameSuite extends TestData with BeforeAndAfterEach {
               |    4.000000000000000e+01
               |  ],
               |  "type": "Point"
-              |}""".stripMargin)
-        )
-      )
-    )
+              |}""".stripMargin))))
   }
 
   case class Table1(variant: Variant, geography: Geography, geometry: Geometry)
@@ -1551,8 +1444,7 @@ trait DataFrameSuite extends TestData with BeforeAndAfterEach {
         | |--A: Long (nullable = false)
         | |--B: Long (nullable = false)
         | |--C: Boolean (nullable = true)
-        |""".stripMargin
-    )
+        |""".stripMargin)
     checkAnswer(df, Seq(Row(1, 1, null), Row(2, 3, true)), sort = false)
   }
 
@@ -1564,27 +1456,21 @@ trait DataFrameSuite extends TestData with BeforeAndAfterEach {
     assert(
       getSchemaString(
         session
-          .createDataFrame(
-            Seq(
-              (Some(Array(1.toByte, 2.toByte)), Array(3.toByte, 4.toByte)),
-              (None, Array.empty[Byte])
-            )
-          )
-          .schema
-      ) ==
+          .createDataFrame(Seq(
+            (Some(Array(1.toByte, 2.toByte)), Array(3.toByte, 4.toByte)),
+            (None, Array.empty[Byte])))
+          .schema) ==
         """root
           | |--_1: Binary (nullable = true)
           | |--_2: Binary (nullable = false)
-          |""".stripMargin
-    )
+          |""".stripMargin)
   }
 
   test("primitive array") {
     checkAnswer(
       session
         .createDataFrame(Seq(Row(Array(1))), StructType(Seq(StructField("arr", ArrayType(null))))),
-      Seq(Row("[\n  1\n]"))
-    )
+      Seq(Row("[\n  1\n]")))
   }
 
   test("time, date and timestamp test") {
@@ -1594,11 +1480,9 @@ trait DataFrameSuite extends TestData with BeforeAndAfterEach {
         .sql("select '1970-1-1 00:00:00' :: Timestamp")
         .collect()(0)
         .getTimestamp(0)
-        .toString == "1970-01-01 00:00:00.0"
-    )
+        .toString == "1970-01-01 00:00:00.0")
     assert(
-      session.sql("select '1970-1-1' :: Date").collect()(0).getDate(0).toString == "1970-01-01"
-    )
+      session.sql("select '1970-1-1' :: Date").collect()(0).getDate(0).toString == "1970-01-01")
   }
 
   test("quoted column names") {
@@ -1612,8 +1496,7 @@ trait DataFrameSuite extends TestData with BeforeAndAfterEach {
     createTable(
       tableName,
       s"$normalName int, $lowerCaseName int, $quoteStart int," +
-        s"$quoteEnd int, $quoteMiddle int, $quoteAllCases int"
-    )
+        s"$quoteEnd int, $quoteMiddle int, $quoteAllCases int")
     runQuery(s"insert into $tableName values(1, 2, 3, 4, 5, 6)", session)
 
     // Test select()
@@ -1628,8 +1511,7 @@ trait DataFrameSuite extends TestData with BeforeAndAfterEach {
         schema1.fields(2).name.equals(quoteStart) &&
         schema1.fields(3).name.equals(quoteEnd) &&
         schema1.fields(4).name.equals(quoteMiddle) &&
-        schema1.fields(5).name.equals(quoteAllCases)
-    )
+        schema1.fields(5).name.equals(quoteAllCases))
     checkAnswer(df1, Seq(Row(1, 2, 3, 4, 5, 6)))
 
     // Test select() + cacheResult() + select()
@@ -1646,8 +1528,7 @@ trait DataFrameSuite extends TestData with BeforeAndAfterEach {
         schema2.fields(2).name.equals(quoteStart) &&
         schema2.fields(3).name.equals(quoteEnd) &&
         schema2.fields(4).name.equals(quoteMiddle) &&
-        schema2.fields(5).name.equals(quoteAllCases)
-    )
+        schema2.fields(5).name.equals(quoteAllCases))
     checkAnswer(df2, Seq(Row(1, 2, 3, 4, 5, 6)))
 
     // Test drop()
@@ -1680,8 +1561,7 @@ trait DataFrameSuite extends TestData with BeforeAndAfterEach {
     createTable(
       tableName,
       s"$normalName int, $lowerCaseName int, $quoteStart int," +
-        s"$quoteEnd int, $quoteMiddle int, $quoteAllCases int"
-    )
+        s"$quoteEnd int, $quoteMiddle int, $quoteAllCases int")
     runQuery(s"insert into $tableName values(1, 2, 3, 4, 5, 6)", session)
 
     // Test simplified input format
@@ -1697,8 +1577,7 @@ trait DataFrameSuite extends TestData with BeforeAndAfterEach {
       schema1.fields.length == 3 &&
         schema1.fields(0).name.equals(quoteStart) &&
         schema1.fields(1).name.equals(quoteEnd) &&
-        schema1.fields(2).name.equals(quoteMiddle)
-    )
+        schema1.fields(2).name.equals(quoteMiddle))
     checkAnswer(df1, Seq(Row(3, 4, 5)))
   }
 
@@ -1816,8 +1695,7 @@ trait DataFrameSuite extends TestData with BeforeAndAfterEach {
           ||         |
           ||NULL     |
           |-----------
-          |""".stripMargin
-    )
+          |""".stripMargin)
 
     val df2 =
       Seq(("line1\nline1.1\n", 1), ("line2", 2), ("\n", 3), ("line4", 4), ("\n\n", 5), (null, 6))
@@ -1839,8 +1717,7 @@ trait DataFrameSuite extends TestData with BeforeAndAfterEach {
           ||         |     |
           ||NULL     |6    |
           |-----------------
-          |""".stripMargin
-    )
+          |""".stripMargin)
   }
 
   test("negative test to input invalid table name for saveAsTable()") {
@@ -1909,8 +1786,7 @@ trait DataFrameSuite extends TestData with BeforeAndAfterEach {
       ("country B", "state A", 100),
       ("country B", "state A", 100),
       ("country B", "state B", 10),
-      ("country B", "state B", 10)
-    )
+      ("country B", "state B", 10))
       .toDF("country", "state", "value")
 
     val expectedResult = Seq(
@@ -1920,16 +1796,14 @@ trait DataFrameSuite extends TestData with BeforeAndAfterEach {
       Row("country A", "state B", 10),
       Row("country B", null, 220),
       Row("country B", "state A", 200),
-      Row("country B", "state B", 20)
-    )
+      Row("country B", "state B", 20))
 
     checkAnswer(
       df.rollup(Array($"country", $"state"))
         .agg(sum(col("value")))
         .sort(col("country"), col("state")),
       expectedResult,
-      sort = false
-    )
+      sort = false)
   }
   test("rollup(String) with array args") {
     val df = Seq(
@@ -1940,8 +1814,7 @@ trait DataFrameSuite extends TestData with BeforeAndAfterEach {
       ("country B", "state A", 100),
       ("country B", "state A", 100),
       ("country B", "state B", 10),
-      ("country B", "state B", 10)
-    )
+      ("country B", "state B", 10))
       .toDF("country", "state", "value")
 
     val expectedResult = Seq(
@@ -1951,16 +1824,14 @@ trait DataFrameSuite extends TestData with BeforeAndAfterEach {
       Row("country A", "state B", 10),
       Row("country B", null, 220),
       Row("country B", "state A", 200),
-      Row("country B", "state B", 20)
-    )
+      Row("country B", "state B", 20))
 
     checkAnswer(
       df.rollup(Array("country", "state"))
         .agg(sum(col("value")))
         .sort(col("country"), col("state")),
       expectedResult,
-      sort = false
-    )
+      sort = false)
   }
 
   test("groupBy with array args") {
@@ -1972,22 +1843,19 @@ trait DataFrameSuite extends TestData with BeforeAndAfterEach {
       ("country B", "state A", 100),
       ("country B", "state A", 100),
       ("country B", "state B", 10),
-      ("country B", "state B", 10)
-    )
+      ("country B", "state B", 10))
       .toDF("country", "state", "value")
 
     val expectedResult = Seq(
       Row("country A", "state A", 100),
       Row("country A", "state B", 10),
       Row("country B", "state A", 200),
-      Row("country B", "state B", 20)
-    )
+      Row("country B", "state B", 20))
 
     checkAnswer(
       df.groupBy(Array($"country", $"state"))
         .agg(sum(col("value"))),
-      expectedResult
-    )
+      expectedResult)
   }
 
   test("groupBy(String) with array args") {
@@ -1999,22 +1867,19 @@ trait DataFrameSuite extends TestData with BeforeAndAfterEach {
       ("country B", "state A", 100),
       ("country B", "state A", 100),
       ("country B", "state B", 10),
-      ("country B", "state B", 10)
-    )
+      ("country B", "state B", 10))
       .toDF("country", "state", "value")
 
     val expectedResult = Seq(
       Row("country A", "state A", 100),
       Row("country A", "state B", 10),
       Row("country B", "state A", 200),
-      Row("country B", "state B", 20)
-    )
+      Row("country B", "state B", 20))
 
     checkAnswer(
       df.groupBy(Array("country", "state"))
         .agg(sum(col("value"))),
-      expectedResult
-    )
+      expectedResult)
   }
 
   test("test rename: basic") {
@@ -2029,8 +1894,7 @@ trait DataFrameSuite extends TestData with BeforeAndAfterEach {
         s"""root
            | |--A: Long (nullable = false)
            | |--B1: Long (nullable = false)
-           |""".stripMargin
-    )
+           |""".stripMargin)
     checkAnswer(df2, Seq(Row(1, 2)))
 
     // rename column 'a as 'a1
@@ -2041,8 +1905,7 @@ trait DataFrameSuite extends TestData with BeforeAndAfterEach {
         s"""root
            | |--A1: Long (nullable = false)
            | |--B1: Long (nullable = false)
-           |""".stripMargin
-    )
+           |""".stripMargin)
     checkAnswer(df2, Seq(Row(1, 2)))
   }
 
@@ -2065,8 +1928,7 @@ trait DataFrameSuite extends TestData with BeforeAndAfterEach {
            | |--LEFT_B: Long (nullable = false)
            | |--RIGHT_A: Long (nullable = false)
            | |--RIGHT_C: Long (nullable = false)
-           |""".stripMargin
-    )
+           |""".stripMargin)
     checkAnswer(df2, Seq(Row(1, 2, 3, 4)))
 
     // Get columns for right DF's columns
@@ -2077,8 +1939,7 @@ trait DataFrameSuite extends TestData with BeforeAndAfterEach {
         s"""root
            | |--RIGHT_A: Long (nullable = false)
            | |--RIGHT_C: Long (nullable = false)
-           |""".stripMargin
-    )
+           |""".stripMargin)
     checkAnswer(df3, Seq(Row(3, 4)))
   }
 
@@ -2096,8 +1957,7 @@ trait DataFrameSuite extends TestData with BeforeAndAfterEach {
            | |--B1: Long (nullable = false)
            | |--A: Long (nullable = false)
            | |--B: Long (nullable = false)
-           |""".stripMargin
-    )
+           |""".stripMargin)
     checkAnswer(df5, Seq(Row(1, 2, 1, 2)))
   }
 
@@ -2112,9 +1972,7 @@ trait DataFrameSuite extends TestData with BeforeAndAfterEach {
       ex1.errorCode.equals("0120") &&
         ex1.message.contains(
           "Unable to rename the column Column[Literal(c,Some(String))] as \"C\"" +
-            " because this DataFrame doesn't have a column named Column[Literal(c,Some(String))]."
-        )
-    )
+            " because this DataFrame doesn't have a column named Column[Literal(c,Some(String))]."))
 
     // rename un-exist column
     val ex2 = intercept[SnowparkClientException] {
@@ -2122,11 +1980,8 @@ trait DataFrameSuite extends TestData with BeforeAndAfterEach {
     }
     assert(
       ex2.errorCode.equals("0120") &&
-        ex2.message.contains(
-          "Unable to rename the column \"NOT_EXIST_COLUMN\" as \"C\"" +
-            " because this DataFrame doesn't have a column named \"NOT_EXIST_COLUMN\"."
-        )
-    )
+        ex2.message.contains("Unable to rename the column \"NOT_EXIST_COLUMN\" as \"C\"" +
+          " because this DataFrame doesn't have a column named \"NOT_EXIST_COLUMN\"."))
 
     // rename a column has 3 duplicate names in the DataFrame
     val df2 = session.sql("select 1 as A, 2 as A, 3 as A")
@@ -2135,17 +1990,13 @@ trait DataFrameSuite extends TestData with BeforeAndAfterEach {
     }
     assert(
       ex3.errorCode.equals("0121") &&
-        ex3.message.contains(
-          "Unable to rename the column \"A\" as \"C\" because" +
-            " this DataFrame has 3 columns named \"A\""
-        )
-    )
+        ex3.message.contains("Unable to rename the column \"A\" as \"C\" because" +
+          " this DataFrame has 3 columns named \"A\""))
   }
 
   test("with columns keep order", JavaStoredProcExclude) {
     val data = new Variant(
-      Map("STARTTIME" -> 0, "ENDTIME" -> 10000, "START_STATION_ID" -> 2, "END_STATION_ID" -> 3)
-    )
+      Map("STARTTIME" -> 0, "ENDTIME" -> 10000, "START_STATION_ID" -> 2, "END_STATION_ID" -> 3))
     val df = Seq((1, data)).toDF("TRIPID", "V")
 
     val result = df.withColumns(
@@ -2155,9 +2006,7 @@ trait DataFrameSuite extends TestData with BeforeAndAfterEach {
         to_timestamp(get(col("V"), lit("ENDTIME"))),
         datediff("minute", col("STARTTIME"), col("ENDTIME")),
         as_integer(get(col("V"), lit("START_STATION_ID"))),
-        as_integer(get(col("V"), lit("END_STATION_ID")))
-      )
-    )
+        as_integer(get(col("V"), lit("END_STATION_ID")))))
 
     checkAnswer(
       result,
@@ -2170,10 +2019,7 @@ trait DataFrameSuite extends TestData with BeforeAndAfterEach {
           Timestamp.valueOf("1969-12-31 18:46:40.0"),
           166,
           2,
-          3
-        )
-      )
-    )
+          3)))
   }
 
   test("withColumns input doesn't match each other") {
@@ -2181,9 +2027,7 @@ trait DataFrameSuite extends TestData with BeforeAndAfterEach {
     val msg = intercept[SnowparkClientException](df.withColumns(Seq("e", "f"), Seq(lit(1))))
     assert(
       msg.message.contains(
-        "The number of column names (2) does not match the number of values (1)."
-      )
-    )
+        "The number of column names (2) does not match the number of values (1)."))
   }
 
   test("withColumns replace exiting") {
@@ -2192,20 +2036,16 @@ trait DataFrameSuite extends TestData with BeforeAndAfterEach {
     checkAnswer(replaced, Seq(Row(1, 3, 5, 6)))
 
     val msg = intercept[SnowparkClientException](
-      df.withColumns(Seq("d", "b", "d"), Seq(lit(4), lit(5), lit(6)))
-    )
+      df.withColumns(Seq("d", "b", "d"), Seq(lit(4), lit(5), lit(6))))
     assert(
-      msg.message.contains("The same column name is used multiple times in the colNames parameter.")
-    )
+      msg.message.contains(
+        "The same column name is used multiple times in the colNames parameter."))
 
     val msg1 = intercept[SnowparkClientException](
-      df.withColumns(Seq("d", "b", "D"), Seq(lit(4), lit(5), lit(6)))
-    )
+      df.withColumns(Seq("d", "b", "D"), Seq(lit(4), lit(5), lit(6))))
     assert(
       msg1.message.contains(
-        "The same column name is used multiple times in the colNames parameter."
-      )
-    )
+        "The same column name is used multiple times in the colNames parameter."))
   }
 
   test("dropDuplicates") {
@@ -2213,8 +2053,7 @@ trait DataFrameSuite extends TestData with BeforeAndAfterEach {
       .toDF("a", "b", "c", "d")
     checkAnswer(
       df.dropDuplicates(),
-      Seq(Row(1, 1, 1, 1), Row(1, 1, 1, 2), Row(1, 1, 2, 3), Row(1, 2, 3, 4))
-    )
+      Seq(Row(1, 1, 1, 1), Row(1, 1, 1, 2), Row(1, 1, 2, 3), Row(1, 2, 3, 4)))
 
     val result1 = df.dropDuplicates("a")
     assert(result1.count() == 1)
@@ -2225,7 +2064,7 @@ trait DataFrameSuite extends TestData with BeforeAndAfterEach {
       case (1, 1, 1, 2) =>
       case (1, 1, 2, 3) =>
       case (1, 2, 3, 4) =>
-      case _            => throw new Exception("wrong result")
+      case _ => throw new Exception("wrong result")
     }
 
     val result2 = df.dropDuplicates("a", "b")
@@ -2237,7 +2076,7 @@ trait DataFrameSuite extends TestData with BeforeAndAfterEach {
       case (1, 1, 1, 1) =>
       case (1, 1, 1, 2) =>
       case (1, 1, 2, 3) =>
-      case _            => throw new Exception("wrong result")
+      case _ => throw new Exception("wrong result")
     }
 
     val result3 = df.dropDuplicates("a", "b", "c")
@@ -2249,18 +2088,16 @@ trait DataFrameSuite extends TestData with BeforeAndAfterEach {
     (row3.getInt(0), row3.getInt(1), row3.getInt(2), row3.getInt(3)) match {
       case (1, 1, 1, 1) =>
       case (1, 1, 1, 2) =>
-      case _            => throw new Exception("wrong result")
+      case _ => throw new Exception("wrong result")
     }
 
     checkAnswer(
       df.dropDuplicates("a", "b", "c", "d"),
-      Seq(Row(1, 1, 1, 1), Row(1, 1, 1, 2), Row(1, 1, 2, 3), Row(1, 2, 3, 4))
-    )
+      Seq(Row(1, 1, 1, 1), Row(1, 1, 1, 2), Row(1, 1, 2, 3), Row(1, 2, 3, 4)))
 
     checkAnswer(
       df.dropDuplicates("a", "b", "c", "d", "d"),
-      Seq(Row(1, 1, 1, 1), Row(1, 1, 1, 2), Row(1, 1, 2, 3), Row(1, 2, 3, 4))
-    )
+      Seq(Row(1, 1, 1, 1), Row(1, 1, 1, 2), Row(1, 1, 2, 3), Row(1, 2, 3, 4)))
 
     // column doesn't exist
     assertThrows[SnowparkClientException](df.dropDuplicates("e").collect())
@@ -2283,7 +2120,7 @@ trait DataFrameSuite extends TestData with BeforeAndAfterEach {
       case (1, 1, 1, 2) =>
       case (1, 1, 2, 3) =>
       case (1, 2, 3, 4) =>
-      case _            => throw new Exception("wrong result")
+      case _ => throw new Exception("wrong result")
     }
   }
 
@@ -2297,9 +2134,7 @@ trait DataFrameSuite extends TestData with BeforeAndAfterEach {
           (8, 5, 11, "green", 99),
           (8, 4, 14, "blue", 99),
           (8, 3, 21, "red", 99),
-          (9, 9, 12, "orange", 99)
-        )
-      )
+          (9, 9, 12, "orange", 99)))
       .toDF("v1", "v2", "length", "color", "unused")
 
     // Wrapped JDBC exception
@@ -2324,11 +2159,8 @@ trait DataFrameSuite extends TestData with BeforeAndAfterEach {
     }
     assert(ex.errorCode.equals("0108"))
     assert(
-      ex.message.contains(
-        "The DataFrame does not contain the column named" +
-          " 'NOT_EXIST_COL' and the valid names are \"A\", \"B\""
-      )
-    )
+      ex.message.contains("The DataFrame does not contain the column named" +
+        " 'NOT_EXIST_COL' and the valid names are \"A\", \"B\""))
   }
 }
 
@@ -2336,8 +2168,7 @@ class EagerDataFrameSuite extends DataFrameSuite with EagerSession {
   test("eager analysis") {
     // reports errors
     assertThrows[SnowflakeSQLException](
-      session.sql("select something").select("111").filter(col("+++") > "aaa")
-    )
+      session.sql("select something").select("111").filter(col("+++") > "aaa"))
 
   }
 }

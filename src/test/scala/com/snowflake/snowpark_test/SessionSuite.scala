@@ -129,8 +129,7 @@ class SessionSuite extends SNTestBase {
     val currentClient = getShowString(session.sql("select current_client()"), 10)
     assert(currentClient contains "Snowpark")
     assert(
-      currentClient contains SnowparkSFConnectionHandler.extractValidVersionNumber(Utils.Version)
-    )
+      currentClient contains SnowparkSFConnectionHandler.extractValidVersionNumber(Utils.Version))
   }
 
   test("negative test to input invalid table name for Session.table()") {
@@ -147,8 +146,7 @@ class SessionSuite extends SNTestBase {
     checkAnswer(
       Seq(None, Some(Array(1, 2))).toDF("arr"),
       Seq(Row(null), Row("[\n  1,\n  2\n]")),
-      sort = false
-    )
+      sort = false)
   }
 
   test("create dataframe from array") {
@@ -283,9 +281,7 @@ class SessionSuite extends SNTestBase {
     assert(
       exception.message.startsWith(
         "Error Code: 0426, Error message: The given query tag must be a valid JSON string. " +
-          "Ensure it's correctly formatted as JSON."
-      )
-    )
+          "Ensure it's correctly formatted as JSON."))
   }
 
   test("updateQueryTag when the query tag of the current session is not a valid JSON") {
@@ -297,9 +293,7 @@ class SessionSuite extends SNTestBase {
     assert(
       exception.message.startsWith(
         "Error Code: 0427, Error message: The query tag of the current session must be a valid " +
-          "JSON string. Current query tag: tag1"
-      )
-    )
+          "JSON string. Current query tag: tag1"))
   }
 
   test("updateQueryTag when the query tag of the current session is set with an ALTER SESSION") {
@@ -341,13 +335,11 @@ class SessionSuite extends SNTestBase {
   test("generator") {
     checkAnswer(
       session.generator(3, Seq(lit(1).as("a"), lit(2).as("b"))),
-      Seq(Row(1, 2), Row(1, 2), Row(1, 2))
-    )
+      Seq(Row(1, 2), Row(1, 2), Row(1, 2)))
 
     checkAnswer(
       session.generator(3, lit(1).as("a"), lit(2).as("b")),
-      Seq(Row(1, 2), Row(1, 2), Row(1, 2))
-    )
+      Seq(Row(1, 2), Row(1, 2), Row(1, 2)))
 
     val msg = intercept[SnowparkClientException](session.generator(3, Seq.empty))
     assert(msg.message.contains("The column list of generator function can not be empty"))
@@ -373,8 +365,7 @@ class SessionSuite extends SNTestBase {
       jsonSessionInfo
         .get("jdbc.session.id")
         .asText()
-        .equals(session.jdbcConnection.asInstanceOf[SnowflakeConnectionV1].getSessionID)
-    )
+        .equals(session.jdbcConnection.asInstanceOf[SnowflakeConnectionV1].getSessionID))
     assert(jsonSessionInfo.get("os.name").asText().equals(Utils.OSName))
     assert(jsonSessionInfo.get("jdbc.version").asText().equals(SnowflakeDriver.implementVersion))
     assert(jsonSessionInfo.get("snowpark.library").asText().nonEmpty)

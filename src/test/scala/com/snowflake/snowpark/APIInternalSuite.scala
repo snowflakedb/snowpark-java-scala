@@ -29,8 +29,7 @@ import scala.util.Random
 
 class APIInternalSuite extends TestData {
   private val userSchema: StructType = StructType(
-    Seq(StructField("a", IntegerType), StructField("b", StringType), StructField("c", DoubleType))
-  )
+    Seq(StructField("a", IntegerType), StructField("b", StringType), StructField("c", DoubleType)))
 
   val tmpStageName: String = randomStageName()
 
@@ -91,8 +90,7 @@ class APIInternalSuite extends TestData {
       }
       assert(ex.errorCode.equals("0416"))
       assert(
-        ex.message.contains("Cannot close this session because it is used by stored procedure.")
-      )
+        ex.message.contains("Cannot close this session because it is used by stored procedure."))
     } finally {
       Session.resetGlobalStoredProcSession()
     }
@@ -144,8 +142,8 @@ class APIInternalSuite extends TestData {
       throw new TestFailedException("Expect an exception")
     } catch {
       case _: SnowparkClientException => // expected
-      case _: SnowflakeSQLException   => // expected
-      case e                          => throw e
+      case _: SnowflakeSQLException => // expected
+      case e => throw e
     }
 
     try {
@@ -158,8 +156,8 @@ class APIInternalSuite extends TestData {
       throw new TestFailedException("Expect an exception")
     } catch {
       case _: SnowparkClientException => // expected
-      case _: SnowflakeSQLException   => // expected
-      case e                          => throw e
+      case _: SnowflakeSQLException => // expected
+      case e => throw e
     }
 
     // int max is 2147483647
@@ -168,8 +166,7 @@ class APIInternalSuite extends TestData {
         .configFile(defaultProfile)
         .config(SnowparkRequestTimeoutInSeconds, "2147483648")
         .create
-        .requestTimeoutInSeconds
-    )
+        .requestTimeoutInSeconds)
 
     // int min is -2147483648
     assertThrows[SnowparkClientException](
@@ -177,16 +174,14 @@ class APIInternalSuite extends TestData {
         .configFile(defaultProfile)
         .config(SnowparkRequestTimeoutInSeconds, "-2147483649")
         .create
-        .requestTimeoutInSeconds
-    )
+        .requestTimeoutInSeconds)
 
     assertThrows[SnowparkClientException](
       Session.builder
         .configFile(defaultProfile)
         .config(SnowparkRequestTimeoutInSeconds, "abcd")
         .create
-        .requestTimeoutInSeconds
-    )
+        .requestTimeoutInSeconds)
 
   }
 
@@ -216,9 +211,7 @@ class APIInternalSuite extends TestData {
     assert(ex.errorCode.equals("0418"))
     assert(
       ex.message.contains(
-        "Invalid value negative_not_number for parameter snowpark_max_file_upload_retry_count."
-      )
-    )
+        "Invalid value negative_not_number for parameter snowpark_max_file_upload_retry_count."))
   }
 
   test("cancel all", UnstableTest) {
@@ -230,8 +223,7 @@ class APIInternalSuite extends TestData {
         random().as("b"),
         random().as("c"),
         random().as("d"),
-        random().as("e")
-      )
+        random().as("e"))
 
     try {
       val q1 = testCanceled {
@@ -273,8 +265,8 @@ class APIInternalSuite extends TestData {
           .plus(df.col("c"))
           .plus(df.col("d"))
           .plus(df.col("e"))
-          .as("result")
-      ).filter(df.col("result").gt(com.snowflake.snowpark_java.Functions.lit(0)))
+          .as("result"))
+        .filter(df.col("result").gt(com.snowflake.snowpark_java.Functions.lit(0)))
         .count()
     }
 
@@ -334,8 +326,7 @@ class APIInternalSuite extends TestData {
     newSession.close()
     assert(
       Session.getActiveSession.isEmpty ||
-        Session.getActiveSession.get != newSession
-    )
+        Session.getActiveSession.get != newSession)
     // It's no problem to close the session multiple times
     newSession.close()
 
@@ -368,11 +359,8 @@ class APIInternalSuite extends TestData {
       Literal(this)
     }
     assert(
-      ex.getMessage.contains(
-        "Cannot create a Literal for com.snowflake.snowpark." +
-          "APIInternalSuite(APIInternalSuite)"
-      )
-    )
+      ex.getMessage.contains("Cannot create a Literal for com.snowflake.snowpark." +
+        "APIInternalSuite(APIInternalSuite)"))
   }
 
   test("special BigDecimal literals") {
@@ -398,8 +386,7 @@ class APIInternalSuite extends TestData {
           ||0.1                      |0.00001                      |100000                    |
           ||0.1                      |0.00001                      |100000                    |
           |------------------------------------------------------------------------------------
-          |""".stripMargin
-    )
+          |""".stripMargin)
   }
 
   test("show structured types mix") {
@@ -427,8 +414,7 @@ class APIInternalSuite extends TestData {
             |--------------------------------------------------------------------------------------------------------------------------------------------------
             ||NULL       |1       |abc     |{b:2,a:1}  |{2:b,1:a}  |Object(a:1,b:Array(1,2,3,4))  |[1,2,3]  |[1.1,2.2,3.3]  |{a1:Object(b:2),a2:Object(b:3)}  |
             |--------------------------------------------------------------------------------------------------------------------------------------------------
-            |""".stripMargin
-      )
+            |""".stripMargin)
       // scalastyle:on
     }
   }
@@ -456,8 +442,7 @@ class APIInternalSuite extends TestData {
             |----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
             ||Object(a:"22",b:1)  |Object(a:1,b:Array(1,2,3,4))  |Object(a:"1",b:Array(1,2,3,4),c:Map(1:"a"))  |Object(a:Object(b:Object(c:1,a:10)))  |[Object(a:1,b:2),Object(a:4,b:3)]  |{a1:Object(b:2),a2:Object(b:3)}  |
             |----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-            |""".stripMargin
-      )
+            |""".stripMargin)
       // scalastyle:on
     }
   }
@@ -486,8 +471,7 @@ class APIInternalSuite extends TestData {
             ||           |           |                       |                       |                   |  "b": 2   |
             ||           |           |                       |                       |                   |}          |
             |---------------------------------------------------------------------------------------------------------
-            |""".stripMargin
-      )
+            |""".stripMargin)
       // scalastyle:on
     }
   }
@@ -521,8 +505,7 @@ class APIInternalSuite extends TestData {
             ||         |               |              |        |                         |              |              |  2     |}]           |               |           |            |
             ||         |               |              |        |                         |              |              |]]      |             |               |           |            |
             |---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-            |""".stripMargin
-      )
+            |""".stripMargin)
       // scalastyle:on
     }
   }
@@ -538,8 +521,7 @@ class APIInternalSuite extends TestData {
         .last
         .sql
         .trim
-        .startsWith("SELECT *, 1 :: int AS \"NEWCOL\" FROM")
-    )
+        .startsWith("SELECT *, 1 :: int AS \"NEWCOL\" FROM"))
 
     // use full name list if replacing existing column
     assert(
@@ -549,8 +531,7 @@ class APIInternalSuite extends TestData {
         .last
         .sql
         .trim
-        .startsWith("SELECT \"B\", 1 :: int AS \"A\" FROM")
-    )
+        .startsWith("SELECT \"B\", 1 :: int AS \"A\" FROM"))
   }
 
   test("union by name should not list all columns if not reorder") {
@@ -616,8 +597,7 @@ class APIInternalSuite extends TestData {
 
       },
       ParameterUtils.SnowparkUseScopedTempObjects,
-      "true"
-    )
+      "true")
   }
 
   // functions
@@ -633,18 +613,14 @@ class APIInternalSuite extends TestData {
         seq4(),
         seq4(false),
         seq8(),
-        seq8(false)
-      )
+        seq8(false))
       .snowflakePlan
       .queries
 
     assert(queries.size == 1)
     assert(
-      queries.head.sql.contains(
-        "SELECT seq1(0), seq1(1), seq2(0), seq2(1), seq4(0)," +
-          " seq4(1), seq8(0), seq8(1) FROM ( TABLE (GENERATOR(ROWCOUNT => 10)))"
-      )
-    )
+      queries.head.sql.contains("SELECT seq1(0), seq1(1), seq2(0), seq2(1), seq4(0)," +
+        " seq4(1), seq8(0), seq8(1) FROM ( TABLE (GENERATOR(ROWCOUNT => 10)))"))
   }
 
   // This test DataFrame can't be defined in TestData,
@@ -654,8 +630,7 @@ class APIInternalSuite extends TestData {
     val queries = Seq(
       s"create temporary table $tableName1 (A int)",
       s"insert into $tableName1 values(1),(2),(3)",
-      s"select * from $tableName1"
-    ).map(Query(_))
+      s"select * from $tableName1").map(Query(_))
     val attrs = Seq(Attribute("A", IntegerType, nullable = true))
     val postActions = Seq(Query(s"drop table if exists $tableName1", true))
     val plan =
@@ -665,8 +640,7 @@ class APIInternalSuite extends TestData {
         postActions,
         session,
         None,
-        supportAsyncMode = true
-      )
+        supportAsyncMode = true)
 
     new DataFrame(session, session.analyzer.resolve(plan), Seq())
   }
@@ -678,8 +652,7 @@ class APIInternalSuite extends TestData {
     val queries2 = Seq(
       s"create temporary table $tableName2 (A int, B string)",
       s"insert into $tableName2 values(1, 'a'), (2, 'b'), (3, 'c')",
-      s"select * from $tableName2"
-    ).map(Query(_))
+      s"select * from $tableName2").map(Query(_))
     val attrs2 =
       Seq(Attribute("A", IntegerType, nullable = true), Attribute("B", StringType, nullable = true))
     val postActions2 = Seq(Query(s"drop table if exists $tableName2"))
@@ -690,8 +663,7 @@ class APIInternalSuite extends TestData {
         postActions2,
         session,
         None,
-        supportAsyncMode = true
-      )
+        supportAsyncMode = true)
 
     new DataFrame(session, session.analyzer.resolve(plan2), Seq())
   }
@@ -709,31 +681,25 @@ class APIInternalSuite extends TestData {
     df2.select(Column("A"), Column("B"), col(df3)).show()
     checkAnswer(
       df2.select(Column("A"), Column("B"), col(df3)),
-      Seq(Row(1, "a", 1), Row(2, "b", 1), Row(3, "c", 1))
-    )
+      Seq(Row(1, "a", 1), Row(2, "b", 1), Row(3, "c", 1)))
 
     // SELECT 2 sub queries
     checkAnswer(
       df2.select(Column("A"), Column("B"), col(df3).as("s1"), col(df3).as("s2")),
-      Seq(Row(1, "a", 1, 1), Row(2, "b", 1, 1), Row(3, "c", 1, 1))
-    )
+      Seq(Row(1, "a", 1, 1), Row(2, "b", 1, 1), Row(3, "c", 1, 1)))
 
     // WHERE 2 sub queries
     checkAnswer(
       df2.filter(col("A") > col(df3) and col("A") < col(df1.groupBy().agg(max(col("A"))))),
-      Seq(Row(2, "b"))
-    )
+      Seq(Row(2, "b")))
 
     // SELECT 2 sub queries + WHERE 2 sub queries
     checkAnswer(
       df2
         .select(col("A"), col("B"), col(df3).as("s1"), col(df1.filter(col("A") === 2)).as("s2"))
-        .filter(
-          col("A") > col(df1.groupBy().agg(mean(col("A")))) and
-            col("A") <= col(df1.groupBy().agg(max(col("A"))))
-        ),
-      Seq(Row(3, "c", 1, 2))
-    )
+        .filter(col("A") > col(df1.groupBy().agg(mean(col("A")))) and
+          col("A") <= col(df1.groupBy().agg(max(col("A"))))),
+      Seq(Row(3, "c", 1, 2)))
   }
 
   test("explain") {
@@ -755,8 +721,7 @@ class APIInternalSuite extends TestData {
         schemaValueStatement(Seq(Attribute("NUM", LongType))),
         session,
         None,
-        supportAsyncMode = true
-      )
+        supportAsyncMode = true)
     val df = new DataFrame(session, plan, Seq())
     df.explain()
 
@@ -824,8 +789,7 @@ class APIInternalSuite extends TestData {
       "com.snowflake.snowpark.test",
       "TestClass",
       "snowpark_test_",
-      "test.jar"
-    )
+      "test.jar")
     val fileName = TestUtils.getFileName(filePath)
 
     val miscCommands = Seq(
@@ -840,8 +804,7 @@ class APIInternalSuite extends TestData {
       s"create temp view $objectName (string) as select current_version()",
       s"drop view $objectName",
       s"show tables",
-      s"drop stage $stageName"
-    )
+      s"drop stage $stageName")
 
     // Misc commands with show()
     miscCommands.foreach(session.sql(_).show())
@@ -887,8 +850,7 @@ class APIInternalSuite extends TestData {
         .option("on_error", "continue")
         .option("COMPRESSION", "gzip")
         .csv(testFileOnStage),
-      Seq()
-    )
+      Seq())
   }
 
   // The constructor for AsyncJob/TypedAsyncJob is package private.
@@ -943,8 +905,7 @@ class APIInternalSuite extends TestData {
     val rows = session
       .sql(
         s"select QUERY_TAG from table(information_schema.QUERY_HISTORY_BY_SESSION())" +
-          s" where QUERY_ID = '$queryId'"
-      )
+          s" where QUERY_ID = '$queryId'")
       .collect()
     assert(rows.length == 1 && rows(0).getString(0).equals(testQueryTagValue))
   }
@@ -971,8 +932,7 @@ class APIInternalSuite extends TestData {
       }
       assert(
         getEx.getMessage.contains("Result for query")
-          && getEx.getMessage.contains("has expired")
-      )
+          && getEx.getMessage.contains("has expired"))
 
       val dfPut =
         session.sql(s"put file://$path/$testFileCsv @$tmpStageName/testExecuteAndGetQueryId")
@@ -982,8 +942,7 @@ class APIInternalSuite extends TestData {
       }
       assert(
         putEx.getMessage.contains("Result for query")
-          && putEx.getMessage.contains("has expired")
-      )
+          && putEx.getMessage.contains("has expired"))
     } finally {
       TestUtils.removeFile(path, session)
     }
@@ -1015,9 +974,7 @@ class APIInternalSuite extends TestData {
         StructField("boolean", BooleanType),
         StructField("binary", BinaryType),
         StructField("timestamp", TimestampType),
-        StructField("date", DateType)
-      )
-    )
+        StructField("date", DateType)))
 
     val timestamp: Long = 1606179541282L
 
@@ -1037,13 +994,10 @@ class APIInternalSuite extends TestData {
           true,
           Array(1.toByte, 2.toByte),
           new Timestamp(timestamp - 100),
-          new Date(timestamp - 100)
-        )
-      )
+          new Date(timestamp - 100)))
     }
     largeData.append(
-      Row(1025, null, null, null, null, null, null, null, null, null, null, null, null)
-    )
+      Row(1025, null, null, null, null, null, null, null, null, null, null, null, null))
 
     val df = session.createDataFrame(largeData, schema)
     checkExecuteAndGetQueryId(df)
@@ -1054,8 +1008,7 @@ class APIInternalSuite extends TestData {
     val rows = session
       .sql(
         s"select QUERY_TAG from table(information_schema.QUERY_HISTORY_BY_SESSION())" +
-          s" where QUERY_TAG = '$uniqueQueryTag'"
-      )
+          s" where QUERY_TAG = '$uniqueQueryTag'")
       .collect()
     // The statement parameter is applied for the last query only,
     // even if there are 3 queries and 1 post actions for large local relation,
@@ -1069,8 +1022,7 @@ class APIInternalSuite extends TestData {
     val rows = session
       .sql(
         s"select QUERY_TAG from table(information_schema.QUERY_HISTORY_BY_SESSION())" +
-          s" where QUERY_TAG = '$uniqueQueryTag'"
-      )
+          s" where QUERY_TAG = '$uniqueQueryTag'")
       .collect()
     // The statement parameter is applied for the last query only,
     // even if there are 3 queries and 1 post actions for multipleQueriesDF1
@@ -1078,8 +1030,7 @@ class APIInternalSuite extends TestData {
 
     // case 2: test int/boolean parameter
     multipleQueriesDF1.executeAndGetQueryId(
-      Map("STATEMENT_TIMEOUT_IN_SECONDS" -> 100, "USE_CACHED_RESULT" -> false)
-    )
+      Map("STATEMENT_TIMEOUT_IN_SECONDS" -> 100, "USE_CACHED_RESULT" -> false))
   }
 
   test("VariantTypes.getType") {
@@ -1105,8 +1056,7 @@ class APIInternalSuite extends TestData {
     val cachedResult2 = cachedResult.cacheResult()
     assert(
       cachedResult.snowflakePlan.queries.last.sql ==
-        cachedResult2.snowflakePlan.queries.last.sql
-    )
+        cachedResult2.snowflakePlan.queries.last.sql)
     checkAnswer(cachedResult2, expected)
   }
 
@@ -1120,8 +1070,7 @@ class APIInternalSuite extends TestData {
     assert(
       plan1.summarize ==
         "Union(Filter(Project(Project(SnowflakeValues())))" +
-        ",Project(Project(Project(SnowflakeValues()))))"
-    )
+        ",Project(Project(Project(SnowflakeValues()))))")
   }
 
   test("DataFrame toDF should not generate useless project") {
@@ -1130,8 +1079,7 @@ class APIInternalSuite extends TestData {
     val result1 = df.toDF("b", "a")
     assert(
       result1.snowflakePlan.queries.last
-        .countString("SELECT \"A\" AS \"B\", \"B\" AS \"A\" FROM") == 1
-    )
+        .countString("SELECT \"A\" AS \"B\", \"B\" AS \"A\" FROM") == 1)
     val result2 = df.toDF("a", "B")
     assert(result2.eq(df))
     assert(result2.snowflakePlan.queries.last.countString("\"A\" AS \"A\"") == 0)

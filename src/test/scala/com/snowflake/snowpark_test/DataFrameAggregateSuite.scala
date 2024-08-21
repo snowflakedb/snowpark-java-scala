@@ -17,8 +17,7 @@ class DataFrameAggregateSuite extends TestData {
         .agg(sum(col("amount")))
         .sort(col("empid")),
       Seq(Row(1, 10400, 8000, 11000, 18000), Row(2, 39500, 90700, 12000, 5300)),
-      sort = false
-    )
+      sort = false)
 
     // multiple aggregation isn't supported
     val e = intercept[SnowparkClientException](
@@ -26,14 +25,10 @@ class DataFrameAggregateSuite extends TestData {
         .pivot("month", Seq("JAN", "FEB", "MAR", "APR"))
         .agg(sum(col("amount")), avg(col("amount")))
         .sort(col("empid"))
-        .collect()
-    )
+        .collect())
     assert(
-      e.getMessage.contains(
-        "You can apply only one aggregate expression to a" +
-          " RelationalGroupedDataFrame returned by the pivot() method."
-      )
-    )
+      e.getMessage.contains("You can apply only one aggregate expression to a" +
+        " RelationalGroupedDataFrame returned by the pivot() method."))
   }
 
   test("join on pivot") {
@@ -47,8 +42,7 @@ class DataFrameAggregateSuite extends TestData {
     checkAnswer(
       df1.join(df2, "empid"),
       Seq(Row(1, 10400, 8000, 11000, 18000, 12345), Row(2, 39500, 90700, 12000, 5300, 67890)),
-      sort = false
-    )
+      sort = false)
   }
 
   test("pivot on join") {
@@ -60,8 +54,7 @@ class DataFrameAggregateSuite extends TestData {
         .agg(sum(col("amount")))
         .sort(col("name")),
       Seq(Row(1, "One", 10400, 8000, 11000, 18000), Row(2, "Two", 39500, 90700, 12000, 5300)),
-      sort = false
-    )
+      sort = false)
   }
 
   test("RelationalGroupedDataFrame.agg()") {
@@ -94,8 +87,7 @@ class DataFrameAggregateSuite extends TestData {
           .groupBy("radio_license")
           .agg(count(col("*")).as("count"))
           .withColumn("medical_license", lit(null))
-          .select("medical_license", "radio_license", "count")
-      )
+          .select("medical_license", "radio_license", "count"))
       .sort(col("count"))
       .collect()
 
@@ -115,10 +107,8 @@ class DataFrameAggregateSuite extends TestData {
         Row("RN", null, 2),
         Row(null, "Technician", 2),
         Row(null, null, 3),
-        Row("LVN", null, 5)
-      ),
-      sort = false
-    )
+        Row("LVN", null, 5)),
+      sort = false)
 
     // comparing with groupBy
     checkAnswer(
@@ -132,18 +122,15 @@ class DataFrameAggregateSuite extends TestData {
         Row(1, "RN", "Amateur Extra"),
         Row(1, "RN", null),
         Row(2, "LVN", "Technician"),
-        Row(2, "LVN", null)
-      ),
-      sort = false
-    )
+        Row(2, "LVN", null)),
+      sort = false)
 
     // mixed grouping expression
     checkAnswer(
       nurse
         .groupByGroupingSets(
           GroupingSets(Set(col("medical_license"), col("radio_license"))),
-          GroupingSets(Set(col("radio_license")))
-        )
+          GroupingSets(Set(col("radio_license"))))
         // duplicated column should be removed in the result
         .agg(col("radio_license"))
         .sort(col("radio_license")),
@@ -152,10 +139,8 @@ class DataFrameAggregateSuite extends TestData {
         Row("RN", null),
         Row("RN", "Amateur Extra"),
         Row("LVN", "General"),
-        Row("LVN", "Technician")
-      ),
-      sort = false
-    )
+        Row("LVN", "Technician")),
+      sort = false)
 
     // default constructor
     checkAnswer(
@@ -163,9 +148,7 @@ class DataFrameAggregateSuite extends TestData {
         .groupByGroupingSets(
           Seq(
             GroupingSets(Seq(Set(col("medical_license"), col("radio_license")))),
-            GroupingSets(Seq(Set(col("radio_license"))))
-          )
-        )
+            GroupingSets(Seq(Set(col("radio_license"))))))
         // duplicated column should be removed in the result
         .agg(col("radio_license"))
         .sort(col("radio_license")),
@@ -174,10 +157,8 @@ class DataFrameAggregateSuite extends TestData {
         Row("RN", null),
         Row("RN", "Amateur Extra"),
         Row("LVN", "General"),
-        Row("LVN", "Technician")
-      ),
-      sort = false
-    )
+        Row("LVN", "Technician")),
+      sort = false)
   }
 
   test("RelationalGroupedDataFrame.max()") {
@@ -235,8 +216,7 @@ class DataFrameAggregateSuite extends TestData {
       ("b", 2, 22, "c"),
       ("a", 3, 33, "d"),
       ("b", 4, 44, "e"),
-      ("b", 44, 444, "f")
-    )
+      ("b", 44, 444, "f"))
       .toDF("key", "value1", "value2", "rest")
 
     // call median without group-by
@@ -254,8 +234,7 @@ class DataFrameAggregateSuite extends TestData {
     // no arguments
     checkAnswer(
       df.groupBy("a").builtin("max")(col("a"), col("b")),
-      Seq(Row(1, 1, 13), Row(2, 2, 12))
-    )
+      Seq(Row(1, 1, 13), Row(2, 2, 12)))
     // with arguments
     checkAnswer(df.groupBy("a").builtin("max")(col("b")), Seq(Row(1, 13), Row(2, 12)))
   }
@@ -285,15 +264,13 @@ class DataFrameAggregateSuite extends TestData {
       testData2.rollup($"a" + $"b" as "foo", $"b" as "bar").agg(sum($"a" - $"b") as "foo"),
       Row(2, 1, 0) :: Row(2, null, 0) :: Row(3, 1, 1) :: Row(3, 2, -1) :: Row(3, null, 0)
         :: Row(4, 1, 2) :: Row(4, 2, 0) :: Row(4, null, 2) :: Row(5, 2, 1)
-        :: Row(5, null, 1) :: Row(null, null, 3) :: Nil
-    )
+        :: Row(5, null, 1) :: Row(null, null, 3) :: Nil)
 
     checkAnswer(
       testData2.rollup("a", "b").agg(sum(col("b"))),
       Row(1, 1, 1) :: Row(1, 2, 2) :: Row(1, null, 3) :: Row(2, 1, 1) :: Row(2, 2, 2)
         :: Row(2, null, 3) :: Row(3, 1, 1) :: Row(3, 2, 2) :: Row(3, null, 3)
-        :: Row(null, null, 9) :: Nil
-    )
+        :: Row(null, null, 9) :: Nil)
   }
 
   test("cube overlapping columns") {
@@ -302,15 +279,13 @@ class DataFrameAggregateSuite extends TestData {
       Row(2, 1, 0) :: Row(2, null, 0) :: Row(3, 1, 1) :: Row(3, 2, -1) :: Row(3, null, 0)
         :: Row(4, 1, 2) :: Row(4, 2, 0) :: Row(4, null, 2) :: Row(5, 2, 1)
         :: Row(5, null, 1) :: Row(null, 1, 3) :: Row(null, 2, 0)
-        :: Row(null, null, 3) :: Nil
-    )
+        :: Row(null, null, 3) :: Nil)
 
     checkAnswer(
       testData2.cube("a", "b").agg(sum(col("b"))),
       Row(1, 1, 1) :: Row(1, 2, 2) :: Row(1, null, 3) :: Row(2, 1, 1) :: Row(2, 2, 2)
         :: Row(2, null, 3) :: Row(3, 1, 1) :: Row(3, 2, 2) :: Row(3, null, 3)
-        :: Row(null, 1, 3) :: Row(null, 2, 6) :: Row(null, null, 9) :: Nil
-    )
+        :: Row(null, 1, 3) :: Row(null, 2, 6) :: Row(null, null, 9) :: Nil)
   }
 
   test("null count") {
@@ -321,13 +296,11 @@ class DataFrameAggregateSuite extends TestData {
     checkAnswer(
       testData3
         .agg(count($"a"), count($"b"), count(lit(1)), count_distinct($"a"), count_distinct($"b")),
-      Seq(Row(2, 1, 2, 2, 1))
-    )
+      Seq(Row(2, 1, 2, 2, 1)))
 
     checkAnswer(
       testData3.agg(count($"b"), count_distinct($"b"), sum_distinct($"b")), // non-partial
-      Seq(Row(1, 1, 2))
-    )
+      Seq(Row(1, 1, 2)))
   }
 
   // Used temporary VIEW which is not supported by owner's mode stored proc yet
@@ -343,65 +316,52 @@ class DataFrameAggregateSuite extends TestData {
     checkWindowError(
       testData2
         .groupBy($"a")
-        .agg(max(sum(sum($"b")).over(Window.orderBy($"a"))))
-    )
+        .agg(max(sum(sum($"b")).over(Window.orderBy($"a")))))
     checkWindowError(
       testData2
         .groupBy($"a")
         .agg(
           sum($"b").as("s"),
-          max(
-            count(col("*"))
-              .over()
-          )
-        )
-        .where($"s" === 3)
-    )
+          max(count(col("*"))
+            .over()))
+        .where($"s" === 3))
     checkAnswer(
       testData2
         .groupBy($"a")
         .agg(max($"b"), sum($"b").as("s"), count(col("*")).over())
         .where($"s" === 3),
-      Row(1, 2, 3, 3) :: Row(2, 2, 3, 3) :: Row(3, 2, 3, 3) :: Nil
-    )
+      Row(1, 2, 3, 3) :: Row(2, 2, 3, 3) :: Row(3, 2, 3, 3) :: Nil)
 
     testData2.createOrReplaceTempView("testData2")
     checkWindowError(session.sql("SELECT MIN(AVG(b) OVER(PARTITION BY a)) FROM testData2"))
     checkWindowError(session.sql("SELECT SUM(b), MAX(RANK() OVER(ORDER BY a)) FROM testData2"))
     checkWindowError(
-      session.sql("SELECT SUM(b), MAX(RANK() OVER(ORDER BY b)) FROM testData2 GROUP BY a")
-    )
+      session.sql("SELECT SUM(b), MAX(RANK() OVER(ORDER BY b)) FROM testData2 GROUP BY a"))
     checkWindowError(
-      session.sql("SELECT MAX(SUM(SUM(b)) OVER(ORDER BY a)) FROM testData2 GROUP BY a")
-    )
+      session.sql("SELECT MAX(SUM(SUM(b)) OVER(ORDER BY a)) FROM testData2 GROUP BY a"))
     checkWindowError(
-      session.sql("SELECT MAX(RANK() OVER(ORDER BY b)) FROM testData2 GROUP BY a HAVING SUM(b) = 3")
-    )
+      session.sql(
+        "SELECT MAX(RANK() OVER(ORDER BY b)) FROM testData2 GROUP BY a HAVING SUM(b) = 3"))
     checkAnswer(
       session.sql(
-        "SELECT a, MAX(b), RANK() OVER(ORDER BY a) FROM testData2 GROUP BY a HAVING SUM(b) = 3"
-      ),
-      Row(1, 2, 1) :: Row(2, 2, 2) :: Row(3, 2, 3) :: Nil
-    )
+        "SELECT a, MAX(b), RANK() OVER(ORDER BY a) FROM testData2 GROUP BY a HAVING SUM(b) = 3"),
+      Row(1, 2, 1) :: Row(2, 2, 2) :: Row(3, 2, 3) :: Nil)
   }
 
   test("distinct") {
     val df = Seq((1, "one", 1.0), (2, "one", 2.0), (2, "two", 1.0)).toDF("i", "s", """"i"""")
     checkAnswer(
       df.distinct(),
-      Row(1, "one", 1.0) :: Row(2, "one", 2.0) :: Row(2, "two", 1.0) :: Nil
-    )
+      Row(1, "one", 1.0) :: Row(2, "one", 2.0) :: Row(2, "two", 1.0) :: Nil)
     checkAnswer(df.select("i").distinct(), Row(1) :: Row(2) :: Nil)
     checkAnswer(df.select(""""i"""").distinct(), Row(1.0) :: Row(2.0) :: Nil)
     checkAnswer(df.select("s").distinct(), Row("one") :: Row("two") :: Nil)
     checkAnswer(
       df.select("i", """"i"""").distinct(),
-      Row(1, 1.0) :: Row(2, 1.0) :: Row(2, 2.0) :: Nil
-    )
+      Row(1, 1.0) :: Row(2, 1.0) :: Row(2, 2.0) :: Nil)
     checkAnswer(
       df.select("i", """"i"""").distinct(),
-      Row(1, 1.0) :: Row(2, 1.0) :: Row(2, 2.0) :: Nil
-    )
+      Row(1, 1.0) :: Row(2, 1.0) :: Row(2, 2.0) :: Nil)
     checkAnswer(df.filter($"i" < 0).distinct(), Nil)
   }
 
@@ -411,19 +371,16 @@ class DataFrameAggregateSuite extends TestData {
 
     checkAnswer(
       lhs.join(rhs, lhs("i") === rhs("i")).distinct(),
-      Row(1, "one", 1.0, 1, "one", 1.0) :: Row(2, "one", 2.0, 2, "one", 2.0) :: Nil
-    )
+      Row(1, "one", 1.0, 1, "one", 1.0) :: Row(2, "one", 2.0, 2, "one", 2.0) :: Nil)
     val lhsD = lhs.select($"s").distinct()
     checkAnswer(
       lhsD.join(rhs, lhsD("s") === rhs("s")),
-      Row("one", 1, "one", 1.0) :: Row("one", 2, "one", 2.0) :: Nil
-    )
+      Row("one", 1, "one", 1.0) :: Row("one", 2, "one", 2.0) :: Nil)
 
     var rhsD = rhs.select($"s")
     checkAnswer(
       lhsD.join(rhsD, lhsD("s") === rhsD("s")),
-      Row("one", "one") :: Row("one", "one") :: Nil
-    )
+      Row("one", "one") :: Row("one", "one") :: Nil)
 
     rhsD = rhs.select($"s").distinct()
     checkAnswer(lhsD.join(rhsD, lhsD("s") === rhsD("s")), Row("one", "one") :: Nil)
@@ -434,12 +391,10 @@ class DataFrameAggregateSuite extends TestData {
     checkAnswer(testData2.groupBy("a").agg(count($"*")), Row(1, 2) :: Row(2, 2) :: Row(3, 2) :: Nil)
     checkAnswer(
       testData2.groupBy("a").agg(Map($"*" -> "count")),
-      Row(1, 2) :: Row(2, 2) :: Row(3, 2) :: Nil
-    )
+      Row(1, 2) :: Row(2, 2) :: Row(3, 2) :: Nil)
     checkAnswer(
       testData2.groupBy("a").agg(Map($"b" -> "sum")),
-      Row(1, 3) :: Row(2, 3) :: Row(3, 3) :: Nil
-    )
+      Row(1, 3) :: Row(2, 3) :: Row(3, 3) :: Nil)
 
     val df1 = Seq(("a", 1, 0, "b"), ("b", 2, 4, "c"), ("a", 2, 3, "d"))
       .toDF("key", "value1", "value2", "rest")
@@ -451,9 +406,7 @@ class DataFrameAggregateSuite extends TestData {
       Seq(
         Row(new java.math.BigDecimal(1), new java.math.BigDecimal(3)),
         Row(new java.math.BigDecimal(2), new java.math.BigDecimal(3)),
-        Row(new java.math.BigDecimal(3), new java.math.BigDecimal(3))
-      )
-    )
+        Row(new java.math.BigDecimal(3), new java.math.BigDecimal(3))))
   }
 
   test("SN - agg should be ordering preserving") {
@@ -474,17 +427,14 @@ class DataFrameAggregateSuite extends TestData {
         Row("dotNET", null, 63000.0) ::
         Row(null, 2012, 35000.0) ::
         Row(null, 2013, 78000.0) ::
-        Row(null, null, 113000.0) :: Nil
-    )
+        Row(null, null, 113000.0) :: Nil)
 
     val df0 = session.createDataFrame(
       Seq(
         Fact(20151123, 18, 35, "room1", 18.6),
         Fact(20151123, 18, 35, "room2", 22.4),
         Fact(20151123, 18, 36, "room1", 17.4),
-        Fact(20151123, 18, 36, "room2", 25.6)
-      )
-    )
+        Fact(20151123, 18, 36, "room2", 25.6)))
 
     val cube0 = df0.cube("date", "hour", "minute", "room_name").agg(Map($"temp" -> "avg"))
     assert(cube0.where(col("date").is_null).count > 0)
@@ -503,8 +453,7 @@ class DataFrameAggregateSuite extends TestData {
         Row("dotNET", null, 0, 1, 1) ::
         Row(null, 2012, 1, 0, 2) ::
         Row(null, 2013, 1, 0, 2) ::
-        Row(null, null, 1, 1, 3) :: Nil
-    )
+        Row(null, null, 1, 1, 3) :: Nil)
 
     // use column reference in `grouping_id` instead of column name
     checkAnswer(
@@ -519,8 +468,7 @@ class DataFrameAggregateSuite extends TestData {
         Row("dotNET", null, 1) ::
         Row(null, 2012, 2) ::
         Row(null, 2013, 2) ::
-        Row(null, null, 3) :: Nil
-    )
+        Row(null, null, 3) :: Nil)
 
     /* TODO: Add another test with eager analysis
      */
@@ -538,16 +486,14 @@ class DataFrameAggregateSuite extends TestData {
   test("SN - count") {
     checkAnswer(
       testData2.agg(count($"a"), sum_distinct($"a")), // non-partial
-      Seq(Row(6, 6.0))
-    )
+      Seq(Row(6, 6.0)))
   }
 
   test("SN - stddev") {
     val testData2ADev = math.sqrt(4.0 / 5.0)
     checkAnswer(
       testData2.agg(stddev($"a"), stddev_pop($"a"), stddev_samp($"a")),
-      Seq(Row(testData2ADev, 0.8164967850518458, testData2ADev))
-    )
+      Seq(Row(testData2ADev, 0.8164967850518458, testData2ADev)))
   }
 
   test("SN - moments") {
@@ -559,13 +505,11 @@ class DataFrameAggregateSuite extends TestData {
 
     checkAnswer(
       testData2.groupBy($"a").agg(variance($"b")),
-      Row(1, 0.50000) :: Row(2, 0.50000) :: Row(3, 0.500000) :: Nil
-    )
+      Row(1, 0.50000) :: Row(2, 0.50000) :: Row(3, 0.500000) :: Nil)
 
     var statement = runQueryReturnStatement(
       "select variance(a) from values(1,1),(1,2),(2,1),(2,2),(3,1),(3,2) as T(a,b);",
-      session
-    )
+      session)
     val varianceResult = statement.getResultSet
 
     while (varianceResult.next()) {
@@ -590,8 +534,7 @@ class DataFrameAggregateSuite extends TestData {
     // add sql test
     statement = runQueryReturnStatement(
       "select kurtosis(a) from values(1,1),(1,2),(2,1),(2,2),(3,1),(3,2) as T(a,b);",
-      session
-    )
+      session)
     val aggKurtosisResult = statement.getResultSet
 
     while (aggKurtosisResult.next()) {
@@ -611,10 +554,8 @@ class DataFrameAggregateSuite extends TestData {
         var_samp($"a"),
         var_pop($"a"),
         skew($"a"),
-        kurtosis($"a")
-      ),
-      Seq(Row(null, null, 0.0, null, 0.000000, null, null))
-    )
+        kurtosis($"a")),
+      Seq(Row(null, null, 0.0, null, 0.000000, null, null)))
 
     checkAnswer(
       input.agg(
@@ -625,10 +566,8 @@ class DataFrameAggregateSuite extends TestData {
         sqlExpr("var_samp(a)"),
         sqlExpr("var_pop(a)"),
         sqlExpr("skew(a)"),
-        sqlExpr("kurtosis(a)")
-      ),
-      Row(null, null, 0.0, null, null, 0.0, null, null)
-    )
+        sqlExpr("kurtosis(a)")),
+      Row(null, null, 0.0, null, null, 0.0, null, null))
   }
 
   test("SN - null moments") {
@@ -636,8 +575,7 @@ class DataFrameAggregateSuite extends TestData {
     checkAnswer(
       emptyTableData
         .agg(variance($"a"), var_samp($"a"), var_pop($"a"), skew($"a"), kurtosis($"a")),
-      Seq(Row(null, null, null, null))
-    )
+      Seq(Row(null, null, null, null)))
 
     checkAnswer(
       emptyTableData.agg(
@@ -645,21 +583,17 @@ class DataFrameAggregateSuite extends TestData {
         sqlExpr("var_samp(a)"),
         sqlExpr("var_pop(a)"),
         sqlExpr("skew(a)"),
-        sqlExpr("kurtosis(a)")
-      ),
-      Seq(Row(null, null, null, null, null))
-    )
+        sqlExpr("kurtosis(a)")),
+      Seq(Row(null, null, null, null, null)))
   }
 
   test("SN - Decimal sum/avg over window should work.") {
     checkAnswer(
       session.sql("select sum(a) over () from values (1.0), (2.0), (3.0) T(a)"),
-      Row(6.0) :: Row(6.0) :: Row(6.0) :: Nil
-    )
+      Row(6.0) :: Row(6.0) :: Row(6.0) :: Nil)
     checkAnswer(
       session.sql("select avg(a) over () from values (1.0), (2.0), (3.0) T(a)"),
-      Row(2.0) :: Row(2.0) :: Row(2.0) :: Nil
-    )
+      Row(2.0) :: Row(2.0) :: Row(2.0) :: Nil)
   }
 
   test("SN - aggregate function in GROUP BY") {
@@ -672,24 +606,20 @@ class DataFrameAggregateSuite extends TestData {
   test("SN - ints in aggregation expressions are taken as group-by ordinal.") {
     checkAnswer(
       testData2.groupBy(lit(3), lit(4)).agg(lit(6), lit(7), sum($"b")),
-      Seq(Row(3, 4, 6, 7, 9))
-    )
+      Seq(Row(3, 4, 6, 7, 9)))
 
     checkAnswer(
       testData2.groupBy(lit(3), lit(4)).agg(lit(6), $"b", sum($"b")),
-      Seq(Row(3, 4, 6, 1, 3), Row(3, 4, 6, 2, 6))
-    )
+      Seq(Row(3, 4, 6, 1, 3), Row(3, 4, 6, 2, 6)))
 
     val testdata2Str: String =
       "(SELECT * FROM VALUES (1,1),(1,2),(2,1),(2,2),(3,1),(3,2) T(a, b) )"
     checkAnswer(
       session.sql(s"SELECT 3, 4, SUM(b) FROM $testdata2Str GROUP BY 1, 2"),
-      Seq(Row(3, 4, 9))
-    )
+      Seq(Row(3, 4, 9)))
     checkAnswer(
       session.sql(s"SELECT 3 AS c, 4 AS d, SUM(b) FROM $testdata2Str GROUP BY c, d"),
-      Seq(Row(3, 4, 9))
-    )
+      Seq(Row(3, 4, 9)))
   }
 
   test("distinct and unions") {
@@ -734,41 +664,33 @@ class DataFrameAggregateSuite extends TestData {
       ("b", None),
       ("b", Some(4)),
       ("b", Some(5)),
-      ("b", Some(6))
-    )
+      ("b", Some(6)))
       .toDF("x", "y")
       .createOrReplaceTempView("tempView")
 
     checkAnswer(
       session.sql(
         "SELECT COUNT_IF(NULL), COUNT_IF(y % 2 = 0), COUNT_IF(y % 2 <> 0), " +
-          "COUNT_IF(y IS NULL) FROM tempView"
-      ),
-      Seq(Row(0L, 3L, 3L, 2L))
-    )
+          "COUNT_IF(y IS NULL) FROM tempView"),
+      Seq(Row(0L, 3L, 3L, 2L)))
 
     checkAnswer(
       session.sql(
         "SELECT x, COUNT_IF(NULL), COUNT_IF(y % 2 = 0), COUNT_IF(y % 2 <> 0), " +
-          "COUNT_IF(y IS NULL) FROM tempView GROUP BY x"
-      ),
-      Row("a", 0L, 1L, 2L, 1L) :: Row("b", 0L, 2L, 1L, 1L) :: Nil
-    )
+          "COUNT_IF(y IS NULL) FROM tempView GROUP BY x"),
+      Row("a", 0L, 1L, 2L, 1L) :: Row("b", 0L, 2L, 1L, 1L) :: Nil)
 
     checkAnswer(
       session.sql("SELECT x FROM tempView GROUP BY x HAVING COUNT_IF(y % 2 = 0) = 1"),
-      Seq(Row("a"))
-    )
+      Seq(Row("a")))
 
     checkAnswer(
       session.sql("SELECT x FROM tempView GROUP BY x HAVING COUNT_IF(y % 2 = 0) = 2"),
-      Seq(Row("b"))
-    )
+      Seq(Row("b")))
 
     checkAnswer(
       session.sql("SELECT x FROM tempView GROUP BY x HAVING COUNT_IF(y IS NULL) > 0"),
-      Row("a") :: Row("b") :: Nil
-    )
+      Row("a") :: Row("b") :: Nil)
 
     checkAnswer(session.sql("SELECT x FROM tempView GROUP BY x HAVING COUNT_IF(NULL) > 0"), Nil)
 
@@ -786,8 +708,7 @@ class DataFrameAggregateSuite extends TestData {
         Row("dotNET", 2012, 15000.0) ::
         Row("dotNET", 2013, 48000.0) ::
         Row("dotNET", null, 63000.0) ::
-        Row(null, null, 113000.0) :: Nil
-    )
+        Row(null, null, 113000.0) :: Nil)
   }
   test("grouping/grouping_id inside window function") {
 
@@ -798,8 +719,8 @@ class DataFrameAggregateSuite extends TestData {
         .agg(
           sum($"earnings"),
           grouping_id($"course", $"year"),
-          rank().over(Window.partitionBy(grouping_id($"course", $"year")).orderBy(sum($"earnings")))
-        ),
+          rank().over(
+            Window.partitionBy(grouping_id($"course", $"year")).orderBy(sum($"earnings")))),
       Row("Java", 2012, 20000.0, 0, 2) ::
         Row("Java", 2013, 30000.0, 0, 3) ::
         Row("Java", null, 50000.0, 1, 1) ::
@@ -808,8 +729,7 @@ class DataFrameAggregateSuite extends TestData {
         Row("dotNET", null, 63000.0, 1, 2) ::
         Row(null, 2012, 35000.0, 2, 1) ::
         Row(null, 2013, 78000.0, 2, 2) ::
-        Row(null, null, 113000.0, 3, 1) :: Nil
-    )
+        Row(null, null, 113000.0, 3, 1) :: Nil)
   }
 
   test("References in grouping functions should be indexed with semanticEquals") {
@@ -825,8 +745,7 @@ class DataFrameAggregateSuite extends TestData {
         Row("dotNET", null, 0, 1) ::
         Row(null, 2012, 1, 0) ::
         Row(null, 2013, 1, 0) ::
-        Row(null, null, 1, 1) :: Nil
-    )
+        Row(null, null, 1, 1) :: Nil)
   }
   test("agg without groups") {
     checkAnswer(testData2.agg(sum($"b")), Row(9))
@@ -843,8 +762,7 @@ class DataFrameAggregateSuite extends TestData {
 
     checkAnswer(
       testData3.agg(avg($"b"), sum_distinct($"b")), // non-partial
-      Row(2.0, 2.0)
-    )
+      Row(2.0, 2.0))
   }
 
   test("zero average") {
@@ -853,8 +771,7 @@ class DataFrameAggregateSuite extends TestData {
 
     checkAnswer(
       emptyTableData.agg(avg($"a"), sum_distinct($"b")), // non-partial
-      Row(null, null)
-    )
+      Row(null, null))
   }
   test("multiple column distinct count") {
     val df1 = Seq(
@@ -862,8 +779,7 @@ class DataFrameAggregateSuite extends TestData {
       ("a", "b", "c"),
       ("a", "b", "d"),
       ("x", "y", "z"),
-      ("x", "q", null.asInstanceOf[String])
-    )
+      ("x", "q", null.asInstanceOf[String]))
       .toDF("key1", "key2", "key3")
 
     checkAnswer(df1.agg(count_distinct($"key1", $"key2")), Row(3))
@@ -872,24 +788,21 @@ class DataFrameAggregateSuite extends TestData {
 
     checkAnswer(
       df1.groupBy($"key1").agg(count_distinct($"key2", $"key3")),
-      Seq(Row("a", 2), Row("x", 1))
-    )
+      Seq(Row("a", 2), Row("x", 1)))
   }
 
   test("zero count") {
     val emptyTableData = Seq.empty[(Int, Int)].toDF("a", "b")
     checkAnswer(
       emptyTableData.agg(count($"a"), sum_distinct($"a")), // non-partial
-      Row(0, null)
-    )
+      Row(0, null))
   }
 
   test("zero stddev") {
     val emptyTableData = Seq.empty[(Int, Int)].toDF("a", "b")
     checkAnswer(
       emptyTableData.agg(stddev($"a"), stddev_pop($"a"), stddev_samp($"a")),
-      Row(null, null, null)
-    )
+      Row(null, null, null))
   }
 
   test("zero sum") {
@@ -915,8 +828,7 @@ class DataFrameAggregateSuite extends TestData {
       (8, 5, 11, "green", 99),
       (8, 4, 14, "blue", 99),
       (8, 3, 21, "red", 99),
-      (9, 9, 12, "orange", 99)
-    ).toDF("v1", "v2", "length", "color", "unused")
+      (9, 9, 12, "orange", 99)).toDF("v1", "v2", "length", "color", "unused")
 
     val result = df.groupBy(df.col("color")).agg(listagg(df.col("length"), ",")).collect()
     // result is unpredictable without within group
@@ -924,13 +836,10 @@ class DataFrameAggregateSuite extends TestData {
 
     checkAnswer(
       df.groupBy(df.col("color"))
-        .agg(
-          listagg(df.col("length"), ",")
-            .withinGroup(df.col("length").asc)
-        )
+        .agg(listagg(df.col("length"), ",")
+          .withinGroup(df.col("length").asc))
         .sort($"color"),
       Seq(Row("blue", "14"), Row("green", "11,77"), Row("orange", "12"), Row("red", "21,24,35")),
-      sort = false
-    )
+      sort = false)
   }
 }

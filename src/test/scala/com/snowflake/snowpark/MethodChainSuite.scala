@@ -30,8 +30,7 @@ class MethodChainSuite extends TestData {
         .toDF(Array("a3", "b3", "c3")),
       "toDF",
       "toDF",
-      "toDF"
-    )
+      "toDF")
   }
 
   test("sort") {
@@ -42,8 +41,7 @@ class MethodChainSuite extends TestData {
         .sort(Array(col("a"))),
       "sort",
       "sort",
-      "sort"
-    )
+      "sort")
   }
 
   test("alias") {
@@ -64,8 +62,7 @@ class MethodChainSuite extends TestData {
       "select",
       "select",
       "select",
-      "select"
-    )
+      "select")
   }
 
   test("drop") {
@@ -112,14 +109,12 @@ class MethodChainSuite extends TestData {
   test("groupByGroupingSets") {
     checkMethodChain(
       df1.groupByGroupingSets(GroupingSets(Set(col("a")))).count(),
-      "groupByGroupingSets.count"
-    )
+      "groupByGroupingSets.count")
     checkMethodChain(
       df1
         .groupByGroupingSets(Seq(GroupingSets(Set(col("a")))))
         .builtin("count")(col("a")),
-      "groupByGroupingSets.builtin"
-    )
+      "groupByGroupingSets.builtin")
   }
 
   test("cube") {
@@ -203,20 +198,17 @@ class MethodChainSuite extends TestData {
       df.join(tf, Seq(df("b")), Seq(df("a")), Seq(df("b"))),
       "select",
       "toDF",
-      "join"
-    )
+      "join")
     checkMethodChain(
       df.join(tf, Map("arg1" -> df("b")), Seq(df("a")), Seq(df("b"))),
       "select",
       "toDF",
-      "join"
-    )
+      "join")
     checkMethodChain(
       df.join(tf(Map("arg1" -> df("b"))), Seq(df("a")), Seq(df("b"))),
       "select",
       "toDF",
-      "join"
-    )
+      "join")
 
     val df3 = session.sql("select * from values('[1,2,3]') as T(a)")
     checkMethodChain(df3.join(flatten, Map("input" -> parse_json(df("a")))), "join")
@@ -249,8 +241,7 @@ class MethodChainSuite extends TestData {
     checkMethodChain(
       nullData3.na.fill(Map("flo" -> 12.3, "int" -> 11, "boo" -> false, "str" -> "f")),
       "na",
-      "fill"
-    )
+      "fill")
     checkMethodChain(nullData3.na.replace("flo", Map(2 -> 300, 1 -> 200)), "na", "replace")
   }
 
@@ -264,7 +255,6 @@ class MethodChainSuite extends TestData {
     checkMethodChain(table1.flatten(table1("value")), "flatten")
     checkMethodChain(
       table1.flatten(table1("value"), "", outer = false, recursive = false, "both"),
-      "flatten"
-    )
+      "flatten")
   }
 }

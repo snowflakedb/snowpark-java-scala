@@ -26,8 +26,7 @@ class LargeDataFrameSuite extends TestData {
         (col("id") + 6).as("g"),
         (col("id") + 7).as("h"),
         (col("id") + 8).as("i"),
-        (col("id") + 9).as("j")
-      )
+        (col("id") + 9).as("j"))
       .cacheResult()
     val t1 = System.currentTimeMillis()
     df.collect()
@@ -69,8 +68,7 @@ class LargeDataFrameSuite extends TestData {
       .collect()
 
     (0 until (result.length - 1)).foreach(index =>
-      assert(result(index).getInt(0) < result(index + 1).getInt(0))
-    )
+      assert(result(index).getInt(0) < result(index + 1).getInt(0)))
   }
 
   test("createDataFrame for large values: basic types") {
@@ -88,9 +86,7 @@ class LargeDataFrameSuite extends TestData {
         StructField("boolean", BooleanType),
         StructField("binary", BinaryType),
         StructField("timestamp", TimestampType),
-        StructField("date", DateType)
-      )
-    )
+        StructField("date", DateType)))
 
     val schemaString = """root
                          | |--ID: Long (nullable = true)
@@ -126,14 +122,11 @@ class LargeDataFrameSuite extends TestData {
           true,
           Array(1.toByte, 2.toByte),
           new Timestamp(timestamp - 100),
-          new Date(timestamp - 100)
-        )
-      )
+          new Date(timestamp - 100)))
     }
     // Add one null values
     largeData.append(
-      Row(1025, null, null, null, null, null, null, null, null, null, null, null, null)
-    )
+      Row(1025, null, null, null, null, null, null, null, null, null, null, null, null))
 
     val result = session.createDataFrame(largeData, schema)
     // byte, short, int, long are converted to long
@@ -159,8 +152,7 @@ class LargeDataFrameSuite extends TestData {
         """root
           | |--ID: Long (nullable = true)
           | |--TIME: Time (nullable = true)
-          |""".stripMargin
-    )
+          |""".stripMargin)
 
     val expected = new ArrayBuffer[Row]()
     val snowflakeTime = session.sql("select '11:12:13' :: Time").collect()(0).getTime(0)
@@ -180,9 +172,7 @@ class LargeDataFrameSuite extends TestData {
         StructField("map", MapType(null, null)),
         StructField("variant", VariantType),
         StructField("geography", GeographyType),
-        StructField("geometry", GeometryType)
-      )
-    )
+        StructField("geometry", GeometryType)))
 
     val rowCount = 350
     val largeData = new ArrayBuffer[Row]()
@@ -194,9 +184,7 @@ class LargeDataFrameSuite extends TestData {
           Map("'" -> 1),
           new Variant(1),
           Geography.fromGeoJSON("POINT(30 10)"),
-          Geometry.fromGeoJSON("POINT(20 40)")
-        )
-      )
+          Geometry.fromGeoJSON("POINT(20 40)")))
     }
     largeData.append(Row(rowCount, null, null, null, null, null))
 
@@ -210,8 +198,7 @@ class LargeDataFrameSuite extends TestData {
           | |--VARIANT: Variant (nullable = true)
           | |--GEOGRAPHY: Geography (nullable = true)
           | |--GEOMETRY: Geometry (nullable = true)
-          |""".stripMargin
-    )
+          |""".stripMargin)
 
     val expected = new ArrayBuffer[Row]()
     for (i <- 0 until rowCount) {
@@ -234,9 +221,7 @@ class LargeDataFrameSuite extends TestData {
             |    4.000000000000000e+01
             |  ],
             |  "type": "Point"
-            |}""".stripMargin)
-        )
-      )
+            |}""".stripMargin)))
     }
     expected.append(Row(rowCount, null, null, null, null, null))
     checkAnswer(df.sort(col("id")), expected, sort = false)
@@ -247,15 +232,12 @@ class LargeDataFrameSuite extends TestData {
       Seq(
         StructField("id", LongType),
         StructField("array", ArrayType(null)),
-        StructField("map", MapType(null, null))
-      )
-    )
+        StructField("map", MapType(null, null))))
     val largeData = new ArrayBuffer[Row]()
     val rowCount = 350
     for (i <- 0 until rowCount) {
       largeData.append(
-        Row(i.toLong, Array(new Variant(1), new Variant("\"'")), Map("a" -> new Variant("\"'")))
-      )
+        Row(i.toLong, Array(new Variant(1), new Variant("\"'")), Map("a" -> new Variant("\"'"))))
     }
     largeData.append(Row(rowCount, null, null))
     val df = session.createDataFrame(largeData, schema)
@@ -272,9 +254,7 @@ class LargeDataFrameSuite extends TestData {
       Seq(
         StructField("id", LongType),
         StructField("array", ArrayType(null)),
-        StructField("map", MapType(null, null))
-      )
-    )
+        StructField("map", MapType(null, null))))
     val largeData = new ArrayBuffer[Row]()
     val rowCount = 350
     for (i <- 0 until rowCount) {
@@ -283,14 +263,10 @@ class LargeDataFrameSuite extends TestData {
           i.toLong,
           Array(
             Geography.fromGeoJSON("point(30 10)"),
-            Geography.fromGeoJSON("{\"type\":\"Point\",\"coordinates\":[30,10]}")
-          ),
+            Geography.fromGeoJSON("{\"type\":\"Point\",\"coordinates\":[30,10]}")),
           Map(
             "a" -> Geography.fromGeoJSON("point(30 10)"),
-            "b" -> Geography.fromGeoJSON("{\"type\":\"Point\",\"coordinates\":[300,100]}")
-          )
-        )
-      )
+            "b" -> Geography.fromGeoJSON("{\"type\":\"Point\",\"coordinates\":[300,100]}"))))
     }
     largeData.append(Row(rowCount, null, null))
     val df = session.createDataFrame(largeData, schema)
@@ -302,9 +278,7 @@ class LargeDataFrameSuite extends TestData {
           "[\n  \"point(30 10)\",\n  {\n    \"coordinates\": [\n" +
             "      30,\n      10\n    ],\n    \"type\": \"Point\"\n  }\n]",
           "{\n  \"a\": \"point(30 10)\",\n  \"b\": {\n    \"coordinates\": [\n" +
-            "      300,\n      100\n    ],\n    \"type\": \"Point\"\n  }\n}"
-        )
-      )
+            "      300,\n      100\n    ],\n    \"type\": \"Point\"\n  }\n}"))
     }
     expected.append(Row(rowCount, null, null))
     checkAnswer(df.sort(col("id")), expected, sort = false)
@@ -327,8 +301,7 @@ class LargeDataFrameSuite extends TestData {
         c.as("c6"),
         c.as("c7"),
         c.as("c8"),
-        c.as("c9")
-      )
+        c.as("c9"))
     val rows = df.collect()
     assert(rows.length == 10000)
     assert(rows.last.getLong(0) == 9999)

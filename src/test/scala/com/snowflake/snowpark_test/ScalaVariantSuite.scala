@@ -19,8 +19,7 @@ class ScalaVariantSuite extends FunSuite {
     assert(
       new Variant(Array(1.toByte, 2.toByte, 3.toByte))
         .asBinary()
-        .sameElements(Array(1.toByte, 2.toByte, 3.toByte))
-    )
+        .sameElements(Array(1.toByte, 2.toByte, 3.toByte)))
     val arr = new Variant(Array(true, 1)).asArray()
     assert(arr(0).asBoolean())
     assert(arr(1).asInt() == 1)
@@ -28,9 +27,7 @@ class ScalaVariantSuite extends FunSuite {
     assert(new Variant(Date.valueOf("2020-10-10")).asDate() == Date.valueOf("2020-10-10"))
     assert(
       new Variant(Timestamp.valueOf("2020-10-10 01:02:03")).asTimestamp() == Timestamp.valueOf(
-        "2020-10-10 01:02:03"
-      )
-    )
+        "2020-10-10 01:02:03"))
     val seq = new Variant(Seq(1, 2, 3)).asSeq()
     assert(seq.head.asInt() == 1)
     assert(seq(1).asInt() == 2)
@@ -284,13 +281,11 @@ class ScalaVariantSuite extends FunSuite {
     assert(new Variant(map2).asJsonString().equals("{\"a\":1,\"b\":\"a\"}"))
     val map3 = Map(
       "a" -> Geography.fromGeoJSON("Point(10 10)"),
-      "b" -> Geography.fromGeoJSON("Point(20 20)")
-    )
+      "b" -> Geography.fromGeoJSON("Point(20 20)"))
     assert(
       new Variant(map3)
         .asJsonString()
-        .equals("{\"a\":\"Point(10 10)\"," + "\"b\":\"Point(20 20)\"}")
-    );
+        .equals("{\"a\":\"Point(10 10)\"," + "\"b\":\"Point(20 20)\"}"));
   }
 
   test("negative test for conversion") {

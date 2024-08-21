@@ -24,8 +24,7 @@ class ViewSuite extends TestData {
     checkAnswer(
       session.sql(s"select * from $viewName1"),
       Seq(Row(1.111), Row(2.222), Row(3.333)),
-      sort = false
-    )
+      sort = false)
   }
 
   test("view name with special character") {
@@ -33,14 +32,12 @@ class ViewSuite extends TestData {
     checkAnswer(
       session.sql(s"select * from ${quoteName(viewName2)}"),
       Seq(Row(1, 2), Row(3, 4)),
-      sort = false
-    )
+      sort = false)
   }
 
   test("only works on select") {
     assertThrows[IllegalArgumentException](
-      session.sql("show tables").createOrReplaceView(viewName1)
-    )
+      session.sql("show tables").createOrReplaceView(viewName1))
   }
 
   // getDatabaseFromProperties will read local files, which is not supported in Java SP yet.

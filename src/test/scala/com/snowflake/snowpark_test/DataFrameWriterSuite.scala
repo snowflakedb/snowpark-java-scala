@@ -17,8 +17,7 @@ class DataFrameWriterSuite extends TestData {
   val tableName = randomTableName()
 
   private val userSchema: StructType = StructType(
-    Seq(StructField("a", IntegerType), StructField("b", StringType), StructField("c", DoubleType))
-  )
+    Seq(StructField("a", IntegerType), StructField("b", StringType), StructField("c", DoubleType)))
 
   override def beforeAll(): Unit = {
     super.beforeAll()
@@ -191,8 +190,7 @@ class DataFrameWriterSuite extends TestData {
       options: Map[String, Any],
       expectedWriteResult: Array[Row],
       outputFileExtension: String,
-      saveMode: Option[SaveMode] = None
-  ) = {
+      saveMode: Option[SaveMode] = None) = {
     // Execute COPY INTO location and check result
     val writer = df.write.options(options)
     saveMode.foreach(writer.mode)
@@ -210,8 +208,7 @@ class DataFrameWriterSuite extends TestData {
       options: Map[String, Any],
       expectedWriteResult: Array[Row],
       outputFileExtension: String,
-      saveMode: Option[SaveMode] = None
-  ) = {
+      saveMode: Option[SaveMode] = None) = {
     // Execute COPY INTO location and check result
     val writer = df.write.options(options)
     saveMode.foreach(writer.mode)
@@ -229,8 +226,7 @@ class DataFrameWriterSuite extends TestData {
       options: Map[String, Any],
       expectedNumberOfRow: Int,
       outputFileExtension: String,
-      saveMode: Option[SaveMode] = None
-  ) = {
+      saveMode: Option[SaveMode] = None) = {
     // Execute COPY INTO location and check result
     val writer = df.write.options(options)
     saveMode.foreach(writer.mode)
@@ -249,9 +245,7 @@ class DataFrameWriterSuite extends TestData {
       Seq(
         StructField("c1", IntegerType),
         StructField("c2", DoubleType),
-        StructField("c3", StringType)
-      )
-    )
+        StructField("c3", StringType)))
     val df = session.table(tableName)
     val path = s"@$targetStageName/p_${Random.nextInt().abs}"
 
@@ -259,8 +253,7 @@ class DataFrameWriterSuite extends TestData {
     runCSvTest(df, path, Map.empty, Array(Row(3, 32, 46)), ".csv.gz")
     checkAnswer(
       session.read.schema(schema).csv(path),
-      Seq(Row(1, 1.1, "one"), Row(2, 2.2, "two"), Row(null, null, null))
-    )
+      Seq(Row(1, 1.1, "one"), Row(2, 2.2, "two"), Row(null, null, null)))
 
     // by default, the mode is ErrorIfExist
     val ex = intercept[SnowflakeSQLException] {
@@ -272,8 +265,7 @@ class DataFrameWriterSuite extends TestData {
     runCSvTest(df, path, Map.empty, Array(Row(3, 32, 46)), ".csv.gz", Some(SaveMode.Overwrite))
     checkAnswer(
       session.read.schema(schema).csv(path),
-      Seq(Row(1, 1.1, "one"), Row(2, 2.2, "two"), Row(null, null, null))
-    )
+      Seq(Row(1, 1.1, "one"), Row(2, 2.2, "two"), Row(null, null, null)))
 
     // test some file format options and values
     session.sql(s"remove $path").collect()
@@ -281,13 +273,11 @@ class DataFrameWriterSuite extends TestData {
       "FIELD_DELIMITER" -> "'aa'",
       "RECORD_DELIMITER" -> "bbbb",
       "COMPRESSION" -> "NONE",
-      "FILE_EXTENSION" -> "mycsv"
-    )
+      "FILE_EXTENSION" -> "mycsv")
     runCSvTest(df, path, options1, Array(Row(3, 47, 47)), ".mycsv")
     checkAnswer(
       session.read.schema(schema).options(options1).csv(path),
-      Seq(Row(1, 1.1, "one"), Row(2, 2.2, "two"), Row(null, null, null))
-    )
+      Seq(Row(1, 1.1, "one"), Row(2, 2.2, "two"), Row(null, null, null)))
 
     // Test file format name only
     val fileFormatName = randomTableName()
@@ -295,8 +285,7 @@ class DataFrameWriterSuite extends TestData {
       .sql(
         s"CREATE OR REPLACE TEMPORARY FILE FORMAT $fileFormatName " +
           s"TYPE = CSV FIELD_DELIMITER = 'aa' RECORD_DELIMITER = 'bbbb' " +
-          s"COMPRESSION = 'NONE' FILE_EXTENSION = 'mycsv'"
-      )
+          s"COMPRESSION = 'NONE' FILE_EXTENSION = 'mycsv'")
       .collect()
     runCSvTest(
       df,
@@ -304,20 +293,17 @@ class DataFrameWriterSuite extends TestData {
       Map("FORMAT_NAME" -> fileFormatName),
       Array(Row(3, 47, 47)),
       ".mycsv",
-      Some(SaveMode.Overwrite)
-    )
+      Some(SaveMode.Overwrite))
     checkAnswer(
       session.read.schema(schema).options(options1).csv(path),
-      Seq(Row(1, 1.1, "one"), Row(2, 2.2, "two"), Row(null, null, null))
-    )
+      Seq(Row(1, 1.1, "one"), Row(2, 2.2, "two"), Row(null, null, null)))
 
     // Test file format name and some extra format options
     val fileFormatName2 = randomTableName()
     session
       .sql(
         s"CREATE OR REPLACE TEMPORARY FILE FORMAT $fileFormatName2 " +
-          s"TYPE = CSV FIELD_DELIMITER = 'aa' RECORD_DELIMITER = 'bbbb'"
-      )
+          s"TYPE = CSV FIELD_DELIMITER = 'aa' RECORD_DELIMITER = 'bbbb'")
       .collect()
     val formatNameAndOptions =
       Map("FORMAT_NAME" -> fileFormatName2, "COMPRESSION" -> "NONE", "FILE_EXTENSION" -> "mycsv")
@@ -327,12 +313,10 @@ class DataFrameWriterSuite extends TestData {
       formatNameAndOptions,
       Array(Row(3, 47, 47)),
       ".mycsv",
-      Some(SaveMode.Overwrite)
-    )
+      Some(SaveMode.Overwrite))
     checkAnswer(
       session.read.schema(schema).options(options1).csv(path),
-      Seq(Row(1, 1.1, "one"), Row(2, 2.2, "two"), Row(null, null, null))
-    )
+      Seq(Row(1, 1.1, "one"), Row(2, 2.2, "two"), Row(null, null, null)))
   }
 
   // copyOptions ::=
@@ -348,9 +332,7 @@ class DataFrameWriterSuite extends TestData {
       Seq(
         StructField("c1", IntegerType),
         StructField("c2", DoubleType),
-        StructField("c3", StringType)
-      )
-    )
+        StructField("c3", StringType)))
     val df = session.table(tableName)
     val path = s"@$targetStageName/p_${Random.nextInt().abs}"
 
@@ -360,8 +342,7 @@ class DataFrameWriterSuite extends TestData {
     runCSvTest(df, path2, Map("SINGLE" -> true), Array(Row(3, 32, 46)), targetFile)
     checkAnswer(
       session.read.schema(schema).csv(path2),
-      Seq(Row(1, 1.1, "one"), Row(2, 2.2, "two"), Row(null, null, null))
-    )
+      Seq(Row(1, 1.1, "one"), Row(2, 2.2, "two"), Row(null, null, null)))
 
     // other copy options
     session.sql(s"rm $path").collect()
@@ -374,8 +355,7 @@ class DataFrameWriterSuite extends TestData {
     assert(resultFiles.length == 1 && resultFiles(0).getString(0).contains(queryId))
     checkAnswer(
       session.read.schema(schema).csv(path),
-      Seq(Row(1, 1.1, "one"), Row(2, 2.2, "two"), Row(null, null, null))
-    )
+      Seq(Row(1, 1.1, "one"), Row(2, 2.2, "two"), Row(null, null, null)))
   }
 
   // sub clause:
@@ -400,8 +380,7 @@ class DataFrameWriterSuite extends TestData {
          |          ,('2020-01-28', null)
          |          ,('2020-01-29', '02:15')
          |""".stripMargin,
-        session
-      )
+        session)
       val schema = StructType(Seq(StructField("dt", DateType), StructField("tm", TimeType)))
       val df = session.table(tableName)
       val path = s"@$targetStageName/p_${Random.nextInt().abs}"
@@ -410,8 +389,7 @@ class DataFrameWriterSuite extends TestData {
         Map(
           "header" -> true,
           "partition by" -> ("('date=' || to_varchar(dt, 'YYYY-MM-DD') ||" +
-            " '/hour=' || to_varchar(date_part(hour, ts)))")
-        )
+            " '/hour=' || to_varchar(date_part(hour, ts)))"))
 
       val copyResult = df.write.options(options).csv(path).rows
       checkResult(copyResult, Array(Row(4, 99, 179)))
@@ -423,9 +401,7 @@ class DataFrameWriterSuite extends TestData {
           Row(Date.valueOf("2020-01-26"), Time.valueOf("18:05:00")),
           Row(Date.valueOf("2020-01-27"), Time.valueOf("22:57:00")),
           Row(Date.valueOf("2020-01-28"), null),
-          Row(Date.valueOf("2020-01-29"), Time.valueOf("02:15:00"))
-        )
-      )
+          Row(Date.valueOf("2020-01-29"), Time.valueOf("02:15:00"))))
     } finally {
       TimeZone.setDefault(oldTimeZone)
       session.sql(s"alter session set TIMEZONE = '$sfTimezone'").collect()
@@ -476,16 +452,14 @@ class DataFrameWriterSuite extends TestData {
     dfReadFile.write.csv(path)
     checkAnswer(
       session.read.schema(userSchema).csv(path),
-      Seq(Row(1, "one", 1.2), Row(2, "two", 2.2))
-    )
+      Seq(Row(1, "one", 1.2), Row(2, "two", 2.2)))
     // read with copy options
     runQuery(s"rm $path", session)
     val dfReadCopy = session.read.schema(userSchema).option("PURGE", false).csv(testFileOnStage)
     dfReadCopy.write.csv(path)
     checkAnswer(
       session.read.schema(userSchema).csv(path),
-      Seq(Row(1, "one", 1.2), Row(2, "two", 2.2))
-    )
+      Seq(Row(1, "one", 1.2), Row(2, "two", 2.2)))
   }
 
   test("negative test") {
@@ -500,27 +474,21 @@ class DataFrameWriterSuite extends TestData {
     }
     assert(
       ex.getMessage.contains(
-        "DataFrameWriter doesn't support option 'OVERWRITE' when writing to a file."
-      )
-    )
+        "DataFrameWriter doesn't support option 'OVERWRITE' when writing to a file."))
 
     val ex2 = intercept[SnowparkClientException] {
       df.write.option("TYPE", "CSV").csv(path)
     }
     assert(
       ex2.getMessage.contains(
-        "DataFrameWriter doesn't support option 'TYPE' when writing to a file."
-      )
-    )
+        "DataFrameWriter doesn't support option 'TYPE' when writing to a file."))
 
     val ex3 = intercept[SnowparkClientException] {
       df.write.option("unknown", "abc").csv(path)
     }
     assert(
       ex3.getMessage.contains(
-        "DataFrameWriter doesn't support option 'UNKNOWN' when writing to a file."
-      )
-    )
+        "DataFrameWriter doesn't support option 'UNKNOWN' when writing to a file."))
 
     // only support ErrorIfExists and Overwrite mode
     val ex4 = intercept[SnowparkClientException] {
@@ -528,9 +496,7 @@ class DataFrameWriterSuite extends TestData {
     }
     assert(
       ex4.getMessage.contains(
-        "DataFrameWriter doesn't support mode 'Append' when writing to a file."
-      )
-    )
+        "DataFrameWriter doesn't support mode 'Append' when writing to a file."))
   }
 
   // JSON can only be used to unload data from columns of type VARIANT
@@ -545,8 +511,7 @@ class DataFrameWriterSuite extends TestData {
     runJsonTest(df, path, Map.empty, Array(Row(2, 20, 40)), ".json.gz")
     checkAnswer(
       session.read.json(path),
-      Seq(Row("[\n  1,\n  \"one\"\n]"), Row("[\n  2,\n  \"two\"\n]"))
-    )
+      Seq(Row("[\n  1,\n  \"one\"\n]"), Row("[\n  2,\n  \"two\"\n]")))
 
     // write one column and overwrite
     val df2 = session.table(tableName).select(to_variant(col("c2")))
@@ -563,8 +528,7 @@ class DataFrameWriterSuite extends TestData {
       Map("FORMAT_NAME" -> formatName),
       Array(Row(2, 4, 24)),
       ".json.gz",
-      Some(SaveMode.Overwrite)
-    )
+      Some(SaveMode.Overwrite))
     session.read.json(path).show()
     checkAnswer(session.read.json(path), Seq(Row("1"), Row("2")))
 
@@ -577,8 +541,7 @@ class DataFrameWriterSuite extends TestData {
       Map("FORMAT_NAME" -> formatName, "FILE_EXTENSION" -> "myjson.json", "COMPRESSION" -> "NONE"),
       Array(Row(2, 4, 4)),
       ".myjson.json",
-      Some(SaveMode.Overwrite)
-    )
+      Some(SaveMode.Overwrite))
     session.read.json(path).show()
     checkAnswer(session.read.json(path), Seq(Row("1"), Row("2")))
   }
@@ -595,9 +558,7 @@ class DataFrameWriterSuite extends TestData {
       session.read.parquet(path),
       Seq(
         Row("{\n  \"_COL_0\": 1,\n  \"_COL_1\": \"one\"\n}"),
-        Row("{\n  \"_COL_0\": 2,\n  \"_COL_1\": \"two\"\n}")
-      )
-    )
+        Row("{\n  \"_COL_0\": 2,\n  \"_COL_1\": \"two\"\n}")))
 
     // write with overwrite
     runParquetTest(df, path, Map.empty, 2, ".snappy.parquet", Some(SaveMode.Overwrite))
@@ -605,9 +566,7 @@ class DataFrameWriterSuite extends TestData {
       session.read.parquet(path),
       Seq(
         Row("{\n  \"_COL_0\": 1,\n  \"_COL_1\": \"one\"\n}"),
-        Row("{\n  \"_COL_0\": 2,\n  \"_COL_1\": \"two\"\n}")
-      )
-    )
+        Row("{\n  \"_COL_0\": 2,\n  \"_COL_1\": \"two\"\n}")))
 
     // write with format_name
     val formatName = randomTableName()
@@ -620,15 +579,12 @@ class DataFrameWriterSuite extends TestData {
       Map("FORMAT_NAME" -> formatName),
       2,
       ".snappy.parquet",
-      Some(SaveMode.Overwrite)
-    )
+      Some(SaveMode.Overwrite))
     checkAnswer(
       session.read.parquet(path),
       Seq(
         Row("{\n  \"_COL_0\": 1,\n  \"_COL_1\": \"one\"\n}"),
-        Row("{\n  \"_COL_0\": 2,\n  \"_COL_1\": \"two\"\n}")
-      )
-    )
+        Row("{\n  \"_COL_0\": 2,\n  \"_COL_1\": \"two\"\n}")))
 
     // write with format_name format and some extra option
     session.sql(s"rm $path").collect()
@@ -639,14 +595,11 @@ class DataFrameWriterSuite extends TestData {
       Map("FORMAT_NAME" -> formatName, "COMPRESSION" -> "LZO"),
       2,
       ".lzo.parquet",
-      Some(SaveMode.Overwrite)
-    )
+      Some(SaveMode.Overwrite))
     checkAnswer(
       session.read.parquet(path),
       Seq(
         Row("{\n  \"_COL_0\": 1,\n  \"_COL_1\": \"one\"\n}"),
-        Row("{\n  \"_COL_0\": 2,\n  \"_COL_1\": \"two\"\n}")
-      )
-    )
+        Row("{\n  \"_COL_0\": 2,\n  \"_COL_1\": \"two\"\n}")))
   }
 }

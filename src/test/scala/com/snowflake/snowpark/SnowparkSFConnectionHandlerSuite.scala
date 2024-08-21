@@ -13,8 +13,7 @@ class SnowparkSFConnectionHandlerSuite extends FunSuite {
 
   test("version negative") {
     val err = intercept[SnowparkClientException](
-      SnowparkSFConnectionHandler.extractValidVersionNumber("0.1")
-    )
+      SnowparkSFConnectionHandler.extractValidVersionNumber("0.1"))
     assert(err.message.contains("Invalid client version string"))
   }
 
