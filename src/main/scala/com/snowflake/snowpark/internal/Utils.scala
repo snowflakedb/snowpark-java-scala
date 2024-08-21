@@ -3,7 +3,12 @@ package com.snowflake.snowpark.internal
 import com.fasterxml.jackson.databind.{JsonNode, ObjectMapper}
 import com.fasterxml.jackson.databind.node.JsonNodeType
 import com.snowflake.snowpark.Column
-import com.snowflake.snowpark.internal.analyzer.{Attribute, LogicalPlan, TableFunctionExpression, singleQuote}
+import com.snowflake.snowpark.internal.analyzer.{
+  Attribute,
+  LogicalPlan,
+  TableFunctionExpression,
+  singleQuote
+}
 
 import java.io.{File, FileInputStream}
 import java.lang.invoke.SerializedLambda
@@ -495,11 +500,14 @@ object Utils extends Logging {
     input match {
       case null => "null"
       case str: String => s""""$str""""
-      case _: Int | _: Short | _: Long | _: Byte | _: Double | _: Float |
-           _: Boolean => input.toString
-      case map: Map[String, _] => map.map {
-        case (key, value) => s"${scalaToJson(key)}:${scalaToJson(value)}"
-      }.mkString("{", ",", "}")
+      case _: Int | _: Short | _: Long | _: Byte | _: Double | _: Float | _: Boolean =>
+        input.toString
+      case map: Map[String, _] =>
+        map
+          .map {
+            case (key, value) => s"${scalaToJson(key)}:${scalaToJson(value)}"
+          }
+          .mkString("{", ",", "}")
       case seq: Seq[_] => seq.map(scalaToJson).mkString("[", ",", "]")
       case arr: Array[_] => scalaToJson(arr.toSeq)
       case list: java.util.List[_] => scalaToJson(list.toArray)

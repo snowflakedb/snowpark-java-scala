@@ -2,12 +2,26 @@ package com.snowflake.snowpark
 
 import java.io.File
 import java.sql.{Date, Time, Timestamp}
-import com.snowflake.snowpark.internal.{JavaUtils, Logging, ParameterUtils, TypeToSchemaConverter, Utils}
+import com.snowflake.snowpark.internal.{
+  JavaUtils,
+  Logging,
+  ParameterUtils,
+  TypeToSchemaConverter,
+  Utils
+}
 import com.snowflake.snowpark.internal.analyzer.quoteName
 import com.snowflake.snowpark.types._
 
 import java.math.{BigDecimal => JavaBigDecimal}
-import java.lang.{Boolean => JavaBoolean, Byte => JavaByte, Double => JavaDouble, Float => JavaFloat, Integer => JavaInteger, Long => JavaLong, Short => JavaShort}
+import java.lang.{
+  Boolean => JavaBoolean,
+  Byte => JavaByte,
+  Double => JavaDouble,
+  Float => JavaFloat,
+  Integer => JavaInteger,
+  Long => JavaLong,
+  Short => JavaShort
+}
 import net.snowflake.client.jdbc.SnowflakeSQLException
 
 import java.util
@@ -671,11 +685,8 @@ class UtilsSuite extends SNTestBase {
       "floatKey" -> 3.14F,
       "boolKey" -> false,
       "javaListKey" -> new util.ArrayList[String](util.Arrays.asList("a", "b")),
-      "javaMapKey" -> new util.HashMap[String, String](util.Map.of(
-        "one", "1",
-        "two", "2",
-        "three", "3"
-      )),
+      "javaMapKey" -> new util.HashMap[String, String](
+        util.Map.of("one", "1", "two", "2", "three", "3")),
       "seqKey" -> Seq(1, 2, 3),
       "arrayKey" -> Array(1, 2, 3),
       "seqOfStringKey" -> Seq("1", "2", "3"),
