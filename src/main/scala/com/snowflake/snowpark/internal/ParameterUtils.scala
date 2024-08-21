@@ -75,8 +75,7 @@ private[snowpark] object ParameterUtils extends Logging {
 
     config.put(
       SFSessionProperty.CLIENT_INFO.getPropertyKey,
-      s"""{"client_language": "${if (isScalaAPI) "Scala" else "Java"}"}""".stripMargin
-    )
+      s"""{"client_language": "${if (isScalaAPI) "Scala" else "Java"}"}""".stripMargin)
 
     // log JDBC memory limit
     logInfo(s"set JDBC client memory limit to ${config.get(client_memory_limit).toString}")
@@ -89,7 +88,7 @@ private[snowpark] object ParameterUtils extends Logging {
     // scalastyle:on
     lowerCase match {
       case "true" | "on" | "yes" => true
-      case _                     => false
+      case _ => false
     }
   }
 
@@ -141,8 +140,7 @@ private[snowpark] object ParameterUtils extends Logging {
             prime2,
             exp1,
             exp2,
-            crtCoef
-          )
+            crtCoef)
           val keyFactory = KeyFactory.getInstance("RSA")
           keyFactory.generatePrivate(keySpec)
         } catch {

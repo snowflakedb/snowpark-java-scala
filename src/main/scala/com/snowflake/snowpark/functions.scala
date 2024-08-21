@@ -128,8 +128,7 @@ object functions {
     if (df.output.size != 1) {
       throw ErrorMessage.DF_DATAFRAME_IS_NOT_QUALIFIED_FOR_SCALAR_QUERY(
         df.output.size,
-        df.output.map(_.name).mkString(", ")
-      )
+        df.output.map(_.name).mkString(", "))
     }
 
     Column(ScalarSubquery(df.snowflakePlan))
@@ -150,7 +149,7 @@ object functions {
   def typedLit[T: TypeTag](literal: T): Column = literal match {
     case c: Column => c
     case s: Symbol => Column(s.name)
-    case _         => Column(Literal(literal))
+    case _ => Column(Literal(literal))
   }
 
   /** Creates a [[Column]] expression from raw SQL text.
@@ -196,7 +195,7 @@ object functions {
   def count(e: Column): Column = e.expr match {
     // Turn count(*) into count(1)
     case _: Star => builtin("count")(Literal(1))
-    case _       => builtin("count")(e)
+    case _ => builtin("count")(e)
   }
 
   /** Returns either the number of non-NULL distinct records for the specified columns, or the total
@@ -898,8 +897,7 @@ object functions {
   def sha2(e: Column, numBits: Int): Column = {
     require(
       Seq(0, 224, 256, 384, 512).contains(numBits),
-      s"numBits $numBits is not in the permitted values (0, 224, 256, 384, 512)"
-    )
+      s"numBits $numBits is not in the permitted values (0, 224, 256, 384, 512)")
     builtin("sha2")(e, Literal(numBits))
   }
 
@@ -1256,8 +1254,7 @@ object functions {
   def convert_timezone(
       sourceTimeZone: Column,
       targetTimeZone: Column,
-      sourceTimestampNTZ: Column
-  ): Column =
+      sourceTimestampNTZ: Column): Column =
     builtin("convert_timezone")(sourceTimeZone, targetTimeZone, sourceTimestampNTZ)
 
   // scalastyle:off
@@ -1438,8 +1435,7 @@ object functions {
       day: Column,
       hour: Column,
       minute: Column,
-      second: Column
-  ): Column =
+      second: Column): Column =
     builtin("timestamp_from_parts")(year, month, day, hour, minute, second)
 
   /** Creates a timestamp from individual numeric components. If no time zone is in effect, the
@@ -1455,8 +1451,7 @@ object functions {
       hour: Column,
       minute: Column,
       second: Column,
-      nanosecond: Column
-  ): Column =
+      nanosecond: Column): Column =
     builtin("timestamp_from_parts")(year, month, day, hour, minute, second, nanosecond)
 
   /** Creates a timestamp from individual numeric components. If no time zone is in effect, the
@@ -1480,8 +1475,7 @@ object functions {
       day: Column,
       hour: Column,
       minute: Column,
-      second: Column
-  ): Column =
+      second: Column): Column =
     builtin("timestamp_ltz_from_parts")(year, month, day, hour, minute, second)
 
   /** Creates a timestamp from individual numeric components. If no time zone is in effect, the
@@ -1497,8 +1491,7 @@ object functions {
       hour: Column,
       minute: Column,
       second: Column,
-      nanosecond: Column
-  ): Column =
+      nanosecond: Column): Column =
     builtin("timestamp_ltz_from_parts")(year, month, day, hour, minute, second, nanosecond)
 
   /** Creates a timestamp from individual numeric components. If no time zone is in effect, the
@@ -1513,8 +1506,7 @@ object functions {
       day: Column,
       hour: Column,
       minute: Column,
-      second: Column
-  ): Column =
+      second: Column): Column =
     builtin("timestamp_ntz_from_parts")(year, month, day, hour, minute, second)
 
   /** Creates a timestamp from individual numeric components. If no time zone is in effect, the
@@ -1530,8 +1522,7 @@ object functions {
       hour: Column,
       minute: Column,
       second: Column,
-      nanosecond: Column
-  ): Column =
+      nanosecond: Column): Column =
     builtin("timestamp_ntz_from_parts")(year, month, day, hour, minute, second, nanosecond)
 
   /** Creates a timestamp from individual numeric components. If no time zone is in effect, the
@@ -1555,8 +1546,7 @@ object functions {
       day: Column,
       hour: Column,
       minute: Column,
-      second: Column
-  ): Column =
+      second: Column): Column =
     builtin("timestamp_tz_from_parts")(year, month, day, hour, minute, second)
 
   /** Creates a timestamp from individual numeric components. If no time zone is in effect, the
@@ -1572,8 +1562,7 @@ object functions {
       hour: Column,
       minute: Column,
       second: Column,
-      nanosecond: Column
-  ): Column =
+      nanosecond: Column): Column =
     builtin("timestamp_tz_from_parts")(year, month, day, hour, minute, second, nanosecond)
 
   /** Creates a timestamp from individual numeric components. If no time zone is in effect, the
@@ -1590,8 +1579,7 @@ object functions {
       minute: Column,
       second: Column,
       nanosecond: Column,
-      timeZone: Column
-  ): Column =
+      timeZone: Column): Column =
     builtin("timestamp_tz_from_parts")(year, month, day, hour, minute, second, nanosecond, timeZone)
 
   /** Extracts the three-letter day-of-week name from the specified date or timestamp.
@@ -3252,8 +3240,7 @@ object functions {
     * @since 0.1.0
     */
   def udf[RT: TypeTag, A1: TypeTag, A2: TypeTag, A3: TypeTag](
-      func: Function3[A1, A2, A3, RT]
-  ): UserDefinedFunction = udf("udf") {
+      func: Function3[A1, A2, A3, RT]): UserDefinedFunction = udf("udf") {
     registerUdf(_toUdf(func))
   }
 
@@ -3264,8 +3251,7 @@ object functions {
     * @since 0.1.0
     */
   def udf[RT: TypeTag, A1: TypeTag, A2: TypeTag, A3: TypeTag, A4: TypeTag](
-      func: Function4[A1, A2, A3, A4, RT]
-  ): UserDefinedFunction = udf("udf") {
+      func: Function4[A1, A2, A3, A4, RT]): UserDefinedFunction = udf("udf") {
     registerUdf(_toUdf(func))
   }
 
@@ -3276,8 +3262,7 @@ object functions {
     * @since 0.1.0
     */
   def udf[RT: TypeTag, A1: TypeTag, A2: TypeTag, A3: TypeTag, A4: TypeTag, A5: TypeTag](
-      func: Function5[A1, A2, A3, A4, A5, RT]
-  ): UserDefinedFunction = udf("udf") {
+      func: Function5[A1, A2, A3, A4, A5, RT]): UserDefinedFunction = udf("udf") {
     registerUdf(_toUdf(func))
   }
 
@@ -3294,8 +3279,7 @@ object functions {
       A3: TypeTag,
       A4: TypeTag,
       A5: TypeTag,
-      A6: TypeTag
-  ](func: Function6[A1, A2, A3, A4, A5, A6, RT]): UserDefinedFunction =
+      A6: TypeTag](func: Function6[A1, A2, A3, A4, A5, A6, RT]): UserDefinedFunction =
     udf("udf") {
       registerUdf(_toUdf(func))
     }
@@ -3314,8 +3298,7 @@ object functions {
       A4: TypeTag,
       A5: TypeTag,
       A6: TypeTag,
-      A7: TypeTag
-  ](func: Function7[A1, A2, A3, A4, A5, A6, A7, RT]): UserDefinedFunction =
+      A7: TypeTag](func: Function7[A1, A2, A3, A4, A5, A6, A7, RT]): UserDefinedFunction =
     udf("udf") {
       registerUdf(_toUdf(func))
     }
@@ -3335,8 +3318,7 @@ object functions {
       A5: TypeTag,
       A6: TypeTag,
       A7: TypeTag,
-      A8: TypeTag
-  ](func: Function8[A1, A2, A3, A4, A5, A6, A7, A8, RT]): UserDefinedFunction =
+      A8: TypeTag](func: Function8[A1, A2, A3, A4, A5, A6, A7, A8, RT]): UserDefinedFunction =
     udf("udf") {
       registerUdf(_toUdf(func))
     }
@@ -3357,8 +3339,7 @@ object functions {
       A6: TypeTag,
       A7: TypeTag,
       A8: TypeTag,
-      A9: TypeTag
-  ](func: Function9[A1, A2, A3, A4, A5, A6, A7, A8, A9, RT]): UserDefinedFunction =
+      A9: TypeTag](func: Function9[A1, A2, A3, A4, A5, A6, A7, A8, A9, RT]): UserDefinedFunction =
     udf("udf") {
       registerUdf(_toUdf(func))
     }
@@ -3380,8 +3361,8 @@ object functions {
       A7: TypeTag,
       A8: TypeTag,
       A9: TypeTag,
-      A10: TypeTag
-  ](func: Function10[A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, RT]): UserDefinedFunction =
+      A10: TypeTag](
+      func: Function10[A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, RT]): UserDefinedFunction =
     udf("udf") {
       registerUdf(_toUdf(func))
     }
@@ -3404,8 +3385,8 @@ object functions {
       A8: TypeTag,
       A9: TypeTag,
       A10: TypeTag,
-      A11: TypeTag
-  ](func: Function11[A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, RT]): UserDefinedFunction =
+      A11: TypeTag](
+      func: Function11[A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, RT]): UserDefinedFunction =
     udf("udf") {
       registerUdf(_toUdf(func))
     }
@@ -3429,8 +3410,8 @@ object functions {
       A9: TypeTag,
       A10: TypeTag,
       A11: TypeTag,
-      A12: TypeTag
-  ](func: Function12[A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, RT]): UserDefinedFunction =
+      A12: TypeTag](func: Function12[A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, RT])
+      : UserDefinedFunction =
     udf("udf") {
       registerUdf(_toUdf(func))
     }
@@ -3455,10 +3436,8 @@ object functions {
       A10: TypeTag,
       A11: TypeTag,
       A12: TypeTag,
-      A13: TypeTag
-  ](
-      func: Function13[A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, RT]
-  ): UserDefinedFunction = udf("udf") {
+      A13: TypeTag](func: Function13[A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, RT])
+      : UserDefinedFunction = udf("udf") {
     registerUdf(_toUdf(func))
   }
 
@@ -3483,10 +3462,9 @@ object functions {
       A11: TypeTag,
       A12: TypeTag,
       A13: TypeTag,
-      A14: TypeTag
-  ](
-      func: Function14[A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, RT]
-  ): UserDefinedFunction = udf("udf") {
+      A14: TypeTag](
+      func: Function14[A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, RT])
+      : UserDefinedFunction = udf("udf") {
     registerUdf(_toUdf(func))
   }
 
@@ -3512,10 +3490,9 @@ object functions {
       A12: TypeTag,
       A13: TypeTag,
       A14: TypeTag,
-      A15: TypeTag
-  ](
-      func: Function15[A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15, RT]
-  ): UserDefinedFunction = udf("udf") {
+      A15: TypeTag](
+      func: Function15[A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15, RT])
+      : UserDefinedFunction = udf("udf") {
     registerUdf(_toUdf(func))
   }
 
@@ -3542,10 +3519,9 @@ object functions {
       A13: TypeTag,
       A14: TypeTag,
       A15: TypeTag,
-      A16: TypeTag
-  ](
-      func: Function16[A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15, A16, RT]
-  ): UserDefinedFunction = udf("udf") {
+      A16: TypeTag](
+      func: Function16[A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15, A16, RT])
+      : UserDefinedFunction = udf("udf") {
     registerUdf(_toUdf(func))
   }
 
@@ -3573,8 +3549,7 @@ object functions {
       A14: TypeTag,
       A15: TypeTag,
       A16: TypeTag,
-      A17: TypeTag
-  ](
+      A17: TypeTag](
       func: Function17[
         A1,
         A2,
@@ -3593,9 +3568,7 @@ object functions {
         A15,
         A16,
         A17,
-        RT
-      ]
-  ): UserDefinedFunction = udf("udf") {
+        RT]): UserDefinedFunction = udf("udf") {
     registerUdf(_toUdf(func))
   }
 
@@ -3624,8 +3597,7 @@ object functions {
       A15: TypeTag,
       A16: TypeTag,
       A17: TypeTag,
-      A18: TypeTag
-  ](
+      A18: TypeTag](
       func: Function18[
         A1,
         A2,
@@ -3645,9 +3617,7 @@ object functions {
         A16,
         A17,
         A18,
-        RT
-      ]
-  ): UserDefinedFunction = udf("udf") {
+        RT]): UserDefinedFunction = udf("udf") {
     registerUdf(_toUdf(func))
   }
 
@@ -3677,8 +3647,7 @@ object functions {
       A16: TypeTag,
       A17: TypeTag,
       A18: TypeTag,
-      A19: TypeTag
-  ](
+      A19: TypeTag](
       func: Function19[
         A1,
         A2,
@@ -3699,9 +3668,7 @@ object functions {
         A17,
         A18,
         A19,
-        RT
-      ]
-  ): UserDefinedFunction = udf("udf") {
+        RT]): UserDefinedFunction = udf("udf") {
     registerUdf(_toUdf(func))
   }
 
@@ -3732,8 +3699,7 @@ object functions {
       A17: TypeTag,
       A18: TypeTag,
       A19: TypeTag,
-      A20: TypeTag
-  ](
+      A20: TypeTag](
       func: Function20[
         A1,
         A2,
@@ -3755,9 +3721,7 @@ object functions {
         A18,
         A19,
         A20,
-        RT
-      ]
-  ): UserDefinedFunction = udf("udf") {
+        RT]): UserDefinedFunction = udf("udf") {
     registerUdf(_toUdf(func))
   }
 
@@ -3789,8 +3753,7 @@ object functions {
       A18: TypeTag,
       A19: TypeTag,
       A20: TypeTag,
-      A21: TypeTag
-  ](
+      A21: TypeTag](
       func: Function21[
         A1,
         A2,
@@ -3813,9 +3776,7 @@ object functions {
         A19,
         A20,
         A21,
-        RT
-      ]
-  ): UserDefinedFunction = udf("udf") {
+        RT]): UserDefinedFunction = udf("udf") {
     registerUdf(_toUdf(func))
   }
 
@@ -3848,8 +3809,7 @@ object functions {
       A19: TypeTag,
       A20: TypeTag,
       A21: TypeTag,
-      A22: TypeTag
-  ](
+      A22: TypeTag](
       func: Function22[
         A1,
         A2,
@@ -3873,9 +3833,7 @@ object functions {
         A20,
         A21,
         A22,
-        RT
-      ]
-  ): UserDefinedFunction = udf("udf") {
+        RT]): UserDefinedFunction = udf("udf") {
     registerUdf(_toUdf(func))
   }
 
@@ -3900,9 +3858,9 @@ object functions {
 
   private def internalBuiltinFunction(isDistinct: Boolean, name: String, args: Any*): Column = {
     val exprs: Seq[Expression] = args.map {
-      case col: Column      => col.expr
+      case col: Column => col.expr
       case expr: Expression => expr
-      case arg              => Literal(arg)
+      case arg => Literal(arg)
     }
     Column(FunctionExpression(name, exprs, isDistinct))
   }
@@ -3913,8 +3871,7 @@ object functions {
       funcName,
       "",
       s"${UDXRegistrationHandler.className}.${UDXRegistrationHandler.methodName}",
-      ""
-    )(func)
+      "")(func)
   }
 
 }

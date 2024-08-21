@@ -96,18 +96,15 @@ class Session private (private[snowpark] val conn: ServerConnection) extends Log
        | "os.name" : "${Utils.OSName}",
        | "jdbc.version" : "${SnowflakeDriver.implementVersion}",
        | "snowpark.library" : "${Utils.escapePath(
-        UDFClassPath.snowparkJar.location.getOrElse("snowpark library not found")
-      )}",
+        UDFClassPath.snowparkJar.location.getOrElse("snowpark library not found"))}",
        | "scala.library" : "${Utils.escapePath(
         UDFClassPath
           .getPathForClass(classOf[scala.Product])
-          .getOrElse("Scala library not found")
-      )}",
+          .getOrElse("Scala library not found"))}",
        | "jdbc.library" : "${Utils.escapePath(
         UDFClassPath
           .getPathForClass(classOf[net.snowflake.client.jdbc.SnowflakeDriver])
-          .getOrElse("JDBC library not found")
-      )}"
+          .getOrElse("JDBC library not found"))}"
        |}""".stripMargin
 
   // report session created
@@ -454,8 +451,7 @@ class Session private (private[snowpark] val conn: ServerConnection) extends Log
         Utils
           .withRetry(
             maxFileUploadRetryCount,
-            s"Uploading jar file $targetPrefix $targetFileName $stageLocation $uri"
-          ) {
+            s"Uploading jar file $targetPrefix $targetFileName $stageLocation $uri") {
             val file = new File(uri)
             conn
               .uploadStream(
@@ -463,12 +459,10 @@ class Session private (private[snowpark] val conn: ServerConnection) extends Log
                 targetPrefix,
                 new FileInputStream(file),
                 targetFileName,
-                compressData = false
-              )
+                compressData = false)
           }
       },
-      s"Uploading file ${uri.toString} to stage $stageLocation"
-    )
+      s"Uploading file ${uri.toString} to stage $stageLocation")
 
   }
 
@@ -709,8 +703,7 @@ class Session private (private[snowpark] val conn: ServerConnection) extends Log
           TableFunction(funcName),
           argMap.map { case (key, value) =>
             key -> Column(value)
-          }
-        )
+          })
       case _ => throw ErrorMessage.MISC_INVALID_TABLE_FUNCTION_INPUT()
     }
   }
@@ -844,27 +837,27 @@ class Session private (private[snowpark] val conn: ServerConnection) extends Log
     // Strip options out of the input values
     val dataNoOption = data.map { row =>
       Row.fromSeq(row.toSeq.zip(dataTypes).map {
-        case (None, _)        => null
+        case (None, _) => null
         case (Some(value), _) => value
-        case (value, _)       => value
+        case (value, _) => value
       })
     }
 
     // convert all variant/time/geography/array/map data to string
     val converted = dataNoOption.map { row =>
       Row.fromSeq(row.toSeq.zip(dataTypes).map {
-        case (null, _)                              => null
+        case (null, _) => null
         case (value: BigDecimal, DecimalType(p, s)) => value
-        case (value: Time, TimeType)                => value.toString
-        case (value: Date, DateType)                => value.toString
-        case (value: Timestamp, TimestampType)      => value.toString
-        case (value, _: AtomicType)                 => value
-        case (value: Variant, VariantType)          => value.asJsonString()
-        case (value: Geography, GeographyType)      => value.asGeoJSON()
-        case (value: Geometry, GeometryType)        => value.toString
+        case (value: Time, TimeType) => value.toString
+        case (value: Date, DateType) => value.toString
+        case (value: Timestamp, TimestampType) => value.toString
+        case (value, _: AtomicType) => value
+        case (value: Variant, VariantType) => value.asJsonString()
+        case (value: Geography, GeographyType) => value.asGeoJSON()
+        case (value: Geometry, GeometryType) => value.toString
         case (value: Array[_], _: ArrayType) =>
           new Variant(value.toSeq).asJsonString()
-        case (value: Map[_, _], _: MapType)  => new Variant(value).asJsonString()
+        case (value: Map[_, _], _: MapType) => new Variant(value).asJsonString()
         case (value: JMap[_, _], _: MapType) => new Variant(value).asJsonString()
         case (value, dataType) =>
           throw ErrorMessage
@@ -877,15 +870,15 @@ class Session private (private[snowpark] val conn: ServerConnection) extends Log
       field.dataType match {
         case DecimalType(precision, scale) =>
           to_decimal(column(field.name), precision, scale).as(field.name)
-        case TimeType      => callUDF("to_time", column(field.name)).as(field.name)
-        case DateType      => callUDF("to_date", column(field.name)).as(field.name)
+        case TimeType => callUDF("to_time", column(field.name)).as(field.name)
+        case DateType => callUDF("to_date", column(field.name)).as(field.name)
         case TimestampType => callUDF("to_timestamp", column(field.name)).as(field.name)
-        case VariantType   => to_variant(parse_json(column(field.name))).as(field.name)
+        case VariantType => to_variant(parse_json(column(field.name))).as(field.name)
         case GeographyType => callUDF("to_geography", column(field.name)).as(field.name)
-        case GeometryType  => callUDF("to_geometry", column(field.name)).as(field.name)
-        case _: ArrayType  => to_array(parse_json(column(field.name))).as(field.name)
-        case _: MapType    => to_object(parse_json(column(field.name))).as(field.name)
-        case _             => column(field.name)
+        case GeometryType => callUDF("to_geometry", column(field.name)).as(field.name)
+        case _: ArrayType => to_array(parse_json(column(field.name))).as(field.name)
+        case _: MapType => to_object(parse_json(column(field.name))).as(field.name)
+        case _ => column(field.name)
       }
     }
 
@@ -1236,8 +1229,7 @@ class Session private (private[snowpark] val conn: ServerConnection) extends Log
       path: String,
       outer: Boolean,
       recursive: Boolean,
-      mode: String
-  ): DataFrame = {
+      mode: String): DataFrame = {
     // scalastyle:off
     val flattenMode = mode.toUpperCase() match {
       case m @ ("OBJECT" | "ARRAY" | "BOTH") => m
@@ -1248,8 +1240,7 @@ class Session private (private[snowpark] val conn: ServerConnection) extends Log
 
     DataFrame(
       this,
-      TableFunctionRelation(FlattenFunction(input.expr, path, outer, recursive, flattenMode))
-    )
+      TableFunctionRelation(FlattenFunction(input.expr, path, outer, recursive, flattenMode)))
   }
 
   private[snowpark] val closureCleanerMode: ClosureCleanerMode.Value = conn.closureCleanerMode
@@ -1300,8 +1291,7 @@ class Session private (private[snowpark] val conn: ServerConnection) extends Log
   private[snowpark] def recordTempObjectIfNecessary(
       tempObjectType: TempObjectType,
       name: String,
-      tempType: TempType
-  ): Unit = {
+      tempType: TempType): Unit = {
     // We only need to track and drop session scoped temp objects
     if (tempType == TempType.Temporary) {
       // Make the name fully qualified by prepending database and schema to the name.

@@ -4,8 +4,8 @@ case class TableUpdate(
     tableName: String,
     assignments: Map[Expression, Expression],
     condition: Option[Expression],
-    sourceData: Option[LogicalPlan]
-) extends LogicalPlan {
+    sourceData: Option[LogicalPlan])
+    extends LogicalPlan {
   override def children: Seq[LogicalPlan] =
     if (sourceData.isDefined) {
       Seq(sourceData.get)
@@ -18,8 +18,7 @@ case class TableUpdate(
         key.analyze(analyzer.analyze) -> value.analyze(analyzer.analyze)
       },
       condition.map(_.analyze(analyzer.analyze)),
-      sourceData.map(_.analyzed)
-    )
+      sourceData.map(_.analyzed))
 
   override protected def analyzer: ExpressionAnalyzer =
     ExpressionAnalyzer(sourceData.map(_.aliasMap).getOrElse(Map.empty), dfAliasMap)

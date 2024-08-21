@@ -16,8 +16,7 @@ private[snowpark] class Analyzer(session: Session) extends Logging {
         val summaryAfter: String = optimized.summarize
         if (summaryAfter != summaryBefore) {
           result.setSimplifierUsageGenerator(queryId =>
-            session.conn.telemetry.reportSimplifierUsage(queryId, summaryBefore, summaryAfter)
-          )
+            session.conn.telemetry.reportSimplifierUsage(queryId, summaryBefore, summaryAfter))
         }
         result
       }

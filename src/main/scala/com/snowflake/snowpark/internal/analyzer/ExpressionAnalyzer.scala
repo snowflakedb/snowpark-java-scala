@@ -7,8 +7,7 @@ import scala.collection.mutable.{Map => MMap}
 private[snowpark] object ExpressionAnalyzer {
   def apply(
       aliasMap: Map[ExprId, String],
-      dfAliasMap: Map[String, Seq[Attribute]]
-  ): ExpressionAnalyzer =
+      dfAliasMap: Map[String, Seq[Attribute]]): ExpressionAnalyzer =
     new ExpressionAnalyzer(aliasMap, dfAliasMap)
 
   def apply(): ExpressionAnalyzer =
@@ -18,8 +17,7 @@ private[snowpark] object ExpressionAnalyzer {
   def apply(
       map1: Map[ExprId, String],
       map2: Map[ExprId, String],
-      dfAliasMap: Map[String, Seq[Attribute]]
-  ): ExpressionAnalyzer = {
+      dfAliasMap: Map[String, Seq[Attribute]]): ExpressionAnalyzer = {
     val common = map1.keySet & map2.keySet
     val result = (map1 ++ map2).filter {
       // remove common column, let (df1.join(df2))
@@ -31,8 +29,7 @@ private[snowpark] object ExpressionAnalyzer {
 
   def apply(
       maps: Seq[Map[ExprId, String]],
-      dfAliasMap: Map[String, Seq[Attribute]]
-  ): ExpressionAnalyzer = {
+      dfAliasMap: Map[String, Seq[Attribute]]): ExpressionAnalyzer = {
     maps.foldLeft(ExpressionAnalyzer()) { case (expAnalyzer, map) =>
       ExpressionAnalyzer(expAnalyzer.getAliasMap, map, dfAliasMap)
     }
@@ -41,8 +38,7 @@ private[snowpark] object ExpressionAnalyzer {
 
 private[snowpark] class ExpressionAnalyzer(
     aliasMap: Map[ExprId, String],
-    dfAliasMap: Map[String, Seq[Attribute]]
-) {
+    dfAliasMap: Map[String, Seq[Attribute]]) {
   private val generatedAliasMap: MMap[ExprId, String] = MMap.empty
 
   def analyze(ex: Expression): Expression = ex match {
@@ -84,7 +80,7 @@ private[snowpark] class ExpressionAnalyzer(
         // if didn't find alias in the map
         name match {
           case "*" => Star(Seq.empty)
-          case _   => UnresolvedAttribute(quoteName(name))
+          case _ => UnresolvedAttribute(quoteName(name))
         }
       }
     case _ => ex

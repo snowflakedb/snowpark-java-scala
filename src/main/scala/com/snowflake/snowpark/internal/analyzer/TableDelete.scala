@@ -3,8 +3,8 @@ package com.snowflake.snowpark.internal.analyzer
 case class TableDelete(
     tableName: String,
     condition: Option[Expression],
-    sourceData: Option[LogicalPlan]
-) extends LogicalPlan {
+    sourceData: Option[LogicalPlan])
+    extends LogicalPlan {
   override def children: Seq[LogicalPlan] =
     if (sourceData.isDefined) {
       Seq(sourceData.get)

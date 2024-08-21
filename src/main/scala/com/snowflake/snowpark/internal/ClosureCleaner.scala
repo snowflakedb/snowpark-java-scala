@@ -113,8 +113,7 @@ private[snowpark] object ClosureCleaner extends Logging {
       outerClass: Class[_],
       clone: AnyRef,
       obj: AnyRef,
-      accessedFields: Map[Class[_], Set[String]]
-  ): Unit = {
+      accessedFields: Map[Class[_], Set[String]]): Unit = {
     for (fieldName <- accessedFields(outerClass)) {
       val field = outerClass.getDeclaredField(fieldName)
       field.setAccessible(true)
@@ -128,8 +127,7 @@ private[snowpark] object ClosureCleaner extends Logging {
       parent: AnyRef,
       obj: AnyRef,
       outerClass: Class[_],
-      accessedFields: Map[Class[_], Set[String]]
-  ): AnyRef = {
+      accessedFields: Map[Class[_], Set[String]]): AnyRef = {
     val clone = instantiateClass(outerClass, parent)
 
     var currentClass = outerClass
@@ -211,8 +209,7 @@ private[snowpark] object ClosureCleaner extends Logging {
         lambdaProxy,
         classLoader,
         accessedFields,
-        findTransitively = true
-      )
+        findTransitively = true)
 
       logDebug(s" + fields accessed by starting closure: ${accessedFields.size} classes")
       accessedFields.foreach { f =>
@@ -242,8 +239,7 @@ private[snowpark] object ClosureCleaner extends Logging {
   /** Initializes the accessed fields for outer classes and their super classes. */
   private def initAccessedFields(
       accessedFields: Map[Class[_], Set[String]],
-      outerClasses: Seq[Class[_]]
-  ): Unit = {
+      outerClasses: Seq[Class[_]]): Unit = {
     for (cls <- outerClasses) {
       var currentClass = cls
       assert(currentClass != null, "The outer class can't be null.")
@@ -304,8 +300,7 @@ private object IndylambdaScalaClosures extends Logging {
       owner: String,
       name: String,
       desc: String,
-      callerInternalName: String
-  ): Boolean = {
+      callerInternalName: String): Boolean = {
     op == INVOKESPECIAL && name == "<init>" && desc.startsWith(s"(L$callerInternalName;")
   }
 
@@ -313,8 +308,7 @@ private object IndylambdaScalaClosures extends Logging {
       lambdaProxy: SerializedLambda,
       lambdaClassLoader: ClassLoader,
       accessedFields: Map[Class[_], Set[String]],
-      findTransitively: Boolean
-  ): Unit = {
+      findTransitively: Boolean): Unit = {
 
     // We may need to visit the same class multiple times for different methods on it, and we'll
     // need to lookup by name. So we use ASM's Tree API and cache the ClassNode/MethodNode.
@@ -354,8 +348,7 @@ private object IndylambdaScalaClosures extends Logging {
           // ------- added by Snowpark ------- //
           updateMethodMap(clazz, clazz)
           // ------- end ------- //
-        }
-      )
+        })
       classInfo
     }
 
@@ -416,16 +409,18 @@ private object IndylambdaScalaClosures extends Logging {
             owner: String,
             name: String,
             desc: String,
-            itf: Boolean
-        ): Unit = {
+            itf: Boolean): Unit = {
           val ownerExternalName = owner.replace('/', '.')
           if (owner == currentClassInternalName) {
             logTrace(s"    found intra class call to $ownerExternalName.$name$desc")
             // could be invoking a helper method or a field accessor method, just follow it.
             pushIfNotVisited(MethodIdentifier(currentClass, name, desc))
-          } else if (
-            isInnerClassCtorCapturingOuter(op, owner, name, desc, currentClassInternalName)
-          ) {
+          } else if (isInnerClassCtorCapturingOuter(
+              op,
+              owner,
+              name,
+              desc,
+              currentClassInternalName)) {
             // Discover inner classes.
             // This this the InnerClassFinder equivalent for inner classes, which still use the
             // `$outer` chain. So this is NOT controlled by the `findTransitively` flag.
@@ -455,8 +450,7 @@ private object IndylambdaScalaClosures extends Logging {
             name: String,
             desc: String,
             bsmHandle: Handle,
-            bsmArgs: Object*
-        ): Unit = {
+            bsmArgs: Object*): Unit = {
           logTrace(s"    invokedynamic: $name$desc, bsmHandle=$bsmHandle, bsmArgs=$bsmArgs")
 
           // fast check: we only care about Scala lambda creation
@@ -491,8 +485,7 @@ private class ReturnStatementFinder(targetMethodName: Option[String] = None)
       name: String,
       desc: String,
       sig: String,
-      exceptions: Array[String]
-  ): MethodVisitor = {
+      exceptions: Array[String]): MethodVisitor = {
 
     // $anonfun$ covers indylambda closures
     if (name.contains("apply") || name.contains("$anonfun$")) {

@@ -7,8 +7,8 @@ package com.snowflake.snowpark
 class SnowparkClientException private[snowpark] (
     val message: String,
     val errorCode: String,
-    val telemetryMessage: String
-) extends RuntimeException(message) {
+    val telemetryMessage: String)
+    extends RuntimeException(message) {
 
   // log error message via telemetry
   Session.getActiveSession.foreach(_.conn.telemetry.reportErrorMessage(this))

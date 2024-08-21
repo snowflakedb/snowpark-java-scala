@@ -66,15 +66,13 @@ final class FileOperation(session: Session) extends Logging {
   def put(
       localFileName: String,
       stageLocation: String,
-      options: Map[String, String] = Map()
-  ): Array[PutResult] = {
+      options: Map[String, String] = Map()): Array[PutResult] = {
     val plan =
       session.plans.fileOperationPlan(
         PutCommand,
         Utils.normalizeLocalFile(localFileName),
         Utils.normalizeStageLocation(stageLocation),
-        options
-      )
+        options)
 
     DataFrame(session, plan).collect().map { row =>
       PutResult(
@@ -86,8 +84,7 @@ final class FileOperation(session: Session) extends Logging {
         row.getString(5),
         row.getString(6),
         row.getString(7),
-        row.getString(8)
-      )
+        row.getString(8))
     }
   }
 
@@ -130,15 +127,13 @@ final class FileOperation(session: Session) extends Logging {
   def get(
       stageLocation: String,
       targetDirectory: String,
-      options: Map[String, String] = Map()
-  ): Array[GetResult] = {
+      options: Map[String, String] = Map()): Array[GetResult] = {
     val plan =
       session.plans.fileOperationPlan(
         GetCommand,
         Utils.normalizeLocalFile(targetDirectory),
         Utils.normalizeStageLocation(stageLocation),
-        options
-      )
+        options)
 
     DataFrame(session, plan).collect().map { row =>
       GetResult(
@@ -146,8 +141,7 @@ final class FileOperation(session: Session) extends Logging {
         row.getDecimal(1).longValue(),
         row.getString(2),
         row.getString(3),
-        row.getString(4)
-      )
+        row.getString(4))
     }
   }
 
@@ -192,8 +186,7 @@ final class FileOperation(session: Session) extends Logging {
     Utils.withRetry(
       session.maxFileDownloadRetryCount,
       s"Download stream from stage: $stageName, file: " +
-        s"$pathNameWithPrefix/$fileName, decompress: $decompress"
-    ) {
+        s"$pathNameWithPrefix/$fileName, decompress: $decompress") {
       resultStream =
         session.conn.downloadStream(stageName, s"$pathNameWithPrefix/$fileName", decompress)
     }
@@ -220,8 +213,7 @@ case class PutResult(
     targetCompression: String,
     status: String,
     encryption: String,
-    message: String
-)
+    message: String)
 
 /** Represents the results of downloading a file from a stage location to the local file system.
   *
@@ -235,5 +227,4 @@ case class GetResult(
     sizeBytes: Long,
     status: String,
     encryption: String,
-    message: String
-)
+    message: String)

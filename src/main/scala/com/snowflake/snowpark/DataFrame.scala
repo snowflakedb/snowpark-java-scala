@@ -27,7 +27,7 @@ private[snowpark] object DataFrame extends Logging {
     colName match {
       // can be nested alias
       case ColPattern(c) => c :: getUnaliased(c)
-      case _             => Nil
+      case _ => Nil
     }
   }
 
@@ -44,8 +44,7 @@ private[snowpark] object DataFrame extends Logging {
 
   def buildMethodChain(current: Seq[String], newMethod: String)(thunk: => DataFrame): DataFrame = {
     methodChainCache.withValue(
-      if (methodChainCache.value.isEmpty) current :+ newMethod else methodChainCache.value
-    ) {
+      if (methodChainCache.value.isEmpty) current :+ newMethod else methodChainCache.value) {
       thunk
     }
   }
@@ -200,8 +199,8 @@ private[snowpark] object DataFrame extends Logging {
 class DataFrame private[snowpark] (
     private[snowpark] val session: Session,
     private[snowpark] val plan: LogicalPlan,
-    private[snowpark] val methodChain: Seq[String]
-) extends Logging {
+    private[snowpark] val methodChain: Seq[String])
+    extends Logging {
 
   lazy private[snowpark] val snowflakePlan: SnowflakePlan = session.analyzer.resolve(plan)
 
@@ -388,8 +387,7 @@ class DataFrame private[snowpark] (
       "The number of columns doesn't match. \n" +
         s"Old column names (${output.length}): " +
         s"${output.map(_.name).mkString(", ")} \n" +
-        s"New column names (${colNames.length}): ${colNames.mkString(", ")}"
-    )
+        s"New column names (${colNames.length}): ${colNames.mkString(", ")}")
 
     val matched = output.zip(colNames).forall { case (attribute, name) =>
       attribute.name == quoteName(name)
@@ -490,13 +488,11 @@ class DataFrame private[snowpark] (
         Sort(
           sortExprs.map { col =>
             col.expr match {
-              case expr: SortOrder  => expr
+              case expr: SortOrder => expr
               case expr: Expression => SortOrder(expr, Ascending)
             }
           },
-          plan
-        )
-      )
+          plan))
     } else {
       throw ErrorMessage.DF_SORT_NEED_AT_LEAST_ONE_EXPR()
     }
@@ -542,7 +538,7 @@ class DataFrame private[snowpark] (
     */
   def col(colName: String): Column = colName match {
     case "*" => Column(Star(snowflakePlan.output))
-    case _   => Column(resolve(colName))
+    case _ => Column(resolve(colName))
   }
 
   /** Returns the current DataFrame aliased as the input alias name.
@@ -611,8 +607,7 @@ class DataFrame private[snowpark] (
       columns.nonEmpty,
       "Provide at least one column expression for select(). " +
         s"This DataFrame has column names (${output.length}): " +
-        s"${output.map(_.name).mkString(", ")}\n"
-    )
+        s"${output.map(_.name).mkString(", ")}\n")
     // todo: error message
     val tf = columns.filter(_.expr.isInstanceOf[TableFunctionExpression])
     tf.size match {
@@ -624,7 +619,7 @@ class DataFrame private[snowpark] (
         // because no named duplicated if just renamed.
         val hasInternalAlias: Boolean = columns.map(_.expr).exists {
           case Alias(_, _, true) => true
-          case _                 => false
+          case _ => false
         }
         if (hasInternalAlias) {
           resultDF
@@ -683,7 +678,7 @@ class DataFrame private[snowpark] (
       val newProjectList = resultSchema.map(att => {
         toBeRenamed.get(att.name) match {
           case Some(name) => Column(att).as(name)
-          case _          => Column(att)
+          case _ => Column(att)
         }
       })
 
@@ -1298,8 +1293,7 @@ class DataFrame private[snowpark] (
   // scalastyle:on line.size.limit
   def groupByGroupingSets(
       first: GroupingSets,
-      remaining: GroupingSets*
-  ): RelationalGroupedDataFrame =
+      remaining: GroupingSets*): RelationalGroupedDataFrame =
     groupByGroupingSets(first +: remaining)
 
   // scalastyle:off line.size.limit
@@ -1329,8 +1323,7 @@ class DataFrame private[snowpark] (
     RelationalGroupedDataFrame(
       this,
       groupingSets.map(_.toExpression),
-      RelationalGroupedDataFrame.GroupByGroupingSetsType
-    )
+      RelationalGroupedDataFrame.GroupByGroupingSetsType)
 
   /** Performs an SQL
     * [[https://docs.snowflake.com/en/sql-reference/constructs/group-by-rollup.html GROUP BY CUBE]]
@@ -1491,13 +1484,12 @@ class DataFrame private[snowpark] (
   def pivot(pivotColumn: Column, values: Seq[Any]): RelationalGroupedDataFrame = {
     val valueExprs = values.map {
       case c: Column => c.expr
-      case v         => Literal(v)
+      case v => Literal(v)
     }
     RelationalGroupedDataFrame(
       this,
       Seq.empty,
-      RelationalGroupedDataFrame.PivotType(pivotColumn.expr, valueExprs)
-    )
+      RelationalGroupedDataFrame.PivotType(pivotColumn.expr, valueExprs))
   }
 
   /** Returns a new DataFrame that contains at most ''n'' rows from the current DataFrame (similar
@@ -1627,10 +1619,7 @@ class DataFrame private[snowpark] (
           .getOrElse(
             throw ErrorMessage.DF_CANNOT_RESOLVE_COLUMN_NAME_AMONG(
               lattr.name,
-              rightOutputAttrs.map(_.name).mkString(", ")
-            )
-          )
-      )
+              rightOutputAttrs.map(_.name).mkString(", "))))
       val notFoundAttrs = rightOutputAttrs.diff(rightProjectList)
 
       Project(rightProjectList ++ notFoundAttrs, other.plan)
@@ -1994,12 +1983,10 @@ class DataFrame private[snowpark] (
       func: TableFunction,
       args: Seq[Column],
       partitionBy: Seq[Column],
-      orderBy: Seq[Column]
-  ): DataFrame = transformation("join") {
+      orderBy: Seq[Column]): DataFrame = transformation("join") {
     joinTableFunction(
       func.call(args: _*),
-      Some(Window.partitionBy(partitionBy: _*).orderBy(orderBy: _*).getWindowSpecDefinition)
-    )
+      Some(Window.partitionBy(partitionBy: _*).orderBy(orderBy: _*).getWindowSpecDefinition))
   }
 
   /** Joins the current DataFrame with the output of the specified table function `func` that takes
@@ -2078,12 +2065,10 @@ class DataFrame private[snowpark] (
       func: TableFunction,
       args: Map[String, Column],
       partitionBy: Seq[Column],
-      orderBy: Seq[Column]
-  ): DataFrame = transformation("join") {
+      orderBy: Seq[Column]): DataFrame = transformation("join") {
     joinTableFunction(
       func.call(args),
-      Some(Window.partitionBy(partitionBy: _*).orderBy(orderBy: _*).getWindowSpecDefinition)
-    )
+      Some(Window.partitionBy(partitionBy: _*).orderBy(orderBy: _*).getWindowSpecDefinition))
   }
 
   /** Joins the current DataFrame with the output of the specified table function `func`.
@@ -2135,14 +2120,12 @@ class DataFrame private[snowpark] (
     transformation("join") {
       joinTableFunction(
         getTableFunctionExpression(func),
-        Some(Window.partitionBy(partitionBy: _*).orderBy(orderBy: _*).getWindowSpecDefinition)
-      )
+        Some(Window.partitionBy(partitionBy: _*).orderBy(orderBy: _*).getWindowSpecDefinition))
     }
 
   private def joinTableFunction(
       func: TableFunctionExpression,
-      partitionByOrderBy: Option[WindowSpecDefinition]
-  ): DataFrame = {
+      partitionByOrderBy: Option[WindowSpecDefinition]): DataFrame = {
     func match {
       // explode is a client side function
       case TF(funcName, args) if funcName.toLowerCase().trim.equals("explode") =>
@@ -2172,21 +2155,18 @@ class DataFrame private[snowpark] (
 
   private def joinWithExplode(
       expr: Expression,
-      partitionByOrderBy: Option[WindowSpecDefinition]
-  ): DataFrame = {
+      partitionByOrderBy: Option[WindowSpecDefinition]): DataFrame = {
     val columns: Seq[Column] = this.output.map(attr => col(attr.name))
     // check the column type of input column
     this.select(Column(expr)).schema.head.dataType match {
       case _: ArrayType =>
         joinTableFunction(
           tableFunctions.flatten.call(Map("input" -> Column(expr), "mode" -> lit("array"))),
-          partitionByOrderBy
-        ).select(columns :+ Column("VALUE"))
+          partitionByOrderBy).select(columns :+ Column("VALUE"))
       case _: MapType =>
         joinTableFunction(
           tableFunctions.flatten.call(Map("input" -> Column(expr), "mode" -> lit("object"))),
-          partitionByOrderBy
-        ).select(columns ++ Seq(Column("KEY"), Column("VALUE")))
+          partitionByOrderBy).select(columns ++ Seq(Column("KEY"), Column("VALUE")))
       case otherType =>
         throw ErrorMessage.MISC_INVALID_EXPLODE_ARGUMENT_TYPE(otherType.typeName)
     }
@@ -2861,8 +2841,7 @@ class DataFrame private[snowpark] (
       weights.foreach(w =>
         if (w <= 0) {
           throw ErrorMessage.DF_RANDOM_SPLIT_WEIGHT_INVALID()
-        }
-      )
+        })
 
       val oneMillion = 1000000L
       val tempColumnName = s"SNOWPARK_RANDOM_COLUMN_${Random.nextInt.abs}"
@@ -2975,8 +2954,7 @@ class DataFrame private[snowpark] (
       path: String,
       outer: Boolean,
       recursive: Boolean,
-      mode: String
-  ): DataFrame = transformation("flatten") {
+      mode: String): DataFrame = transformation("flatten") {
     // scalastyle:off
     val flattenMode = mode.toUpperCase() match {
       case m @ ("OBJECT" | "ARRAY" | "BOTH") => m
@@ -3041,8 +3019,7 @@ class DataFrame private[snowpark] (
       d: DataFrame,
       c: String,
       prefix: String,
-      commonColNames: Set[String]
-  ): Column = {
+      commonColNames: Set[String]): Column = {
     val column = d.col(c)
     // We always generate quoted names and add the prefix after the opening quote.
     // Column names obtained from schema are always quoted.
@@ -3057,8 +3034,7 @@ class DataFrame private[snowpark] (
       lhs: DataFrame,
       rhs: DataFrame,
       joinType: JoinType,
-      usingColumns: Seq[String]
-  ): (DataFrame, DataFrame) = {
+      usingColumns: Seq[String]): (DataFrame, DataFrame) = {
     // Normalize the using columns.
     val normalizedUsingColumn = usingColumns.map(quoteName)
     // Check if the LHS and RHS have columns in common. If they don't just return them as-is. If
@@ -3086,12 +3062,8 @@ class DataFrame private[snowpark] (
               _,
               lhsPrefix,
               if (joinType == LeftSemi || joinType == LeftAnti) Set.empty
-              else commonColNames
-            )
-          )
-      ),
-      rhs.select(rhs.output.map(_.name).map(aliasIfNeeded(rhs, _, rhsPrefix, commonColNames)))
-    )
+              else commonColNames))),
+      rhs.select(rhs.output.map(_.name).map(aliasIfNeeded(rhs, _, rhsPrefix, commonColNames))))
   }
 
   /** Executes the query representing this DataFrame and returns the query ID that represents its
@@ -3150,8 +3122,8 @@ class DataFrame private[snowpark] (
 class HasCachedResult private[snowpark] (
     override private[snowpark] val session: Session,
     override private[snowpark] val plan: LogicalPlan,
-    override private[snowpark] val methodChain: Seq[String]
-) extends DataFrame(session, plan, methodChain) {
+    override private[snowpark] val methodChain: Seq[String])
+    extends DataFrame(session, plan, methodChain) {
 
   /** Caches the content of this DataFrame to create a new cached DataFrame.
     *

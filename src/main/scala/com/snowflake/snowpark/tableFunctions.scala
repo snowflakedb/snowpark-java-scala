@@ -182,17 +182,14 @@ object tableFunctions {
       path: String,
       outer: Boolean,
       recursive: Boolean,
-      mode: String
-  ): Column =
+      mode: String): Column =
     flatten.apply(
       Map(
         "input" -> input,
         "path" -> lit(path),
         "outer" -> lit(outer),
         "recursive" -> lit(recursive),
-        "mode" -> lit(mode)
-      )
-    )
+        "mode" -> lit(mode)))
 
   /** Flattens a given array or map type column into individual rows. The output column(s) in case
     * of array input column is `VALUE`, and are `KEY` and `VALUE` in case of amp input column.

@@ -9,10 +9,10 @@ object SaveMode {
   def apply(mode: String): SaveMode =
     // scalastyle:off
     mode.toUpperCase match {
-      case "APPEND"        => Append
-      case "OVERWRITE"     => Overwrite
+      case "APPEND" => Append
+      case "OVERWRITE" => Overwrite
       case "ERRORIFEXISTS" => ErrorIfExists
-      case "IGNORE"        => Ignore
+      case "IGNORE" => Ignore
     }
   // scalastyle:on
   /** In the Append mode, new data is appended to the datasource.

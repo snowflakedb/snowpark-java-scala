@@ -36,7 +36,7 @@ class Geometry private (private val stringData: String) {
   override def equals(obj: Any): Boolean =
     obj match {
       case g: Geometry => stringData.equals(g.stringData)
-      case _           => false
+      case _ => false
     }
 
   /** Returns the hashCode of the stored GeoJSON string.

@@ -41,12 +41,12 @@ private[snowpark] trait LogicalPlan {
 
   def setSnowflakePlan(plan: SnowflakePlan): Unit = sourcePlan match {
     case Some(sp) => sp.setSnowflakePlan(plan)
-    case _        => snowflakePlan = Option(plan)
+    case _ => snowflakePlan = Option(plan)
   }
 
   def getSnowflakePlan: Option[SnowflakePlan] = sourcePlan match {
     case Some(sp) => sp.getSnowflakePlan
-    case _        => snowflakePlan
+    case _ => snowflakePlan
   }
 
   def getOrUpdateSnowflakePlan(func: => SnowflakePlan): SnowflakePlan =
@@ -82,8 +82,7 @@ private[snowpark] trait LeafNode extends LogicalPlan {
 case class TableFunctionRelation(tableFunction: TableFunctionExpression) extends LeafNode {
   override protected def analyze: LogicalPlan =
     TableFunctionRelation(
-      tableFunction.analyze(analyzer.analyze).asInstanceOf[TableFunctionExpression]
-    )
+      tableFunction.analyze(analyzer.analyze).asInstanceOf[TableFunctionExpression])
 }
 
 private[snowpark] case class Range(start: Long, end: Long, step: Long) extends LeafNode {
@@ -123,16 +122,15 @@ private[snowpark] case class CopyIntoNode(
     columnNames: Seq[String],
     transformations: Seq[Expression],
     options: Map[String, Any],
-    stagedFileReader: StagedFileReader
-) extends LeafNode {
+    stagedFileReader: StagedFileReader)
+    extends LeafNode {
   override protected def analyze: LogicalPlan =
     CopyIntoNode(
       tableName,
       columnNames,
       transformations.map(_.analyze(analyzer.analyze)),
       options,
-      stagedFileReader
-    )
+      stagedFileReader)
 }
 
 private[snowpark] trait UnaryNode extends LogicalPlan {
@@ -177,12 +175,10 @@ private[snowpark] trait UnaryNode extends LogicalPlan {
 private[snowpark] case class SnowflakeSampleNode(
     probabilityFraction: Option[Double],
     rowCount: Option[Long],
-    child: LogicalPlan
-) extends UnaryNode {
-  if (
-    (probabilityFraction.isEmpty && rowCount.isEmpty) ||
-    (probabilityFraction.isDefined && rowCount.isDefined)
-  ) {
+    child: LogicalPlan)
+    extends UnaryNode {
+  if ((probabilityFraction.isEmpty && rowCount.isEmpty) ||
+    (probabilityFraction.isDefined && rowCount.isDefined)) {
     throw ErrorMessage.PLAN_SAMPLING_NEED_ONE_PARAMETER()
   }
 
@@ -206,8 +202,8 @@ private[snowpark] case class Sort(order: Seq[SortOrder], child: LogicalPlan) ext
 private[snowpark] case class DataframeAlias(
     alias: String,
     child: LogicalPlan,
-    childOutput: Seq[Attribute]
-) extends UnaryNode {
+    childOutput: Seq[Attribute])
+    extends UnaryNode {
 
   override lazy val dfAliasMap: Map[String, Seq[Attribute]] =
     Utils.addToDataframeAliasMap(Map(alias -> childOutput), child)
@@ -221,14 +217,13 @@ private[snowpark] case class DataframeAlias(
 private[snowpark] case class Aggregate(
     groupingExpressions: Seq[Expression],
     aggregateExpressions: Seq[NamedExpression],
-    child: LogicalPlan
-) extends UnaryNode {
+    child: LogicalPlan)
+    extends UnaryNode {
   override protected def createFromAnalyzedChild: LogicalPlan => LogicalPlan =
     Aggregate(
       groupingExpressions.map(_.analyze(analyzer.analyze)),
       aggregateExpressions.map(_.analyze(analyzer.analyze).asInstanceOf[NamedExpression]),
-      _
-    )
+      _)
 
   override protected def updateChild: LogicalPlan => LogicalPlan =
     Aggregate(groupingExpressions, aggregateExpressions, _)
@@ -238,15 +233,14 @@ private[snowpark] case class Pivot(
     pivotColumn: Expression,
     pivotValues: Seq[Expression],
     aggregates: Seq[Expression],
-    child: LogicalPlan
-) extends UnaryNode {
+    child: LogicalPlan)
+    extends UnaryNode {
   override protected def createFromAnalyzedChild: LogicalPlan => LogicalPlan =
     Pivot(
       pivotColumn.analyze(analyzer.analyze),
       pivotValues.map(_.analyze(analyzer.analyze)),
       aggregates.map(_.analyze(analyzer.analyze)),
-      _
-    )
+      _)
 
   override protected def updateChild: LogicalPlan => LogicalPlan =
     Pivot(pivotColumn, pivotValues, aggregates, _)
@@ -263,14 +257,13 @@ private[snowpark] case class Filter(condition: Expression, child: LogicalPlan) e
 private[snowpark] case class Project(
     projectList: Seq[NamedExpression],
     child: LogicalPlan,
-    override val internalRenamedColumns: Map[String, String]
-) extends UnaryNode {
+    override val internalRenamedColumns: Map[String, String])
+    extends UnaryNode {
   override protected def createFromAnalyzedChild: LogicalPlan => LogicalPlan =
     Project(
       projectList.map(_.analyze(analyzer.analyze).asInstanceOf[NamedExpression]),
       _,
-      internalRenamedColumns
-    )
+      internalRenamedColumns)
 
   override protected def updateChild: LogicalPlan => LogicalPlan =
     Project(projectList, _, internalRenamedColumns)
@@ -281,7 +274,7 @@ private[snowpark] object Project {
     val renamedColumns: Map[String, String] = {
       projectList.flatMap {
         case Alias(child: Attribute, name, true) => Some(name -> child.name)
-        case _                                   => None
+        case _ => None
       }.toMap ++ child.internalRenamedColumns
     }
     Project(projectList, child, renamedColumns)
@@ -291,14 +284,13 @@ private[snowpark] object Project {
 private[snowpark] case class ProjectAndFilter(
     projectList: Seq[NamedExpression],
     condition: Expression,
-    child: LogicalPlan
-) extends UnaryNode {
+    child: LogicalPlan)
+    extends UnaryNode {
   override protected def createFromAnalyzedChild: LogicalPlan => LogicalPlan =
     ProjectAndFilter(
       projectList.map(_.analyze(analyzer.analyze).asInstanceOf[NamedExpression]),
       condition.analyze(analyzer.analyze),
-      _
-    )
+      _)
 
   override protected def updateChild: LogicalPlan => LogicalPlan =
     ProjectAndFilter(projectList, condition, _)
@@ -306,8 +298,8 @@ private[snowpark] case class ProjectAndFilter(
 
 private[snowpark] case class CopyIntoLocation(
     stagedFileWriter: StagedFileWriter,
-    child: LogicalPlan
-) extends UnaryNode {
+    child: LogicalPlan)
+    extends UnaryNode {
   override protected def createFromAnalyzedChild: LogicalPlan => LogicalPlan =
     CopyIntoLocation(stagedFileWriter, _)
 
@@ -348,8 +340,7 @@ case class LimitOnSort(child: LogicalPlan, limitExpr: Expression, order: Seq[Sor
     LimitOnSort(
       _,
       limitExpr.analyze(analyzer.analyze),
-      order.map(_.analyze(analyzer.analyze).asInstanceOf[SortOrder])
-    )
+      order.map(_.analyze(analyzer.analyze).asInstanceOf[SortOrder]))
 
   override protected def updateChild: LogicalPlan => LogicalPlan =
     LimitOnSort(_, limitExpr, order)
@@ -358,14 +349,13 @@ case class LimitOnSort(child: LogicalPlan, limitExpr: Expression, order: Seq[Sor
 case class TableFunctionJoin(
     child: LogicalPlan,
     tableFunction: TableFunctionExpression,
-    over: Option[WindowSpecDefinition]
-) extends UnaryNode {
+    over: Option[WindowSpecDefinition])
+    extends UnaryNode {
   override protected def createFromAnalyzedChild: LogicalPlan => LogicalPlan =
     TableFunctionJoin(
       _,
       tableFunction.analyze(analyzer.analyze).asInstanceOf[TableFunctionExpression],
-      over
-    )
+      over)
 
   override protected def updateChild: LogicalPlan => LogicalPlan =
     TableFunctionJoin(_, tableFunction, over)
@@ -375,15 +365,14 @@ case class TableMerge(
     tableName: String,
     child: LogicalPlan,
     joinExpr: Expression,
-    clauses: Seq[MergeExpression]
-) extends UnaryNode {
+    clauses: Seq[MergeExpression])
+    extends UnaryNode {
   override protected def createFromAnalyzedChild: LogicalPlan => LogicalPlan =
     TableMerge(
       tableName,
       _,
       joinExpr.analyze(analyzer.analyze),
-      clauses.map(_.analyze(analyzer.analyze).asInstanceOf[MergeExpression])
-    )
+      clauses.map(_.analyze(analyzer.analyze).asInstanceOf[MergeExpression]))
 
   override protected def updateChild: LogicalPlan => LogicalPlan =
     TableMerge(tableName, _, joinExpr, clauses)

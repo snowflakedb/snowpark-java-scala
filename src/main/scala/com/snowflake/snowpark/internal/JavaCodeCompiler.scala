@@ -27,8 +27,7 @@ class JavaCodeCompiler {
     */
   def compile(
       classSources: Map[String, String],
-      classPath: List[String] = List.empty
-  ): List[InMemoryClassObject] = {
+      classPath: List[String] = List.empty): List[InMemoryClassObject] = {
     val list: Iterable[JavaFileObject] =
       classSources.transform((k, v) => new JavaSourceFromString(k, v)).values
     compile(list, classPath)
@@ -36,16 +35,14 @@ class JavaCodeCompiler {
 
   def compile(
       files: Iterable[_ <: JavaFileObject],
-      classPath: List[String]
-  ): List[InMemoryClassObject] = {
+      classPath: List[String]): List[InMemoryClassObject] = {
     val compiler = ToolProvider.getSystemJavaCompiler
     if (compiler == null) {
       throw ErrorMessage.UDF_CANNOT_FIND_JAVA_COMPILER()
     }
     val diagnostics = new DiagnosticCollector[JavaFileObject]
     val fileManager = new InMemoryClassFilesManager(
-      compiler.getStandardFileManager(null, null, null)
-    )
+      compiler.getStandardFileManager(null, null, null))
 
     var options = Seq("-classpath", classPath.mkString(System.getProperty("path.separator")))
     if (compiler.getSourceVersions.asScala.map(_.name()).contains("RELEASE_11")) {
@@ -77,8 +74,7 @@ class JavaCodeCompiler {
 class JavaSourceFromString(className: String, code: String)
     extends SimpleJavaFileObject(
       URI.create("string:///" + className.replace(".", "/") + Kind.SOURCE.extension),
-      Kind.SOURCE
-    ) {
+      Kind.SOURCE) {
   override def getCharContent(ignoreEncodingErrors: Boolean): CharSequence = code
 }
 
@@ -93,8 +89,7 @@ class JavaSourceFromString(className: String, code: String)
 class InMemoryClassObject(className: String, kind: Kind)
     extends SimpleJavaFileObject(
       URI.create("mem:///" + className.replace('.', '/') + kind.extension),
-      kind
-    ) {
+      kind) {
 
   def getClassName: String = className
 
@@ -123,8 +118,7 @@ class InMemoryClassFilesManager(fileManager: JavaFileManager)
       location: Location,
       className: String,
       kind: Kind,
-      sibling: FileObject
-  ): JavaFileObject = {
+      sibling: FileObject): JavaFileObject = {
     val file = new InMemoryClassObject(className, kind)
     outputFiles += file
     file

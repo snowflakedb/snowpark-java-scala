@@ -219,21 +219,18 @@ class UDTFRegistration(session: Session) extends Logging {
   private[snowpark] def registerJavaUDTF(
       name: Option[String],
       udtf: JavaUDTF,
-      stageLocation: Option[String]
-  ): TableFunction =
+      stageLocation: Option[String]): TableFunction =
     handler.registerJavaUDTF(name, udtf, stageLocation)
 
   @inline protected def tableFunction(
       funcName: String,
       execName: String = "",
-      execFilePath: String = ""
-  )(func: => TableFunction): TableFunction = {
+      execFilePath: String = "")(func: => TableFunction): TableFunction = {
     OpenTelemetry.udx(
       "UDTFRegistration",
       funcName,
       execName,
       UDXRegistrationHandler.udtfClassName,
-      execFilePath
-    )(func)
+      execFilePath)(func)
   }
 }

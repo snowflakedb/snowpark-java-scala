@@ -13,8 +13,7 @@ private[snowpark] object RelationalGroupedDataFrame {
   private[snowpark] def apply(
       df: DataFrame,
       groupingExprs: Seq[Expression],
-      groupType: GroupType
-  ): RelationalGroupedDataFrame =
+      groupType: GroupType): RelationalGroupedDataFrame =
     new RelationalGroupedDataFrame(df, groupingExprs, groupType)
 
   sealed trait GroupType {
@@ -52,8 +51,7 @@ private[snowpark] object RelationalGroupedDataFrame {
 class RelationalGroupedDataFrame private[snowpark] (
     dataFrame: DataFrame,
     private[snowpark] val groupingExprs: Seq[Expression],
-    private[snowpark] val groupType: GroupType
-) {
+    private[snowpark] val groupType: GroupType) {
 
   private[this] def toDF(aggExprs: Seq[Expression]): DataFrame = {
     val aliasedAgg = (groupingExprs.flatMap {
@@ -69,13 +67,11 @@ class RelationalGroupedDataFrame private[snowpark] (
       case RelationalGroupedDataFrame.RollupType =>
         DataFrame(
           dataFrame.session,
-          Aggregate(Seq(Rollup(groupingExprs)), aliasedAgg, dataFrame.plan)
-        )
+          Aggregate(Seq(Rollup(groupingExprs)), aliasedAgg, dataFrame.plan))
       case RelationalGroupedDataFrame.CubeType =>
         DataFrame(
           dataFrame.session,
-          Aggregate(Seq(Cube(groupingExprs)), aliasedAgg, dataFrame.plan)
-        )
+          Aggregate(Seq(Cube(groupingExprs)), aliasedAgg, dataFrame.plan))
       case RelationalGroupedDataFrame.PivotType(pivotCol, values) =>
         if (aggExprs.size != 1) {
           throw ErrorMessage.DF_PIVOT_ONLY_SUPPORT_ONE_AGG_EXPR()
@@ -86,7 +82,7 @@ class RelationalGroupedDataFrame private[snowpark] (
 
   private[this] def alias(expr: Expression): NamedExpression = expr match {
     case u: UnresolvedAttribute => UnresolvedAlias(u)
-    case expr: NamedExpression  => expr
+    case expr: NamedExpression => expr
     case expr: Expression =>
       Alias(expr, stripInvalidSnowflakeIdentifierChars(expr.sql.toUpperCase(Locale.ROOT)))
   }
@@ -101,9 +97,9 @@ class RelationalGroupedDataFrame private[snowpark] (
       expr.toLowerCase(Locale.ROOT) match {
         // We special handle a few cases that have alias that are not in function registry.
         case "avg" | "average" | "mean" => functions.avg(Column(inputExpr)).expr
-        case "stddev" | "std"           => functions.stddev(Column(inputExpr)).expr
-        case "count" | "size"           => functions.count(Column(inputExpr)).expr
-        case name                       => functions.builtin(name)(inputExpr).expr
+        case "stddev" | "std" => functions.stddev(Column(inputExpr)).expr
+        case "count" | "size" => functions.count(Column(inputExpr)).expr
+        case name => functions.builtin(name)(inputExpr).expr
       }
     }
     (inputExpr: Expression) => exprToFunc(inputExpr)

@@ -31,8 +31,8 @@ class SnowflakePlan(
     val session: Session,
     // the plan that this SnowflakePlan translated from
     val sourcePlan: Option[LogicalPlan],
-    val supportAsyncMode: Boolean
-) extends LogicalPlan {
+    val supportAsyncMode: Boolean)
+    extends LogicalPlan {
 
   lazy val attributes: Seq[Attribute] = {
     val output = SchemaUtils.analyzeAttributes(_schemaQuery, session)
@@ -79,8 +79,7 @@ class SnowflakePlan(
       newPostActions,
       session,
       sourcePlan,
-      supportAsyncMode
-    )
+      supportAsyncMode)
   }
 
   def schemaQuery: String = {
@@ -128,7 +127,7 @@ class SnowflakePlan(
   def reportSimplifierUsage(queryID: String): Unit = {
     simplifierUsageGenerator.foreach {
       case func => func(queryID)
-      case _    => // do nothing, if no generator set
+      case _ => // do nothing, if no generator set
     }
   }
 
@@ -143,8 +142,7 @@ object SnowflakePlan extends Logging {
       schemaQuery: String,
       session: Session,
       sourcePlan: Option[LogicalPlan],
-      supportAsyncMode: Boolean
-  ): SnowflakePlan =
+      supportAsyncMode: Boolean): SnowflakePlan =
     new SnowflakePlan(queries, schemaQuery, Seq.empty, session, sourcePlan, supportAsyncMode)
 
   def apply(
@@ -153,8 +151,7 @@ object SnowflakePlan extends Logging {
       postActions: Seq[Query],
       session: Session,
       sourcePlan: Option[LogicalPlan],
-      supportAsyncMode: Boolean
-  ): SnowflakePlan =
+      supportAsyncMode: Boolean): SnowflakePlan =
     new SnowflakePlan(queries, schemaQuery, postActions, session, sourcePlan, supportAsyncMode)
 
   def wrapException[T](children: LogicalPlan*)(thunk: => T): T = {
@@ -178,7 +175,7 @@ object SnowflakePlan extends Logging {
         val ColPattern = """(?s).*invalid identifier '"?([^'"]*)"?'.*""".r
         val col = ex.getMessage() match {
           case ColPattern(colName) => colName
-          case _                   => throw ex
+          case _ => throw ex
         }
         // Check if the column deemed "invalid" is an auto-generated alias.
         // The replaceAll strips surrounding quotes.
@@ -210,8 +207,7 @@ object SnowflakePlan extends Logging {
     "ENFORCE_LENGTH",
     "TRUNCATECOLUMNS",
     "FORCE",
-    "LOAD_UNCERTAIN_FILES"
-  )
+    "LOAD_UNCERTAIN_FILES")
 
   private[snowpark] final val FormatTypeOptionsForCopyIntoLocation = HashSet(
     "FORMAT_NAME",
@@ -230,8 +226,7 @@ object SnowflakePlan extends Logging {
     "NULL_IF",
     "EMPTY_FIELD_AS_NULL",
     "FILE_EXTENSION",
-    "SNAPPY_COMPRESSION"
-  )
+    "SNAPPY_COMPRESSION")
 
   private[snowpark] final val CopyOptionsForCopyIntoLocation =
     HashSet(
@@ -240,8 +235,7 @@ object SnowflakePlan extends Logging {
       "MAX_FILE_SIZE",
       "INCLUDE_QUERY_ID",
       "DETAILED_OUTPUT",
-      "VALIDATION_MODE"
-    )
+      "VALIDATION_MODE")
 
   private[snowpark] final val CopySubClausesForCopyIntoLocation =
     HashSet("PARTITION BY", "HEADER")
@@ -255,16 +249,14 @@ class SnowflakePlanBuilder(session: Session) extends Logging {
       child: SnowflakePlan,
       sourcePlan: Option[LogicalPlan],
       schemaQuery: Option[String] = None,
-      isDDLOnTempObject: Boolean = false
-  ): SnowflakePlan = {
+      isDDLOnTempObject: Boolean = false): SnowflakePlan = {
     val multipleSqlGenerator = (sql: String) => Seq(sqlGenerator(sql))
     buildFromMultipleQueries(
       multipleSqlGenerator,
       child,
       sourcePlan,
       schemaQuery,
-      isDDLOnTempObject
-    )
+      isDDLOnTempObject)
   }
 
   private def buildFromMultipleQueries(
@@ -272,8 +264,7 @@ class SnowflakePlanBuilder(session: Session) extends Logging {
       child: SnowflakePlan,
       sourcePlan: Option[LogicalPlan],
       schemaQuery: Option[String],
-      isDDLOnTempObject: Boolean
-  ): SnowflakePlan = wrapException(child) {
+      isDDLOnTempObject: Boolean): SnowflakePlan = wrapException(child) {
     val selectChild = addResultScanIfNotSelect(child)
     val queries: Seq[Query] = selectChild.queries.slice(0, selectChild.queries.length - 1) ++
       multipleSqlGenerator(selectChild.queries.last.sql).map(Query(_, isDDLOnTempObject))
@@ -284,23 +275,20 @@ class SnowflakePlanBuilder(session: Session) extends Logging {
       selectChild.postActions,
       session,
       sourcePlan,
-      selectChild.supportAsyncMode
-    )
+      selectChild.supportAsyncMode)
   }
 
   private def build(
       sqlGenerator: (String, String) => String,
       left: SnowflakePlan,
       right: SnowflakePlan,
-      sourcePlan: Option[LogicalPlan]
-  ): SnowflakePlan = wrapException(left, right) {
+      sourcePlan: Option[LogicalPlan]): SnowflakePlan = wrapException(left, right) {
     val selectLeft = addResultScanIfNotSelect(left)
     val selectRight = addResultScanIfNotSelect(right)
     val queries: Seq[Query] =
       selectLeft.queries.slice(0, selectLeft.queries.length - 1) ++
         selectRight.queries.slice(0, selectRight.queries.length - 1) :+ Query(
-          sqlGenerator(selectLeft.queries.last.sql, selectRight.queries.last.sql)
-        )
+          sqlGenerator(selectLeft.queries.last.sql, selectRight.queries.last.sql))
     val leftSchemaQuery = schemaValueStatement(selectLeft.attributes)
     val rightSchemaQuery = schemaValueStatement(selectRight.attributes)
     val schemaQuery = sqlGenerator(leftSchemaQuery, rightSchemaQuery)
@@ -312,15 +300,13 @@ class SnowflakePlanBuilder(session: Session) extends Logging {
       selectLeft.postActions ++ selectRight.postActions,
       session,
       sourcePlan,
-      supportAsyncMode
-    )
+      supportAsyncMode)
   }
 
   private def buildGroup(
       sqlGenerator: Seq[String] => String,
       children: Seq[SnowflakePlan],
-      sourcePlan: Option[LogicalPlan]
-  ): SnowflakePlan = wrapException(children: _*) {
+      sourcePlan: Option[LogicalPlan]): SnowflakePlan = wrapException(children: _*) {
     val selectChildren = children.map(addResultScanIfNotSelect)
     val queries: Seq[Query] =
       selectChildren
@@ -337,15 +323,13 @@ class SnowflakePlanBuilder(session: Session) extends Logging {
   def query(
       sql: String,
       sourcePlan: Option[LogicalPlan],
-      supportAsyncMode: Boolean = true
-  ): SnowflakePlan =
+      supportAsyncMode: Boolean = true): SnowflakePlan =
     SnowflakePlan(Seq(Query(sql)), sql, session, sourcePlan, supportAsyncMode)
 
   def largeLocalRelationPlan(
       output: Seq[Attribute],
       data: Seq[Row],
-      sourcePlan: Option[LogicalPlan]
-  ): SnowflakePlan = {
+      sourcePlan: Option[LogicalPlan]): SnowflakePlan = {
     val tempTableName = randomNameForTempObject(TempObjectType.Table)
     val attributes = output.map { spAtt =>
       Attribute(spAtt.name, spAtt.dataType, spAtt.nullable)
@@ -370,8 +354,7 @@ class SnowflakePlanBuilder(session: Session) extends Logging {
       Seq(Query(dropTableStmt, true)),
       session,
       sourcePlan,
-      supportAsyncMode = false
-    )
+      supportAsyncMode = false)
   }
 
   def table(tableName: String): SnowflakePlan =
@@ -381,63 +364,54 @@ class SnowflakePlanBuilder(session: Session) extends Logging {
       command: FileOperationCommand,
       fileName: String,
       stageLocation: String,
-      options: Map[String, String]
-  ): SnowflakePlan =
+      options: Map[String, String]): SnowflakePlan =
     // source plan is not necessary in action
     query(
       fileOperationStatement(command, fileName, stageLocation, options),
       None,
-      supportAsyncMode = false
-    )
+      supportAsyncMode = false)
 
   def project(
       projectList: Seq[String],
       child: SnowflakePlan,
       sourcePlan: Option[LogicalPlan],
-      isDistinct: Boolean = false
-  ): SnowflakePlan =
+      isDistinct: Boolean = false): SnowflakePlan =
     build(projectStatement(projectList, _, isDistinct), child, sourcePlan)
 
   def projectAndFilter(
       projectList: Seq[String],
       condition: String,
       child: SnowflakePlan,
-      sourcePlan: Option[LogicalPlan]
-  ): SnowflakePlan =
+      sourcePlan: Option[LogicalPlan]): SnowflakePlan =
     build(projectAndFilterStatement(projectList, condition, _), child, sourcePlan)
 
   def aggregate(
       groupingExpressions: Seq[String],
       aggregateExpressions: Seq[String],
       child: SnowflakePlan,
-      sourcePlan: Option[LogicalPlan]
-  ): SnowflakePlan =
+      sourcePlan: Option[LogicalPlan]): SnowflakePlan =
     build(aggregateStatement(groupingExpressions, aggregateExpressions, _), child, sourcePlan)
 
   def filter(
       condition: String,
       child: SnowflakePlan,
-      sourcePlan: Option[LogicalPlan]
-  ): SnowflakePlan =
+      sourcePlan: Option[LogicalPlan]): SnowflakePlan =
     build(filterStatement(condition, _), child, sourcePlan)
 
   def update(
       tableName: String,
       assignments: Map[String, String],
       condition: Option[String],
-      sourceData: Option[SnowflakePlan]
-  ): SnowflakePlan = {
+      sourceData: Option[SnowflakePlan]): SnowflakePlan = {
     query(
       updateStatement(tableName, assignments, condition, sourceData.map(_.queries.last.sql)),
-      None
-    )
+      None)
   }
 
   def delete(
       tableName: String,
       condition: Option[String],
-      sourceData: Option[SnowflakePlan]
-  ): SnowflakePlan = {
+      sourceData: Option[SnowflakePlan]): SnowflakePlan = {
     query(deleteStatement(tableName, condition, sourceData.map(_.queries.last.sql)), None)
   }
 
@@ -445,8 +419,7 @@ class SnowflakePlanBuilder(session: Session) extends Logging {
       tableName: String,
       source: SnowflakePlan,
       joinExpr: String,
-      clauses: Seq[String]
-  ): SnowflakePlan = {
+      clauses: Seq[String]): SnowflakePlan = {
     query(mergeStatement(tableName, source.queries.last.sql, joinExpr, clauses), None)
   }
 
@@ -454,30 +427,26 @@ class SnowflakePlanBuilder(session: Session) extends Logging {
       probabilityFraction: Option[Double],
       rowCount: Option[Long],
       child: SnowflakePlan,
-      sourcePlan: Option[LogicalPlan]
-  ): SnowflakePlan =
+      sourcePlan: Option[LogicalPlan]): SnowflakePlan =
     build(sampleStatement(probabilityFraction, rowCount, _), child, sourcePlan)
 
   def sort(
       order: Seq[String],
       child: SnowflakePlan,
-      sourcePlan: Option[LogicalPlan]
-  ): SnowflakePlan =
+      sourcePlan: Option[LogicalPlan]): SnowflakePlan =
     build(sortStatement(order, _), child, sourcePlan)
 
   def setOperator(
       left: SnowflakePlan,
       right: SnowflakePlan,
       op: String,
-      sourcePlan: Option[LogicalPlan]
-  ): SnowflakePlan =
+      sourcePlan: Option[LogicalPlan]): SnowflakePlan =
     build(setOperatorStatement(_, _, op), left, right, sourcePlan)
 
   def setOperator(
       children: Seq[SnowflakePlan],
       op: String,
-      sourcePlan: Option[LogicalPlan]
-  ): SnowflakePlan =
+      sourcePlan: Option[LogicalPlan]): SnowflakePlan =
     buildGroup(setOperatorStatement(_: Seq[String], op), children, sourcePlan)
 
   def join(
@@ -485,8 +454,7 @@ class SnowflakePlanBuilder(session: Session) extends Logging {
       right: SnowflakePlan,
       joinType: JoinType,
       condition: Option[String],
-      sourcePlan: Option[LogicalPlan]
-  ): SnowflakePlan =
+      sourcePlan: Option[LogicalPlan]): SnowflakePlan =
     build(joinStatement(_, _, joinType, condition), left, right, sourcePlan)
 
   def saveAsTable(tableName: String, mode: SaveMode, child: SnowflakePlan): SnowflakePlan =
@@ -507,8 +475,7 @@ class SnowflakePlanBuilder(session: Session) extends Logging {
           session,
           // source plan is not necessary in action
           None,
-          child.supportAsyncMode
-        )
+          child.supportAsyncMode)
       case SaveMode.Overwrite =>
         build(createTableAsSelectStatement(tableName, _, replace = true), child, None)
       case SaveMode.Ignore =>
@@ -529,23 +496,20 @@ class SnowflakePlanBuilder(session: Session) extends Logging {
       session,
       // source plan is not necessary in action
       None,
-      selectChild.supportAsyncMode
-    )
+      selectChild.supportAsyncMode)
   }
 
   def limitOnSort(
       child: SnowflakePlan,
       limitExpr: String,
       order: Seq[String],
-      sourcePlan: Option[LogicalPlan]
-  ): SnowflakePlan =
+      sourcePlan: Option[LogicalPlan]): SnowflakePlan =
     build(limitOnSortStatement(_, limitExpr, order), child, sourcePlan)
 
   def limit(
       limitExpr: String,
       child: SnowflakePlan,
-      sourcePlan: Option[LogicalPlan]
-  ): SnowflakePlan =
+      sourcePlan: Option[LogicalPlan]): SnowflakePlan =
     build(limitStatement(limitExpr, _), child, sourcePlan)
 
   def pivot(
@@ -553,22 +517,19 @@ class SnowflakePlanBuilder(session: Session) extends Logging {
       pivotValues: Seq[String],
       aggregate: String,
       child: SnowflakePlan,
-      sourcePlan: Option[LogicalPlan]
-  ): SnowflakePlan =
+      sourcePlan: Option[LogicalPlan]): SnowflakePlan =
     build(pivotStatement(pivotColumn, pivotValues, aggregate, _), child, sourcePlan)
 
   def createOrReplaceView(name: String, child: SnowflakePlan, isTemp: Boolean): SnowflakePlan = {
     require(
       child.queries.size == 1,
       "Your dataframe may include DDL or DML operations. " +
-        "Creating a view from this DataFrame is currently not supported."
-    )
+        "Creating a view from this DataFrame is currently not supported.")
 
     // scalastyle:off caselocale
     require(
       child.queries.head.sql.toLowerCase.trim.startsWith("select"),
-      "Only support creating view from SELECT queries"
-    )
+      "Only support creating view from SELECT queries")
     // scalastyle:on caselocale
     val tempType: TempType = session.getTempType(isTemp, name)
     session.recordTempObjectIfNecessary(TempObjectType.View, name, tempType)
@@ -584,16 +545,14 @@ class SnowflakePlanBuilder(session: Session) extends Logging {
       child,
       None,
       Some(child.schemaQuery),
-      true
-    )
+      true)
   }
 
   private def createTableAndInsert(
       session: Session,
       name: String,
       schemaQuery: String,
-      query: String
-  ): Seq[String] = {
+      query: String): Seq[String] = {
     val attributes = session.conn.getResultAttributes(schemaQuery)
     val tempType: TempType = session.getTempType(isTemp = true, name)
     session.recordTempObjectIfNecessary(TempObjectType.Table, name, tempType)
@@ -607,8 +566,7 @@ class SnowflakePlanBuilder(session: Session) extends Logging {
       format: String,
       options: Map[String, String], // key should be upper case
       fullyQualifiedSchema: String,
-      schema: Seq[Attribute]
-  ): SnowflakePlan = {
+      schema: Seq[Attribute]): SnowflakePlan = {
     val (copyOptions, formatTypeOptions) = options
       .filter { case (k, _) =>
         !k.equals("PATTERN")
@@ -633,19 +591,14 @@ class SnowflakePlanBuilder(session: Session) extends Logging {
             format,
             formatTypeOptions,
             tempType,
-            ifNotExist = true
-          ),
-          true
-        ),
+            ifNotExist = true),
+          true),
         Query(
           selectFromPathWithFormatStatement(
             schemaCastSeq(schema),
             path,
             Some(tempFileFormatName),
-            pattern
-          )
-        )
-      )
+            pattern)))
       session.recordTempObjectIfNecessary(TempObjectType.FileFormat, tempFileFormatName, tempType)
       val postActions = Seq(Query(dropFileFormatIfExistStatement(tempFileFormatName), true))
       SnowflakePlan(
@@ -654,8 +607,7 @@ class SnowflakePlanBuilder(session: Session) extends Logging {
         postActions,
         session,
         None,
-        supportAsyncMode = true
-      )
+        supportAsyncMode = true)
     } else { // otherwise, use COPY
       val tempTableName = fullyQualifiedSchema + "." + randomNameForTempObject(TempObjectType.Table)
 
@@ -669,10 +621,8 @@ class SnowflakePlanBuilder(session: Session) extends Logging {
           createTableStatement(
             tempTableName,
             attributeToSchemaString(tempTableSchema),
-            tempType = tempType
-          ),
-          true
-        ),
+            tempType = tempType),
+          true),
         Query(
           copyIntoTable(
             tempTableName,
@@ -682,9 +632,7 @@ class SnowflakePlanBuilder(session: Session) extends Logging {
             copyOptions,
             pattern,
             Seq.empty,
-            Seq.empty
-          )
-        ),
+            Seq.empty)),
         Query(
           projectStatement(
             tempTableSchema.zip(schema).map { case (newAtt, inputAtt) =>
@@ -705,8 +653,7 @@ class SnowflakePlanBuilder(session: Session) extends Logging {
         postActions,
         session,
         None,
-        supportAsyncMode = true
-      )
+        supportAsyncMode = true)
     }
   }
 
@@ -718,8 +665,7 @@ class SnowflakePlanBuilder(session: Session) extends Logging {
       fullyQualifiedSchema: String,
       columnNames: Seq[String],
       transformations: Seq[String],
-      userSchema: Option[StructType]
-  ): SnowflakePlan = {
+      userSchema: Option[StructType]): SnowflakePlan = {
     val (copyOptions, formatTypeOptions) = options
       .filter { case (k, _) =>
         !k.equals("PATTERN")
@@ -741,8 +687,7 @@ class SnowflakePlanBuilder(session: Session) extends Logging {
       copyOptions,
       pattern,
       columnNames,
-      transformations
-    )
+      transformations)
 
     val queries = if (session.tableExists(tableName)) {
       Seq(Query(copyCommand))
@@ -753,10 +698,8 @@ class SnowflakePlanBuilder(session: Session) extends Logging {
       Seq(
         Query(
           createTableStatement(tableName, attributeToSchemaString(attributes), false, false),
-          true
-        ),
-        Query(copyCommand)
-      )
+          true),
+        Query(copyCommand))
     } else {
       throw ErrorMessage.DF_COPY_INTO_CANNOT_CREATE_TABLE(tableName)
     }
@@ -767,8 +710,7 @@ class SnowflakePlanBuilder(session: Session) extends Logging {
   def lateral(
       tableFunction: String,
       child: SnowflakePlan,
-      sourcePlan: Option[LogicalPlan]
-  ): SnowflakePlan =
+      sourcePlan: Option[LogicalPlan]): SnowflakePlan =
     build(lateralStatement(tableFunction, _), child, sourcePlan)
 
   def fromTableFunction(func: String): SnowflakePlan =
@@ -781,15 +723,14 @@ class SnowflakePlanBuilder(session: Session) extends Logging {
       func: String,
       child: SnowflakePlan,
       over: Option[String],
-      sourcePlan: Option[LogicalPlan]
-  ): SnowflakePlan = {
+      sourcePlan: Option[LogicalPlan]): SnowflakePlan = {
     build(joinTableFunctionStatement(func, _, over), child, sourcePlan)
   }
 
   // transform a plan to use result scan if it contains non select query
   private def addResultScanIfNotSelect(plan: SnowflakePlan): SnowflakePlan = {
     plan.sourcePlan match {
-      case Some(_: SetOperation)      => plan
+      case Some(_: SetOperation) => plan
       case Some(_: MultiChildrenNode) => plan
       // scalastyle:off
       case _ if plan.queries.last.sql.trim.toLowerCase.startsWith("select") => plan
@@ -804,8 +745,7 @@ class SnowflakePlanBuilder(session: Session) extends Logging {
           plan.postActions,
           session,
           plan.sourcePlan,
-          supportAsyncMode = false
-        )
+          supportAsyncMode = false)
     }
   }
 }
@@ -820,15 +760,14 @@ class SnowflakePlanBuilder(session: Session) extends Logging {
 private[snowpark] class Query(
     val sql: String,
     val queryIdPlaceHolder: String,
-    val isDDLOnTempObject: Boolean
-) extends Logging {
+    val isDDLOnTempObject: Boolean)
+    extends Logging {
   logDebug(s"Creating a new Query: $sql ID: $queryIdPlaceHolder")
   override def toString: String = sql
   def runQuery(
       conn: ServerConnection,
       placeholders: mutable.HashMap[String, String],
-      statementParameters: Map[String, Any] = Map.empty
-  ): String = {
+      statementParameters: Map[String, Any] = Map.empty): String = {
     var finalQuery = sql
     placeholders.foreach { case (holder, id) =>
       finalQuery = finalQuery.replaceAll(holder, id)
@@ -842,8 +781,7 @@ private[snowpark] class Query(
       conn: ServerConnection,
       placeholders: mutable.HashMap[String, String],
       returnIterator: Boolean,
-      statementParameters: Map[String, Any] = Map.empty
-  ): QueryResult = {
+      statementParameters: Map[String, Any] = Map.empty): QueryResult = {
     var finalQuery = sql
     placeholders.foreach { case (holder, id) =>
       finalQuery = finalQuery.replaceAll(holder, id)
@@ -853,8 +791,7 @@ private[snowpark] class Query(
         finalQuery,
         !returnIterator,
         returnIterator,
-        conn.getStatementParameters(isDDLOnTempObject, statementParameters)
-      )
+        conn.getStatementParameters(isDDLOnTempObject, statementParameters))
     placeholders += (queryIdPlaceHolder -> result.queryId)
     result
   }
@@ -864,27 +801,24 @@ private[snowpark] class BatchInsertQuery(
     override val sql: String,
     override val queryIdPlaceHolder: String,
     attributes: Seq[Attribute],
-    rows: Seq[Row]
-) extends Query(sql, queryIdPlaceHolder, false) {
+    rows: Seq[Row])
+    extends Query(sql, queryIdPlaceHolder, false) {
   override def runQuery(
       conn: ServerConnection,
       placeholders: mutable.HashMap[String, String],
-      statementParameters: Map[String, Any] = Map.empty
-  ): String = {
+      statementParameters: Map[String, Any] = Map.empty): String = {
     conn.runBatchInsert(
       sql,
       attributes,
       rows,
-      conn.getStatementParameters(false, statementParameters)
-    )
+      conn.getStatementParameters(false, statementParameters))
   }
 
   override def runQueryGetResult(
       conn: ServerConnection,
       placeholders: mutable.HashMap[String, String],
       returnIterator: Boolean,
-      statementParameters: Map[String, Any] = Map.empty
-  ): QueryResult = {
+      statementParameters: Map[String, Any] = Map.empty): QueryResult = {
     throw ErrorMessage.PLAN_LAST_QUERY_RETURN_RESULTSET()
   }
 }

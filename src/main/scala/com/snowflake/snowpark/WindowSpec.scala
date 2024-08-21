@@ -9,8 +9,7 @@ import com.snowflake.snowpark.internal.ErrorMessage
 class WindowSpec private[snowpark] (
     partitionSpec: Seq[Expression],
     orderSpec: Seq[SortOrder],
-    frame: WindowFrame
-) {
+    frame: WindowFrame) {
 
   /** Returns a new [[WindowSpec]] object with the new partition by clause.
     * @since 0.1.0
@@ -23,7 +22,7 @@ class WindowSpec private[snowpark] (
   def orderBy(cols: Column*): WindowSpec = {
     val sortOrder: Seq[SortOrder] = cols.map { col =>
       col.expr match {
-        case expr: SortOrder  => expr
+        case expr: SortOrder => expr
         case expr: Expression => SortOrder(expr, Ascending)
       }
     }
@@ -35,15 +34,15 @@ class WindowSpec private[snowpark] (
     */
   def rowsBetween(start: Long, end: Long): WindowSpec = {
     val boundaryStart = start match {
-      case 0                                           => CurrentRow
-      case Long.MinValue                               => UnboundedPreceding
+      case 0 => CurrentRow
+      case Long.MinValue => UnboundedPreceding
       case x if Int.MinValue <= x && x <= Int.MaxValue => Literal(x.toInt)
       case x => throw ErrorMessage.DF_WINDOW_BOUNDARY_START_INVALID(x)
     }
 
     val boundaryEnd = end match {
-      case 0                                           => CurrentRow
-      case Long.MaxValue                               => UnboundedFollowing
+      case 0 => CurrentRow
+      case Long.MaxValue => UnboundedFollowing
       case x if Int.MinValue <= x && x <= Int.MaxValue => Literal(x.toInt)
       case x => throw ErrorMessage.DF_WINDOW_BOUNDARY_END_INVALID(x)
     }
@@ -51,8 +50,7 @@ class WindowSpec private[snowpark] (
     new WindowSpec(
       partitionSpec,
       orderSpec,
-      SpecifiedWindowFrame(RowFrame, boundaryStart, boundaryEnd)
-    )
+      SpecifiedWindowFrame(RowFrame, boundaryStart, boundaryEnd))
   }
 
   /** Returns a new [[WindowSpec]] object with the new range frame clause.
@@ -60,22 +58,21 @@ class WindowSpec private[snowpark] (
     */
   def rangeBetween(start: Long, end: Long): WindowSpec = {
     val boundaryStart = start match {
-      case 0             => CurrentRow
+      case 0 => CurrentRow
       case Long.MinValue => UnboundedPreceding
-      case x             => Literal(x)
+      case x => Literal(x)
     }
 
     val boundaryEnd = end match {
-      case 0             => CurrentRow
+      case 0 => CurrentRow
       case Long.MaxValue => UnboundedFollowing
-      case x             => Literal(x)
+      case x => Literal(x)
     }
 
     new WindowSpec(
       partitionSpec,
       orderSpec,
-      SpecifiedWindowFrame(RangeFrame, boundaryStart, boundaryEnd)
-    )
+      SpecifiedWindowFrame(RangeFrame, boundaryStart, boundaryEnd))
   }
 
   private[snowpark] def withAggregate(aggregate: Expression): Column =

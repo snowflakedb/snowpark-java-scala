@@ -40,8 +40,7 @@ final class DataFrameNaFunctions private[snowpark] (df: DataFrame) extends Loggi
     val schemaNameToIsFloat = df.output
       .map(field =>
         internal.analyzer
-          .quoteName(field.name) -> (field.dataType == FloatType || field.dataType == DoubleType)
-      )
+          .quoteName(field.name) -> (field.dataType == FloatType || field.dataType == DoubleType))
       .toMap
 
     // split cols into two groups, float or non float.
@@ -139,8 +138,7 @@ final class DataFrameNaFunctions private[snowpark] (df: DataFrame) extends Loggi
                 s"this replacement was skipped. Column Name: $colName " +
                 s"Type: $dataType " +
                 s"Input Value: ${normalizedMap(colName)} " +
-                s"Type: ${normalizedMap(colName).getClass.getName}"
-            )
+                s"Type: ${normalizedMap(colName).getClass.getName}")
             column
         }
       } else {

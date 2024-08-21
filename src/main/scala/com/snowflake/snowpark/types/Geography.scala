@@ -34,7 +34,7 @@ class Geography private (private val stringData: String) {
   override def equals(obj: Any): Boolean = {
     obj match {
       case g: Geography => stringData.equals(g.stringData)
-      case _            => false
+      case _ => false
     }
   }
 
@@ -48,8 +48,7 @@ class Geography private (private val stringData: String) {
 
   private def throwNullInputError() =
     throw new UncheckedIOException(
-      new IOException("Cannot create geography object from null input")
-    )
+      new IOException("Cannot create geography object from null input"))
 
   /** Returns the underling string data for GeoJSON.
     *

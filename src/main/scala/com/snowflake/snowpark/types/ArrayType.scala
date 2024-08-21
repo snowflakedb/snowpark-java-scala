@@ -16,8 +16,8 @@ case class ArrayType(elementType: DataType) extends DataType {
 Two types will be merged in the future BCR. */
 private[snowpark] class StructuredArrayType(
     override val elementType: DataType,
-    val nullable: Boolean
-) extends ArrayType(elementType) {
+    val nullable: Boolean)
+    extends ArrayType(elementType) {
   override def toString: String = {
     s"ArrayType[${elementType.toString} nullable = $nullable]"
   }

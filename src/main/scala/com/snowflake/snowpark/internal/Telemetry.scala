@@ -37,8 +37,7 @@ final class Telemetry(conn: ServerConnection) extends Logging {
   def reportSimplifierUsage(
       queryID: String,
       beforeSimplification: String,
-      afterSimplification: String
-  ): Unit = {
+      afterSimplification: String): Unit = {
     val msg = MAPPER.createObjectNode()
     msg.put(QUERY_ID, queryID)
     msg.put(BEFORE_SIMPLIFICATION, beforeSimplification)
@@ -68,8 +67,7 @@ final class Telemetry(conn: ServerConnection) extends Logging {
         msg.put(MESSAGE, Logging.maskSecrets(ex.getMessage))
         msg.put(
           STACK_TRACE,
-          ex.getStackTrace.map(_.toString).map(Logging.maskSecrets).mkString("\n")
-        )
+          ex.getStackTrace.map(_.toString).map(Logging.maskSecrets).mkString("\n"))
     }
     send(ERROR, msg)
   }
@@ -114,8 +112,7 @@ final class Telemetry(conn: ServerConnection) extends Logging {
     reportFunctionUsage(
       FunctionNames.ACTION_SAVE_AS_FILE,
       FunctionCategory.ACTION,
-      Map("file_type" -> fileType)
-    )
+      Map("file_type" -> fileType))
 
   def reportActionUpdate(): Unit =
     reportFunctionUsage(FunctionNames.ACTION_UPDATE, FunctionCategory.ACTION)
@@ -135,8 +132,7 @@ final class Telemetry(conn: ServerConnection) extends Logging {
   private def reportFunctionUsage(
       funcName: String,
       category: String,
-      options: Map[String, String] = Map.empty
-  ): Unit = {
+      options: Map[String, String] = Map.empty): Unit = {
     val msg = MAPPER.createObjectNode()
     msg.put(NAME, funcName)
     msg.put(CATEGORY, category)

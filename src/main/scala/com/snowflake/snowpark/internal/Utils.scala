@@ -85,16 +85,12 @@ object Utils extends Logging {
     val stackTrace = new ArrayBuffer[String]()
     val stackDepth = 3 // TODO: Configurable ?
     Thread.currentThread.getStackTrace().foreach { ste: StackTraceElement =>
-      if (
-        ste != null && ste.getMethodName != null
-        && !ste.getMethodName.contains("getStackTrace")
-      ) {
+      if (ste != null && ste.getMethodName != null
+        && !ste.getMethodName.contains("getStackTrace")) {
         if (internalCode) {
-          if (
-            ste.getClassName.startsWith("net.snowflake.client.")
+          if (ste.getClassName.startsWith("net.snowflake.client.")
             || ste.getClassName.startsWith("com.snowflake.snowpark.")
-            || ste.getClassName.startsWith("scala.")
-          ) {
+            || ste.getClassName.startsWith("scala.")) {
             lastInternalLine = ste.getClassName + "." + ste.getMethodName
 
           } else {
@@ -110,8 +106,7 @@ object Utils extends Logging {
 
   def addToDataframeAliasMap(
       result: Map[String, Seq[Attribute]],
-      child: LogicalPlan
-  ): Map[String, Seq[Attribute]] = {
+      child: LogicalPlan): Map[String, Seq[Attribute]] = {
     if (child != null) {
       val map = child.dfAliasMap
       val duplicatedAlias = result.keySet.intersect(map.keySet)
@@ -234,8 +229,7 @@ object Utils extends Logging {
     if (stageLocation.endsWith("/")) {
       throw ErrorMessage.MISC_INVALID_STAGE_LOCATION(
         stageLocation,
-        "Stage file location must point to a file, not a folder"
-      )
+        "Stage file location must point to a file, not a folder")
     }
 
     var isQuoted: Boolean = false
@@ -249,8 +243,7 @@ object Utils extends Logging {
           if (pathAndFileName.isEmpty) {
             throw ErrorMessage.MISC_INVALID_STAGE_LOCATION(
               stageLocation,
-              "Missing file name after the stage name"
-            )
+              "Missing file name after the stage name")
           }
           val pathList = pathAndFileName.split("/")
           val path = pathList.take(pathList.size - 1).mkString("/")
@@ -260,8 +253,7 @@ object Utils extends Logging {
     }
     throw ErrorMessage.MISC_INVALID_STAGE_LOCATION(
       stageLocation,
-      "Missing '/' to separate stage name and file name"
-    )
+      "Missing '/' to separate stage name and file name")
   }
 
   // Refactored as a wrapper for testing purpose
@@ -271,15 +263,12 @@ object Utils extends Logging {
 
   private[snowpark] def checkScalaVersionCompatibility(inputScalaVersion: String): Unit = {
     // Check that version starts with 2.12 and is greater than 2.12.9
-    if (
-      !inputScalaVersion.startsWith(ScalaCompatVersion) ||
-      compareVersion(inputScalaVersion, ScalaMinimumMinorVersion) < 0
-    ) {
+    if (!inputScalaVersion.startsWith(ScalaCompatVersion) ||
+      compareVersion(inputScalaVersion, ScalaMinimumMinorVersion) < 0) {
       throw ErrorMessage.MISC_SCALA_VERSION_NOT_SUPPORTED(
         inputScalaVersion,
         ScalaCompatVersion,
-        ScalaMinimumMinorVersion
-      )
+        ScalaMinimumMinorVersion)
     }
   }
 
@@ -355,8 +344,7 @@ object Utils extends Logging {
 
     assert(
       name.matches(TempObjectNamePattern),
-      "Generated temp object name does not match the required pattern"
-    )
+      "Generated temp object name does not match the required pattern")
     name
   }
 
@@ -398,16 +386,14 @@ object Utils extends Logging {
         case t: Throwable if isRetryable(t) =>
           logError(
             s"withRetry() failed: $logPrefix, sleep ${retrySleepTimeInMS(retry)} ms" +
-              s" and retry: $retry error message: ${t.getMessage}"
-          )
+              s" and retry: $retry error message: ${t.getMessage}")
           Thread.sleep(retrySleepTimeInMS(retry))
           lastError = Some(t)
           retry = retry + 1
         case t: Throwable =>
           logError(
             s"withRetry() failed: $logPrefix, but don't retry because it is not retryable," +
-              s" error message: ${t.getMessage}"
-          )
+              s" error message: ${t.getMessage}")
           throw t
       }
     }
@@ -436,9 +422,9 @@ object Utils extends Logging {
    */
   private[snowpark] def quoteForOption(v: Any): String = {
     v match {
-      case b: Boolean                                                             => b.toString
-      case i: Int                                                                 => i.toString
-      case it: Integer                                                            => it.toString
+      case b: Boolean => b.toString
+      case i: Int => i.toString
+      case it: Integer => it.toString
       case s: String if s.equalsIgnoreCase("true") || s.equalsIgnoreCase("false") => s
       case _ => singleQuote(v.toString)
     }
@@ -447,20 +433,18 @@ object Utils extends Logging {
   // rename the internal alias to its original name
   private[snowpark] def getDisplayColumnNames(
       attrs: Seq[Attribute],
-      renamedColumns: Map[String, String]
-  ): Seq[Attribute] = {
+      renamedColumns: Map[String, String]): Seq[Attribute] = {
     attrs.map(att =>
       renamedColumns
         .get(att.name)
         .map(newName => Attribute(newName, att.dataType, att.nullable, att.exprId))
-        .getOrElse(att)
-    )
+        .getOrElse(att))
   }
 
   private[snowpark] def getTableFunctionExpression(col: Column): TableFunctionExpression = {
     col.expr match {
       case tf: TableFunctionExpression => tf
-      case _                           => throw ErrorMessage.DF_JOIN_WITH_WRONG_ARGUMENT()
+      case _ => throw ErrorMessage.DF_JOIN_WITH_WRONG_ARGUMENT()
     }
   }
 }

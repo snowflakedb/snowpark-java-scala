@@ -111,8 +111,8 @@ private[snowpark] case class FlattenFunction(
     path: String,
     outer: Boolean,
     recursive: Boolean,
-    mode: String
-) extends TableFunctionExpression {
+    mode: String)
+    extends TableFunctionExpression {
   override def children: Seq[Expression] = Seq(input)
 
   override protected def createAnalyzedExpression(analyzedChildren: Seq[Expression]): Expression =
@@ -129,8 +129,8 @@ private[snowpark] case class TableFunction(funcName: String, args: Seq[Expressio
 
 private[snowpark] case class NamedArgumentsTableFunction(
     funcName: String,
-    args: Map[String, Expression]
-) extends TableFunctionExpression {
+    args: Map[String, Expression])
+    extends TableFunctionExpression {
   override def children: Seq[Expression] = args.values.toSeq
 
   // do not use this function, override analyze function directly
@@ -182,8 +182,8 @@ private[snowpark] abstract class MergeExpression(condition: Option[Expression]) 
 
 private[snowpark] case class UpdateMergeExpression(
     condition: Option[Expression],
-    assignments: Map[Expression, Expression]
-) extends MergeExpression(condition) {
+    assignments: Map[Expression, Expression])
+    extends MergeExpression(condition) {
   override def children: Seq[Expression] =
     Seq(condition.toSeq, assignments.keys, assignments.values).flatten
 
@@ -216,8 +216,8 @@ private[snowpark] case class DeleteMergeExpression(condition: Option[Expression]
 private[snowpark] case class InsertMergeExpression(
     condition: Option[Expression],
     keys: Seq[Expression],
-    values: Seq[Expression]
-) extends MergeExpression(condition) {
+    values: Seq[Expression])
+    extends MergeExpression(condition) {
   override def children: Seq[Expression] =
     condition.toSeq ++ keys ++ values
 
@@ -262,8 +262,8 @@ private[snowpark] case class ScalarSubquery(plan: SnowflakePlan) extends Express
 
 private[snowpark] case class CaseWhen(
     branches: Seq[(Expression, Expression)],
-    elseValue: Option[Expression] = None
-) extends Expression {
+    elseValue: Option[Expression] = None)
+    extends Expression {
   override def children: Seq[Expression] =
     branches.flatMap(x => Seq(x._1, x._2)) ++ elseValue.toSeq
 
@@ -334,8 +334,8 @@ private[snowpark] class Attribute private (
     val dataType: DataType,
     override val nullable: Boolean,
     override val exprId: ExprId = NamedExpression.newExprId,
-    override val sourceDFs: Seq[DataFrame] = Seq.empty
-) extends Expression
+    override val sourceDFs: Seq[DataFrame] = Seq.empty)
+    extends Expression
     with NamedExpression {
   def withName(newName: String): Attribute = {
     if (name == newName) {

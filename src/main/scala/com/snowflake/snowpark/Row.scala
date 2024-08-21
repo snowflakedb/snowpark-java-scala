@@ -31,8 +31,8 @@ object Row {
 }
 
 private[snowpark] class SnowflakeObject private[snowpark] (
-    private[snowpark] val map: Map[String, Any]
-) extends Row(map.values.toArray) {
+    private[snowpark] val map: Map[String, Any])
+    extends Row(map.values.toArray) {
   override def toString: String = convertValueToString(this)
 }
 
@@ -101,7 +101,7 @@ class Row protected (values: Array[Any]) extends Serializable {
         (0 until length).forall { index =>
           (this(index), other(index)) match {
             case (d1: Double, d2: Double) if d1.isNaN && d2.isNaN => true
-            case (v1, v2)                                         => v1 == v2
+            case (v1, v2) => v1 == v2
           }
         }
       }
@@ -140,10 +140,10 @@ class Row protected (values: Array[Any]) extends Serializable {
     * @group getter
     */
   def getByte(index: Int): Byte = get(index) match {
-    case byte: Byte                                                       => byte
+    case byte: Byte => byte
     case short: Short if short <= Byte.MaxValue && short >= Byte.MinValue => short.toByte
-    case int: Int if int <= Byte.MaxValue && int >= Byte.MinValue         => int.toByte
-    case long: Long if long <= Byte.MaxValue && long >= Byte.MinValue     => long.toByte
+    case int: Int if int <= Byte.MaxValue && int >= Byte.MinValue => int.toByte
+    case long: Long if long <= Byte.MaxValue && long >= Byte.MinValue => long.toByte
     case other =>
       throw ErrorMessage.MISC_CANNOT_CAST_VALUE(other.getClass.getName, s"$other", "Byte")
   }
@@ -154,9 +154,9 @@ class Row protected (values: Array[Any]) extends Serializable {
     * @group getter
     */
   def getShort(index: Int): Short = get(index) match {
-    case byte: Byte                                                     => byte.toShort
-    case short: Short                                                   => short
-    case int: Int if int <= Short.MaxValue && int >= Short.MinValue     => int.toShort
+    case byte: Byte => byte.toShort
+    case short: Short => short
+    case int: Int if int <= Short.MaxValue && int >= Short.MinValue => int.toShort
     case long: Long if long <= Short.MaxValue && long >= Short.MinValue => long.toShort
     case other =>
       throw ErrorMessage.MISC_CANNOT_CAST_VALUE(other.getClass.getName, s"$other", "Short")
@@ -168,9 +168,9 @@ class Row protected (values: Array[Any]) extends Serializable {
     * @group getter
     */
   def getInt(index: Int): Int = get(index) match {
-    case byte: Byte                                                 => byte.toInt
-    case short: Short                                               => short.toInt
-    case int: Int                                                   => int
+    case byte: Byte => byte.toInt
+    case short: Short => short.toInt
+    case int: Int => int
     case long: Long if long <= Int.MaxValue && long >= Int.MinValue => long.toInt
     case other =>
       throw ErrorMessage.MISC_CANNOT_CAST_VALUE(other.getClass.getName, s"$other", "Int")
@@ -182,10 +182,10 @@ class Row protected (values: Array[Any]) extends Serializable {
     * @group getter
     */
   def getLong(index: Int): Long = get(index) match {
-    case byte: Byte   => byte.toLong
+    case byte: Byte => byte.toLong
     case short: Short => short.toLong
-    case int: Int     => int.toLong
-    case long: Long   => long
+    case int: Int => int.toLong
+    case long: Long => long
     case other =>
       throw ErrorMessage.MISC_CANNOT_CAST_VALUE(other.getClass.getName, s"$other", "Long")
   }
@@ -196,12 +196,12 @@ class Row protected (values: Array[Any]) extends Serializable {
     * @group getter
     */
   def getFloat(index: Int): Float = get(index) match {
-    case float: Float                                                           => float
+    case float: Float => float
     case double: Double if double <= Float.MaxValue && double >= Float.MinValue => double.toFloat
-    case byte: Byte                                                             => byte.toFloat
-    case short: Short                                                           => short.toFloat
-    case int: Int                                                               => int.toFloat
-    case long: Long                                                             => long.toFloat
+    case byte: Byte => byte.toFloat
+    case short: Short => short.toFloat
+    case int: Int => int.toFloat
+    case long: Long => long.toFloat
     case other =>
       throw ErrorMessage.MISC_CANNOT_CAST_VALUE(other.getClass.getName, s"$other", "Float")
   }
@@ -212,12 +212,12 @@ class Row protected (values: Array[Any]) extends Serializable {
     * @group getter
     */
   def getDouble(index: Int): Double = get(index) match {
-    case float: Float   => float.toDouble
+    case float: Float => float.toDouble
     case double: Double => double
-    case byte: Byte     => byte.toDouble
-    case short: Short   => short.toDouble
-    case int: Int       => int.toDouble
-    case long: Long     => long.toDouble
+    case byte: Byte => byte.toDouble
+    case short: Short => short.toDouble
+    case int: Int => int.toDouble
+    case long: Long => long.toDouble
     case other =>
       throw ErrorMessage.MISC_CANNOT_CAST_VALUE(other.getClass.getName, s"$other", "Double")
   }
@@ -230,12 +230,12 @@ class Row protected (values: Array[Any]) extends Serializable {
   def getString(index: Int): String = {
     get(index) match {
       case variant: Variant => variant.toString
-      case geo: Geography   => geo.toString
-      case geo: Geometry    => geo.toString
-      case array: Array[_]  => new Variant(array).toString
-      case seq: Seq[_]      => new Variant(seq).toString
-      case map: Map[_, _]   => new Variant(map).toString
-      case _                => getAs[String](index)
+      case geo: Geography => geo.toString
+      case geo: Geometry => geo.toString
+      case array: Array[_] => new Variant(array).toString
+      case seq: Seq[_] => new Variant(seq).toString
+      case map: Map[_, _] => new Variant(map).toString
+      case _ => getAs[String](index)
     }
   }
 
@@ -341,7 +341,7 @@ class Row protected (values: Array[Any]) extends Serializable {
           }
           .mkString("Map(", ",", ")")
       case binary: Array[Byte] => s"Binary(${binary.mkString(",")})"
-      case strValue: String    => s""""$strValue""""
+      case strValue: String => s""""$strValue""""
       case arr: Array[_] =>
         arr.map(convertValueToString).mkString("Array(", ",", ")")
       case obj: SnowflakeObject =>

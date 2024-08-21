@@ -84,8 +84,7 @@ case class StructType(fields: Array[StructField] = Array()) extends DataType wit
     */
   def apply(name: String): StructField =
     nameToField(name).getOrElse(
-      throw new IllegalArgumentException(s"$name does not exits. Names: ${names.mkString(", ")}")
-    )
+      throw new IllegalArgumentException(s"$name does not exits. Names: ${names.mkString(", ")}"))
 
   protected[snowpark] def toAttributes: Seq[Attribute] = {
     /*
@@ -135,8 +134,7 @@ object StructField {
 case class StructField(
     columnIdentifier: ColumnIdentifier,
     dataType: DataType,
-    nullable: Boolean = true
-) {
+    nullable: Boolean = true) {
 
   /** Returns the column name.
     * @since 0.1.0
@@ -153,7 +151,7 @@ case class StructField(
     val body: String = s"$name: ${dataType.schemaString} (nullable = $nullable)\n" +
       (dataType match {
         case st: StructType => st.treeString(layer + 1)
-        case _              => ""
+        case _ => ""
       })
 
     prepended + body
@@ -182,7 +180,7 @@ object ColumnIdentifier {
     val removeQuote = "^\"(([_A-Z]+[_A-Z0-9$]*)|(\\$\\d+))\"$".r
     str match {
       case removeQuote(n, _, _) => n
-      case n                    => n
+      case n => n
     }
   }
 }
@@ -233,7 +231,7 @@ class ColumnIdentifier private (normalizedName: String) {
   override def equals(obj: Any): Boolean =
     obj match {
       case other: ColumnIdentifier => normalizedName == other.quotedName
-      case _                       => false
+      case _ => false
     }
 
   /** Returns the column name. Alias of [[name]]

@@ -12,8 +12,7 @@ import scala.reflect.ClassTag
 private[snowpark] object NotMatchedClauseBuilder {
   private[snowpark] def apply(
       mergeBuilder: MergeBuilder,
-      condition: Option[Column]
-  ): NotMatchedClauseBuilder =
+      condition: Option[Column]): NotMatchedClauseBuilder =
     new NotMatchedClauseBuilder(mergeBuilder, condition)
 }
 
@@ -23,8 +22,7 @@ private[snowpark] object NotMatchedClauseBuilder {
   */
 class NotMatchedClauseBuilder private[snowpark] (
     mergeBuilder: MergeBuilder,
-    condition: Option[Column]
-) {
+    condition: Option[Column]) {
 
   /** Defines an insert action for the not matched clause, when a row in source is not matched,
     * insert a row in target with <values>. Returns an updated [[MergeBuilder]] with the new clause
@@ -56,12 +54,10 @@ class NotMatchedClauseBuilder private[snowpark] (
       mergeBuilder.clauses :+ InsertMergeExpression(
         condition.map(_.expr),
         Seq.empty,
-        values.map(_.expr)
-      ),
+        values.map(_.expr)),
       inserted = true,
       mergeBuilder.updated,
-      mergeBuilder.deleted
-    )
+      mergeBuilder.deleted)
   }
 
   /** Defines an insert action for the not matched clause, when a row in source is not matched,
@@ -116,20 +112,17 @@ class NotMatchedClauseBuilder private[snowpark] (
       mergeBuilder.clauses :+ InsertMergeExpression(
         condition.map(_.expr),
         assignments.keys.toSeq.map(_.expr),
-        assignments.values.toSeq.map(_.expr)
-      ),
+        assignments.values.toSeq.map(_.expr)),
       inserted = true,
       mergeBuilder.updated,
-      mergeBuilder.deleted
-    )
+      mergeBuilder.deleted)
   }
 }
 
 private[snowpark] object MatchedClauseBuilder {
   private[snowpark] def apply(
       mergeBuilder: MergeBuilder,
-      condition: Option[Column]
-  ): MatchedClauseBuilder =
+      condition: Option[Column]): MatchedClauseBuilder =
     new MatchedClauseBuilder(mergeBuilder, condition)
 }
 
@@ -139,8 +132,7 @@ private[snowpark] object MatchedClauseBuilder {
   */
 class MatchedClauseBuilder private[snowpark] (
     mergeBuilder: MergeBuilder,
-    condition: Option[Column]
-) {
+    condition: Option[Column]) {
 
   /** Defines an update action for the matched clause, when a row in target is matched, update the
     * row in target with <assignments>, where the key specifies column name and value specifies its
@@ -192,12 +184,10 @@ class MatchedClauseBuilder private[snowpark] (
         condition.map(_.expr),
         assignments.map { case (k, v) =>
           (k.expr, v.expr)
-        }
-      ),
+        }),
       mergeBuilder.inserted,
       updated = true,
-      mergeBuilder.deleted
-    )
+      mergeBuilder.deleted)
   }
 
   /** Defines a delete action for the matched clause, when a row in target is matched, delete it
@@ -225,7 +215,6 @@ class MatchedClauseBuilder private[snowpark] (
       mergeBuilder.clauses :+ DeleteMergeExpression(condition.map(_.expr)),
       mergeBuilder.inserted,
       mergeBuilder.updated,
-      deleted = true
-    )
+      deleted = true)
   }
 }

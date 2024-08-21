@@ -105,8 +105,8 @@ class AsyncJob private[snowpark] (queryID: String, session: Session, plan: Optio
 class TypedAsyncJob[T: TypeTag] private[snowpark] (
     queryID: String,
     session: Session,
-    plan: Option[SnowflakePlan]
-) extends AsyncJob(queryID, session, plan) {
+    plan: Option[SnowflakePlan])
+    extends AsyncJob(queryID, session, plan) {
 
   /** Returns the result for the specific DataFrame action.
     *
@@ -141,9 +141,9 @@ class TypedAsyncJob[T: TypeTag] private[snowpark] (
     tpe match {
       // typeArgs are the general type arguments in class declaration,
       // for example, class Test[A, B], A and B are typeArgs.
-      case t if t <:< typeOf[Array[Row]]    => getRows(maxWaitTimeInSeconds).asInstanceOf[T]
+      case t if t <:< typeOf[Array[Row]] => getRows(maxWaitTimeInSeconds).asInstanceOf[T]
       case t if t <:< typeOf[Iterator[Row]] => getIterator(maxWaitTimeInSeconds).asInstanceOf[T]
-      case t if t <:< typeOf[Long]          => getLong(maxWaitTimeInSeconds).asInstanceOf[T]
+      case t if t <:< typeOf[Long] => getLong(maxWaitTimeInSeconds).asInstanceOf[T]
       case t if t <:< typeOf[Unit] => processWithoutReturn(maxWaitTimeInSeconds).asInstanceOf[T]
       case t if t <:< typeOf[UpdateResult] =>
         getUpdateResult(maxWaitTimeInSeconds).asInstanceOf[T]
@@ -189,8 +189,8 @@ class MergeTypedAsyncJob private[snowpark] (
     queryID: String,
     session: Session,
     plan: Option[SnowflakePlan],
-    mergeBuilder: MergeBuilder
-) extends TypedAsyncJob[MergeResult](queryID, session, plan) {
+    mergeBuilder: MergeBuilder)
+    extends TypedAsyncJob[MergeResult](queryID, session, plan) {
 
   /** Returns the MergeResult for the MergeBuilder's action
     *

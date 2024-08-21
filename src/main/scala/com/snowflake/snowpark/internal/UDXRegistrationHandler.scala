@@ -76,10 +76,8 @@ class UDXRegistrationHandler(session: Session) extends Logging {
     } catch {
       case e: SnowflakeSQLException =>
         val msg = e.getMessage
-        if (
-          msg.contains("NoClassDefFoundError: com/snowflake/snowpark/") ||
-          msg.contains("error: package com.snowflake.snowpark.internal does not exist")
-        ) {
+        if (msg.contains("NoClassDefFoundError: com/snowflake/snowpark/") ||
+          msg.contains("error: package com.snowflake.snowpark.internal does not exist")) {
           logInfo("Snowpark jar is missing in imports, Retrying after uploading the jar")
           addSnowparkJarToDeps()
           func
@@ -96,17 +94,14 @@ class UDXRegistrationHandler(session: Session) extends Logging {
       case _: TimeoutException =>
         throw ErrorMessage.MISC_REQUEST_TIMEOUT(
           "UDF jar uploading",
-          session.requestTimeoutInSeconds
-        )
+          session.requestTimeoutInSeconds)
     }
   }
 
   private def getAndValidateFunctionName(name: Option[String]) = {
     val funcName = name.getOrElse(
       session.getFullyQualifiedCurrentSchema + "." + randomNameForTempObject(
-        TempObjectType.Function
-      )
-    )
+        TempObjectType.Function))
     Utils.validateObjectName(funcName)
     funcName
   }
@@ -115,8 +110,7 @@ class UDXRegistrationHandler(session: Session) extends Logging {
       name: Option[String],
       sp: StoredProcedure,
       stageLocation: Option[String],
-      isCallerMode: Boolean
-  ): StoredProcedure = {
+      isCallerMode: Boolean): StoredProcedure = {
     val spName = getAndValidateFunctionName(name)
     // Clean up closure
     cleanupClosure(sp.sp)
@@ -138,8 +132,7 @@ class UDXRegistrationHandler(session: Session) extends Logging {
           stageLocation.isEmpty,
           code,
           targetJarStageLocation,
-          isCallerMode
-        )
+          isCallerMode)
       }
     }
     sp.withName(spName)
@@ -149,8 +142,7 @@ class UDXRegistrationHandler(session: Session) extends Logging {
       name: Option[String],
       udf: UserDefinedFunction,
       // if stageLocation is none, this udf will be temporary udf
-      stageLocation: Option[String]
-  ): UserDefinedFunction = {
+      stageLocation: Option[String]): UserDefinedFunction = {
     val udfName = getAndValidateFunctionName(name)
     // Clean up closure
     cleanupClosure(udf.f)
@@ -172,8 +164,7 @@ class UDXRegistrationHandler(session: Session) extends Logging {
           allImports.map(i => s"'$i'").mkString(","),
           stageLocation.isEmpty,
           code,
-          targetJarStageLocation
-        )
+          targetJarStageLocation)
       }
     }
     udf.withName(udfName)
@@ -184,8 +175,7 @@ class UDXRegistrationHandler(session: Session) extends Logging {
       name: Option[String],
       udtf: UDTF,
       // if stageLocation is none, this udf will be temporary udtf
-      stageLocation: Option[String] = None
-  ): TableFunction = {
+      stageLocation: Option[String] = None): TableFunction = {
     ScalaFunctions.checkSupportedUdtf(udtf)
     val udfName = getAndValidateFunctionName(name)
     val returnColumns: Seq[UdfColumn] = udtf.outputSchema().fields.map { f =>
@@ -207,8 +197,7 @@ class UDXRegistrationHandler(session: Session) extends Logging {
           allImports.map(i => s"'$i'").mkString(","),
           stageLocation.isEmpty,
           code,
-          targetJarStageLocation
-        )
+          targetJarStageLocation)
       }
     }
     TableFunction(udfName)
@@ -219,8 +208,7 @@ class UDXRegistrationHandler(session: Session) extends Logging {
       name: Option[String],
       javaUdtf: JavaUDTF,
       // if stageLocation is none, this udf will be temporary udtf
-      stageLocation: Option[String] = None
-  ): TableFunction = {
+      stageLocation: Option[String] = None): TableFunction = {
     ScalaFunctions.checkSupportedJavaUdtf(javaUdtf)
     val udfName = getAndValidateFunctionName(name)
     val returnColumns = getUDFColumns(javaUdtf.outputSchema())
@@ -247,8 +235,7 @@ class UDXRegistrationHandler(session: Session) extends Logging {
           allImports.map(i => s"'$i'").mkString(","),
           stageLocation.isEmpty,
           code,
-          targetJarStageLocation
-        )
+          targetJarStageLocation)
       }
     }
     TableFunction(udfName)
@@ -260,15 +247,12 @@ class UDXRegistrationHandler(session: Session) extends Logging {
       .map(field =>
         UdfColumn(
           UdfColumnSchema(JavaDataTypeUtils.javaTypeToScalaType(field.dataType)),
-          field.name
-        )
-      )
+          field.name))
 
   // Clean uploaded jar files if necessary
   private def withUploadFailureCleanup[T](
       stageLocation: Option[String],
-      needCleanupFiles: mutable.Set[String]
-  )(func: => Unit): Unit = {
+      needCleanupFiles: mutable.Set[String])(func: => Unit): Unit = {
     try {
       func
     } catch {
@@ -326,10 +310,8 @@ class UDXRegistrationHandler(session: Session) extends Logging {
         if (classOf[scala.App].isAssignableFrom(clz)) {
           logWarning(
             "The UDF being registered may not work correctly since it is defined in a class that" +
-              " extends App. Please use main() method instead of extending scala.App "
-          )
-        }
-      )
+              " extends App. Please use main() method instead of extending scala.App ")
+        })
   }
 
   // upload dependency jars and return import_jars and target_jar on stage
@@ -339,8 +321,7 @@ class UDXRegistrationHandler(session: Session) extends Logging {
       needCleanupFiles: mutable.Set[String],
       funcBytesMap: Map[String, Array[Byte]],
       // if stageLocation is none, this udf will be temporary udf
-      stageLocation: Option[String]
-  ): (Seq[String], String) = {
+      stageLocation: Option[String]): (Seq[String], String) = {
     val actionID = session.generateNewActionID
     implicit val executionContext = session.getExecutionContext
 
@@ -364,8 +345,7 @@ class UDXRegistrationHandler(session: Session) extends Logging {
             "",
             new ByteArrayInputStream(bytes),
             jarFileName,
-            compressData = false
-          )
+            compressData = false)
           replJarStageLocation
         }
       }.toSeq
@@ -394,10 +374,8 @@ class UDXRegistrationHandler(session: Session) extends Logging {
             uploadStage,
             destPrefix,
             closureJarFileName,
-            funcBytesMap
-          ),
-          s"Uploading UDF jar to stage ${uploadStage}"
-        )
+            funcBytesMap),
+          s"Uploading UDF jar to stage ${uploadStage}")
         closureJarStageLocation
       }
       allFutures.append(Seq(udfJarUploadTask): _*)
@@ -408,8 +386,7 @@ class UDXRegistrationHandler(session: Session) extends Logging {
     val allImports = wrapUploadTimeoutException {
       val allUrls = Await.result(
         Future.sequence(allFutures),
-        FiniteDuration(session.requestTimeoutInSeconds, SECONDS)
-      )
+        FiniteDuration(session.requestTimeoutInSeconds, SECONDS))
       if (actionID <= session.getLastCanceledID) {
         throw ErrorMessage.MISC_QUERY_IS_CANCELLED()
       }
@@ -476,17 +453,17 @@ class UDXRegistrationHandler(session: Session) extends Logging {
         val getValue = x._1 match {
           case BooleanType => s"$row.getBoolean(${x._2})"
           // case ByteType => s"$row.getByte(${x._2})" // UDF/UDTF doesn't support Byte.
-          case ShortType         => s"$row.getShort(${x._2})"
-          case IntegerType       => s"$row.getInt(${x._2})"
-          case LongType          => s"$row.getLong(${x._2})"
-          case FloatType         => s"$row.getFloat(${x._2})"
-          case DoubleType        => s"$row.getDouble(${x._2})"
+          case ShortType => s"$row.getShort(${x._2})"
+          case IntegerType => s"$row.getInt(${x._2})"
+          case LongType => s"$row.getLong(${x._2})"
+          case FloatType => s"$row.getFloat(${x._2})"
+          case DoubleType => s"$row.getDouble(${x._2})"
           case DecimalType(_, _) => s"$row.getDecimal(${x._2})"
-          case StringType        => s"$row.getString(${x._2})"
-          case BinaryType        => s"$row.getBinary(${x._2})"
-          case TimeType          => s"$row.getTime(${x._2})"
-          case DateType          => s"$row.getDate(${x._2})"
-          case TimestampType     => s"$row.getTimestamp(${x._2})"
+          case StringType => s"$row.getString(${x._2})"
+          case BinaryType => s"$row.getBinary(${x._2})"
+          case TimeType => s"$row.getTime(${x._2})"
+          case DateType => s"$row.getDate(${x._2})"
+          case TimestampType => s"$row.getTimestamp(${x._2})"
           case ArrayType(StringType) =>
             s"JavaUtils.variantToStringArray($row.getVariant(${x._2}))"
           case MapType(StringType, StringType) =>
@@ -514,8 +491,7 @@ class UDXRegistrationHandler(session: Session) extends Logging {
   private[snowpark] def generateUDTFClassSignature(
       udtf: Any,
       inputColumns: Seq[UdfColumn],
-      isScala: Boolean = true
-  ): String = {
+      isScala: Boolean = true): String = {
     // Scala function Signature has to use scala type instead of java type
     val typeArgs = if (inputColumns.nonEmpty) {
       if (isScala) {
@@ -532,10 +508,9 @@ class UDXRegistrationHandler(session: Session) extends Logging {
   private def generateJavaUDTFCode(
       udtf: Any,
       returnColumns: Seq[UdfColumn],
-      inputColumns: Seq[UdfColumn]
-  ): (String, Map[String, Array[Byte]]) = {
+      inputColumns: Seq[UdfColumn]): (String, Map[String, Array[Byte]]) = {
     val isScala: Boolean = udtf match {
-      case _: UDTF     => true
+      case _: UDTF => true
       case _: JavaUDTF => false
     }
     val outputClass = generateUDTFOutputRow(returnColumns)
@@ -661,8 +636,7 @@ class UDXRegistrationHandler(session: Session) extends Logging {
       allImports: String,
       isTemporary: Boolean,
       code: String,
-      targetJarStageLocation: String
-  ): Unit = {
+      targetJarStageLocation: String): Unit = {
     val returnSqlType = returnDataType
       .map { x =>
         s"${x.name} ${convertToSFType(x.schema.dataType)}"
@@ -697,8 +671,7 @@ class UDXRegistrationHandler(session: Session) extends Logging {
   private def generateJavaSPCode(
       func: AnyRef,
       returnValue: UdfColumnSchema,
-      inputArgs: Seq[UdfColumn]
-  ): (String, Map[String, Array[Byte]]) = {
+      inputArgs: Seq[UdfColumn]): (String, Map[String, Array[Byte]]) = {
     val isScalaSP = !func.isInstanceOf[JavaSProc]
     val returnType = toUDFArgumentType(returnValue.dataType)
     val numArgs = inputArgs.length + 1
@@ -725,8 +698,7 @@ class UDXRegistrationHandler(session: Session) extends Logging {
         convertScalaReturnValue(
           returnValue,
           s"""funcImpl.apply(${("session" +: arguments)
-              .mkString(",")})"""
-        )
+              .mkString(",")})""")
       s"""
          |import com.snowflake.snowpark.internal.JavaUtils;
          |import com.snowflake.snowpark.types.Geography;
@@ -753,8 +725,7 @@ class UDXRegistrationHandler(session: Session) extends Logging {
         convertReturnValue(
           returnValue,
           s"""funcImpl.call(${("session" +: arguments)
-              .mkString(",")})"""
-        )
+              .mkString(",")})""")
       s"""
          |import com.snowflake.snowpark.internal.JavaUtils;
          |import com.snowflake.snowpark_java.types.Geography;
@@ -783,8 +754,7 @@ class UDXRegistrationHandler(session: Session) extends Logging {
   private def generateJavaUDFCode(
       func: AnyRef,
       returnValue: UdfColumnSchema,
-      inputArgs: Seq[UdfColumn]
-  ): (String, Map[String, Array[Byte]]) = {
+      inputArgs: Seq[UdfColumn]): (String, Map[String, Array[Byte]]) = {
     val isScalaUDF = !func.isInstanceOf[JavaUDF]
 
     val returnType = toUDFArgumentType(returnValue.dataType)
@@ -861,27 +831,25 @@ class UDXRegistrationHandler(session: Session) extends Logging {
   // Apply converters to input arguments to convert from Java Type to Scala Type
   private def getFunctionCallArguments(
       inputArgs: Seq[UdfColumn],
-      isScalaUDF: Boolean
-  ): Seq[String] = {
+      isScalaUDF: Boolean): Seq[String] = {
     inputArgs.map(arg =>
       arg.schema.dataType match {
-        case _: DataType if arg.schema.isOption   => s"scala.Option.apply(${arg.name})"
+        case _: DataType if arg.schema.isOption => s"scala.Option.apply(${arg.name})"
         case MapType(_, StringType) if isScalaUDF => s"JavaConverters.mapAsScalaMap(${arg.name})"
         case MapType(_, VariantType) if isScalaUDF =>
           s"JavaUtils.stringMapToVariantMap(${arg.name})"
         case MapType(_, VariantType) => s"JavaUtils.stringMapToJavaVariantMap(${arg.name})"
         case ArrayType(VariantType) if isScalaUDF =>
           s"JavaUtils.stringArrayToVariantArray(${arg.name})"
-        case ArrayType(VariantType)      => s"JavaUtils.stringArrayToJavaVariantArray(${arg.name})"
+        case ArrayType(VariantType) => s"JavaUtils.stringArrayToJavaVariantArray(${arg.name})"
         case GeographyType if isScalaUDF => s"JavaUtils.stringToGeography(${arg.name})"
-        case GeographyType               => s"JavaUtils.stringToJavaGeography(${arg.name})"
-        case GeometryType if isScalaUDF  => s"JavaUtils.stringToGeometry(${arg.name})"
-        case GeometryType                => s"JavaUtils.stringToJavaGeometry(${arg.name})"
-        case VariantType if isScalaUDF   => s"JavaUtils.stringToVariant(${arg.name})"
-        case VariantType                 => s"JavaUtils.stringToJavaVariant(${arg.name})"
-        case _                           => arg.name
-      }
-    )
+        case GeographyType => s"JavaUtils.stringToJavaGeography(${arg.name})"
+        case GeometryType if isScalaUDF => s"JavaUtils.stringToGeometry(${arg.name})"
+        case GeometryType => s"JavaUtils.stringToJavaGeometry(${arg.name})"
+        case VariantType if isScalaUDF => s"JavaUtils.stringToVariant(${arg.name})"
+        case VariantType => s"JavaUtils.stringToJavaVariant(${arg.name})"
+        case _ => arg.name
+      })
   }
 
   // Apply converter to return value to convert from Scala Type to Java Type
@@ -890,39 +858,39 @@ class UDXRegistrationHandler(session: Session) extends Logging {
       case _: DataType if returnValue.isOption => s"JavaUtils.get($value)"
       // cast returned value to scala map type and then convert to Java Map because
       // Java UDFs only support Java Map as return type.
-      case MapType(_, StringType)  => s"JavaConverters.mapAsJavaMap($value)"
+      case MapType(_, StringType) => s"JavaConverters.mapAsJavaMap($value)"
       case MapType(_, VariantType) => s"JavaUtils.variantMapToStringMap($value)"
-      case _                       => convertReturnValue(returnValue, value)
+      case _ => convertReturnValue(returnValue, value)
     }
   }
 
   private def convertReturnValue(returnValue: UdfColumnSchema, value: String): String = {
     returnValue.dataType match {
-      case GeographyType           => s"JavaUtils.geographyToString($value)"
-      case GeometryType            => s"JavaUtils.geometryToString($value)"
-      case VariantType             => s"JavaUtils.variantToString($value)"
+      case GeographyType => s"JavaUtils.geographyToString($value)"
+      case GeometryType => s"JavaUtils.geometryToString($value)"
+      case VariantType => s"JavaUtils.variantToString($value)"
       case MapType(_, VariantType) => s"JavaUtils.javaVariantMapToStringMap($value)"
-      case ArrayType(VariantType)  => s"JavaUtils.variantArrayToStringArray($value)"
-      case _                       => s"$value"
+      case ArrayType(VariantType) => s"JavaUtils.variantArrayToStringArray($value)"
+      case _ => s"$value"
     }
   }
 
   private def convertToScalaType(columnSchema: UdfColumnSchema): String = {
     columnSchema.dataType match {
       case t: DataType if columnSchema.isOption => toOption(t)
-      case MapType(_, VariantType)              => SCALA_MAP_VARIANT
-      case MapType(_, StringType)               => SCALA_MAP_STRING
-      case ArrayType(VariantType)               => "Variant[]"
-      case _                                    => toJavaType(columnSchema.dataType)
+      case MapType(_, VariantType) => SCALA_MAP_VARIANT
+      case MapType(_, StringType) => SCALA_MAP_STRING
+      case ArrayType(VariantType) => "Variant[]"
+      case _ => toJavaType(columnSchema.dataType)
     }
   }
 
   private def convertToJavaType(columnSchema: UdfColumnSchema): String = {
     columnSchema.dataType match {
       case t: DataType if columnSchema.isOption => toOption(t)
-      case MapType(_, VariantType)              => "java.util.Map<String,Variant>"
-      case ArrayType(VariantType)               => "Variant[]"
-      case _                                    => toJavaType(columnSchema.dataType)
+      case MapType(_, VariantType) => "java.util.Map<String,Variant>"
+      case ArrayType(VariantType) => "Variant[]"
+      case _ => toJavaType(columnSchema.dataType)
     }
   }
 
@@ -936,8 +904,7 @@ class UDXRegistrationHandler(session: Session) extends Logging {
    */
   private def scalaFunctionSignature(
       inputArgs: Seq[UdfColumn],
-      returnValue: UdfColumnSchema
-  ): String = {
+      returnValue: UdfColumnSchema): String = {
     // Scala function Signature has to use scala type instead of java type
     val inputScalaTypes = inputArgs.map(arg => convertToScalaType(arg.schema))
     val returnTypeInFunc = convertToScalaType(returnValue)
@@ -946,8 +913,7 @@ class UDXRegistrationHandler(session: Session) extends Logging {
 
   private def javaFunctionSignature(
       inputArgs: Seq[UdfColumn],
-      returnValue: UdfColumnSchema
-  ): String = {
+      returnValue: UdfColumnSchema): String = {
     // Scala function Signature has to use scala type instead of java type
     val inputScalaTypes = inputArgs.map(arg => convertToJavaType(arg.schema))
     val returnTypeInFunc = convertToJavaType(returnValue)
@@ -962,8 +928,7 @@ class UDXRegistrationHandler(session: Session) extends Logging {
       isTemporary: Boolean,
       code: String,
       targetJarStageLocation: String,
-      isCallerMode: Boolean
-  ): Unit = {
+      isCallerMode: Boolean): Unit = {
     val returnSqlType = convertToSFType(returnDataType)
     val inputSqlTypes = inputArgs.map(arg => convertToSFType(arg.schema.dataType))
     val sqlFunctionArgs = inputArgs
@@ -1015,8 +980,7 @@ class UDXRegistrationHandler(session: Session) extends Logging {
       allImports: String,
       isTemporary: Boolean,
       code: String,
-      targetJarStageLocation: String
-  ): Unit = {
+      targetJarStageLocation: String): Unit = {
     val returnSqlType = convertToSFType(returnDataType)
     val inputSqlTypes = inputArgs.map(arg => convertToSFType(arg.schema.dataType))
     // Create args string in SQL function syntax like "arg1 Integer, arg2 String"
@@ -1064,8 +1028,7 @@ class UDXRegistrationHandler(session: Session) extends Logging {
         if (rootDirectory.isInstanceOf[VirtualDirectory]) {
           logInfo(
             s"Found REPL classes in memory, uploading to stage. " +
-              "Use -Yrepl-outdir <dir-name> to generate REPL classes on disk"
-          )
+              "Use -Yrepl-outdir <dir-name> to generate REPL classes on disk")
           Option(replClassesToJarBytes(rootDirectory))
         } else {
           logInfo(s"Automatically adding REPL directory ${rootDirectory.path} to dependencies")
@@ -1131,12 +1094,10 @@ class UDXRegistrationHandler(session: Session) extends Logging {
       stageName: String,
       destPrefix: String,
       jarFileName: String,
-      funcBytesMap: Map[String, Array[Byte]]
-  ): Unit =
+      funcBytesMap: Map[String, Array[Byte]]): Unit =
     Utils.withRetry(
       session.maxFileUploadRetryCount,
-      s"Uploading UDF jar: $destPrefix $jarFileName $stageName $classDirs"
-    ) {
+      s"Uploading UDF jar: $destPrefix $jarFileName $stageName $classDirs") {
       createAndUploadJarToStageInternal(classDirs, stageName, destPrefix, jarFileName, funcBytesMap)
     }
 
@@ -1145,8 +1106,7 @@ class UDXRegistrationHandler(session: Session) extends Logging {
       stageName: String,
       destPrefix: String,
       jarFileName: String,
-      funcBytesMap: Map[String, Array[Byte]]
-  ): Unit = {
+      funcBytesMap: Map[String, Array[Byte]]): Unit = {
     classDirs.foreach(dir => logInfo(s"Adding directory ${dir.toString} to UDF jar"))
 
     val source = new PipedOutputStream()
@@ -1162,8 +1122,7 @@ class UDXRegistrationHandler(session: Session) extends Logging {
           case t: Throwable =>
             logError(
               s"Error in child thread while creating udf jar: " +
-                s"$classDirs $destPrefix $jarFileName $stageName"
-            )
+                s"$classDirs $destPrefix $jarFileName $stageName")
             readError = Some(t)
             throw t
         } finally {
@@ -1181,8 +1140,7 @@ class UDXRegistrationHandler(session: Session) extends Logging {
           case t: Throwable =>
             logError(
               s"Error in child thread while uploading udf jar: " +
-                s"$classDirs $destPrefix $jarFileName $stageName"
-            )
+                s"$classDirs $destPrefix $jarFileName $stageName")
             uploadError = Some(t)
             throw t
         } finally {
@@ -1205,8 +1163,7 @@ class UDXRegistrationHandler(session: Session) extends Logging {
       logError(
         s"Main udf registration thread caught an error: " +
           s"${if (uploadError.nonEmpty) s"upload error: ${uploadError.get.getMessage}" else ""}" +
-          s"${if (readError.nonEmpty) s" read error: ${readError.get.getMessage}" else ""}"
-      )
+          s"${if (readError.nonEmpty) s" read error: ${readError.get.getMessage}" else ""}")
       if (uploadError.nonEmpty) {
         throw uploadError.get
       } else {

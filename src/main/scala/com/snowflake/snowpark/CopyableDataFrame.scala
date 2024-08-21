@@ -18,8 +18,8 @@ class CopyableDataFrame private[snowpark] (
     override private[snowpark] val session: Session,
     override private[snowpark] val plan: SnowflakePlan,
     override private[snowpark] val methodChain: Seq[String],
-    private val stagedFileReader: StagedFileReader
-) extends DataFrame(session, plan, methodChain) {
+    private val stagedFileReader: StagedFileReader)
+    extends DataFrame(session, plan, methodChain) {
 
   /** Executes a `COPY INTO <table_name>` command to load data from files in a stage into a
     * specified table.
@@ -209,8 +209,7 @@ class CopyableDataFrame private[snowpark] (
       tableName: String,
       targetColumnNames: Seq[String],
       transformations: Seq[Column],
-      options: Map[String, Any]
-  ): Unit = action("copyInto") {
+      options: Map[String, Any]): Unit = action("copyInto") {
     getCopyDataFrame(tableName, targetColumnNames, transformations, options).collect()
   }
 
@@ -219,17 +218,13 @@ class CopyableDataFrame private[snowpark] (
       tableName: String,
       targetColumnNames: Seq[String] = Seq.empty,
       transformations: Seq[Column] = Seq.empty,
-      options: Map[String, Any] = Map.empty
-  ): DataFrame = {
-    if (
-      targetColumnNames.nonEmpty && transformations.nonEmpty &&
-      targetColumnNames.size != transformations.size
-    ) {
+      options: Map[String, Any] = Map.empty): DataFrame = {
+    if (targetColumnNames.nonEmpty && transformations.nonEmpty &&
+      targetColumnNames.size != transformations.size) {
       // If columnNames and transformations are provided, the size of them must match.
       throw ErrorMessage.PLAN_COPY_INVALID_COLUMN_NAME_SIZE(
         targetColumnNames.size,
-        transformations.size
-      )
+        transformations.size)
     }
     session.conn.telemetry.reportActionCopyInto()
     Utils.validateObjectName(tableName)
@@ -239,9 +234,7 @@ class CopyableDataFrame private[snowpark] (
         targetColumnNames.map(internal.analyzer.quoteName),
         transformations.map(_.expr),
         options,
-        new StagedFileReader(stagedFileReader)
-      )
-    )
+        new StagedFileReader(stagedFileReader)))
   }
 
   /** Returns a clone of this CopyableDataFrame.
@@ -341,8 +334,7 @@ class CopyableDataFrameAsyncActor private[snowpark] (cdf: CopyableDataFrame)
   def copyInto(
       tableName: String,
       transformations: Seq[Column],
-      options: Map[String, Any]
-  ): TypedAsyncJob[Unit] = action("copyInto") {
+      options: Map[String, Any]): TypedAsyncJob[Unit] = action("copyInto") {
     val df = cdf.getCopyDataFrame(tableName, Seq.empty, transformations, options)
     cdf.session.conn.executeAsync[Unit](df.snowflakePlan)
   }
@@ -372,15 +364,13 @@ class CopyableDataFrameAsyncActor private[snowpark] (cdf: CopyableDataFrame)
       tableName: String,
       targetColumnNames: Seq[String],
       transformations: Seq[Column],
-      options: Map[String, Any]
-  ): TypedAsyncJob[Unit] = action("copyInto") {
+      options: Map[String, Any]): TypedAsyncJob[Unit] = action("copyInto") {
     val df = cdf.getCopyDataFrame(tableName, targetColumnNames, transformations, options)
     cdf.session.conn.executeAsync[Unit](df.snowflakePlan)
   }
 
   @inline override protected def action[T](funcName: String)(func: => T): T = {
     OpenTelemetry.action("CopyableDataFrameAsyncActor", funcName, cdf.methodChainString + ".async")(
-      func
-    )
+      func)
   }
 }

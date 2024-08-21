@@ -65,7 +65,7 @@ case class Column private[snowpark] (private[snowpark] val expr: Expression) ext
   def in(values: Seq[Any]): Column = {
     val columnCount = expr match {
       case me: MultipleExpression => me.expressions.size
-      case _                      => 1
+      case _ => 1
     }
     val valueExpressions = values.map {
       case tuple: Seq[_] =>
@@ -89,7 +89,7 @@ case class Column private[snowpark] (private[snowpark] val expr: Expression) ext
       // it is kind of confusing. They may be enabled if users request it in the future.
       def validateValue(valueExpr: Expression): Unit = {
         valueExpr match {
-          case _: Literal             =>
+          case _: Literal =>
           case me: MultipleExpression => me.expressions.foreach(validateValue)
           case _ => throw ErrorMessage.PLAN_IN_EXPRESSION_UNSUPPORTED_VALUE(valueExpr.toString)
         }
@@ -201,7 +201,7 @@ case class Column private[snowpark] (private[snowpark] val expr: Expression) ext
   def getName: Option[String] =
     expr match {
       case namedExpr: NamedExpression => Option(namedExpr.name)
-      case _                          => None
+      case _ => None
     }
 
   /** Returns a string representation of the expression corresponding to this Column instance.
@@ -259,8 +259,7 @@ case class Column private[snowpark] (private[snowpark] val expr: Expression) ext
     if (this.expr == right) {
       logWarning(
         s"Constructing trivially true equals predicate, '${this.expr} = $right'. '" +
-          "Perhaps need to use aliases."
-      )
+          "Perhaps need to use aliases.")
     }
     EqualTo(expr, right)
   }
@@ -342,8 +341,7 @@ case class Column private[snowpark] (private[snowpark] val expr: Expression) ext
     if (this.expr == right) {
       logWarning(
         s"Constructing trivially true equals predicate, '${this.expr} <=> $right'. " +
-          "Perhaps need to use aliases."
-      )
+          "Perhaps need to use aliases.")
     }
     EqualNullSafe(expr, right)
   }
@@ -660,7 +658,7 @@ case class Column private[snowpark] (private[snowpark] val expr: Expression) ext
 
   private def toExpr(exp: Any): Expression = exp match {
     case c: Column => c.expr
-    case _         => lit(exp).expr
+    case _ => lit(exp).expr
   }
 
   protected def withExpr(newExpr: Expression): Column = Column(newExpr)
@@ -669,9 +667,9 @@ case class Column private[snowpark] (private[snowpark] val expr: Expression) ext
 private[snowpark] object Column {
   def apply(name: String): Column =
     new Column(name match {
-      case "*"                  => Star(Seq.empty)
+      case "*" => Star(Seq.empty)
       case c if c.contains(".") => UnresolvedDFAliasAttribute(name)
-      case _                    => UnresolvedAttribute(quoteName(name))
+      case _ => UnresolvedAttribute(quoteName(name))
     })
 
   def expr(e: String): Column = new Column(UnresolvedAttribute(e))

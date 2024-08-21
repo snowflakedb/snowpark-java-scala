@@ -21,8 +21,7 @@ case class UserDefinedFunction private[snowpark] (
     f: AnyRef,
     private[snowpark] val returnType: UdfColumnSchema,
     private[snowpark] val inputTypes: Seq[UdfColumnSchema] = Nil,
-    name: Option[String] = None
-) {
+    name: Option[String] = None) {
 
   /** Apply the UDF to one or more columns to generate a [[Column]] expression.
     * @since 0.1.0

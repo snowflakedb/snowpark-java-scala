@@ -25,8 +25,7 @@ class FatJarBuilder {
       classDirs: List[File],
       jars: List[JarFile],
       funcBytesMap: Map[String, Array[Byte]],
-      target: JarOutputStream
-  ): Unit = {
+      target: JarOutputStream): Unit = {
     val manifest = new Manifest
     manifest.getMainAttributes.put(Attributes.Name.MANIFEST_VERSION, "1.0")
 
@@ -56,8 +55,7 @@ class FatJarBuilder {
   private def copyFileToTargetJar(
       classObj: InMemoryClassObject,
       target: JarOutputStream,
-      trackPaths: mutable.HashSet[String]
-  ): Unit = {
+      trackPaths: mutable.HashSet[String]): Unit = {
     val dirs = classObj.getClassName.split("\\.")
     var prefix = ""
     dirs
@@ -85,8 +83,7 @@ class FatJarBuilder {
   private def copyDirToTargetJar(
       root: File,
       target: JarOutputStream,
-      trackPaths: mutable.HashSet[String]
-  ): Unit = {
+      trackPaths: mutable.HashSet[String]): Unit = {
     Files.walkFileTree(
       root.toPath,
       new SimpleFileVisitor[Path]() {
@@ -106,8 +103,7 @@ class FatJarBuilder {
           }
           FileVisitResult.CONTINUE
         }
-      }
-    )
+      })
   }
 
   /** This method adds all entries in source jar to the target jar
@@ -121,8 +117,7 @@ class FatJarBuilder {
   private def copyJarToTargetJar(
       sourceJar: JarFile,
       target: JarOutputStream,
-      trackPaths: mutable.HashSet[String]
-  ): Unit = {
+      trackPaths: mutable.HashSet[String]): Unit = {
     val entries = sourceJar.entries()
     while (entries.hasMoreElements) {
       val entry = entries.nextElement()
@@ -146,8 +141,7 @@ class FatJarBuilder {
   private def addFileEntryToJar(
       entryName: String,
       is: InputStream,
-      target: JarOutputStream
-  ): Unit = {
+      target: JarOutputStream): Unit = {
     try {
       target.putNextEntry(new JarEntry(entryName))
       IOUtils.copy(is, target)
@@ -160,8 +154,7 @@ class FatJarBuilder {
   private def addDirEntryToJar(
       entryName: String,
       trackPaths: mutable.HashSet[String],
-      target: JarOutputStream
-  ): Unit = {
+      target: JarOutputStream): Unit = {
     val dirName = if (!entryName.endsWith("/")) entryName + "/" else entryName
     if (!trackPaths.contains(dirName)) {
       trackPaths += dirName

@@ -162,8 +162,7 @@ private[snowpark] object ErrorMessage {
     "0425" -> "Unsupported Geometry output format: %s. Please set session parameter GEOMETRY_OUTPUT_FORMAT to GeoJSON.",
     "0426" -> "The given query tag must be a valid JSON string. Ensure it's correctly formatted as JSON.",
     "0427" -> "The query tag of the current session must be a valid JSON string. Current query tag: %s",
-    "0428" -> "Failed to serialize the query tag into a JSON string."
-  )
+    "0428" -> "Failed to serialize the query tag into a JSON string.")
   // scalastyle:on
 
   /*
@@ -181,8 +180,7 @@ private[snowpark] object ErrorMessage {
   def DF_CANNOT_DROP_ALL_COLUMNS(): SnowparkClientException = createException("0102")
   def DF_CANNOT_RESOLVE_COLUMN_NAME_AMONG(
       colName: String,
-      allColumns: String
-  ): SnowparkClientException =
+      allColumns: String): SnowparkClientException =
     createException("0103", colName, allColumns)
   def DF_SELF_JOIN_NOT_SUPPORTED(): SnowparkClientException = createException("0104")
   def DF_RANDOM_SPLIT_WEIGHT_INVALID(): SnowparkClientException = createException("0105")
@@ -191,8 +189,7 @@ private[snowpark] object ErrorMessage {
     createException("0107", mode)
   def DF_CANNOT_RESOLVE_COLUMN_NAME(
       colName: String,
-      names: Traversable[String]
-  ): SnowparkClientException =
+      names: Traversable[String]): SnowparkClientException =
     createException("0108", colName, names.mkString(", "))
 
   def DF_MUST_PROVIDE_SCHEMA_FOR_READING_FILE(): SnowparkClientException =
@@ -201,8 +198,7 @@ private[snowpark] object ErrorMessage {
     createException("0110", count, maxCount)
   def DF_DATAFRAME_IS_NOT_QUALIFIED_FOR_SCALAR_QUERY(
       count: Long,
-      columns: String
-  ): SnowparkClientException =
+      columns: String): SnowparkClientException =
     createException("0111", count, columns)
   def DF_PIVOT_ONLY_SUPPORT_ONE_AGG_EXPR(): SnowparkClientException =
     createException("0112")
@@ -222,21 +218,18 @@ private[snowpark] object ErrorMessage {
     createException("0119")
   def DF_CANNOT_RENAME_COLUMN_BECAUSE_NOT_EXIST(
       oldName: String,
-      newName: String
-  ): SnowparkClientException =
+      newName: String): SnowparkClientException =
     createException("0120", oldName, newName, oldName)
   def DF_CANNOT_RENAME_COLUMN_BECAUSE_MULTIPLE_EXIST(
       oldName: String,
       newName: String,
-      times: Int
-  ): SnowparkClientException =
+      times: Int): SnowparkClientException =
     createException("0121", oldName, newName, times, oldName)
   def DF_COPY_INTO_CANNOT_CREATE_TABLE(name: String): SnowparkClientException =
     createException("0122", name)
   def DF_WITH_COLUMNS_INPUT_NAMES_NOT_MATCH_VALUES(
       nameSize: Int,
-      valueSize: Int
-  ): SnowparkClientException =
+      valueSize: Int): SnowparkClientException =
     createException("0123", nameSize, valueSize)
   def DF_WITH_COLUMNS_INPUT_NAMES_CONTAINS_DUPLICATES: SnowparkClientException =
     createException("0124")
@@ -247,15 +240,13 @@ private[snowpark] object ErrorMessage {
   def DF_WRITER_INVALID_OPTION_VALUE(
       name: String,
       value: String,
-      target: String
-  ): SnowparkClientException =
+      target: String): SnowparkClientException =
     createException("0127", name, value, target)
   def DF_WRITER_INVALID_OPTION_NAME_IN_MODE(
       name: String,
       value: String,
       mode: String,
-      target: String
-  ): SnowparkClientException =
+      target: String): SnowparkClientException =
     createException("0128", name, value, mode, target)
   def DF_WRITER_INVALID_MODE(mode: String, target: String): SnowparkClientException =
     createException("0129", mode, target)
@@ -332,15 +323,13 @@ private[snowpark] object ErrorMessage {
   def PLAN_QUERY_IS_STILL_RUNNING(
       queryID: String,
       status: String,
-      waitTime: Long
-  ): SnowparkClientException =
+      waitTime: Long): SnowparkClientException =
     createException("0318", queryID, status, waitTime)
   def PLAN_CANNOT_SUPPORT_TYPE_FOR_ASYNC_JOB(typeName: String): SnowparkClientException =
     createException("0319", typeName)
   def PLAN_CANNOT_GET_ASYNC_JOB_RESULT(
       typeName: String,
-      funcName: String
-  ): SnowparkClientException =
+      funcName: String): SnowparkClientException =
     createException("0320", typeName, funcName)
   def PLAN_MERGE_RETURN_WRONG_ROWS(expected: Int, actual: Int): SnowparkClientException =
     createException("0321", expected, actual)
@@ -351,14 +340,12 @@ private[snowpark] object ErrorMessage {
   def MISC_CANNOT_CAST_VALUE(
       sourceType: String,
       value: String,
-      targetType: String
-  ): SnowparkClientException =
+      targetType: String): SnowparkClientException =
     createException("0400", sourceType, value, targetType)
   def MISC_CANNOT_FIND_CURRENT_DB_OR_SCHEMA(
       v1: String,
       v2: String,
-      v3: String
-  ): SnowparkClientException =
+      v3: String): SnowparkClientException =
     createException("0401", v1, v2, v3)
   def MISC_QUERY_IS_CANCELLED(): SnowparkClientException = createException("0402")
   def MISC_INVALID_CLIENT_VERSION(version: String): SnowparkClientException =
@@ -380,8 +367,7 @@ private[snowpark] object ErrorMessage {
   def MISC_SCALA_VERSION_NOT_SUPPORTED(
       currentVersion: String,
       expectedVersion: String,
-      minorVersion: String
-  ): SnowparkClientException =
+      minorVersion: String): SnowparkClientException =
     createException("0411", currentVersion, expectedVersion, minorVersion)
   def MISC_INVALID_OBJECT_NAME(typeName: String): SnowparkClientException =
     createException("0412", typeName)
@@ -399,8 +385,7 @@ private[snowpark] object ErrorMessage {
       value: String,
       parameter: String,
       min: Long,
-      max: Long
-  ): SnowparkClientException =
+      max: Long): SnowparkClientException =
     createException("0418", value, parameter, min, max)
   def MISC_REQUEST_TIMEOUT(eventName: String, maxTime: Long): SnowparkClientException =
     createException("0419", eventName, maxTime)
@@ -409,8 +394,7 @@ private[snowpark] object ErrorMessage {
   def MISC_INVALID_STAGE_LOCATION(stageLocation: String, reason: String): SnowparkClientException =
     createException("0421", stageLocation, reason)
   def MISC_NO_SERVER_VALUE_NO_DEFAULT_FOR_PARAMETER(
-      parameterName: String
-  ): SnowparkClientException =
+      parameterName: String): SnowparkClientException =
     createException("0422", parameterName)
 
   def MISC_INVALID_TABLE_FUNCTION_INPUT(): SnowparkClientException =
@@ -445,8 +429,7 @@ private[snowpark] object ErrorMessage {
     new SnowparkClientException(
       s"Error Code: $errorCode, Error message: ${message.format(args: _*)}",
       errorCode,
-      message
-    )
+      message)
   }
 
   private[snowpark] def getMessage(errorCode: String) = allMessages(errorCode)

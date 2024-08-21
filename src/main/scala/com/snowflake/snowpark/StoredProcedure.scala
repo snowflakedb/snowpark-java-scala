@@ -21,8 +21,7 @@ case class StoredProcedure private[snowpark] (
     sp: AnyRef,
     private[snowpark] val returnType: UdfColumnSchema,
     private[snowpark] val inputTypes: Seq[UdfColumnSchema] = Nil,
-    name: Option[String] = None
-) {
+    name: Option[String] = None) {
   private[snowpark] def withName(name: String): StoredProcedure =
     StoredProcedure(sp, returnType, inputTypes, Some(name))
 }

@@ -114,8 +114,7 @@ class UDFRegistration(session: Session) extends Logging {
     * @since 0.6.0
     */
   def registerTemporary[RT: TypeTag, A1: TypeTag, A2: TypeTag](
-      func: Function2[A1, A2, RT]
-  ): UserDefinedFunction =
+      func: Function2[A1, A2, RT]): UserDefinedFunction =
     udf("registerTemporary") {
       register(None, _toUdf(func))
     }
@@ -128,8 +127,7 @@ class UDFRegistration(session: Session) extends Logging {
     * @since 0.6.0
     */
   def registerTemporary[RT: TypeTag, A1: TypeTag, A2: TypeTag, A3: TypeTag](
-      func: Function3[A1, A2, A3, RT]
-  ): UserDefinedFunction =
+      func: Function3[A1, A2, A3, RT]): UserDefinedFunction =
     udf("registerTemporary") {
       register(None, _toUdf(func))
     }
@@ -142,8 +140,7 @@ class UDFRegistration(session: Session) extends Logging {
     * @since 0.6.0
     */
   def registerTemporary[RT: TypeTag, A1: TypeTag, A2: TypeTag, A3: TypeTag, A4: TypeTag](
-      func: Function4[A1, A2, A3, A4, RT]
-  ): UserDefinedFunction =
+      func: Function4[A1, A2, A3, A4, RT]): UserDefinedFunction =
     udf("registerTemporary") {
       register(None, _toUdf(func))
     }
@@ -161,8 +158,7 @@ class UDFRegistration(session: Session) extends Logging {
       A2: TypeTag,
       A3: TypeTag,
       A4: TypeTag,
-      A5: TypeTag
-  ](func: Function5[A1, A2, A3, A4, A5, RT]): UserDefinedFunction =
+      A5: TypeTag](func: Function5[A1, A2, A3, A4, A5, RT]): UserDefinedFunction =
     udf("registerTemporary") {
       register(None, _toUdf(func))
     }
@@ -181,8 +177,7 @@ class UDFRegistration(session: Session) extends Logging {
       A3: TypeTag,
       A4: TypeTag,
       A5: TypeTag,
-      A6: TypeTag
-  ](func: Function6[A1, A2, A3, A4, A5, A6, RT]): UserDefinedFunction =
+      A6: TypeTag](func: Function6[A1, A2, A3, A4, A5, A6, RT]): UserDefinedFunction =
     udf("registerTemporary") {
       register(None, _toUdf(func))
     }
@@ -202,8 +197,7 @@ class UDFRegistration(session: Session) extends Logging {
       A4: TypeTag,
       A5: TypeTag,
       A6: TypeTag,
-      A7: TypeTag
-  ](func: Function7[A1, A2, A3, A4, A5, A6, A7, RT]): UserDefinedFunction =
+      A7: TypeTag](func: Function7[A1, A2, A3, A4, A5, A6, A7, RT]): UserDefinedFunction =
     udf("registerTemporary") {
       register(None, _toUdf(func))
     }
@@ -224,8 +218,7 @@ class UDFRegistration(session: Session) extends Logging {
       A5: TypeTag,
       A6: TypeTag,
       A7: TypeTag,
-      A8: TypeTag
-  ](func: Function8[A1, A2, A3, A4, A5, A6, A7, A8, RT]): UserDefinedFunction =
+      A8: TypeTag](func: Function8[A1, A2, A3, A4, A5, A6, A7, A8, RT]): UserDefinedFunction =
     udf("registerTemporary") {
       register(None, _toUdf(func))
     }
@@ -247,8 +240,7 @@ class UDFRegistration(session: Session) extends Logging {
       A6: TypeTag,
       A7: TypeTag,
       A8: TypeTag,
-      A9: TypeTag
-  ](func: Function9[A1, A2, A3, A4, A5, A6, A7, A8, A9, RT]): UserDefinedFunction =
+      A9: TypeTag](func: Function9[A1, A2, A3, A4, A5, A6, A7, A8, A9, RT]): UserDefinedFunction =
     udf("registerTemporary") {
       register(None, _toUdf(func))
     }
@@ -271,8 +263,8 @@ class UDFRegistration(session: Session) extends Logging {
       A7: TypeTag,
       A8: TypeTag,
       A9: TypeTag,
-      A10: TypeTag
-  ](func: Function10[A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, RT]): UserDefinedFunction =
+      A10: TypeTag](
+      func: Function10[A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, RT]): UserDefinedFunction =
     udf("registerTemporary") {
       register(None, _toUdf(func))
     }
@@ -296,8 +288,8 @@ class UDFRegistration(session: Session) extends Logging {
       A8: TypeTag,
       A9: TypeTag,
       A10: TypeTag,
-      A11: TypeTag
-  ](func: Function11[A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, RT]): UserDefinedFunction =
+      A11: TypeTag](
+      func: Function11[A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, RT]): UserDefinedFunction =
     udf("registerTemporary") {
       register(None, _toUdf(func))
     }
@@ -322,8 +314,8 @@ class UDFRegistration(session: Session) extends Logging {
       A9: TypeTag,
       A10: TypeTag,
       A11: TypeTag,
-      A12: TypeTag
-  ](func: Function12[A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, RT]): UserDefinedFunction =
+      A12: TypeTag](func: Function12[A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, RT])
+      : UserDefinedFunction =
     udf("registerTemporary") {
       register(None, _toUdf(func))
     }
@@ -349,10 +341,8 @@ class UDFRegistration(session: Session) extends Logging {
       A10: TypeTag,
       A11: TypeTag,
       A12: TypeTag,
-      A13: TypeTag
-  ](
-      func: Function13[A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, RT]
-  ): UserDefinedFunction =
+      A13: TypeTag](func: Function13[A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, RT])
+      : UserDefinedFunction =
     udf("registerTemporary") {
       register(None, _toUdf(func))
     }
@@ -379,10 +369,9 @@ class UDFRegistration(session: Session) extends Logging {
       A11: TypeTag,
       A12: TypeTag,
       A13: TypeTag,
-      A14: TypeTag
-  ](
-      func: Function14[A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, RT]
-  ): UserDefinedFunction =
+      A14: TypeTag](
+      func: Function14[A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, RT])
+      : UserDefinedFunction =
     udf("registerTemporary") {
       register(None, _toUdf(func))
     }
@@ -410,10 +399,9 @@ class UDFRegistration(session: Session) extends Logging {
       A12: TypeTag,
       A13: TypeTag,
       A14: TypeTag,
-      A15: TypeTag
-  ](
-      func: Function15[A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15, RT]
-  ): UserDefinedFunction =
+      A15: TypeTag](
+      func: Function15[A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15, RT])
+      : UserDefinedFunction =
     udf("registerTemporary") {
       register(None, _toUdf(func))
     }
@@ -442,10 +430,9 @@ class UDFRegistration(session: Session) extends Logging {
       A13: TypeTag,
       A14: TypeTag,
       A15: TypeTag,
-      A16: TypeTag
-  ](
-      func: Function16[A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15, A16, RT]
-  ): UserDefinedFunction =
+      A16: TypeTag](
+      func: Function16[A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15, A16, RT])
+      : UserDefinedFunction =
     udf("registerTemporary") {
       register(None, _toUdf(func))
     }
@@ -475,8 +462,7 @@ class UDFRegistration(session: Session) extends Logging {
       A14: TypeTag,
       A15: TypeTag,
       A16: TypeTag,
-      A17: TypeTag
-  ](
+      A17: TypeTag](
       func: Function17[
         A1,
         A2,
@@ -495,9 +481,7 @@ class UDFRegistration(session: Session) extends Logging {
         A15,
         A16,
         A17,
-        RT
-      ]
-  ): UserDefinedFunction =
+        RT]): UserDefinedFunction =
     udf("registerTemporary") {
       register(None, _toUdf(func))
     }
@@ -528,8 +512,7 @@ class UDFRegistration(session: Session) extends Logging {
       A15: TypeTag,
       A16: TypeTag,
       A17: TypeTag,
-      A18: TypeTag
-  ](
+      A18: TypeTag](
       func: Function18[
         A1,
         A2,
@@ -549,9 +532,7 @@ class UDFRegistration(session: Session) extends Logging {
         A16,
         A17,
         A18,
-        RT
-      ]
-  ): UserDefinedFunction =
+        RT]): UserDefinedFunction =
     udf("registerTemporary") {
       register(None, _toUdf(func))
     }
@@ -583,8 +564,7 @@ class UDFRegistration(session: Session) extends Logging {
       A16: TypeTag,
       A17: TypeTag,
       A18: TypeTag,
-      A19: TypeTag
-  ](
+      A19: TypeTag](
       func: Function19[
         A1,
         A2,
@@ -605,9 +585,7 @@ class UDFRegistration(session: Session) extends Logging {
         A17,
         A18,
         A19,
-        RT
-      ]
-  ): UserDefinedFunction =
+        RT]): UserDefinedFunction =
     udf("registerTemporary") {
       register(None, _toUdf(func))
     }
@@ -640,8 +618,7 @@ class UDFRegistration(session: Session) extends Logging {
       A17: TypeTag,
       A18: TypeTag,
       A19: TypeTag,
-      A20: TypeTag
-  ](
+      A20: TypeTag](
       func: Function20[
         A1,
         A2,
@@ -663,9 +640,7 @@ class UDFRegistration(session: Session) extends Logging {
         A18,
         A19,
         A20,
-        RT
-      ]
-  ): UserDefinedFunction =
+        RT]): UserDefinedFunction =
     udf("registerTemporary") {
       register(None, _toUdf(func))
     }
@@ -699,8 +674,7 @@ class UDFRegistration(session: Session) extends Logging {
       A18: TypeTag,
       A19: TypeTag,
       A20: TypeTag,
-      A21: TypeTag
-  ](
+      A21: TypeTag](
       func: Function21[
         A1,
         A2,
@@ -723,9 +697,7 @@ class UDFRegistration(session: Session) extends Logging {
         A19,
         A20,
         A21,
-        RT
-      ]
-  ): UserDefinedFunction =
+        RT]): UserDefinedFunction =
     udf("registerTemporary") {
       register(None, _toUdf(func))
     }
@@ -760,8 +732,7 @@ class UDFRegistration(session: Session) extends Logging {
       A19: TypeTag,
       A20: TypeTag,
       A21: TypeTag,
-      A22: TypeTag
-  ](
+      A22: TypeTag](
       func: Function22[
         A1,
         A2,
@@ -785,9 +756,7 @@ class UDFRegistration(session: Session) extends Logging {
         A20,
         A21,
         A22,
-        RT
-      ]
-  ): UserDefinedFunction =
+        RT]): UserDefinedFunction =
     udf("registerTemporary") {
       register(None, _toUdf(func))
     }
@@ -834,8 +803,7 @@ class UDFRegistration(session: Session) extends Logging {
     */
   def registerTemporary[RT: TypeTag, A1: TypeTag](
       name: String,
-      func: Function1[A1, RT]
-  ): UserDefinedFunction =
+      func: Function1[A1, RT]): UserDefinedFunction =
     udf("registerTemporary", execName = name) {
       register(Some(name), _toUdf(func))
     }
@@ -849,8 +817,7 @@ class UDFRegistration(session: Session) extends Logging {
     */
   def registerTemporary[RT: TypeTag, A1: TypeTag, A2: TypeTag](
       name: String,
-      func: Function2[A1, A2, RT]
-  ): UserDefinedFunction =
+      func: Function2[A1, A2, RT]): UserDefinedFunction =
     udf("registerTemporary", execName = name) {
       register(Some(name), _toUdf(func))
     }
@@ -864,8 +831,7 @@ class UDFRegistration(session: Session) extends Logging {
     */
   def registerTemporary[RT: TypeTag, A1: TypeTag, A2: TypeTag, A3: TypeTag](
       name: String,
-      func: Function3[A1, A2, A3, RT]
-  ): UserDefinedFunction =
+      func: Function3[A1, A2, A3, RT]): UserDefinedFunction =
     udf("registerTemporary", execName = name) {
       register(Some(name), _toUdf(func))
     }
@@ -879,8 +845,7 @@ class UDFRegistration(session: Session) extends Logging {
     */
   def registerTemporary[RT: TypeTag, A1: TypeTag, A2: TypeTag, A3: TypeTag, A4: TypeTag](
       name: String,
-      func: Function4[A1, A2, A3, A4, RT]
-  ): UserDefinedFunction =
+      func: Function4[A1, A2, A3, A4, RT]): UserDefinedFunction =
     udf("registerTemporary", execName = name) {
       register(Some(name), _toUdf(func))
     }
@@ -898,8 +863,7 @@ class UDFRegistration(session: Session) extends Logging {
       A2: TypeTag,
       A3: TypeTag,
       A4: TypeTag,
-      A5: TypeTag
-  ](name: String, func: Function5[A1, A2, A3, A4, A5, RT]): UserDefinedFunction =
+      A5: TypeTag](name: String, func: Function5[A1, A2, A3, A4, A5, RT]): UserDefinedFunction =
     udf("registerTemporary", execName = name) {
       register(Some(name), _toUdf(func))
     }
@@ -918,8 +882,7 @@ class UDFRegistration(session: Session) extends Logging {
       A3: TypeTag,
       A4: TypeTag,
       A5: TypeTag,
-      A6: TypeTag
-  ](name: String, func: Function6[A1, A2, A3, A4, A5, A6, RT]): UserDefinedFunction =
+      A6: TypeTag](name: String, func: Function6[A1, A2, A3, A4, A5, A6, RT]): UserDefinedFunction =
     udf("registerTemporary", execName = name) {
       register(Some(name), _toUdf(func))
     }
@@ -939,8 +902,9 @@ class UDFRegistration(session: Session) extends Logging {
       A4: TypeTag,
       A5: TypeTag,
       A6: TypeTag,
-      A7: TypeTag
-  ](name: String, func: Function7[A1, A2, A3, A4, A5, A6, A7, RT]): UserDefinedFunction =
+      A7: TypeTag](
+      name: String,
+      func: Function7[A1, A2, A3, A4, A5, A6, A7, RT]): UserDefinedFunction =
     udf("registerTemporary", execName = name) {
       register(Some(name), _toUdf(func))
     }
@@ -961,8 +925,9 @@ class UDFRegistration(session: Session) extends Logging {
       A5: TypeTag,
       A6: TypeTag,
       A7: TypeTag,
-      A8: TypeTag
-  ](name: String, func: Function8[A1, A2, A3, A4, A5, A6, A7, A8, RT]): UserDefinedFunction =
+      A8: TypeTag](
+      name: String,
+      func: Function8[A1, A2, A3, A4, A5, A6, A7, A8, RT]): UserDefinedFunction =
     udf("registerTemporary", execName = name) {
       register(Some(name), _toUdf(func))
     }
@@ -984,8 +949,9 @@ class UDFRegistration(session: Session) extends Logging {
       A6: TypeTag,
       A7: TypeTag,
       A8: TypeTag,
-      A9: TypeTag
-  ](name: String, func: Function9[A1, A2, A3, A4, A5, A6, A7, A8, A9, RT]): UserDefinedFunction =
+      A9: TypeTag](
+      name: String,
+      func: Function9[A1, A2, A3, A4, A5, A6, A7, A8, A9, RT]): UserDefinedFunction =
     udf("registerTemporary", execName = name) {
       register(Some(name), _toUdf(func))
     }
@@ -1008,11 +974,9 @@ class UDFRegistration(session: Session) extends Logging {
       A7: TypeTag,
       A8: TypeTag,
       A9: TypeTag,
-      A10: TypeTag
-  ](
+      A10: TypeTag](
       name: String,
-      func: Function10[A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, RT]
-  ): UserDefinedFunction =
+      func: Function10[A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, RT]): UserDefinedFunction =
     udf("registerTemporary", execName = name) {
       register(Some(name), _toUdf(func))
     }
@@ -1036,11 +1000,9 @@ class UDFRegistration(session: Session) extends Logging {
       A8: TypeTag,
       A9: TypeTag,
       A10: TypeTag,
-      A11: TypeTag
-  ](
+      A11: TypeTag](
       name: String,
-      func: Function11[A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, RT]
-  ): UserDefinedFunction =
+      func: Function11[A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, RT]): UserDefinedFunction =
     udf("registerTemporary", execName = name) {
       register(Some(name), _toUdf(func))
     }
@@ -1065,11 +1027,10 @@ class UDFRegistration(session: Session) extends Logging {
       A9: TypeTag,
       A10: TypeTag,
       A11: TypeTag,
-      A12: TypeTag
-  ](
+      A12: TypeTag](
       name: String,
-      func: Function12[A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, RT]
-  ): UserDefinedFunction =
+      func: Function12[A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, RT])
+      : UserDefinedFunction =
     udf("registerTemporary", execName = name) {
       register(Some(name), _toUdf(func))
     }
@@ -1095,11 +1056,10 @@ class UDFRegistration(session: Session) extends Logging {
       A10: TypeTag,
       A11: TypeTag,
       A12: TypeTag,
-      A13: TypeTag
-  ](
+      A13: TypeTag](
       name: String,
-      func: Function13[A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, RT]
-  ): UserDefinedFunction =
+      func: Function13[A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, RT])
+      : UserDefinedFunction =
     udf("registerTemporary", execName = name) {
       register(Some(name), _toUdf(func))
     }
@@ -1126,11 +1086,10 @@ class UDFRegistration(session: Session) extends Logging {
       A11: TypeTag,
       A12: TypeTag,
       A13: TypeTag,
-      A14: TypeTag
-  ](
+      A14: TypeTag](
       name: String,
-      func: Function14[A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, RT]
-  ): UserDefinedFunction =
+      func: Function14[A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, RT])
+      : UserDefinedFunction =
     udf("registerTemporary", execName = name) {
       register(Some(name), _toUdf(func))
     }
@@ -1158,11 +1117,10 @@ class UDFRegistration(session: Session) extends Logging {
       A12: TypeTag,
       A13: TypeTag,
       A14: TypeTag,
-      A15: TypeTag
-  ](
+      A15: TypeTag](
       name: String,
-      func: Function15[A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15, RT]
-  ): UserDefinedFunction =
+      func: Function15[A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15, RT])
+      : UserDefinedFunction =
     udf("registerTemporary", execName = name) {
       register(Some(name), _toUdf(func))
     }
@@ -1191,11 +1149,10 @@ class UDFRegistration(session: Session) extends Logging {
       A13: TypeTag,
       A14: TypeTag,
       A15: TypeTag,
-      A16: TypeTag
-  ](
+      A16: TypeTag](
       name: String,
-      func: Function16[A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15, A16, RT]
-  ): UserDefinedFunction =
+      func: Function16[A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15, A16, RT])
+      : UserDefinedFunction =
     udf("registerTemporary", execName = name) {
       register(Some(name), _toUdf(func))
     }
@@ -1225,8 +1182,7 @@ class UDFRegistration(session: Session) extends Logging {
       A14: TypeTag,
       A15: TypeTag,
       A16: TypeTag,
-      A17: TypeTag
-  ](
+      A17: TypeTag](
       name: String,
       func: Function17[
         A1,
@@ -1246,9 +1202,7 @@ class UDFRegistration(session: Session) extends Logging {
         A15,
         A16,
         A17,
-        RT
-      ]
-  ): UserDefinedFunction =
+        RT]): UserDefinedFunction =
     udf("registerTemporary", execName = name) {
       register(Some(name), _toUdf(func))
     }
@@ -1279,8 +1233,7 @@ class UDFRegistration(session: Session) extends Logging {
       A15: TypeTag,
       A16: TypeTag,
       A17: TypeTag,
-      A18: TypeTag
-  ](
+      A18: TypeTag](
       name: String,
       func: Function18[
         A1,
@@ -1301,9 +1254,7 @@ class UDFRegistration(session: Session) extends Logging {
         A16,
         A17,
         A18,
-        RT
-      ]
-  ): UserDefinedFunction =
+        RT]): UserDefinedFunction =
     udf("registerTemporary", execName = name) {
       register(Some(name), _toUdf(func))
     }
@@ -1335,8 +1286,7 @@ class UDFRegistration(session: Session) extends Logging {
       A16: TypeTag,
       A17: TypeTag,
       A18: TypeTag,
-      A19: TypeTag
-  ](
+      A19: TypeTag](
       name: String,
       func: Function19[
         A1,
@@ -1358,9 +1308,7 @@ class UDFRegistration(session: Session) extends Logging {
         A17,
         A18,
         A19,
-        RT
-      ]
-  ): UserDefinedFunction =
+        RT]): UserDefinedFunction =
     udf("registerTemporary", execName = name) {
       register(Some(name), _toUdf(func))
     }
@@ -1393,8 +1341,7 @@ class UDFRegistration(session: Session) extends Logging {
       A17: TypeTag,
       A18: TypeTag,
       A19: TypeTag,
-      A20: TypeTag
-  ](
+      A20: TypeTag](
       name: String,
       func: Function20[
         A1,
@@ -1417,9 +1364,7 @@ class UDFRegistration(session: Session) extends Logging {
         A18,
         A19,
         A20,
-        RT
-      ]
-  ): UserDefinedFunction =
+        RT]): UserDefinedFunction =
     udf("registerTemporary", execName = name) {
       register(Some(name), _toUdf(func))
     }
@@ -1453,8 +1398,7 @@ class UDFRegistration(session: Session) extends Logging {
       A18: TypeTag,
       A19: TypeTag,
       A20: TypeTag,
-      A21: TypeTag
-  ](
+      A21: TypeTag](
       name: String,
       func: Function21[
         A1,
@@ -1478,9 +1422,7 @@ class UDFRegistration(session: Session) extends Logging {
         A19,
         A20,
         A21,
-        RT
-      ]
-  ): UserDefinedFunction =
+        RT]): UserDefinedFunction =
     udf("registerTemporary", execName = name) {
       register(Some(name), _toUdf(func))
     }
@@ -1515,8 +1457,7 @@ class UDFRegistration(session: Session) extends Logging {
       A19: TypeTag,
       A20: TypeTag,
       A21: TypeTag,
-      A22: TypeTag
-  ](
+      A22: TypeTag](
       name: String,
       func: Function22[
         A1,
@@ -1541,9 +1482,7 @@ class UDFRegistration(session: Session) extends Logging {
         A20,
         A21,
         A22,
-        RT
-      ]
-  ): UserDefinedFunction =
+        RT]): UserDefinedFunction =
     udf("registerTemporary", execName = name) {
       register(Some(name), _toUdf(func))
     }
@@ -1596,8 +1535,7 @@ class UDFRegistration(session: Session) extends Logging {
   def registerPermanent[RT: TypeTag](
       name: String,
       func: Function0[RT],
-      stageLocation: String
-  ): UserDefinedFunction =
+      stageLocation: String): UserDefinedFunction =
     udf("registerPermanent", execName = name, execFilePath = stageLocation) {
       register(Some(name), _toUdf(func), Some(stageLocation))
     }
@@ -1621,8 +1559,7 @@ class UDFRegistration(session: Session) extends Logging {
   def registerPermanent[RT: TypeTag, A1: TypeTag](
       name: String,
       func: Function1[A1, RT],
-      stageLocation: String
-  ): UserDefinedFunction =
+      stageLocation: String): UserDefinedFunction =
     udf("registerPermanent", execName = name, execFilePath = stageLocation) {
       register(Some(name), _toUdf(func), Some(stageLocation))
     }
@@ -1646,8 +1583,7 @@ class UDFRegistration(session: Session) extends Logging {
   def registerPermanent[RT: TypeTag, A1: TypeTag, A2: TypeTag](
       name: String,
       func: Function2[A1, A2, RT],
-      stageLocation: String
-  ): UserDefinedFunction =
+      stageLocation: String): UserDefinedFunction =
     udf("registerPermanent", execName = name, execFilePath = stageLocation) {
       register(Some(name), _toUdf(func), Some(stageLocation))
     }
@@ -1671,8 +1607,7 @@ class UDFRegistration(session: Session) extends Logging {
   def registerPermanent[RT: TypeTag, A1: TypeTag, A2: TypeTag, A3: TypeTag](
       name: String,
       func: Function3[A1, A2, A3, RT],
-      stageLocation: String
-  ): UserDefinedFunction =
+      stageLocation: String): UserDefinedFunction =
     udf("registerPermanent", execName = name, execFilePath = stageLocation) {
       register(Some(name), _toUdf(func), Some(stageLocation))
     }
@@ -1696,8 +1631,7 @@ class UDFRegistration(session: Session) extends Logging {
   def registerPermanent[RT: TypeTag, A1: TypeTag, A2: TypeTag, A3: TypeTag, A4: TypeTag](
       name: String,
       func: Function4[A1, A2, A3, A4, RT],
-      stageLocation: String
-  ): UserDefinedFunction =
+      stageLocation: String): UserDefinedFunction =
     udf("registerPermanent", execName = name, execFilePath = stageLocation) {
       register(Some(name), _toUdf(func), Some(stageLocation))
     }
@@ -1724,12 +1658,10 @@ class UDFRegistration(session: Session) extends Logging {
       A2: TypeTag,
       A3: TypeTag,
       A4: TypeTag,
-      A5: TypeTag
-  ](
+      A5: TypeTag](
       name: String,
       func: Function5[A1, A2, A3, A4, A5, RT],
-      stageLocation: String
-  ): UserDefinedFunction =
+      stageLocation: String): UserDefinedFunction =
     udf("registerPermanent", execName = name, execFilePath = stageLocation) {
       register(Some(name), _toUdf(func), Some(stageLocation))
     }
@@ -1757,12 +1689,10 @@ class UDFRegistration(session: Session) extends Logging {
       A3: TypeTag,
       A4: TypeTag,
       A5: TypeTag,
-      A6: TypeTag
-  ](
+      A6: TypeTag](
       name: String,
       func: Function6[A1, A2, A3, A4, A5, A6, RT],
-      stageLocation: String
-  ): UserDefinedFunction =
+      stageLocation: String): UserDefinedFunction =
     udf("registerPermanent", execName = name, execFilePath = stageLocation) {
       register(Some(name), _toUdf(func), Some(stageLocation))
     }
@@ -1791,12 +1721,10 @@ class UDFRegistration(session: Session) extends Logging {
       A4: TypeTag,
       A5: TypeTag,
       A6: TypeTag,
-      A7: TypeTag
-  ](
+      A7: TypeTag](
       name: String,
       func: Function7[A1, A2, A3, A4, A5, A6, A7, RT],
-      stageLocation: String
-  ): UserDefinedFunction =
+      stageLocation: String): UserDefinedFunction =
     udf("registerPermanent", execName = name, execFilePath = stageLocation) {
       register(Some(name), _toUdf(func), Some(stageLocation))
     }
@@ -1826,12 +1754,10 @@ class UDFRegistration(session: Session) extends Logging {
       A5: TypeTag,
       A6: TypeTag,
       A7: TypeTag,
-      A8: TypeTag
-  ](
+      A8: TypeTag](
       name: String,
       func: Function8[A1, A2, A3, A4, A5, A6, A7, A8, RT],
-      stageLocation: String
-  ): UserDefinedFunction =
+      stageLocation: String): UserDefinedFunction =
     udf("registerPermanent", execName = name, execFilePath = stageLocation) {
       register(Some(name), _toUdf(func), Some(stageLocation))
     }
@@ -1862,12 +1788,10 @@ class UDFRegistration(session: Session) extends Logging {
       A6: TypeTag,
       A7: TypeTag,
       A8: TypeTag,
-      A9: TypeTag
-  ](
+      A9: TypeTag](
       name: String,
       func: Function9[A1, A2, A3, A4, A5, A6, A7, A8, A9, RT],
-      stageLocation: String
-  ): UserDefinedFunction =
+      stageLocation: String): UserDefinedFunction =
     udf("registerPermanent", execName = name, execFilePath = stageLocation) {
       register(Some(name), _toUdf(func), Some(stageLocation))
     }
@@ -1899,12 +1823,10 @@ class UDFRegistration(session: Session) extends Logging {
       A7: TypeTag,
       A8: TypeTag,
       A9: TypeTag,
-      A10: TypeTag
-  ](
+      A10: TypeTag](
       name: String,
       func: Function10[A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, RT],
-      stageLocation: String
-  ): UserDefinedFunction =
+      stageLocation: String): UserDefinedFunction =
     udf("registerPermanent", execName = name, execFilePath = stageLocation) {
       register(Some(name), _toUdf(func), Some(stageLocation))
     }
@@ -1937,12 +1859,10 @@ class UDFRegistration(session: Session) extends Logging {
       A8: TypeTag,
       A9: TypeTag,
       A10: TypeTag,
-      A11: TypeTag
-  ](
+      A11: TypeTag](
       name: String,
       func: Function11[A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, RT],
-      stageLocation: String
-  ): UserDefinedFunction =
+      stageLocation: String): UserDefinedFunction =
     udf("registerPermanent", execName = name, execFilePath = stageLocation) {
       register(Some(name), _toUdf(func), Some(stageLocation))
     }
@@ -1976,12 +1896,10 @@ class UDFRegistration(session: Session) extends Logging {
       A9: TypeTag,
       A10: TypeTag,
       A11: TypeTag,
-      A12: TypeTag
-  ](
+      A12: TypeTag](
       name: String,
       func: Function12[A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, RT],
-      stageLocation: String
-  ): UserDefinedFunction =
+      stageLocation: String): UserDefinedFunction =
     udf("registerPermanent", execName = name, execFilePath = stageLocation) {
       register(Some(name), _toUdf(func), Some(stageLocation))
     }
@@ -2016,12 +1934,10 @@ class UDFRegistration(session: Session) extends Logging {
       A10: TypeTag,
       A11: TypeTag,
       A12: TypeTag,
-      A13: TypeTag
-  ](
+      A13: TypeTag](
       name: String,
       func: Function13[A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, RT],
-      stageLocation: String
-  ): UserDefinedFunction =
+      stageLocation: String): UserDefinedFunction =
     udf("registerPermanent", execName = name, execFilePath = stageLocation) {
       register(Some(name), _toUdf(func), Some(stageLocation))
     }
@@ -2057,12 +1973,10 @@ class UDFRegistration(session: Session) extends Logging {
       A11: TypeTag,
       A12: TypeTag,
       A13: TypeTag,
-      A14: TypeTag
-  ](
+      A14: TypeTag](
       name: String,
       func: Function14[A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, RT],
-      stageLocation: String
-  ): UserDefinedFunction =
+      stageLocation: String): UserDefinedFunction =
     udf("registerPermanent", execName = name, execFilePath = stageLocation) {
       register(Some(name), _toUdf(func), Some(stageLocation))
     }
@@ -2099,12 +2013,10 @@ class UDFRegistration(session: Session) extends Logging {
       A12: TypeTag,
       A13: TypeTag,
       A14: TypeTag,
-      A15: TypeTag
-  ](
+      A15: TypeTag](
       name: String,
       func: Function15[A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15, RT],
-      stageLocation: String
-  ): UserDefinedFunction =
+      stageLocation: String): UserDefinedFunction =
     udf("registerPermanent", execName = name, execFilePath = stageLocation) {
       register(Some(name), _toUdf(func), Some(stageLocation))
     }
@@ -2142,12 +2054,10 @@ class UDFRegistration(session: Session) extends Logging {
       A13: TypeTag,
       A14: TypeTag,
       A15: TypeTag,
-      A16: TypeTag
-  ](
+      A16: TypeTag](
       name: String,
       func: Function16[A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15, A16, RT],
-      stageLocation: String
-  ): UserDefinedFunction =
+      stageLocation: String): UserDefinedFunction =
     udf("registerPermanent", execName = name, execFilePath = stageLocation) {
       register(Some(name), _toUdf(func), Some(stageLocation))
     }
@@ -2186,8 +2096,7 @@ class UDFRegistration(session: Session) extends Logging {
       A14: TypeTag,
       A15: TypeTag,
       A16: TypeTag,
-      A17: TypeTag
-  ](
+      A17: TypeTag](
       name: String,
       func: Function17[
         A1,
@@ -2207,10 +2116,8 @@ class UDFRegistration(session: Session) extends Logging {
         A15,
         A16,
         A17,
-        RT
-      ],
-      stageLocation: String
-  ): UserDefinedFunction =
+        RT],
+      stageLocation: String): UserDefinedFunction =
     udf("registerPermanent", execName = name, execFilePath = stageLocation) {
       register(Some(name), _toUdf(func), Some(stageLocation))
     }
@@ -2250,8 +2157,7 @@ class UDFRegistration(session: Session) extends Logging {
       A15: TypeTag,
       A16: TypeTag,
       A17: TypeTag,
-      A18: TypeTag
-  ](
+      A18: TypeTag](
       name: String,
       func: Function18[
         A1,
@@ -2272,10 +2178,8 @@ class UDFRegistration(session: Session) extends Logging {
         A16,
         A17,
         A18,
-        RT
-      ],
-      stageLocation: String
-  ): UserDefinedFunction =
+        RT],
+      stageLocation: String): UserDefinedFunction =
     udf("registerPermanent", execName = name, execFilePath = stageLocation) {
       register(Some(name), _toUdf(func), Some(stageLocation))
     }
@@ -2316,8 +2220,7 @@ class UDFRegistration(session: Session) extends Logging {
       A16: TypeTag,
       A17: TypeTag,
       A18: TypeTag,
-      A19: TypeTag
-  ](
+      A19: TypeTag](
       name: String,
       func: Function19[
         A1,
@@ -2339,10 +2242,8 @@ class UDFRegistration(session: Session) extends Logging {
         A17,
         A18,
         A19,
-        RT
-      ],
-      stageLocation: String
-  ): UserDefinedFunction =
+        RT],
+      stageLocation: String): UserDefinedFunction =
     udf("registerPermanent", execName = name, execFilePath = stageLocation) {
       register(Some(name), _toUdf(func), Some(stageLocation))
     }
@@ -2384,8 +2285,7 @@ class UDFRegistration(session: Session) extends Logging {
       A17: TypeTag,
       A18: TypeTag,
       A19: TypeTag,
-      A20: TypeTag
-  ](
+      A20: TypeTag](
       name: String,
       func: Function20[
         A1,
@@ -2408,10 +2308,8 @@ class UDFRegistration(session: Session) extends Logging {
         A18,
         A19,
         A20,
-        RT
-      ],
-      stageLocation: String
-  ): UserDefinedFunction =
+        RT],
+      stageLocation: String): UserDefinedFunction =
     udf("registerPermanent", execName = name, execFilePath = stageLocation) {
       register(Some(name), _toUdf(func), Some(stageLocation))
     }
@@ -2454,8 +2352,7 @@ class UDFRegistration(session: Session) extends Logging {
       A18: TypeTag,
       A19: TypeTag,
       A20: TypeTag,
-      A21: TypeTag
-  ](
+      A21: TypeTag](
       name: String,
       func: Function21[
         A1,
@@ -2479,10 +2376,8 @@ class UDFRegistration(session: Session) extends Logging {
         A19,
         A20,
         A21,
-        RT
-      ],
-      stageLocation: String
-  ): UserDefinedFunction =
+        RT],
+      stageLocation: String): UserDefinedFunction =
     udf("registerPermanent", execName = name, execFilePath = stageLocation) {
       register(Some(name), _toUdf(func), Some(stageLocation))
     }
@@ -2526,8 +2421,7 @@ class UDFRegistration(session: Session) extends Logging {
       A19: TypeTag,
       A20: TypeTag,
       A21: TypeTag,
-      A22: TypeTag
-  ](
+      A22: TypeTag](
       name: String,
       func: Function22[
         A1,
@@ -2552,10 +2446,8 @@ class UDFRegistration(session: Session) extends Logging {
         A20,
         A21,
         A22,
-        RT
-      ],
-      stageLocation: String
-  ): UserDefinedFunction =
+        RT],
+      stageLocation: String): UserDefinedFunction =
     udf("registerPermanent", execName = name, execFilePath = stageLocation) {
       register(Some(name), _toUdf(func), Some(stageLocation))
     }
@@ -2564,19 +2456,16 @@ class UDFRegistration(session: Session) extends Logging {
       name: Option[String],
       udf: UserDefinedFunction,
       // if stageLocation is none, this udf will be temporary udf
-      stageLocation: Option[String] = None
-  ): UserDefinedFunction =
+      stageLocation: Option[String] = None): UserDefinedFunction =
     handler.registerUDF(name, udf, stageLocation)
 
   @inline protected def udf(funcName: String, execName: String = "", execFilePath: String = "")(
-      func: => UserDefinedFunction
-  ): UserDefinedFunction = {
+      func: => UserDefinedFunction): UserDefinedFunction = {
     OpenTelemetry.udx(
       "UDFRegistration",
       funcName,
       execName,
       s"${UDXRegistrationHandler.className}.${UDXRegistrationHandler.methodName}",
-      execFilePath
-    )(func)
+      execFilePath)(func)
   }
 }

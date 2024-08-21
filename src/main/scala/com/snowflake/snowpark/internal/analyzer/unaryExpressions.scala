@@ -87,8 +87,8 @@ private[snowpark] case class DfAlias(child: Expression, name: String)
 
 private[snowpark] case class UnresolvedAlias(
     child: Expression,
-    aliasFunc: Option[Expression => String] = None
-) extends UnaryExpression
+    aliasFunc: Option[Expression => String] = None)
+    extends UnaryExpression
     with NamedExpression {
   override def sqlOperator: String = "AS"
   override def operatorFirst: Boolean = false

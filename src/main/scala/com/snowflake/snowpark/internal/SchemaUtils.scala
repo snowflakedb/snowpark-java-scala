@@ -16,8 +16,7 @@ private[snowpark] object SchemaUtils {
     Attribute("\"name\"", StringType),
     Attribute("\"size\"", LongType),
     Attribute("\"md5\"", StringType),
-    Attribute("\"last_modified\"", StringType)
-  )
+    Attribute("\"last_modified\"", StringType))
 
   val RemoveStageFileAttributes: Seq[Attribute] =
     Seq(Attribute("\"name\"", StringType), Attribute("\"result\"", StringType))
@@ -31,16 +30,14 @@ private[snowpark] object SchemaUtils {
     Attribute("\"target_compression\"", StringType, nullable = false),
     Attribute("\"status\"", StringType, nullable = false),
     Attribute("\"encryption\"", StringType, nullable = false),
-    Attribute("\"message\"", StringType, nullable = false)
-  )
+    Attribute("\"message\"", StringType, nullable = false))
 
   val GetAttributes: Seq[Attribute] = Seq(
     Attribute("\"file\"", StringType, nullable = false),
     Attribute("\"size\"", DecimalType(10, 0), nullable = false),
     Attribute("\"status\"", StringType, nullable = false),
     Attribute("\"encryption\"", StringType, nullable = false),
-    Attribute("\"message\"", StringType, nullable = false)
-  )
+    Attribute("\"message\"", StringType, nullable = false))
 
   def analyzeAttributes(sql: String, session: Session): Seq[Attribute] = {
     val attributes = session.getResultAttributes(sql)

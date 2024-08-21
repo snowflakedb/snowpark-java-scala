@@ -38,8 +38,7 @@ case class TableFunction(funcName: String) {
       funcName,
       args.map { case (key, value) =>
         key -> value.expr
-      }
-    )
+      })
 
   /** Create a Column reference by passing arguments in the TableFunction object.
     *

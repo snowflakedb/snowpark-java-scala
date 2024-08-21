@@ -90,8 +90,7 @@ class SProcRegistration(session: Session) {
       name: String,
       sp: Function1[Session, RT],
       stageLocation: String,
-      isCallerMode: Boolean
-  ): StoredProcedure =
+      isCallerMode: Boolean): StoredProcedure =
     sproc("registerPermanent", execName = name, execFilePath = stageLocation) {
       register(Some(name), _toSP(sp), Some(stageLocation), isCallerMode)
     }
@@ -105,8 +104,7 @@ class SProcRegistration(session: Session) {
       name: String,
       sp: Function2[Session, A1, RT],
       stageLocation: String,
-      isCallerMode: Boolean
-  ): StoredProcedure =
+      isCallerMode: Boolean): StoredProcedure =
     sproc("registerPermanent", execName = name, execFilePath = stageLocation) {
       register(Some(name), _toSP(sp), Some(stageLocation), isCallerMode)
     }
@@ -120,8 +118,7 @@ class SProcRegistration(session: Session) {
       name: String,
       sp: Function3[Session, A1, A2, RT],
       stageLocation: String,
-      isCallerMode: Boolean
-  ): StoredProcedure =
+      isCallerMode: Boolean): StoredProcedure =
     sproc("registerPermanent", execName = name, execFilePath = stageLocation) {
       register(Some(name), _toSP(sp), Some(stageLocation), isCallerMode)
     }
@@ -135,8 +132,7 @@ class SProcRegistration(session: Session) {
       name: String,
       sp: Function4[Session, A1, A2, A3, RT],
       stageLocation: String,
-      isCallerMode: Boolean
-  ): StoredProcedure =
+      isCallerMode: Boolean): StoredProcedure =
     sproc("registerPermanent", execName = name, execFilePath = stageLocation) {
       register(Some(name), _toSP(sp), Some(stageLocation), isCallerMode)
     }
@@ -150,8 +146,7 @@ class SProcRegistration(session: Session) {
       name: String,
       sp: Function5[Session, A1, A2, A3, A4, RT],
       stageLocation: String,
-      isCallerMode: Boolean
-  ): StoredProcedure =
+      isCallerMode: Boolean): StoredProcedure =
     sproc("registerPermanent", execName = name, execFilePath = stageLocation) {
       register(Some(name), _toSP(sp), Some(stageLocation), isCallerMode)
     }
@@ -167,13 +162,11 @@ class SProcRegistration(session: Session) {
       A2: TypeTag,
       A3: TypeTag,
       A4: TypeTag,
-      A5: TypeTag
-  ](
+      A5: TypeTag](
       name: String,
       sp: Function6[Session, A1, A2, A3, A4, A5, RT],
       stageLocation: String,
-      isCallerMode: Boolean
-  ): StoredProcedure =
+      isCallerMode: Boolean): StoredProcedure =
     sproc("registerPermanent", execName = name, execFilePath = stageLocation) {
       register(Some(name), _toSP(sp), Some(stageLocation), isCallerMode)
     }
@@ -190,13 +183,11 @@ class SProcRegistration(session: Session) {
       A3: TypeTag,
       A4: TypeTag,
       A5: TypeTag,
-      A6: TypeTag
-  ](
+      A6: TypeTag](
       name: String,
       sp: Function7[Session, A1, A2, A3, A4, A5, A6, RT],
       stageLocation: String,
-      isCallerMode: Boolean
-  ): StoredProcedure =
+      isCallerMode: Boolean): StoredProcedure =
     sproc("registerPermanent", execName = name, execFilePath = stageLocation) {
       register(Some(name), _toSP(sp), Some(stageLocation), isCallerMode)
     }
@@ -214,13 +205,11 @@ class SProcRegistration(session: Session) {
       A4: TypeTag,
       A5: TypeTag,
       A6: TypeTag,
-      A7: TypeTag
-  ](
+      A7: TypeTag](
       name: String,
       sp: Function8[Session, A1, A2, A3, A4, A5, A6, A7, RT],
       stageLocation: String,
-      isCallerMode: Boolean
-  ): StoredProcedure =
+      isCallerMode: Boolean): StoredProcedure =
     sproc("registerPermanent", execName = name, execFilePath = stageLocation) {
       register(Some(name), _toSP(sp), Some(stageLocation), isCallerMode)
     }
@@ -239,13 +228,11 @@ class SProcRegistration(session: Session) {
       A5: TypeTag,
       A6: TypeTag,
       A7: TypeTag,
-      A8: TypeTag
-  ](
+      A8: TypeTag](
       name: String,
       sp: Function9[Session, A1, A2, A3, A4, A5, A6, A7, A8, RT],
       stageLocation: String,
-      isCallerMode: Boolean
-  ): StoredProcedure =
+      isCallerMode: Boolean): StoredProcedure =
     sproc("registerPermanent", execName = name, execFilePath = stageLocation) {
       register(Some(name), _toSP(sp), Some(stageLocation), isCallerMode)
     }
@@ -265,13 +252,11 @@ class SProcRegistration(session: Session) {
       A6: TypeTag,
       A7: TypeTag,
       A8: TypeTag,
-      A9: TypeTag
-  ](
+      A9: TypeTag](
       name: String,
       sp: Function10[Session, A1, A2, A3, A4, A5, A6, A7, A8, A9, RT],
       stageLocation: String,
-      isCallerMode: Boolean
-  ): StoredProcedure =
+      isCallerMode: Boolean): StoredProcedure =
     sproc("registerPermanent", execName = name, execFilePath = stageLocation) {
       register(Some(name), _toSP(sp), Some(stageLocation), isCallerMode)
     }
@@ -292,13 +277,11 @@ class SProcRegistration(session: Session) {
       A7: TypeTag,
       A8: TypeTag,
       A9: TypeTag,
-      A10: TypeTag
-  ](
+      A10: TypeTag](
       name: String,
       sp: Function11[Session, A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, RT],
       stageLocation: String,
-      isCallerMode: Boolean
-  ): StoredProcedure =
+      isCallerMode: Boolean): StoredProcedure =
     sproc("registerPermanent", execName = name, execFilePath = stageLocation) {
       register(Some(name), _toSP(sp), Some(stageLocation), isCallerMode)
     }
@@ -320,13 +303,11 @@ class SProcRegistration(session: Session) {
       A8: TypeTag,
       A9: TypeTag,
       A10: TypeTag,
-      A11: TypeTag
-  ](
+      A11: TypeTag](
       name: String,
       sp: Function12[Session, A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, RT],
       stageLocation: String,
-      isCallerMode: Boolean
-  ): StoredProcedure =
+      isCallerMode: Boolean): StoredProcedure =
     sproc("registerPermanent", execName = name, execFilePath = stageLocation) {
       register(Some(name), _toSP(sp), Some(stageLocation), isCallerMode)
     }
@@ -349,13 +330,11 @@ class SProcRegistration(session: Session) {
       A9: TypeTag,
       A10: TypeTag,
       A11: TypeTag,
-      A12: TypeTag
-  ](
+      A12: TypeTag](
       name: String,
       sp: Function13[Session, A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, RT],
       stageLocation: String,
-      isCallerMode: Boolean
-  ): StoredProcedure =
+      isCallerMode: Boolean): StoredProcedure =
     sproc("registerPermanent", execName = name, execFilePath = stageLocation) {
       register(Some(name), _toSP(sp), Some(stageLocation), isCallerMode)
     }
@@ -379,13 +358,11 @@ class SProcRegistration(session: Session) {
       A10: TypeTag,
       A11: TypeTag,
       A12: TypeTag,
-      A13: TypeTag
-  ](
+      A13: TypeTag](
       name: String,
       sp: Function14[Session, A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, RT],
       stageLocation: String,
-      isCallerMode: Boolean
-  ): StoredProcedure =
+      isCallerMode: Boolean): StoredProcedure =
     sproc("registerPermanent", execName = name, execFilePath = stageLocation) {
       register(Some(name), _toSP(sp), Some(stageLocation), isCallerMode)
     }
@@ -410,13 +387,11 @@ class SProcRegistration(session: Session) {
       A11: TypeTag,
       A12: TypeTag,
       A13: TypeTag,
-      A14: TypeTag
-  ](
+      A14: TypeTag](
       name: String,
       sp: Function15[Session, A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, RT],
       stageLocation: String,
-      isCallerMode: Boolean
-  ): StoredProcedure =
+      isCallerMode: Boolean): StoredProcedure =
     sproc("registerPermanent", execName = name, execFilePath = stageLocation) {
       register(Some(name), _toSP(sp), Some(stageLocation), isCallerMode)
     }
@@ -442,13 +417,11 @@ class SProcRegistration(session: Session) {
       A12: TypeTag,
       A13: TypeTag,
       A14: TypeTag,
-      A15: TypeTag
-  ](
+      A15: TypeTag](
       name: String,
       sp: Function16[Session, A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15, RT],
       stageLocation: String,
-      isCallerMode: Boolean
-  ): StoredProcedure =
+      isCallerMode: Boolean): StoredProcedure =
     sproc("registerPermanent", execName = name, execFilePath = stageLocation) {
       register(Some(name), _toSP(sp), Some(stageLocation), isCallerMode)
     }
@@ -475,8 +448,7 @@ class SProcRegistration(session: Session) {
       A13: TypeTag,
       A14: TypeTag,
       A15: TypeTag,
-      A16: TypeTag
-  ](
+      A16: TypeTag](
       name: String,
       sp: Function17[
         Session,
@@ -496,11 +468,9 @@ class SProcRegistration(session: Session) {
         A14,
         A15,
         A16,
-        RT
-      ],
+        RT],
       stageLocation: String,
-      isCallerMode: Boolean
-  ): StoredProcedure =
+      isCallerMode: Boolean): StoredProcedure =
     sproc("registerPermanent", execName = name, execFilePath = stageLocation) {
       register(Some(name), _toSP(sp), Some(stageLocation), isCallerMode)
     }
@@ -528,8 +498,7 @@ class SProcRegistration(session: Session) {
       A14: TypeTag,
       A15: TypeTag,
       A16: TypeTag,
-      A17: TypeTag
-  ](
+      A17: TypeTag](
       name: String,
       sp: Function18[
         Session,
@@ -550,11 +519,9 @@ class SProcRegistration(session: Session) {
         A15,
         A16,
         A17,
-        RT
-      ],
+        RT],
       stageLocation: String,
-      isCallerMode: Boolean
-  ): StoredProcedure =
+      isCallerMode: Boolean): StoredProcedure =
     sproc("registerPermanent", execName = name, execFilePath = stageLocation) {
       register(Some(name), _toSP(sp), Some(stageLocation), isCallerMode)
     }
@@ -583,8 +550,7 @@ class SProcRegistration(session: Session) {
       A15: TypeTag,
       A16: TypeTag,
       A17: TypeTag,
-      A18: TypeTag
-  ](
+      A18: TypeTag](
       name: String,
       sp: Function19[
         Session,
@@ -606,11 +572,9 @@ class SProcRegistration(session: Session) {
         A16,
         A17,
         A18,
-        RT
-      ],
+        RT],
       stageLocation: String,
-      isCallerMode: Boolean
-  ): StoredProcedure =
+      isCallerMode: Boolean): StoredProcedure =
     sproc("registerPermanent", execName = name, execFilePath = stageLocation) {
       register(Some(name), _toSP(sp), Some(stageLocation), isCallerMode)
     }
@@ -640,8 +604,7 @@ class SProcRegistration(session: Session) {
       A16: TypeTag,
       A17: TypeTag,
       A18: TypeTag,
-      A19: TypeTag
-  ](
+      A19: TypeTag](
       name: String,
       sp: Function20[
         Session,
@@ -664,11 +627,9 @@ class SProcRegistration(session: Session) {
         A17,
         A18,
         A19,
-        RT
-      ],
+        RT],
       stageLocation: String,
-      isCallerMode: Boolean
-  ): StoredProcedure =
+      isCallerMode: Boolean): StoredProcedure =
     sproc("registerPermanent", execName = name, execFilePath = stageLocation) {
       register(Some(name), _toSP(sp), Some(stageLocation), isCallerMode)
     }
@@ -699,8 +660,7 @@ class SProcRegistration(session: Session) {
       A17: TypeTag,
       A18: TypeTag,
       A19: TypeTag,
-      A20: TypeTag
-  ](
+      A20: TypeTag](
       name: String,
       sp: Function21[
         Session,
@@ -724,11 +684,9 @@ class SProcRegistration(session: Session) {
         A18,
         A19,
         A20,
-        RT
-      ],
+        RT],
       stageLocation: String,
-      isCallerMode: Boolean
-  ): StoredProcedure =
+      isCallerMode: Boolean): StoredProcedure =
     sproc("registerPermanent", execName = name, execFilePath = stageLocation) {
       register(Some(name), _toSP(sp), Some(stageLocation), isCallerMode)
     }
@@ -760,8 +718,7 @@ class SProcRegistration(session: Session) {
       A18: TypeTag,
       A19: TypeTag,
       A20: TypeTag,
-      A21: TypeTag
-  ](
+      A21: TypeTag](
       name: String,
       sp: Function22[
         Session,
@@ -786,11 +743,9 @@ class SProcRegistration(session: Session) {
         A19,
         A20,
         A21,
-        RT
-      ],
+        RT],
       stageLocation: String,
-      isCallerMode: Boolean
-  ): StoredProcedure =
+      isCallerMode: Boolean): StoredProcedure =
     sproc("registerPermanent", execName = name, execFilePath = stageLocation) {
       register(Some(name), _toSP(sp), Some(stageLocation), isCallerMode)
     }
@@ -844,8 +799,7 @@ class SProcRegistration(session: Session) {
     *   Return type of the UDF.
     */
   def registerTemporary[RT: TypeTag, A1: TypeTag, A2: TypeTag](
-      sp: Function3[Session, A1, A2, RT]
-  ): StoredProcedure =
+      sp: Function3[Session, A1, A2, RT]): StoredProcedure =
     sproc("registerTemporary") {
       register(None, _toSP(sp))
     }
@@ -857,8 +811,7 @@ class SProcRegistration(session: Session) {
     *   Return type of the UDF.
     */
   def registerTemporary[RT: TypeTag, A1: TypeTag, A2: TypeTag, A3: TypeTag](
-      sp: Function4[Session, A1, A2, A3, RT]
-  ): StoredProcedure =
+      sp: Function4[Session, A1, A2, A3, RT]): StoredProcedure =
     sproc("registerTemporary") {
       register(None, _toSP(sp))
     }
@@ -870,8 +823,7 @@ class SProcRegistration(session: Session) {
     *   Return type of the UDF.
     */
   def registerTemporary[RT: TypeTag, A1: TypeTag, A2: TypeTag, A3: TypeTag, A4: TypeTag](
-      sp: Function5[Session, A1, A2, A3, A4, RT]
-  ): StoredProcedure =
+      sp: Function5[Session, A1, A2, A3, A4, RT]): StoredProcedure =
     sproc("registerTemporary") {
       register(None, _toSP(sp))
     }
@@ -888,8 +840,7 @@ class SProcRegistration(session: Session) {
       A2: TypeTag,
       A3: TypeTag,
       A4: TypeTag,
-      A5: TypeTag
-  ](sp: Function6[Session, A1, A2, A3, A4, A5, RT]): StoredProcedure =
+      A5: TypeTag](sp: Function6[Session, A1, A2, A3, A4, A5, RT]): StoredProcedure =
     sproc("registerTemporary") {
       register(None, _toSP(sp))
     }
@@ -907,8 +858,7 @@ class SProcRegistration(session: Session) {
       A3: TypeTag,
       A4: TypeTag,
       A5: TypeTag,
-      A6: TypeTag
-  ](sp: Function7[Session, A1, A2, A3, A4, A5, A6, RT]): StoredProcedure =
+      A6: TypeTag](sp: Function7[Session, A1, A2, A3, A4, A5, A6, RT]): StoredProcedure =
     sproc("registerTemporary") {
       register(None, _toSP(sp))
     }
@@ -927,8 +877,7 @@ class SProcRegistration(session: Session) {
       A4: TypeTag,
       A5: TypeTag,
       A6: TypeTag,
-      A7: TypeTag
-  ](sp: Function8[Session, A1, A2, A3, A4, A5, A6, A7, RT]): StoredProcedure =
+      A7: TypeTag](sp: Function8[Session, A1, A2, A3, A4, A5, A6, A7, RT]): StoredProcedure =
     sproc("registerTemporary") {
       register(None, _toSP(sp))
     }
@@ -948,8 +897,7 @@ class SProcRegistration(session: Session) {
       A5: TypeTag,
       A6: TypeTag,
       A7: TypeTag,
-      A8: TypeTag
-  ](sp: Function9[Session, A1, A2, A3, A4, A5, A6, A7, A8, RT]): StoredProcedure =
+      A8: TypeTag](sp: Function9[Session, A1, A2, A3, A4, A5, A6, A7, A8, RT]): StoredProcedure =
     sproc("registerTemporary") {
       register(None, _toSP(sp))
     }
@@ -970,8 +918,8 @@ class SProcRegistration(session: Session) {
       A6: TypeTag,
       A7: TypeTag,
       A8: TypeTag,
-      A9: TypeTag
-  ](sp: Function10[Session, A1, A2, A3, A4, A5, A6, A7, A8, A9, RT]): StoredProcedure =
+      A9: TypeTag](
+      sp: Function10[Session, A1, A2, A3, A4, A5, A6, A7, A8, A9, RT]): StoredProcedure =
     sproc("registerTemporary") {
       register(None, _toSP(sp))
     }
@@ -993,8 +941,8 @@ class SProcRegistration(session: Session) {
       A7: TypeTag,
       A8: TypeTag,
       A9: TypeTag,
-      A10: TypeTag
-  ](sp: Function11[Session, A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, RT]): StoredProcedure =
+      A10: TypeTag](
+      sp: Function11[Session, A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, RT]): StoredProcedure =
     sproc("registerTemporary") {
       register(None, _toSP(sp))
     }
@@ -1017,8 +965,8 @@ class SProcRegistration(session: Session) {
       A8: TypeTag,
       A9: TypeTag,
       A10: TypeTag,
-      A11: TypeTag
-  ](sp: Function12[Session, A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, RT]): StoredProcedure =
+      A11: TypeTag](
+      sp: Function12[Session, A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, RT]): StoredProcedure =
     sproc("registerTemporary") {
       register(None, _toSP(sp))
     }
@@ -1042,10 +990,8 @@ class SProcRegistration(session: Session) {
       A9: TypeTag,
       A10: TypeTag,
       A11: TypeTag,
-      A12: TypeTag
-  ](
-      sp: Function13[Session, A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, RT]
-  ): StoredProcedure =
+      A12: TypeTag](sp: Function13[Session, A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, RT])
+      : StoredProcedure =
     sproc("registerTemporary") {
       register(None, _toSP(sp))
     }
@@ -1070,10 +1016,9 @@ class SProcRegistration(session: Session) {
       A10: TypeTag,
       A11: TypeTag,
       A12: TypeTag,
-      A13: TypeTag
-  ](
-      sp: Function14[Session, A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, RT]
-  ): StoredProcedure =
+      A13: TypeTag](
+      sp: Function14[Session, A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, RT])
+      : StoredProcedure =
     sproc("registerTemporary") {
       register(None, _toSP(sp))
     }
@@ -1099,10 +1044,9 @@ class SProcRegistration(session: Session) {
       A11: TypeTag,
       A12: TypeTag,
       A13: TypeTag,
-      A14: TypeTag
-  ](
-      sp: Function15[Session, A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, RT]
-  ): StoredProcedure =
+      A14: TypeTag](
+      sp: Function15[Session, A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, RT])
+      : StoredProcedure =
     sproc("registerTemporary") {
       register(None, _toSP(sp))
     }
@@ -1129,10 +1073,9 @@ class SProcRegistration(session: Session) {
       A12: TypeTag,
       A13: TypeTag,
       A14: TypeTag,
-      A15: TypeTag
-  ](
-      sp: Function16[Session, A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15, RT]
-  ): StoredProcedure =
+      A15: TypeTag](
+      sp: Function16[Session, A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15, RT])
+      : StoredProcedure =
     sproc("registerTemporary") {
       register(None, _toSP(sp))
     }
@@ -1160,8 +1103,7 @@ class SProcRegistration(session: Session) {
       A13: TypeTag,
       A14: TypeTag,
       A15: TypeTag,
-      A16: TypeTag
-  ](
+      A16: TypeTag](
       sp: Function17[
         Session,
         A1,
@@ -1180,9 +1122,7 @@ class SProcRegistration(session: Session) {
         A14,
         A15,
         A16,
-        RT
-      ]
-  ): StoredProcedure =
+        RT]): StoredProcedure =
     sproc("registerTemporary") {
       register(None, _toSP(sp))
     }
@@ -1211,8 +1151,7 @@ class SProcRegistration(session: Session) {
       A14: TypeTag,
       A15: TypeTag,
       A16: TypeTag,
-      A17: TypeTag
-  ](
+      A17: TypeTag](
       sp: Function18[
         Session,
         A1,
@@ -1232,9 +1171,7 @@ class SProcRegistration(session: Session) {
         A15,
         A16,
         A17,
-        RT
-      ]
-  ): StoredProcedure =
+        RT]): StoredProcedure =
     sproc("registerTemporary") {
       register(None, _toSP(sp))
     }
@@ -1264,8 +1201,7 @@ class SProcRegistration(session: Session) {
       A15: TypeTag,
       A16: TypeTag,
       A17: TypeTag,
-      A18: TypeTag
-  ](
+      A18: TypeTag](
       sp: Function19[
         Session,
         A1,
@@ -1286,9 +1222,7 @@ class SProcRegistration(session: Session) {
         A16,
         A17,
         A18,
-        RT
-      ]
-  ): StoredProcedure =
+        RT]): StoredProcedure =
     sproc("registerTemporary") {
       register(None, _toSP(sp))
     }
@@ -1319,8 +1253,7 @@ class SProcRegistration(session: Session) {
       A16: TypeTag,
       A17: TypeTag,
       A18: TypeTag,
-      A19: TypeTag
-  ](
+      A19: TypeTag](
       sp: Function20[
         Session,
         A1,
@@ -1342,9 +1275,7 @@ class SProcRegistration(session: Session) {
         A17,
         A18,
         A19,
-        RT
-      ]
-  ): StoredProcedure =
+        RT]): StoredProcedure =
     sproc("registerTemporary") {
       register(None, _toSP(sp))
     }
@@ -1376,8 +1307,7 @@ class SProcRegistration(session: Session) {
       A17: TypeTag,
       A18: TypeTag,
       A19: TypeTag,
-      A20: TypeTag
-  ](
+      A20: TypeTag](
       sp: Function21[
         Session,
         A1,
@@ -1400,9 +1330,7 @@ class SProcRegistration(session: Session) {
         A18,
         A19,
         A20,
-        RT
-      ]
-  ): StoredProcedure =
+        RT]): StoredProcedure =
     sproc("registerTemporary") {
       register(None, _toSP(sp))
     }
@@ -1435,8 +1363,7 @@ class SProcRegistration(session: Session) {
       A18: TypeTag,
       A19: TypeTag,
       A20: TypeTag,
-      A21: TypeTag
-  ](
+      A21: TypeTag](
       sp: Function22[
         Session,
         A1,
@@ -1460,9 +1387,7 @@ class SProcRegistration(session: Session) {
         A19,
         A20,
         A21,
-        RT
-      ]
-  ): StoredProcedure =
+        RT]): StoredProcedure =
     sproc("registerTemporary") {
       register(None, _toSP(sp))
     }
@@ -1506,8 +1431,7 @@ class SProcRegistration(session: Session) {
     */
   def registerTemporary[RT: TypeTag, A1: TypeTag](
       name: String,
-      sp: Function2[Session, A1, RT]
-  ): StoredProcedure =
+      sp: Function2[Session, A1, RT]): StoredProcedure =
     sproc("registerTemporary", execName = name) {
       register(Some(name), _toSP(sp))
     }
@@ -1520,8 +1444,7 @@ class SProcRegistration(session: Session) {
     */
   def registerTemporary[RT: TypeTag, A1: TypeTag, A2: TypeTag](
       name: String,
-      sp: Function3[Session, A1, A2, RT]
-  ): StoredProcedure =
+      sp: Function3[Session, A1, A2, RT]): StoredProcedure =
     sproc("registerTemporary", execName = name) {
       register(Some(name), _toSP(sp))
     }
@@ -1534,8 +1457,7 @@ class SProcRegistration(session: Session) {
     */
   def registerTemporary[RT: TypeTag, A1: TypeTag, A2: TypeTag, A3: TypeTag](
       name: String,
-      sp: Function4[Session, A1, A2, A3, RT]
-  ): StoredProcedure =
+      sp: Function4[Session, A1, A2, A3, RT]): StoredProcedure =
     sproc("registerTemporary", execName = name) {
       register(Some(name), _toSP(sp))
     }
@@ -1548,8 +1470,7 @@ class SProcRegistration(session: Session) {
     */
   def registerTemporary[RT: TypeTag, A1: TypeTag, A2: TypeTag, A3: TypeTag, A4: TypeTag](
       name: String,
-      sp: Function5[Session, A1, A2, A3, A4, RT]
-  ): StoredProcedure =
+      sp: Function5[Session, A1, A2, A3, A4, RT]): StoredProcedure =
     sproc("registerTemporary", execName = name) {
       register(Some(name), _toSP(sp))
     }
@@ -1566,8 +1487,7 @@ class SProcRegistration(session: Session) {
       A2: TypeTag,
       A3: TypeTag,
       A4: TypeTag,
-      A5: TypeTag
-  ](name: String, sp: Function6[Session, A1, A2, A3, A4, A5, RT]): StoredProcedure =
+      A5: TypeTag](name: String, sp: Function6[Session, A1, A2, A3, A4, A5, RT]): StoredProcedure =
     sproc("registerTemporary", execName = name) {
       register(Some(name), _toSP(sp))
     }
@@ -1585,8 +1505,9 @@ class SProcRegistration(session: Session) {
       A3: TypeTag,
       A4: TypeTag,
       A5: TypeTag,
-      A6: TypeTag
-  ](name: String, sp: Function7[Session, A1, A2, A3, A4, A5, A6, RT]): StoredProcedure =
+      A6: TypeTag](
+      name: String,
+      sp: Function7[Session, A1, A2, A3, A4, A5, A6, RT]): StoredProcedure =
     sproc("registerTemporary", execName = name) {
       register(Some(name), _toSP(sp))
     }
@@ -1605,8 +1526,9 @@ class SProcRegistration(session: Session) {
       A4: TypeTag,
       A5: TypeTag,
       A6: TypeTag,
-      A7: TypeTag
-  ](name: String, sp: Function8[Session, A1, A2, A3, A4, A5, A6, A7, RT]): StoredProcedure =
+      A7: TypeTag](
+      name: String,
+      sp: Function8[Session, A1, A2, A3, A4, A5, A6, A7, RT]): StoredProcedure =
     sproc("registerTemporary", execName = name) {
       register(Some(name), _toSP(sp))
     }
@@ -1626,8 +1548,9 @@ class SProcRegistration(session: Session) {
       A5: TypeTag,
       A6: TypeTag,
       A7: TypeTag,
-      A8: TypeTag
-  ](name: String, sp: Function9[Session, A1, A2, A3, A4, A5, A6, A7, A8, RT]): StoredProcedure =
+      A8: TypeTag](
+      name: String,
+      sp: Function9[Session, A1, A2, A3, A4, A5, A6, A7, A8, RT]): StoredProcedure =
     sproc("registerTemporary", execName = name) {
       register(Some(name), _toSP(sp))
     }
@@ -1648,11 +1571,9 @@ class SProcRegistration(session: Session) {
       A6: TypeTag,
       A7: TypeTag,
       A8: TypeTag,
-      A9: TypeTag
-  ](
+      A9: TypeTag](
       name: String,
-      sp: Function10[Session, A1, A2, A3, A4, A5, A6, A7, A8, A9, RT]
-  ): StoredProcedure =
+      sp: Function10[Session, A1, A2, A3, A4, A5, A6, A7, A8, A9, RT]): StoredProcedure =
     sproc("registerTemporary", execName = name) {
       register(Some(name), _toSP(sp))
     }
@@ -1674,11 +1595,9 @@ class SProcRegistration(session: Session) {
       A7: TypeTag,
       A8: TypeTag,
       A9: TypeTag,
-      A10: TypeTag
-  ](
+      A10: TypeTag](
       name: String,
-      sp: Function11[Session, A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, RT]
-  ): StoredProcedure =
+      sp: Function11[Session, A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, RT]): StoredProcedure =
     sproc("registerTemporary", execName = name) {
       register(Some(name), _toSP(sp))
     }
@@ -1701,11 +1620,9 @@ class SProcRegistration(session: Session) {
       A8: TypeTag,
       A9: TypeTag,
       A10: TypeTag,
-      A11: TypeTag
-  ](
+      A11: TypeTag](
       name: String,
-      sp: Function12[Session, A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, RT]
-  ): StoredProcedure =
+      sp: Function12[Session, A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, RT]): StoredProcedure =
     sproc("registerTemporary", execName = name) {
       register(Some(name), _toSP(sp))
     }
@@ -1729,11 +1646,10 @@ class SProcRegistration(session: Session) {
       A9: TypeTag,
       A10: TypeTag,
       A11: TypeTag,
-      A12: TypeTag
-  ](
+      A12: TypeTag](
       name: String,
-      sp: Function13[Session, A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, RT]
-  ): StoredProcedure =
+      sp: Function13[Session, A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, RT])
+      : StoredProcedure =
     sproc("registerTemporary", execName = name) {
       register(Some(name), _toSP(sp))
     }
@@ -1758,11 +1674,10 @@ class SProcRegistration(session: Session) {
       A10: TypeTag,
       A11: TypeTag,
       A12: TypeTag,
-      A13: TypeTag
-  ](
+      A13: TypeTag](
       name: String,
-      sp: Function14[Session, A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, RT]
-  ): StoredProcedure =
+      sp: Function14[Session, A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, RT])
+      : StoredProcedure =
     sproc("registerTemporary", execName = name) {
       register(Some(name), _toSP(sp))
     }
@@ -1788,11 +1703,10 @@ class SProcRegistration(session: Session) {
       A11: TypeTag,
       A12: TypeTag,
       A13: TypeTag,
-      A14: TypeTag
-  ](
+      A14: TypeTag](
       name: String,
-      sp: Function15[Session, A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, RT]
-  ): StoredProcedure =
+      sp: Function15[Session, A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, RT])
+      : StoredProcedure =
     sproc("registerTemporary", execName = name) {
       register(Some(name), _toSP(sp))
     }
@@ -1819,11 +1733,10 @@ class SProcRegistration(session: Session) {
       A12: TypeTag,
       A13: TypeTag,
       A14: TypeTag,
-      A15: TypeTag
-  ](
+      A15: TypeTag](
       name: String,
-      sp: Function16[Session, A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15, RT]
-  ): StoredProcedure =
+      sp: Function16[Session, A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15, RT])
+      : StoredProcedure =
     sproc("registerTemporary", execName = name) {
       register(Some(name), _toSP(sp))
     }
@@ -1851,8 +1764,7 @@ class SProcRegistration(session: Session) {
       A13: TypeTag,
       A14: TypeTag,
       A15: TypeTag,
-      A16: TypeTag
-  ](
+      A16: TypeTag](
       name: String,
       sp: Function17[
         Session,
@@ -1872,9 +1784,7 @@ class SProcRegistration(session: Session) {
         A14,
         A15,
         A16,
-        RT
-      ]
-  ): StoredProcedure =
+        RT]): StoredProcedure =
     sproc("registerTemporary", execName = name) {
       register(Some(name), _toSP(sp))
     }
@@ -1903,8 +1813,7 @@ class SProcRegistration(session: Session) {
       A14: TypeTag,
       A15: TypeTag,
       A16: TypeTag,
-      A17: TypeTag
-  ](
+      A17: TypeTag](
       name: String,
       sp: Function18[
         Session,
@@ -1925,9 +1834,7 @@ class SProcRegistration(session: Session) {
         A15,
         A16,
         A17,
-        RT
-      ]
-  ): StoredProcedure =
+        RT]): StoredProcedure =
     sproc("registerTemporary", execName = name) {
       register(Some(name), _toSP(sp))
     }
@@ -1957,8 +1864,7 @@ class SProcRegistration(session: Session) {
       A15: TypeTag,
       A16: TypeTag,
       A17: TypeTag,
-      A18: TypeTag
-  ](
+      A18: TypeTag](
       name: String,
       sp: Function19[
         Session,
@@ -1980,9 +1886,7 @@ class SProcRegistration(session: Session) {
         A16,
         A17,
         A18,
-        RT
-      ]
-  ): StoredProcedure =
+        RT]): StoredProcedure =
     sproc("registerTemporary", execName = name) {
       register(Some(name), _toSP(sp))
     }
@@ -2013,8 +1917,7 @@ class SProcRegistration(session: Session) {
       A16: TypeTag,
       A17: TypeTag,
       A18: TypeTag,
-      A19: TypeTag
-  ](
+      A19: TypeTag](
       name: String,
       sp: Function20[
         Session,
@@ -2037,9 +1940,7 @@ class SProcRegistration(session: Session) {
         A17,
         A18,
         A19,
-        RT
-      ]
-  ): StoredProcedure =
+        RT]): StoredProcedure =
     sproc("registerTemporary", execName = name) {
       register(Some(name), _toSP(sp))
     }
@@ -2071,8 +1972,7 @@ class SProcRegistration(session: Session) {
       A17: TypeTag,
       A18: TypeTag,
       A19: TypeTag,
-      A20: TypeTag
-  ](
+      A20: TypeTag](
       name: String,
       sp: Function21[
         Session,
@@ -2096,9 +1996,7 @@ class SProcRegistration(session: Session) {
         A18,
         A19,
         A20,
-        RT
-      ]
-  ): StoredProcedure =
+        RT]): StoredProcedure =
     sproc("registerTemporary", execName = name) {
       register(Some(name), _toSP(sp))
     }
@@ -2131,8 +2029,7 @@ class SProcRegistration(session: Session) {
       A18: TypeTag,
       A19: TypeTag,
       A20: TypeTag,
-      A21: TypeTag
-  ](
+      A21: TypeTag](
       name: String,
       sp: Function22[
         Session,
@@ -2157,9 +2054,7 @@ class SProcRegistration(session: Session) {
         A19,
         A20,
         A21,
-        RT
-      ]
-  ): StoredProcedure =
+        RT]): StoredProcedure =
     sproc("registerTemporary", execName = name) {
       register(Some(name), _toSP(sp))
     }
@@ -2168,8 +2063,7 @@ class SProcRegistration(session: Session) {
       name: Option[String],
       sp: StoredProcedure,
       stageLocation: Option[String] = None,
-      isCallerMode: Boolean = true
-  ): StoredProcedure =
+      isCallerMode: Boolean = true): StoredProcedure =
     handler.registerSP(name, sp, stageLocation, isCallerMode)
 
   /** Executes a Stored Procedure lambda function of 0 arguments with current Snowpark session in
@@ -2210,8 +2104,7 @@ class SProcRegistration(session: Session) {
   def runLocally[RT: TypeTag, A1: TypeTag, A2: TypeTag](
       sp: Function3[Session, A1, A2, RT],
       a1: A1,
-      a2: A2
-  ): RT = {
+      a2: A2): RT = {
     sp.apply(this.session, a1, a2)
   }
 
@@ -2228,8 +2121,7 @@ class SProcRegistration(session: Session) {
       sp: Function4[Session, A1, A2, A3, RT],
       a1: A1,
       a2: A2,
-      a3: A3
-  ): RT = {
+      a3: A3): RT = {
     sp.apply(this.session, a1, a2, a3)
   }
 
@@ -2247,8 +2139,7 @@ class SProcRegistration(session: Session) {
       a1: A1,
       a2: A2,
       a3: A3,
-      a4: A4
-  ): RT = {
+      a4: A4): RT = {
     sp.apply(this.session, a1, a2, a3, a4)
   }
 
@@ -2267,8 +2158,7 @@ class SProcRegistration(session: Session) {
       a2: A2,
       a3: A3,
       a4: A4,
-      a5: A5
-  ): RT = {
+      a5: A5): RT = {
     sp.apply(this.session, a1, a2, a3, a4, a5)
   }
 
@@ -2288,16 +2178,14 @@ class SProcRegistration(session: Session) {
       A3: TypeTag,
       A4: TypeTag,
       A5: TypeTag,
-      A6: TypeTag
-  ](
+      A6: TypeTag](
       sp: Function7[Session, A1, A2, A3, A4, A5, A6, RT],
       a1: A1,
       a2: A2,
       a3: A3,
       a4: A4,
       a5: A5,
-      a6: A6
-  ): RT = {
+      a6: A6): RT = {
     sp.apply(this.session, a1, a2, a3, a4, a5, a6)
   }
 
@@ -2318,8 +2206,7 @@ class SProcRegistration(session: Session) {
       A4: TypeTag,
       A5: TypeTag,
       A6: TypeTag,
-      A7: TypeTag
-  ](
+      A7: TypeTag](
       sp: Function8[Session, A1, A2, A3, A4, A5, A6, A7, RT],
       a1: A1,
       a2: A2,
@@ -2327,8 +2214,7 @@ class SProcRegistration(session: Session) {
       a4: A4,
       a5: A5,
       a6: A6,
-      a7: A7
-  ): RT = {
+      a7: A7): RT = {
     sp.apply(this.session, a1, a2, a3, a4, a5, a6, a7)
   }
 
@@ -2350,8 +2236,7 @@ class SProcRegistration(session: Session) {
       A5: TypeTag,
       A6: TypeTag,
       A7: TypeTag,
-      A8: TypeTag
-  ](
+      A8: TypeTag](
       sp: Function9[Session, A1, A2, A3, A4, A5, A6, A7, A8, RT],
       a1: A1,
       a2: A2,
@@ -2360,8 +2245,7 @@ class SProcRegistration(session: Session) {
       a5: A5,
       a6: A6,
       a7: A7,
-      a8: A8
-  ): RT = {
+      a8: A8): RT = {
     sp.apply(this.session, a1, a2, a3, a4, a5, a6, a7, a8)
   }
 
@@ -2384,8 +2268,7 @@ class SProcRegistration(session: Session) {
       A6: TypeTag,
       A7: TypeTag,
       A8: TypeTag,
-      A9: TypeTag
-  ](
+      A9: TypeTag](
       sp: Function10[Session, A1, A2, A3, A4, A5, A6, A7, A8, A9, RT],
       a1: A1,
       a2: A2,
@@ -2395,8 +2278,7 @@ class SProcRegistration(session: Session) {
       a6: A6,
       a7: A7,
       a8: A8,
-      a9: A9
-  ): RT = {
+      a9: A9): RT = {
     sp.apply(this.session, a1, a2, a3, a4, a5, a6, a7, a8, a9)
   }
 
@@ -2420,8 +2302,7 @@ class SProcRegistration(session: Session) {
       A7: TypeTag,
       A8: TypeTag,
       A9: TypeTag,
-      A10: TypeTag
-  ](
+      A10: TypeTag](
       sp: Function11[Session, A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, RT],
       a1: A1,
       a2: A2,
@@ -2432,8 +2313,7 @@ class SProcRegistration(session: Session) {
       a7: A7,
       a8: A8,
       a9: A9,
-      a10: A10
-  ): RT = {
+      a10: A10): RT = {
     sp.apply(this.session, a1, a2, a3, a4, a5, a6, a7, a8, a9, a10)
   }
 
@@ -2458,8 +2338,7 @@ class SProcRegistration(session: Session) {
       A8: TypeTag,
       A9: TypeTag,
       A10: TypeTag,
-      A11: TypeTag
-  ](
+      A11: TypeTag](
       sp: Function12[Session, A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, RT],
       a1: A1,
       a2: A2,
@@ -2471,8 +2350,7 @@ class SProcRegistration(session: Session) {
       a8: A8,
       a9: A9,
       a10: A10,
-      a11: A11
-  ): RT = {
+      a11: A11): RT = {
     sp.apply(this.session, a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11)
   }
 
@@ -2498,8 +2376,7 @@ class SProcRegistration(session: Session) {
       A9: TypeTag,
       A10: TypeTag,
       A11: TypeTag,
-      A12: TypeTag
-  ](
+      A12: TypeTag](
       sp: Function13[Session, A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, RT],
       a1: A1,
       a2: A2,
@@ -2512,8 +2389,7 @@ class SProcRegistration(session: Session) {
       a9: A9,
       a10: A10,
       a11: A11,
-      a12: A12
-  ): RT = {
+      a12: A12): RT = {
     sp.apply(this.session, a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12)
   }
 
@@ -2540,8 +2416,7 @@ class SProcRegistration(session: Session) {
       A10: TypeTag,
       A11: TypeTag,
       A12: TypeTag,
-      A13: TypeTag
-  ](
+      A13: TypeTag](
       sp: Function14[Session, A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, RT],
       a1: A1,
       a2: A2,
@@ -2555,8 +2430,7 @@ class SProcRegistration(session: Session) {
       a10: A10,
       a11: A11,
       a12: A12,
-      a13: A13
-  ): RT = {
+      a13: A13): RT = {
     sp.apply(this.session, a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12, a13)
   }
 
@@ -2584,8 +2458,7 @@ class SProcRegistration(session: Session) {
       A11: TypeTag,
       A12: TypeTag,
       A13: TypeTag,
-      A14: TypeTag
-  ](
+      A14: TypeTag](
       sp: Function15[Session, A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, RT],
       a1: A1,
       a2: A2,
@@ -2600,8 +2473,7 @@ class SProcRegistration(session: Session) {
       a11: A11,
       a12: A12,
       a13: A13,
-      a14: A14
-  ): RT = {
+      a14: A14): RT = {
     sp.apply(this.session, a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12, a13, a14)
   }
 
@@ -2630,8 +2502,7 @@ class SProcRegistration(session: Session) {
       A12: TypeTag,
       A13: TypeTag,
       A14: TypeTag,
-      A15: TypeTag
-  ](
+      A15: TypeTag](
       sp: Function16[Session, A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15, RT],
       a1: A1,
       a2: A2,
@@ -2647,8 +2518,7 @@ class SProcRegistration(session: Session) {
       a12: A12,
       a13: A13,
       a14: A14,
-      a15: A15
-  ): RT = {
+      a15: A15): RT = {
     sp.apply(this.session, a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12, a13, a14, a15)
   }
 
@@ -2678,8 +2548,7 @@ class SProcRegistration(session: Session) {
       A13: TypeTag,
       A14: TypeTag,
       A15: TypeTag,
-      A16: TypeTag
-  ](
+      A16: TypeTag](
       sp: Function17[
         Session,
         A1,
@@ -2698,8 +2567,7 @@ class SProcRegistration(session: Session) {
         A14,
         A15,
         A16,
-        RT
-      ],
+        RT],
       a1: A1,
       a2: A2,
       a3: A3,
@@ -2715,8 +2583,7 @@ class SProcRegistration(session: Session) {
       a13: A13,
       a14: A14,
       a15: A15,
-      a16: A16
-  ): RT = {
+      a16: A16): RT = {
     sp.apply(this.session, a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12, a13, a14, a15, a16)
   }
 
@@ -2747,8 +2614,7 @@ class SProcRegistration(session: Session) {
       A14: TypeTag,
       A15: TypeTag,
       A16: TypeTag,
-      A17: TypeTag
-  ](
+      A17: TypeTag](
       sp: Function18[
         Session,
         A1,
@@ -2768,8 +2634,7 @@ class SProcRegistration(session: Session) {
         A15,
         A16,
         A17,
-        RT
-      ],
+        RT],
       a1: A1,
       a2: A2,
       a3: A3,
@@ -2786,8 +2651,7 @@ class SProcRegistration(session: Session) {
       a14: A14,
       a15: A15,
       a16: A16,
-      a17: A17
-  ): RT = {
+      a17: A17): RT = {
     sp.apply(
       this.session,
       a1,
@@ -2806,8 +2670,7 @@ class SProcRegistration(session: Session) {
       a14,
       a15,
       a16,
-      a17
-    )
+      a17)
   }
 
   /** Executes a Stored Procedure lambda function of 18 arguments with current Snowpark session in
@@ -2838,8 +2701,7 @@ class SProcRegistration(session: Session) {
       A15: TypeTag,
       A16: TypeTag,
       A17: TypeTag,
-      A18: TypeTag
-  ](
+      A18: TypeTag](
       sp: Function19[
         Session,
         A1,
@@ -2860,8 +2722,7 @@ class SProcRegistration(session: Session) {
         A16,
         A17,
         A18,
-        RT
-      ],
+        RT],
       a1: A1,
       a2: A2,
       a3: A3,
@@ -2879,8 +2740,7 @@ class SProcRegistration(session: Session) {
       a15: A15,
       a16: A16,
       a17: A17,
-      a18: A18
-  ): RT = {
+      a18: A18): RT = {
     sp.apply(
       this.session,
       a1,
@@ -2900,8 +2760,7 @@ class SProcRegistration(session: Session) {
       a15,
       a16,
       a17,
-      a18
-    )
+      a18)
   }
 
   /** Executes a Stored Procedure lambda function of 19 arguments with current Snowpark session in
@@ -2933,8 +2792,7 @@ class SProcRegistration(session: Session) {
       A16: TypeTag,
       A17: TypeTag,
       A18: TypeTag,
-      A19: TypeTag
-  ](
+      A19: TypeTag](
       sp: Function20[
         Session,
         A1,
@@ -2956,8 +2814,7 @@ class SProcRegistration(session: Session) {
         A17,
         A18,
         A19,
-        RT
-      ],
+        RT],
       a1: A1,
       a2: A2,
       a3: A3,
@@ -2976,8 +2833,7 @@ class SProcRegistration(session: Session) {
       a16: A16,
       a17: A17,
       a18: A18,
-      a19: A19
-  ): RT = {
+      a19: A19): RT = {
     sp.apply(
       this.session,
       a1,
@@ -2998,8 +2854,7 @@ class SProcRegistration(session: Session) {
       a16,
       a17,
       a18,
-      a19
-    )
+      a19)
   }
 
   /** Executes a Stored Procedure lambda function of 20 arguments with current Snowpark session in
@@ -3032,8 +2887,7 @@ class SProcRegistration(session: Session) {
       A17: TypeTag,
       A18: TypeTag,
       A19: TypeTag,
-      A20: TypeTag
-  ](
+      A20: TypeTag](
       sp: Function21[
         Session,
         A1,
@@ -3056,8 +2910,7 @@ class SProcRegistration(session: Session) {
         A18,
         A19,
         A20,
-        RT
-      ],
+        RT],
       a1: A1,
       a2: A2,
       a3: A3,
@@ -3077,8 +2930,7 @@ class SProcRegistration(session: Session) {
       a17: A17,
       a18: A18,
       a19: A19,
-      a20: A20
-  ): RT = {
+      a20: A20): RT = {
     sp.apply(
       this.session,
       a1,
@@ -3100,8 +2952,7 @@ class SProcRegistration(session: Session) {
       a17,
       a18,
       a19,
-      a20
-    )
+      a20)
   }
 
   /** Executes a Stored Procedure lambda function of 21 arguments with current Snowpark session in
@@ -3135,8 +2986,7 @@ class SProcRegistration(session: Session) {
       A18: TypeTag,
       A19: TypeTag,
       A20: TypeTag,
-      A21: TypeTag
-  ](
+      A21: TypeTag](
       sp: Function22[
         Session,
         A1,
@@ -3160,8 +3010,7 @@ class SProcRegistration(session: Session) {
         A19,
         A20,
         A21,
-        RT
-      ],
+        RT],
       a1: A1,
       a2: A2,
       a3: A3,
@@ -3182,8 +3031,7 @@ class SProcRegistration(session: Session) {
       a18: A18,
       a19: A19,
       a20: A20,
-      a21: A21
-  ): RT = {
+      a21: A21): RT = {
     sp.apply(
       this.session,
       a1,
@@ -3206,19 +3054,16 @@ class SProcRegistration(session: Session) {
       a18,
       a19,
       a20,
-      a21
-    )
+      a21)
   }
 
   @inline protected def sproc(funcName: String, execName: String = "", execFilePath: String = "")(
-      func: => StoredProcedure
-  ): StoredProcedure = {
+      func: => StoredProcedure): StoredProcedure = {
     OpenTelemetry.udx(
       "SProcRegistration",
       funcName,
       execName,
       s"${UDXRegistrationHandler.className}.${UDXRegistrationHandler.methodName}",
-      execFilePath
-    )(func)
+      execFilePath)(func)
   }
 }

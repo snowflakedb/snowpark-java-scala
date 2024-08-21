@@ -16,8 +16,7 @@ private[snowpark] object Updatable extends Logging {
         0
       } else {
         rows.head.getLong(1)
-      }
-    )
+      })
 
   private[snowpark] def getDeleteResult(rows: Array[Row]): DeleteResult =
     DeleteResult(rows.head.getLong(0))
@@ -57,8 +56,11 @@ case class DeleteResult(rowsDeleted: Long)
 class Updatable private[snowpark] (
     private[snowpark] val tableName: String,
     override private[snowpark] val session: Session,
-    override private[snowpark] val methodChain: Seq[String]
-) extends DataFrame(session, session.analyzer.resolve(UnresolvedRelation(tableName)), methodChain) {
+    override private[snowpark] val methodChain: Seq[String])
+    extends DataFrame(
+      session,
+      session.analyzer.resolve(UnresolvedRelation(tableName)),
+      methodChain) {
 
   /** Updates all rows in the Updatable with specified assignments and returns a [[UpdateResult]],
     * representing number of rows modified and number of multi-joined rows modified.
@@ -175,8 +177,7 @@ class Updatable private[snowpark] (
   def update(
       assignments: Map[Column, Column],
       condition: Column,
-      sourceData: DataFrame
-  ): UpdateResult = action("update") {
+      sourceData: DataFrame): UpdateResult = action("update") {
     val newDf = getUpdateDataFrameWithColumn(assignments, Some(condition), Some(sourceData))
     Updatable.getUpdateResult(newDf.collect())
   }
@@ -200,8 +201,7 @@ class Updatable private[snowpark] (
   def update[T: ClassTag](
       assignments: Map[String, Column],
       condition: Column,
-      sourceData: DataFrame
-  ): UpdateResult = action("update") {
+      sourceData: DataFrame): UpdateResult = action("update") {
     val newDf = getUpdateDataFrameWithString(assignments, Some(condition), Some(sourceData))
     Updatable.getUpdateResult(newDf.collect())
   }
@@ -209,28 +209,23 @@ class Updatable private[snowpark] (
   private[snowpark] def getUpdateDataFrameWithString(
       assignments: Map[String, Column],
       condition: Option[Column],
-      sourceData: Option[DataFrame]
-  ): DataFrame =
+      sourceData: Option[DataFrame]): DataFrame =
     getUpdateDataFrameWithColumn(
       assignments.map { case (k, v) => (col(k), v) },
       condition,
-      sourceData
-    )
+      sourceData)
 
   private[snowpark] def getUpdateDataFrameWithColumn(
       assignments: Map[Column, Column],
       condition: Option[Column],
-      sourceData: Option[DataFrame]
-  ): DataFrame = {
+      sourceData: Option[DataFrame]): DataFrame = {
     session.conn.telemetry.reportActionUpdate()
     withPlan(
       TableUpdate(
         tableName,
         assignments.map { case (k, v) => (k.expr, v.expr) },
         condition.map(_.expr),
-        sourceData.map(disambiguate(this, _, JoinType("left"), Seq.empty)._2.plan)
-      )
-    )
+        sourceData.map(disambiguate(this, _, JoinType("left"), Seq.empty)._2.plan)))
   }
 
   /** Deletes all rows in the updatable and returns a [[DeleteResult]], representing number of rows
@@ -296,16 +291,13 @@ class Updatable private[snowpark] (
 
   private[snowpark] def getDeleteDataFrame(
       condition: Option[Column],
-      sourceData: Option[DataFrame]
-  ): DataFrame = {
+      sourceData: Option[DataFrame]): DataFrame = {
     session.conn.telemetry.reportActionDelete()
     withPlan(
       TableDelete(
         tableName,
         condition.map(_.expr),
-        sourceData.map(disambiguate(this, _, JoinType("left"), Seq.empty)._2.plan)
-      )
-    )
+        sourceData.map(disambiguate(this, _, JoinType("left"), Seq.empty)._2.plan)))
   }
 
   /** Initiates a merge action for this updatable with [[DataFrame]] source on specified join
@@ -333,8 +325,7 @@ class Updatable private[snowpark] (
       Seq.empty,
       inserted = false,
       updated = false,
-      deleted = false
-    )
+      deleted = false)
   }
 
   /** Returns a clone of this Updatable.
@@ -427,8 +418,7 @@ class UpdatableAsyncActor private[snowpark] (updatable: Updatable)
     */
   def update[T: ClassTag](
       assignments: Map[String, Column],
-      condition: Column
-  ): TypedAsyncJob[UpdateResult] =
+      condition: Column): TypedAsyncJob[UpdateResult] =
     action("update") {
       val newDf = updatable.getUpdateDataFrameWithString(assignments, Some(condition), None)
       updatable.session.conn.executeAsync[UpdateResult](newDf.snowflakePlan)
@@ -444,8 +434,7 @@ class UpdatableAsyncActor private[snowpark] (updatable: Updatable)
   def update(
       assignments: Map[Column, Column],
       condition: Column,
-      sourceData: DataFrame
-  ): TypedAsyncJob[UpdateResult] = action("update") {
+      sourceData: DataFrame): TypedAsyncJob[UpdateResult] = action("update") {
     val newDf =
       updatable.getUpdateDataFrameWithColumn(assignments, Some(condition), Some(sourceData))
     updatable.session.conn.executeAsync[UpdateResult](newDf.snowflakePlan)
@@ -461,8 +450,7 @@ class UpdatableAsyncActor private[snowpark] (updatable: Updatable)
   def update[T: ClassTag](
       assignments: Map[String, Column],
       condition: Column,
-      sourceData: DataFrame
-  ): TypedAsyncJob[UpdateResult] = action("update") {
+      sourceData: DataFrame): TypedAsyncJob[UpdateResult] = action("update") {
     val newDf =
       updatable.getUpdateDataFrameWithString(assignments, Some(condition), Some(sourceData))
     updatable.session.conn.executeAsync[UpdateResult](newDf.snowflakePlan)
@@ -507,7 +495,6 @@ class UpdatableAsyncActor private[snowpark] (updatable: Updatable)
 
   @inline override protected def action[T](funcName: String)(func: => T): T = {
     OpenTelemetry.action("UpdatableAsyncActor", funcName, updatable.methodChainString + ".async")(
-      func
-    )
+      func)
   }
 }

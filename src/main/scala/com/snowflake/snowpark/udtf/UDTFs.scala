@@ -151,8 +151,7 @@ abstract class UDTF3[A0: TypeTag, A1: TypeTag, A2: TypeTag] extends UDTF {
     Seq(
       ScalaFunctions.schemaForUdfColumn[A0](1),
       ScalaFunctions.schemaForUdfColumn[A1](2),
-      ScalaFunctions.schemaForUdfColumn[A2](3)
-    )
+      ScalaFunctions.schemaForUdfColumn[A2](3))
 }
 
 /** The Scala UDTF (user-defined table function) abstract class that has 4 arguments.
@@ -175,8 +174,7 @@ abstract class UDTF4[A0: TypeTag, A1: TypeTag, A2: TypeTag, A3: TypeTag] extends
       ScalaFunctions.schemaForUdfColumn[A0](1),
       ScalaFunctions.schemaForUdfColumn[A1](2),
       ScalaFunctions.schemaForUdfColumn[A2](3),
-      ScalaFunctions.schemaForUdfColumn[A3](4)
-    )
+      ScalaFunctions.schemaForUdfColumn[A3](4))
 }
 
 /** The Scala UDTF (user-defined table function) abstract class that has 5 arguments.
@@ -200,8 +198,7 @@ abstract class UDTF5[A0: TypeTag, A1: TypeTag, A2: TypeTag, A3: TypeTag, A4: Typ
       ScalaFunctions.schemaForUdfColumn[A1](2),
       ScalaFunctions.schemaForUdfColumn[A2](3),
       ScalaFunctions.schemaForUdfColumn[A3](4),
-      ScalaFunctions.schemaForUdfColumn[A4](5)
-    )
+      ScalaFunctions.schemaForUdfColumn[A4](5))
 }
 
 /** The Scala UDTF (user-defined table function) abstract class that has 6 arguments.
@@ -227,8 +224,7 @@ abstract class UDTF6[A0: TypeTag, A1: TypeTag, A2: TypeTag, A3: TypeTag, A4: Typ
       ScalaFunctions.schemaForUdfColumn[A2](3),
       ScalaFunctions.schemaForUdfColumn[A3](4),
       ScalaFunctions.schemaForUdfColumn[A4](5),
-      ScalaFunctions.schemaForUdfColumn[A5](6)
-    )
+      ScalaFunctions.schemaForUdfColumn[A5](6))
 }
 
 /** The Scala UDTF (user-defined table function) abstract class that has 7 arguments.
@@ -242,8 +238,8 @@ abstract class UDTF7[
     A3: TypeTag,
     A4: TypeTag,
     A5: TypeTag,
-    A6: TypeTag
-] extends UDTF {
+    A6: TypeTag]
+    extends UDTF {
 
   /** This method is invoked once for each row in the input partition. The arguments passed to the
     * registered UDTF are passed to process().
@@ -262,8 +258,7 @@ abstract class UDTF7[
       ScalaFunctions.schemaForUdfColumn[A3](4),
       ScalaFunctions.schemaForUdfColumn[A4](5),
       ScalaFunctions.schemaForUdfColumn[A5](6),
-      ScalaFunctions.schemaForUdfColumn[A6](7)
-    )
+      ScalaFunctions.schemaForUdfColumn[A6](7))
 }
 
 /** The Scala UDTF (user-defined table function) abstract class that has 8 arguments.
@@ -278,8 +273,8 @@ abstract class UDTF8[
     A4: TypeTag,
     A5: TypeTag,
     A6: TypeTag,
-    A7: TypeTag
-] extends UDTF {
+    A7: TypeTag]
+    extends UDTF {
 
   /** This method is invoked once for each row in the input partition. The arguments passed to the
     * registered UDTF are passed to process().
@@ -300,8 +295,7 @@ abstract class UDTF8[
       ScalaFunctions.schemaForUdfColumn[A4](5),
       ScalaFunctions.schemaForUdfColumn[A5](6),
       ScalaFunctions.schemaForUdfColumn[A6](7),
-      ScalaFunctions.schemaForUdfColumn[A7](8)
-    )
+      ScalaFunctions.schemaForUdfColumn[A7](8))
 }
 
 /** The Scala UDTF (user-defined table function) abstract class that has 9 arguments.
@@ -317,8 +311,8 @@ abstract class UDTF9[
     A5: TypeTag,
     A6: TypeTag,
     A7: TypeTag,
-    A8: TypeTag
-] extends UDTF {
+    A8: TypeTag]
+    extends UDTF {
 
   /** This method is invoked once for each row in the input partition. The arguments passed to the
     * registered UDTF are passed to process().
@@ -336,8 +330,7 @@ abstract class UDTF9[
       arg5: A5,
       arg6: A6,
       arg7: A7,
-      arg8: A8
-  ): Iterable[Row]
+      arg8: A8): Iterable[Row]
 
   override private[snowpark] def inputColumns: Seq[UdfColumn] =
     Seq(
@@ -349,8 +342,7 @@ abstract class UDTF9[
       ScalaFunctions.schemaForUdfColumn[A5](6),
       ScalaFunctions.schemaForUdfColumn[A6](7),
       ScalaFunctions.schemaForUdfColumn[A7](8),
-      ScalaFunctions.schemaForUdfColumn[A8](9)
-    )
+      ScalaFunctions.schemaForUdfColumn[A8](9))
 }
 
 /** The Scala UDTF (user-defined table function) abstract class that has 10 arguments.
@@ -367,8 +359,8 @@ abstract class UDTF10[
     A6: TypeTag,
     A7: TypeTag,
     A8: TypeTag,
-    A9: TypeTag
-] extends UDTF {
+    A9: TypeTag]
+    extends UDTF {
 
   /** This method is invoked once for each row in the input partition. The arguments passed to the
     * registered UDTF are passed to process().
@@ -387,8 +379,7 @@ abstract class UDTF10[
       arg6: A6,
       arg7: A7,
       arg8: A8,
-      arg9: A9
-  ): Iterable[Row]
+      arg9: A9): Iterable[Row]
 
   override private[snowpark] def inputColumns: Seq[UdfColumn] =
     Seq(
@@ -401,8 +392,7 @@ abstract class UDTF10[
       ScalaFunctions.schemaForUdfColumn[A6](7),
       ScalaFunctions.schemaForUdfColumn[A7](8),
       ScalaFunctions.schemaForUdfColumn[A8](9),
-      ScalaFunctions.schemaForUdfColumn[A9](10)
-    )
+      ScalaFunctions.schemaForUdfColumn[A9](10))
 }
 
 /** The Scala UDTF (user-defined table function) abstract class that has 11 arguments.
@@ -420,8 +410,8 @@ abstract class UDTF11[
     A7: TypeTag,
     A8: TypeTag,
     A9: TypeTag,
-    A10: TypeTag
-] extends UDTF {
+    A10: TypeTag]
+    extends UDTF {
 
   /** This method is invoked once for each row in the input partition. The arguments passed to the
     * registered UDTF are passed to process().
@@ -442,8 +432,7 @@ abstract class UDTF11[
       arg7: A7,
       arg8: A8,
       arg9: A9,
-      arg10: A10
-  ): Iterable[Row]
+      arg10: A10): Iterable[Row]
   // scalastyle:on
 
   override private[snowpark] def inputColumns: Seq[UdfColumn] =
@@ -458,8 +447,7 @@ abstract class UDTF11[
       ScalaFunctions.schemaForUdfColumn[A7](8),
       ScalaFunctions.schemaForUdfColumn[A8](9),
       ScalaFunctions.schemaForUdfColumn[A9](10),
-      ScalaFunctions.schemaForUdfColumn[A10](11)
-    )
+      ScalaFunctions.schemaForUdfColumn[A10](11))
 }
 
 /** The Scala UDTF (user-defined table function) abstract class that has 12 arguments.
@@ -478,8 +466,8 @@ abstract class UDTF12[
     A8: TypeTag,
     A9: TypeTag,
     A10: TypeTag,
-    A11: TypeTag
-] extends UDTF {
+    A11: TypeTag]
+    extends UDTF {
 
   /** This method is invoked once for each row in the input partition. The arguments passed to the
     * registered UDTF are passed to process().
@@ -501,8 +489,7 @@ abstract class UDTF12[
       arg8: A8,
       arg9: A9,
       arg10: A10,
-      arg11: A11
-  ): Iterable[Row]
+      arg11: A11): Iterable[Row]
   // scalastyle:on
 
   override private[snowpark] def inputColumns: Seq[UdfColumn] =
@@ -518,8 +505,7 @@ abstract class UDTF12[
       ScalaFunctions.schemaForUdfColumn[A8](9),
       ScalaFunctions.schemaForUdfColumn[A9](10),
       ScalaFunctions.schemaForUdfColumn[A10](11),
-      ScalaFunctions.schemaForUdfColumn[A11](12)
-    )
+      ScalaFunctions.schemaForUdfColumn[A11](12))
 }
 
 /** The Scala UDTF (user-defined table function) abstract class that has 13 arguments.
@@ -539,8 +525,8 @@ abstract class UDTF13[
     A9: TypeTag,
     A10: TypeTag,
     A11: TypeTag,
-    A12: TypeTag
-] extends UDTF {
+    A12: TypeTag]
+    extends UDTF {
 
   /** This method is invoked once for each row in the input partition. The arguments passed to the
     * registered UDTF are passed to process().
@@ -563,8 +549,7 @@ abstract class UDTF13[
       arg9: A9,
       arg10: A10,
       arg11: A11,
-      arg12: A12
-  ): Iterable[Row]
+      arg12: A12): Iterable[Row]
   // scalastyle:on
 
   override private[snowpark] def inputColumns: Seq[UdfColumn] =
@@ -581,8 +566,7 @@ abstract class UDTF13[
       ScalaFunctions.schemaForUdfColumn[A9](10),
       ScalaFunctions.schemaForUdfColumn[A10](11),
       ScalaFunctions.schemaForUdfColumn[A11](12),
-      ScalaFunctions.schemaForUdfColumn[A12](13)
-    )
+      ScalaFunctions.schemaForUdfColumn[A12](13))
 }
 
 /** The Scala UDTF (user-defined table function) abstract class that has 14 arguments.
@@ -603,8 +587,8 @@ abstract class UDTF14[
     A10: TypeTag,
     A11: TypeTag,
     A12: TypeTag,
-    A13: TypeTag
-] extends UDTF {
+    A13: TypeTag]
+    extends UDTF {
 
   /** This method is invoked once for each row in the input partition. The arguments passed to the
     * registered UDTF are passed to process().
@@ -628,8 +612,7 @@ abstract class UDTF14[
       arg10: A10,
       arg11: A11,
       arg12: A12,
-      arg13: A13
-  ): Iterable[Row]
+      arg13: A13): Iterable[Row]
   // scalastyle:on
 
   override private[snowpark] def inputColumns: Seq[UdfColumn] =
@@ -647,8 +630,7 @@ abstract class UDTF14[
       ScalaFunctions.schemaForUdfColumn[A10](11),
       ScalaFunctions.schemaForUdfColumn[A11](12),
       ScalaFunctions.schemaForUdfColumn[A12](13),
-      ScalaFunctions.schemaForUdfColumn[A13](14)
-    )
+      ScalaFunctions.schemaForUdfColumn[A13](14))
 }
 
 /** The Scala UDTF (user-defined table function) abstract class that has 15 arguments.
@@ -670,8 +652,8 @@ abstract class UDTF15[
     A11: TypeTag,
     A12: TypeTag,
     A13: TypeTag,
-    A14: TypeTag
-] extends UDTF {
+    A14: TypeTag]
+    extends UDTF {
 
   /** This method is invoked once for each row in the input partition. The arguments passed to the
     * registered UDTF are passed to process().
@@ -696,8 +678,7 @@ abstract class UDTF15[
       arg11: A11,
       arg12: A12,
       arg13: A13,
-      arg14: A14
-  ): Iterable[Row]
+      arg14: A14): Iterable[Row]
   // scalastyle:on
 
   override private[snowpark] def inputColumns: Seq[UdfColumn] =
@@ -716,8 +697,7 @@ abstract class UDTF15[
       ScalaFunctions.schemaForUdfColumn[A11](12),
       ScalaFunctions.schemaForUdfColumn[A12](13),
       ScalaFunctions.schemaForUdfColumn[A13](14),
-      ScalaFunctions.schemaForUdfColumn[A14](15)
-    )
+      ScalaFunctions.schemaForUdfColumn[A14](15))
 }
 
 /** The Scala UDTF (user-defined table function) abstract class that has 16 arguments.
@@ -740,8 +720,8 @@ abstract class UDTF16[
     A12: TypeTag,
     A13: TypeTag,
     A14: TypeTag,
-    A15: TypeTag
-] extends UDTF {
+    A15: TypeTag]
+    extends UDTF {
 
   /** This method is invoked once for each row in the input partition. The arguments passed to the
     * registered UDTF are passed to process().
@@ -767,8 +747,7 @@ abstract class UDTF16[
       arg12: A12,
       arg13: A13,
       arg14: A14,
-      arg15: A15
-  ): Iterable[Row]
+      arg15: A15): Iterable[Row]
   // scalastyle:on
 
   override private[snowpark] def inputColumns: Seq[UdfColumn] =
@@ -788,8 +767,7 @@ abstract class UDTF16[
       ScalaFunctions.schemaForUdfColumn[A12](13),
       ScalaFunctions.schemaForUdfColumn[A13](14),
       ScalaFunctions.schemaForUdfColumn[A14](15),
-      ScalaFunctions.schemaForUdfColumn[A15](16)
-    )
+      ScalaFunctions.schemaForUdfColumn[A15](16))
 }
 
 /** The Scala UDTF (user-defined table function) abstract class that has 17 arguments.
@@ -813,8 +791,8 @@ abstract class UDTF17[
     A13: TypeTag,
     A14: TypeTag,
     A15: TypeTag,
-    A16: TypeTag
-] extends UDTF {
+    A16: TypeTag]
+    extends UDTF {
 
   /** This method is invoked once for each row in the input partition. The arguments passed to the
     * registered UDTF are passed to process().
@@ -841,8 +819,7 @@ abstract class UDTF17[
       arg13: A13,
       arg14: A14,
       arg15: A15,
-      arg16: A16
-  ): Iterable[Row]
+      arg16: A16): Iterable[Row]
   // scalastyle:on
 
   override private[snowpark] def inputColumns: Seq[UdfColumn] =
@@ -863,8 +840,7 @@ abstract class UDTF17[
       ScalaFunctions.schemaForUdfColumn[A13](14),
       ScalaFunctions.schemaForUdfColumn[A14](15),
       ScalaFunctions.schemaForUdfColumn[A15](16),
-      ScalaFunctions.schemaForUdfColumn[A16](17)
-    )
+      ScalaFunctions.schemaForUdfColumn[A16](17))
 }
 
 /** The Scala UDTF (user-defined table function) abstract class that has 18 arguments.
@@ -889,8 +865,8 @@ abstract class UDTF18[
     A14: TypeTag,
     A15: TypeTag,
     A16: TypeTag,
-    A17: TypeTag
-] extends UDTF {
+    A17: TypeTag]
+    extends UDTF {
 
   /** This method is invoked once for each row in the input partition. The arguments passed to the
     * registered UDTF are passed to process().
@@ -918,8 +894,7 @@ abstract class UDTF18[
       arg14: A14,
       arg15: A15,
       arg16: A16,
-      arg17: A17
-  ): Iterable[Row]
+      arg17: A17): Iterable[Row]
   // scalastyle:on
 
   override private[snowpark] def inputColumns: Seq[UdfColumn] =
@@ -941,8 +916,7 @@ abstract class UDTF18[
       ScalaFunctions.schemaForUdfColumn[A14](15),
       ScalaFunctions.schemaForUdfColumn[A15](16),
       ScalaFunctions.schemaForUdfColumn[A16](17),
-      ScalaFunctions.schemaForUdfColumn[A17](18)
-    )
+      ScalaFunctions.schemaForUdfColumn[A17](18))
 }
 
 /** The Scala UDTF (user-defined table function) abstract class that has 19 arguments.
@@ -968,8 +942,8 @@ abstract class UDTF19[
     A15: TypeTag,
     A16: TypeTag,
     A17: TypeTag,
-    A18: TypeTag
-] extends UDTF {
+    A18: TypeTag]
+    extends UDTF {
 
   /** This method is invoked once for each row in the input partition. The arguments passed to the
     * registered UDTF are passed to process().
@@ -998,8 +972,7 @@ abstract class UDTF19[
       arg15: A15,
       arg16: A16,
       arg17: A17,
-      arg18: A18
-  ): Iterable[Row]
+      arg18: A18): Iterable[Row]
   // scalastyle:on
 
   override private[snowpark] def inputColumns: Seq[UdfColumn] =
@@ -1022,8 +995,7 @@ abstract class UDTF19[
       ScalaFunctions.schemaForUdfColumn[A15](16),
       ScalaFunctions.schemaForUdfColumn[A16](17),
       ScalaFunctions.schemaForUdfColumn[A17](18),
-      ScalaFunctions.schemaForUdfColumn[A18](19)
-    )
+      ScalaFunctions.schemaForUdfColumn[A18](19))
 }
 
 /** The Scala UDTF (user-defined table function) abstract class that has 20 arguments.
@@ -1050,8 +1022,8 @@ abstract class UDTF20[
     A16: TypeTag,
     A17: TypeTag,
     A18: TypeTag,
-    A19: TypeTag
-] extends UDTF {
+    A19: TypeTag]
+    extends UDTF {
 
   /** This method is invoked once for each row in the input partition. The arguments passed to the
     * registered UDTF are passed to process().
@@ -1081,8 +1053,7 @@ abstract class UDTF20[
       arg16: A16,
       arg17: A17,
       arg18: A18,
-      arg19: A19
-  ): Iterable[Row]
+      arg19: A19): Iterable[Row]
   // scalastyle:on
 
   override private[snowpark] def inputColumns: Seq[UdfColumn] =
@@ -1106,8 +1077,7 @@ abstract class UDTF20[
       ScalaFunctions.schemaForUdfColumn[A16](17),
       ScalaFunctions.schemaForUdfColumn[A17](18),
       ScalaFunctions.schemaForUdfColumn[A18](19),
-      ScalaFunctions.schemaForUdfColumn[A19](20)
-    )
+      ScalaFunctions.schemaForUdfColumn[A19](20))
 }
 
 /** The Scala UDTF (user-defined table function) abstract class that has 21 arguments.
@@ -1135,8 +1105,8 @@ abstract class UDTF21[
     A17: TypeTag,
     A18: TypeTag,
     A19: TypeTag,
-    A20: TypeTag
-] extends UDTF {
+    A20: TypeTag]
+    extends UDTF {
 
   /** This method is invoked once for each row in the input partition. The arguments passed to the
     * registered UDTF are passed to process().
@@ -1167,8 +1137,7 @@ abstract class UDTF21[
       arg17: A17,
       arg18: A18,
       arg19: A19,
-      arg20: A20
-  ): Iterable[Row]
+      arg20: A20): Iterable[Row]
   // scalastyle:on
 
   override private[snowpark] def inputColumns: Seq[UdfColumn] =
@@ -1193,8 +1162,7 @@ abstract class UDTF21[
       ScalaFunctions.schemaForUdfColumn[A17](18),
       ScalaFunctions.schemaForUdfColumn[A18](19),
       ScalaFunctions.schemaForUdfColumn[A19](20),
-      ScalaFunctions.schemaForUdfColumn[A20](21)
-    )
+      ScalaFunctions.schemaForUdfColumn[A20](21))
 }
 
 /** The Scala UDTF (user-defined table function) abstract class that has 22 arguments.
@@ -1223,8 +1191,8 @@ abstract class UDTF22[
     A18: TypeTag,
     A19: TypeTag,
     A20: TypeTag,
-    A21: TypeTag
-] extends UDTF {
+    A21: TypeTag]
+    extends UDTF {
 
   /** This method is invoked once for each row in the input partition. The arguments passed to the
     * registered UDTF are passed to process().
@@ -1256,8 +1224,7 @@ abstract class UDTF22[
       arg18: A18,
       arg19: A19,
       arg20: A20,
-      arg21: A21
-  ): Iterable[Row]
+      arg21: A21): Iterable[Row]
   // scalastyle:on
 
   override private[snowpark] def inputColumns: Seq[UdfColumn] =
@@ -1283,6 +1250,5 @@ abstract class UDTF22[
       ScalaFunctions.schemaForUdfColumn[A18](19),
       ScalaFunctions.schemaForUdfColumn[A19](20),
       ScalaFunctions.schemaForUdfColumn[A20](21),
-      ScalaFunctions.schemaForUdfColumn[A21](22)
-    )
+      ScalaFunctions.schemaForUdfColumn[A21](22))
 }

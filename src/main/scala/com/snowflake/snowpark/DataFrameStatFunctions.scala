@@ -120,7 +120,7 @@ final class DataFrameStatFunctions private[snowpark] (df: DataFrame) extends Log
         .head
       res.toSeq.map {
         case d: Double => Some(d)
-        case _         => None
+        case _ => None
       }.toArray
     }
 
@@ -179,7 +179,7 @@ final class DataFrameStatFunctions private[snowpark] (df: DataFrame) extends Log
       res.toSeq
         .map {
           case d: Double => Some(d)
-          case _         => None
+          case _ => None
         }
         .toArray
         .grouped(percentile.length)

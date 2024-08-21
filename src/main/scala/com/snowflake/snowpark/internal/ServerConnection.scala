@@ -59,8 +59,7 @@ private[snowpark] case class QueryResult(
     rows: Option[Array[Row]],
     iterator: Option[Iterator[Row]],
     attributes: Seq[Attribute],
-    queryId: String
-)
+    queryId: String)
 
 private[snowpark] trait CloseableIterator[+A] extends Iterator[A] with Closeable
 
@@ -98,8 +97,7 @@ private[snowpark] object ServerConnection {
       precision: Int,
       scale: Int,
       signed: Boolean,
-      field: List[FieldMetadata] = List.empty
-  ): DataType = {
+      field: List[FieldMetadata] = List.empty): DataType = {
     columnTypeName match {
       case "ARRAY" =>
         if (field.isEmpty) {
@@ -112,10 +110,8 @@ private[snowpark] object ServerConnection {
               field.head.getPrecision,
               field.head.getScale,
               signed = true, // no sign info in the fields
-              field.head.getFields.asScala.toList
-            ),
-            field.head.isNullable
-          )
+              field.head.getFields.asScala.toList),
+            field.head.isNullable)
         }
       case "VARIANT" => VariantType
       case "OBJECT" =>
@@ -130,18 +126,15 @@ private[snowpark] object ServerConnection {
               field.head.getPrecision,
               field.head.getScale,
               signed = true,
-              field.head.getFields.asScala.toList
-            ),
+              field.head.getFields.asScala.toList),
             getDataType(
               field(1).getType,
               field(1).getTypeName,
               field(1).getPrecision,
               field(1).getScale,
               signed = true,
-              field(1).getFields.asScala.toList
-            ),
-            field(1).isNullable
-          )
+              field(1).getFields.asScala.toList),
+            field(1).isNullable)
         } else {
           // object
           StructType(
@@ -154,16 +147,12 @@ private[snowpark] object ServerConnection {
                   f.getPrecision,
                   f.getScale,
                   signed = true,
-                  f.getFields.asScala.toList
-                ),
-                f.isNullable
-              )
-            )
-          )
+                  f.getFields.asScala.toList),
+                f.isNullable)))
         }
       case "GEOGRAPHY" => GeographyType
-      case "GEOMETRY"  => GeometryType
-      case _           => getTypeFromJDBCType(sqlType, precision, scale, signed)
+      case "GEOMETRY" => GeometryType
+      case _ => getTypeFromJDBCType(sqlType, precision, scale, signed)
     }
   }
 
@@ -171,8 +160,7 @@ private[snowpark] object ServerConnection {
       sqlType: Int,
       precision: Int,
       scale: Int,
-      signed: Boolean
-  ): DataType = {
+      signed: Boolean): DataType = {
     val answer = sqlType match {
       case java.sql.Types.BIGINT =>
         if (signed) {
@@ -187,15 +175,15 @@ private[snowpark] object ServerConnection {
         } else {
           DecimalType(precision, scale)
         }
-      case java.sql.Types.DOUBLE                                             => DoubleType
-      case java.sql.Types.TIME                                               => TimeType
-      case java.sql.Types.DATE                                               => DateType
+      case java.sql.Types.DOUBLE => DoubleType
+      case java.sql.Types.TIME => TimeType
+      case java.sql.Types.DATE => DateType
       case java.sql.Types.TIMESTAMP | java.sql.Types.TIMESTAMP_WITH_TIMEZONE => TimestampType
-      case java.sql.Types.VARCHAR                                            => StringType
-      case java.sql.Types.BINARY                                             => BinaryType
+      case java.sql.Types.VARCHAR => StringType
+      case java.sql.Types.BINARY => BinaryType
       // The following three types are likely never reached, but keep them just in case
       case java.sql.Types.DECIMAL => DecimalType(38, 18)
-      case java.sql.Types.CHAR    => StringType
+      case java.sql.Types.CHAR => StringType
       case java.sql.Types.INTEGER =>
         if (signed) {
           IntegerType
@@ -230,8 +218,8 @@ private[snowpark] object ServerConnection {
 private[snowpark] class ServerConnection(
     options: Map[String, String],
     val isScalaAPI: Boolean,
-    private val jdbcConn: Option[SnowflakeConnectionV1]
-) extends Logging {
+    private val jdbcConn: Option[SnowflakeConnectionV1])
+    extends Logging {
 
   val isStoredProc = jdbcConn.isDefined
   // convert all parameter keys to lower case, and only use lower case keys internally.
@@ -281,8 +269,7 @@ private[snowpark] class ServerConnection(
 
   private[snowpark] def getStatementParameters(
       isDDLOnTempObject: Boolean = false,
-      statementParameters: Map[String, Any] = Map.empty
-  ): Map[String, Any] = {
+      statementParameters: Map[String, Any] = Map.empty): Map[String, Any] = {
     Map.empty[String, Any] ++
       // Only set queryTag if in client mode and if it is not already set
       (if (isStoredProc || queryTagSetInSession()) Map()
@@ -298,15 +285,13 @@ private[snowpark] class ServerConnection(
         s"where language = 'java'",
       true,
       false,
-      getStatementParameters(isDDLOnTempObject = false, Map.empty)
-    ).rows.get
+      getStatementParameters(isDDLOnTempObject = false, Map.empty)).rows.get
       .map(r => r.getString(0).toLowerCase() + PackageNameDelimiter + r.getString(1).toLowerCase())
       .toSet
 
   private[snowflake] def setStatementParameters(
       statement: Statement,
-      parameters: Map[String, Any]
-  ): Unit =
+      parameters: Map[String, Any]): Unit =
     parameters.foreach { entry =>
       statement.asInstanceOf[SnowflakeStatement].setParameter(entry._1, entry._2)
     }
@@ -338,8 +323,7 @@ private[snowpark] class ServerConnection(
   }
 
   private[snowpark] def resultSetToIterator(
-      statement: Statement
-  ): (CloseableIterator[Row], StructType) =
+      statement: Statement): (CloseableIterator[Row], StructType) =
     withValidConnection {
       val data = statement.getResultSet
 
@@ -367,21 +351,21 @@ private[snowpark] class ServerConnection(
                   case VariantType => data.getString(resultIndex)
                   case _: StructuredArrayType | _: StructuredMapType | _: StructType =>
                     resultSetExt.getObject(resultIndex)
-                  case ArrayType(StringType)           => data.getString(resultIndex)
+                  case ArrayType(StringType) => data.getString(resultIndex)
                   case MapType(StringType, StringType) => data.getString(resultIndex)
-                  case StringType                      => data.getString(resultIndex)
-                  case _: DecimalType                  => data.getBigDecimal(resultIndex)
-                  case DoubleType                      => data.getDouble(resultIndex)
-                  case FloatType                       => data.getFloat(resultIndex)
-                  case BooleanType                     => data.getBoolean(resultIndex)
-                  case BinaryType                      => data.getBytes(resultIndex)
-                  case DateType                        => data.getDate(resultIndex)
-                  case TimeType                        => data.getTime(resultIndex)
-                  case ByteType                        => data.getByte(resultIndex)
-                  case IntegerType                     => data.getInt(resultIndex)
-                  case LongType                        => data.getLong(resultIndex)
-                  case TimestampType                   => data.getTimestamp(resultIndex)
-                  case ShortType                       => data.getShort(resultIndex)
+                  case StringType => data.getString(resultIndex)
+                  case _: DecimalType => data.getBigDecimal(resultIndex)
+                  case DoubleType => data.getDouble(resultIndex)
+                  case FloatType => data.getFloat(resultIndex)
+                  case BooleanType => data.getBoolean(resultIndex)
+                  case BinaryType => data.getBytes(resultIndex)
+                  case DateType => data.getDate(resultIndex)
+                  case TimeType => data.getTime(resultIndex)
+                  case ByteType => data.getByte(resultIndex)
+                  case IntegerType => data.getInt(resultIndex)
+                  case LongType => data.getLong(resultIndex)
+                  case TimestampType => data.getTimestamp(resultIndex)
+                  case ShortType => data.getShort(resultIndex)
                   case GeographyType =>
                     geographyOutputFormat match {
                       case "GeoJSON" => Geography.fromGeoJSON(data.getString(resultIndex))
@@ -397,8 +381,7 @@ private[snowpark] class ServerConnection(
                   case _ =>
                     // ArrayType, StructType, MapType
                     throw new UnsupportedOperationException(
-                      s"Unsupported type: ${attribute.dataType}"
-                    )
+                      s"Unsupported type: ${attribute.dataType}")
                 }
               }
             })
@@ -431,8 +414,7 @@ private[snowpark] class ServerConnection(
       destPrefix: String,
       inputStream: InputStream,
       destFileName: String,
-      compressData: Boolean
-  ): Unit = withValidConnection {
+      compressData: Boolean): Unit = withValidConnection {
     connection.uploadStream(stageName, destPrefix, inputStream, destFileName, compressData)
   }
 
@@ -445,26 +427,22 @@ private[snowpark] class ServerConnection(
   def runQuery(
       query: String,
       isDDLOnTempObject: Boolean = false,
-      statementParameters: Map[String, Any] = Map.empty
-  ): String =
+      statementParameters: Map[String, Any] = Map.empty): String =
     runQueryGetResult(
       query,
       returnRows = false,
       returnIterator = false,
-      getStatementParameters(isDDLOnTempObject, statementParameters)
-    ).queryId
+      getStatementParameters(isDDLOnTempObject, statementParameters)).queryId
 
   // Run the query and return the queryID when the caller doesn't need the ResultSet
   def runQueryGetRows(
       query: String,
-      statementParameters: Map[String, Any] = Map.empty
-  ): Array[Row] =
+      statementParameters: Map[String, Any] = Map.empty): Array[Row] =
     runQueryGetResult(
       query,
       returnRows = true,
       returnIterator = false,
-      getStatementParameters(isDDLOnTempObject = false, statementParameters)
-    ).rows.get
+      getStatementParameters(isDDLOnTempObject = false, statementParameters)).rows.get
 
   // Run the query to get query result.
   // 1. If the caller needs to get Iterator[Row], the internal JDBC ResultSet and Statement
@@ -477,8 +455,7 @@ private[snowpark] class ServerConnection(
       query: String,
       returnRows: Boolean,
       returnIterator: Boolean,
-      statementParameters: Map[String, Any]
-  ): QueryResult =
+      statementParameters: Map[String, Any]): QueryResult =
     withValidConnection {
       var statement: PreparedStatement = null
       try {
@@ -514,8 +491,7 @@ private[snowpark] class ServerConnection(
       query: String,
       attributes: Seq[Attribute],
       rows: Seq[Row],
-      statementParameters: Map[String, Any]
-  ): String =
+      statementParameters: Map[String, Any]): String =
     withValidConnection {
       lazy val bigDecimalRoundContext = new java.math.MathContext(DecimalType.MAX_PRECISION)
       val types: Seq[DataType] = attributes.map(_.dataType)
@@ -590,8 +566,7 @@ private[snowpark] class ServerConnection(
             case (dataType, index) =>
               // ArrayType, StructType, MapType
               throw new UnsupportedOperationException(
-                s"Unsupported type: $dataType at $index for Batch Insert"
-              )
+                s"Unsupported type: $dataType at $index for Batch Insert")
           }
           preparedStatement.addBatch()
         }
@@ -692,18 +667,14 @@ private[snowpark] class ServerConnection(
       getParameterValue(
         ParameterUtils.SnowparkUseScopedTempObjects,
         skipActiveRead = false,
-        Some(DEFAULT_SNOWPARK_USE_SCOPED_TEMP_OBJECTS)
-      )
-    )
+        Some(DEFAULT_SNOWPARK_USE_SCOPED_TEMP_OBJECTS)))
 
   lazy val hideInternalAlias: Boolean =
     ParameterUtils.parseBoolean(
       getParameterValue(
         ParameterUtils.SnowparkHideInternalAlias,
         skipActiveRead = false,
-        Some(ParameterUtils.DEFAULT_SNOWPARK_HIDE_INTERNAL_ALIAS)
-      )
-    )
+        Some(ParameterUtils.DEFAULT_SNOWPARK_HIDE_INTERNAL_ALIAS)))
 
   lazy val queryTagIsSet: Boolean = {
     try {
@@ -717,22 +688,18 @@ private[snowpark] class ServerConnection(
 
   // By default enable closure cleaner, but leave this option to disable it.
   lazy val closureCleanerMode: ClosureCleanerMode.Value = ParameterUtils.parseClosureCleanerParam(
-    lowerCaseParameters.getOrElse(ParameterUtils.SnowparkEnableClosureCleaner, "repl_only")
-  )
+    lowerCaseParameters.getOrElse(ParameterUtils.SnowparkEnableClosureCleaner, "repl_only"))
 
   lazy val requestTimeoutInSeconds: Int = {
     val timeout = readRequestTimeoutSecond
     // Timeout should be greater than 0 and less than 7 days
-    if (
-      timeout <= MIN_REQUEST_TIMEOUT_IN_SECONDS
-      || timeout >= MAX_REQUEST_TIMEOUT_IN_SECONDS
-    ) {
+    if (timeout <= MIN_REQUEST_TIMEOUT_IN_SECONDS
+      || timeout >= MAX_REQUEST_TIMEOUT_IN_SECONDS) {
       throw ErrorMessage.MISC_INVALID_INT_PARAMETER(
         timeout.toString,
         SnowparkRequestTimeoutInSeconds,
         MIN_REQUEST_TIMEOUT_IN_SECONDS,
-        MAX_REQUEST_TIMEOUT_IN_SECONDS
-      )
+        MAX_REQUEST_TIMEOUT_IN_SECONDS)
     }
     timeout
   }
@@ -750,8 +717,7 @@ private[snowpark] class ServerConnection(
           maxRetryCount,
           SnowparkMaxFileUploadRetryCount,
           0,
-          Int.MaxValue
-        )
+          Int.MaxValue)
     }
   }
 
@@ -768,8 +734,7 @@ private[snowpark] class ServerConnection(
           maxRetryCount,
           SnowparkMaxFileDownloadRetryCount,
           0,
-          Int.MaxValue
-        )
+          Int.MaxValue)
     }
   }
 
@@ -785,16 +750,14 @@ private[snowpark] class ServerConnection(
             timeoutInput.get,
             SnowparkRequestTimeoutInSeconds,
             MIN_REQUEST_TIMEOUT_IN_SECONDS,
-            MAX_REQUEST_TIMEOUT_IN_SECONDS
-          )
+            MAX_REQUEST_TIMEOUT_IN_SECONDS)
       }
     } else {
       // Avoid query server for the parameter if JDBC does not have the parameter in GS's response
       getParameterValue(
         ParameterUtils.SnowparkRequestTimeoutInSeconds,
         skipActiveRead = true,
-        Some(DEFAULT_REQUEST_TIMEOUT_IN_SECONDS)
-      ).toInt
+        Some(DEFAULT_REQUEST_TIMEOUT_IN_SECONDS)).toInt
     }
   }
 
@@ -804,15 +767,13 @@ private[snowpark] class ServerConnection(
 
   def executePlanGetQueryId(
       plan: SnowflakePlan,
-      statementParameters: Map[String, Any] = Map.empty
-  ): String =
+      statementParameters: Map[String, Any] = Map.empty): String =
     withValidConnection {
       val queryResult = executePlanInternal(
         plan,
         true,
         statementParameters,
-        useStatementParametersForLastQueryOnly = true
-      )
+        useStatementParametersForLastQueryOnly = true)
       queryResult.iterator.foreach(_.asInstanceOf[CloseableIterator[Row]].close())
       queryResult.queryId
     }
@@ -833,8 +794,7 @@ private[snowpark] class ServerConnection(
       plan: SnowflakePlan,
       returnIterator: Boolean,
       statementParameters: Map[String, Any] = Map.empty,
-      useStatementParametersForLastQueryOnly: Boolean = false
-  ): QueryResult =
+      useStatementParametersForLastQueryOnly: Boolean = false): QueryResult =
     withValidConnection {
       SnowflakePlan.wrapException(plan) {
         val actionID = plan.session.generateNewActionID
@@ -863,8 +823,7 @@ private[snowpark] class ServerConnection(
             this,
             placeholders,
             returnIterator,
-            statementsParameterForLastQuery
-          )
+            statementsParameterForLastQuery)
           plan.reportSimplifierUsage(result.queryId)
           result
         } finally {
@@ -877,8 +836,7 @@ private[snowpark] class ServerConnection(
 
   private[snowpark] def executeAsync[T: TypeTag](
       plan: SnowflakePlan,
-      mergeBuilder: Option[MergeBuilder] = None
-  ): TypedAsyncJob[T] =
+      mergeBuilder: Option[MergeBuilder] = None): TypedAsyncJob[T] =
     withValidConnection {
       SnowflakePlan.wrapException(plan) {
         if (!plan.supportAsyncMode) {
@@ -923,8 +881,7 @@ private[snowpark] class ServerConnection(
 
   private[snowpark] def waitForQueryDone(
       queryID: String,
-      maxWaitTimeInSeconds: Long
-  ): QueryStatus = {
+      maxWaitTimeInSeconds: Long): QueryStatus = {
     // This function needs to check query status in a loop.
     // Sleep for an amount before trying again. Exponential backoff up to 5 seconds
     // implemented. The sleep backoff strategy comes from JDBC Async query.
@@ -936,10 +893,8 @@ private[snowpark] class ServerConnection(
     var retry = 0
     var lastLogTime = 0
     var totalWaitTime = 0
-    while (
-      QueryStatus.isStillRunning(qs) &&
-      totalWaitTime + getSeepTime(retry + 1) < maxWaitTimeInSeconds * 1000
-    ) {
+    while (QueryStatus.isStillRunning(qs) &&
+      totalWaitTime + getSeepTime(retry + 1) < maxWaitTimeInSeconds * 1000) {
       Thread.sleep(getSeepTime(retry))
       totalWaitTime = totalWaitTime + getSeepTime(retry)
       qs = session.getQueryStatus(queryID)
@@ -947,8 +902,7 @@ private[snowpark] class ServerConnection(
       if (totalWaitTime - lastLogTime > 60 * 1000 || lastLogTime == 0) {
         logWarning(
           s"Checking the query status for $queryID at ${LocalDateTime.now()}," +
-            s" the current status is $qs."
-        )
+            s" the current status is $qs.")
         lastLogTime = totalWaitTime
       }
     }
@@ -961,8 +915,7 @@ private[snowpark] class ServerConnection(
   private[snowpark] def getAsyncResult(
       queryID: String,
       maxWaitTimeInSecond: Long,
-      plan: Option[SnowflakePlan]
-  ): (Iterator[Row], StructType) =
+      plan: Option[SnowflakePlan]): (Iterator[Row], StructType) =
     withValidConnection {
       SnowflakePlan.wrapException(plan.toSeq: _*) {
         val statement = connection.createStatement()
@@ -996,8 +949,7 @@ private[snowpark] class ServerConnection(
   private[snowpark] def getParameterValue(
       parameterName: String,
       skipActiveRead: Boolean = false,
-      defaultValue: Option[String] = None
-  ): String = withValidConnection {
+      defaultValue: Option[String] = None): String = withValidConnection {
     // Step 1:
     val param = connection.getSFBaseSession.getOtherParameter(parameterName.toUpperCase())
     var result: String = null
@@ -1026,8 +978,7 @@ private[snowpark] class ServerConnection(
           if (defaultValue.isEmpty) throw e
           logInfo(
             s"Actively query failed for parameter $parameterName." +
-              s" Error: ${e.getMessage} Use default value: $defaultValue."
-          )
+              s" Error: ${e.getMessage} Use default value: $defaultValue.")
       } finally {
         statement.close()
       }
@@ -1065,8 +1016,7 @@ private[snowflake] object SnowflakeResultSetExt {
       case sfResultSet: SnowflakeResultSetV1 => new SnowflakeResultSetExt(sfResultSet)
       case other =>
         throw new IllegalArgumentException(
-          s"Unsupported JDBC ResultSet Object: ${other.getClass.getSimpleName}"
-        )
+          s"Unsupported JDBC ResultSet Object: ${other.getClass.getSimpleName}")
     }
 }
 // Extends the Snowflake ResultSet to access private fields
@@ -1106,8 +1056,7 @@ private[snowflake] class SnowflakeResultSetExt(data: SnowflakeResultSetV1) {
       null,
       meta
         .asInstanceOf[SnowflakeResultSetMetaData]
-        .getColumnFields(index)
-    )
+        .getColumnFields(index))
     convertToSnowparkValue(getObjectInternal(index), field)
   }
 
@@ -1150,17 +1099,16 @@ private[snowflake] class SnowflakeResultSetExt(data: SnowflakeResultSetV1) {
                 .map { case ((key, value), metadata) =>
                   key -> convertToSnowparkValue(value, metadata)
                 }
-                .toMap
-            )
+                .toMap)
         }
 
       case "NUMBER" if meta.getType == java.sql.Types.BIGINT =>
         value match {
-          case str: String              => str.toLong // number key in structured map
+          case str: String => str.toLong // number key in structured map
           case bd: java.math.BigDecimal => bd.toBigInteger.longValue()
         }
       case "DOUBLE" | "BOOLEAN" | "BINARY" | "NUMBER" => value
-      case "VARCHAR" | "VARIANT"                      => value.toString // Text to String
+      case "VARCHAR" | "VARIANT" => value.toString // Text to String
       case "DATE" =>
         arrowResultSet.convertToDate(value, null)
       case "TIME" =>

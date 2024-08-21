@@ -46,26 +46,26 @@ private[snowpark] object Variant {
 
     // internal used when converting from Java
     def getType(name: String): VariantType = name match {
-      case "RealNumber"  => RealNumber
+      case "RealNumber" => RealNumber
       case "FixedNumber" => FixedNumber
-      case "Boolean"     => Boolean
-      case "String"      => String
-      case "Binary"      => Binary
-      case "Time"        => Time
-      case "Date"        => Date
-      case "Timestamp"   => Timestamp
-      case "Array"       => Array
-      case "Object"      => Object
-      case _             => throw new IllegalArgumentException(s"Type: $name doesn't exist")
+      case "Boolean" => Boolean
+      case "String" => String
+      case "Binary" => Binary
+      case "Time" => Time
+      case "Date" => Date
+      case "Timestamp" => Timestamp
+      case "Array" => Array
+      case "Object" => Object
+      case _ => throw new IllegalArgumentException(s"Type: $name doesn't exist")
     }
   }
 
   private def objectToJsonNode(obj: Any): JsonNode = {
     obj match {
-      case v: Variant   => v.value
+      case v: Variant => v.value
       case g: Geography => new Variant(g.asGeoJSON()).value
-      case g: Geometry  => new Variant(g.toString).value
-      case _            => MAPPER.valueToTree(obj)
+      case g: Geometry => new Variant(g.toString).value
+      case _ => MAPPER.valueToTree(obj)
     }
   }
 }
@@ -76,8 +76,7 @@ private[snowpark] object Variant {
   */
 class Variant private[snowpark] (
     private[snowpark] val value: JsonNode,
-    private[snowpark] val dataType: VariantType
-) {
+    private[snowpark] val dataType: VariantType) {
 
   /** Creates a Variant from double value
     *
@@ -167,8 +166,7 @@ class Variant private[snowpark] (
           case _: Exception => JsonNodeFactory.instance.textNode(str)
         }
       },
-      VariantTypes.String
-    )
+      VariantTypes.String)
 
   /** Creates a Variant from binary value
     *
@@ -207,8 +205,7 @@ class Variant private[snowpark] (
         seq.foreach(obj => arr.add(objectToJsonNode(obj)))
         arr
       },
-      VariantTypes.String
-    )
+      VariantTypes.String)
 
   /** Creates a Variant from Java List
     *
@@ -248,8 +245,7 @@ class Variant private[snowpark] (
           case _ => MAPPER.valueToTree(obj.asInstanceOf[Object])
         }
       },
-      VariantTypes.String
-    )
+      VariantTypes.String)
 
   /** Converts the variant as double value
     *
@@ -371,9 +367,7 @@ class Variant private[snowpark] (
             throw new UncheckedIOException(
               new IOException(
                 s"Failed to convert ${value.asText()} to Binary. " +
-                  "Only Hex string is supported."
-              )
-            )
+                  "Only Hex string is supported."))
         }
     }
   }
@@ -442,7 +436,7 @@ class Variant private[snowpark] (
     */
   override def equals(obj: Any): Boolean = obj match {
     case v: Variant => value.equals(v.value)
-    case _          => false
+    case _ => false
   }
 
   /** Calculates hashcode of this Variant
@@ -457,18 +451,17 @@ class Variant private[snowpark] (
 
   private def convert[T](target: VariantType)(thunk: => T): T =
     (dataType, target) match {
-      case (from, to) if from == to                            => thunk
-      case (VariantTypes.String, _)                            => thunk
-      case (_, VariantTypes.String)                            => thunk
-      case (VariantTypes.RealNumber, VariantTypes.Timestamp)   => thunk
-      case (VariantTypes.FixedNumber, VariantTypes.Timestamp)  => thunk
-      case (VariantTypes.Boolean, VariantTypes.RealNumber)     => thunk
-      case (VariantTypes.Boolean, VariantTypes.FixedNumber)    => thunk
+      case (from, to) if from == to => thunk
+      case (VariantTypes.String, _) => thunk
+      case (_, VariantTypes.String) => thunk
+      case (VariantTypes.RealNumber, VariantTypes.Timestamp) => thunk
+      case (VariantTypes.FixedNumber, VariantTypes.Timestamp) => thunk
+      case (VariantTypes.Boolean, VariantTypes.RealNumber) => thunk
+      case (VariantTypes.Boolean, VariantTypes.FixedNumber) => thunk
       case (VariantTypes.FixedNumber, VariantTypes.RealNumber) => thunk
       case (VariantTypes.RealNumber, VariantTypes.FixedNumber) => thunk
       case (_, _) =>
         throw new UncheckedIOException(
-          new IOException(s"Conversion from Variant of $dataType to $target is not supported")
-        )
+          new IOException(s"Conversion from Variant of $dataType to $target is not supported"))
     }
 }

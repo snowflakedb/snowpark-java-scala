@@ -310,8 +310,7 @@ class DataFrameWriter(private[snowpark] val dataFrame: DataFrame) {
           COLUMN_ORDER,
           "name",
           saveMode.toString,
-          "table"
-        )
+          "table")
       case _ => dataFrame
     }
     val plan = SnowflakeCreateTable(tableName, tableSaveMode, Some(newDf.plan))
@@ -396,8 +395,7 @@ class DataFrameWriter(private[snowpark] val dataFrame: DataFrame) {
   @inline protected def action[T](funcName: String)(func: => T): T = {
     val isScala: Boolean = dataFrame.session.conn.isScalaAPI
     OpenTelemetry.action("DataFrameWriter", funcName, this.dataFrame.methodChainString + ".writer")(
-      func
-    )
+      func)
   }
 
 }
@@ -498,8 +496,7 @@ class DataFrameWriterAsyncActor private[snowpark] (writer: DataFrameWriter) {
     OpenTelemetry.action(
       "DataFrameWriterAsyncActor",
       funcName,
-      writer.dataFrame.methodChainString + ".writer.async"
-    )(func)
+      writer.dataFrame.methodChainString + ".writer.async")(func)
   }
 }
 

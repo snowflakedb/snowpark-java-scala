@@ -17,16 +17,14 @@ private[snowpark] object MergeBuilder {
       clauses: Seq[MergeExpression],
       inserted: Boolean,
       updated: Boolean,
-      deleted: Boolean
-  ): MergeBuilder = {
+      deleted: Boolean): MergeBuilder = {
     new MergeBuilder(target, source, joinExpr, clauses, inserted, updated, deleted)
   }
 
   // Generate MergeResult from query result rows
   private[snowpark] def getMergeResult(
       rows: Array[Row],
-      mergeBuilder: MergeBuilder
-  ): MergeResult = {
+      mergeBuilder: MergeBuilder): MergeResult = {
     if (rows.length != 1) {
       throw ErrorMessage.PLAN_MERGE_RETURN_WRONG_ROWS(1, rows.length)
     }
@@ -64,8 +62,7 @@ class MergeBuilder private[snowpark] (
     private[snowpark] val clauses: Seq[MergeExpression],
     private[snowpark] val inserted: Boolean,
     private[snowpark] val updated: Boolean,
-    private[snowpark] val deleted: Boolean
-) {
+    private[snowpark] val deleted: Boolean) {
 
   /** Adds a matched clause into the merge action. It matches all remaining rows in target that
     * satisfy <joinExpr>. Returns a [[MatchedClauseBuilder]] which provides APIs to define actions
@@ -232,7 +229,6 @@ class MergeBuilderAsyncActor private[snowpark] (mergeBuilder: MergeBuilder) {
     OpenTelemetry.action(
       "MergeBuilderAsyncActor",
       funcName,
-      mergeBuilder.target.methodChainString + ".merge.async"
-    )(func)
+      mergeBuilder.target.methodChainString + ".merge.async")(func)
   }
 }
