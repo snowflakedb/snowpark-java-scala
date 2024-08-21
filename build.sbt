@@ -54,7 +54,6 @@ lazy val root = (project in file("."))
     inConfig(CodeVerificationTests)(Defaults.testTasks),
     CodeVerificationTests / testOptions += Tests.Filter(isCodeVerification),
     // default test
-    Test / testOptions += Tests.Filter(isRemainingTest),
     // Release settings
     // usePgpKeyHex(Properties.envOrElse("GPG_SIGNATURE", "12345")),
     Global / pgpPassphrase := Properties.envOrNone("GPG_KEY_PASSPHRASE").map(_.toCharArray),
@@ -100,5 +99,5 @@ lazy val CodeVerificationTests = config("CodeVerificationTests") extend Test
 // FIPS Tests
 
 // other Tests
-def isRemainingTest(name: String): Boolean = name.endsWith("JavaAPISuite")
-//  ! isCodeVerification(name)
+def isRemainingTest(name: String): Boolean =
+  ! isCodeVerification(name)
