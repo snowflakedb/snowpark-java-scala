@@ -2948,4 +2948,58 @@ public class JavaFunctionSuite extends TestBase {
     Row[] expected = {Row.create("test")};
     checkAnswer(df.select(Functions.unbase64(Functions.col("a"))), expected, false);
   }
+
+  @Test
+  public void locate_int() {
+    DataFrame df =
+        getSession()
+            .sql(
+                "select * from values ('scala', 'java scala python'), \n "
+                    + "('b', 'abcd') as T(a,b)");
+    Row[] expected = {Row.create(6), Row.create(2)};
+    checkAnswer(
+        df.select(Functions.locate(Functions.col("a"), Functions.col("b"), 1).as("locate")),
+        expected,
+        false);
+  }
+
+  @Test
+  public void locate() {
+    DataFrame df = getSession().sql("select * from values ('abcd') as T(s)");
+    Row[] expected = {Row.create(2)};
+    checkAnswer(df.select(Functions.locate("b", Functions.col("s")).as("locate")), expected, false);
+  }
+
+  @Test
+  public void ntile_int() {
+    DataFrame df = getSession().sql("select * from values(1,2),(1,2),(2,1),(2,2),(2,2) as T(x,y)");
+    Row[] expected = {Row.create(1), Row.create(2), Row.create(3), Row.create(1), Row.create(2)};
+
+    checkAnswer(
+        df.select(Functions.ntile(4).over(Window.partitionBy(df.col("x")).orderBy(df.col("y")))),
+        expected,
+        false);
+  }
+
+  @Test
+  public void randn() {
+    DataFrame df = getSession().sql("select * from values(1),(2),(3) as T(a)");
+
+    assert (df.withColumn("randn", Functions.randn()).select("randn").first() != null);
+  }
+
+  @Test
+  public void randn_seed() {
+    DataFrame df = getSession().sql("select * from values(1),(2),(3) as T(a)");
+    Row[] expected = {
+      Row.create(5777523539921853504L),
+      Row.create(-8190739547906189845L),
+      Row.create(-1138438814981368515L)
+    };
+
+    checkAnswer(
+        df.withColumn("randn_with_seed", Functions.randn(123l)).select("randn_with_seed"),
+        expected,
+        false);
+  }
 }
