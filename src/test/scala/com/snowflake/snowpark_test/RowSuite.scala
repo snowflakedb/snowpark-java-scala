@@ -1,9 +1,9 @@
 package com.snowflake.snowpark_test
 
-import com.snowflake.snowpark.types.{Geography, Geometry, Variant}
+import com.snowflake.snowpark.types._
 import com.snowflake.snowpark.{Row, SNTestBase, SnowparkClientException}
 
-import java.sql.{Date, Timestamp}
+import java.sql.{Date, Time, Timestamp}
 import java.time.{Instant, LocalDate}
 import java.util
 
@@ -231,6 +231,116 @@ class RowSuite extends SNTestBase {
     msg = ".*Cannot cast .* to Double."
     err = intercept[SnowparkClientException](testRow.getDouble(11))
     assert(err.message.matches(msg))
+  }
+
+  test("getAs") {
+    val milliseconds = System.currentTimeMillis()
+
+    val schema = StructType(
+      Seq(
+        StructField("c01", BinaryType),
+        StructField("c02", BooleanType),
+        StructField("c03", ByteType),
+        StructField("c04", DateType),
+        StructField("c05", DoubleType),
+        StructField("c06", FloatType),
+        StructField("c07", GeographyType),
+        StructField("c08", GeometryType),
+        StructField("c09", IntegerType),
+        StructField("c10", LongType),
+        StructField("c11", ShortType),
+        StructField("c12", StringType),
+        StructField("c13", TimeType),
+        StructField("c14", TimestampType),
+        StructField("c15", VariantType)))
+
+    var data = Seq(
+      Row(
+        Array[Byte](1, 9),
+        true,
+        Byte.MinValue,
+        Date.valueOf("2024-01-01"),
+        Double.MinValue,
+        Float.MinPositiveValue,
+        Geography.fromGeoJSON("POINT(30 10)"),
+        Geometry.fromGeoJSON("POINT(20 40)"),
+        Int.MinValue,
+        Long.MinValue,
+        Short.MinValue,
+        "string",
+        Time.valueOf("16:23:04"),
+        new Timestamp(milliseconds),
+        new Variant(1)))
+
+    var df = session.createDataFrame(data, schema)
+    var row = df.collect()(0)
+
+    assert(row.getAs[Array[Byte]](0) sameElements Array[Byte](1, 9))
+    assert(row.getAs[Boolean](1))
+    assert(row.getAs[Byte](2) == Byte.MinValue)
+    assert(row.getAs[Date](3) == Date.valueOf("2024-01-01"))
+    assert(row.getAs[Double](4) == Double.MinValue)
+    assert(row.getAs[Float](5) == Float.MinPositiveValue)
+    assert(row.getAs[Geography](6) == Geography.fromGeoJSON("""{
+    |  "coordinates": [
+    |    30,
+    |    10
+    |  ],
+    |  "type": "Point"
+    |}""".stripMargin))
+    assert(row.getAs[Geometry](7) == Geometry.fromGeoJSON("""{
+    |  "coordinates": [
+    |    2.000000000000000e+01,
+    |    4.000000000000000e+01
+    |  ],
+    |  "type": "Point"
+    |}""".stripMargin))
+    assert(row.getAs[Int](8) == Int.MinValue)
+    assert(row.getAs[Long](9) == Long.MinValue)
+    assert(row.getAs[Short](10) == Short.MinValue)
+    assert(row.getAs[String](11) == "string")
+    assert(row.getAs[Time](12) == Time.valueOf("16:23:04"))
+    assert(row.getAs[Timestamp](13) == new Timestamp(milliseconds))
+    assert(row.getAs[Variant](14) == new Variant(1))
+    assertThrows[ClassCastException](row.getAs[Boolean](0))
+    assertThrows[ArrayIndexOutOfBoundsException](row.getAs[Boolean](-1))
+
+    data = Seq(
+      Row(
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null))
+
+    df = session.createDataFrame(data, schema)
+    row = df.collect()(0)
+
+    assert(row.getAs[Array[Byte]](0) == null)
+    assert(!row.getAs[Boolean](1))
+    assert(row.getAs[Byte](2) == 0)
+    assert(row.getAs[Date](3) == null)
+    assert(row.getAs[Double](4) == 0)
+    assert(row.getAs[Float](5) == 0)
+    assert(row.getAs[Geography](6) == null)
+    assert(row.getAs[Geometry](7) == null)
+    assert(row.getAs[Int](8) == 0)
+    assert(row.getAs[Long](9) == 0)
+    assert(row.getAs[Short](10) == 0)
+    assert(row.getAs[String](11) == null)
+    assert(row.getAs[Time](12) == null)
+    assert(row.getAs[Timestamp](13) == null)
+    assert(row.getAs[Variant](14) == null)
   }
 
   test("hashCode") {
