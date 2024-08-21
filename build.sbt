@@ -7,6 +7,7 @@ val slf4jVersion = "2.0.4"
 lazy val root = (project in file("."))
   .configs(CodeVerificationTests)
   .configs(JavaAPITests)
+  .configs(JavaUDXTests)
   .settings(
     name := "snowpark",
     version := "1.15.0-SNAPSHOT",
@@ -52,11 +53,14 @@ lazy val root = (project in file("."))
 //    Test / crossPaths := false,
     Test / fork := false,
 //    Test / javaOptions ++= Seq("-Xms1024M", "-Xmx4096M"),
+    Test / parallelExecution := false,
     // Test Groups
     inConfig(CodeVerificationTests)(Defaults.testTasks),
     CodeVerificationTests / testOptions += Tests.Filter(isCodeVerification),
     inConfig(JavaAPITests)(Defaults.testTasks),
     JavaAPITests / testOptions += Tests.Filter(isJavaAPITests),
+    inConfig(JavaUDXTests)(Defaults.testTasks),
+    JavaUDXTests / testOptions += Tests.Filter(isJavaUDXTests),
     // Release settings
     // usePgpKeyHex(Properties.envOrElse("GPG_SIGNATURE", "12345")),
     Global / pgpPassphrase := Properties.envOrNone("GPG_KEY_PASSPHRASE").map(_.toCharArray),
@@ -106,6 +110,11 @@ def isJavaAPITests(name: String): Boolean = {
 }
 lazy val JavaAPITests = config("JavaAPITests") extend Test
 // Java UDx Tests
+def isJavaUDXTests(name: String): Boolean = {
+  (name.startsWith("com.snowflake.snowpark_test.Java") &&
+    udxNames.exists(x => name.contains(x)))
+}
+lazy val JavaUDXTests = config("JavaUDXTests") extend Test
 // Scala UDx Tests
 // FIPS Tests
 
