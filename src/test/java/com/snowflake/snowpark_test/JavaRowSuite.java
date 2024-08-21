@@ -504,8 +504,7 @@ public class JavaRowSuite extends TestBase {
         () -> {
           Boolean b = finalRow.getAs(0, Boolean.class);
         });
-    assertThrows(
-        ArrayIndexOutOfBoundsException.class, () -> finalRow.getAs(-1, Boolean.class));
+    assertThrows(ArrayIndexOutOfBoundsException.class, () -> finalRow.getAs(-1, Boolean.class));
 
     data =
         new Row[] {
