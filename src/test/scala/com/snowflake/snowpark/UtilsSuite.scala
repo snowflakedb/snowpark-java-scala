@@ -675,6 +675,11 @@ class UtilsSuite extends SNTestBase {
   }
 
   test("Scala and Json format transformation") {
+    val javaHashMap = new util.HashMap[String, String]() {{
+      put("one", "1")
+      put("two", "2")
+      put("three", "3")
+    }}
     val map = Map(
       "nullKey" -> null,
       "integerKey" -> 42,
@@ -685,8 +690,7 @@ class UtilsSuite extends SNTestBase {
       "floatKey" -> 3.14F,
       "boolKey" -> false,
       "javaListKey" -> new util.ArrayList[String](util.Arrays.asList("a", "b")),
-      "javaMapKey" -> new util.HashMap[String, String](
-        util.Map.of[String, String]("one", "1", "two", "2", "three", "3")),
+      "javaMapKey" -> javaHashMap,
       "seqKey" -> Seq(1, 2, 3),
       "arrayKey" -> Array(1, 2, 3),
       "seqOfStringKey" -> Seq("1", "2", "3"),
