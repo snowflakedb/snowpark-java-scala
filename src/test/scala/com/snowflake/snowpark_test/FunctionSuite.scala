@@ -2337,8 +2337,8 @@ trait FunctionSuite extends TestData {
   }
 
   test("unix_timestamp") {
-    val data = Seq(Timestamp.valueOf("2024-04-08 23:39:20.123-07:00")).toDF("a")
-    checkAnswer(data.select(unix_timestamp(col("a"))), Seq(Row("1712619560123")), sort = false)
+    val data = Seq(Timestamp.valueOf("2013-05-08 23:39:20.123")).toDF("a")
+    checkAnswer(data.select(unix_timestamp(col("a"))), Seq(Row("1368056360")), sort = false)
   }
 }
 
