@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.node.ArrayNode
 import com.snowflake.snowpark._
 import com.snowflake.snowpark.functions.{repeat, _}
 import com.snowflake.snowpark.types._
+import com.snowflake.snowpark_java.types.LongType
 import net.snowflake.client.jdbc.SnowflakeSQLException
 
 import java.sql.{Date, Time, Timestamp}
@@ -1245,8 +1246,7 @@ trait FunctionSuite extends TestData {
         )
         .collect()(0)
         .getTimestamp(0)
-        .toString == "2020-10-28 13:35:47.001234567"
-    )
+        .toString == "2020-10-28 13:35:47.001234567")
   }
 
   test("timestamp_ltz_from_parts") {
@@ -2183,8 +2183,8 @@ trait FunctionSuite extends TestData {
             "4.000000000000000e+00,\n    1.000000000000000e+00,\n    5.000000000000000e+00,\n    " +
             "1.000000000000000e+00,\n    6.000000000000000e+00,\n    1.000000000000000e+00,\n    " +
             "7.000000000000000e+00,\n    1.000000000000000e+00,\n    8.000000000000000e+00,\n    " +
-            "1.000000000000000e+00,\n    9.000000000000000e+00,\n    1.000000000000000e+00\n  ],\n  " +
-            "\"type\": \"tdigest\",\n  \"version\": 1\n}"
+            "1.000000000000000e+00,\n    9.000000000000000e+00,\n    1.000000000000000e+00\n  ]," +
+            "\n  \"type\": \"tdigest\",\n  \"version\": 1\n}"
         )
       ),
       sort = false
@@ -2222,8 +2222,8 @@ trait FunctionSuite extends TestData {
             "1.000000000000000e+00,\n    7.000000000000000e+00,\n    1.000000000000000e+00,\n    " +
             "8.000000000000000e+00,\n    1.000000000000000e+00,\n    8.000000000000000e+00,\n    " +
             "1.000000000000000e+00,\n    9.000000000000000e+00,\n    1.000000000000000e+00,\n    " +
-            "9.000000000000000e+00,\n    1.000000000000000e+00\n  ],\n  \"type\": \"tdigest\",\n  " +
-            "\"version\": 1\n}"
+            "9.000000000000000e+00,\n    1.000000000000000e+00\n  ],\n  \"type\": \"tdigest\"," +
+            "\n  \"version\": 1\n}"
         )
       ),
       sort = false
@@ -2495,6 +2495,49 @@ trait FunctionSuite extends TestData {
       sort = false
     )
   }
+  test("regexp_extract") {
+    val data = Seq("A MAN A PLAN A CANAL").toDF("a")
+    var expected = Seq(Row("MAN"))
+    checkAnswer(
+      data.select(regexp_extract(col("a"), "A\\W+(\\w+)", 1, 1, 1)),
+      expected,
+      sort = false)
+    expected = Seq(Row("PLAN"))
+    checkAnswer(
+      data.select(regexp_extract(col("a"), "A\\W+(\\w+)", 1, 2, 1)),
+      expected,
+      sort = false)
+    expected = Seq(Row("CANAL"))
+    checkAnswer(
+      data.select(regexp_extract(col("a"), "A\\W+(\\w+)", 1, 3, 1)),
+      expected,
+      sort = false)
+
+  }
+  test("signum") {
+    val df = Seq(1).toDF("a")
+    checkAnswer(df.select(sign(col("a"))), Seq(Row(1)), sort = false)
+    val df1 = Seq(-2).toDF("a")
+    checkAnswer(df1.select(sign(col("a"))), Seq(Row(-1)), sort = false)
+    val df2 = Seq(0).toDF("a")
+    checkAnswer(df2.select(sign(col("a"))), Seq(Row(0)), sort = false)
+  }
+  test("sign") {
+    val df = Seq(1).toDF("a")
+    checkAnswer(df.select(sign(col("a"))), Seq(Row(1)), sort = false)
+    val df1 = Seq(-2).toDF("a")
+    checkAnswer(df1.select(sign(col("a"))), Seq(Row(-1)), sort = false)
+    val df2 = Seq(0).toDF("a")
+    checkAnswer(df2.select(sign(col("a"))), Seq(Row(0)), sort = false)
+  }
+
+  test("substring_index") {
+    val df = Seq("It was the best of times, it was the worst of times").toDF("a")
+    checkAnswer(
+      df.select(substring_index("It was the best of times, it was the worst of times", "was", 1)),
+      Seq(Row("It was ")),
+      sort = false)
+  }
 
   test("desc column order") {
     val input = Seq(1, 2, 3).toDF("data")
@@ -2598,6 +2641,42 @@ trait FunctionSuite extends TestData {
     val input = session.createDataFrame(Seq("dGVzdA==")).toDF("a")
     val expected = Seq("test").toDF("unbase64")
     checkAnswer(input.select(unbase64(col("a")).as("unbase64")), expected, sort = false)
+  }
+
+  test("locate Column function") {
+    val input =
+      session.createDataFrame(Seq(("scala", "java scala python"), ("b", "abcd"))).toDF("a", "b")
+    val expected = Seq((6), (2)).toDF("locate")
+    checkAnswer(input.select(locate(col("a"), col("b"), 1).as("locate")), expected, sort = false)
+  }
+
+  test("locate String function") {
+
+    val input = session.createDataFrame(Seq("java scala python")).toDF("a")
+    val expected = Seq(6).toDF("locate")
+    checkAnswer(input.select(locate("scala", col("a")).as("locate")), expected, sort = false)
+  }
+
+  test("ntile function") {
+    val input = Seq((5, 15), (5, 15), (5, 15), (5, 20)).toDF("grade", "score")
+    val window = Window.partitionBy(col("grade")).orderBy(col("score"))
+    val expected = Seq((1), (1), (2), (2)).toDF("ntile")
+    checkAnswer(input.select(ntile(2).over(window).as("ntile")), expected, sort = false)
+  }
+
+  test("randn seed function") {
+    val input = session.createDataFrame(Seq((1), (2), (3))).toDF("a")
+    val expected = Seq((5777523539921853504L), (-8190739547906189845L), (-1138438814981368515L))
+      .toDF("randn_with_seed")
+    val df = input.withColumn("randn_with_seed", randn(123L)).select("randn_with_seed")
+
+    checkAnswer(df, expected, sort = false)
+  }
+
+  test("randn function") {
+    val input = session.createDataFrame(Seq((1), (2), (3))).toDF("a")
+
+    assert(input.withColumn("randn", randn()).select("randn").first() != null)
   }
 
 }

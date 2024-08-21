@@ -3882,7 +3882,127 @@ public final class Functions {
   }
 
   /**
-   * Returns a Column expression with values sorted in descending order.
+   * Signature - snowflake.snowpark.functions.regexp_extract (value: Union[Column, str], regexp:
+   * Union[Column, str], idx: int) Column Extract a specific group matched by a regex, from the
+   * specified string column. If the regex did not match, or the specified group did not match, an
+   * empty string is returned. Example:
+   *
+   * <pre>{@code
+   * from snowflake.snowpark.functions import regexp_extract
+   * df = session.createDataFrame([["id_20_30", 10], ["id_40_50", 30]], ["id", "age"])
+   * df.select(regexp_extract("id", r"(\d+)", 1).alias("RES")).show()
+   *    ---------
+   *     |"RES"  |
+   *     ---------
+   *     |20     |
+   *     |40     |
+   *     ---------
+   * }</pre>
+   *
+   * @since 1.14.0
+   * @param col Column.
+   * @param exp String
+   * @param position Integer.
+   * @param Occurences Integer.
+   * @param grpIdx Integer.
+   * @return Column object.
+   */
+  public static Column regexp_extract(
+      Column col, String exp, Integer position, Integer Occurences, Integer grpIdx) {
+    return new Column(
+        com.snowflake.snowpark.functions.regexp_extract(
+            col.toScalaColumn(), exp, position, Occurences, grpIdx));
+  }
+
+  /**
+   * Returns the sign of its argument:
+   *
+   * <p>- -1 if the argument is negative. - 1 if it is positive. - 0 if it is 0.
+   *
+   * <p>Args: col: The column to evaluate its sign Example:: *
+   *
+   * <pre>{@code df =
+   * session.create_dataframe([(-2, 2, 0)], ["a", "b", "c"]) >>>
+   * df.select(sign("a").alias("a_sign"), sign("b").alias("b_sign"),
+   * sign("c").alias("c_sign")).show()
+   *   ----------------------------------
+   *     |"A_SIGN"  |"B_SIGN"  |"C_SIGN"  |
+   *     ----------------------------------
+   *     |-1        |1         |0         |
+   *     ----------------------------------
+   * }</pre>
+   *
+   * @since 1.14.0
+   * @param col Column to calculate the sign.
+   * @return Column object.
+   */
+  public static Column signum(Column col) {
+    return new Column(com.snowflake.snowpark.functions.signum(col.toScalaColumn()));
+  }
+
+  /**
+   * Returns the sign of its argument:
+   *
+   * <p>- -1 if the argument is negative. - 1 if it is positive. - 0 if it is 0.
+   *
+   * <p>Args: col: The column to evaluate its sign Example::
+   *
+   * <pre>{@code df =
+   * session.create_dataframe([(-2, 2, 0)], ["a", "b", "c"]) >>>
+   * df.select(sign("a").alias("a_sign"), sign("b").alias("b_sign"),
+   * sign("c").alias("c_sign")).show()
+   *   ----------------------------------
+   *     |"A_SIGN"  |"B_SIGN"  |"C_SIGN"  |
+   *     ----------------------------------
+   *     |-1        |1         |0         |
+   *     ----------------------------------
+   * }</pre>
+   *
+   * @since 1.14.0
+   * @param col Column to calculate the sign.
+   * @return Column object.
+   */
+  public static Column sign(Column col) {
+    return new Column(com.snowflake.snowpark.functions.sign(col.toScalaColumn()));
+  }
+
+  /**
+   * Returns the substring from string str before count occurrences of the delimiter delim. If count
+   * is positive, everything the left of the final delimiter (counting from left) is returned. If
+   * count is negative, every to the right of the final delimiter (counting from the right) is
+   * returned. substring_index performs a case-sensitive match when searching for delim.
+   *
+   * @param col String.
+   * @param delim String
+   * @param count Integer.
+   * @return Column object.
+   * @since 1.14.0
+   */
+  public static Column substring_index(String col, String delim, Integer count) {
+    return new Column(com.snowflake.snowpark.functions.substring_index(col, delim, count));
+  }
+
+  /**
+   * Returns the input values, pivoted into an ARRAY. If the input is empty, an empty ARRAY is
+   * returned.
+   *
+   * <p>Example::
+   *
+   * <pre>{@code
+   * df = session.create_dataframe([[1], [2], [3], [1]], schema=["a"])
+   * df.select(array_agg("a", True).alias("result")).show()
+   * "RESULT" [ 1, 2, 3 ]
+   * }</pre>
+   *
+   * @since 1.14.0
+   * @param c Column to be collect.
+   * @return The array.
+   */
+  public static Column collect_list(Column c) {
+    return new Column(com.snowflake.snowpark.functions.collect_list(c.toScalaColumn()));
+  }
+
+  /* Returns a Column expression with values sorted in descending order.
    *
    * <p>Example: order column values in descending
    *
@@ -4178,6 +4298,131 @@ public final class Functions {
    */
   public static Column unbase64(Column c) {
     return new Column(functions.unbase64(c.toScalaColumn()));
+  }
+
+  /**
+   * Locate the position of the first occurrence of substr in a string column, after position pos.
+   *
+   * <pre>{@code
+   * DataFrame df = getSession().sql("select * from values ('scala', 'java scala python'), \n " +
+   *             "('b', 'abcd') as T(a,b)");
+   * df.select(Functions.locate(Functions.col("a"), Functions.col("b"), 1).as("locate")).show();
+   * ------------
+   * |"LOCATE"  |
+   * ------------
+   * |6         |
+   * |2         |
+   * ------------
+   * }</pre>
+   *
+   * @since 1.14.0
+   * @param substr string to search
+   * @param str value where string will be searched
+   * @param pos index for starting the search
+   * @return returns the position of the first occurrence.
+   */
+  public static Column locate(Column substr, Column str, int pos) {
+    return new Column(functions.locate(substr.toScalaColumn(), str.toScalaColumn(), pos));
+  }
+
+  /**
+   * Locate the position of the first occurrence of substr in a string column, after position pos.
+   * default to 1.
+   *
+   * <pre>{@code
+   * DataFrame df = getSession().sql("select * from values ('abcd') as T(s)");
+   * df.select(Functions.locate("b", Functions.col("s")).as("locate")).show();
+   * ------------
+   * |"LOCATE"  |
+   * ------------
+   * |2         |
+   * ------------
+   * }</pre>
+   *
+   * @since 1.14.0
+   * @param substr string to search
+   * @param str value where string will be searched
+   * @return returns the position of the first occurrence.
+   */
+  public static Column locate(String substr, Column str) {
+    return new Column(functions.locate(substr, str.toScalaColumn(), 1));
+  }
+
+  /**
+   * Window function: returns the ntile group id (from 1 to `n` inclusive) in an ordered window
+   * partition. For example, if `n` is 4, the first quarter of the rows will get value 1, the second
+   * quarter will get 2, the third quarter will get 3, and the last quarter will get 4.
+   *
+   * <p>This is equivalent to the NTILE function in SQL.
+   *
+   * <pre>{@code
+   * DataFrame df = getSession().sql("select * from values(1,2),(1,2),(2,1),(2,2),(2,2) as T(x,y)");
+   * df.select(Functions.ntile(4).over(Window.partitionBy(df.col("x")).orderBy(df.col("y"))).as("ntile")).show();
+   * -----------
+   * |"NTILE"  |
+   * -----------
+   * |1        |
+   * |2        |
+   * |3        |
+   * |1        |
+   * |2        |
+   * -----------
+   * }</pre>
+   *
+   * @since 1.14.0
+   * @param n number of groups
+   * @return returns the ntile group id (from 1 to n inclusive) in an ordered window partition.
+   */
+  public static Column ntile(int n) {
+    return new Column(functions.ntile(n));
+  }
+
+  /**
+   * Generate a column with independent and identically distributed (i.i.d.) samples from the
+   * standard normal distribution. Return a call to the Snowflake RANDOM function. NOTE: Snowflake
+   * returns integers of 17-19 digits.
+   *
+   * <pre>{@code
+   * DataFrame df = getSession().sql("select * from values(1),(2),(3) as T(a)");
+   * df.withColumn("randn",Functions.randn()).select("randn").show();
+   * ------------------------
+   * |"RANDN"               |
+   * ------------------------
+   * |6799378361097866000   |
+   * |-7280487148628086605  |
+   * |775606662514393461    |
+   * ------------------------
+   * }</pre>
+   *
+   * @since 1.14.0
+   * @return Random number.
+   */
+  public static Column randn() {
+    return new Column(functions.randn());
+  }
+
+  /**
+   * Generate a column with independent and identically distributed (i.i.d.) samples from the
+   * standard normal distribution. Return a call to the Snowflake RANDOM function. NOTE: Snowflake
+   * returns integers of 17-19 digits.
+   *
+   * <pre>{@code
+   * DataFrame df = getSession().sql("select * from values(1),(2),(3) as T(a)");
+   * df.withColumn("randn_with_seed",Functions.randn(123l)).select("randn_with_seed").show();
+   * ------------------------
+   * |"RANDN_WITH_SEED"     |
+   * ------------------------
+   * |5777523539921853504   |
+   * |-8190739547906189845  |
+   * |-1138438814981368515  |
+   * ------------------------
+   * }</pre>
+   *
+   * @since 1.14.0
+   * @return Random number.
+   */
+  public static Column randn(long seed) {
+    return new Column(functions.randn(seed));
   }
 
   /**
