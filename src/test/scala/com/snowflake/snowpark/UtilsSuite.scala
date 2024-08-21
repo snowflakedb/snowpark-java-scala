@@ -675,11 +675,13 @@ class UtilsSuite extends SNTestBase {
   }
 
   test("Scala and Json format transformation") {
-    val javaHashMap = new util.HashMap[String, String]() {{
-      put("one", "1")
-      put("two", "2")
-      put("three", "3")
-    }}
+    val javaHashMap = new util.HashMap[String, String]() {
+      {
+        put("one", "1")
+        put("two", "2")
+        put("three", "3")
+      }
+    }
     val map = Map(
       "nullKey" -> null,
       "integerKey" -> 42,
