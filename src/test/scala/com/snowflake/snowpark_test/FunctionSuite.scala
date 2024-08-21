@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.node.ArrayNode
 import com.snowflake.snowpark._
 import com.snowflake.snowpark.functions.{repeat, _}
 import com.snowflake.snowpark.types._
+import com.snowflake.snowpark_java.types.LongType
 import net.snowflake.client.jdbc.SnowflakeSQLException
 
 import java.sql.{Date, Time, Timestamp}
@@ -2322,6 +2323,42 @@ trait FunctionSuite extends TestData {
     val input = session.createDataFrame(Seq("dGVzdA==")).toDF("a")
     val expected = Seq("test").toDF("unbase64")
     checkAnswer(input.select(unbase64(col("a")).as("unbase64")), expected, sort = false)
+  }
+
+  test("locate Column function") {
+    val input =
+      session.createDataFrame(Seq(("scala", "java scala python"), ("b", "abcd"))).toDF("a", "b")
+    val expected = Seq((6), (2)).toDF("locate")
+    checkAnswer(input.select(locate(col("a"), col("b"), 1).as("locate")), expected, sort = false)
+  }
+
+  test("locate String function") {
+
+    val input = session.createDataFrame(Seq("java scala python")).toDF("a")
+    val expected = Seq(6).toDF("locate")
+    checkAnswer(input.select(locate("scala", col("a")).as("locate")), expected, sort = false)
+  }
+
+  test("ntile function") {
+    val input = Seq((5, 15), (5, 15), (5, 15), (5, 20)).toDF("grade", "score")
+    val window = Window.partitionBy(col("grade")).orderBy(col("score"))
+    val expected = Seq((1), (1), (2), (2)).toDF("ntile")
+    checkAnswer(input.select(ntile(2).over(window).as("ntile")), expected, sort = false)
+  }
+
+  test("randn seed function") {
+    val input = session.createDataFrame(Seq((1), (2), (3))).toDF("a")
+    val expected = Seq((5777523539921853504L), (-8190739547906189845L), (-1138438814981368515L))
+      .toDF("randn_with_seed")
+    val df = input.withColumn("randn_with_seed", randn(123L)).select("randn_with_seed")
+
+    checkAnswer(df, expected, sort = false)
+  }
+
+  test("randn function") {
+    val input = session.createDataFrame(Seq((1), (2), (3))).toDF("a")
+
+    assert(input.withColumn("randn", randn()).select("randn").first() != null)
   }
 
 }
