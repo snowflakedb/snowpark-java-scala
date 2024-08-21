@@ -686,7 +686,7 @@ class UtilsSuite extends SNTestBase {
       "boolKey" -> false,
       "javaListKey" -> new util.ArrayList[String](util.Arrays.asList("a", "b")),
       "javaMapKey" -> new util.HashMap[String, String](
-        util.Map.of("one", "1", "two", "2", "three", "3")),
+        util.Map.of[String, String]("one", "1", "two", "2", "three", "3")),
       "seqKey" -> Seq(1, 2, 3),
       "arrayKey" -> Array(1, 2, 3),
       "seqOfStringKey" -> Seq("1", "2", "3"),
