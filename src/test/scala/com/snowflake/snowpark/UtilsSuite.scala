@@ -2,28 +2,15 @@ package com.snowflake.snowpark
 
 import java.io.File
 import java.sql.{Date, Time, Timestamp}
-import com.snowflake.snowpark.internal.{
-  JavaUtils,
-  Logging,
-  ParameterUtils,
-  TypeToSchemaConverter,
-  Utils
-}
+import com.snowflake.snowpark.internal.{JavaUtils, Logging, ParameterUtils, TypeToSchemaConverter, Utils}
 import com.snowflake.snowpark.internal.analyzer.quoteName
 import com.snowflake.snowpark.types._
 
 import java.math.{BigDecimal => JavaBigDecimal}
-import java.lang.{
-  Boolean => JavaBoolean,
-  Byte => JavaByte,
-  Double => JavaDouble,
-  Float => JavaFloat,
-  Integer => JavaInteger,
-  Long => JavaLong,
-  Short => JavaShort
-}
+import java.lang.{Boolean => JavaBoolean, Byte => JavaByte, Double => JavaDouble, Float => JavaFloat, Integer => JavaInteger, Long => JavaLong, Short => JavaShort}
 import net.snowflake.client.jdbc.SnowflakeSQLException
 
+import java.util
 import scala.collection.mutable.ArrayBuffer
 
 class UtilsSuite extends SNTestBase {
@@ -675,10 +662,26 @@ class UtilsSuite extends SNTestBase {
 
   test("Scala and Json format transformation") {
     val map = Map(
-      "integerKey" -> 1.1,
+      "nullKey" -> null,
+      "integerKey" -> 42,
+      "shortKey" -> 123.toShort,
+      "longKey" -> 1234567890L,
+      "byteKey" -> 123.toByte,
+      "doubleKey" -> 3.1415926,
+      "floatKey" -> 3.14F,
+      "boolKey" -> false,
+      "javaListKey" -> new util.ArrayList[String](util.Arrays.asList("a", "b")),
+      "javaMapKey" -> new util.HashMap[String, String](util.Map.of(
+        "one", "1",
+        "two", "2",
+        "three", "3"
+      )),
+      "seqKey" -> Seq(1, 2, 3),
+      "arrayKey" -> Array(1, 2, 3),
+      "seqOfStringKey" -> Seq("1", "2", "3"),
       "stringKey" -> "stringValue",
       "nestedMap" -> Map("insideKey" -> "stringValue", "insideList" -> Seq(1, 2, 3)),
-      "nestedList" -> Seq(1, Map("nestedKey" -> "nestedValue"), List(1, 2, 3)))
+      "nestedList" -> Seq(1, Map("nestedKey" -> "nestedValue"), Array(1, 2, 3)))
     val jsonString = Utils.mapToJson(map)
     val readMap = Utils.jsonToMap(jsonString.getOrElse(""))
     val transformedString = Utils.mapToJson(readMap.getOrElse(Map()))

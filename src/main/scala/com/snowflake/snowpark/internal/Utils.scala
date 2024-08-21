@@ -3,12 +3,7 @@ package com.snowflake.snowpark.internal
 import com.fasterxml.jackson.databind.{JsonNode, ObjectMapper}
 import com.fasterxml.jackson.databind.node.JsonNodeType
 import com.snowflake.snowpark.Column
-import com.snowflake.snowpark.internal.analyzer.{
-  Attribute,
-  LogicalPlan,
-  TableFunctionExpression,
-  singleQuote
-}
+import com.snowflake.snowpark.internal.analyzer.{Attribute, LogicalPlan, TableFunctionExpression, singleQuote}
 
 import java.io.{File, FileInputStream}
 import java.lang.invoke.SerializedLambda
@@ -17,7 +12,7 @@ import java.util.Locale
 import com.snowflake.snowpark.udtf.UDTF
 import net.snowflake.client.jdbc.SnowflakeSQLException
 
-import scala.collection.JavaConverters.asScalaIteratorConverter
+import scala.collection.JavaConverters.{asScalaIteratorConverter, mapAsScalaMapConverter}
 import scala.collection.mutable
 import scala.collection.mutable.ArrayBuffer
 import scala.util.Random
@@ -478,7 +473,7 @@ object Utils extends Logging {
           })
           .toMap
       case JsonNodeType.ARRAY =>
-        node.elements().asScala.map(entry => jsonToScala(entry)).toList
+        node.elements().asScala.map(entry => jsonToScala(entry)).toSeq
       case JsonNodeType.BOOLEAN => node.asBoolean()
       case JsonNodeType.NUMBER => node.numberValue()
       case other =>
@@ -496,35 +491,20 @@ object Utils extends Logging {
     }
   }
 
-  private def scalaToJson(node: Any): String = {
-    node match {
-      case n: Map[String, Any] =>
-        val mapRes = n.map {
-          case (key, value: Map[String, Any]) =>
-            s""""${key}":${scalaToJson(value)}"""
-          case (key, value: List[Any]) =>
-            s""""${key}":${scalaToJson(value)}"""
-          case (key, value: Number) =>
-            s""""${key}":${value}"""
-          case (key, value: String) =>
-            s""""${key}":"${value}""""
-          case (key, value: Boolean) =>
-            s""""${key}":${value}"""
-          case (key, None) =>
-            s""""${key}":null"""
-          case other =>
-            throw new UnsupportedOperationException(s"Unsupported Type: ${other.getClass}")
-        }
-        s"{${mapRes.mkString(",")}}"
-      case n: List[Any] =>
-        val listRes = n.map {
-          case v: List[Any] => scalaToJson(v)
-          case v: Map[String, Any] => scalaToJson(v)
-          case v => v.toString
-        }
-        s"[${listRes.mkString(",")}]"
-      case other =>
-        throw new UnsupportedOperationException(s"Unsupported Type: ${other.getClass}")
+  private def scalaToJson(input: Any): String =
+    input match {
+      case null => "null"
+      case str: String => s""""$str""""
+      case _: Int | _: Short | _: Long | _: Byte | _: Double | _: Float |
+           _: Boolean => input.toString
+      case map: Map[String, _] => map.map {
+        case (key, value) => s"${scalaToJson(key)}:${scalaToJson(value)}"
+      }.mkString("{", ",", "}")
+      case seq: Seq[_] => seq.map(scalaToJson).mkString("[", ",", "]")
+      case arr: Array[_] => scalaToJson(arr.toSeq)
+      case list: java.util.List[_] => scalaToJson(list.toArray)
+      case map: java.util.Map[String, _] => scalaToJson(map.asScala.toMap)
+      case _ =>
+        throw new UnsupportedOperationException(s"Unsupported Type: ${input.getClass.getName}")
     }
-  }
 }
