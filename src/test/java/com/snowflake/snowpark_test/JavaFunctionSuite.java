@@ -2786,7 +2786,7 @@ public class JavaFunctionSuite extends TestBase {
                 "select to_timestamp('2013-05-08 23:39:20.123') as a from values('2013-05-08 23:39:20.123') as t(a)");
     checkAnswer(
         df.select(Functions.unix_timestamp(df.col("a"))),
-        new Row[] {Row.create(1368081560)},
+        new Row[] {Row.create(1368056360)},
         false);
   }
 
