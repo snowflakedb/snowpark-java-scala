@@ -8,7 +8,6 @@ import com.snowflake.snowpark_java.types.DataType;
 import com.snowflake.snowpark_java.udf.*;
 import java.util.List;
 import java.util.function.Supplier;
-import net.snowflake.client.jdbc.internal.org.checkerframework.checker.units.qual.C;
 
 /**
  * Provides utility functions that generate Column expression that you can pass to DataFrame
@@ -3944,11 +3943,11 @@ public final class Functions {
    * }</pre>
    *
    * @since 1.14.0
-   * @param C Column to be converted.
+   * @param c Column to be converted.
    * @return Column object.
    */
-  public static Column unix_timestamp(Column C) {
-    return new Column(com.snowflake.snowpark.functions.unix_timestamp(C.toScalaColumn()));
+  public static Column unix_timestamp(Column c) {
+    return new Column(com.snowflake.snowpark.functions.unix_timestamp(c.toScalaColumn()));
   }
 
   /**

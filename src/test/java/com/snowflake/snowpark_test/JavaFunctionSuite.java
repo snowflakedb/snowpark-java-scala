@@ -2778,15 +2778,16 @@ public class JavaFunctionSuite extends TestBase {
     checkAnswer(df.select(Functions.isnull(df.col("a"))), expected, false);
   }
 
+  @Test
   public void unix_timestamp() {
-    DataFrame df =
-        getSession().sql("select * from values('2024-04-08T23:39:20.123-07:00') as t(a)");
+    DataFrame df = getSession().sql("select * from values('2013-05-08 23:39:20.123') as t(a)");
     checkAnswer(
         df.select(Functions.unix_timestamp(df.col("a"))),
-        new Row[] {Row.create("1712619560123")},
+        new Row[] {Row.create(1368056360)},
         false);
   }
 
+  @Test
   public void regexp_extract() {
     DataFrame df = getSession().sql("select * from values('A MAN A PLAN A CANAL') as T(a)");
     Row[] expected = {Row.create("MAN")};
@@ -2840,6 +2841,7 @@ public class JavaFunctionSuite extends TestBase {
         false);
   }
 
+  @Test
   public void test_asc() {
     DataFrame df = getSession().sql("select * from values(3),(1),(2) as t(a)");
     Row[] expected = {Row.create(1), Row.create(2), Row.create(3)};
