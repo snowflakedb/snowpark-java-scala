@@ -2780,10 +2780,13 @@ public class JavaFunctionSuite extends TestBase {
 
   @Test
   public void unix_timestamp() {
-    DataFrame df = getSession().sql("select * from values('2013-05-08 23:39:20.123') as t(a)");
+    DataFrame df =
+        getSession()
+            .sql(
+                "select to_timestamp('2013-05-08 23:39:20.123') as a from values('2013-05-08 23:39:20.123') as t(a)");
     checkAnswer(
         df.select(Functions.unix_timestamp(df.col("a"))),
-        new Row[] {Row.create(1368056360)},
+        new Row[] {Row.create(1368081560)},
         false);
   }
 
