@@ -3,7 +3,6 @@ package com.snowflake.snowpark.internal
 import com.fasterxml.jackson.annotation.JsonView
 import com.fasterxml.jackson.core.TreeNode
 import com.fasterxml.jackson.databind.JsonNode
-import com.fasterxml.jackson.module.scala.DefaultScalaModule
 
 import java.io.File
 import java.net.{URI, URLClassLoader}
@@ -27,8 +26,6 @@ object UDFClassPath extends Logging {
   val jacksonDatabindClass: Class[JsonNode] = classOf[com.fasterxml.jackson.databind.JsonNode]
   val jacksonCoreClass: Class[TreeNode] = classOf[com.fasterxml.jackson.core.TreeNode]
   val jacksonAnnotationClass: Class[JsonView] = classOf[com.fasterxml.jackson.annotation.JsonView]
-  val jacksonModuleScalaClass: Class[DefaultScalaModule] =
-    classOf[com.fasterxml.jackson.module.scala.DefaultScalaModule]
   val jacksonJarSeq = Seq(
     RequiredLibrary(
       getPathForClass(jacksonDatabindClass),
@@ -38,11 +35,7 @@ object UDFClassPath extends Logging {
     RequiredLibrary(
       getPathForClass(jacksonAnnotationClass),
       "jackson-annotation",
-      jacksonAnnotationClass),
-    RequiredLibrary(
-      getPathForClass(jacksonModuleScalaClass),
-      "jackson-module-scala",
-      jacksonModuleScalaClass))
+      jacksonAnnotationClass))
   val openTelemetryApiClass: Class[Span] = classOf[io.opentelemetry.api.trace.Span]
   val openTelemetryContextClass: Class[ImplicitContextKeyed] =
     classOf[io.opentelemetry.context.ImplicitContextKeyed]
