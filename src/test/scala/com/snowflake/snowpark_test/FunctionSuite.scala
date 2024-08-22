@@ -2325,6 +2325,24 @@ trait FunctionSuite extends TestData {
     checkAnswer(input.select(unbase64(col("a")).as("unbase64")), expected, sort = false)
   }
 
+  test("reverse") {
+    val data = Seq("cat").toDF("a")
+    checkAnswer(data.select(reverse(col("a"))), Seq(Row("tac")), sort = false)
+  }
+
+  test("isnull") {
+    checkAnswer(
+      nanData1.select(equal_nan(col("A")), isnull(col("A"))),
+      Seq(Row(false, false), Row(true, false), Row(null, true), Row(false, false)),
+      sort = false)
+  }
+
+  test("unix_timestamp") {
+    val expected = Seq(1368056360).toDF("epoch")
+    val data = Seq(Timestamp.valueOf("2013-05-08 23:39:20.123")).toDF("a")
+    checkAnswer(data.select(unix_timestamp(col("a"))), expected, sort = false)
+  }
+
   test("locate Column function") {
     val input =
       session.createDataFrame(Seq(("scala", "java scala python"), ("b", "abcd"))).toDF("a", "b")
