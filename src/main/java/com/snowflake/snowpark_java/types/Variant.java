@@ -380,7 +380,7 @@ public class Variant implements Serializable {
    * Converts the variant as valid JsonNode.
    *
    * @return A valid json Node
-   * @since 0.8.0
+   * @since 1.14.0
    */
   public JsonNode asJsonNode() {
     verify(VariantTypes.String);
