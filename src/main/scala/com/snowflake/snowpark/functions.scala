@@ -12,7 +12,6 @@ import com.snowflake.snowpark.types.TimestampType
 
 import scala.reflect.runtime.universe.TypeTag
 import scala.util.Random
-import java.util.StringJoiner
 
 /**
  * Provides utility functions that generate [[Column]] expressions that you can pass to
