@@ -2766,6 +2766,31 @@ public class JavaFunctionSuite extends TestBase {
   }
 
   @Test
+  public void reverse() {
+    DataFrame df = getSession().sql("select * from values('cat') as t(a)");
+    checkAnswer(df.select(Functions.reverse(df.col("a"))), new Row[] {Row.create("tac")}, false);
+  }
+
+  @Test
+  public void isnull() {
+    DataFrame df = getSession().sql("select * from values(1.2),(null),(2.3) as T(a)");
+    Row[] expected = {Row.create(false), Row.create(true), Row.create(false)};
+    checkAnswer(df.select(Functions.isnull(df.col("a"))), expected, false);
+  }
+
+  @Test
+  public void unix_timestamp() {
+    DataFrame df =
+        getSession()
+            .sql(
+                "select to_timestamp('2013-05-08 23:39:20.123') as a from values('2013-05-08 23:39:20.123') as t(a)");
+    checkAnswer(
+        df.select(Functions.unix_timestamp(df.col("a"))),
+        new Row[] {Row.create(1368056360)},
+        false);
+  }
+
+  @Test
   public void regexp_extract() {
     DataFrame df = getSession().sql("select * from values('A MAN A PLAN A CANAL') as T(a)");
     Row[] expected = {Row.create("MAN")};
@@ -2819,6 +2844,7 @@ public class JavaFunctionSuite extends TestBase {
         false);
   }
 
+  @Test
   public void test_asc() {
     DataFrame df = getSession().sql("select * from values(3),(1),(2) as t(a)");
     Row[] expected = {Row.create(1), Row.create(2), Row.create(3)};

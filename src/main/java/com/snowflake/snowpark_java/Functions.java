@@ -3880,6 +3880,75 @@ public final class Functions {
   public static Column listagg(Column col) {
     return new Column(com.snowflake.snowpark.functions.listagg(col.toScalaColumn()));
   }
+  /**
+   * Wrapper for Snowflake built-in reverse function. Gets the reversed string. Reverses the order
+   * of characters in a string, or of bytes in a binary value. The returned value is the same length
+   * as the input, but with the characters/bytes in reverse order. If subject is NULL, the result is
+   * also NULL.
+   *
+   * <p>Example:
+   *
+   * <pre>{@code
+   * SELECT REVERSE('Hello, world!');
+   *   +--------------------------+
+   *   | REVERSE('HELLO, WORLD!') |
+   *   |--------------------------|
+   *   | !dlrow ,olleH            |
+   *   +--------------------------+
+   * }</pre>
+   *
+   * @since 1.14.0
+   * @param name Column to be reverse.
+   * @return Column object.
+   */
+  public static Column reverse(Column name) {
+    return new Column(com.snowflake.snowpark.functions.reverse(name.toScalaColumn()));
+  }
+
+  /**
+   * Wrapper for Snowflake built-in isnull function. Gets a boolean depending if value is NULL or
+   * not. Return true if the value in the column is null.
+   *
+   * <p>Example::
+   *
+   * <pre>{@code
+   * >>> from snowflake.snowpark.functions import is_null >>> df = session.create_dataframe([1.2,
+   * float("nan"), None, 1.0], schema=["a"]) >>> df.select(is_null("a").as_("a")).collect()
+   * [Row(A=False), Row(A=False), Row(A=True), Row(A=False)]
+   * }</pre>
+   *
+   * @since 1.14.0
+   * @param c Column to analyze if it is null value.
+   * @return Column object.
+   */
+  public static Column isnull(Column c) {
+    return new Column(com.snowflake.snowpark.functions.isnull(c.toScalaColumn()));
+  }
+
+  /**
+   * Returns the current Unix timestamp (in seconds) as a long. Extracts a specified date or time
+   * portion from a date, time, or timestamp. All calls of `unix_timestamp` within the same query
+   * return the same value
+   *
+   * <p>Example - DATE_PART( date_or_time_part ,date_or_time_expr )
+   *
+   * <pre>{@code
+   * SELECT TO_TIMESTAMP('2013-05-08T23:39:20.123-07:00') AS "TIME_STAMP1",
+   *  DATE_PART(EPOCH_SECOND, "TIME_STAMP1") AS "EXTRACTED EPOCH SECOND";
+   * +-------------------------+------------------------+
+   * | TIME_STAMP1             | EXTRACTED EPOCH SECOND |
+   * |-------------------------+------------------------|
+   * | 2013-05-08 23:39:20.123 |             1368056360 |
+   * +-------------------------+------------------------+
+   * }</pre>
+   *
+   * @since 1.14.0
+   * @param c Column to be converted.
+   * @return Column object.
+   */
+  public static Column unix_timestamp(Column c) {
+    return new Column(com.snowflake.snowpark.functions.unix_timestamp(c.toScalaColumn()));
+  }
 
   /**
    * Signature - snowflake.snowpark.functions.regexp_extract (value: Union[Column, str], regexp:
