@@ -377,6 +377,17 @@ public class Variant implements Serializable {
   }
 
   /**
+   * Converts the variant as valid JsonNode.
+   *
+   * @return A valid json Node
+   * @since 0.8.0
+   */
+  public JsonNode asJsonNode() {
+    verify(VariantTypes.String);
+    return objectToJsonNode(value);
+  }
+
+  /**
    * Converts the variant as binary value.
    *
    * @return An array of byte representing binary data

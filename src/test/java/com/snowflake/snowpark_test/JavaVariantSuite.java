@@ -1,5 +1,6 @@
 package com.snowflake.snowpark_test;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import com.snowflake.snowpark_java.types.Geography;
 import com.snowflake.snowpark_java.types.InternalUtils;
 import com.snowflake.snowpark_java.types.Variant;
@@ -364,5 +365,18 @@ public class JavaVariantSuite {
     assert v1.hashCode() != v3.hashCode();
 
     assert v1.toString().equals("123");
+  }
+
+  @Test
+  public void javaJsonNodeVariantConverter() throws IllegalArgumentException {
+    // Scala variant to Java Variant
+    com.snowflake.snowpark.types.Variant sv =
+        new com.snowflake.snowpark.types.Variant(
+            "{\"name\": \"abc\",\"grade\": 2, \"Interest\": \"cricket\"}");
+    Variant jResult = InternalUtils.createVariant(sv);
+    JsonNode jsonNode = jResult.asJsonNode();
+
+    assert jsonNode.get("name").asText().equals("abc");
+    assert jsonNode.get("grade").asInt() == 2;
   }
 }
