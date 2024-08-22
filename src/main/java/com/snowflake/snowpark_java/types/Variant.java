@@ -383,7 +383,7 @@ public class Variant implements Serializable {
    * @since 1.14.0
    */
   public JsonNode asJsonNode() {
-    verify(VariantTypes.String);
+    verify(VariantTypes.Object);
     return objectToJsonNode(value);
   }
 
