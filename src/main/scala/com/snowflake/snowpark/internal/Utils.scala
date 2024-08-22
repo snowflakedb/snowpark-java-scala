@@ -1,5 +1,7 @@
 package com.snowflake.snowpark.internal
 
+import com.fasterxml.jackson.databind.{JsonNode, ObjectMapper}
+import com.fasterxml.jackson.databind.node.JsonNodeType
 import com.snowflake.snowpark.Column
 import com.snowflake.snowpark.internal.analyzer.{
   Attribute,
@@ -15,6 +17,7 @@ import java.util.Locale
 import com.snowflake.snowpark.udtf.UDTF
 import net.snowflake.client.jdbc.SnowflakeSQLException
 
+import scala.collection.JavaConverters.{asScalaIteratorConverter, mapAsScalaMapConverter}
 import scala.collection.mutable
 import scala.collection.mutable.ArrayBuffer
 import scala.util.Random
@@ -447,4 +450,69 @@ object Utils extends Logging {
       case _ => throw ErrorMessage.DF_JOIN_WITH_WRONG_ARGUMENT()
     }
   }
+
+  private val objectMapper = new ObjectMapper()
+
+  private[snowpark] def jsonToMap(jsonString: String): Option[Map[String, Any]] = {
+    try {
+      val node = objectMapper.readTree(jsonString)
+      assert(node.getNodeType == JsonNodeType.OBJECT)
+      Some(jsonToScala(node).asInstanceOf[Map[String, Any]])
+    } catch {
+      case ex: Exception =>
+        logError(ex.getMessage)
+        None
+    }
+  }
+
+  private def jsonToScala(node: JsonNode): Any = {
+    node.getNodeType match {
+      case JsonNodeType.STRING => node.asText()
+      case JsonNodeType.NULL => null
+      case JsonNodeType.OBJECT =>
+        node
+          .fields()
+          .asScala
+          .map(entry => {
+            entry.getKey -> jsonToScala(entry.getValue)
+          })
+          .toMap
+      case JsonNodeType.ARRAY =>
+        node.elements().asScala.map(entry => jsonToScala(entry)).toSeq
+      case JsonNodeType.BOOLEAN => node.asBoolean()
+      case JsonNodeType.NUMBER => node.numberValue()
+      case other =>
+        throw new UnsupportedOperationException(s"Unsupported Type: ${other.name()}")
+    }
+  }
+
+  private[snowpark] def mapToJson(map: Map[String, Any]): Option[String] = {
+    try {
+      Some(scalaToJson(map))
+    } catch {
+      case ex: Exception =>
+        logError(ex.getMessage)
+        None
+    }
+  }
+
+  private def scalaToJson(input: Any): String =
+    input match {
+      case null => "null"
+      case str: String => s""""$str""""
+      case _: Int | _: Short | _: Long | _: Byte | _: Double | _: Float | _: Boolean =>
+        input.toString
+      case map: Map[String, _] =>
+        map
+          .map {
+            case (key, value) => s"${scalaToJson(key)}:${scalaToJson(value)}"
+          }
+          .mkString("{", ",", "}")
+      case seq: Seq[_] => seq.map(scalaToJson).mkString("[", ",", "]")
+      case arr: Array[_] => scalaToJson(arr.toSeq)
+      case list: java.util.List[_] => scalaToJson(list.toArray)
+      case map: java.util.Map[String, _] => scalaToJson(map.asScala.toMap)
+      case _ =>
+        throw new UnsupportedOperationException(s"Unsupported Type: ${input.getClass.getName}")
+    }
 }
