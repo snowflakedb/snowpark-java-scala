@@ -8,6 +8,8 @@ lazy val root = (project in file("."))
   .configs(CodeVerificationTests)
   .configs(JavaAPITests)
   .configs(JavaUDXTests)
+  .configs(ScalaUDXTests)
+  .configs(OtherTests)
   .settings(
     name := "snowpark",
     version := "1.15.0-SNAPSHOT",
@@ -61,6 +63,10 @@ lazy val root = (project in file("."))
     JavaAPITests / testOptions += Tests.Filter(isJavaAPITests),
     inConfig(JavaUDXTests)(Defaults.testTasks),
     JavaUDXTests / testOptions += Tests.Filter(isJavaUDXTests),
+    inConfig(ScalaUDXTests)(Defaults.testTasks),
+    ScalaUDXTests / testOptions += Tests.Filter(isScalaUDXTests),
+    inConfig(OtherTests)(Defaults.testTasks),
+    OtherTests / testOptions += Tests.Filter(isRemainingTest),
     // Release settings
     // usePgpKeyHex(Properties.envOrElse("GPG_SIGNATURE", "12345")),
     Global / pgpPassphrase := Properties.envOrNone("GPG_KEY_PASSPHRASE").map(_.toCharArray),
@@ -115,9 +121,26 @@ def isJavaUDXTests(name: String): Boolean = {
     udxNames.exists(x => name.contains(x)))
 }
 lazy val JavaUDXTests = config("JavaUDXTests") extend Test
-// Scala UDx Tests
 // FIPS Tests
 
+// Scala UDx Tests
+def isScalaUDXTests(name: String): Boolean = {
+  val lists = Seq(
+    "snowpark_test.StoredProcedureSuite",
+    "snowpark_test.UDTFSuite",
+    "snowpark_test.AlwaysCleanUDFSuite",
+    "snowpark_test.NeverCleanUDFSuite",
+    "snowpark_test.PermanentUDTFSuite",
+    "snowpark_test.PermanentUDFSuite"
+  )
+  lists.exists(name.endsWith)
+}
+lazy val ScalaUDXTests = config("ScalaUDXTests") extend Test
 // other Tests
-def isRemainingTest(name: String): Boolean =
-  ! isCodeVerification(name)
+def isRemainingTest(name: String): Boolean = {
+  ! isCodeVerification(name) && 
+  ! isJavaAPITests(name) && 
+  ! isJavaUDXTests(name) && 
+  ! isScalaUDXTests(name)
+}
+lazy val OtherTests = config("OtherTests") extend Test
