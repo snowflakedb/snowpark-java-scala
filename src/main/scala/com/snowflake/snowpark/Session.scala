@@ -1,8 +1,5 @@
 package com.snowflake.snowpark
 
-import com.fasterxml.jackson.databind.json.JsonMapper
-import com.fasterxml.jackson.module.scala.{ClassTagExtensions, DefaultScalaModule}
-
 import java.io.{File, FileInputStream, FileNotFoundException}
 import java.net.URI
 import java.sql.{Connection, Date, Time, Timestamp}
@@ -29,7 +26,6 @@ import net.snowflake.client.jdbc.{SnowflakeConnectionV1, SnowflakeDriver, Snowfl
 import scala.concurrent.{ExecutionContext, Future}
 import scala.collection.JavaConverters._
 import scala.reflect.runtime.universe.TypeTag
-import scala.util.Try
 
 /** Establishes a connection with a Snowflake database and provides methods for creating DataFrames
   * and accessing objects for working with files in stages.
@@ -63,11 +59,6 @@ import scala.util.Try
   * @since 0.1.0
   */
 class Session private (private[snowpark] val conn: ServerConnection) extends Logging {
-  private val jsonMapper = JsonMapper
-    .builder()
-    .addModule(DefaultScalaModule)
-    .build() :: ClassTagExtensions
-
   private val STAGE_PREFIX = "@"
   // URI and file name with md5
   private val classpathURIs = new ConcurrentHashMap[URI, Option[String]]().asScala
@@ -393,7 +384,7 @@ class Session private (private[snowpark] val conn: ServerConnection) extends Log
     *   otherwise.
     */
   private def parseJsonString(jsonString: String): Option[Map[String, Any]] = {
-    Try(jsonMapper.readValue[Map[String, Any]](jsonString)).toOption
+    Utils.jsonToMap(jsonString)
   }
 
   /** Attempts to convert a [[scala.collection.immutable.Map]] into a JSON-encoded string.
@@ -405,7 +396,7 @@ class Session private (private[snowpark] val conn: ServerConnection) extends Log
     *   otherwise.
     */
   private def toJsonString(map: Map[String, Any]): Option[String] = {
-    Try(jsonMapper.writeValueAsString(map)).toOption
+    Utils.mapToJson(map)
   }
 
   /*

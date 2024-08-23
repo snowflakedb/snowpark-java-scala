@@ -24,6 +24,7 @@ import java.lang.{
 }
 import net.snowflake.client.jdbc.SnowflakeSQLException
 
+import java.util
 import scala.collection.mutable.ArrayBuffer
 
 class UtilsSuite extends SNTestBase {
@@ -669,6 +670,58 @@ class UtilsSuite extends SNTestBase {
     assert(Utils.quoteForOption("TRUE").equals("TRUE"))
     assert(Utils.quoteForOption("FALSE").equals("FALSE"))
     assert(Utils.quoteForOption("abc").equals("'abc'"))
+  }
+
+  test("Scala and Json format transformation") {
+    val javaHashMap = new util.HashMap[String, String]() {
+      {
+        put("one", "1")
+        put("two", "2")
+        put("three", "3")
+      }
+    }
+    val map = Map(
+      "nullKey" -> null,
+      "integerKey" -> 42,
+      "shortKey" -> 123.toShort,
+      "longKey" -> 1234567890L,
+      "byteKey" -> 123.toByte,
+      "doubleKey" -> 3.1415926,
+      "floatKey" -> 3.14f,
+      "boolKey" -> false,
+      "javaListKey" -> new util.ArrayList[String](util.Arrays.asList("a", "b")),
+      "javaMapKey" -> javaHashMap,
+      "seqKey" -> Seq(1, 2, 3),
+      "arrayKey" -> Array(1, 2, 3),
+      "seqOfStringKey" -> Seq("1", "2", "3"),
+      "stringKey" -> "stringValue",
+      "nestedMap" -> Map("insideKey" -> "stringValue", "insideList" -> Seq(1, 2, 3)),
+      "nestedList" -> Seq(1, Map("nestedKey" -> "nestedValue"), Array(1, 2, 3)))
+    val jsonString = Utils.mapToJson(map)
+    val expected_string = "{" +
+      "\"floatKey\":3.14," +
+      "\"javaMapKey\":{" +
+      "\"one\":\"1\"," +
+      "\"two\":\"2\"," +
+      "\"three\":\"3\"}," +
+      "\"integerKey\":42," +
+      "\"nullKey\":null," +
+      "\"longKey\":1234567890," +
+      "\"byteKey\":123," +
+      "\"seqKey\":[1,2,3]," +
+      "\"nestedMap\":{\"insideKey\":\"stringValue\",\"insideList\":[1,2,3]}," +
+      "\"stringKey\":\"stringValue\"," +
+      "\"doubleKey\":3.1415926," +
+      "\"seqOfStringKey\":[\"1\",\"2\",\"3\"]," +
+      "\"nestedList\":[1,{\"nestedKey\":\"nestedValue\"},[1,2,3]]," +
+      "\"javaListKey\":[\"a\",\"b\"]," +
+      "\"arrayKey\":[1,2,3]," +
+      "\"boolKey\":false," +
+      "\"shortKey\":123}"
+    val readMap = Utils.jsonToMap(jsonString.getOrElse(""))
+    val transformedString = Utils.mapToJson(readMap.getOrElse(Map()))
+    assert(jsonString.getOrElse("").equals(expected_string))
+    assert(jsonString.equals(transformedString))
   }
 }
 

@@ -2853,13 +2853,60 @@ object functions {
     */
   def listagg(col: Column): Column = listagg(col, "", isDistinct = false)
 
+  /** Wrapper for Snowflake built-in reverse function. Gets the reversed string. Reverses the order
+    * of characters in a string, or of bytes in a binary value. The returned value is the same
+    * length as the input, but with the characters/bytes in reverse order. If subject is NULL, the
+    * result is also NULL. Example: SELECT REVERSE('Hello, world!');
+    * | REVERSE('HELLO, WORLD!') |
+    * |:-------------------------|
+    * | !dlrow ,olleH            |
+    *
+    * @since 1.14.0
+    * @param c
+    *   Column to be reverse.
+    * @return
+    *   Column object.
+    */
+  def reverse(c: Column): Column =
+    builtin("reverse")(c)
+
+  /** Wrapper for Snowflake built-in isnull function. Gets a boolean depending if value is NULL or
+    * not. Return true if the value in the column is null. Example:: >>> from
+    * snowflake.snowpark.functions import is_null >>> df = session.create_dataframe([1.2,
+    * float("nan"), None, 1.0], schema=["a"]) >>> df.select(is_null("a").as_("a")).collect()
+    * [Row(A=False), Row(A=False), Row(A=True), Row(A=False)]
+    * @since 1.14.0
+    * @param c
+    *   Column to qnalize if it is null value.
+    * @return
+    *   Column object.
+    */
+  def isnull(c: Column): Column = is_null(c)
+
+  /** Returns the current Unix timestamp (in seconds) as a long. Extracts a specified date or time
+    * portion from a date, time, or timestamp. how: EXTRACT , HOUR / MINUTE / SECOND , YEAR* / DAY*
+    * / WEEK* / MONTH / QUARTER Construction - DATE_PART( <date_or_time_part> , <date_or_time_expr>
+    * ) SELECT TO_TIMESTAMP('2013-05-08T23:39:20.123-07:00') AS "TIME_STAMP1",
+    * DATE_PART(EPOCH_SECOND, "TIME_STAMP1") AS "EXTRACTED EPOCH SECOND";
+    * | TIME_STAMP1                                        | EXTRACTED EPOCH SECOND |
+    * |:---------------------------------------------------|:-----------------------|
+    * | -------------------------+------------------------ |                        |
+    * | 2013-05-08 23:39:20.123                            | 1368056360             |
+    * @since 1.14.0
+    * @note
+    *   All calls of `unix_timestamp` within the same query return the same value
+    */
+  def unix_timestamp(c: Column): Column = {
+    builtin("date_part")("epoch_second", c)
+  }
+
   /** Signature - snowflake.snowpark.functions.regexp_extract (value: Union[Column, str], regexp:
     * Union[Column, str], idx: int) Column Extract a specific group matched by a regex, from the
     * specified string column. If the regex did not match, or the specified group did not match, an
     * empty string is returned. <pr>Example: from snowflake.snowpark.functions import regexp_extract
     * df = session.createDataFrame([["id_20_30", 10], ["id_40_50", 30]], ["id", "age"])
-    * df.select(regexp_extract("id", r"(\d+)", 1).alias("RES")).show() </pr> <pr> --------- \|"RES"
-    * \| ---------
+    * df.select(regexp_extract("id", r"(\d+)", 1).alias("RES")).show() </pr> <pr> ---------
+    * \|"RES" | ---------
     * | 20 |
     * |:---|
     * | 40 |
