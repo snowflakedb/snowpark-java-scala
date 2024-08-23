@@ -881,20 +881,89 @@ object functions {
   def pow(l: Column, r: Column): Column = builtin("pow")(l, r)
 
   /**
-   * Returns rounded values for the specified column.
+   * Rounds the numeric values of the given column `e` to the `scale` decimal places using the
+   * half away from zero rounding mode.
    *
+   * Example:
+   * {{{
+   *   val df = session.sql(
+   *     "select * from (values (-3.78), (-2.55), (1.23), (2.55), (3.78)) as T(a)")
+   *   df.select(round(col("a"), lit(1)).alias("round")).show()
+   *
+   *   -----------
+   *   |"ROUND"  |
+   *   -----------
+   *   |-3.8     |
+   *   |-2.6     |
+   *   |1.2      |
+   *   |2.6      |
+   *   |3.8      |
+   *   -----------
+   * }}}
+   *
+   * @param e The column of numeric values to round.
+   * @param scale A column representing the number of decimal places to which `e` should be rounded.
+   * @return A new column containing the rounded numeric values.
    * @group num_func
    * @since 0.1.0
    */
   def round(e: Column, scale: Column): Column = builtin("round")(e, scale)
 
   /**
-   * Returns rounded values for the specified column.
+   * Rounds the numeric values of the given column `e` to 0 decimal places using the
+   * half away from zero rounding mode.
    *
+   * Example:
+   * {{{
+   *   val df = session.sql("select * from (values (-3.7), (-2.5), (1.2), (2.5), (3.7)) as T(a)")
+   *   df.select(round(col("a")).alias("round")).show()
+   *
+   *   -----------
+   *   |"ROUND"  |
+   *   -----------
+   *   |-4       |
+   *   |-3       |
+   *   |1        |
+   *   |3        |
+   *   |4        |
+   *   -----------
+   * }}}
+   *
+   * @param e The column of numeric values to round.
+   * @return A new column containing the rounded numeric values.
    * @group num_func
    * @since 0.1.0
    */
   def round(e: Column): Column = round(e, lit(0))
+
+  /**
+   * Rounds the numeric values of the given column `e` to the `scale` decimal places using the
+   * half away from zero rounding mode.
+   *
+   * Example:
+   * {{{
+   *   val df = session.sql(
+   *     "select * from (values (-3.78), (-2.55), (1.23), (2.55), (3.78)) as T(a)")
+   *   df.select(round(col("a"), 1).alias("round")).show()
+   *
+   *   -----------
+   *   |"ROUND"  |
+   *   -----------
+   *   |-3.8     |
+   *   |-2.6     |
+   *   |1.2      |
+   *   |2.6      |
+   *   |3.8      |
+   *   -----------
+   * }}}
+   *
+   * @param e The column of numeric values to round.
+   * @param scale The number of decimal places to which `e` should be rounded.
+   * @return A new column containing the rounded numeric values.
+   * @group num_func
+   * @since 1.14.0
+   */
+  def round(e: Column, scale: Int): Column = round(e, lit(scale))
 
   /**
    * Shifts the bits for a numeric expression numBits positions to the left.
