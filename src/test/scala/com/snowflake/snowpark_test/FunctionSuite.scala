@@ -2223,6 +2223,13 @@ trait FunctionSuite extends TestData {
       sort = false)
   }
 
+  test("date_add") {
+    checkAnswer(
+      date1.select(date_add(lit(7), col("a"))),
+      Seq(Row(new Date(20200808)), Row(new Date(20101208))),
+      sort = false)
+  }
+
   test("desc column order") {
     val input = Seq(1, 2, 3).toDF("data")
     val expected = Seq(3, 2, 1).toDF("data")
