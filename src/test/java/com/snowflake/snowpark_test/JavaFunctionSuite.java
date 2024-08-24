@@ -2981,4 +2981,14 @@ public class JavaFunctionSuite extends TestBase {
         expected,
         false);
   }
+
+  @Test
+  public void date_add() {
+    DataFrame df =
+        getSession()
+            .sql("select * from values('2020-08-01'::Date, 1),('2010-12-01'::Date, 2) as T(a,b)");
+    Row[] expected = {Row.create(new Date(121, 7, 1)), Row.create(new Date(111, 11, 1))};
+    checkAnswer(
+        df.select(Functions.dateadd("year", Functions.lit(1), df.col("a"))), expected, false);
+  }
 }
