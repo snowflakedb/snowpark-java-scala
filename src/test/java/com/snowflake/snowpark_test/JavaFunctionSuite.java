@@ -3007,4 +3007,33 @@ public class JavaFunctionSuite extends TestBase {
         expected,
         false);
   }
+
+  @Test
+  public void shiftLeft() {
+    DataFrame df = getSession().sql("select * from values(1),(2),(3) as T(a)");
+    Row[] expected = {Row.create(2), Row.create(4), Row.create(6)};
+    checkAnswer(df.select(Functions.shiftleft(Functions.col("a"), 1)), expected, false);
+  }
+
+  @Test
+  public void shiftRight() {
+    DataFrame df = getSession().sql("select * from values(1),(2),(3) as T(a)");
+    Row[] expected = {Row.create(0), Row.create(1), Row.create(1)};
+    checkAnswer(df.select(Functions.shiftright(Functions.col("a"), 1)), expected, false);
+  }
+
+  @Test
+  public void hex() {
+    DataFrame df = getSession().sql("select * from values(1),(2),(3) as T(a)");
+    df.select(Functions.hex(Functions.col("a")).as("hex")).show();
+    Row[] expected = {Row.create("31"), Row.create("32"), Row.create("33")};
+    checkAnswer(df.select(Functions.hex(Functions.col("a"))), expected, false);
+  }
+
+  @Test
+  public void unhex() {
+    DataFrame df = getSession().sql("select * from values(31),(32),(33) as T(a)");
+    Row[] expected = {Row.create("1"), Row.create("2"), Row.create("3")};
+    checkAnswer(df.select(Functions.unhex(Functions.col("a"))), expected, false);
+  }
 }

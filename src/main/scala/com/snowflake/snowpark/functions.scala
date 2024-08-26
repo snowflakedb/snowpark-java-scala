@@ -3790,7 +3790,7 @@ object functions {
    * from the standard normal distribution.
    * Calls to the Snowflake RANDOM function.
    * NOTE: Snowflake returns integers of 17-19 digits.
-   *Example
+   * Example
    * {{{
    *   val df = session.createDataFrame(Seq((1), (2), (3))).toDF("a")
    *   df.withColumn("randn_with_seed", randn(123L)).select("randn_with_seed").show()
@@ -3809,6 +3809,95 @@ object functions {
    */
   def randn(seed: Long): Column =
     builtin("RANDOM")(seed)
+
+  /**
+   * Shift the given value numBits left. If the given value is a long value,
+   * this function will return a long value else it will return an integer value.
+   * Example
+   * {{{
+   *   val df = session.createDataFrame(Seq((1), (2), (3))).toDF("a")
+   *   df.select(shiftleft(col("A"), 1).as("shiftleft")).show()
+   * ---------------
+   * |"SHIFTLEFT"  |
+   * ---------------
+   * |2            |
+   * |4            |
+   * |6            |
+   * ---------------
+   * }}}
+   * @since 1.14.0
+   * @param c Column to modify.
+   * @param numBits Number of bits to shift.
+   * @return Column object.
+   */
+  def shiftleft(c: Column, numBits: Int): Column =
+    bitshiftleft(c, lit(numBits))
+
+  /**
+   * Shift the given value numBits right. If the given value is a long value,
+   * it will return a long value else it will return an integer value.
+   * Example
+   * {{{
+   *   val df = session.createDataFrame(Seq((1), (2), (3))).toDF("a")
+   *   df.select(shiftright(col("A"), 1).as("shiftright")).show()
+   * ----------------
+   * |"SHIFTRIGHT"  |
+   * ----------------
+   * |0             |
+   * |1             |
+   * |1             |
+   * ----------------
+   * }}}
+   * @since 1.14.0
+   * @param c Column to modify.
+   * @param numBits Number of bits to shift.
+   * @return Column object.
+   */
+  def shiftright(c: Column, numBits: Int): Column =
+    bitshiftright(c, lit(numBits))
+
+  /**
+   * Computes hex value of the given column.
+   * Example
+   * {{{
+   *   val df = session.createDataFrame(Seq((1), (2), (3))).toDF("a")
+   *   df.withColumn("hex_col", hex(col("A"))).select("hex_col").show()
+   * -------------
+   * |"HEX_COL"  |
+   * -------------
+   * |31         |
+   * |32         |
+   * |33         |
+   * -------------
+   * }}}
+   * @since 1.14.0
+   * @param c Column to encode.
+   * @return Encoded string.
+   */
+  def hex(c: Column): Column =
+    builtin("HEX_ENCODE")(c)
+
+  /**
+   * Inverse of hex. Interprets each pair of characters as a hexadecimal number
+   * and converts to the byte representation of number.
+   * Example
+   * {{{
+   *   val df = session.createDataFrame(Seq((31), (32), (33))).toDF("a")
+   *   df.withColumn("unhex_col", unhex(col("A"))).select("unhex_col").show()
+   * ---------------
+   * |"UNHEX_COL"  |
+   * ---------------
+   * |1            |
+   * |2            |
+   * |3            |
+   * ---------------
+   * }}}
+   * @param c Column to encode.
+   * @since 1.14.0
+   * @return Encoded string.
+   */
+  def unhex(c: Column): Column =
+    builtin("HEX_DECODE_STRING")(c)
 
   /**
 

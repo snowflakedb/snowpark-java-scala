@@ -2379,6 +2379,32 @@ trait FunctionSuite extends TestData {
     assert(input.withColumn("randn", randn()).select("randn").first() != null)
   }
 
+  test("shiftleft") {
+    val input = session.createDataFrame(Seq((1), (2), (3))).toDF("a")
+    checkAnswer(input.select(shiftleft(col("A"), 1)), Seq(Row(2), Row(4), Row(6)), sort = false)
+  }
+
+  test("shiftright") {
+    val input = session.createDataFrame(Seq((1), (2), (3))).toDF("a")
+    checkAnswer(input.select(shiftright(col("A"), 1)), Seq(Row(0), Row(1), Row(1)), sort = false)
+  }
+
+  test("hex") {
+    val input = session.createDataFrame(Seq((1), (2), (3))).toDF("a")
+    checkAnswer(
+      input.withColumn("hex_col", hex(col("A"))).select("hex_col"),
+      Seq(Row("31"), Row("32"), Row("33")),
+      sort = false)
+  }
+
+  test("unhex") {
+    val input = session.createDataFrame(Seq((31), (32), (33))).toDF("a")
+    checkAnswer(
+      input.withColumn("unhex_col", unhex(col("A"))).select("unhex_col"),
+      Seq(Row("1"), Row("2"), Row("3")),
+      sort = false)
+  }
+
 }
 
 class EagerFunctionSuite extends FunctionSuite with EagerSession
