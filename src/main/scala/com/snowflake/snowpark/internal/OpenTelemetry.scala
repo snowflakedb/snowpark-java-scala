@@ -60,51 +60,33 @@ object OpenTelemetry extends Logging {
       execName: String,
       execHandler: String,
       execFilePath: String)(func: => T): T = {
-    try {
-      spanInfo.withValue[T](spanInfo.value match {
-        // empty info means this is the entry of the recursion
-        case None =>
-          val stacks = Thread.currentThread().getStackTrace
-          val (fileName, lineNumber) = findLineNumber(stacks)
-          Some(
-            UdfInfo(
-              className,
-              funcName,
-              fileName,
-              lineNumber,
-              execName,
-              execHandler,
-              execFilePath))
-        // if value is not empty, this function call should be recursion.
-        // do not issue new SpanInfo, use the info inherited from previous.
-        case other => other
-      }) {
-        val result: T = func
-        OpenTelemetry.emit(spanInfo.value.get)
-        result
-      }
-    } catch {
-      case error: Throwable =>
-        OpenTelemetry.reportError(className, funcName, error)
-        throw error
-    }
+    val stacks = Thread.currentThread().getStackTrace
+    val (fileName, lineNumber) = findLineNumber(stacks)
+    val newSpan =
+      UdfInfo(className, funcName, fileName, lineNumber, execName, execHandler, execFilePath)
+    emitSpan(newSpan, className, funcName, func)
   }
   // wrapper of all action functions
   def action[T](className: String, funcName: String, methodChain: String)(func: => T): T = {
+    val stacks = Thread.currentThread().getStackTrace
+    val (fileName, lineNumber) = findLineNumber(stacks)
+    val newInfo =
+      ActionInfo(className, funcName, fileName, lineNumber, s"$methodChain.$funcName")
+    emitSpan(newInfo, className, funcName, func)
+  }
+
+  private def emitSpan[T](span: SpanInfo, className: String, funcName: String, thunk: => T): T = {
     try {
-      spanInfo.withValue[T](spanInfo.value match {
-        // empty info means this is the entry of the recursion
+      spanInfo.value match {
         case None =>
-          val stacks = Thread.currentThread().getStackTrace
-          val (fileName, lineNumber) = findLineNumber(stacks)
-          Some(ActionInfo(className, funcName, fileName, lineNumber, s"$methodChain.$funcName"))
-        // if value is not empty, this function call should be recursion.
-        // do not issue new SpanInfo, use the info inherited from previous.
-        case other => other
-      }) {
-        val result: T = func
-        OpenTelemetry.emit(spanInfo.value.get)
-        result
+          spanInfo.withValue(Some(span)) {
+            val result: T = thunk
+            // only emit one time, in the top level action
+            OpenTelemetry.emit(spanInfo.value.get)
+            result
+          }
+        case _ =>
+          thunk
       }
     } catch {
       case error: Throwable =>
