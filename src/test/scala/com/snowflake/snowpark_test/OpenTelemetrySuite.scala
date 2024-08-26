@@ -447,6 +447,16 @@ class OpenTelemetrySuite extends OpenTelemetryEnabled {
     assert(l.size() == 1)
   }
 
+  test("actions should be processed in the span time period") {
+    val result = session.sql("select current_timestamp()").collect().head.getTimestamp(0)
+    val l = testSpanExporter.getFinishedSpanItems
+    val spanStart = l.get(0).getStartEpochNanos / 1000000
+    val time = result.getTime
+    val spanEnd = l.get(0).getEndEpochNanos / 1000000
+    assert(spanStart < time)
+    assert(time < spanEnd)
+  }
+
   override def beforeAll: Unit = {
     super.beforeAll
     createStage(stageName1)
