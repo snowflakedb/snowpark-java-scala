@@ -142,12 +142,12 @@ trait SpanInfo {
     }
   }
 
-  protected def withAdditionalInfo(span: Span): Unit
+  protected def addAdditionalInfo(span: Span): Unit
 
   def emitSpan[T](thunk: => T): T = emit {
     span.setAttribute("code.filepath", fileName)
     span.setAttribute("code.lineno", lineNumber)
-    withAdditionalInfo(span)
+    addAdditionalInfo(span)
     thunk
   }
 
@@ -166,7 +166,7 @@ case class ActionInfo(
     methodChain: String)
     extends SpanInfo {
 
-  override protected def withAdditionalInfo(span: Span): Unit = {
+  override protected def addAdditionalInfo(span: Span): Unit = {
     span.setAttribute("method.chain", methodChain)
   }
 }
@@ -181,7 +181,7 @@ case class UdfInfo(
     execFilePath: String)
     extends SpanInfo {
 
-  override protected def withAdditionalInfo(span: Span): Unit = {
+  override protected def addAdditionalInfo(span: Span): Unit = {
     span.setAttribute("snow.executable.name", execName)
     span.setAttribute("snow.executable.handler", execHandler)
     span.setAttribute("snow.executable.filepath", execFilePath)
