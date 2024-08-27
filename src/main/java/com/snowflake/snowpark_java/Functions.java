@@ -4495,6 +4495,97 @@ public final class Functions {
   }
 
   /**
+   * Shift the given value numBits left. If the given value is a long value, this function will
+   * return a long value else it will return an integer value.
+   *
+   * <pre>{@code
+   * DataFrame df = getSession().sql("select * from values(1),(2),(3) as T(a)");
+   * df.select(Functions.shiftleft(Functions.col("a"), 1).as("shiftleft")).show();
+   * ---------------
+   * |"SHIFTLEFT"  |
+   * ---------------
+   * |2            |
+   * |4            |
+   * |6            |
+   * ---------------
+   * }</pre>
+   *
+   * @since 1.14.0
+   * @return Column object.
+   */
+  public static Column shiftleft(Column c, int numBits) {
+    return new Column(functions.shiftleft(c.toScalaColumn(), numBits));
+  }
+
+  /**
+   * Shift the given value numBits right. If the given value is a long value, it will return a long
+   * value else it will return an integer value.
+   *
+   * <pre>{@code
+   * DataFrame df = getSession().sql("select * from values(1),(2),(3) as T(a)");
+   * df.select(Functions.shiftright(Functions.col("a"), 1).as("shiftright")).show();
+   * ---------------
+   * |"SHIFTRIGHT"  |
+   * ---------------
+   * |0            |
+   * |1            |
+   * |1            |
+   * ---------------
+   * }</pre>
+   *
+   * @since 1.14.0
+   * @return Column object.
+   */
+  public static Column shiftright(Column c, int numBits) {
+    return new Column(functions.shiftright(c.toScalaColumn(), numBits));
+  }
+
+  /**
+   * Computes hex value of the given column.
+   *
+   * <pre>{@code
+   * DataFrame df = getSession().sql("select * from values(1),(2),(3) as T(a)");
+   * df.select(Functions.hex(Functions.col("a")).as("hex")).show();
+   * ---------
+   * |"HEX"  |
+   * ---------
+   * |31     |
+   * |32     |
+   * |33     |
+   * ---------
+   * }</pre>
+   *
+   * @since 1.14.0
+   * @return Column object.
+   */
+  public static Column hex(Column c) {
+    return new Column(functions.hex(c.toScalaColumn()));
+  }
+
+  /**
+   * Inverse of hex. Interprets each pair of characters as a hexadecimal number and converts to the
+   * byte representation of number.
+   *
+   * <pre>{@code
+   * DataFrame df = getSession().sql("select * from values(31),(32),(33) as T(a)");
+   * df.select(Functions.unhex(Functions.col("a")).as("unhex")).show();
+   * -----------
+   * |"UNHEX"  |
+   * -----------
+   * |1        |
+   * |2        |
+   * |3        |
+   * -----------
+   * }</pre>
+   *
+   * @since 1.14.0
+   * @return Column object.
+   */
+  public static Column unhex(Column c) {
+    return new Column(functions.unhex(c.toScalaColumn()));
+  }
+
+  /**
    * Calls a user-defined function (UDF) by name.
    *
    * @since 0.12.0
