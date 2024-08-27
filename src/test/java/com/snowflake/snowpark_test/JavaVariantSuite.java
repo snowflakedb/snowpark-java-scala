@@ -308,7 +308,7 @@ public class JavaVariantSuite {
     assert (result.asMap().get("a").get().asString().equals("[1,2]"));
     assert (result.asMap().get("a").get().asJsonString().equals("[1,2]"));
 
-    // Scala variant to Java Variant
+//     Scala variant to Java Variant
     com.snowflake.snowpark.types.Variant sv =
         new com.snowflake.snowpark.types.Variant("{\"a\": [1, 2], \"b\": \"c\"}");
     assert InternalUtils.createVariant(null) == null;

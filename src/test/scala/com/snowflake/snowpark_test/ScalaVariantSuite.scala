@@ -1,6 +1,7 @@
 package com.snowflake.snowpark_test
 
 import com.snowflake.snowpark.types.{Geography, Variant}
+import com.snowflake.snowpark_java.types.InternalUtils
 import org.scalatest.FunSuite
 
 import java.io.UncheckedIOException
@@ -310,5 +311,12 @@ class ScalaVariantSuite extends FunSuite {
     assert(v1 != "aa")
 
     assert(v1.toString() == "123")
+  }
+
+  test("JsonNode") {
+    val sv = new Variant("{\"a\": [1, 2], \"b\": 3, \"c\": \"xyz\"}")
+    assert(sv.asMap.get("a").get.asJsonNode().isArray)
+    assert(sv.asMap.get("b").get.asJsonNode().asInt().equals(3))
+    assert(sv.asMap.get("c").get.asJsonNode().asText().equals("xyz"))
   }
 }
