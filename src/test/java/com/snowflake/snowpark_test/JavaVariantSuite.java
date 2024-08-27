@@ -369,14 +369,10 @@ public class JavaVariantSuite {
 
   @Test
   public void javaJsonNodeVariantConverter() throws IllegalArgumentException {
-    // Scala variant to Java Variant
-    com.snowflake.snowpark.types.Variant sv =
-        new com.snowflake.snowpark.types.Variant(
-            "{\"name\": \"abc\",\"grade\": 2, \"Interest\": \"cricket\"}");
-    Variant jResult = InternalUtils.createVariant(sv);
-    JsonNode jsonNode = jResult.asJsonNode();
+    Variant jv = new Variant("{\"a\": [1, 2], \"b\": \"c\"}");
+    JsonNode jNode = jv.asJsonNode();
 
-    assert jsonNode.get("name").asText().equals("abc");
-    assert jsonNode.get("grade").asInt() == 2;
+    assert (jNode.get("a").isArray());
+    assert (jNode.get("b").asText().equals("c"));
   }
 }
