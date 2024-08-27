@@ -114,7 +114,6 @@ object OpenTelemetry extends Logging {
     }
   }
 }
-
 trait SpanInfo {
   val className: String
   val funcName: String
