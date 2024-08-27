@@ -4523,9 +4523,9 @@ public final class Functions {
    *
    * <pre>{@code
    * DataFrame df = getSession().sql("select * from values(1),(2),(3) as T(a)");
-   * df.select(Functions.shiftright(Functions.col("a"), 1).as("shiftleft")).show();
+   * df.select(Functions.shiftright(Functions.col("a"), 1).as("shiftright")).show();
    * ---------------
-   * |"SHIFTLEFT"  |
+   * |"SHIFTRIGHT"  |
    * ---------------
    * |0            |
    * |1            |
