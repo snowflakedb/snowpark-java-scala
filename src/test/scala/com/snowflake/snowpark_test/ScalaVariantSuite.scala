@@ -1,7 +1,6 @@
 package com.snowflake.snowpark_test
 
 import com.snowflake.snowpark.types.{Geography, Variant}
-import com.snowflake.snowpark_java.types.InternalUtils
 import org.scalatest.FunSuite
 
 import java.io.UncheckedIOException
