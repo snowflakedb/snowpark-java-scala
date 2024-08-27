@@ -440,6 +440,12 @@ class OpenTelemetrySuite extends OpenTelemetryEnabled {
     checkSpanError("snow.snowpark.ClassA1", "functionB1", error)
   }
 
+  test("only emit span once in the nested actions") {
+    session.sql("select 1").count()
+    val l = testSpanExporter.getFinishedSpanItems
+    assert(l.size() == 1)
+  }
+
   override def beforeAll: Unit = {
     super.beforeAll
     createStage(stageName1)
