@@ -3825,6 +3825,7 @@ object functions {
    * |6            |
    * ---------------
    * }}}
+   *
    * @since 1.14.0
    * @param c Column to modify.
    * @param numBits Number of bits to shift.
@@ -3848,6 +3849,7 @@ object functions {
    * |1             |
    * ----------------
    * }}}
+   *
    * @since 1.14.0
    * @param c Column to modify.
    * @param numBits Number of bits to shift.
@@ -3870,6 +3872,7 @@ object functions {
    * |33         |
    * -------------
    * }}}
+   *
    * @since 1.14.0
    * @param c Column to encode.
    * @return Encoded string.
@@ -3892,6 +3895,7 @@ object functions {
    * |3            |
    * ---------------
    * }}}
+   *
    * @param c Column to encode.
    * @since 1.14.0
    * @return Encoded string.
