@@ -1,6 +1,5 @@
 package com.snowflake.snowpark_test;
 
-import com.fasterxml.jackson.databind.JsonNode;
 import com.snowflake.snowpark_java.types.Geography;
 import com.snowflake.snowpark_java.types.InternalUtils;
 import com.snowflake.snowpark_java.types.Variant;

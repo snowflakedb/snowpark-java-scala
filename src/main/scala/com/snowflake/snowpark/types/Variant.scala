@@ -391,7 +391,7 @@ class Variant private[snowpark] (
    * output
    * 1
    * }}}
- *
+   *
    * @since 1.14.0
    */
   def asJsonNode(): JsonNode = {
