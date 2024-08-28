@@ -314,8 +314,8 @@ class ScalaVariantSuite extends FunSuite {
 
   test("JsonNode") {
     val sv = new Variant("{\"a\": [1, 2], \"b\": 3, \"c\": \"xyz\"}")
-    assert(sv.asMap.get("a").get.asJsonNode().isArray)
-    assert(sv.asMap.get("b").get.asJsonNode().asInt().equals(3))
-    assert(sv.asMap.get("c").get.asJsonNode().asText().equals("xyz"))
+    assert(sv.asJsonNode().get("a").isArray)
+    assert(sv.asJsonNode().get("b").asInt().equals(3))
+    assert(sv.asJsonNode().get("c").asText().equals("xyz"))
   }
 }

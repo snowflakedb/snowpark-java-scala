@@ -377,14 +377,13 @@ public class Variant implements Serializable {
   }
 
   /**
-   * Converts the variant as valid JsonNode. This function allows to read the JSON object directly
-   * rather parsing it as String and then extract the desired value
+   * Return the variant value as a JsonNode. This function allows to read the JSON object directly
+   * as JsonNode from variant column rather parsing it as String
    *
    * <pre>{@code - to get the first value from array for key "a"
    *
    * Variant jv = new Variant("{\"a\": [1, 2], \"b\": \"c\"}");
-   * JsonNode jNode = jv.asJsonNode();
-   * System.out.println(jNode.get("a").get(0));
+   * System.out.println(jv.asJsonNode().get("a").get(0));
    *
    * output
    * 1
@@ -394,7 +393,7 @@ public class Variant implements Serializable {
    * @since 1.14.0
    */
   public JsonNode asJsonNode() {
-    return objectToJsonNode(value);
+    return value;
   }
 
   /**

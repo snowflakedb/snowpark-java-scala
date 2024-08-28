@@ -382,20 +382,20 @@ class Variant private[snowpark] (
   }
 
   /**
-   * Converts the variant as valid JsonNode
-   * This function allows to read the JSON object directly rather parsing it as String
-   * and then extract the desired value
+   * Return the variant value as a JsonNode. This function allows to read the JSON object directly
+   * as JsonNode from variant column rather parsing it as String
    * Example - to get the first value from array for key "a"
    * {{{
    *   val sv = new Variant("{\"a\": [1, 2], \"b\": 3, \"c\": \"xyz\"}")
-   *   println(sv.asMap.get("a").get.asJsonNode().get(0))
+   *   println(sv.asJsonNode().get("a").get(0))
    * output
    * 1
    * }}}
+ *
    * @since 1.14.0
    */
   def asJsonNode(): JsonNode = {
-    objectToJsonNode(value)
+    value
   }
 
   /**
