@@ -43,7 +43,7 @@ private[snowpark] object Variant {
     object Array extends VariantType
 
     object Object extends VariantType
-    
+
     // internal used when converting from Java
     def getType(name: String): VariantType = name match {
       case "RealNumber" => RealNumber
@@ -389,10 +389,8 @@ class Variant private[snowpark] (
    * {{{
    *   val sv = new Variant("{\"a\": [1, 2], \"b\": 3, \"c\": \"xyz\"}")
    *   println(sv.asMap.get("a").get.asJsonNode().get(0))
-   *
    * output
    * 1
-   *
    * }}}
    * @since 1.14.0
    */
