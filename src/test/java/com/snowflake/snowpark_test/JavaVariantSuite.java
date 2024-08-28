@@ -371,7 +371,6 @@ public class JavaVariantSuite {
   public void javaJsonNodeVariantConverter() throws IllegalArgumentException {
     Variant jv = new Variant("{\"a\": [1, 2], \"b\": \"c\"}");
     JsonNode jNode = jv.asJsonNode();
-
     assert (jNode.get("a").isArray());
     assert (jNode.get("b").asText().equals("c"));
   }
