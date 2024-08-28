@@ -43,9 +43,7 @@ private[snowpark] object Variant {
     object Array extends VariantType
 
     object Object extends VariantType
-
-    object Jsonnode extends VariantType
-
+    
     // internal used when converting from Java
     def getType(name: String): VariantType = name match {
       case "RealNumber" => RealNumber
