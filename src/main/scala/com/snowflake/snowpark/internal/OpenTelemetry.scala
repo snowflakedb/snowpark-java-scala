@@ -59,39 +59,30 @@ object OpenTelemetry extends Logging {
       funcName: String,
       execName: String,
       execHandler: String,
-      execFilePath: String)(func: => T): T = {
+      execFilePath: String)(thunk: => T): T = {
     val stacks = Thread.currentThread().getStackTrace
     val (fileName, lineNumber) = findLineNumber(stacks)
     val newSpan =
       UdfInfo(className, funcName, fileName, lineNumber, execName, execHandler, execFilePath)
-    emitSpan(newSpan, className, funcName, func)
+    emitSpan(newSpan, thunk)
   }
   // wrapper of all action functions
-  def action[T](className: String, funcName: String, methodChain: String)(func: => T): T = {
+  def action[T](className: String, funcName: String, methodChain: String)(thunk: => T): T = {
     val stacks = Thread.currentThread().getStackTrace
     val (fileName, lineNumber) = findLineNumber(stacks)
     val newInfo =
       ActionInfo(className, funcName, fileName, lineNumber, s"$methodChain.$funcName")
-    emitSpan(newInfo, className, funcName, func)
+    emitSpan(newInfo, thunk)
   }
 
-  private def emitSpan[T](span: SpanInfo, className: String, funcName: String, thunk: => T): T = {
-    try {
-      spanInfo.value match {
-        case None =>
-          spanInfo.withValue(Some(span)) {
-            val result: T = thunk
-            // only emit one time, in the top level action
-            OpenTelemetry.emit(spanInfo.value.get)
-            result
-          }
-        case _ =>
-          thunk
-      }
-    } catch {
-      case error: Throwable =>
-        OpenTelemetry.reportError(className, funcName, error)
-        throw error
+  private def emitSpan[T](span: SpanInfo, thunk: => T): T = {
+    spanInfo.value match {
+      case None =>
+        spanInfo.withValue(Some(span)) {
+          span.emit(thunk)
+        }
+      case _ =>
+        thunk
     }
   }
 
@@ -118,58 +109,40 @@ object OpenTelemetry extends Logging {
       }
     }
   }
-
-  def emit(info: SpanInfo): Unit =
-    emit(info.className, info.funcName) { span =>
-      {
-        span.setAttribute("code.filepath", info.fileName)
-        span.setAttribute("code.lineno", info.lineNumber)
-        info match {
-          case ActionInfo(_, _, _, _, methodChain) =>
-            span.setAttribute("method.chain", methodChain)
-          case UdfInfo(_, _, _, _, execName, execHandler, execFilePath) =>
-            span.setAttribute("snow.executable.name", execName)
-            span.setAttribute("snow.executable.handler", execHandler)
-            span.setAttribute("snow.executable.filepath", execFilePath)
-        }
-      }
-    }
-
-  def reportError(className: String, funcName: String, error: Throwable): Unit =
-    emit(className, funcName) { span =>
-      {
-        span.setStatus(StatusCode.ERROR, error.getMessage)
-        span.recordException(error)
-      }
-    }
-
-  private def emit(className: String, funcName: String)(report: Span => Unit): Unit = {
-    val name = s"snow.snowpark.$className"
-    val tracer = GlobalOpenTelemetry.getTracer(name)
-    val span = tracer.spanBuilder(funcName).startSpan()
-    try {
-      val scope = span.makeCurrent()
-      // Using Manager is not available in Scala 2.12 yet
-      try {
-        report(span)
-      } catch {
-        case e: Exception =>
-          logWarning(s"Error when acquiring span attributes. ${e.getMessage}")
-      } finally {
-        scope.close()
-      }
-    } finally {
-      span.end()
-    }
-  }
-
 }
-
 trait SpanInfo {
   val className: String
   val funcName: String
   val fileName: String
   val lineNumber: Int
+
+  lazy private val span =
+    GlobalOpenTelemetry
+      .getTracer(s"snow.snowpark.$className")
+      .spanBuilder(funcName)
+      .startSpan()
+
+  def emit[T](thunk: => T): T = {
+    val scope = span.makeCurrent()
+    // Using Manager is not available in Scala 2.12 yet
+    try {
+      span.setAttribute("code.filepath", fileName)
+      span.setAttribute("code.lineno", lineNumber)
+      addAdditionalInfo(span)
+      thunk
+    } catch {
+      case error: Exception =>
+        OpenTelemetry.logWarning(s"Error when acquiring span attributes. ${error.getMessage}")
+        span.setStatus(StatusCode.ERROR, error.getMessage)
+        span.recordException(error)
+        throw error
+    } finally {
+      scope.close()
+      span.end()
+    }
+  }
+
+  protected def addAdditionalInfo(span: Span): Unit
 }
 
 case class ActionInfo(
@@ -178,7 +151,12 @@ case class ActionInfo(
     override val fileName: String,
     override val lineNumber: Int,
     methodChain: String)
-    extends SpanInfo
+    extends SpanInfo {
+
+  override protected def addAdditionalInfo(span: Span): Unit = {
+    span.setAttribute("method.chain", methodChain)
+  }
+}
 
 case class UdfInfo(
     override val className: String,
@@ -188,4 +166,11 @@ case class UdfInfo(
     execName: String,
     execHandler: String,
     execFilePath: String)
-    extends SpanInfo
+    extends SpanInfo {
+
+  override protected def addAdditionalInfo(span: Span): Unit = {
+    span.setAttribute("snow.executable.name", execName)
+    span.setAttribute("snow.executable.handler", execHandler)
+    span.setAttribute("snow.executable.filepath", execFilePath)
+  }
+}
