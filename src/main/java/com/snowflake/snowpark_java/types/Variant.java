@@ -377,6 +377,26 @@ public class Variant implements Serializable {
   }
 
   /**
+   * Return the variant value as a JsonNode. This function allows to read the JSON object directly
+   * as JsonNode from variant column rather parsing it as String
+   *
+   * <pre>{@code - to get the first value from array for key "a"
+   *
+   * Variant jv = new Variant("{\"a\": [1, 2], \"b\": \"c\"}");
+   * System.out.println(jv.asJsonNode().get("a").get(0));
+   *
+   * output
+   * 1
+   * }</pre>
+   *
+   * @return A valid JsonNode
+   * @since 1.14.0
+   */
+  public JsonNode asJsonNode() {
+    return value;
+  }
+
+  /**
    * Converts the variant as binary value.
    *
    * @return An array of byte representing binary data
