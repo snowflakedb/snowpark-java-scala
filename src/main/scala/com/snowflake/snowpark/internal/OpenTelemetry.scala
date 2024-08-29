@@ -76,17 +76,13 @@ object OpenTelemetry extends Logging {
   }
 
   private def emitSpan[T](span: SpanInfo, thunk: => T): T = {
-    try {
-      spanInfo.value match {
-        case None =>
-          spanInfo.withValue(Some(span)) {
-            span.emitSpan(thunk)
-          }
-        case _ =>
-          thunk
-      }
-    } catch {
-      case error: Throwable => throw span.reportError(error)
+    spanInfo.value match {
+      case None =>
+        spanInfo.withValue(Some(span)) {
+          span.emit(thunk)
+        }
+      case _ =>
+        thunk
     }
   }
 
@@ -126,15 +122,20 @@ trait SpanInfo {
       .spanBuilder(funcName)
       .startSpan()
 
-  private def emit[T](thunk: => T): T = {
+  def emit[T](thunk: => T): T = {
     val scope = span.makeCurrent()
     // Using Manager is not available in Scala 2.12 yet
     try {
+      span.setAttribute("code.filepath", fileName)
+      span.setAttribute("code.lineno", lineNumber)
+      addAdditionalInfo(span)
       thunk
     } catch {
-      case e: Exception =>
-        OpenTelemetry.logWarning(s"Error when acquiring span attributes. ${e.getMessage}")
-        throw e
+      case error: Exception =>
+        OpenTelemetry.logWarning(s"Error when acquiring span attributes. ${error.getMessage}")
+        span.setStatus(StatusCode.ERROR, error.getMessage)
+        span.recordException(error)
+        throw error
     } finally {
       scope.close()
       span.end()
@@ -142,19 +143,6 @@ trait SpanInfo {
   }
 
   protected def addAdditionalInfo(span: Span): Unit
-
-  def emitSpan[T](thunk: => T): T = emit {
-    span.setAttribute("code.filepath", fileName)
-    span.setAttribute("code.lineno", lineNumber)
-    addAdditionalInfo(span)
-    thunk
-  }
-
-  def reportError(error: Throwable): Throwable = emit {
-    span.setStatus(StatusCode.ERROR, error.getMessage)
-    span.recordException(error)
-    error
-  }
 }
 
 case class ActionInfo(

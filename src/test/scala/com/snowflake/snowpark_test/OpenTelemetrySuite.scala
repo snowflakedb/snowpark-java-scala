@@ -1,10 +1,11 @@
 package com.snowflake.snowpark_test
 
-import com.snowflake.snowpark.{MergeResult, OpenTelemetryEnabled, SaveMode, UpdateResult}
-import com.snowflake.snowpark.internal.{OpenTelemetry, ActionInfo}
+import com.snowflake.snowpark.{OpenTelemetryEnabled, SaveMode}
+import com.snowflake.snowpark.internal.ActionInfo
 import com.snowflake.snowpark.functions._
 import com.snowflake.snowpark.types.{DoubleType, IntegerType, StringType, StructField, StructType}
 
+import java.time.Instant
 import java.util
 
 class OpenTelemetrySuite extends OpenTelemetryEnabled {
@@ -430,14 +431,14 @@ class OpenTelemetrySuite extends OpenTelemetryEnabled {
   }
 
   test("OpenTelemetry.emit") {
-    ActionInfo("ClassA", "functionB", "fileC", 123, "chainD").emitSpan(1)
+    ActionInfo("ClassA", "functionB", "fileC", 123, "chainD").emit(1)
     checkSpan("snow.snowpark.ClassA", "functionB", "fileC", 123, "chainD")
   }
 
   test("report error") {
     val error = new Exception("test")
     val span = ActionInfo("ClassA1", "functionB1", "", 0, "")
-    span.reportError(error)
+    assertThrows[Exception](span.emit(throw error))
     checkSpanError("snow.snowpark.ClassA1", "functionB1", error)
   }
 
@@ -448,13 +449,17 @@ class OpenTelemetrySuite extends OpenTelemetryEnabled {
   }
 
   test("actions should be processed in the span time period") {
-    val result = session.sql("select current_timestamp()").collect().head.getTimestamp(0)
+    val result = ActionInfo("ClassA", "functionB", "fileC", 123, "chainD").emit {
+      Thread.sleep(1)
+      val time = System.currentTimeMillis()
+      Thread.sleep(1)
+      time
+    }
     val l = testSpanExporter.getFinishedSpanItems
     val spanStart = l.get(0).getStartEpochNanos / 1000000
-    val time = result.getTime
     val spanEnd = l.get(0).getEndEpochNanos / 1000000
-    assert(spanStart < time)
-    assert(time < spanEnd)
+    assert(spanStart < result)
+    assert(result < spanEnd)
   }
 
   override def beforeAll: Unit = {
