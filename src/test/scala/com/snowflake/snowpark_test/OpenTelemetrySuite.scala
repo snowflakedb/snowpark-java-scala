@@ -458,6 +458,7 @@ class OpenTelemetrySuite extends OpenTelemetryEnabled {
     val l = testSpanExporter.getFinishedSpanItems
     val spanStart = l.get(0).getStartEpochNanos / 1000000
     val spanEnd = l.get(0).getEndEpochNanos / 1000000
+    assert(spanStart < spanEnd)
     assert(spanStart < result)
     assert(result < spanEnd)
   }
