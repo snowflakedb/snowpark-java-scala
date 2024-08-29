@@ -274,9 +274,17 @@ trait FunctionSuite extends TestData {
   }
 
   test("round") {
-    checkAnswer(double1.select(round(col("A"))), Seq(Row(1.0), Row(2.0), Row(3.0)))
-    checkAnswer(double1.select(round(col("A"), lit(0))), Seq(Row(1.0), Row(2.0), Row(3.0)))
+    // Case: Scale greater than or equal to zero.
+    val expected1 = Seq(Row(1.0), Row(2.0), Row(3.0))
+    checkAnswer(double1.select(round(col("A"))), expected1)
+    checkAnswer(double1.select(round(col("A"), lit(0))), expected1)
+    checkAnswer(double1.select(round(col("A"), 0)), expected1)
 
+    // Case: Scale less than zero.
+    val df2 = session.sql("select * from values(5),(55),(555) as T(a)")
+    val expected2 = Seq(Row(10, 0), Row(60, 100), Row(560, 600))
+    checkAnswer(df2.select(round(col("a"), lit(-1)), round(col("a"), lit(-2))), expected2)
+    checkAnswer(df2.select(round(col("a"), -1), round(col("a"), -2)), expected2)
   }
 
   test("asin acos") {
@@ -2377,6 +2385,32 @@ trait FunctionSuite extends TestData {
     val input = session.createDataFrame(Seq((1), (2), (3))).toDF("a")
 
     assert(input.withColumn("randn", randn()).select("randn").first() != null)
+  }
+
+  test("shiftleft") {
+    val input = session.createDataFrame(Seq((1), (2), (3))).toDF("a")
+    checkAnswer(input.select(shiftleft(col("A"), 1)), Seq(Row(2), Row(4), Row(6)), sort = false)
+  }
+
+  test("shiftright") {
+    val input = session.createDataFrame(Seq((1), (2), (3))).toDF("a")
+    checkAnswer(input.select(shiftright(col("A"), 1)), Seq(Row(0), Row(1), Row(1)), sort = false)
+  }
+
+  test("hex") {
+    val input = session.createDataFrame(Seq((1), (2), (3))).toDF("a")
+    checkAnswer(
+      input.withColumn("hex_col", hex(col("A"))).select("hex_col"),
+      Seq(Row("31"), Row("32"), Row("33")),
+      sort = false)
+  }
+
+  test("unhex") {
+    val input = session.createDataFrame(Seq((31), (32), (33))).toDF("a")
+    checkAnswer(
+      input.withColumn("unhex_col", unhex(col("A"))).select("unhex_col"),
+      Seq(Row("1"), Row("2"), Row("3")),
+      sort = false)
   }
 
 }
