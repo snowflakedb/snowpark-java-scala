@@ -602,10 +602,26 @@ public class JavaFunctionSuite extends TestBase {
 
   @Test
   public void round() {
+    // Case: Scale greater than or equal to zero.
     DataFrame df = getSession().sql("select * from values(1.111),(2.222),(3.333) as T(a)");
     Row[] expected = {Row.create(1.0), Row.create(2.0), Row.create(3.0)};
     checkAnswer(df.select(Functions.round(df.col("a"))), expected, false);
     checkAnswer(df.select(Functions.round(df.col("a"), Functions.lit(0))), expected, false);
+    checkAnswer(df.select(Functions.round(df.col("a"), 0)), expected, false);
+
+    // Case: Scale less than zero.
+    DataFrame df2 = getSession().sql("select * from values(5),(55),(555) as T(a)");
+    Row[] expected2 = {Row.create(10, 0), Row.create(60, 100), Row.create(560, 600)};
+    checkAnswer(
+        df2.select(
+            Functions.round(df2.col("a"), Functions.lit(-1)),
+            Functions.round(df2.col("a"), Functions.lit(-2))),
+        expected2,
+        false);
+    checkAnswer(
+        df2.select(Functions.round(df2.col("a"), -1), Functions.round(df2.col("a"), -2)),
+        expected2,
+        false);
   }
 
   @Test

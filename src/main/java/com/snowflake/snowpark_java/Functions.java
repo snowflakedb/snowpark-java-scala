@@ -1029,7 +1029,25 @@ public final class Functions {
   }
 
   /**
-   * Returns rounded values for the specified column.
+   * Rounds the numeric values of the given column {@code e} to the {@code scale} decimal places
+   * using the half away from zero rounding mode.
+   *
+   * <p>Example:
+   *
+   * <pre>{@code
+   * DataFrame df = session.sql("select * from (values (-3.78), (-2.55), (1.23), (2.55), (3.78)) as T(a)");
+   * df.select(round(col("a"), lit(1)).alias("round")).show();
+   *
+   * -----------
+   * |"ROUND"  |
+   * -----------
+   * |-3.8     |
+   * |-2.6     |
+   * |1.2      |
+   * |2.6      |
+   * |3.8      |
+   * -----------
+   * }</pre>
    *
    * @since 0.9.0
    * @param e The input column
@@ -1042,7 +1060,25 @@ public final class Functions {
   }
 
   /**
-   * Returns rounded values for the specified column.
+   * Rounds the numeric values of the given column {@code e} to 0 decimal places using the half away
+   * from zero rounding mode.
+   *
+   * <p>Example:
+   *
+   * <pre>{@code
+   * DataFrame df = session.sql("select * from (values (-3.7), (-2.5), (1.2), (2.5), (3.7)) as T(a)");
+   * df.select(round(col("a")).alias("round")).show();
+   *
+   * -----------
+   * |"ROUND"  |
+   * -----------
+   * |-4       |
+   * |-3       |
+   * |1        |
+   * |3        |
+   * |4        |
+   * -----------
+   * }</pre>
    *
    * @since 0.9.0
    * @param e The input column
@@ -1050,6 +1086,36 @@ public final class Functions {
    */
   public static Column round(Column e) {
     return new Column(com.snowflake.snowpark.functions.round(e.toScalaColumn()));
+  }
+
+  /**
+   * Rounds the numeric values of the given column {@code e} to the {@code scale} decimal places
+   * using the half away from zero rounding mode.
+   *
+   * <p>Example:
+   *
+   * <pre>{@code
+   * DataFrame df = session.sql("select * from (values (-3.78), (-2.55), (1.23), (2.55), (3.78)) as T(a)");
+   * df.select(round(col("a"), 1).alias("round")).show();
+   *
+   * -----------
+   * |"ROUND"  |
+   * -----------
+   * |-3.8     |
+   * |-2.6     |
+   * |1.2      |
+   * |2.6      |
+   * |3.8      |
+   * -----------
+   * }</pre>
+   *
+   * @param e The column of numeric values to round.
+   * @param scale The number of decimal places to which {@code e} should be rounded.
+   * @return A new column containing the rounded numeric values.
+   * @since 1.14.0
+   */
+  public static Column round(Column e, int scale) {
+    return new Column(com.snowflake.snowpark.functions.round(e.toScalaColumn(), scale));
   }
 
   /**
