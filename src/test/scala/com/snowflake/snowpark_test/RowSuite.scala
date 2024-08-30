@@ -6,6 +6,7 @@ import com.snowflake.snowpark.{Row, SNTestBase, SnowparkClientException}
 import java.sql.{Date, Time, Timestamp}
 import java.time.{Instant, LocalDate}
 import java.util
+import java.util.TimeZone
 
 class RowSuite extends SNTestBase {
 
@@ -341,6 +342,61 @@ class RowSuite extends SNTestBase {
     assert(row.getAs[Time](12) == null)
     assert(row.getAs[Timestamp](13) == null)
     assert(row.getAs[Variant](14) == null)
+  }
+
+  test("getAs with structured map") {
+    structuredTypeTest {
+      val query =
+        """SELECT
+          |  {'a':1,'b':2}::MAP(VARCHAR, NUMBER) as map1,
+          |  {'1':'a','2':'b'}::MAP(NUMBER, VARCHAR) as map2,
+          |  {'1':{'a':1,'b':2},'2':{'c':3}}::MAP(NUMBER, MAP(VARCHAR, NUMBER)) as map3
+          |""".stripMargin
+
+      val df = session.sql(query)
+      val row = df.collect()(0)
+
+      val map1 = row.getAs[Map[String, Long]](0)
+      assert(map1("a") == 1L)
+      assert(map1("b") == 2L)
+
+      val map2 = row.getAs[Map[Long, String]](1)
+      assert(map2(1) == "a")
+      assert(map2(2) == "b")
+
+      val map3 = row.getAs[Map[Long, Map[String, Long]]](2)
+      assert(map3(1) == Map("a" -> 1, "b" -> 2))
+      assert(map3(2) == Map("c" -> 3))
+    }
+  }
+
+  test("getAs with structured array") {
+    structuredTypeTest {
+      TimeZone.setDefault(TimeZone.getTimeZone("US/Pacific"))
+
+      val query =
+        """SELECT
+          |    [1,2,3]::ARRAY(NUMBER) AS arr1,
+          |    ['a','b']::ARRAY(VARCHAR) AS arr2,
+          |    [parse_json(31000000)::timestamp_ntz]::ARRAY(TIMESTAMP_NTZ) AS arr3,
+          |    [[1,2]]::ARRAY(ARRAY) AS arr4
+          |""".stripMargin
+
+      val df = session.sql(query)
+      val row = df.collect()(0)
+
+      val array1 = row.getAs[Array[Object]](0)
+      assert(array1 sameElements Array(1, 2, 3))
+
+      val array2 = row.getAs[Array[Object]](1)
+      assert(array2 sameElements Array("a", "b"))
+
+      val array3 = row.getAs[Array[Object]](2)
+      assert(array3 sameElements Array(new Timestamp(31000000000L)))
+
+      val array4 = row.getAs[Array[Object]](3)
+      assert(array4 sameElements Array("[\n  1,\n  2\n]"))
+    }
   }
 
   test("hashCode") {

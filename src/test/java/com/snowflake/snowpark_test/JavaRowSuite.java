@@ -9,10 +9,12 @@ import java.math.BigDecimal;
 import java.sql.Date;
 import java.sql.Time;
 import java.sql.Timestamp;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.TimeZone;
 import org.junit.Test;
 
 public class JavaRowSuite extends TestBase {
@@ -531,5 +533,64 @@ public class JavaRowSuite extends TestBase {
     assert row.getAs(12, Time.class) == null;
     assert row.getAs(13, Timestamp.class) == null;
     assert row.getAs(14, Variant.class) == null;
+  }
+
+  @Test
+  public void getAsWithStructuredMap() {
+    structuredTypeTest(
+        () -> {
+          String query =
+              "SELECT "
+                  + "{'a':1,'b':2}::MAP(VARCHAR, NUMBER) as map1,"
+                  + "{'1':'a','2':'b'}::MAP(NUMBER, VARCHAR) as map2,"
+                  + "{'1':{'a':1,'b':2},'2':{'c':3}}::MAP(NUMBER, MAP(VARCHAR, NUMBER)) as map3";
+
+          DataFrame df = getSession().sql(query);
+          Row row = df.collect()[0];
+
+          Map<?, ?> map1 = row.getAs(0, Map.class);
+          assert (Long) map1.get("a") == 1L;
+          assert (Long) map1.get("b") == 2L;
+
+          Map<?, ?> map2 = row.getAs(1, Map.class);
+          assert map2.get(1L).equals("a");
+          assert map2.get(2L).equals("b");
+
+          Map<?, ?> map3 = row.getAs(2, Map.class);
+          assert map3.get(1L).equals(Map.of("a", 1L, "b", 2L));
+          assert map3.get(2L).equals(Map.of("c", 3L));
+        },
+        getSession());
+  }
+
+  @Test
+  public void getAsWithStructuredArray() {
+    structuredTypeTest(
+        () -> {
+          TimeZone.setDefault(TimeZone.getTimeZone("US/Pacific"));
+
+          String query =
+              "SELECT "
+                  + "[1,2,3]::ARRAY(NUMBER) AS arr1,"
+                  + "['a','b']::ARRAY(VARCHAR) AS arr2,"
+                  + "[parse_json(31000000)::timestamp_ntz]::ARRAY(TIMESTAMP_NTZ) AS arr3,"
+                  + "[[1,2]]::ARRAY(ARRAY) AS arr4";
+
+          DataFrame df = getSession().sql(query);
+          Row row = df.collect()[0];
+
+          ArrayList<?> array1 = row.getAs(0, ArrayList.class);
+          assert array1.equals(List.of(1L, 2L, 3L));
+
+          ArrayList<?> array2 = row.getAs(1, ArrayList.class);
+          assert array2.equals(List.of("a", "b"));
+
+          ArrayList<?> array3 = row.getAs(2, ArrayList.class);
+          assert array3.equals(List.of(new Timestamp(31000000000L)));
+
+          ArrayList<?> array4 = row.getAs(3, ArrayList.class);
+          assert array4.equals(List.of("[\n  1,\n  2\n]"));
+        },
+        getSession());
   }
 }
