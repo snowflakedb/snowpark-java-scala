@@ -11,6 +11,7 @@ import java.sql.Time;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -557,8 +558,11 @@ public class JavaRowSuite extends TestBase {
           assert map2.get(2L).equals("b");
 
           Map<?, ?> map3 = row.getAs(2, Map.class);
-          assert map3.get(1L).equals(Map.of("a", 1L, "b", 2L));
-          assert map3.get(2L).equals(Map.of("c", 3L));
+          Map<String, Long> map3ExpectedInnerMap = new HashMap<>();
+          map3ExpectedInnerMap.put("a", 1L);
+          map3ExpectedInnerMap.put("b", 2L);
+          assert map3.get(1L).equals(map3ExpectedInnerMap);
+          assert map3.get(2L).equals(Collections.singletonMap("c", 3L));
         },
         getSession());
   }
@@ -580,16 +584,16 @@ public class JavaRowSuite extends TestBase {
           Row row = df.collect()[0];
 
           ArrayList<?> array1 = row.getAs(0, ArrayList.class);
-          assert array1.equals(List.of(1L, 2L, 3L));
+          assert array1.equals(Arrays.asList(1L, 2L, 3L));
 
           ArrayList<?> array2 = row.getAs(1, ArrayList.class);
-          assert array2.equals(List.of("a", "b"));
+          assert array2.equals(Arrays.asList("a", "b"));
 
           ArrayList<?> array3 = row.getAs(2, ArrayList.class);
-          assert array3.equals(List.of(new Timestamp(31000000000L)));
+          assert array3.equals(Collections.singletonList(new Timestamp(31000000000L)));
 
           ArrayList<?> array4 = row.getAs(3, ArrayList.class);
-          assert array4.equals(List.of("[\n  1,\n  2\n]"));
+          assert array4.equals(Collections.singletonList("[\n  1,\n  2\n]"));
         },
         getSession());
   }
