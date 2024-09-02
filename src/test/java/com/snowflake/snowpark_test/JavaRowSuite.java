@@ -571,7 +571,7 @@ public class JavaRowSuite extends TestBase {
   public void getAsWithStructuredArray() {
     structuredTypeTest(
         () -> {
-          var oldTimeZone = TimeZone.getDefault();
+          TimeZone oldTimeZone = TimeZone.getDefault();
           try {
             TimeZone.setDefault(TimeZone.getTimeZone("US/Pacific"));
 
