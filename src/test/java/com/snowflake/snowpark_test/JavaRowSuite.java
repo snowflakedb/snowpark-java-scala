@@ -571,29 +571,34 @@ public class JavaRowSuite extends TestBase {
   public void getAsWithStructuredArray() {
     structuredTypeTest(
         () -> {
-          TimeZone.setDefault(TimeZone.getTimeZone("US/Pacific"));
+          var oldTimeZone = TimeZone.getDefault();
+          try {
+            TimeZone.setDefault(TimeZone.getTimeZone("US/Pacific"));
 
-          String query =
-              "SELECT "
-                  + "[1,2,3]::ARRAY(NUMBER) AS arr1,"
-                  + "['a','b']::ARRAY(VARCHAR) AS arr2,"
-                  + "[parse_json(31000000)::timestamp_ntz]::ARRAY(TIMESTAMP_NTZ) AS arr3,"
-                  + "[[1,2]]::ARRAY(ARRAY) AS arr4";
+            String query =
+                "SELECT "
+                    + "[1,2,3]::ARRAY(NUMBER) AS arr1,"
+                    + "['a','b']::ARRAY(VARCHAR) AS arr2,"
+                    + "[parse_json(31000000)::timestamp_ntz]::ARRAY(TIMESTAMP_NTZ) AS arr3,"
+                    + "[[1,2]]::ARRAY(ARRAY) AS arr4";
 
-          DataFrame df = getSession().sql(query);
-          Row row = df.collect()[0];
+            DataFrame df = getSession().sql(query);
+            Row row = df.collect()[0];
 
-          ArrayList<?> array1 = row.getAs(0, ArrayList.class);
-          assert array1.equals(Arrays.asList(1L, 2L, 3L));
+            ArrayList<?> array1 = row.getAs(0, ArrayList.class);
+            assert array1.equals(Arrays.asList(1L, 2L, 3L));
 
-          ArrayList<?> array2 = row.getAs(1, ArrayList.class);
-          assert array2.equals(Arrays.asList("a", "b"));
+            ArrayList<?> array2 = row.getAs(1, ArrayList.class);
+            assert array2.equals(Arrays.asList("a", "b"));
 
-          ArrayList<?> array3 = row.getAs(2, ArrayList.class);
-          assert array3.equals(Collections.singletonList(new Timestamp(31000000000L)));
+            ArrayList<?> array3 = row.getAs(2, ArrayList.class);
+            assert array3.equals(Collections.singletonList(new Timestamp(31000000000L)));
 
-          ArrayList<?> array4 = row.getAs(3, ArrayList.class);
-          assert array4.equals(Collections.singletonList("[\n  1,\n  2\n]"));
+            ArrayList<?> array4 = row.getAs(3, ArrayList.class);
+            assert array4.equals(Collections.singletonList("[\n  1,\n  2\n]"));
+          } finally {
+            TimeZone.setDefault(oldTimeZone);
+          }
         },
         getSession());
   }

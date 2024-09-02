@@ -372,30 +372,35 @@ class RowSuite extends SNTestBase {
 
   test("getAs with structured array") {
     structuredTypeTest {
-      TimeZone.setDefault(TimeZone.getTimeZone("US/Pacific"))
+      val oldTimeZone = TimeZone.getDefault
+      try {
+        TimeZone.setDefault(TimeZone.getTimeZone("US/Pacific"))
 
-      val query =
-        """SELECT
-          |    [1,2,3]::ARRAY(NUMBER) AS arr1,
-          |    ['a','b']::ARRAY(VARCHAR) AS arr2,
-          |    [parse_json(31000000)::timestamp_ntz]::ARRAY(TIMESTAMP_NTZ) AS arr3,
-          |    [[1,2]]::ARRAY(ARRAY) AS arr4
-          |""".stripMargin
+        val query =
+          """SELECT
+            |    [1,2,3]::ARRAY(NUMBER) AS arr1,
+            |    ['a','b']::ARRAY(VARCHAR) AS arr2,
+            |    [parse_json(31000000)::timestamp_ntz]::ARRAY(TIMESTAMP_NTZ) AS arr3,
+            |    [[1,2]]::ARRAY(ARRAY) AS arr4
+            |""".stripMargin
 
-      val df = session.sql(query)
-      val row = df.collect()(0)
+        val df = session.sql(query)
+        val row = df.collect()(0)
 
-      val array1 = row.getAs[Array[Object]](0)
-      assert(array1 sameElements Array(1, 2, 3))
+        val array1 = row.getAs[Array[Object]](0)
+        assert(array1 sameElements Array(1, 2, 3))
 
-      val array2 = row.getAs[Array[Object]](1)
-      assert(array2 sameElements Array("a", "b"))
+        val array2 = row.getAs[Array[Object]](1)
+        assert(array2 sameElements Array("a", "b"))
 
-      val array3 = row.getAs[Array[Object]](2)
-      assert(array3 sameElements Array(new Timestamp(31000000000L)))
+        val array3 = row.getAs[Array[Object]](2)
+        assert(array3 sameElements Array(new Timestamp(31000000000L)))
 
-      val array4 = row.getAs[Array[Object]](3)
-      assert(array4 sameElements Array("[\n  1,\n  2\n]"))
+        val array4 = row.getAs[Array[Object]](3)
+        assert(array4 sameElements Array("[\n  1,\n  2\n]"))
+      } finally {
+        TimeZone.setDefault(oldTimeZone)
+      }
     }
   }
 
