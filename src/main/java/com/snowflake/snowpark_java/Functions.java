@@ -1029,7 +1029,25 @@ public final class Functions {
   }
 
   /**
-   * Returns rounded values for the specified column.
+   * Rounds the numeric values of the given column {@code e} to the {@code scale} decimal places
+   * using the half away from zero rounding mode.
+   *
+   * <p>Example:
+   *
+   * <pre>{@code
+   * DataFrame df = session.sql("select * from (values (-3.78), (-2.55), (1.23), (2.55), (3.78)) as T(a)");
+   * df.select(round(col("a"), lit(1)).alias("round")).show();
+   *
+   * -----------
+   * |"ROUND"  |
+   * -----------
+   * |-3.8     |
+   * |-2.6     |
+   * |1.2      |
+   * |2.6      |
+   * |3.8      |
+   * -----------
+   * }</pre>
    *
    * @since 0.9.0
    * @param e The input column
@@ -1042,7 +1060,25 @@ public final class Functions {
   }
 
   /**
-   * Returns rounded values for the specified column.
+   * Rounds the numeric values of the given column {@code e} to 0 decimal places using the half away
+   * from zero rounding mode.
+   *
+   * <p>Example:
+   *
+   * <pre>{@code
+   * DataFrame df = session.sql("select * from (values (-3.7), (-2.5), (1.2), (2.5), (3.7)) as T(a)");
+   * df.select(round(col("a")).alias("round")).show();
+   *
+   * -----------
+   * |"ROUND"  |
+   * -----------
+   * |-4       |
+   * |-3       |
+   * |1        |
+   * |3        |
+   * |4        |
+   * -----------
+   * }</pre>
    *
    * @since 0.9.0
    * @param e The input column
@@ -1050,6 +1086,36 @@ public final class Functions {
    */
   public static Column round(Column e) {
     return new Column(com.snowflake.snowpark.functions.round(e.toScalaColumn()));
+  }
+
+  /**
+   * Rounds the numeric values of the given column {@code e} to the {@code scale} decimal places
+   * using the half away from zero rounding mode.
+   *
+   * <p>Example:
+   *
+   * <pre>{@code
+   * DataFrame df = session.sql("select * from (values (-3.78), (-2.55), (1.23), (2.55), (3.78)) as T(a)");
+   * df.select(round(col("a"), 1).alias("round")).show();
+   *
+   * -----------
+   * |"ROUND"  |
+   * -----------
+   * |-3.8     |
+   * |-2.6     |
+   * |1.2      |
+   * |2.6      |
+   * |3.8      |
+   * -----------
+   * }</pre>
+   *
+   * @param e The column of numeric values to round.
+   * @param scale The number of decimal places to which {@code e} should be rounded.
+   * @return A new column containing the rounded numeric values.
+   * @since 1.14.0
+   */
+  public static Column round(Column e, int scale) {
+    return new Column(com.snowflake.snowpark.functions.round(e.toScalaColumn(), scale));
   }
 
   /**
@@ -4640,6 +4706,97 @@ public final class Functions {
    */
   public static Column randn(long seed) {
     return new Column(functions.randn(seed));
+  }
+
+  /**
+   * Shift the given value numBits left. If the given value is a long value, this function will
+   * return a long value else it will return an integer value.
+   *
+   * <pre>{@code
+   * DataFrame df = getSession().sql("select * from values(1),(2),(3) as T(a)");
+   * df.select(Functions.shiftleft(Functions.col("a"), 1).as("shiftleft")).show();
+   * ---------------
+   * |"SHIFTLEFT"  |
+   * ---------------
+   * |2            |
+   * |4            |
+   * |6            |
+   * ---------------
+   * }</pre>
+   *
+   * @since 1.14.0
+   * @return Column object.
+   */
+  public static Column shiftleft(Column c, int numBits) {
+    return new Column(functions.shiftleft(c.toScalaColumn(), numBits));
+  }
+
+  /**
+   * Shift the given value numBits right. If the given value is a long value, it will return a long
+   * value else it will return an integer value.
+   *
+   * <pre>{@code
+   * DataFrame df = getSession().sql("select * from values(1),(2),(3) as T(a)");
+   * df.select(Functions.shiftright(Functions.col("a"), 1).as("shiftright")).show();
+   * ---------------
+   * |"SHIFTRIGHT"  |
+   * ---------------
+   * |0            |
+   * |1            |
+   * |1            |
+   * ---------------
+   * }</pre>
+   *
+   * @since 1.14.0
+   * @return Column object.
+   */
+  public static Column shiftright(Column c, int numBits) {
+    return new Column(functions.shiftright(c.toScalaColumn(), numBits));
+  }
+
+  /**
+   * Computes hex value of the given column.
+   *
+   * <pre>{@code
+   * DataFrame df = getSession().sql("select * from values(1),(2),(3) as T(a)");
+   * df.select(Functions.hex(Functions.col("a")).as("hex")).show();
+   * ---------
+   * |"HEX"  |
+   * ---------
+   * |31     |
+   * |32     |
+   * |33     |
+   * ---------
+   * }</pre>
+   *
+   * @since 1.14.0
+   * @return Column object.
+   */
+  public static Column hex(Column c) {
+    return new Column(functions.hex(c.toScalaColumn()));
+  }
+
+  /**
+   * Inverse of hex. Interprets each pair of characters as a hexadecimal number and converts to the
+   * byte representation of number.
+   *
+   * <pre>{@code
+   * DataFrame df = getSession().sql("select * from values(31),(32),(33) as T(a)");
+   * df.select(Functions.unhex(Functions.col("a")).as("unhex")).show();
+   * -----------
+   * |"UNHEX"  |
+   * -----------
+   * |1        |
+   * |2        |
+   * |3        |
+   * -----------
+   * }</pre>
+   *
+   * @since 1.14.0
+   * @return Column object.
+   */
+  public static Column unhex(Column c) {
+    return new Column(functions.unhex(c.toScalaColumn()));
   }
 
   /**
