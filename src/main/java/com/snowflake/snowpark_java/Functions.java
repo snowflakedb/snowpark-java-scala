@@ -4088,9 +4088,9 @@ public final class Functions {
    * }</pre>
    *
    * @since 1.15.0
+   * @param days Int
    * @param start Column name
-   * @param days Int .
-   * @return Column.
+   * @return Column
    */
   public static Column date_add(Integer days, Column start) {
     return new Column(com.snowflake.snowpark.functions.date_add(days, start.toScalaColumn()));
@@ -4114,8 +4114,8 @@ public final class Functions {
    *
    * @since 1.15.0
    * @param start Column name
-   * @param days Int .
-   * @return Column.
+   * @param days Column name
+   * @return Column
    */
   public static Column date_add(Column start, Column days) {
     return new Column(
@@ -4153,9 +4153,17 @@ public final class Functions {
    * Aggregate function: returns a set of objects with duplicate elements eliminated. Returns the
    * input values, pivoted into an ARRAY. If the input is empty, an empty ARRAY is returned.
    *
-   * <p>Example:: <pr>{@code >>> df = session.create_dataframe([[1], [2], [3], [1]], schema=["a"])
-   * >>> df.select(array_agg("a", True).alias("result")).show() ------------ |"RESULT" |
-   * ------------ |[ | | 1, | | 2, | | 3 | |] | ------------ }</pr>
+   * <p>Example::
+   *
+   * <pre>{@code
+   * df = session.create_dataframe([[1], [2], [3], [1]], schema=["a"])
+   * df.select(array_agg("a", True).alias("result")).show()
+   * ------------
+   * |"RESULT" |
+   * ------------
+   * |[| | 1, | | 2, | | 3 | |] |
+   * ------------
+   * }</pre>
    *
    * @since 1.15.0
    * @param e The string to collect the list values
@@ -4171,10 +4179,17 @@ public final class Functions {
    * HH:mm:ss format. Converts an input expression into the corresponding date in the specified date
    * format.
    *
-   * <p>Example:: <pr>{@code df = session.create_dataframe([("2023-10-10",), ("2022-05-15",),
-   * ("invalid",)] , schema=['date']) df.select(date_format('date',
-   * 'YYYY/MM/DD').as_('formatted_date')).show() -------------------- |"FORMATTED_DATE" |
-   * -------------------- |2023/10/10 | |2022/05/15 | |NULL | -------------------- }</pr>
+   * <p>Example::
+   *
+   * <pre>{@code
+   * df = session.create_dataframe([("2023-10-10",), ("2022-05-15",), ("invalid",)] ,
+   * schema=['date']) df.select(date_format('date', 'YYYY/MM/DD').as_('formatted_date')).show()
+   * --------------------
+   * |"FORMATTED_DATE" |
+   * --------------------
+   * |2023/10/10 | |2022/05/15 | |NULL
+   * | --------------------
+   * }</pre>
    *
    * @since 1.15.0
    * @param ut A number of a type that is castable to a long, such as string or integer. Can be
@@ -4189,16 +4204,25 @@ public final class Functions {
    * representing the timestamp of that moment in the current system time zone in the given format.
    * Converts an input expression into the corresponding date in the specified date format.
    *
-   * <p>Example:: <pr>{@code df = session.create_dataframe([("2023-10-10",), ("2022-05-15",),
-   * ("invalid",)], schema=['date']) df.select(date_format('date',
-   * 'YYYY/MM/DD').as_('formatted_date')).show() -------------------- |"FORMATTED_DATE" |
-   * -------------------- |2023/10/10 | |2022/05/15 | |NULL | -------------------- }</pr>
+   * <p>Example::
+   *
+   * <pre>{@code
+   * df = session.create_dataframe([("2023-10-10",), ("2022-05-15",),
+   * ("invalid",)], schema=['date'])
+   * df.select(date_format('date',
+   * 'YYYY/MM/DD').as_('formatted_date')).show()
+   * --------------------
+   * |"FORMATTED_DATE" |
+   * --------------------
+   * |2023/10/10 | |2022/05/15 | |NULL |
+   * --------------------
+   * }</pre>
    *
    * @since 1.15.0
-   * @param ut A number of a type that is castable to a long, such as string or integer. Can be
-   *     negative for timestamps before the unix epoch
-   * @param f A date time pattern that the input will be formatted to
-   * @return A string, or null if `ut` was a string that could not be cast to a long or `f` was an
+   * @param ut Column A number of a type that is castable to a long, such as string or integer. Can
+   *     be negative for timestamps before the unix epoch
+   * @param f string A date time pattern that the input will be formatted to
+   * @return Column, or null if `ut` was a string that could not be cast to a long or `f` was an
    *     invalid date time pattern
    */
   public static Column from_unixtime(Column ut, String f) {
@@ -4210,8 +4234,13 @@ public final class Functions {
    * of monotonically increasing integers, with wrap-around which happens after largest
    * representable integer of integer width 8 byte.
    *
-   * <p>Example:: <pr>{@code >>> df = session.generator(seq8(0), rowcount=3) >>> df.collect()
-   * [Row(SEQ8(0)=0), Row(SEQ8(0)=1), Row(SEQ8(0)=2)] }</pr>
+   * <p>Example::
+   *
+   * <pre>{@code
+   * >>> df = session.generator(seq8(0), rowcount=3)
+   * >>> df.collect()
+   * [Row(SEQ8(0)=0),Row(SEQ8(0)=1), Row(SEQ8(0)=2)]
+   * }</pre>
    *
    * @since 1.15.0
    */
