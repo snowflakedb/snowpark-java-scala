@@ -3403,7 +3403,7 @@ object functions {
    * | 2013-05-08 | 2015-05-08 |
    * +------------+------------+
    *
-   * @since 1.14.0
+   * @since 1.15.0
    * @param start Column name
    * @param days Int            .
    * @return Column.
@@ -3421,7 +3421,7 @@ object functions {
    *  | 2013-05-08 | 2015-05-08 |
    *  +------------+------------+
    *
-   * @since 1.14.0
+   * @since 1.15.0
    * @param start A date, timestamp or string. If a string, the data must be in a format that
    *              can be cast to a date, such as `yyyy-MM-dd` or `yyyy-MM-dd HH:mm:ss.SSSS`
    * @param days  The number of days to add to `start`, can be negative to subtract days
@@ -3446,7 +3446,7 @@ object functions {
    *  |  3       |
    *  |]         |
    *  ------------
-   * @since 1.14.0
+   * @since 1.15.0
    * @param e The column to collect the list values
    * @return A list with unique values
    */
@@ -3469,7 +3469,7 @@ object functions {
    * |  3       |
    * |]         |
    * ------------
-   * @since 1.14.0
+   * @since 1.15.0
    * @param e The column to collect the list values
    * @return A list with unique values
    */
@@ -3479,7 +3479,7 @@ object functions {
    * Converts the number of seconds from unix epoch (1970-01-01 00:00:00 UTC) to a string
    * representing the timestamp of that moment in the current system time zone in the
    * yyyy-MM-dd HH:mm:ss format.
-   * @since 1.10.0
+   * @since 1.15.0
    * @param ut A number of a type that is castable to a long, such as string or integer. Can be
    *           negative for timestamps before the unix epoch
    * @return A string, or null if the input was a string that could not be cast to a long
@@ -3491,7 +3491,7 @@ object functions {
    * Converts the number of seconds from unix epoch (1970-01-01 00:00:00 UTC) to a string
    * representing the timestamp of that moment in the current system time zone in the given
    * format.
-   * @since 1.10.0
+   * @since 1.15.0
    * @param ut A number of a type that is castable to a long, such as string or integer. Can be
    *           negative for timestamps before the unix epoch
    * @param f  A date time pattern that the input will be formatted to
@@ -3518,7 +3518,7 @@ object functions {
    * >>> df = session.generator(seq8(0), rowcount=3)
    * >>> df.collect()
    * [Row(SEQ8(0)=0), Row(SEQ8(0)=1), Row(SEQ8(0)=2)]
-   * @since 1.14.0
+   * @since 1.15.0
    */
   def monotonically_increasing_id(): Column = builtin("seq8")()
 

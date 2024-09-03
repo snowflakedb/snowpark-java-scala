@@ -4087,7 +4087,7 @@ public final class Functions {
    * +------------+------------+
    * }</pre>
    *
-   * @since 1.14.0
+   * @since 1.15.0
    * @param start Column name
    * @param days Int .
    * @return Column.
@@ -4112,7 +4112,7 @@ public final class Functions {
    * +------------+------------+
    * }</pre>
    *
-   * @since 1.14.0
+   * @since 1.15.0
    * @param start Column name
    * @param days Int .
    * @return Column.
@@ -4142,7 +4142,7 @@ public final class Functions {
    *
    * }</pre>
    *
-   * @since 1.14.0
+   * @since 1.15.0
    * @param e The column to collect the list values
    * @return A list with unique values
    */
@@ -4157,7 +4157,7 @@ public final class Functions {
    * >>> df.select(array_agg("a", True).alias("result")).show() ------------ |"RESULT" |
    * ------------ |[ | | 1, | | 2, | | 3 | |] | ------------ }</pr>
    *
-   * @since 1.14.0
+   * @since 1.15.0
    * @param e The string to collect the list values
    * @return A list with unique values
    */
@@ -4176,7 +4176,7 @@ public final class Functions {
    * 'YYYY/MM/DD').as_('formatted_date')).show() -------------------- |"FORMATTED_DATE" |
    * -------------------- |2023/10/10 | |2022/05/15 | |NULL | -------------------- }</pr>
    *
-   * @since 1.14.0
+   * @since 1.15.0
    * @param ut A number of a type that is castable to a long, such as string or integer. Can be
    *     negative for timestamps before the unix epoch
    * @return A string, or null if the input was a string that could not be cast to a long
@@ -4194,7 +4194,7 @@ public final class Functions {
    * 'YYYY/MM/DD').as_('formatted_date')).show() -------------------- |"FORMATTED_DATE" |
    * -------------------- |2023/10/10 | |2022/05/15 | |NULL | -------------------- }</pr>
    *
-   * @since 1.14.0
+   * @since 1.15.0
    * @param ut A number of a type that is castable to a long, such as string or integer. Can be
    *     negative for timestamps before the unix epoch
    * @param f A date time pattern that the input will be formatted to
@@ -4213,7 +4213,7 @@ public final class Functions {
    * <p>Example:: <pr>{@code >>> df = session.generator(seq8(0), rowcount=3) >>> df.collect()
    * [Row(SEQ8(0)=0), Row(SEQ8(0)=1), Row(SEQ8(0)=2)] }</pr>
    *
-   * @since 1.14.0
+   * @since 1.15.0
    */
   public static Column monotonically_increasing_id() {
     return new Column(com.snowflake.snowpark.functions.monotonically_increasing_id());
