@@ -311,4 +311,11 @@ class ScalaVariantSuite extends FunSuite {
 
     assert(v1.toString() == "123")
   }
+
+  test("JsonNode") {
+    val sv = new Variant("{\"a\": [1, 2], \"b\": 3, \"c\": \"xyz\"}")
+    assert(sv.asJsonNode().get("a").isArray)
+    assert(sv.asJsonNode().get("b").asInt().equals(3))
+    assert(sv.asJsonNode().get("c").asText().equals("xyz"))
+  }
 }
