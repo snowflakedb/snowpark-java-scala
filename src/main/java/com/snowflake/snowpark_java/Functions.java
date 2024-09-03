@@ -4071,6 +4071,154 @@ public final class Functions {
     return new Column(com.snowflake.snowpark.functions.collect_list(c.toScalaColumn()));
   }
 
+  /**
+   * Returns the date that is `days` days after `start` Usage - DATE_ADD( date_or_time_part, value,
+   * date_or_time_expr )
+   *
+   * <p>Example::
+   *
+   * <pre>{@code
+   * SELECT TO_DATE('2013-05-08') AS v1, DATE_ADD(year, 2, TO_DATE('2013-05-08')) AS v;
+   *
+   * +------------+------------+
+   * | V1         | V          |
+   * |------------+------------|
+   * | 2013-05-08 | 2015-05-08 |
+   * +------------+------------+
+   * }</pre>
+   *
+   * @since 1.14.0
+   * @param start Column name
+   * @param days Int .
+   * @return Column.
+   */
+  public static Column date_add(Integer days, Column start) {
+    return new Column(com.snowflake.snowpark.functions.date_add(days, start.toScalaColumn()));
+  }
+
+  /**
+   * Returns the date that is `days` days after `start` Usage - DATE_ADD( date_or_time_part, value,
+   * date_or_time_expr )
+   *
+   * <p>Example::
+   *
+   * <pre>{@code
+   * SELECT TO_DATE('2013-05-08') AS v1, DATE_ADD(year, 2, TO_DATE('2013-05-08')) AS v;
+   *
+   * +------------+------------+
+   * | V1         | V          |
+   * |------------+------------|
+   * | 2013-05-08 | 2015-05-08 |
+   * +------------+------------+
+   * }</pre>
+   *
+   * @since 1.14.0
+   * @param start Column name
+   * @param days Int .
+   * @return Column.
+   */
+  public static Column date_add(Column start, Column days) {
+    return new Column(
+        com.snowflake.snowpark.functions.date_add(start.toScalaColumn(), days.toScalaColumn()));
+  }
+  /**
+   * Aggregate function: returns a set of objects with duplicate elements eliminated. Returns the
+   * input values, pivoted into an ARRAY. If the input is empty, an empty ARRAY is returned.
+   *
+   * <p>Example::
+   *
+   * <pre>{@code
+   * >>> df = session.create_dataframe([[1], [2], [3], [1]], schema=["a"])
+   * >>> df.select(array_agg("a", True).alias("result")).show()
+   * ------------
+   * |"RESULT"  |
+   * ------------
+   * |[         |
+   * |  1,      |
+   * |  2,      |
+   * |  3       |
+   * |]         |
+   * ------------
+   *
+   * }</pre>
+   *
+   * @since 1.14.0
+   * @param e The column to collect the list values
+   * @return A list with unique values
+   */
+  public static Column collect_set(Column e) {
+    return new Column(com.snowflake.snowpark.functions.collect_set(e.toScalaColumn()));
+  }
+  /**
+   * Aggregate function: returns a set of objects with duplicate elements eliminated. Returns the
+   * input values, pivoted into an ARRAY. If the input is empty, an empty ARRAY is returned.
+   *
+   * <p>Example:: <pr>{@code >>> df = session.create_dataframe([[1], [2], [3], [1]], schema=["a"])
+   * >>> df.select(array_agg("a", True).alias("result")).show() ------------ |"RESULT" |
+   * ------------ |[ | | 1, | | 2, | | 3 | |] | ------------ }</pr>
+   *
+   * @since 1.14.0
+   * @param e The string to collect the list values
+   * @return A list with unique values
+   */
+  public static Column collect_set(String e) {
+    return new Column(com.snowflake.snowpark.functions.collect_set(e));
+  }
+
+  /**
+   * Converts the number of seconds from unix epoch (1970-01-01 00:00:00 UTC) to a string
+   * representing the timestamp of that moment in the current system time zone in the yyyy-MM-dd
+   * HH:mm:ss format. Converts an input expression into the corresponding date in the specified date
+   * format.
+   *
+   * <p>Example:: <pr>{@code df = session.create_dataframe([("2023-10-10",), ("2022-05-15",),
+   * ("invalid",)] , schema=['date']) df.select(date_format('date',
+   * 'YYYY/MM/DD').as_('formatted_date')).show() -------------------- |"FORMATTED_DATE" |
+   * -------------------- |2023/10/10 | |2022/05/15 | |NULL | -------------------- }</pr>
+   *
+   * @since 1.14.0
+   * @param ut A number of a type that is castable to a long, such as string or integer. Can be
+   *     negative for timestamps before the unix epoch
+   * @return A string, or null if the input was a string that could not be cast to a long
+   */
+  public static Column from_unixtime(Column ut) {
+    return new Column(com.snowflake.snowpark.functions.from_unixtime(ut.toScalaColumn()));
+  }
+  /**
+   * Converts the number of seconds from unix epoch (1970-01-01 00:00:00 UTC) to a string
+   * representing the timestamp of that moment in the current system time zone in the given format.
+   * Converts an input expression into the corresponding date in the specified date format.
+   *
+   * <p>Example:: <pr>{@code df = session.create_dataframe([("2023-10-10",), ("2022-05-15",),
+   * ("invalid",)], schema=['date']) df.select(date_format('date',
+   * 'YYYY/MM/DD').as_('formatted_date')).show() -------------------- |"FORMATTED_DATE" |
+   * -------------------- |2023/10/10 | |2022/05/15 | |NULL | -------------------- }</pr>
+   *
+   * @since 1.14.0
+   * @param ut A number of a type that is castable to a long, such as string or integer. Can be
+   *     negative for timestamps before the unix epoch
+   * @param f A date time pattern that the input will be formatted to
+   * @return A string, or null if `ut` was a string that could not be cast to a long or `f` was an
+   *     invalid date time pattern
+   */
+  public static Column from_unixtime(Column ut, String f) {
+    return new Column(com.snowflake.snowpark.functions.from_unixtime(ut.toScalaColumn(), f));
+  }
+
+  /**
+   * A column expression that generates monotonically increasing 64-bit integers. Returns a sequence
+   * of monotonically increasing integers, with wrap-around which happens after largest
+   * representable integer of integer width 8 byte.
+   *
+   * <p>Example:: <pr>{@code >>> df = session.generator(seq8(0), rowcount=3) >>> df.collect()
+   * [Row(SEQ8(0)=0), Row(SEQ8(0)=1), Row(SEQ8(0)=2)] }</pr>
+   *
+   * @since 1.14.0
+   */
+  public static Column monotonically_increasing_id() {
+    return new Column(com.snowflake.snowpark.functions.monotonically_increasing_id());
+  }
+
   /* Returns a Column expression with values sorted in descending order.
    *
    * <p>Example: order column values in descending

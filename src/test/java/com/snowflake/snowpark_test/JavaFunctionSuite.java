@@ -3007,4 +3007,54 @@ public class JavaFunctionSuite extends TestBase {
         expected,
         false);
   }
+
+  @Test
+  public void date_add1() {
+    DataFrame df =
+        getSession()
+            .sql("select * from values('2020-08-01'::Date, 1),('2010-12-01'::Date, 2) as T(a,b)");
+    Row[] expected = {
+      Row.create(Date.valueOf("2020-08-02")), Row.create(Date.valueOf("2010-12-02"))
+    };
+    checkAnswer(df.select(Functions.date_add(df.col("a"), Functions.lit(1))), expected, false);
+  }
+
+  @Test
+  public void date_add2() {
+    DataFrame df =
+        getSession()
+            .sql("select * from values('2020-08-01'::Date, 1),('2010-12-01'::Date, 2) as T(a,b)");
+    Row[] expected = {
+      Row.create(Date.valueOf("2020-08-02")), Row.create(Date.valueOf("2010-12-02"))
+    };
+    checkAnswer(df.select(Functions.date_add(1, df.col("a"))), expected, false);
+  }
+
+  @Test
+  public void collect_set() {
+    DataFrame df = getSession().sql("select * from values(1), (2), (3) as T(a)");
+    df.select(Functions.collect_set(df.col("a"))).show();
+  }
+
+  @Test
+  public void from_unixtime1() {
+    DataFrame df = getSession().sql("select * from values(20231010), (20220515) as t(a)");
+    Row[] expected = {
+      Row.create("1970-08-22 20:43:30.000 -0700"), Row.create("1970-08-22 17:48:35.000 -0700")
+    };
+    checkAnswer(df.select(Functions.from_unixtime(df.col("a"))), expected, false);
+  }
+
+  @Test
+  public void from_unixtime2() {
+    DataFrame df = getSession().sql("select * from values(20231010), (456700809) as t(a)");
+    Row[] expected = {Row.create("1970/08/22"), Row.create("1984/06/21")};
+    checkAnswer(df.select(Functions.from_unixtime(df.col("a"), "YYYY/MM/DD")), expected, false);
+  }
+
+  @Test
+  public void monotonically_increasing_id() {
+    Row[] expected = {Row.create(0), Row.create(1), Row.create(2), Row.create(3), Row.create(4)};
+    checkAnswer(getSession().generator(5, Functions.monotonically_increasing_id()), expected);
+  }
 }
