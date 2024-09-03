@@ -3025,7 +3025,6 @@ public class JavaFunctionSuite extends TestBase {
   }
 
   @Test
-
   public void date_add1() {
     DataFrame df =
         getSession()
@@ -3072,7 +3071,9 @@ public class JavaFunctionSuite extends TestBase {
   @Test
   public void monotonically_increasing_id() {
     Row[] expected = {Row.create(0), Row.create(1), Row.create(2), Row.create(3), Row.create(4)};
-    checkAnswer(getSession().generator(5, Functions.monotonically_increasing_id()), expected);
+    checkAnswer(
+        getSession().generator(5, Functions.monotonically_increasing_id()), expected, false);
+  }
 
   public void shiftLeft() {
     DataFrame df = getSession().sql("select * from values(1),(2),(3) as T(a)");
@@ -3100,6 +3101,5 @@ public class JavaFunctionSuite extends TestBase {
     DataFrame df = getSession().sql("select * from values(31),(32),(33) as T(a)");
     Row[] expected = {Row.create("1"), Row.create("2"), Row.create("3")};
     checkAnswer(df.select(Functions.unhex(Functions.col("a"))), expected, false);
-
   }
 }

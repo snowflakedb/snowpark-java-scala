@@ -2386,7 +2386,6 @@ trait FunctionSuite extends TestData {
     assert(input.withColumn("randn", randn()).select("randn").first() != null)
   }
 
-
   test("date_add1") {
     checkAnswer(
       date1.select(date_add(col("a"), lit(1))),
@@ -2452,7 +2451,6 @@ trait FunctionSuite extends TestData {
       Seq(Row("1"), Row("2"), Row("3")),
       sort = false)
   }
-
 
 }
 
