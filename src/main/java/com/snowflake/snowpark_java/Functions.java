@@ -1029,7 +1029,25 @@ public final class Functions {
   }
 
   /**
-   * Returns rounded values for the specified column.
+   * Rounds the numeric values of the given column {@code e} to the {@code scale} decimal places
+   * using the half away from zero rounding mode.
+   *
+   * <p>Example:
+   *
+   * <pre>{@code
+   * DataFrame df = session.sql("select * from (values (-3.78), (-2.55), (1.23), (2.55), (3.78)) as T(a)");
+   * df.select(round(col("a"), lit(1)).alias("round")).show();
+   *
+   * -----------
+   * |"ROUND"  |
+   * -----------
+   * |-3.8     |
+   * |-2.6     |
+   * |1.2      |
+   * |2.6      |
+   * |3.8      |
+   * -----------
+   * }</pre>
    *
    * @since 0.9.0
    * @param e The input column
@@ -1042,7 +1060,25 @@ public final class Functions {
   }
 
   /**
-   * Returns rounded values for the specified column.
+   * Rounds the numeric values of the given column {@code e} to 0 decimal places using the half away
+   * from zero rounding mode.
+   *
+   * <p>Example:
+   *
+   * <pre>{@code
+   * DataFrame df = session.sql("select * from (values (-3.7), (-2.5), (1.2), (2.5), (3.7)) as T(a)");
+   * df.select(round(col("a")).alias("round")).show();
+   *
+   * -----------
+   * |"ROUND"  |
+   * -----------
+   * |-4       |
+   * |-3       |
+   * |1        |
+   * |3        |
+   * |4        |
+   * -----------
+   * }</pre>
    *
    * @since 0.9.0
    * @param e The input column
@@ -1050,6 +1086,36 @@ public final class Functions {
    */
   public static Column round(Column e) {
     return new Column(com.snowflake.snowpark.functions.round(e.toScalaColumn()));
+  }
+
+  /**
+   * Rounds the numeric values of the given column {@code e} to the {@code scale} decimal places
+   * using the half away from zero rounding mode.
+   *
+   * <p>Example:
+   *
+   * <pre>{@code
+   * DataFrame df = session.sql("select * from (values (-3.78), (-2.55), (1.23), (2.55), (3.78)) as T(a)");
+   * df.select(round(col("a"), 1).alias("round")).show();
+   *
+   * -----------
+   * |"ROUND"  |
+   * -----------
+   * |-3.8     |
+   * |-2.6     |
+   * |1.2      |
+   * |2.6      |
+   * |3.8      |
+   * -----------
+   * }</pre>
+   *
+   * @param e The column of numeric values to round.
+   * @param scale The number of decimal places to which {@code e} should be rounded.
+   * @return A new column containing the rounded numeric values.
+   * @since 1.14.0
+   */
+  public static Column round(Column e, int scale) {
+    return new Column(com.snowflake.snowpark.functions.round(e.toScalaColumn(), scale));
   }
 
   /**
@@ -4071,6 +4137,183 @@ public final class Functions {
     return new Column(com.snowflake.snowpark.functions.collect_list(c.toScalaColumn()));
   }
 
+  /**
+   * Returns the date that is `days` days after `start` Usage - DATE_ADD( date_or_time_part, value,
+   * date_or_time_expr )
+   *
+   * <p>Example::
+   *
+   * <pre>{@code
+   * SELECT TO_DATE('2013-05-08') AS v1, DATE_ADD(year, 2, TO_DATE('2013-05-08')) AS v;
+   *
+   * +------------+------------+
+   * | V1         | V          |
+   * |------------+------------|
+   * | 2013-05-08 | 2015-05-08 |
+   * +------------+------------+
+   * }</pre>
+   *
+   * @since 1.15.0
+   * @param days Int
+   * @param start Column name
+   * @return Column
+   */
+  public static Column date_add(Integer days, Column start) {
+    return new Column(com.snowflake.snowpark.functions.date_add(days, start.toScalaColumn()));
+  }
+
+  /**
+   * Returns the date that is `days` days after `start` Usage - DATE_ADD( date_or_time_part, value,
+   * date_or_time_expr )
+   *
+   * <p>Example::
+   *
+   * <pre>{@code
+   * SELECT TO_DATE('2013-05-08') AS v1, DATE_ADD(year, 2, TO_DATE('2013-05-08')) AS v;
+   *
+   * +------------+------------+
+   * | V1         | V          |
+   * |------------+------------|
+   * | 2013-05-08 | 2015-05-08 |
+   * +------------+------------+
+   * }</pre>
+   *
+   * @since 1.15.0
+   * @param start Column name
+   * @param days Column name
+   * @return Column
+   */
+  public static Column date_add(Column start, Column days) {
+    return new Column(
+        com.snowflake.snowpark.functions.date_add(start.toScalaColumn(), days.toScalaColumn()));
+  }
+  /**
+   * Aggregate function: returns a set of objects with duplicate elements eliminated. Returns the
+   * input values, pivoted into an ARRAY. If the input is empty, an empty ARRAY is returned.
+   *
+   * <p>Example::
+   *
+   * <pre>{@code
+   * >>> df = session.create_dataframe([[1], [2], [3], [1]], schema=["a"])
+   * >>> df.select(array_agg("a", True).alias("result")).show()
+   * ------------
+   * |"RESULT"  |
+   * ------------
+   * |[         |
+   * |  1,      |
+   * |  2,      |
+   * |  3       |
+   * |]         |
+   * ------------
+   *
+   * }</pre>
+   *
+   * @since 1.15.0
+   * @param e The column to collect the list values
+   * @return A list with unique values
+   */
+  public static Column collect_set(Column e) {
+    return new Column(com.snowflake.snowpark.functions.collect_set(e.toScalaColumn()));
+  }
+  /**
+   * Aggregate function: returns a set of objects with duplicate elements eliminated. Returns the
+   * input values, pivoted into an ARRAY. If the input is empty, an empty ARRAY is returned.
+   *
+   * <p>Example::
+   *
+   * <pre>{@code
+   * df = session.create_dataframe([[1], [2], [3], [1]], schema=["a"])
+   * df.select(array_agg("a", True).alias("result")).show()
+   * ------------
+   * |"RESULT" |
+   * ------------
+   * |[| | 1, | | 2, | | 3 | |] |
+   * ------------
+   * }</pre>
+   *
+   * @since 1.15.0
+   * @param e The string to collect the list values
+   * @return A list with unique values
+   */
+  public static Column collect_set(String e) {
+    return new Column(com.snowflake.snowpark.functions.collect_set(e));
+  }
+
+  /**
+   * Converts the number of seconds from unix epoch (1970-01-01 00:00:00 UTC) to a string
+   * representing the timestamp of that moment in the current system time zone in the yyyy-MM-dd
+   * HH:mm:ss format. Converts an input expression into the corresponding date in the specified date
+   * format.
+   *
+   * <p>Example::
+   *
+   * <pre>{@code
+   * df = session.create_dataframe([("2023-10-10",), ("2022-05-15",), ("invalid",)] ,
+   * schema=['date']) df.select(date_format('date', 'YYYY/MM/DD').as_('formatted_date')).show()
+   * --------------------
+   * |"FORMATTED_DATE" |
+   * --------------------
+   * |2023/10/10 | |2022/05/15 | |NULL
+   * | --------------------
+   * }</pre>
+   *
+   * @since 1.15.0
+   * @param ut A number of a type that is castable to a long, such as string or integer. Can be
+   *     negative for timestamps before the unix epoch
+   * @return A string, or null if the input was a string that could not be cast to a long
+   */
+  public static Column from_unixtime(Column ut) {
+    return new Column(com.snowflake.snowpark.functions.from_unixtime(ut.toScalaColumn()));
+  }
+  /**
+   * Converts the number of seconds from unix epoch (1970-01-01 00:00:00 UTC) to a string
+   * representing the timestamp of that moment in the current system time zone in the given format.
+   * Converts an input expression into the corresponding date in the specified date format.
+   *
+   * <p>Example::
+   *
+   * <pre>{@code
+   * df = session.create_dataframe([("2023-10-10",), ("2022-05-15",),
+   * ("invalid",)], schema=['date'])
+   * df.select(date_format('date',
+   * 'YYYY/MM/DD').as_('formatted_date')).show()
+   * --------------------
+   * |"FORMATTED_DATE" |
+   * --------------------
+   * |2023/10/10 | |2022/05/15 | |NULL |
+   * --------------------
+   * }</pre>
+   *
+   * @since 1.15.0
+   * @param ut Column A number of a type that is castable to a long, such as string or integer. Can
+   *     be negative for timestamps before the unix epoch
+   * @param f string A date time pattern that the input will be formatted to
+   * @return Column, or null if `ut` was a string that could not be cast to a long or `f` was an
+   *     invalid date time pattern
+   */
+  public static Column from_unixtime(Column ut, String f) {
+    return new Column(com.snowflake.snowpark.functions.from_unixtime(ut.toScalaColumn(), f));
+  }
+
+  /**
+   * A column expression that generates monotonically increasing 64-bit integers. Returns a sequence
+   * of monotonically increasing integers, with wrap-around which happens after largest
+   * representable integer of integer width 8 byte.
+   *
+   * <p>Example::
+   *
+   * <pre>{@code
+   * >>> df = session.generator(seq8(0), rowcount=3)
+   * >>> df.collect()
+   * [Row(SEQ8(0)=0),Row(SEQ8(0)=1), Row(SEQ8(0)=2)]
+   * }</pre>
+   *
+   * @since 1.15.0
+   */
+  public static Column monotonically_increasing_id() {
+    return new Column(com.snowflake.snowpark.functions.monotonically_increasing_id());
+  }
+
   /* Returns a Column expression with values sorted in descending order.
    *
    * <p>Example: order column values in descending
@@ -4492,6 +4735,97 @@ public final class Functions {
    */
   public static Column randn(long seed) {
     return new Column(functions.randn(seed));
+  }
+
+  /**
+   * Shift the given value numBits left. If the given value is a long value, this function will
+   * return a long value else it will return an integer value.
+   *
+   * <pre>{@code
+   * DataFrame df = getSession().sql("select * from values(1),(2),(3) as T(a)");
+   * df.select(Functions.shiftleft(Functions.col("a"), 1).as("shiftleft")).show();
+   * ---------------
+   * |"SHIFTLEFT"  |
+   * ---------------
+   * |2            |
+   * |4            |
+   * |6            |
+   * ---------------
+   * }</pre>
+   *
+   * @since 1.14.0
+   * @return Column object.
+   */
+  public static Column shiftleft(Column c, int numBits) {
+    return new Column(functions.shiftleft(c.toScalaColumn(), numBits));
+  }
+
+  /**
+   * Shift the given value numBits right. If the given value is a long value, it will return a long
+   * value else it will return an integer value.
+   *
+   * <pre>{@code
+   * DataFrame df = getSession().sql("select * from values(1),(2),(3) as T(a)");
+   * df.select(Functions.shiftright(Functions.col("a"), 1).as("shiftright")).show();
+   * ---------------
+   * |"SHIFTRIGHT"  |
+   * ---------------
+   * |0            |
+   * |1            |
+   * |1            |
+   * ---------------
+   * }</pre>
+   *
+   * @since 1.14.0
+   * @return Column object.
+   */
+  public static Column shiftright(Column c, int numBits) {
+    return new Column(functions.shiftright(c.toScalaColumn(), numBits));
+  }
+
+  /**
+   * Computes hex value of the given column.
+   *
+   * <pre>{@code
+   * DataFrame df = getSession().sql("select * from values(1),(2),(3) as T(a)");
+   * df.select(Functions.hex(Functions.col("a")).as("hex")).show();
+   * ---------
+   * |"HEX"  |
+   * ---------
+   * |31     |
+   * |32     |
+   * |33     |
+   * ---------
+   * }</pre>
+   *
+   * @since 1.14.0
+   * @return Column object.
+   */
+  public static Column hex(Column c) {
+    return new Column(functions.hex(c.toScalaColumn()));
+  }
+
+  /**
+   * Inverse of hex. Interprets each pair of characters as a hexadecimal number and converts to the
+   * byte representation of number.
+   *
+   * <pre>{@code
+   * DataFrame df = getSession().sql("select * from values(31),(32),(33) as T(a)");
+   * df.select(Functions.unhex(Functions.col("a")).as("unhex")).show();
+   * -----------
+   * |"UNHEX"  |
+   * -----------
+   * |1        |
+   * |2        |
+   * |3        |
+   * -----------
+   * }</pre>
+   *
+   * @since 1.14.0
+   * @return Column object.
+   */
+  public static Column unhex(Column c) {
+    return new Column(functions.unhex(c.toScalaColumn()));
   }
 
   /**

@@ -365,4 +365,11 @@ public class JavaVariantSuite {
 
     assert v1.toString().equals("123");
   }
+
+  @Test
+  public void javaJsonNodeVariantConverter() throws IllegalArgumentException {
+    Variant jv = new Variant("{\"a\": [1, 2], \"b\": \"c\"}");
+    assert (jv.asJsonNode().get("a").isArray());
+    assert (jv.asJsonNode().get("b").asText().equals("c"));
+  }
 }

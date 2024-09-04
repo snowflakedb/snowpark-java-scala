@@ -3,9 +3,8 @@ package com.snowflake.snowpark_test
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.databind.node.ArrayNode
 import com.snowflake.snowpark._
-import com.snowflake.snowpark.functions.{repeat, _}
+import com.snowflake.snowpark.functions._
 import com.snowflake.snowpark.types._
-import com.snowflake.snowpark_java.types.LongType
 import net.snowflake.client.jdbc.SnowflakeSQLException
 
 import java.sql.{Date, Time, Timestamp}
@@ -274,9 +273,17 @@ trait FunctionSuite extends TestData {
   }
 
   test("round") {
-    checkAnswer(double1.select(round(col("A"))), Seq(Row(1.0), Row(2.0), Row(3.0)))
-    checkAnswer(double1.select(round(col("A"), lit(0))), Seq(Row(1.0), Row(2.0), Row(3.0)))
+    // Case: Scale greater than or equal to zero.
+    val expected1 = Seq(Row(1.0), Row(2.0), Row(3.0))
+    checkAnswer(double1.select(round(col("A"))), expected1)
+    checkAnswer(double1.select(round(col("A"), lit(0))), expected1)
+    checkAnswer(double1.select(round(col("A"), 0)), expected1)
 
+    // Case: Scale less than zero.
+    val df2 = session.sql("select * from values(5),(55),(555) as T(a)")
+    val expected2 = Seq(Row(10, 0), Row(60, 100), Row(560, 600))
+    checkAnswer(df2.select(round(col("a"), lit(-1)), round(col("a"), lit(-2))), expected2)
+    checkAnswer(df2.select(round(col("a"), -1), round(col("a"), -2)), expected2)
   }
 
   test("asin acos") {
@@ -2381,6 +2388,72 @@ trait FunctionSuite extends TestData {
     val input = session.createDataFrame(Seq((1), (2), (3))).toDF("a")
 
     assert(input.withColumn("randn", randn()).select("randn").first() != null)
+  }
+
+  test("date_add1") {
+    checkAnswer(
+      date1.select(date_add(col("a"), lit(1))),
+      Seq(Row(Date.valueOf("2020-08-02")), Row(Date.valueOf("2010-12-02"))),
+      sort = false)
+  }
+
+  test("date_add2") {
+    checkAnswer(
+      date1.select(date_add(1, col("a"))),
+      Seq(Row(Date.valueOf("2020-08-02")), Row(Date.valueOf("2010-12-02"))),
+      sort = false)
+  }
+  test("collect_set") {
+    array1.select(collect_set(col("ARR1"))).show()
+  }
+  test("from_unixtime_1") {
+    val input = Seq("20231010", "20220515").toDF("date")
+    checkAnswer(
+      input.select(from_unixtime(col("date")).as("formatted_date")),
+      Seq(Row("1970-08-23 03:43:30.000"), Row("1970-08-23 00:48:35.000")),
+      sort = false)
+  }
+  test("from_unixtime_2") {
+
+    val input = Seq("20231010", "456700809").toDF("date")
+    val expected = Seq("1970/08/23", "1984/06/21").toDF("formatted_date")
+
+    checkAnswer(
+      input.select(from_unixtime(col("date"), "YYYY/MM/DD").as("formatted_date")),
+      expected,
+      sort = false)
+  }
+
+  test("monotonically_increasing_id") {
+    checkAnswer(
+      session.generator(5, Seq(monotonically_increasing_id())),
+      Seq(Row(0), Row(1), Row(2), Row(3), Row(4)))
+  }
+
+  test("shiftleft") {
+    val input = session.createDataFrame(Seq((1), (2), (3))).toDF("a")
+    checkAnswer(input.select(shiftleft(col("A"), 1)), Seq(Row(2), Row(4), Row(6)), sort = false)
+  }
+
+  test("shiftright") {
+    val input = session.createDataFrame(Seq((1), (2), (3))).toDF("a")
+    checkAnswer(input.select(shiftright(col("A"), 1)), Seq(Row(0), Row(1), Row(1)), sort = false)
+  }
+
+  test("hex") {
+    val input = session.createDataFrame(Seq((1), (2), (3))).toDF("a")
+    checkAnswer(
+      input.withColumn("hex_col", hex(col("A"))).select("hex_col"),
+      Seq(Row("31"), Row("32"), Row("33")),
+      sort = false)
+  }
+
+  test("unhex") {
+    val input = session.createDataFrame(Seq((31), (32), (33))).toDF("a")
+    checkAnswer(
+      input.withColumn("unhex_col", unhex(col("A"))).select("unhex_col"),
+      Seq(Row("1"), Row("2"), Row("3")),
+      sort = false)
   }
 
 }
