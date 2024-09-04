@@ -23,16 +23,14 @@ import scala.collection.mutable.ArrayBuffer
 import scala.util.Random
 
 object Utils extends Logging {
-  val Version: String = "1.14.0-SNAPSHOT"
+  val Version: String = BuildInfo.version
   // Package name of snowpark on server side
   val SnowparkPackageName = "com.snowflake:snowpark"
   val PackageNameDelimiter = ":"
   // Define the compat scala version instead of reading from property file
   // because it fails to read the property file in some environment such as
   // VSCode worksheet.
-  val ScalaCompatVersion: String = "2.12"
-  // Minimum minor version. We require version to be greater than 2.12.9
-  val ScalaMinimumMinorVersion: String = "2.12.9"
+  val ScalaCompatVersion: String = BuildInfo.scalaVersion.split("\\.").take(2).mkString(".")
 
   // Minimum GS version for us to identify as Snowpark client
   val MinimumGSVersionForSnowparkClientType: String = "5.20.0"
@@ -261,27 +259,9 @@ object Utils extends Logging {
 
   // Refactored as a wrapper for testing purpose
   private[snowpark] def checkScalaVersionCompatibility(): Unit = {
-    checkScalaVersionCompatibility(ScalaVersion)
-  }
-
-  private[snowpark] def checkScalaVersionCompatibility(inputScalaVersion: String): Unit = {
-    // Check that version starts with 2.12 and is greater than 2.12.9
-    if (!inputScalaVersion.startsWith(ScalaCompatVersion) ||
-      compareVersion(inputScalaVersion, ScalaMinimumMinorVersion) < 0) {
-      throw ErrorMessage.MISC_SCALA_VERSION_NOT_SUPPORTED(
-        inputScalaVersion,
-        ScalaCompatVersion,
-        ScalaMinimumMinorVersion)
+    if (!ScalaVersion.startsWith(ScalaCompatVersion)) {
+      throw ErrorMessage.MISC_SCALA_VERSION_NOT_SUPPORTED(ScalaVersion, ScalaCompatVersion)
     }
-  }
-
-  // Compare two version strings. Un-specified version digits will be assumed as '0'.
-  private[snowpark] def compareVersion(version1: String, version2: String): Int = {
-    version1
-      .split("\\.")
-      .zipAll(version2.split("\\."), "0", "0")
-      .find { case (a, b) => a != b }
-      .fold(0) { case (a, b) => a.toInt - b.toInt }
   }
 
   // Valid name can be:

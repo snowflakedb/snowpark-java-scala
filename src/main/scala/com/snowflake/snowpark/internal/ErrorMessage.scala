@@ -142,7 +142,7 @@ private[snowpark] object ErrorMessage {
     "0408" -> "Your Snowpark session has expired. You must recreate your session.\n%s",
     "0409" -> "You cannot use a nested Option type (e.g. Option[Option[Int]]).",
     "0410" -> "Could not infer schema from data of type: %s",
-    "0411" -> "Scala version %s detected. Snowpark only supports Scala version %s with the minor version %s and higher.",
+    "0411" -> "Scala version %s detected. Snowpark only supports Scala version %s",
     "0412" -> "The object name '%s' is invalid.",
     "0413" -> "Unexpected stored procedure active session reset.",
     "0414" -> "Cannot perform this operation because the session has been closed.",
@@ -366,9 +366,8 @@ private[snowpark] object ErrorMessage {
     createException("0410", typeName)
   def MISC_SCALA_VERSION_NOT_SUPPORTED(
       currentVersion: String,
-      expectedVersion: String,
-      minorVersion: String): SnowparkClientException =
-    createException("0411", currentVersion, expectedVersion, minorVersion)
+      expectedVersion: String): SnowparkClientException =
+    createException("0411", currentVersion, expectedVersion)
   def MISC_INVALID_OBJECT_NAME(typeName: String): SnowparkClientException =
     createException("0412", typeName)
   def MISC_SP_ACTIVE_SESSION_RESET(): SnowparkClientException =

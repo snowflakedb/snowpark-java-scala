@@ -76,27 +76,6 @@ class UtilsSuite extends SNTestBase {
     assert(Logging.maskSecrets(null) == null)
   }
 
-  test("version check") {
-    // valid versions
-    Utils.checkScalaVersionCompatibility("2.12.9")
-    Utils.checkScalaVersionCompatibility("2.12.10")
-
-    // invalid versions
-    assertThrows[SnowparkClientException](Utils.checkScalaVersionCompatibility("2.12.8"))
-    assertThrows[SnowparkClientException](Utils.checkScalaVersionCompatibility("2.11.10"))
-    assertThrows[SnowparkClientException](Utils.checkScalaVersionCompatibility("2.13.1"))
-  }
-
-  test("version compare check") {
-    assert(Utils.compareVersion("5.19.0", "5.20.0") < 0)
-    assert(Utils.compareVersion("5.20.0", "5.20.0") == 0)
-    assert(Utils.compareVersion("5.20.0", "5.20") == 0)
-    assert(Utils.compareVersion("5.20", "5.20.0") == 0)
-    assert(Utils.compareVersion("5", "5.20.0") < 0)
-    assert(Utils.compareVersion("5.20.0", "5.19.19") > 0)
-    assert(Utils.compareVersion("5.10.0", "5.9.29") > 0)
-  }
-
   test("normalize name") {
 
     assert(quoteName("\"_AF0*9A_\"") == "\"_AF0*9A_\"")
@@ -508,8 +487,8 @@ class UtilsSuite extends SNTestBase {
     }
   }
 
-  test("Utils.version matches pom version") {
-    assert(TestUtils.getVersionProperty("version").get == Utils.Version)
+  test("Utils.version matches sbt build") {
+    assert(Utils.Version == "1.15.0-SNAPSHOT")
   }
 
   test("Utils.retrySleepTimeInMS") {

@@ -5,6 +5,7 @@ val openTelemetryVersion = "1.41.0"
 val slf4jVersion = "2.0.4"
 
 lazy val root = (project in file("."))
+  .enablePlugins(BuildInfoPlugin)
   .configs(CodeVerificationTests)
   .configs(JavaAPITests)
   .configs(JavaUDXTests)
@@ -67,6 +68,9 @@ lazy val root = (project in file("."))
     ScalaUDXTests / testOptions += Tests.Filter(isScalaUDXTests),
     inConfig(OtherTests)(Defaults.testTasks),
     OtherTests / testOptions += Tests.Filter(isRemainingTest),
+    // Build Info
+    buildInfoKeys := Seq[BuildInfoKey](name, version, scalaVersion, sbtVersion),
+    buildInfoPackage := "com.snowflake.snowpark.internal",
     // Release settings
     // usePgpKeyHex(Properties.envOrElse("GPG_SIGNATURE", "12345")),
     Global / pgpPassphrase := Properties.envOrNone("GPG_KEY_PASSPHRASE").map(_.toCharArray),

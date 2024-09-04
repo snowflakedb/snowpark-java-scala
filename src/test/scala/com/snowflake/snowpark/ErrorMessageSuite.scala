@@ -740,13 +740,11 @@ class ErrorMessageSuite extends FunSuite {
   }
 
   test("MISC_SCALA_VERSION_NOT_SUPPORTED") {
-    val ex = ErrorMessage.MISC_SCALA_VERSION_NOT_SUPPORTED("2.12.6", "2.12", "2.12.9")
+    val ex = ErrorMessage.MISC_SCALA_VERSION_NOT_SUPPORTED("2.12.6", "2.12")
     assert(ex.telemetryMessage.equals(ErrorMessage.getMessage("0411")))
     assert(
-      ex.message.startsWith(
-        "Error Code: 0411, Error message: " +
-          "Scala version 2.12.6 detected. Snowpark only supports Scala version 2.12 with " +
-          "the minor version 2.12.9 and higher."))
+      ex.message.startsWith("Error Code: 0411, Error message: " +
+        "Scala version 2.12.6 detected. Snowpark only supports Scala version 2.12"))
   }
 
   test("MISC_INVALID_OBJECT_NAME") {

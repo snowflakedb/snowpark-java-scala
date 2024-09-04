@@ -3174,8 +3174,7 @@ object functions {
     * input values, pivoted into an ARRAY. If the input is empty, an empty ARRAY is returned.
     *
     * Example:: >>> df = session.create_dataframe([[1], [2], [3], [1]], schema=["a"]) >>>
-    * df.select(array_agg("a", True).alias("result")).show() ------------
-    * \|"RESULT" | ------------
+    * df.select(array_agg("a", True).alias("result")).show() ------------ \|"RESULT" | ------------
     * | [  |
     * |:---|
     * | 1, |
@@ -3195,8 +3194,7 @@ object functions {
     * input values, pivoted into an ARRAY. If the input is empty, an empty ARRAY is returned.
     *
     * Example:: >>> df = session.create_dataframe([[1], [2], [3], [1]], schema=["a"]) >>>
-    * df.select(array_agg("a", True).alias("result")).show() ------------
-    * \|"RESULT" | ------------
+    * df.select(array_agg("a", True).alias("result")).show() ------------ \|"RESULT" | ------------
     * | [  |
     * |:---|
     * | 1, |
