@@ -384,7 +384,7 @@ class Row protected (values: Array[Any]) extends Serializable {
    * @throws ClassCastException if the value at the given index cannot be cast to type `T`.
    * @throws ArrayIndexOutOfBoundsException if the column index is out of bounds.
    * @group getter
-   * @since 1.14.0
+   * @since 1.15.0
    */
   def getAs[T](index: Int)(implicit classTag: ClassTag[T]): T = {
     classTag.runtimeClass match {

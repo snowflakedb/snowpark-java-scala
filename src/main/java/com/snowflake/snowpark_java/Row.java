@@ -443,7 +443,7 @@ public class Row implements Serializable, Cloneable {
    * @return the value at the specified column index cast to type {@code T}.
    * @throws ClassCastException if the value at the given index cannot be cast to type {@code T}.
    * @throws ArrayIndexOutOfBoundsException if the column index is out of bounds.
-   * @since 1.14.0
+   * @since 1.15.0
    */
   @SuppressWarnings("unchecked")
   public <T> T getAs(int index, Class<T> clazz)
