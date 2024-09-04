@@ -9,7 +9,7 @@ import com.snowflake.snowpark.internal.{
   Utils
 }
 import com.snowflake.snowpark.types.TimestampType
-
+import com.snowflake.snowpark.types._
 import scala.reflect.runtime.universe.TypeTag
 import scala.util.Random
 
@@ -3459,6 +3459,137 @@ object functions {
    * @return The array.
    */
   def collect_list(s: String): Column = array_agg(col(s))
+
+  /**
+   *
+   *  Returns the date that is `days` days after `start`
+   *  Usage - DATE_ADD( date_or_time_part, value, date_or_time_expr )
+   * Example::
+   *     SELECT TO_DATE('2013-05-08') AS v1, DATE_ADD(year, 2, TO_DATE('2013-05-08')) AS v;
+   * +------------+------------+
+   * | V1         | V          |
+   * |------------+------------|
+   * | 2013-05-08 | 2015-05-08 |
+   * +------------+------------+
+   *
+   * @since 1.15.0
+   * @param start Column name
+   * @param days Int            .
+   * @return Column.
+   */
+  def date_add(days: Int, start: Column): Column = dateadd("day", lit(days), start)
+
+  /**
+   * Returns the date that is `days` days after `start`
+   *   Usage - DATE_ADD( date_or_time_part, value, date_or_time_expr )
+   *  Example::
+   *      SELECT TO_DATE('2013-05-08') AS v1, DATE_ADD(year, 2, TO_DATE('2013-05-08')) AS v;
+   *  +------------+------------+
+   *  | V1         | V          |
+   *  |------------+------------|
+   *  | 2013-05-08 | 2015-05-08 |
+   *  +------------+------------+
+   *
+   * @since 1.15.0
+   * @param start A date, timestamp or string. If a string, the data must be in a format that
+   *              can be cast to a date, such as `yyyy-MM-dd` or `yyyy-MM-dd HH:mm:ss.SSSS`
+   * @param days  The number of days to add to `start`, can be negative to subtract days
+   * @return A date, or null if `start` was a string that could not be cast to a date
+   */
+  def date_add(start: Column, days: Column): Column = dateadd("day", days, start)
+
+  /**
+   * Aggregate function: returns a set of objects with duplicate elements eliminated.
+   *  Returns the input values, pivoted into an ARRAY. If the input is empty, an empty
+   *  ARRAY is returned.
+   *
+   *  Example::
+   *  >>> df = session.create_dataframe([[1], [2], [3], [1]], schema=["a"])
+   *  >>> df.select(array_agg("a", True).alias("result")).show()
+   *  ------------
+   *  |"RESULT"  |
+   *  ------------
+   *  |[         |
+   *  |  1,      |
+   *  |  2,      |
+   *  |  3       |
+   *  |]         |
+   *  ------------
+   * @since 1.15.0
+   * @param e The column to collect the list values
+   * @return A list with unique values
+   */
+  def collect_set(e: Column): Column = sqlExpr(s"array_agg(distinct ${e.getName.get})")
+
+  /**
+   * Aggregate function: returns a set of objects with duplicate elements eliminated.
+   * Returns the input values, pivoted into an ARRAY. If the input is empty, an empty
+   * ARRAY is returned.
+   *
+   * Example::
+   * >>> df = session.create_dataframe([[1], [2], [3], [1]], schema=["a"])
+   * >>> df.select(array_agg("a", True).alias("result")).show()
+   * ------------
+   * |"RESULT"  |
+   * ------------
+   * |[         |
+   * |  1,      |
+   * |  2,      |
+   * |  3       |
+   * |]         |
+   * ------------
+   * @since 1.15.0
+   * @param e The column to collect the list values
+   * @return A list with unique values
+   */
+  def collect_set(e: String): Column = sqlExpr(s"array_agg(distinct ${e})")
+
+  /**
+   * Converts the number of seconds from unix epoch (1970-01-01 00:00:00 UTC) to a string
+   * representing the timestamp of that moment in the current system time zone in the
+   * yyyy-MM-dd HH:mm:ss format.
+   * @since 1.15.0
+   * @param ut A number of a type that is castable to a long, such as string or integer. Can be
+   *           negative for timestamps before the unix epoch
+   * @return A string, or null if the input was a string that could not be cast to a long
+   */
+  def from_unixtime(ut: Column): Column =
+    ut.cast(LongType).cast(TimestampType).cast(StringType)
+
+  /**
+   * Converts the number of seconds from unix epoch (1970-01-01 00:00:00 UTC) to a string
+   * representing the timestamp of that moment in the current system time zone in the given
+   * format.
+   * @since 1.15.0
+   * @param ut A number of a type that is castable to a long, such as string or integer. Can be
+   *           negative for timestamps before the unix epoch
+   * @param f  A date time pattern that the input will be formatted to
+   * @return A string, or null if `ut` was a string that could not be cast to a long or `f` was
+   *         an invalid date time pattern
+   */
+  def from_unixtime(ut: Column, f: String): Column =
+    date_format(ut.cast(LongType).cast(TimestampType), f)
+
+  /**
+   * A column expression that generates monotonically increasing 64-bit integers.
+   * Returns a sequence of monotonically increasing integers, with wrap-around
+   * which happens after largest representable integer of integer width 8 byte.
+   *
+   * Args:
+   * sign: When 0, the sequence continues at 0 after wrap-around. When 1, the sequence
+   * continues at smallest representable 8 byte integer. Defaults to 0.
+   *
+   * See Also:
+   *         - :meth:`Session.generator`, which can be used to generate in tandem with `seq8` to
+   *           generate sequences.
+   *
+   * Example::
+   * >>> df = session.generator(seq8(0), rowcount=3)
+   * >>> df.collect()
+   * [Row(SEQ8(0)=0), Row(SEQ8(0)=1), Row(SEQ8(0)=2)]
+   * @since 1.15.0
+   */
+  def monotonically_increasing_id(): Column = builtin("seq8")()
 
   /* Returns a Column expression with values sorted in descending order.
    * Example:
