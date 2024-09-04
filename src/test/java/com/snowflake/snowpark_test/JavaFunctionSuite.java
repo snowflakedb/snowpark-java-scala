@@ -3055,16 +3055,14 @@ public class JavaFunctionSuite extends TestBase {
   @Test
   public void from_unixtime1() {
     DataFrame df = getSession().sql("select * from values(20231010), (20220515) as t(a)");
-    Row[] expected = {
-      Row.create("1970-08-22 20:43:30.000 -0700"), Row.create("1970-08-22 17:48:35.000 -0700")
-    };
+    Row[] expected = {Row.create("1970-08-23 03:43:30.000"), Row.create("1970-08-23 00:48:35.000")};
     checkAnswer(df.select(Functions.from_unixtime(df.col("a"))), expected, false);
   }
 
   @Test
   public void from_unixtime2() {
     DataFrame df = getSession().sql("select * from values(20231010), (456700809) as t(a)");
-    Row[] expected = {Row.create("1970/08/22"), Row.create("1984/06/21")};
+    Row[] expected = {Row.create("1970/08/23"), Row.create("1984/06/21")};
     checkAnswer(df.select(Functions.from_unixtime(df.col("a"), "YYYY/MM/DD")), expected, false);
   }
 

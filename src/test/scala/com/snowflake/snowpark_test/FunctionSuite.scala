@@ -2406,13 +2406,13 @@ trait FunctionSuite extends TestData {
     val input = Seq("20231010", "20220515").toDF("date")
     checkAnswer(
       input.select(from_unixtime(col("date")).as("formatted_date")),
-      Seq(Row("1970-08-22 20:43:30.000 -0700"), Row("1970-08-22 17:48:35.000 -0700")),
+      Seq(Row("1970-08-23 03:43:30.000"), Row("1970-08-23 00:48:35.000")),
       sort = false)
   }
   test("from_unixtime_2") {
 
     val input = Seq("20231010", "456700809").toDF("date")
-    val expected = Seq("1970/08/22", "1984/06/21").toDF("formatted_date")
+    val expected = Seq("1970/08/23", "1984/06/21").toDF("formatted_date")
 
     checkAnswer(
       input.select(from_unixtime(col("date"), "YYYY/MM/DD").as("formatted_date")),
