@@ -134,7 +134,7 @@ lazy val sprocNames: Seq[String] = Seq(
   "JavaStoredProcedureSuite", "snowpark_test.StoredProcedureSuite"
 )
 def isSprocTests(name: String): Boolean = {
-  sprocNames.exists(name.startsWith)
+  sprocNames.exists(name.endsWith)
 }
 lazy val SprocTests = config("SprocTests") extend Test
 
