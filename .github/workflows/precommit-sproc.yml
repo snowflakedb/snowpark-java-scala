@@ -1,4 +1,4 @@
-name: precommit test - Scala UDX
+name: precommit test - Sproc
 on:
   push:
     branches: [ main ]
@@ -21,4 +21,4 @@ jobs:
         env:
           PROFILE_PASSWORD: ${{ secrets.PROFILE_PASSWORD }}
       - name: Run test
-        run: sbt ScalaUDXTests:test
+        run: sbt SprocTests:test

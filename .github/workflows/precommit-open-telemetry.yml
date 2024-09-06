@@ -1,4 +1,4 @@
-name: precommit test - Java UDX
+name: precommit test - Open Telemetry
 on:
   push:
     branches: [ main ]
@@ -21,4 +21,4 @@ jobs:
         env:
           PROFILE_PASSWORD: ${{ secrets.PROFILE_PASSWORD }}
       - name: Run test
-        run: sbt JavaUDXTests:test
+        run: sbt OpenTelemetryTests:test

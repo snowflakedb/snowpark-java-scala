@@ -8,9 +8,11 @@ lazy val root = (project in file("."))
   .enablePlugins(BuildInfoPlugin)
   .configs(CodeVerificationTests)
   .configs(JavaAPITests)
-  .configs(JavaUDXTests)
-  .configs(ScalaUDXTests)
   .configs(OtherTests)
+  .configs(OpenTelemetryTests)
+  .configs(UDFTests)
+  .configs(UDTFTests)
+  .configs(SprocTests)
   .settings(
     name := "snowpark",
     version := "1.15.0-SNAPSHOT",
@@ -62,12 +64,16 @@ lazy val root = (project in file("."))
     CodeVerificationTests / testOptions += Tests.Filter(isCodeVerification),
     inConfig(JavaAPITests)(Defaults.testTasks),
     JavaAPITests / testOptions += Tests.Filter(isJavaAPITests),
-    inConfig(JavaUDXTests)(Defaults.testTasks),
-    JavaUDXTests / testOptions += Tests.Filter(isJavaUDXTests),
-    inConfig(ScalaUDXTests)(Defaults.testTasks),
-    ScalaUDXTests / testOptions += Tests.Filter(isScalaUDXTests),
     inConfig(OtherTests)(Defaults.testTasks),
     OtherTests / testOptions += Tests.Filter(isRemainingTest),
+    inConfig(OpenTelemetryTests)(Defaults.testTasks),
+    OpenTelemetryTests / testOptions += Tests.Filter(isOpenTelemetryTests),
+    inConfig(UDFTests)(Defaults.testTasks),
+    UDFTests / testOptions += Tests.Filter(isUDFTests),
+    inConfig(UDTFTests)(Defaults.testTasks),
+    UDTFTests / testOptions += Tests.Filter(isUDTFTests),
+    inConfig(SprocTests)(Defaults.testTasks),
+    SprocTests / testOptions += Tests.Filter(isSprocTests),
     // Build Info
     buildInfoKeys := Seq[BuildInfoKey](name, version, scalaVersion, sbtVersion),
     buildInfoPackage := "com.snowflake.snowpark.internal",
@@ -108,43 +114,50 @@ def isCodeVerification(name: String): Boolean = {
   name.startsWith("com.snowflake.code_verification")
 }
 lazy val CodeVerificationTests = config("CodeVerificationTests") extend Test
-lazy val udxNames: Seq[String] = Seq(
-  "UDF", "UDTF", "SProc", "JavaStoredProcedureSuite"
+
+def isOpenTelemetryTests(name: String): Boolean = {
+  name.contains("OpenTelemetry")
+}
+lazy val OpenTelemetryTests = config("OpenTelemetryTests") extend Test
+
+def isUDFTests(name: String): Boolean = {
+  name.contains("UDF")
+}
+lazy val UDFTests = config("UDFTests") extend Test
+
+def isUDTFTests(name: String): Boolean = {
+  name.contains("UDTF")
+}
+lazy val UDTFTests = config("UDTFTests") extend Test
+
+lazy val sprocNames: Seq[String] = Seq(
+  "JavaStoredProcedureSuite", "snowpark_test.StoredProcedureSuite"
 )
+def isSprocTests(name: String): Boolean = {
+  sprocNames.exists(name.startsWith)
+}
+lazy val SprocTests = config("SprocTests") extend Test
 
 // Java API Tests
 def isJavaAPITests(name: String): Boolean = {
-  name.startsWith("com.snowflake.snowpark.Java") ||
-    (name.startsWith("com.snowflake.snowpark_test.Java") &&
-      !udxNames.exists(x => name.contains(x)))
+  (name.startsWith("com.snowflake.snowpark.Java") ||
+    name.startsWith("com.snowflake.snowpark_test.Java")) &&
+    !isUDFTests(name) &&
+    !isUDTFTests(name) &&
+    !isSprocTests(name)
 }
 lazy val JavaAPITests = config("JavaAPITests") extend Test
-// Java UDx Tests
-def isJavaUDXTests(name: String): Boolean = {
-  (name.startsWith("com.snowflake.snowpark_test.Java") &&
-    udxNames.exists(x => name.contains(x)))
-}
-lazy val JavaUDXTests = config("JavaUDXTests") extend Test
+
 // FIPS Tests
 
-// Scala UDx Tests
-def isScalaUDXTests(name: String): Boolean = {
-  val lists = Seq(
-    "snowpark_test.StoredProcedureSuite",
-    "snowpark_test.UDTFSuite",
-    "snowpark_test.AlwaysCleanUDFSuite",
-    "snowpark_test.NeverCleanUDFSuite",
-    "snowpark_test.PermanentUDTFSuite",
-    "snowpark_test.PermanentUDFSuite"
-  )
-  lists.exists(name.endsWith)
-}
-lazy val ScalaUDXTests = config("ScalaUDXTests") extend Test
+
 // other Tests
 def isRemainingTest(name: String): Boolean = {
-  ! isCodeVerification(name) && 
-  ! isJavaAPITests(name) && 
-  ! isJavaUDXTests(name) && 
-  ! isScalaUDXTests(name)
+  ! isCodeVerification(name) &&
+    ! isOpenTelemetryTests(name) &&
+    ! isUDFTests(name) &&
+    ! isUDTFTests(name) &&
+    ! isSprocTests(name) &&
+    ! isJavaAPITests(name)
 }
 lazy val OtherTests = config("OtherTests") extend Test
