@@ -113,7 +113,8 @@ class UDFRegistrationSuite extends SNTestBase with FileUtils {
     interpreter.classLoader.loadClass(s"$packageName.$className")
   }
 
-  test("Test for addClassToDependencies(cls)") {
+  // runtime compiler has a bug in SBT
+  ignore("Test for addClassToDependencies(cls)") {
     val packageName = "com_snowflake_snowpark_test"
 
     val inMemoryName = s"DynamicCompile${Random.nextInt().abs}"
