@@ -132,7 +132,9 @@ def isUDTFTests(name: String): Boolean = {
 lazy val UDTFTests = config("UDTFTests") extend Test
 
 lazy val sprocNames: Seq[String] = Seq(
-  "JavaStoredProcedureSuite", "snowpark_test.StoredProcedureSuite"
+  "JavaStoredProcedureSuite",
+  "snowpark_test.StoredProcedureSuite",
+  "JavaSProcNonStoredProcSuite"
 )
 def isSprocTests(name: String): Boolean = {
   sprocNames.exists(name.endsWith)
@@ -145,7 +147,8 @@ def isJavaAPITests(name: String): Boolean = {
     name.startsWith("com.snowflake.snowpark_test.Java")) &&
     !isUDFTests(name) &&
     !isUDTFTests(name) &&
-    !isSprocTests(name)
+    !isSprocTests(name) &&
+    !isOpenTelemetryTests(name)
 }
 lazy val JavaAPITests = config("JavaAPITests") extend Test
 
