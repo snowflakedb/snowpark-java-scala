@@ -58,7 +58,7 @@ lazy val root = (project in file("."))
 //    Test / crossPaths := false,
     Test / fork := false,
 //    Test / javaOptions ++= Seq("-Xms1024M", "-Xmx4096M"),
-    Test / parallelExecution := false,
+//    Test / parallelExecution := false,
     // Test Groups
     inConfig(CodeVerificationTests)(Defaults.testTasks),
     CodeVerificationTests / testOptions += Tests.Filter(isCodeVerification),
@@ -68,6 +68,7 @@ lazy val root = (project in file("."))
     OtherTests / testOptions += Tests.Filter(isRemainingTest),
     inConfig(OpenTelemetryTests)(Defaults.testTasks),
     OpenTelemetryTests / testOptions += Tests.Filter(isOpenTelemetryTests),
+    OpenTelemetryTests / parallelExecution := false,
     inConfig(UDFTests)(Defaults.testTasks),
     UDFTests / testOptions += Tests.Filter(isUDFTests),
     inConfig(UDTFTests)(Defaults.testTasks),
