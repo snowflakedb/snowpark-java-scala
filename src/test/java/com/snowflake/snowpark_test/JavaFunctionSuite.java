@@ -593,11 +593,46 @@ public class JavaFunctionSuite extends TestBase {
     DataFrame df =
         getSession().sql("select * from values(0.1, 0.5),(0.2, 0.6),(0.3, 0.7) as T(a,b)");
     Row[] expected = {
-      Row.create(0.31622776601683794),
-      Row.create(0.3807307877431757),
-      Row.create(0.4305116202499342)
+      Row.create(
+          0.31622776601683794,
+          0.31622776601683794,
+          0.31622776601683794,
+          0.31622776601683794,
+          0.15848931924611134,
+          0.15848931924611134,
+          0.6324555320336759,
+          0.6324555320336759),
+      Row.create(
+          0.3807307877431757,
+          0.3807307877431757,
+          0.3807307877431757,
+          0.3807307877431757,
+          0.27594593229224296,
+          0.27594593229224296,
+          0.5770799623628855,
+          0.5770799623628855),
+      Row.create(
+          0.4305116202499342,
+          0.4305116202499342,
+          0.4305116202499342,
+          0.4305116202499342,
+          0.3816778909618176,
+          0.3816778909618176,
+          0.526552881733695,
+          0.526552881733695)
     };
-    checkAnswer(df.select(Functions.pow(df.col("a"), df.col("b"))), expected, false);
+    checkAnswer(
+        df.select(
+            Functions.pow(df.col("a"), df.col("b")),
+            Functions.pow(df.col("a"), "b"),
+            Functions.pow("a", df.col("b")),
+            Functions.pow("a", "b"),
+            Functions.pow(df.col("a"), 0.8),
+            Functions.pow("a", 0.8),
+            Functions.pow(0.4, df.col("b")),
+            Functions.pow(0.4, "b")),
+        expected,
+        false);
   }
 
   @Test
