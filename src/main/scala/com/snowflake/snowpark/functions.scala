@@ -881,6 +881,192 @@ object functions {
   def pow(l: Column, r: Column): Column = builtin("pow")(l, r)
 
   /**
+   * Returns a number (l) raised to the specified power (r).
+   *
+   * Example:
+   * {{{
+   *   val df = session.sql(
+   *     "select * from (values (0.1, 2), (2, 3), (2, 0.5), (2, -1)) as T(base, exponent)")
+   *   df.select(col("base"), col("exponent"), pow(col("base"), "exponent").as("result")).show()
+   *
+   *   ----------------------------------------------
+   *   |"BASE"  |"EXPONENT"  |"RESULT"              |
+   *   ----------------------------------------------
+   *   |0.1     |2.0         |0.010000000000000002  |
+   *   |2.0     |3.0         |8.0                   |
+   *   |2.0     |0.5         |1.4142135623730951    |
+   *   |2.0     |-1.0        |0.5                   |
+   *   ----------------------------------------------
+   * }}}
+   *
+   * @param l The numeric column representing the base.
+   * @param r The name of the numeric column representing the exponent.
+   * @return A column containing the result of raising `l` to the power of `r`.
+   * @group num_func
+   * @since 1.15.0
+   */
+  def pow(l: Column, r: String): Column = pow(l, col(r))
+
+  /**
+   * Returns a number (l) raised to the specified power (r).
+   *
+   * Example:
+   * {{{
+   *   val df = session.sql(
+   *     "select * from (values (0.1, 2), (2, 3), (2, 0.5), (2, -1)) as T(base, exponent)")
+   *   df.select(col("base"), col("exponent"), pow("base", col("exponent")).as("result")).show()
+   *
+   *   ----------------------------------------------
+   *   |"BASE"  |"EXPONENT"  |"RESULT"              |
+   *   ----------------------------------------------
+   *   |0.1     |2.0         |0.010000000000000002  |
+   *   |2.0     |3.0         |8.0                   |
+   *   |2.0     |0.5         |1.4142135623730951    |
+   *   |2.0     |-1.0        |0.5                   |
+   *   ----------------------------------------------
+   * }}}
+   *
+   * @param l The name of the numeric column representing the base.
+   * @param r The numeric column representing the exponent.
+   * @return A column containing the result of raising `l` to the power of `r`.
+   * @group num_func
+   * @since 1.15.0
+   */
+  def pow(l: String, r: Column): Column = pow(col(l), r)
+
+  /**
+   * Returns a number (l) raised to the specified power (r).
+   *
+   * Example:
+   * {{{
+   *   val df = session.sql(
+   *     "select * from (values (0.1, 2), (2, 3), (2, 0.5), (2, -1)) as T(base, exponent)")
+   *   df.select(col("base"), col("exponent"), pow("base", "exponent").as("result")).show()
+   *
+   *   ----------------------------------------------
+   *   |"BASE"  |"EXPONENT"  |"RESULT"              |
+   *   ----------------------------------------------
+   *   |0.1     |2.0         |0.010000000000000002  |
+   *   |2.0     |3.0         |8.0                   |
+   *   |2.0     |0.5         |1.4142135623730951    |
+   *   |2.0     |-1.0        |0.5                   |
+   *   ----------------------------------------------
+   * }}}
+   *
+   * @param l The name of the numeric column representing the base.
+   * @param r The name of the numeric column representing the exponent.
+   * @return A column containing the result of raising `l` to the power of `r`.
+   * @group num_func
+   * @since 1.15.0
+   */
+  def pow(l: String, r: String): Column = pow(col(l), col(r))
+
+  /**
+   * Returns a number (l) raised to the specified power (r).
+   *
+   * Example:
+   * {{{
+   *   val df = session.sql("select * from (values (0.5), (2), (2.5), (4)) as T(base)")
+   *   df.select(col("base"), lit(2.0).as("exponent"), pow(col("base"), 2.0).as("result")).show()
+   *
+   *   ----------------------------------
+   *   |"BASE"  |"EXPONENT"  |"RESULT"  |
+   *   ----------------------------------
+   *   |0.5     |2.0         |0.25      |
+   *   |2.0     |2.0         |4.0       |
+   *   |2.5     |2.0         |6.25      |
+   *   |4.0     |2.0         |16.0      |
+   *   ----------------------------------
+   * }}}
+   *
+   * @param l The numeric column representing the base.
+   * @param r The value of the exponent.
+   * @return A column containing the result of raising `l` to the power of `r`.
+   * @group num_func
+   * @since 1.15.0
+   */
+  def pow(l: Column, r: Double): Column = pow(l, lit(r))
+
+  /**
+   * Returns a number (l) raised to the specified power (r).
+   *
+   * Example:
+   * {{{
+   *   val df = session.sql("select * from (values (0.5), (2), (2.5), (4)) as T(base)")
+   *   df.select(col("base"), lit(2.0).as("exponent"), pow("base", 2.0).as("result")).show()
+   *
+   *   ----------------------------------
+   *   |"BASE"  |"EXPONENT"  |"RESULT"  |
+   *   ----------------------------------
+   *   |0.5     |2.0         |0.25      |
+   *   |2.0     |2.0         |4.0       |
+   *   |2.5     |2.0         |6.25      |
+   *   |4.0     |2.0         |16.0      |
+   *   ----------------------------------
+   * }}}
+   *
+   * @param l The name of the numeric column representing the base.
+   * @param r The value of the exponent.
+   * @return A column containing the result of raising `l` to the power of `r`.
+   * @group num_func
+   * @since 1.15.0
+   */
+  def pow(l: String, r: Double): Column = pow(col(l), r)
+
+  /**
+   * Returns a number (l) raised to the specified power (r).
+   *
+   * Example:
+   * {{{
+   *   val df = session.sql("select * from (values (0.5), (2), (2.5), (4)) as T(exponent)")
+   *   df.select(lit(2.0).as("base"), col("exponent"), pow(2.0, col("exponent")).as("result"))
+   *     .show()
+   *
+   *   --------------------------------------------
+   *   |"BASE"  |"EXPONENT"  |"RESULT"            |
+   *   --------------------------------------------
+   *   |2.0     |0.5         |1.4142135623730951  |
+   *   |2.0     |2.0         |4.0                 |
+   *   |2.0     |2.5         |5.656854249492381   |
+   *   |2.0     |4.0         |16.0                |
+   *   --------------------------------------------
+   * }}}
+   *
+   * @param l The value of the base.
+   * @param r The numeric column representing the exponent.
+   * @return A column containing the result of raising `l` to the power of `r`.
+   * @group num_func
+   * @since 1.15.0
+   */
+  def pow(l: Double, r: Column): Column = pow(lit(l), r)
+
+  /**
+   * Returns a number (l) raised to the specified power (r).
+   *
+   * Example:
+   * {{{
+   *   val df = session.sql("select * from (values (0.5), (2), (2.5), (4)) as T(exponent)")
+   *   df.select(lit(2.0).as("base"), col("exponent"), pow(2.0, "exponent").as("result")).show()
+   *
+   *   --------------------------------------------
+   *   |"BASE"  |"EXPONENT"  |"RESULT"            |
+   *   --------------------------------------------
+   *   |2.0     |0.5         |1.4142135623730951  |
+   *   |2.0     |2.0         |4.0                 |
+   *   |2.0     |2.5         |5.656854249492381   |
+   *   |2.0     |4.0         |16.0                |
+   *   --------------------------------------------
+   * }}}
+   *
+   * @param l The value of the base.
+   * @param r The name of the numeric column representing the exponent.
+   * @return A column containing the result of raising `l` to the power of `r`.
+   * @group num_func
+   * @since 1.15.0
+   */
+  def pow(l: Double, r: String): Column = pow(l, col(r))
+
+  /**
    * Rounds the numeric values of the given column `e` to the `scale` decimal places using the
    * half away from zero rounding mode.
    *
