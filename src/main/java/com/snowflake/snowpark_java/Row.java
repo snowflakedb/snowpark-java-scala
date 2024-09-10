@@ -426,6 +426,64 @@ public class Row implements Serializable, Cloneable {
   }
 
   /**
+   * Returns the value at the specified column index and casts it to the desired type {@code T}.
+   *
+   * <p>Example:
+   *
+   * <pre>{@code
+   * Row row = Row.create(1, "Alice", 95.5);
+   * row.getAs(0, Integer.class); // Returns 1 as an Int
+   * row.getAs(1, String.class); // Returns "Alice" as a String
+   * row.getAs(2, Double.class); // Returns 95.5 as a Double
+   * }</pre>
+   *
+   * @param index the zero-based column index within the row.
+   * @param clazz the {@code Class} object representing the type {@code T}.
+   * @param <T> the expected type of the value at the specified column index.
+   * @return the value at the specified column index cast to type {@code T}.
+   * @throws ClassCastException if the value at the given index cannot be cast to type {@code T}.
+   * @throws ArrayIndexOutOfBoundsException if the column index is out of bounds.
+   * @since 1.15.0
+   */
+  @SuppressWarnings("unchecked")
+  public <T> T getAs(int index, Class<T> clazz)
+      throws ClassCastException, ArrayIndexOutOfBoundsException {
+    if (isNullAt(index)) {
+      return (T) get(index);
+    }
+
+    if (clazz == Byte.class) {
+      return (T) (Object) getByte(index);
+    }
+
+    if (clazz == Double.class) {
+      return (T) (Object) getDouble(index);
+    }
+
+    if (clazz == Float.class) {
+      return (T) (Object) getFloat(index);
+    }
+
+    if (clazz == Integer.class) {
+      return (T) (Object) getInt(index);
+    }
+
+    if (clazz == Long.class) {
+      return (T) (Object) getLong(index);
+    }
+
+    if (clazz == Short.class) {
+      return (T) (Object) getShort(index);
+    }
+
+    if (clazz == Variant.class) {
+      return (T) getVariant(index);
+    }
+
+    return (T) get(index);
+  }
+
+  /**
    * Generates a string value to represent the content of this row.
    *
    * @return A String value representing the content of this row
