@@ -4563,9 +4563,9 @@ public final class Functions {
    * +----+-------------------------------------+------------+----------+
    * }</pre>
    *
-   * @since 1.15.0
-   * @note The position is not zero based, but 1 based index. Returns 0 if substr could not be found
-   *     in str.
+   * The position is not zero based, but 1 based index. Returns 0 if substr could not be found in
+   * str.
+   *
    * @param str Column on which instr has to be applied
    * @param substring Pattern to be retrieved
    * @return A null if either of the arguments are null.
@@ -4592,7 +4592,6 @@ public final class Functions {
    * +----------------------------------------+
    * }</pre>
    *
-   * @since 1.15.0
    * @param ts A date, timestamp or string. If a string, the data must be in a format that can be
    *     cast to a timestamp, such as `yyyy-MM-dd` or `yyyy-MM-dd HH:mm:ss.SSSS` A string detailing
    *     the time zone ID that the input should be adjusted to. It should be in the format of either
@@ -4613,7 +4612,6 @@ public final class Functions {
    * and renders that time as a timestamp in UTC. For example, 'GMT+1' would yield '2017-07-14
    * 01:40:00.0'.
    *
-   * @since 1.15.0
    * @param ts A date, timestamp or string. If a string, the data must be in a format that can be
    *     cast to a timestamp, such as `yyyy-MM-dd` or `yyyy-MM-dd HH:mm:ss.SSSS` A string detailing
    *     the time zone ID that the input should be adjusted to. It should be in the format of either
@@ -4623,6 +4621,7 @@ public final class Functions {
    *     names are not recommended to use because they can be ambiguous.
    * @return A timestamp, or null if `ts` was a string that could not be cast to a timestamp or `tz`
    *     was an invalid value
+   * @since 1.15.0
    */
   public static Column to_utc_timestamp(Column ts) {
     return new Column(com.snowflake.snowpark.functions.to_utc_timestamp(ts.toScalaColumn()));
@@ -4632,11 +4631,13 @@ public final class Functions {
    * Formats numeric column x to a format like '#,###,###.##', rounded to d decimal places with
    * HALF_EVEN round mode, and returns the result as a string column.
    *
-   * @since 1.15.0 If d is 0, the result has no decimal point or fractional part. If d is less than
-   *     0, the result will be null.
+   * <p>If d is 0, the result has no decimal point or fractional part. If d is less than 0, the
+   * result will be null.
+   *
    * @param x numeric column to be transformed
    * @param d Amount of decimal for the number format
    * @return Number casted to the specific string format
+   * @since 1.15.0
    */
   public static Column format_number(Column x, Integer d) {
     return new Column(com.snowflake.snowpark.functions.format_number(x.toScalaColumn(), d));
