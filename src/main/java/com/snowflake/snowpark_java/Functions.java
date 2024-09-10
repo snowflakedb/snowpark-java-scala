@@ -4308,6 +4308,8 @@ public final class Functions {
    * [Row(SEQ8(0)=0),Row(SEQ8(0)=1), Row(SEQ8(0)=2)]
    * }</pre>
    *
+   * @return A sequence of monotonically increasing integers, with wrap-around * which happens after
+   *     largest representable integer of integer width 8 byte.
    * @since 1.15.0
    */
   public static Column monotonically_increasing_id() {
