@@ -3100,4 +3100,55 @@ public class JavaFunctionSuite extends TestBase {
     Row[] expected = {Row.create("1"), Row.create("2"), Row.create("3")};
     checkAnswer(df.select(Functions.unhex(Functions.col("a"))), expected, false);
   }
+
+  @Test
+  public void months_between() {
+    DataFrame df =
+        getSession()
+            .sql(
+                "select * from values('2010-07-02'::Date,'2010-08-02'::Date), "
+                    + "('2020-08-02'::Date,'2020-12-02'::Date) as t(a,b)");
+    Row[] expected = {Row.create(1.000000), Row.create(4.000000)};
+    checkAnswer(df.select(Functions.months_between(df.col("a"), df.col("b"))), expected, false);
+  }
+
+  @Test
+  public void instr() {
+    DataFrame df =
+        getSession()
+            .sql(
+                "select * from values('It was the best of times, it was the worst of times') as t(a)");
+    Row[] expected = {Row.create(4)};
+    checkAnswer(df.select(Functions.instr(df.col("a"), "was")), expected, false);
+  }
+
+  @Test
+  public void format_number1() {
+    DataFrame df = getSession().sql("select * from values(1),(2),(3) as t(a)");
+    Row[] expected = {Row.create("1"), Row.create("2"), Row.create("3")};
+    checkAnswer(
+        df.select(Functions.ltrim(Functions.format_number(df.col("a"), 0))), expected, false);
+  }
+
+  @Test
+  public void format_number2() {
+    DataFrame df = getSession().sql("select * from values(1),(2),(3) as t(a)");
+    Row[] expected = {Row.create("1.00"), Row.create("2.00"), Row.create("3.00")};
+    checkAnswer(
+        df.select(Functions.ltrim(Functions.format_number(df.col("a"), 2))), expected, false);
+  }
+
+  @Test
+  public void from_utc_timestamp() {
+    DataFrame df = getSession().sql("select * from values('2024-04-05 01:02:03') as t(a)");
+    Row[] expected = {Row.create(Timestamp.valueOf("2024-04-05 01:02:03.0"))};
+    checkAnswer(df.select(Functions.from_utc_timestamp(df.col("a"))), expected, false);
+  }
+
+  @Test
+  public void to_utc_timestamp() {
+    DataFrame df = getSession().sql("select * from values('2024-04-05 01:02:03') as t(a)");
+    Row[] expected = {Row.create(Timestamp.valueOf("2024-04-05 01:02:03.0"))};
+    checkAnswer(df.select(Functions.to_utc_timestamp(df.col("a"))), expected, false);
+  }
 }

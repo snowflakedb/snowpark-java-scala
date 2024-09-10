@@ -2451,6 +2451,57 @@ trait FunctionSuite extends TestData {
       Seq(Row("1"), Row("2"), Row("3")),
       sort = false)
   }
+  test("months_between") {
+    val input = Seq(
+      (Date.valueOf("2010-07-02"), Date.valueOf("2010-08-02")),
+      (Date.valueOf("2020-08-02"), Date.valueOf("2020-12-02")))
+      .toDF("a", "b")
+    checkAnswer(
+      input.select(months_between(col("a"), col("b"))),
+      Seq(Row((1.000000)), Row(4.000000)),
+      sort = false)
+  }
+
+  test("instr") {
+    val df = Seq("It was the best of times, it was the worst of times").toDF("a")
+    checkAnswer(df.select(instr(col("a"), "was")), Seq(Row(4)), sort = false)
+  }
+
+  test("format_number1") {
+
+    checkAnswer(
+      number3.select(ltrim(format_number(col("a"), 0))),
+      Seq(Row(("1")), Row(("2")), Row(("3"))),
+      sort = false)
+  }
+
+  test("format_number2") {
+
+    checkAnswer(
+      number3.select(ltrim(format_number(col("a"), 2))),
+      Seq(Row(("1.00")), Row(("2.00")), Row(("3.00"))),
+      sort = false)
+  }
+
+  test("format_number3") {
+
+    checkAnswer(
+      number3.select(ltrim(format_number(col("a"), -1))),
+      Seq(Row((null)), Row((null)), Row((null))),
+      sort = false)
+  }
+
+  test("from_utc_timestamp") {
+    val expected = Seq(Timestamp.valueOf("2024-04-05 01:02:03.0")).toDF("a")
+    val data = Seq("2024-04-05 01:02:03").toDF("a")
+    checkAnswer(data.select(from_utc_timestamp(col("a"))), expected, sort = false)
+  }
+
+  test("to_utc_timestamp") {
+    val expected = Seq(Timestamp.valueOf("2024-04-05 01:02:03.0")).toDF("a")
+    val data = Seq("2024-04-05 01:02:03").toDF("a")
+    checkAnswer(data.select(to_utc_timestamp(col("a"))), expected, sort = false)
+  }
 
 }
 

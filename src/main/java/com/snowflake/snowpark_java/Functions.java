@@ -4313,6 +4313,136 @@ public final class Functions {
   public static Column monotonically_increasing_id() {
     return new Column(com.snowflake.snowpark.functions.monotonically_increasing_id());
   }
+  /**
+   * Returns number of months between dates `start` and `end`.
+   *
+   * <p>A whole number is returned if both inputs have the same day of month or both are the last
+   * day of their respective months. Otherwise, the difference is calculated assuming 31 days per
+   * month.
+   *
+   * <p>For example:
+   *
+   * <pre>{@code
+   * {{{
+   * months_between("2017-11-14", "2017-07-14")  // returns 4.0
+   * months_between("2017-01-01", "2017-01-10")  // returns 0.29032258
+   * months_between("2017-06-01", "2017-06-16 12:00:00")  // returns -0.5
+   * }}}
+   * }</pre>
+   *
+   * @param end A date, timestamp or string. If a string, the data must be in a format that can be
+   *     cast to a timestamp, such as `yyyy-MM-dd` or `yyyy-MM-dd HH:mm:ss.SSSS`
+   * @param start A date, timestamp or string. If a string, the data must be in a format that can
+   *     cast to a timestamp, such as `yyyy-MM-dd` or `yyyy-MM-dd HH:mm:ss.SSSS`
+   * @return A double, or null if either `end` or `start` were strings that could not be cast to a
+   *     timestamp. Negative if `end` is before `start`
+   * @since 1.15.0
+   */
+  public static Column months_between(Column end, Column start) {
+    return new Column(
+        com.snowflake.snowpark.functions.months_between(
+            end.toScalaColumn(), start.toScalaColumn()));
+  }
+
+  /**
+   * Locate the position of the first occurrence of substr column in the given string. Returns null
+   * if either of the arguments are null.
+   *
+   * <p>Example
+   *
+   * <pre>{@code
+   * SELECT id,
+   *        string1,
+   *        REGEXP_SUBSTR(string1, 'nevermore\\d') AS substring,
+   *        REGEXP_INSTR( string1, 'nevermore\\d') AS position
+   *   FROM demo1
+   *   ORDER BY id;
+   *
+   *   +----+-------------------------------------+------------+----------+
+   * | ID | STRING1                             | SUBSTRING  | POSITION |
+   * |----+-------------------------------------+------------+----------|
+   * |  1 | nevermore1, nevermore2, nevermore3. | nevermore1 |        1 |
+   * +----+-------------------------------------+------------+----------+
+   * }</pre>
+   *
+   * @since 1.15.0
+   * @note The position is not zero based, but 1 based index. Returns 0 if substr could not be found
+   *     in str.
+   * @param str Column on which instr has to be applied
+   * @param substring Pattern to be retrieved
+   * @return A null if either of the arguments are null.
+   * @since 1.15.0
+   */
+  public static Column instr(Column str, String substring) {
+    return new Column(com.snowflake.snowpark.functions.instr(str.toScalaColumn(), substring));
+  }
+
+  /**
+   * Given a timestamp like '2017-07-14 02:40:00.0', interprets it as a time in UTC, and renders
+   * that time as a timestamp in the given time zone. For example, 'GMT+1' would yield '2017-07-14
+   * 03:40:00.0'.
+   *
+   * <p>For Example
+   *
+   * <pre>{@code
+   * ALTER SESSION SET TIMEZONE = 'America/Los_Angeles';
+   * SELECT TO_TIMESTAMP_TZ('2024-04-05 01:02:03');
+   *  +----------------------------------------+
+   * | TO_TIMESTAMP_TZ('2024-04-05 01:02:03') |
+   * |----------------------------------------|
+   * | 2024-04-05 01:02:03.000 -0700          |
+   * +----------------------------------------+
+   * }</pre>
+   *
+   * @since 1.15.0
+   * @param ts A date, timestamp or string. If a string, the data must be in a format that can be
+   *     cast to a timestamp, such as `yyyy-MM-dd` or `yyyy-MM-dd HH:mm:ss.SSSS` A string detailing
+   *     the time zone ID that the input should be adjusted to. It should be in the format of either
+   *     region-based zone IDs or zone offsets. Region IDs must have the form 'area/city', such as
+   *     'America/Los_Angeles'. Zone offsets must be in the format '(+|-)HH:mm', for example
+   *     '-08:00' or '+01:00'. Also 'UTC' and 'Z' are supported as aliases of '+00:00'. Other short
+   *     names are not recommended to use because they can be ambiguous.
+   * @return A timestamp, or null if `ts` was a string that could not be cast to a timestamp or `tz`
+   *     was an invalid value
+   * @since 1.15.0
+   */
+  public static Column from_utc_timestamp(Column ts) {
+    return new Column(com.snowflake.snowpark.functions.from_utc_timestamp(ts.toScalaColumn()));
+  }
+
+  /**
+   * Given a timestamp like '2017-07-14 02:40:00.0', interprets it as a time in the given time zone,
+   * and renders that time as a timestamp in UTC. For example, 'GMT+1' would yield '2017-07-14
+   * 01:40:00.0'.
+   *
+   * @since 1.15.0
+   * @param ts A date, timestamp or string. If a string, the data must be in a format that can be
+   *     cast to a timestamp, such as `yyyy-MM-dd` or `yyyy-MM-dd HH:mm:ss.SSSS` A string detailing
+   *     the time zone ID that the input should be adjusted to. It should be in the format of either
+   *     region-based zone IDs or zone offsets. Region IDs must have the form 'area/city', such as
+   *     'America/Los_Angeles'. Zone offsets must be in the format '(+|-)HH:mm', for example
+   *     '-08:00' or '+01:00'. Also 'UTC' and 'Z' are supported as aliases of '+00:00'. Other short
+   *     names are not recommended to use because they can be ambiguous.
+   * @return A timestamp, or null if `ts` was a string that could not be cast to a timestamp or `tz`
+   *     was an invalid value
+   */
+  public static Column to_utc_timestamp(Column ts) {
+    return new Column(com.snowflake.snowpark.functions.to_utc_timestamp(ts.toScalaColumn()));
+  }
+
+  /**
+   * Formats numeric column x to a format like '#,###,###.##', rounded to d decimal places with
+   * HALF_EVEN round mode, and returns the result as a string column.
+   *
+   * @since 1.15.0 If d is 0, the result has no decimal point or fractional part. If d is less than
+   *     0, the result will be null.
+   * @param x numeric column to be transformed
+   * @param d Amount of decimal for the number format
+   * @return Number casted to the specific string format
+   */
+  public static Column format_number(Column x, Integer d) {
+    return new Column(com.snowflake.snowpark.functions.format_number(x.toScalaColumn(), d));
+  }
 
   /* Returns a Column expression with values sorted in descending order.
    *
