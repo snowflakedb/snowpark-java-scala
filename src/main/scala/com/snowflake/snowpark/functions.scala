@@ -3790,14 +3790,16 @@ object functions {
    * months_between("2017-06-01", "2017-06-16 12:00:00")  // returns -0.5
    * }}}
    * @since 1.15.0
-   * @param end   A date, timestamp or string. If a string, the data must be in a format that can
-   *              be cast to a timestamp, such as `yyyy-MM-dd` or `yyyy-MM-dd HH:mm:ss.SSSS`
-   * @param start A date, timestamp or string. If a string, the data must be in a format that can
-   *              cast to a timestamp, such as `yyyy-MM-dd` or `yyyy-MM-dd HH:mm:ss.SSSS`
-   * @return A double, or null if either `end` or `start` were strings that could not be cast to a
-   *         timestamp. Negative if `end` is before `start`
+   * @param end  Column name. If a string, the data must be in a format that can
+   *              be cast to a timestamp, such as yyyy-MM-dd
+   *              or yyyy-MM-dd HH:mm:ss.SSSS
+   * @param start  Column name . If a string, the data must be in a format that can
+   *              cast to a timestamp, such as yyyy-MM-dd or yyyy-MM-dd HH:mm:ss.SSSS
+   * @return A double, or null if either end or start were strings that could not be cast to a
+   *         timestamp. Negative if end is before start
    */
-  def months_between(end: Column, start: Column): Column = builtin("MONTHS_BETWEEN")(start, end)
+  def months_between(end: String, start: String): Column =
+    builtin("MONTHS_BETWEEN")(col(end), col(start))
 
   /**
    * Locate the position of the first occurrence of substr column in the given string.

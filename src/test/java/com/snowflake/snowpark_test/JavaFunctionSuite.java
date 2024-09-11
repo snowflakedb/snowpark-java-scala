@@ -3144,7 +3144,7 @@ public class JavaFunctionSuite extends TestBase {
                 "select * from values('2010-07-02'::Date,'2010-08-02'::Date), "
                     + "('2020-08-02'::Date,'2020-12-02'::Date) as t(a,b)");
     Row[] expected = {Row.create(1.000000), Row.create(4.000000)};
-    checkAnswer(df.select(Functions.months_between(df.col("a"), df.col("b"))), expected, false);
+    checkAnswer(df.select(Functions.months_between("b", "a")), expected, false);
   }
 
   @Test

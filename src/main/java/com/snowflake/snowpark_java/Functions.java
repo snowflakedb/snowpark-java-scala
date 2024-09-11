@@ -4536,10 +4536,8 @@ public final class Functions {
    *     timestamp. Negative if `end` is before `start`
    * @since 1.15.0
    */
-  public static Column months_between(Column end, Column start) {
-    return new Column(
-        com.snowflake.snowpark.functions.months_between(
-            end.toScalaColumn(), start.toScalaColumn()));
+  public static Column months_between(String end, String start) {
+    return new Column(com.snowflake.snowpark.functions.months_between(end, start));
   }
 
   /**

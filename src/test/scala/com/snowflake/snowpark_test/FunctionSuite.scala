@@ -2467,9 +2467,10 @@ trait FunctionSuite extends TestData {
       sort = false)
   }
   test("months_between") {
+    val months_between = functions.builtin("MONTHS_BETWEEN")
     val input = Seq(
-      (Date.valueOf("2010-07-02"), Date.valueOf("2010-08-02")),
-      (Date.valueOf("2020-08-02"), Date.valueOf("2020-12-02")))
+      (Date.valueOf("2010-08-02"), Date.valueOf("2010-07-02")),
+      (Date.valueOf("2020-12-02"), Date.valueOf("2020-08-02")))
       .toDF("a", "b")
     checkAnswer(
       input.select(months_between(col("a"), col("b"))),
