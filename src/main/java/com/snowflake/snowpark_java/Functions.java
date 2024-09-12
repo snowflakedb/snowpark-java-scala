@@ -4537,7 +4537,7 @@ public final class Functions {
    * @since 1.15.0
    */
   public static Column months_between(String end, String start) {
-    return new Column(com.snowflake.snowpark.functions.months_between(end, start));
+    return new Column(functions.months_between(end, start));
   }
 
   /**
