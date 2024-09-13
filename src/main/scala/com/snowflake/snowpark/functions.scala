@@ -800,6 +800,206 @@ object functions {
     */
   def pow(l: Column, r: Column): Column = builtin("pow")(l, r)
 
+  /** Returns a number (l) raised to the specified power (r).
+    *
+    * Example:
+    * {{{
+    *   val df = session.sql(
+    *     "select * from (values (0.1, 2), (2, 3), (2, 0.5), (2, -1)) as T(base, exponent)")
+    *   df.select(col("base"), col("exponent"), pow(col("base"), "exponent").as("result")).show()
+    *
+    *   ----------------------------------------------
+    *   |"BASE"  |"EXPONENT"  |"RESULT"              |
+    *   ----------------------------------------------
+    *   |0.1     |2.0         |0.010000000000000002  |
+    *   |2.0     |3.0         |8.0                   |
+    *   |2.0     |0.5         |1.4142135623730951    |
+    *   |2.0     |-1.0        |0.5                   |
+    *   ----------------------------------------------
+    * }}}
+    *
+    * @param l
+    *   The numeric column representing the base.
+    * @param r
+    *   The name of the numeric column representing the exponent.
+    * @return
+    *   A column containing the result of raising `l` to the power of `r`.
+    * @group num_func
+    * @since 1.15.0
+    */
+  def pow(l: Column, r: String): Column = pow(l, col(r))
+
+  /** Returns a number (l) raised to the specified power (r).
+    *
+    * Example:
+    * {{{
+    *   val df = session.sql(
+    *     "select * from (values (0.1, 2), (2, 3), (2, 0.5), (2, -1)) as T(base, exponent)")
+    *   df.select(col("base"), col("exponent"), pow("base", col("exponent")).as("result")).show()
+    *
+    *   ----------------------------------------------
+    *   |"BASE"  |"EXPONENT"  |"RESULT"              |
+    *   ----------------------------------------------
+    *   |0.1     |2.0         |0.010000000000000002  |
+    *   |2.0     |3.0         |8.0                   |
+    *   |2.0     |0.5         |1.4142135623730951    |
+    *   |2.0     |-1.0        |0.5                   |
+    *   ----------------------------------------------
+    * }}}
+    *
+    * @param l
+    *   The name of the numeric column representing the base.
+    * @param r
+    *   The numeric column representing the exponent.
+    * @return
+    *   A column containing the result of raising `l` to the power of `r`.
+    * @group num_func
+    * @since 1.15.0
+    */
+  def pow(l: String, r: Column): Column = pow(col(l), r)
+
+  /** Returns a number (l) raised to the specified power (r).
+    *
+    * Example:
+    * {{{
+    *   val df = session.sql(
+    *     "select * from (values (0.1, 2), (2, 3), (2, 0.5), (2, -1)) as T(base, exponent)")
+    *   df.select(col("base"), col("exponent"), pow("base", "exponent").as("result")).show()
+    *
+    *   ----------------------------------------------
+    *   |"BASE"  |"EXPONENT"  |"RESULT"              |
+    *   ----------------------------------------------
+    *   |0.1     |2.0         |0.010000000000000002  |
+    *   |2.0     |3.0         |8.0                   |
+    *   |2.0     |0.5         |1.4142135623730951    |
+    *   |2.0     |-1.0        |0.5                   |
+    *   ----------------------------------------------
+    * }}}
+    *
+    * @param l
+    *   The name of the numeric column representing the base.
+    * @param r
+    *   The name of the numeric column representing the exponent.
+    * @return
+    *   A column containing the result of raising `l` to the power of `r`.
+    * @group num_func
+    * @since 1.15.0
+    */
+  def pow(l: String, r: String): Column = pow(col(l), col(r))
+
+  /** Returns a number (l) raised to the specified power (r).
+    *
+    * Example:
+    * {{{
+    *   val df = session.sql("select * from (values (0.5), (2), (2.5), (4)) as T(base)")
+    *   df.select(col("base"), lit(2.0).as("exponent"), pow(col("base"), 2.0).as("result")).show()
+    *
+    *   ----------------------------------
+    *   |"BASE"  |"EXPONENT"  |"RESULT"  |
+    *   ----------------------------------
+    *   |0.5     |2.0         |0.25      |
+    *   |2.0     |2.0         |4.0       |
+    *   |2.5     |2.0         |6.25      |
+    *   |4.0     |2.0         |16.0      |
+    *   ----------------------------------
+    * }}}
+    *
+    * @param l
+    *   The numeric column representing the base.
+    * @param r
+    *   The value of the exponent.
+    * @return
+    *   A column containing the result of raising `l` to the power of `r`.
+    * @group num_func
+    * @since 1.15.0
+    */
+  def pow(l: Column, r: Double): Column = pow(l, lit(r))
+
+  /** Returns a number (l) raised to the specified power (r).
+    *
+    * Example:
+    * {{{
+    *   val df = session.sql("select * from (values (0.5), (2), (2.5), (4)) as T(base)")
+    *   df.select(col("base"), lit(2.0).as("exponent"), pow("base", 2.0).as("result")).show()
+    *
+    *   ----------------------------------
+    *   |"BASE"  |"EXPONENT"  |"RESULT"  |
+    *   ----------------------------------
+    *   |0.5     |2.0         |0.25      |
+    *   |2.0     |2.0         |4.0       |
+    *   |2.5     |2.0         |6.25      |
+    *   |4.0     |2.0         |16.0      |
+    *   ----------------------------------
+    * }}}
+    *
+    * @param l
+    *   The name of the numeric column representing the base.
+    * @param r
+    *   The value of the exponent.
+    * @return
+    *   A column containing the result of raising `l` to the power of `r`.
+    * @group num_func
+    * @since 1.15.0
+    */
+  def pow(l: String, r: Double): Column = pow(col(l), r)
+
+  /** Returns a number (l) raised to the specified power (r).
+    *
+    * Example:
+    * {{{
+    *   val df = session.sql("select * from (values (0.5), (2), (2.5), (4)) as T(exponent)")
+    *   df.select(lit(2.0).as("base"), col("exponent"), pow(2.0, col("exponent")).as("result"))
+    *     .show()
+    *
+    *   --------------------------------------------
+    *   |"BASE"  |"EXPONENT"  |"RESULT"            |
+    *   --------------------------------------------
+    *   |2.0     |0.5         |1.4142135623730951  |
+    *   |2.0     |2.0         |4.0                 |
+    *   |2.0     |2.5         |5.656854249492381   |
+    *   |2.0     |4.0         |16.0                |
+    *   --------------------------------------------
+    * }}}
+    *
+    * @param l
+    *   The value of the base.
+    * @param r
+    *   The numeric column representing the exponent.
+    * @return
+    *   A column containing the result of raising `l` to the power of `r`.
+    * @group num_func
+    * @since 1.15.0
+    */
+  def pow(l: Double, r: Column): Column = pow(lit(l), r)
+
+  /** Returns a number (l) raised to the specified power (r).
+    *
+    * Example:
+    * {{{
+    *   val df = session.sql("select * from (values (0.5), (2), (2.5), (4)) as T(exponent)")
+    *   df.select(lit(2.0).as("base"), col("exponent"), pow(2.0, "exponent").as("result")).show()
+    *
+    *   --------------------------------------------
+    *   |"BASE"  |"EXPONENT"  |"RESULT"            |
+    *   --------------------------------------------
+    *   |2.0     |0.5         |1.4142135623730951  |
+    *   |2.0     |2.0         |4.0                 |
+    *   |2.0     |2.5         |5.656854249492381   |
+    *   |2.0     |4.0         |16.0                |
+    *   --------------------------------------------
+    * }}}
+    *
+    * @param l
+    *   The value of the base.
+    * @param r
+    *   The name of the numeric column representing the exponent.
+    * @return
+    *   A column containing the result of raising `l` to the power of `r`.
+    * @group num_func
+    * @since 1.15.0
+    */
+  def pow(l: Double, r: String): Column = pow(l, col(r))
+
   /** Rounds the numeric values of the given column `e` to the `scale` decimal places using the half
     * away from zero rounding mode.
     *
@@ -3255,6 +3455,111 @@ object functions {
     */
   def monotonically_increasing_id(): Column = builtin("seq8")()
 
+  /** Returns number of months between dates `start` and `end`.
+    *
+    * A whole number is returned if both inputs have the same day of month or both are the last day
+    * of their respective months. Otherwise, the difference is calculated assuming 31 days per
+    * month.
+    *
+    * For example:
+    * {{{
+    * months_between("2017-11-14", "2017-07-14")  // returns 4.0
+    * months_between("2017-01-01", "2017-01-10")  // returns 0.29032258
+    * months_between("2017-06-01", "2017-06-16 12:00:00")  // returns -0.5
+    * }}}
+    * @since 1.15.0
+    * @param end
+    *   Column name. If a string, the data must be in a format that can be cast to a timestamp, such
+    *   as yyyy-MM-dd or yyyy-MM-dd HH:mm:ss.SSSS
+    * @param start
+    *   Column name . If a string, the data must be in a format that can cast to a timestamp, such
+    *   as yyyy-MM-dd or yyyy-MM-dd HH:mm:ss.SSSS
+    * @return
+    *   A double, or null if either end or start were strings that could not be cast to a timestamp.
+    *   Negative if end is before start
+    */
+  def months_between(end: String, start: String): Column =
+    builtin("MONTHS_BETWEEN")(col(end), col(start))
+
+  /** Locate the position of the first occurrence of substr column in the given string. Returns null
+    * if either of the arguments are null. For example SELECT id, string1, REGEXP_SUBSTR(string1,
+    * 'nevermore\\d') AS substring, REGEXP_INSTR( string1, 'nevermore\\d') AS position FROM demo1
+    * ORDER BY id;
+    * | ID                                                                 | STRING1                             | SUBSTRING  | POSITION |
+    * |:-------------------------------------------------------------------|:------------------------------------|:-----------|:---------|
+    * | ----+-------------------------------------+------------+---------- |                                     |            |          |
+    * | 1                                                                  | nevermore1, nevermore2, nevermore3. | nevermore1 | 1        |
+    *
+    * @since 1.15.0
+    * @note
+    *   The position is not zero based, but 1 based index. Returns 0 if substr could not be found in
+    *   str.
+    */
+  def instr(str: Column, substring: String): Column = builtin("REGEXP_INSTR")(str, substring)
+
+  /** Given a timestamp like '2017-07-14 02:40:00.0', interprets it as a time in UTC, and renders
+    * that time as a timestamp in the given time zone. For example, 'GMT+1' would yield '2017-07-14
+    * 03:40:00.0'. ALTER SESSION SET TIMEZONE = 'America/Los_Angeles'; SELECT
+    * TO_TIMESTAMP_TZ('2024-04-05 01:02:03');
+    * | TO_TIMESTAMP_TZ('2024-04-05 01:02:03') |
+    * |:---------------------------------------|
+    * | 2024-04-05 01:02:03.000 -0700          |
+    *
+    * @since 1.15.0
+    * @param ts
+    *   A date, timestamp or string. If a string, the data must be in a format that can be cast to a
+    *   timestamp, such as `yyyy-MM-dd` or `yyyy-MM-dd HH:mm:ss.SSSS` A string detailing the time
+    *   zone ID that the input should be adjusted to. It should be in the format of either
+    *   region-based zone IDs or zone offsets. Region IDs must have the form 'area/city', such as
+    *   'America/Los_Angeles'. Zone offsets must be in the format '(+|-)HH:mm', for example '-08:00'
+    *   or '+01:00'. Also 'UTC' and 'Z' are supported as aliases of '+00:00'. Other short names are
+    *   not recommended to use because they can be ambiguous.
+    * @return
+    *   A timestamp, or null if `ts` was a string that could not be cast to a timestamp or `tz` was
+    *   an invalid value
+    */
+  def from_utc_timestamp(ts: Column): Column =
+    builtin("TO_TIMESTAMP_TZ")(ts)
+
+  /** Given a timestamp like '2017-07-14 02:40:00.0', interprets it as a time in the given time
+    * zone, and renders that time as a timestamp in UTC. For example, 'GMT+1' would yield
+    * '2017-07-14 01:40:00.0'.
+    * @since 1.15.0
+    * @param ts
+    *   A date, timestamp or string. If a string, the data must be in a format that can be cast to a
+    *   timestamp, such as `yyyy-MM-dd` or `yyyy-MM-dd HH:mm:ss.SSSS` A string detailing the time
+    *   zone ID that the input should be adjusted to. It should be in the format of either
+    *   region-based zone IDs or zone offsets. Region IDs must have the form 'area/city', such as
+    *   'America/Los_Angeles'. Zone offsets must be in the format '(+|-)HH:mm', for example '-08:00'
+    *   or '+01:00'. Also 'UTC' and 'Z' are supported as aliases of '+00:00'. Other short names are
+    *   not recommended to use because they can be ambiguous.
+    * @return
+    *   A timestamp, or null if `ts` was a string that could not be cast to a timestamp or `tz` was
+    *   an invalid value
+    */
+  def to_utc_timestamp(ts: Column): Column = builtin("TO_TIMESTAMP_TZ")(ts)
+
+  /** Formats numeric column x to a format like '#,###,###.##', rounded to d decimal places with
+    * HALF_EVEN round mode, and returns the result as a string column.
+    * @since 1.15.0
+    *   If d is 0, the result has no decimal point or fractional part. If d is less than 0, the
+    *   result will be null.
+    *
+    * @param x
+    *   numeric column to be transformed
+    * @param d
+    *   Amount of decimal for the number format
+    *
+    * @return
+    *   Number casted to the specific string format
+    */
+  def format_number(x: Column, d: Int): Column = {
+    if (d < 0) {
+      lit(null)
+    } else {
+      builtin("TO_VARCHAR")(x, if (d > 0) s"999,999.${"0" * d}" else "999,999")
+    }
+  }
   /* Returns a Column expression with values sorted in descending order.
    * Example:
    * {{{

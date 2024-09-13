@@ -1,5 +1,7 @@
 package com.snowflake.snowpark_test;
 
+import static org.junit.Assert.assertThrows;
+
 import com.snowflake.snowpark_java.DataFrame;
 import com.snowflake.snowpark_java.Row;
 import com.snowflake.snowpark_java.types.*;
@@ -7,10 +9,13 @@ import java.math.BigDecimal;
 import java.sql.Date;
 import java.sql.Time;
 import java.sql.Timestamp;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.TimeZone;
 import org.junit.Test;
 
 public class JavaRowSuite extends TestBase {
@@ -426,6 +431,174 @@ public class JavaRowSuite extends TestBase {
           assert row3.size() == 2;
           assert row3.getString(0).equals("txt");
           assert row3.getLong(1) == 10;
+        },
+        getSession());
+  }
+
+  @Test
+  public void getAs() {
+    long milliseconds = System.currentTimeMillis();
+
+    StructType schema =
+        StructType.create(
+            new StructField("c01", DataTypes.BinaryType),
+            new StructField("c02", DataTypes.BooleanType),
+            new StructField("c03", DataTypes.ByteType),
+            new StructField("c04", DataTypes.DateType),
+            new StructField("c05", DataTypes.DoubleType),
+            new StructField("c06", DataTypes.FloatType),
+            new StructField("c07", DataTypes.GeographyType),
+            new StructField("c08", DataTypes.GeometryType),
+            new StructField("c09", DataTypes.IntegerType),
+            new StructField("c10", DataTypes.LongType),
+            new StructField("c11", DataTypes.ShortType),
+            new StructField("c12", DataTypes.StringType),
+            new StructField("c13", DataTypes.TimeType),
+            new StructField("c14", DataTypes.TimestampType),
+            new StructField("c15", DataTypes.VariantType));
+
+    Row[] data = {
+      Row.create(
+          new byte[] {1, 2},
+          true,
+          Byte.MIN_VALUE,
+          Date.valueOf("2024-01-01"),
+          Double.MIN_VALUE,
+          Float.MIN_VALUE,
+          Geography.fromGeoJSON("POINT(30 10)"),
+          Geometry.fromGeoJSON("POINT(20 40)"),
+          Integer.MIN_VALUE,
+          Long.MIN_VALUE,
+          Short.MIN_VALUE,
+          "string",
+          Time.valueOf("16:23:04"),
+          new Timestamp(milliseconds),
+          new Variant(1))
+    };
+
+    DataFrame df = getSession().createDataFrame(data, schema);
+    Row row = df.collect()[0];
+
+    assert Arrays.equals(row.getAs(0, byte[].class), new byte[] {1, 2});
+    assert row.getAs(1, Boolean.class);
+    assert row.getAs(2, Byte.class) == Byte.MIN_VALUE;
+    assert row.getAs(3, Date.class).equals(Date.valueOf("2024-01-01"));
+    assert row.getAs(4, Double.class) == Double.MIN_VALUE;
+    assert row.getAs(5, Float.class) == Float.MIN_VALUE;
+    assert row.getAs(6, Geography.class)
+        .equals(
+            Geography.fromGeoJSON(
+                "{\n  \"coordinates\": [\n    30,\n    10\n  ],\n  \"type\": \"Point\"\n}"));
+    assert row.getAs(7, Geometry.class)
+        .equals(
+            Geometry.fromGeoJSON(
+                "{\n  \"coordinates\": [\n    2.000000000000000e+01,\n    4.000000000000000e+01\n  ],\n  \"type\": \"Point\"\n}"));
+    assert row.getAs(8, Integer.class) == Integer.MIN_VALUE;
+    assert row.getAs(9, Long.class) == Long.MIN_VALUE;
+    assert row.getAs(10, Short.class) == Short.MIN_VALUE;
+    assert row.getAs(11, String.class).equals("string");
+    assert row.getAs(12, Time.class).equals(Time.valueOf("16:23:04"));
+    assert row.getAs(13, Timestamp.class).equals(new Timestamp(milliseconds));
+    assert row.getAs(14, Variant.class).equals(new Variant(1));
+
+    Row finalRow = row;
+    assertThrows(
+        ClassCastException.class,
+        () -> {
+          Boolean b = finalRow.getAs(0, Boolean.class);
+        });
+    assertThrows(ArrayIndexOutOfBoundsException.class, () -> finalRow.getAs(-1, Boolean.class));
+
+    data =
+        new Row[] {
+          Row.create(
+              null, null, null, null, null, null, null, null, null, null, null, null, null, null,
+              null)
+        };
+
+    df = getSession().createDataFrame(data, schema);
+    row = df.collect()[0];
+
+    assert row.getAs(0, byte[].class) == null;
+    assert row.getAs(1, Boolean.class) == null;
+    assert row.getAs(2, Byte.class) == null;
+    assert row.getAs(3, Date.class) == null;
+    assert row.getAs(4, Double.class) == null;
+    assert row.getAs(5, Float.class) == null;
+    assert row.getAs(6, Geography.class) == null;
+    assert row.getAs(7, Geometry.class) == null;
+    assert row.getAs(8, Integer.class) == null;
+    assert row.getAs(9, Long.class) == null;
+    assert row.getAs(10, Short.class) == null;
+    assert row.getAs(11, String.class) == null;
+    assert row.getAs(12, Time.class) == null;
+    assert row.getAs(13, Timestamp.class) == null;
+    assert row.getAs(14, Variant.class) == null;
+  }
+
+  @Test
+  public void getAsWithStructuredMap() {
+    structuredTypeTest(
+        () -> {
+          String query =
+              "SELECT "
+                  + "{'a':1,'b':2}::MAP(VARCHAR, NUMBER) as map1,"
+                  + "{'1':'a','2':'b'}::MAP(NUMBER, VARCHAR) as map2,"
+                  + "{'1':{'a':1,'b':2},'2':{'c':3}}::MAP(NUMBER, MAP(VARCHAR, NUMBER)) as map3";
+
+          DataFrame df = getSession().sql(query);
+          Row row = df.collect()[0];
+
+          Map<?, ?> map1 = row.getAs(0, Map.class);
+          assert (Long) map1.get("a") == 1L;
+          assert (Long) map1.get("b") == 2L;
+
+          Map<?, ?> map2 = row.getAs(1, Map.class);
+          assert map2.get(1L).equals("a");
+          assert map2.get(2L).equals("b");
+
+          Map<?, ?> map3 = row.getAs(2, Map.class);
+          Map<String, Long> map3ExpectedInnerMap = new HashMap<>();
+          map3ExpectedInnerMap.put("a", 1L);
+          map3ExpectedInnerMap.put("b", 2L);
+          assert map3.get(1L).equals(map3ExpectedInnerMap);
+          assert map3.get(2L).equals(Collections.singletonMap("c", 3L));
+        },
+        getSession());
+  }
+
+  @Test
+  public void getAsWithStructuredArray() {
+    structuredTypeTest(
+        () -> {
+          TimeZone oldTimeZone = TimeZone.getDefault();
+          try {
+            TimeZone.setDefault(TimeZone.getTimeZone("US/Pacific"));
+
+            String query =
+                "SELECT "
+                    + "[1,2,3]::ARRAY(NUMBER) AS arr1,"
+                    + "['a','b']::ARRAY(VARCHAR) AS arr2,"
+                    + "[parse_json(31000000)::timestamp_ntz]::ARRAY(TIMESTAMP_NTZ) AS arr3,"
+                    + "[[1,2]]::ARRAY(ARRAY) AS arr4";
+
+            DataFrame df = getSession().sql(query);
+            Row row = df.collect()[0];
+
+            ArrayList<?> array1 = row.getAs(0, ArrayList.class);
+            assert array1.equals(Arrays.asList(1L, 2L, 3L));
+
+            ArrayList<?> array2 = row.getAs(1, ArrayList.class);
+            assert array2.equals(Arrays.asList("a", "b"));
+
+            ArrayList<?> array3 = row.getAs(2, ArrayList.class);
+            assert array3.equals(Collections.singletonList(new Timestamp(31000000000L)));
+
+            ArrayList<?> array4 = row.getAs(3, ArrayList.class);
+            assert array4.equals(Collections.singletonList("[\n  1,\n  2\n]"));
+          } finally {
+            TimeZone.setDefault(oldTimeZone);
+          }
         },
         getSession());
   }

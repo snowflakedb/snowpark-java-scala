@@ -353,10 +353,25 @@ trait FunctionSuite extends TestData {
 
   test("pow") {
     checkAnswer(
-      double2.select(pow(col("A"), col("B"))),
-      Seq(Row(0.31622776601683794), Row(0.3807307877431757), Row(0.4305116202499342)),
+      double2.select(
+        pow(col("A"), col("B")),
+        pow(col("A"), "B"),
+        pow("A", col("B")),
+        pow("A", "B"),
+        pow(col("A"), 0.8),
+        pow("A", 0.8),
+        pow(0.4, col("B")),
+        pow(0.4, "B")),
+      Seq(
+        Row(0.31622776601683794, 0.31622776601683794, 0.31622776601683794, 0.31622776601683794,
+          0.15848931924611134, 0.15848931924611134, 0.6324555320336759, 0.6324555320336759),
+        Row(0.3807307877431757, 0.3807307877431757, 0.3807307877431757, 0.3807307877431757,
+          0.27594593229224296, 0.27594593229224296, 0.5770799623628855, 0.5770799623628855),
+        Row(0.4305116202499342, 0.4305116202499342, 0.4305116202499342, 0.4305116202499342,
+          0.3816778909618176, 0.3816778909618176, 0.526552881733695, 0.526552881733695)),
       sort = false)
   }
+
   test("shiftleft shiftright") {
     checkAnswer(
       integer1.select(bitshiftleft(col("A"), lit(1)), bitshiftright(col("A"), lit(1))),
@@ -2454,6 +2469,58 @@ trait FunctionSuite extends TestData {
       input.withColumn("unhex_col", unhex(col("A"))).select("unhex_col"),
       Seq(Row("1"), Row("2"), Row("3")),
       sort = false)
+  }
+  test("months_between") {
+    val months_between = functions.builtin("MONTHS_BETWEEN")
+    val input = Seq(
+      (Date.valueOf("2010-08-02"), Date.valueOf("2010-07-02")),
+      (Date.valueOf("2020-12-02"), Date.valueOf("2020-08-02")))
+      .toDF("a", "b")
+    checkAnswer(
+      input.select(months_between(col("a"), col("b"))),
+      Seq(Row((1.000000)), Row(4.000000)),
+      sort = false)
+  }
+
+  test("instr") {
+    val df = Seq("It was the best of times, it was the worst of times").toDF("a")
+    checkAnswer(df.select(instr(col("a"), "was")), Seq(Row(4)), sort = false)
+  }
+
+  test("format_number1") {
+
+    checkAnswer(
+      number3.select(ltrim(format_number(col("a"), 0))),
+      Seq(Row(("1")), Row(("2")), Row(("3"))),
+      sort = false)
+  }
+
+  test("format_number2") {
+
+    checkAnswer(
+      number3.select(ltrim(format_number(col("a"), 2))),
+      Seq(Row(("1.00")), Row(("2.00")), Row(("3.00"))),
+      sort = false)
+  }
+
+  test("format_number3") {
+
+    checkAnswer(
+      number3.select(ltrim(format_number(col("a"), -1))),
+      Seq(Row((null)), Row((null)), Row((null))),
+      sort = false)
+  }
+
+  test("from_utc_timestamp") {
+    val expected = Seq(Timestamp.valueOf("2024-04-05 01:02:03.0")).toDF("a")
+    val data = Seq("2024-04-05 01:02:03").toDF("a")
+    checkAnswer(data.select(from_utc_timestamp(col("a"))), expected, sort = false)
+  }
+
+  test("to_utc_timestamp") {
+    val expected = Seq(Timestamp.valueOf("2024-04-05 01:02:03.0")).toDF("a")
+    val data = Seq("2024-04-05 01:02:03").toDF("a")
+    checkAnswer(data.select(to_utc_timestamp(col("a"))), expected, sort = false)
   }
 
 }

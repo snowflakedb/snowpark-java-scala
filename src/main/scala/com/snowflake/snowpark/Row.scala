@@ -331,6 +331,43 @@ class Row protected (values: Array[Any]) extends Serializable {
     getAs[Map[T, U]](index)
   }
 
+  /** Returns the value at the specified column index and casts it to the desired type `T`.
+    *
+    * Example:
+    * {{{
+    *   val row = Row(1, "Alice", 95.5)
+    *   row.getAs[Int](0) // Returns 1 as an Int
+    *   row.getAs[String](1) // Returns "Alice" as a String
+    *   row.getAs[Double](2) // Returns 95.5 as a Double
+    * }}}
+    *
+    * @param index
+    *   the zero-based column index within the row.
+    * @tparam T
+    *   the expected type of the value at the specified column index.
+    * @return
+    *   the value at the specified column index cast to type `T`.
+    * @throws ClassCastException
+    *   if the value at the given index cannot be cast to type `T`.
+    * @throws ArrayIndexOutOfBoundsException
+    *   if the column index is out of bounds.
+    * @group getter
+    * @since 1.15.0
+    */
+  def getAs[T](index: Int)(implicit classTag: ClassTag[T]): T = {
+    classTag.runtimeClass match {
+      case _ if isNullAt(index) => get(index).asInstanceOf[T]
+      case c if c == classOf[Byte] => getByte(index).asInstanceOf[T]
+      case c if c == classOf[Double] => getDouble(index).asInstanceOf[T]
+      case c if c == classOf[Float] => getFloat(index).asInstanceOf[T]
+      case c if c == classOf[Int] => getInt(index).asInstanceOf[T]
+      case c if c == classOf[Long] => getLong(index).asInstanceOf[T]
+      case c if c == classOf[Short] => getShort(index).asInstanceOf[T]
+      case c if c == classOf[Variant] => getVariant(index).asInstanceOf[T]
+      case _ => get(index).asInstanceOf[T]
+    }
+  }
+
   protected def convertValueToString(value: Any): String =
     value match {
       case null => "null"
@@ -362,10 +399,7 @@ class Row protected (values: Array[Any]) extends Serializable {
       .map(convertValueToString)
       .mkString("Row[", ",", "]")
 
-  private def getAs[T](index: Int): T = get(index).asInstanceOf[T]
-
-  private def getAnyValAs[T <: AnyVal](index: Int): T =
+  private def getAnyValAs[T <: AnyVal](index: Int)(implicit classTag: ClassTag[T]): T =
     if (isNullAt(index)) throw new NullPointerException(s"Value at index $index is null")
-    else getAs[T](index)
-
+    else getAs[T](index)(classTag)
 }
