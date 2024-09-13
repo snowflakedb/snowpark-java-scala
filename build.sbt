@@ -115,9 +115,14 @@ def isCodeVerification(name: String): Boolean = {
 }
 lazy val CodeVerificationTests = config("CodeVerificationTests") extend Test
 
+lazy val nonParallelTestsList = Seq(
+  "OpenTelemetry",
+  "AyncJob",
+  "Session"
+)
 // Tests can't be parallely processed
 def isNonparallelTests(name: String): Boolean = {
-  name.contains("OpenTelemetry") || name.contains("AyncJob")
+  nonParallelTestsList.exists(name.contains)
 }
 lazy val NonparallelTests = config("NonparallelTests") extend Test
 
