@@ -1,4 +1,4 @@
-name: precommit test - Open Telemetry
+name: precommit test - Nonparallel
 on:
   push:
     branches: [ main ]

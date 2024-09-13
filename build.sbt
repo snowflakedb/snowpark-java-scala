@@ -9,7 +9,7 @@ lazy val root = (project in file("."))
   .configs(CodeVerificationTests)
   .configs(JavaAPITests)
   .configs(OtherTests)
-  .configs(OpenTelemetryTests)
+  .configs(NonparallelTests)
   .configs(UDFTests)
   .configs(UDTFTests)
   .configs(SprocTests)
@@ -58,7 +58,6 @@ lazy val root = (project in file("."))
 //    Test / crossPaths := false,
     Test / fork := false,
 //    Test / javaOptions ++= Seq("-Xms1024M", "-Xmx4096M"),
-//    Test / parallelExecution := false,
     // Test Groups
     inConfig(CodeVerificationTests)(Defaults.testTasks),
     CodeVerificationTests / testOptions += Tests.Filter(isCodeVerification),
@@ -66,9 +65,9 @@ lazy val root = (project in file("."))
     JavaAPITests / testOptions += Tests.Filter(isJavaAPITests),
     inConfig(OtherTests)(Defaults.testTasks),
     OtherTests / testOptions += Tests.Filter(isRemainingTest),
-    inConfig(OpenTelemetryTests)(Defaults.testTasks),
-    OpenTelemetryTests / testOptions += Tests.Filter(isOpenTelemetryTests),
-    OpenTelemetryTests / parallelExecution := false,
+    inConfig(NonparallelTests)(Defaults.testTasks),
+    NonparallelTests / testOptions += Tests.Filter(isNonparallelTests),
+    NonparallelTests / parallelExecution := false,
     inConfig(UDFTests)(Defaults.testTasks),
     UDFTests / testOptions += Tests.Filter(isUDFTests),
     inConfig(UDTFTests)(Defaults.testTasks),
@@ -116,10 +115,11 @@ def isCodeVerification(name: String): Boolean = {
 }
 lazy val CodeVerificationTests = config("CodeVerificationTests") extend Test
 
-def isOpenTelemetryTests(name: String): Boolean = {
-  name.contains("OpenTelemetry")
+// Tests can't be parallely processed
+def isNonparallelTests(name: String): Boolean = {
+  name.contains("OpenTelemetry") || name.contains("AyncJob")
 }
-lazy val OpenTelemetryTests = config("OpenTelemetryTests") extend Test
+lazy val NonparallelTests = config("NonparallelTests") extend Test
 
 def isUDFTests(name: String): Boolean = {
   name.contains("UDF")
@@ -148,7 +148,7 @@ def isJavaAPITests(name: String): Boolean = {
     !isUDFTests(name) &&
     !isUDTFTests(name) &&
     !isSprocTests(name) &&
-    !isOpenTelemetryTests(name)
+    !isNonparallelTests(name)
 }
 lazy val JavaAPITests = config("JavaAPITests") extend Test
 
@@ -158,7 +158,7 @@ lazy val JavaAPITests = config("JavaAPITests") extend Test
 // other Tests
 def isRemainingTest(name: String): Boolean = {
   ! isCodeVerification(name) &&
-    ! isOpenTelemetryTests(name) &&
+    ! isNonparallelTests(name) &&
     ! isUDFTests(name) &&
     ! isUDTFTests(name) &&
     ! isSprocTests(name) &&
