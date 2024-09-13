@@ -117,7 +117,7 @@ lazy val CodeVerificationTests = config("CodeVerificationTests") extend Test
 
 lazy val nonParallelTestsList = Seq(
   "OpenTelemetry",
-  "AyncJob",
+  "AsyncJob",
   "Session"
 )
 // Tests can't be parallely processed
