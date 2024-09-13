@@ -63,6 +63,7 @@ lazy val root = (project in file("."))
     CodeVerificationTests / testOptions += Tests.Filter(isCodeVerification),
     inConfig(JavaAPITests)(Defaults.testTasks),
     JavaAPITests / testOptions += Tests.Filter(isJavaAPITests),
+    JavaAPITests / parallelExecution := false,
     inConfig(OtherTests)(Defaults.testTasks),
     OtherTests / testOptions += Tests.Filter(isRemainingTest),
     inConfig(NonparallelTests)(Defaults.testTasks),
@@ -117,8 +118,7 @@ lazy val CodeVerificationTests = config("CodeVerificationTests") extend Test
 
 lazy val nonParallelTestsList = Seq(
   "OpenTelemetry",
-  "AsyncJob",
-  "Session"
+  "AsyncJob"
 )
 // Tests can't be parallely processed
 def isNonparallelTests(name: String): Boolean = {
