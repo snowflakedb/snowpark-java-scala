@@ -21,4 +21,4 @@ jobs:
         env:
           PROFILE_PASSWORD: ${{ secrets.PROFILE_PASSWORD }}
       - name: Run test
-        run: sbt OpenTelemetryTests:test
+        run: sbt NonparallelTests:test
