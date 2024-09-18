@@ -301,7 +301,7 @@ class RowSuite extends SNTestBase {
     assert(row.getAs[Short](10) == Short.MinValue)
     assert(row.getAs[String](11) == "string")
     assert(row.getAs[Time](12) == Time.valueOf("16:23:04"))
-    assert(row.getAs[Timestamp](13) == new Timestamp(milliseconds))
+    assert(row.getAs[Timestamp](13).getTime == milliseconds)
     assert(row.getAs[Variant](14) == new Variant(1))
     assertThrows[ClassCastException](row.getAs[Boolean](0))
     assertThrows[ArrayIndexOutOfBoundsException](row.getAs[Boolean](-1))
