@@ -4836,10 +4836,18 @@ public final class Functions {
    * date using try_cast and if it's not possible to cast, returns null. If receiving a timestamp it
    * will be casted to date (removing its time). Example::
    *
-   * <p>>>> from snowflake.snowpark.functions import date_sub, to_date >>> df =
-   * session.createDataFrame([("1976-01-06")], ["date"]) >>> df = df.withColumn("date",
-   * to_date("date")) >>> df.withColumn("date", date_sub("date", 2)).show() -------------- |"DATE" |
-   * -------------- |1976-01-04 | -------------- """
+   * <pre>{@code
+   * from snowflake.snowpark.functions import date_sub, to_date
+   *  df = session.createDataFrame([("1976-01-06")], ["date"])
+   *  df = df.withColumn("date",to_date("date"))
+   *  df.withColumn("date", date_sub("date", 2)).show()
+   * --------------
+   * |"DATE" |
+   * --------------
+   * |1976-01-04 |
+   * -------------- """
+   *
+   * }</pre>
    *
    * @since 1.15.0
    * @param start Date, Timestamp or String column to subtract days from.
