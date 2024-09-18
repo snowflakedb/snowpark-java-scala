@@ -3,25 +3,22 @@ package com.snowflake.snowpark
 import com.snowflake.snowpark.internal.analyzer._
 import com.snowflake.snowpark.internal.ErrorMessage
 
-/**
- * Represents a window frame clause.
- * @since 0.1.0
- */
+/** Represents a window frame clause.
+  * @since 0.1.0
+  */
 class WindowSpec private[snowpark] (
     partitionSpec: Seq[Expression],
     orderSpec: Seq[SortOrder],
     frame: WindowFrame) {
 
-  /**
-   * Returns a new [[WindowSpec]] object with the new partition by clause.
-   * @since 0.1.0
-   */
+  /** Returns a new [[WindowSpec]] object with the new partition by clause.
+    * @since 0.1.0
+    */
   def partitionBy(cols: Column*): WindowSpec = new WindowSpec(cols.map(_.expr), orderSpec, frame)
 
-  /**
-   * Returns a new [[WindowSpec]] object with the new order by clause.
-   * @since 0.1.0
-   */
+  /** Returns a new [[WindowSpec]] object with the new order by clause.
+    * @since 0.1.0
+    */
   def orderBy(cols: Column*): WindowSpec = {
     val sortOrder: Seq[SortOrder] = cols.map { col =>
       col.expr match {
@@ -32,10 +29,9 @@ class WindowSpec private[snowpark] (
     new WindowSpec(partitionSpec, sortOrder, frame)
   }
 
-  /**
-   * Returns a new [[WindowSpec]] object with the new row frame clause.
-   * @since 0.1.0
-   */
+  /** Returns a new [[WindowSpec]] object with the new row frame clause.
+    * @since 0.1.0
+    */
   def rowsBetween(start: Long, end: Long): WindowSpec = {
     val boundaryStart = start match {
       case 0 => CurrentRow
@@ -57,10 +53,9 @@ class WindowSpec private[snowpark] (
       SpecifiedWindowFrame(RowFrame, boundaryStart, boundaryEnd))
   }
 
-  /**
-   * Returns a new [[WindowSpec]] object with the new range frame clause.
-   * @since 0.1.0
-   */
+  /** Returns a new [[WindowSpec]] object with the new range frame clause.
+    * @since 0.1.0
+    */
   def rangeBetween(start: Long, end: Long): WindowSpec = {
     val boundaryStart = start match {
       case 0 => CurrentRow

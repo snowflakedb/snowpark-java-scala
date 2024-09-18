@@ -17,10 +17,7 @@ class DataFrameWriterSuite extends TestData {
   val tableName = randomTableName()
 
   private val userSchema: StructType = StructType(
-    Seq(
-      StructField("a", IntegerType),
-      StructField("b", StringType),
-      StructField("c", DoubleType)))
+    Seq(StructField("a", IntegerType), StructField("b", StringType), StructField("c", DoubleType)))
 
   override def beforeAll(): Unit = {
     super.beforeAll()
@@ -243,9 +240,7 @@ class DataFrameWriterSuite extends TestData {
 
   test("write CSV files: save mode and file format options") {
     createTable(tableName, "c1 int, c2 double, c3 string")
-    runQuery(
-      s"insert into $tableName values (1,1.1,'one'),(2,2.2,'two'),(null,null,null)",
-      session)
+    runQuery(s"insert into $tableName values (1,1.1,'one'),(2,2.2,'two'),(null,null,null)", session)
     val schema = StructType(
       Seq(
         StructField("c1", IntegerType),
@@ -332,9 +327,7 @@ class DataFrameWriterSuite extends TestData {
   //     DETAILED_OUTPUT = TRUE | FALSE
   test("write CSV files: copy options") {
     createTable(tableName, "c1 int, c2 double, c3 string")
-    runQuery(
-      s"insert into $tableName values (1,1.1,'one'),(2,2.2,'two'),(null,null,null)",
-      session)
+    runQuery(s"insert into $tableName values (1,1.1,'one'),(2,2.2,'two'),(null,null,null)", session)
     val schema = StructType(
       Seq(
         StructField("c1", IntegerType),
@@ -471,9 +464,7 @@ class DataFrameWriterSuite extends TestData {
 
   test("negative test") {
     createTable(tableName, "c1 int, c2 double, c3 string")
-    runQuery(
-      s"insert into $tableName values (1,1.1,'one'),(2,2.2,'two'),(null,null,null)",
-      session)
+    runQuery(s"insert into $tableName values (1,1.1,'one'),(2,2.2,'two'),(null,null,null)", session)
     val df = session.table(tableName)
     val path = s"@$targetStageName/p_${Random.nextInt().abs}"
 
@@ -547,10 +538,7 @@ class DataFrameWriterSuite extends TestData {
     runJsonTest(
       df4,
       path,
-      Map(
-        "FORMAT_NAME" -> formatName,
-        "FILE_EXTENSION" -> "myjson.json",
-        "COMPRESSION" -> "NONE"),
+      Map("FORMAT_NAME" -> formatName, "FILE_EXTENSION" -> "myjson.json", "COMPRESSION" -> "NONE"),
       Array(Row(2, 4, 4)),
       ".myjson.json",
       Some(SaveMode.Overwrite))

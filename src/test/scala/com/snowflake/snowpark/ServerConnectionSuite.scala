@@ -133,8 +133,7 @@ class ServerConnectionSuite extends SNTestBase {
       session.conn.getAsyncResult(asyncJob.getQueryId(), Int.MaxValue, Some(plan))._1
     }
     assert(ex2.getMessage.contains("Numeric value 'not_a_number' is not recognized"))
-    assert(
-      ex2.getMessage.contains("Uncaught Execution of multiple statements failed on statement"))
+    assert(ex2.getMessage.contains("Uncaught Execution of multiple statements failed on statement"))
   }
 
   test("ServerConnection.getStatementParameters()") {

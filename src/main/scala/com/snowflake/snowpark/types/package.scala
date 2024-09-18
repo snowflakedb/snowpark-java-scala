@@ -2,10 +2,9 @@ package com.snowflake.snowpark
 
 import com.snowflake.snowpark.internal.ErrorMessage
 
-/**
- * This package contains all Snowpark logical types.
- * @since 0.1.0
- */
+/** This package contains all Snowpark logical types.
+  * @since 0.1.0
+  */
 package object types {
 
   private[snowpark] def toJavaType(datatype: DataType): String =
@@ -71,10 +70,9 @@ package object types {
         s"MAP(${convertToSFType(sm.keyType)}, ${convertToSFType(sm.valueType)}$isValueNullable)"
       case StructType(fields) =>
         val fieldStr = fields
-          .map(
-            field =>
-              s"${field.name} ${convertToSFType(field.dataType)} " +
-                (if (field.nullable) "" else "not null"))
+          .map(field =>
+            s"${field.name} ${convertToSFType(field.dataType)} " +
+              (if (field.nullable) "" else "not null"))
           .mkString(",")
         s"OBJECT($fieldStr)"
       case ArrayType(_) => "ARRAY"

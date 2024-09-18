@@ -304,9 +304,7 @@ trait UDFSuite extends TestData {
   test("Test for Float data type") {
     val df = Seq(1.1.floatValue(), 2.2.floatValue(), 3.3.floatValue()).toDF("a")
     val UDF = udf((x: Float) => x + x)
-    checkAnswer(
-      df.withColumn("c", UDF(col("a"))),
-      Seq(Row(1.1, 2.2), Row(2.2, 4.4), Row(3.3, 6.6)))
+    checkAnswer(df.withColumn("c", UDF(col("a"))), Seq(Row(1.1, 2.2), Row(2.2, 4.4), Row(3.3, 6.6)))
   }
 
   test("Test for Option[Double]") {
@@ -575,9 +573,7 @@ trait UDFSuite extends TestData {
 
   test("Test for json Variant output") {
     val variantOutputUDF = udf((_: Variant) => new Variant("{\"a\": \"foo\"}"))
-    checkAnswer(
-      variant1.select(variantOutputUDF(col("num1"))),
-      Seq(Row("{\n  \"a\": \"foo\"\n}")))
+    checkAnswer(variant1.select(variantOutputUDF(col("num1"))), Seq(Row("{\n  \"a\": \"foo\"\n}")))
   }
 
   test("Test for array Variant output") {
@@ -656,9 +652,7 @@ trait UDFSuite extends TestData {
         .withColumn("c", toSNUDF(col("time")))
         .withColumn("d", toTimeUDF(col("timestamp")))
         .select($"c", $"d"),
-      Seq(
-        Row(Timestamp.valueOf("1970-01-01 01:02:03"), Time.valueOf("01:02:03")),
-        Row(null, null)))
+      Seq(Row(Timestamp.valueOf("1970-01-01 01:02:03"), Time.valueOf("01:02:03")), Row(null, null)))
   }
   // Excluding the tests for 2 to 22 args from stored procs to limit overall time
   // of the UDFSuite run as a regression test
@@ -771,9 +765,7 @@ trait UDFSuite extends TestData {
         .select("res"),
       Seq(Row(result)))
     checkAnswer(
-      df.withColumn(
-          "res",
-          callUDF(funcName, col("c1"), col("c2"), col("c3"), col("c4"), col("c5")))
+      df.withColumn("res", callUDF(funcName, col("c1"), col("c2"), col("c3"), col("c4"), col("c5")))
         .select("res"),
       Seq(Row(result)))
   }
@@ -801,8 +793,8 @@ trait UDFSuite extends TestData {
       Seq(Row(result)))
     checkAnswer(
       df.withColumn(
-          "res",
-          callUDF(funcName, col("c1"), col("c2"), col("c3"), col("c4"), col("c5"), col("c6")))
+        "res",
+        callUDF(funcName, col("c1"), col("c2"), col("c3"), col("c4"), col("c5"), col("c6")))
         .select("res"),
       Seq(Row(result)))
   }
@@ -823,28 +815,28 @@ trait UDFSuite extends TestData {
         c1 + c2 + c3 + c4 + c5 + c6 + c7)
     checkAnswer(
       df.withColumn(
-          "res",
-          sum(col("c1"), col("c2"), col("c3"), col("c4"), col("c5"), col("c6"), col("c7")))
+        "res",
+        sum(col("c1"), col("c2"), col("c3"), col("c4"), col("c5"), col("c6"), col("c7")))
         .select("res"),
       Seq(Row(result)))
     checkAnswer(
       df.withColumn(
-          "res",
-          sum1(col("c1"), col("c2"), col("c3"), col("c4"), col("c5"), col("c6"), col("c7")))
+        "res",
+        sum1(col("c1"), col("c2"), col("c3"), col("c4"), col("c5"), col("c6"), col("c7")))
         .select("res"),
       Seq(Row(result)))
     checkAnswer(
       df.withColumn(
-          "res",
-          callUDF(
-            funcName,
-            col("c1"),
-            col("c2"),
-            col("c3"),
-            col("c4"),
-            col("c5"),
-            col("c6"),
-            col("c7")))
+        "res",
+        callUDF(
+          funcName,
+          col("c1"),
+          col("c2"),
+          col("c3"),
+          col("c4"),
+          col("c5"),
+          col("c6"),
+          col("c7")))
         .select("res"),
       Seq(Row(result)))
   }
@@ -865,45 +857,37 @@ trait UDFSuite extends TestData {
         c1 + c2 + c3 + c4 + c5 + c6 + c7 + c8)
     checkAnswer(
       df.withColumn(
-          "res",
-          sum(
-            col("c1"),
-            col("c2"),
-            col("c3"),
-            col("c4"),
-            col("c5"),
-            col("c6"),
-            col("c7"),
-            col("c8")))
+        "res",
+        sum(col("c1"), col("c2"), col("c3"), col("c4"), col("c5"), col("c6"), col("c7"), col("c8")))
         .select("res"),
       Seq(Row(result)))
     checkAnswer(
       df.withColumn(
-          "res",
-          sum1(
-            col("c1"),
-            col("c2"),
-            col("c3"),
-            col("c4"),
-            col("c5"),
-            col("c6"),
-            col("c7"),
-            col("c8")))
+        "res",
+        sum1(
+          col("c1"),
+          col("c2"),
+          col("c3"),
+          col("c4"),
+          col("c5"),
+          col("c6"),
+          col("c7"),
+          col("c8")))
         .select("res"),
       Seq(Row(result)))
     checkAnswer(
       df.withColumn(
-          "res",
-          callUDF(
-            funcName,
-            col("c1"),
-            col("c2"),
-            col("c3"),
-            col("c4"),
-            col("c5"),
-            col("c6"),
-            col("c7"),
-            col("c8")))
+        "res",
+        callUDF(
+          funcName,
+          col("c1"),
+          col("c2"),
+          col("c3"),
+          col("c4"),
+          col("c5"),
+          col("c6"),
+          col("c7"),
+          col("c8")))
         .select("res"),
       Seq(Row(result)))
   }
@@ -925,48 +909,48 @@ trait UDFSuite extends TestData {
         c1 + c2 + c3 + c4 + c5 + c6 + c7 + c8 + c9)
     checkAnswer(
       df.withColumn(
-          "res",
-          sum(
-            col("c1"),
-            col("c2"),
-            col("c3"),
-            col("c4"),
-            col("c5"),
-            col("c6"),
-            col("c7"),
-            col("c8"),
-            col("c9")))
+        "res",
+        sum(
+          col("c1"),
+          col("c2"),
+          col("c3"),
+          col("c4"),
+          col("c5"),
+          col("c6"),
+          col("c7"),
+          col("c8"),
+          col("c9")))
         .select("res"),
       Seq(Row(result)))
     checkAnswer(
       df.withColumn(
-          "res",
-          sum1(
-            col("c1"),
-            col("c2"),
-            col("c3"),
-            col("c4"),
-            col("c5"),
-            col("c6"),
-            col("c7"),
-            col("c8"),
-            col("c9")))
+        "res",
+        sum1(
+          col("c1"),
+          col("c2"),
+          col("c3"),
+          col("c4"),
+          col("c5"),
+          col("c6"),
+          col("c7"),
+          col("c8"),
+          col("c9")))
         .select("res"),
       Seq(Row(result)))
     checkAnswer(
       df.withColumn(
-          "res",
-          callUDF(
-            funcName,
-            col("c1"),
-            col("c2"),
-            col("c3"),
-            col("c4"),
-            col("c5"),
-            col("c6"),
-            col("c7"),
-            col("c8"),
-            col("c9")))
+        "res",
+        callUDF(
+          funcName,
+          col("c1"),
+          col("c2"),
+          col("c3"),
+          col("c4"),
+          col("c5"),
+          col("c6"),
+          col("c7"),
+          col("c8"),
+          col("c9")))
         .select("res"),
       Seq(Row(result)))
   }
@@ -976,90 +960,63 @@ trait UDFSuite extends TestData {
     val columns = (1 to 10).map("c" + _)
     val df = Seq((1, 2, 3, 4, 5, 6, 7, 8, 9, 10)).toDF(columns)
     val sum = udf(
-      (
-          c1: Int,
-          c2: Int,
-          c3: Int,
-          c4: Int,
-          c5: Int,
-          c6: Int,
-          c7: Int,
-          c8: Int,
-          c9: Int,
-          c10: Int) => c1 + c2 + c3 + c4 + c5 + c6 + c7 + c8 + c9 + c10)
+      (c1: Int, c2: Int, c3: Int, c4: Int, c5: Int, c6: Int, c7: Int, c8: Int, c9: Int, c10: Int) =>
+        c1 + c2 + c3 + c4 + c5 + c6 + c7 + c8 + c9 + c10)
     val sum1 = session.udf.registerTemporary(
-      (
-          c1: Int,
-          c2: Int,
-          c3: Int,
-          c4: Int,
-          c5: Int,
-          c6: Int,
-          c7: Int,
-          c8: Int,
-          c9: Int,
-          c10: Int) => c1 + c2 + c3 + c4 + c5 + c6 + c7 + c8 + c9 + c10)
+      (c1: Int, c2: Int, c3: Int, c4: Int, c5: Int, c6: Int, c7: Int, c8: Int, c9: Int, c10: Int) =>
+        c1 + c2 + c3 + c4 + c5 + c6 + c7 + c8 + c9 + c10)
     val funcName = randomName()
     session.udf.registerTemporary(
       funcName,
-      (
-          c1: Int,
-          c2: Int,
-          c3: Int,
-          c4: Int,
-          c5: Int,
-          c6: Int,
-          c7: Int,
-          c8: Int,
-          c9: Int,
-          c10: Int) => c1 + c2 + c3 + c4 + c5 + c6 + c7 + c8 + c9 + c10)
+      (c1: Int, c2: Int, c3: Int, c4: Int, c5: Int, c6: Int, c7: Int, c8: Int, c9: Int, c10: Int) =>
+        c1 + c2 + c3 + c4 + c5 + c6 + c7 + c8 + c9 + c10)
     checkAnswer(
       df.withColumn(
-          "res",
-          sum(
-            col("c1"),
-            col("c2"),
-            col("c3"),
-            col("c4"),
-            col("c5"),
-            col("c6"),
-            col("c7"),
-            col("c8"),
-            col("c9"),
-            col("c10")))
+        "res",
+        sum(
+          col("c1"),
+          col("c2"),
+          col("c3"),
+          col("c4"),
+          col("c5"),
+          col("c6"),
+          col("c7"),
+          col("c8"),
+          col("c9"),
+          col("c10")))
         .select("res"),
       Seq(Row(result)))
     checkAnswer(
       df.withColumn(
-          "res",
-          sum1(
-            col("c1"),
-            col("c2"),
-            col("c3"),
-            col("c4"),
-            col("c5"),
-            col("c6"),
-            col("c7"),
-            col("c8"),
-            col("c9"),
-            col("c10")))
+        "res",
+        sum1(
+          col("c1"),
+          col("c2"),
+          col("c3"),
+          col("c4"),
+          col("c5"),
+          col("c6"),
+          col("c7"),
+          col("c8"),
+          col("c9"),
+          col("c10")))
         .select("res"),
       Seq(Row(result)))
     checkAnswer(
       df.withColumn(
-          "res",
-          callUDF(
-            funcName,
-            col("c1"),
-            col("c2"),
-            col("c3"),
-            col("c4"),
-            col("c5"),
-            col("c6"),
-            col("c7"),
-            col("c8"),
-            col("c9"),
-            col("c10")))
+        "res",
+        callUDF(
+          funcName,
+          col("c1"),
+          col("c2"),
+          col("c3"),
+          col("c4"),
+          col("c5"),
+          col("c6"),
+          col("c7"),
+          col("c8"),
+          col("c9"),
+          col("c10")))
         .select("res"),
       Seq(Row(result)))
   }
@@ -1111,54 +1068,54 @@ trait UDFSuite extends TestData {
           c11: Int) => c1 + c2 + c3 + c4 + c5 + c6 + c7 + c8 + c9 + c10 + c11)
     checkAnswer(
       df.withColumn(
-          "res",
-          sum(
-            col("c1"),
-            col("c2"),
-            col("c3"),
-            col("c4"),
-            col("c5"),
-            col("c6"),
-            col("c7"),
-            col("c8"),
-            col("c9"),
-            col("c10"),
-            col("c11")))
+        "res",
+        sum(
+          col("c1"),
+          col("c2"),
+          col("c3"),
+          col("c4"),
+          col("c5"),
+          col("c6"),
+          col("c7"),
+          col("c8"),
+          col("c9"),
+          col("c10"),
+          col("c11")))
         .select("res"),
       Seq(Row(result)))
     checkAnswer(
       df.withColumn(
-          "res",
-          sum1(
-            col("c1"),
-            col("c2"),
-            col("c3"),
-            col("c4"),
-            col("c5"),
-            col("c6"),
-            col("c7"),
-            col("c8"),
-            col("c9"),
-            col("c10"),
-            col("c11")))
+        "res",
+        sum1(
+          col("c1"),
+          col("c2"),
+          col("c3"),
+          col("c4"),
+          col("c5"),
+          col("c6"),
+          col("c7"),
+          col("c8"),
+          col("c9"),
+          col("c10"),
+          col("c11")))
         .select("res"),
       Seq(Row(result)))
     checkAnswer(
       df.withColumn(
-          "res",
-          callUDF(
-            funcName,
-            col("c1"),
-            col("c2"),
-            col("c3"),
-            col("c4"),
-            col("c5"),
-            col("c6"),
-            col("c7"),
-            col("c8"),
-            col("c9"),
-            col("c10"),
-            col("c11")))
+        "res",
+        callUDF(
+          funcName,
+          col("c1"),
+          col("c2"),
+          col("c3"),
+          col("c4"),
+          col("c5"),
+          col("c6"),
+          col("c7"),
+          col("c8"),
+          col("c9"),
+          col("c10"),
+          col("c11")))
         .select("res"),
       Seq(Row(result)))
   }
@@ -1213,57 +1170,57 @@ trait UDFSuite extends TestData {
           c12: Int) => c1 + c2 + c3 + c4 + c5 + c6 + c7 + c8 + c9 + c10 + c11 + c12)
     checkAnswer(
       df.withColumn(
-          "res",
-          sum(
-            col("c1"),
-            col("c2"),
-            col("c3"),
-            col("c4"),
-            col("c5"),
-            col("c6"),
-            col("c7"),
-            col("c8"),
-            col("c9"),
-            col("c10"),
-            col("c11"),
-            col("c12")))
+        "res",
+        sum(
+          col("c1"),
+          col("c2"),
+          col("c3"),
+          col("c4"),
+          col("c5"),
+          col("c6"),
+          col("c7"),
+          col("c8"),
+          col("c9"),
+          col("c10"),
+          col("c11"),
+          col("c12")))
         .select("res"),
       Seq(Row(result)))
     checkAnswer(
       df.withColumn(
-          "res",
-          sum1(
-            col("c1"),
-            col("c2"),
-            col("c3"),
-            col("c4"),
-            col("c5"),
-            col("c6"),
-            col("c7"),
-            col("c8"),
-            col("c9"),
-            col("c10"),
-            col("c11"),
-            col("c12")))
+        "res",
+        sum1(
+          col("c1"),
+          col("c2"),
+          col("c3"),
+          col("c4"),
+          col("c5"),
+          col("c6"),
+          col("c7"),
+          col("c8"),
+          col("c9"),
+          col("c10"),
+          col("c11"),
+          col("c12")))
         .select("res"),
       Seq(Row(result)))
     checkAnswer(
       df.withColumn(
-          "res",
-          callUDF(
-            funcName,
-            col("c1"),
-            col("c2"),
-            col("c3"),
-            col("c4"),
-            col("c5"),
-            col("c6"),
-            col("c7"),
-            col("c8"),
-            col("c9"),
-            col("c10"),
-            col("c11"),
-            col("c12")))
+        "res",
+        callUDF(
+          funcName,
+          col("c1"),
+          col("c2"),
+          col("c3"),
+          col("c4"),
+          col("c5"),
+          col("c6"),
+          col("c7"),
+          col("c8"),
+          col("c9"),
+          col("c10"),
+          col("c11"),
+          col("c12")))
         .select("res"),
       Seq(Row(result)))
   }
@@ -1321,60 +1278,60 @@ trait UDFSuite extends TestData {
           c13: Int) => c1 + c2 + c3 + c4 + c5 + c6 + c7 + c8 + c9 + c10 + c11 + c12 + c13)
     checkAnswer(
       df.withColumn(
-          "res",
-          sum(
-            col("c1"),
-            col("c2"),
-            col("c3"),
-            col("c4"),
-            col("c5"),
-            col("c6"),
-            col("c7"),
-            col("c8"),
-            col("c9"),
-            col("c10"),
-            col("c11"),
-            col("c12"),
-            col("c13")))
+        "res",
+        sum(
+          col("c1"),
+          col("c2"),
+          col("c3"),
+          col("c4"),
+          col("c5"),
+          col("c6"),
+          col("c7"),
+          col("c8"),
+          col("c9"),
+          col("c10"),
+          col("c11"),
+          col("c12"),
+          col("c13")))
         .select("res"),
       Seq(Row(result)))
     checkAnswer(
       df.withColumn(
-          "res",
-          sum1(
-            col("c1"),
-            col("c2"),
-            col("c3"),
-            col("c4"),
-            col("c5"),
-            col("c6"),
-            col("c7"),
-            col("c8"),
-            col("c9"),
-            col("c10"),
-            col("c11"),
-            col("c12"),
-            col("c13")))
+        "res",
+        sum1(
+          col("c1"),
+          col("c2"),
+          col("c3"),
+          col("c4"),
+          col("c5"),
+          col("c6"),
+          col("c7"),
+          col("c8"),
+          col("c9"),
+          col("c10"),
+          col("c11"),
+          col("c12"),
+          col("c13")))
         .select("res"),
       Seq(Row(result)))
     checkAnswer(
       df.withColumn(
-          "res",
-          callUDF(
-            funcName,
-            col("c1"),
-            col("c2"),
-            col("c3"),
-            col("c4"),
-            col("c5"),
-            col("c6"),
-            col("c7"),
-            col("c8"),
-            col("c9"),
-            col("c10"),
-            col("c11"),
-            col("c12"),
-            col("c13")))
+        "res",
+        callUDF(
+          funcName,
+          col("c1"),
+          col("c2"),
+          col("c3"),
+          col("c4"),
+          col("c5"),
+          col("c6"),
+          col("c7"),
+          col("c8"),
+          col("c9"),
+          col("c10"),
+          col("c11"),
+          col("c12"),
+          col("c13")))
         .select("res"),
       Seq(Row(result)))
   }
@@ -1435,63 +1392,63 @@ trait UDFSuite extends TestData {
           c14: Int) => c1 + c2 + c3 + c4 + c5 + c6 + c7 + c8 + c9 + c10 + c11 + c12 + c13 + c14)
     checkAnswer(
       df.withColumn(
-          "res",
-          sum(
-            col("c1"),
-            col("c2"),
-            col("c3"),
-            col("c4"),
-            col("c5"),
-            col("c6"),
-            col("c7"),
-            col("c8"),
-            col("c9"),
-            col("c10"),
-            col("c11"),
-            col("c12"),
-            col("c13"),
-            col("c14")))
+        "res",
+        sum(
+          col("c1"),
+          col("c2"),
+          col("c3"),
+          col("c4"),
+          col("c5"),
+          col("c6"),
+          col("c7"),
+          col("c8"),
+          col("c9"),
+          col("c10"),
+          col("c11"),
+          col("c12"),
+          col("c13"),
+          col("c14")))
         .select("res"),
       Seq(Row(result)))
     checkAnswer(
       df.withColumn(
-          "res",
-          sum1(
-            col("c1"),
-            col("c2"),
-            col("c3"),
-            col("c4"),
-            col("c5"),
-            col("c6"),
-            col("c7"),
-            col("c8"),
-            col("c9"),
-            col("c10"),
-            col("c11"),
-            col("c12"),
-            col("c13"),
-            col("c14")))
+        "res",
+        sum1(
+          col("c1"),
+          col("c2"),
+          col("c3"),
+          col("c4"),
+          col("c5"),
+          col("c6"),
+          col("c7"),
+          col("c8"),
+          col("c9"),
+          col("c10"),
+          col("c11"),
+          col("c12"),
+          col("c13"),
+          col("c14")))
         .select("res"),
       Seq(Row(result)))
     checkAnswer(
       df.withColumn(
-          "res",
-          callUDF(
-            funcName,
-            col("c1"),
-            col("c2"),
-            col("c3"),
-            col("c4"),
-            col("c5"),
-            col("c6"),
-            col("c7"),
-            col("c8"),
-            col("c9"),
-            col("c10"),
-            col("c11"),
-            col("c12"),
-            col("c13"),
-            col("c14")))
+        "res",
+        callUDF(
+          funcName,
+          col("c1"),
+          col("c2"),
+          col("c3"),
+          col("c4"),
+          col("c5"),
+          col("c6"),
+          col("c7"),
+          col("c8"),
+          col("c9"),
+          col("c10"),
+          col("c11"),
+          col("c12"),
+          col("c13"),
+          col("c14")))
         .select("res"),
       Seq(Row(result)))
   }
@@ -1558,66 +1515,66 @@ trait UDFSuite extends TestData {
         c1 + c2 + c3 + c4 + c5 + c6 + c7 + c8 + c9 + c10 + c11 + c12 + c13 + c14 + c15)
     checkAnswer(
       df.withColumn(
-          "res",
-          sum(
-            col("c1"),
-            col("c2"),
-            col("c3"),
-            col("c4"),
-            col("c5"),
-            col("c6"),
-            col("c7"),
-            col("c8"),
-            col("c9"),
-            col("c10"),
-            col("c11"),
-            col("c12"),
-            col("c13"),
-            col("c14"),
-            col("c15")))
+        "res",
+        sum(
+          col("c1"),
+          col("c2"),
+          col("c3"),
+          col("c4"),
+          col("c5"),
+          col("c6"),
+          col("c7"),
+          col("c8"),
+          col("c9"),
+          col("c10"),
+          col("c11"),
+          col("c12"),
+          col("c13"),
+          col("c14"),
+          col("c15")))
         .select("res"),
       Seq(Row(result)))
     checkAnswer(
       df.withColumn(
-          "res",
-          sum1(
-            col("c1"),
-            col("c2"),
-            col("c3"),
-            col("c4"),
-            col("c5"),
-            col("c6"),
-            col("c7"),
-            col("c8"),
-            col("c9"),
-            col("c10"),
-            col("c11"),
-            col("c12"),
-            col("c13"),
-            col("c14"),
-            col("c15")))
+        "res",
+        sum1(
+          col("c1"),
+          col("c2"),
+          col("c3"),
+          col("c4"),
+          col("c5"),
+          col("c6"),
+          col("c7"),
+          col("c8"),
+          col("c9"),
+          col("c10"),
+          col("c11"),
+          col("c12"),
+          col("c13"),
+          col("c14"),
+          col("c15")))
         .select("res"),
       Seq(Row(result)))
     checkAnswer(
       df.withColumn(
-          "res",
-          callUDF(
-            funcName,
-            col("c1"),
-            col("c2"),
-            col("c3"),
-            col("c4"),
-            col("c5"),
-            col("c6"),
-            col("c7"),
-            col("c8"),
-            col("c9"),
-            col("c10"),
-            col("c11"),
-            col("c12"),
-            col("c13"),
-            col("c14"),
-            col("c15")))
+        "res",
+        callUDF(
+          funcName,
+          col("c1"),
+          col("c2"),
+          col("c3"),
+          col("c4"),
+          col("c5"),
+          col("c6"),
+          col("c7"),
+          col("c8"),
+          col("c9"),
+          col("c10"),
+          col("c11"),
+          col("c12"),
+          col("c13"),
+          col("c14"),
+          col("c15")))
         .select("res"),
       Seq(Row(result)))
   }
@@ -1687,69 +1644,69 @@ trait UDFSuite extends TestData {
         c1 + c2 + c3 + c4 + c5 + c6 + c7 + c8 + c9 + c10 + c11 + c12 + c13 + c14 + c15 + c16)
     checkAnswer(
       df.withColumn(
-          "res",
-          sum(
-            col("c1"),
-            col("c2"),
-            col("c3"),
-            col("c4"),
-            col("c5"),
-            col("c6"),
-            col("c7"),
-            col("c8"),
-            col("c9"),
-            col("c10"),
-            col("c11"),
-            col("c12"),
-            col("c13"),
-            col("c14"),
-            col("c15"),
-            col("c16")))
+        "res",
+        sum(
+          col("c1"),
+          col("c2"),
+          col("c3"),
+          col("c4"),
+          col("c5"),
+          col("c6"),
+          col("c7"),
+          col("c8"),
+          col("c9"),
+          col("c10"),
+          col("c11"),
+          col("c12"),
+          col("c13"),
+          col("c14"),
+          col("c15"),
+          col("c16")))
         .select("res"),
       Seq(Row(result)))
     checkAnswer(
       df.withColumn(
-          "res",
-          sum1(
-            col("c1"),
-            col("c2"),
-            col("c3"),
-            col("c4"),
-            col("c5"),
-            col("c6"),
-            col("c7"),
-            col("c8"),
-            col("c9"),
-            col("c10"),
-            col("c11"),
-            col("c12"),
-            col("c13"),
-            col("c14"),
-            col("c15"),
-            col("c16")))
+        "res",
+        sum1(
+          col("c1"),
+          col("c2"),
+          col("c3"),
+          col("c4"),
+          col("c5"),
+          col("c6"),
+          col("c7"),
+          col("c8"),
+          col("c9"),
+          col("c10"),
+          col("c11"),
+          col("c12"),
+          col("c13"),
+          col("c14"),
+          col("c15"),
+          col("c16")))
         .select("res"),
       Seq(Row(result)))
     checkAnswer(
       df.withColumn(
-          "res",
-          callUDF(
-            funcName,
-            col("c1"),
-            col("c2"),
-            col("c3"),
-            col("c4"),
-            col("c5"),
-            col("c6"),
-            col("c7"),
-            col("c8"),
-            col("c9"),
-            col("c10"),
-            col("c11"),
-            col("c12"),
-            col("c13"),
-            col("c14"),
-            col("c15"),
-            col("c16")))
+        "res",
+        callUDF(
+          funcName,
+          col("c1"),
+          col("c2"),
+          col("c3"),
+          col("c4"),
+          col("c5"),
+          col("c6"),
+          col("c7"),
+          col("c8"),
+          col("c9"),
+          col("c10"),
+          col("c11"),
+          col("c12"),
+          col("c13"),
+          col("c14"),
+          col("c15"),
+          col("c16")))
         .select("res"),
       Seq(Row(result)))
   }
@@ -1758,44 +1715,46 @@ trait UDFSuite extends TestData {
     val result = (1 to 17).reduceLeft(_ + _)
     val columns = (1 to 17).map("c" + _)
     val df = Seq((1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17)).toDF(columns)
-    val sum = udf((
-        c1: Int,
-        c2: Int,
-        c3: Int,
-        c4: Int,
-        c5: Int,
-        c6: Int,
-        c7: Int,
-        c8: Int,
-        c9: Int,
-        c10: Int,
-        c11: Int,
-        c12: Int,
-        c13: Int,
-        c14: Int,
-        c15: Int,
-        c16: Int,
-        c17: Int) =>
-      c1 + c2 + c3 + c4 + c5 + c6 + c7 + c8 + c9 + c10 + c11 + c12 + c13 + c14 + c15 + c16 + c17)
-    val sum1 = session.udf.registerTemporary((
-        c1: Int,
-        c2: Int,
-        c3: Int,
-        c4: Int,
-        c5: Int,
-        c6: Int,
-        c7: Int,
-        c8: Int,
-        c9: Int,
-        c10: Int,
-        c11: Int,
-        c12: Int,
-        c13: Int,
-        c14: Int,
-        c15: Int,
-        c16: Int,
-        c17: Int) =>
-      c1 + c2 + c3 + c4 + c5 + c6 + c7 + c8 + c9 + c10 + c11 + c12 + c13 + c14 + c15 + c16 + c17)
+    val sum = udf(
+      (
+          c1: Int,
+          c2: Int,
+          c3: Int,
+          c4: Int,
+          c5: Int,
+          c6: Int,
+          c7: Int,
+          c8: Int,
+          c9: Int,
+          c10: Int,
+          c11: Int,
+          c12: Int,
+          c13: Int,
+          c14: Int,
+          c15: Int,
+          c16: Int,
+          c17: Int) =>
+        c1 + c2 + c3 + c4 + c5 + c6 + c7 + c8 + c9 + c10 + c11 + c12 + c13 + c14 + c15 + c16 + c17)
+    val sum1 = session.udf.registerTemporary(
+      (
+          c1: Int,
+          c2: Int,
+          c3: Int,
+          c4: Int,
+          c5: Int,
+          c6: Int,
+          c7: Int,
+          c8: Int,
+          c9: Int,
+          c10: Int,
+          c11: Int,
+          c12: Int,
+          c13: Int,
+          c14: Int,
+          c15: Int,
+          c16: Int,
+          c17: Int) =>
+        c1 + c2 + c3 + c4 + c5 + c6 + c7 + c8 + c9 + c10 + c11 + c12 + c13 + c14 + c15 + c16 + c17)
     val funcName = randomName()
     session.udf.registerTemporary(
       funcName,
@@ -1820,72 +1779,72 @@ trait UDFSuite extends TestData {
         c1 + c2 + c3 + c4 + c5 + c6 + c7 + c8 + c9 + c10 + c11 + c12 + c13 + c14 + c15 + c16 + c17)
     checkAnswer(
       df.withColumn(
-          "res",
-          sum(
-            col("c1"),
-            col("c2"),
-            col("c3"),
-            col("c4"),
-            col("c5"),
-            col("c6"),
-            col("c7"),
-            col("c8"),
-            col("c9"),
-            col("c10"),
-            col("c11"),
-            col("c12"),
-            col("c13"),
-            col("c14"),
-            col("c15"),
-            col("c16"),
-            col("c17")))
+        "res",
+        sum(
+          col("c1"),
+          col("c2"),
+          col("c3"),
+          col("c4"),
+          col("c5"),
+          col("c6"),
+          col("c7"),
+          col("c8"),
+          col("c9"),
+          col("c10"),
+          col("c11"),
+          col("c12"),
+          col("c13"),
+          col("c14"),
+          col("c15"),
+          col("c16"),
+          col("c17")))
         .select("res"),
       Seq(Row(result)))
     checkAnswer(
       df.withColumn(
-          "res",
-          sum1(
-            col("c1"),
-            col("c2"),
-            col("c3"),
-            col("c4"),
-            col("c5"),
-            col("c6"),
-            col("c7"),
-            col("c8"),
-            col("c9"),
-            col("c10"),
-            col("c11"),
-            col("c12"),
-            col("c13"),
-            col("c14"),
-            col("c15"),
-            col("c16"),
-            col("c17")))
+        "res",
+        sum1(
+          col("c1"),
+          col("c2"),
+          col("c3"),
+          col("c4"),
+          col("c5"),
+          col("c6"),
+          col("c7"),
+          col("c8"),
+          col("c9"),
+          col("c10"),
+          col("c11"),
+          col("c12"),
+          col("c13"),
+          col("c14"),
+          col("c15"),
+          col("c16"),
+          col("c17")))
         .select("res"),
       Seq(Row(result)))
     checkAnswer(
       df.withColumn(
-          "res",
-          callUDF(
-            funcName,
-            col("c1"),
-            col("c2"),
-            col("c3"),
-            col("c4"),
-            col("c5"),
-            col("c6"),
-            col("c7"),
-            col("c8"),
-            col("c9"),
-            col("c10"),
-            col("c11"),
-            col("c12"),
-            col("c13"),
-            col("c14"),
-            col("c15"),
-            col("c16"),
-            col("c17")))
+        "res",
+        callUDF(
+          funcName,
+          col("c1"),
+          col("c2"),
+          col("c3"),
+          col("c4"),
+          col("c5"),
+          col("c6"),
+          col("c7"),
+          col("c8"),
+          col("c9"),
+          col("c10"),
+          col("c11"),
+          col("c12"),
+          col("c13"),
+          col("c14"),
+          col("c15"),
+          col("c16"),
+          col("c17")))
         .select("res"),
       Seq(Row(result)))
   }
@@ -1894,46 +1853,48 @@ trait UDFSuite extends TestData {
     val result = (1 to 18).reduceLeft(_ + _)
     val columns = (1 to 18).map("c" + _)
     val df = Seq((1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18)).toDF(columns)
-    val sum = udf((
-        c1: Int,
-        c2: Int,
-        c3: Int,
-        c4: Int,
-        c5: Int,
-        c6: Int,
-        c7: Int,
-        c8: Int,
-        c9: Int,
-        c10: Int,
-        c11: Int,
-        c12: Int,
-        c13: Int,
-        c14: Int,
-        c15: Int,
-        c16: Int,
-        c17: Int,
-        c18: Int) =>
-      c1 + c2 + c3 + c4 + c5 + c6 + c7 + c8 + c9 + c10 + c11 + c12 + c13 + c14 + c15 + c16 + c17 + c18)
-    val sum1 = session.udf.registerTemporary((
-        c1: Int,
-        c2: Int,
-        c3: Int,
-        c4: Int,
-        c5: Int,
-        c6: Int,
-        c7: Int,
-        c8: Int,
-        c9: Int,
-        c10: Int,
-        c11: Int,
-        c12: Int,
-        c13: Int,
-        c14: Int,
-        c15: Int,
-        c16: Int,
-        c17: Int,
-        c18: Int) =>
-      c1 + c2 + c3 + c4 + c5 + c6 + c7 + c8 + c9 + c10 + c11 + c12 + c13 + c14 + c15 + c16 + c17 + c18)
+    val sum = udf(
+      (
+          c1: Int,
+          c2: Int,
+          c3: Int,
+          c4: Int,
+          c5: Int,
+          c6: Int,
+          c7: Int,
+          c8: Int,
+          c9: Int,
+          c10: Int,
+          c11: Int,
+          c12: Int,
+          c13: Int,
+          c14: Int,
+          c15: Int,
+          c16: Int,
+          c17: Int,
+          c18: Int) =>
+        c1 + c2 + c3 + c4 + c5 + c6 + c7 + c8 + c9 + c10 + c11 + c12 + c13 + c14 + c15 + c16 + c17 + c18)
+    val sum1 = session.udf.registerTemporary(
+      (
+          c1: Int,
+          c2: Int,
+          c3: Int,
+          c4: Int,
+          c5: Int,
+          c6: Int,
+          c7: Int,
+          c8: Int,
+          c9: Int,
+          c10: Int,
+          c11: Int,
+          c12: Int,
+          c13: Int,
+          c14: Int,
+          c15: Int,
+          c16: Int,
+          c17: Int,
+          c18: Int) =>
+        c1 + c2 + c3 + c4 + c5 + c6 + c7 + c8 + c9 + c10 + c11 + c12 + c13 + c14 + c15 + c16 + c17 + c18)
     val funcName = randomName()
     session.udf.registerTemporary(
       funcName,
@@ -1959,75 +1920,75 @@ trait UDFSuite extends TestData {
         c1 + c2 + c3 + c4 + c5 + c6 + c7 + c8 + c9 + c10 + c11 + c12 + c13 + c14 + c15 + c16 + c17 + c18)
     checkAnswer(
       df.withColumn(
-          "res",
-          sum(
-            col("c1"),
-            col("c2"),
-            col("c3"),
-            col("c4"),
-            col("c5"),
-            col("c6"),
-            col("c7"),
-            col("c8"),
-            col("c9"),
-            col("c10"),
-            col("c11"),
-            col("c12"),
-            col("c13"),
-            col("c14"),
-            col("c15"),
-            col("c16"),
-            col("c17"),
-            col("c18")))
+        "res",
+        sum(
+          col("c1"),
+          col("c2"),
+          col("c3"),
+          col("c4"),
+          col("c5"),
+          col("c6"),
+          col("c7"),
+          col("c8"),
+          col("c9"),
+          col("c10"),
+          col("c11"),
+          col("c12"),
+          col("c13"),
+          col("c14"),
+          col("c15"),
+          col("c16"),
+          col("c17"),
+          col("c18")))
         .select("res"),
       Seq(Row(result)))
     checkAnswer(
       df.withColumn(
-          "res",
-          sum1(
-            col("c1"),
-            col("c2"),
-            col("c3"),
-            col("c4"),
-            col("c5"),
-            col("c6"),
-            col("c7"),
-            col("c8"),
-            col("c9"),
-            col("c10"),
-            col("c11"),
-            col("c12"),
-            col("c13"),
-            col("c14"),
-            col("c15"),
-            col("c16"),
-            col("c17"),
-            col("c18")))
+        "res",
+        sum1(
+          col("c1"),
+          col("c2"),
+          col("c3"),
+          col("c4"),
+          col("c5"),
+          col("c6"),
+          col("c7"),
+          col("c8"),
+          col("c9"),
+          col("c10"),
+          col("c11"),
+          col("c12"),
+          col("c13"),
+          col("c14"),
+          col("c15"),
+          col("c16"),
+          col("c17"),
+          col("c18")))
         .select("res"),
       Seq(Row(result)))
     checkAnswer(
       df.withColumn(
-          "res",
-          callUDF(
-            funcName,
-            col("c1"),
-            col("c2"),
-            col("c3"),
-            col("c4"),
-            col("c5"),
-            col("c6"),
-            col("c7"),
-            col("c8"),
-            col("c9"),
-            col("c10"),
-            col("c11"),
-            col("c12"),
-            col("c13"),
-            col("c14"),
-            col("c15"),
-            col("c16"),
-            col("c17"),
-            col("c18")))
+        "res",
+        callUDF(
+          funcName,
+          col("c1"),
+          col("c2"),
+          col("c3"),
+          col("c4"),
+          col("c5"),
+          col("c6"),
+          col("c7"),
+          col("c8"),
+          col("c9"),
+          col("c10"),
+          col("c11"),
+          col("c12"),
+          col("c13"),
+          col("c14"),
+          col("c15"),
+          col("c16"),
+          col("c17"),
+          col("c18")))
         .select("res"),
       Seq(Row(result)))
   }
@@ -2037,48 +1998,50 @@ trait UDFSuite extends TestData {
     val columns = (1 to 19).map("c" + _)
     val df =
       Seq((1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19)).toDF(columns)
-    val sum = udf((
-        c1: Int,
-        c2: Int,
-        c3: Int,
-        c4: Int,
-        c5: Int,
-        c6: Int,
-        c7: Int,
-        c8: Int,
-        c9: Int,
-        c10: Int,
-        c11: Int,
-        c12: Int,
-        c13: Int,
-        c14: Int,
-        c15: Int,
-        c16: Int,
-        c17: Int,
-        c18: Int,
-        c19: Int) =>
-      c1 + c2 + c3 + c4 + c5 + c6 + c7 + c8 + c9 + c10 + c11 + c12 + c13 + c14 + c15 + c16 + c17 + c18 + c19)
-    val sum1 = session.udf.registerTemporary((
-        c1: Int,
-        c2: Int,
-        c3: Int,
-        c4: Int,
-        c5: Int,
-        c6: Int,
-        c7: Int,
-        c8: Int,
-        c9: Int,
-        c10: Int,
-        c11: Int,
-        c12: Int,
-        c13: Int,
-        c14: Int,
-        c15: Int,
-        c16: Int,
-        c17: Int,
-        c18: Int,
-        c19: Int) =>
-      c1 + c2 + c3 + c4 + c5 + c6 + c7 + c8 + c9 + c10 + c11 + c12 + c13 + c14 + c15 + c16 + c17 + c18 + c19)
+    val sum = udf(
+      (
+          c1: Int,
+          c2: Int,
+          c3: Int,
+          c4: Int,
+          c5: Int,
+          c6: Int,
+          c7: Int,
+          c8: Int,
+          c9: Int,
+          c10: Int,
+          c11: Int,
+          c12: Int,
+          c13: Int,
+          c14: Int,
+          c15: Int,
+          c16: Int,
+          c17: Int,
+          c18: Int,
+          c19: Int) =>
+        c1 + c2 + c3 + c4 + c5 + c6 + c7 + c8 + c9 + c10 + c11 + c12 + c13 + c14 + c15 + c16 + c17 + c18 + c19)
+    val sum1 = session.udf.registerTemporary(
+      (
+          c1: Int,
+          c2: Int,
+          c3: Int,
+          c4: Int,
+          c5: Int,
+          c6: Int,
+          c7: Int,
+          c8: Int,
+          c9: Int,
+          c10: Int,
+          c11: Int,
+          c12: Int,
+          c13: Int,
+          c14: Int,
+          c15: Int,
+          c16: Int,
+          c17: Int,
+          c18: Int,
+          c19: Int) =>
+        c1 + c2 + c3 + c4 + c5 + c6 + c7 + c8 + c9 + c10 + c11 + c12 + c13 + c14 + c15 + c16 + c17 + c18 + c19)
     val funcName = randomName()
     session.udf.registerTemporary(
       funcName,
@@ -2105,78 +2068,78 @@ trait UDFSuite extends TestData {
         c1 + c2 + c3 + c4 + c5 + c6 + c7 + c8 + c9 + c10 + c11 + c12 + c13 + c14 + c15 + c16 + c17 + c18 + c19)
     checkAnswer(
       df.withColumn(
-          "res",
-          sum(
-            col("c1"),
-            col("c2"),
-            col("c3"),
-            col("c4"),
-            col("c5"),
-            col("c6"),
-            col("c7"),
-            col("c8"),
-            col("c9"),
-            col("c10"),
-            col("c11"),
-            col("c12"),
-            col("c13"),
-            col("c14"),
-            col("c15"),
-            col("c16"),
-            col("c17"),
-            col("c18"),
-            col("c19")))
+        "res",
+        sum(
+          col("c1"),
+          col("c2"),
+          col("c3"),
+          col("c4"),
+          col("c5"),
+          col("c6"),
+          col("c7"),
+          col("c8"),
+          col("c9"),
+          col("c10"),
+          col("c11"),
+          col("c12"),
+          col("c13"),
+          col("c14"),
+          col("c15"),
+          col("c16"),
+          col("c17"),
+          col("c18"),
+          col("c19")))
         .select("res"),
       Seq(Row(result)))
     checkAnswer(
       df.withColumn(
-          "res",
-          sum1(
-            col("c1"),
-            col("c2"),
-            col("c3"),
-            col("c4"),
-            col("c5"),
-            col("c6"),
-            col("c7"),
-            col("c8"),
-            col("c9"),
-            col("c10"),
-            col("c11"),
-            col("c12"),
-            col("c13"),
-            col("c14"),
-            col("c15"),
-            col("c16"),
-            col("c17"),
-            col("c18"),
-            col("c19")))
+        "res",
+        sum1(
+          col("c1"),
+          col("c2"),
+          col("c3"),
+          col("c4"),
+          col("c5"),
+          col("c6"),
+          col("c7"),
+          col("c8"),
+          col("c9"),
+          col("c10"),
+          col("c11"),
+          col("c12"),
+          col("c13"),
+          col("c14"),
+          col("c15"),
+          col("c16"),
+          col("c17"),
+          col("c18"),
+          col("c19")))
         .select("res"),
       Seq(Row(result)))
     checkAnswer(
       df.withColumn(
-          "res",
-          callUDF(
-            funcName,
-            col("c1"),
-            col("c2"),
-            col("c3"),
-            col("c4"),
-            col("c5"),
-            col("c6"),
-            col("c7"),
-            col("c8"),
-            col("c9"),
-            col("c10"),
-            col("c11"),
-            col("c12"),
-            col("c13"),
-            col("c14"),
-            col("c15"),
-            col("c16"),
-            col("c17"),
-            col("c18"),
-            col("c19")))
+        "res",
+        callUDF(
+          funcName,
+          col("c1"),
+          col("c2"),
+          col("c3"),
+          col("c4"),
+          col("c5"),
+          col("c6"),
+          col("c7"),
+          col("c8"),
+          col("c9"),
+          col("c10"),
+          col("c11"),
+          col("c12"),
+          col("c13"),
+          col("c14"),
+          col("c15"),
+          col("c16"),
+          col("c17"),
+          col("c18"),
+          col("c19")))
         .select("res"),
       Seq(Row(result)))
   }
@@ -2186,50 +2149,52 @@ trait UDFSuite extends TestData {
     val columns = (1 to 20).map("c" + _)
     val df =
       Seq((1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20)).toDF(columns)
-    val sum = udf((
-        c1: Int,
-        c2: Int,
-        c3: Int,
-        c4: Int,
-        c5: Int,
-        c6: Int,
-        c7: Int,
-        c8: Int,
-        c9: Int,
-        c10: Int,
-        c11: Int,
-        c12: Int,
-        c13: Int,
-        c14: Int,
-        c15: Int,
-        c16: Int,
-        c17: Int,
-        c18: Int,
-        c19: Int,
-        c20: Int) =>
-      c1 + c2 + c3 + c4 + c5 + c6 + c7 + c8 + c9 + c10 + c11 + c12 + c13 + c14 + c15 + c16 + c17 + c18 + c19 + c20)
-    val sum1 = session.udf.registerTemporary((
-        c1: Int,
-        c2: Int,
-        c3: Int,
-        c4: Int,
-        c5: Int,
-        c6: Int,
-        c7: Int,
-        c8: Int,
-        c9: Int,
-        c10: Int,
-        c11: Int,
-        c12: Int,
-        c13: Int,
-        c14: Int,
-        c15: Int,
-        c16: Int,
-        c17: Int,
-        c18: Int,
-        c19: Int,
-        c20: Int) =>
-      c1 + c2 + c3 + c4 + c5 + c6 + c7 + c8 + c9 + c10 + c11 + c12 + c13 + c14 + c15 + c16 + c17 + c18 + c19 + c20)
+    val sum = udf(
+      (
+          c1: Int,
+          c2: Int,
+          c3: Int,
+          c4: Int,
+          c5: Int,
+          c6: Int,
+          c7: Int,
+          c8: Int,
+          c9: Int,
+          c10: Int,
+          c11: Int,
+          c12: Int,
+          c13: Int,
+          c14: Int,
+          c15: Int,
+          c16: Int,
+          c17: Int,
+          c18: Int,
+          c19: Int,
+          c20: Int) =>
+        c1 + c2 + c3 + c4 + c5 + c6 + c7 + c8 + c9 + c10 + c11 + c12 + c13 + c14 + c15 + c16 + c17 + c18 + c19 + c20)
+    val sum1 = session.udf.registerTemporary(
+      (
+          c1: Int,
+          c2: Int,
+          c3: Int,
+          c4: Int,
+          c5: Int,
+          c6: Int,
+          c7: Int,
+          c8: Int,
+          c9: Int,
+          c10: Int,
+          c11: Int,
+          c12: Int,
+          c13: Int,
+          c14: Int,
+          c15: Int,
+          c16: Int,
+          c17: Int,
+          c18: Int,
+          c19: Int,
+          c20: Int) =>
+        c1 + c2 + c3 + c4 + c5 + c6 + c7 + c8 + c9 + c10 + c11 + c12 + c13 + c14 + c15 + c16 + c17 + c18 + c19 + c20)
     val funcName = randomName()
     session.udf.registerTemporary(
       funcName,
@@ -2257,81 +2222,81 @@ trait UDFSuite extends TestData {
         c1 + c2 + c3 + c4 + c5 + c6 + c7 + c8 + c9 + c10 + c11 + c12 + c13 + c14 + c15 + c16 + c17 + c18 + c19 + c20)
     checkAnswer(
       df.withColumn(
-          "res",
-          sum(
-            col("c1"),
-            col("c2"),
-            col("c3"),
-            col("c4"),
-            col("c5"),
-            col("c6"),
-            col("c7"),
-            col("c8"),
-            col("c9"),
-            col("c10"),
-            col("c11"),
-            col("c12"),
-            col("c13"),
-            col("c14"),
-            col("c15"),
-            col("c16"),
-            col("c17"),
-            col("c18"),
-            col("c19"),
-            col("c20")))
+        "res",
+        sum(
+          col("c1"),
+          col("c2"),
+          col("c3"),
+          col("c4"),
+          col("c5"),
+          col("c6"),
+          col("c7"),
+          col("c8"),
+          col("c9"),
+          col("c10"),
+          col("c11"),
+          col("c12"),
+          col("c13"),
+          col("c14"),
+          col("c15"),
+          col("c16"),
+          col("c17"),
+          col("c18"),
+          col("c19"),
+          col("c20")))
         .select("res"),
       Seq(Row(result)))
     checkAnswer(
       df.withColumn(
-          "res",
-          sum1(
-            col("c1"),
-            col("c2"),
-            col("c3"),
-            col("c4"),
-            col("c5"),
-            col("c6"),
-            col("c7"),
-            col("c8"),
-            col("c9"),
-            col("c10"),
-            col("c11"),
-            col("c12"),
-            col("c13"),
-            col("c14"),
-            col("c15"),
-            col("c16"),
-            col("c17"),
-            col("c18"),
-            col("c19"),
-            col("c20")))
+        "res",
+        sum1(
+          col("c1"),
+          col("c2"),
+          col("c3"),
+          col("c4"),
+          col("c5"),
+          col("c6"),
+          col("c7"),
+          col("c8"),
+          col("c9"),
+          col("c10"),
+          col("c11"),
+          col("c12"),
+          col("c13"),
+          col("c14"),
+          col("c15"),
+          col("c16"),
+          col("c17"),
+          col("c18"),
+          col("c19"),
+          col("c20")))
         .select("res"),
       Seq(Row(result)))
     checkAnswer(
       df.withColumn(
-          "res",
-          callUDF(
-            funcName,
-            col("c1"),
-            col("c2"),
-            col("c3"),
-            col("c4"),
-            col("c5"),
-            col("c6"),
-            col("c7"),
-            col("c8"),
-            col("c9"),
-            col("c10"),
-            col("c11"),
-            col("c12"),
-            col("c13"),
-            col("c14"),
-            col("c15"),
-            col("c16"),
-            col("c17"),
-            col("c18"),
-            col("c19"),
-            col("c20")))
+        "res",
+        callUDF(
+          funcName,
+          col("c1"),
+          col("c2"),
+          col("c3"),
+          col("c4"),
+          col("c5"),
+          col("c6"),
+          col("c7"),
+          col("c8"),
+          col("c9"),
+          col("c10"),
+          col("c11"),
+          col("c12"),
+          col("c13"),
+          col("c14"),
+          col("c15"),
+          col("c16"),
+          col("c17"),
+          col("c18"),
+          col("c19"),
+          col("c20")))
         .select("res"),
       Seq(Row(result)))
   }
@@ -2341,52 +2306,54 @@ trait UDFSuite extends TestData {
     val columns = (1 to 21).map("c" + _)
     val df = Seq((1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21))
       .toDF(columns)
-    val sum = udf((
-        c1: Int,
-        c2: Int,
-        c3: Int,
-        c4: Int,
-        c5: Int,
-        c6: Int,
-        c7: Int,
-        c8: Int,
-        c9: Int,
-        c10: Int,
-        c11: Int,
-        c12: Int,
-        c13: Int,
-        c14: Int,
-        c15: Int,
-        c16: Int,
-        c17: Int,
-        c18: Int,
-        c19: Int,
-        c20: Int,
-        c21: Int) =>
-      c1 + c2 + c3 + c4 + c5 + c6 + c7 + c8 + c9 + c10 + c11 + c12 + c13 + c14 + c15 + c16 + c17 + c18 + c19 + c20 + c21)
-    val sum1 = session.udf.registerTemporary((
-        c1: Int,
-        c2: Int,
-        c3: Int,
-        c4: Int,
-        c5: Int,
-        c6: Int,
-        c7: Int,
-        c8: Int,
-        c9: Int,
-        c10: Int,
-        c11: Int,
-        c12: Int,
-        c13: Int,
-        c14: Int,
-        c15: Int,
-        c16: Int,
-        c17: Int,
-        c18: Int,
-        c19: Int,
-        c20: Int,
-        c21: Int) =>
-      c1 + c2 + c3 + c4 + c5 + c6 + c7 + c8 + c9 + c10 + c11 + c12 + c13 + c14 + c15 + c16 + c17 + c18 + c19 + c20 + c21)
+    val sum = udf(
+      (
+          c1: Int,
+          c2: Int,
+          c3: Int,
+          c4: Int,
+          c5: Int,
+          c6: Int,
+          c7: Int,
+          c8: Int,
+          c9: Int,
+          c10: Int,
+          c11: Int,
+          c12: Int,
+          c13: Int,
+          c14: Int,
+          c15: Int,
+          c16: Int,
+          c17: Int,
+          c18: Int,
+          c19: Int,
+          c20: Int,
+          c21: Int) =>
+        c1 + c2 + c3 + c4 + c5 + c6 + c7 + c8 + c9 + c10 + c11 + c12 + c13 + c14 + c15 + c16 + c17 + c18 + c19 + c20 + c21)
+    val sum1 = session.udf.registerTemporary(
+      (
+          c1: Int,
+          c2: Int,
+          c3: Int,
+          c4: Int,
+          c5: Int,
+          c6: Int,
+          c7: Int,
+          c8: Int,
+          c9: Int,
+          c10: Int,
+          c11: Int,
+          c12: Int,
+          c13: Int,
+          c14: Int,
+          c15: Int,
+          c16: Int,
+          c17: Int,
+          c18: Int,
+          c19: Int,
+          c20: Int,
+          c21: Int) =>
+        c1 + c2 + c3 + c4 + c5 + c6 + c7 + c8 + c9 + c10 + c11 + c12 + c13 + c14 + c15 + c16 + c17 + c18 + c19 + c20 + c21)
     val funcName = randomName()
     session.udf.registerTemporary(
       funcName,
@@ -2415,84 +2382,84 @@ trait UDFSuite extends TestData {
         c1 + c2 + c3 + c4 + c5 + c6 + c7 + c8 + c9 + c10 + c11 + c12 + c13 + c14 + c15 + c16 + c17 + c18 + c19 + c20 + c21)
     checkAnswer(
       df.withColumn(
-          "res",
-          sum(
-            col("c1"),
-            col("c2"),
-            col("c3"),
-            col("c4"),
-            col("c5"),
-            col("c6"),
-            col("c7"),
-            col("c8"),
-            col("c9"),
-            col("c10"),
-            col("c11"),
-            col("c12"),
-            col("c13"),
-            col("c14"),
-            col("c15"),
-            col("c16"),
-            col("c17"),
-            col("c18"),
-            col("c19"),
-            col("c20"),
-            col("c21")))
+        "res",
+        sum(
+          col("c1"),
+          col("c2"),
+          col("c3"),
+          col("c4"),
+          col("c5"),
+          col("c6"),
+          col("c7"),
+          col("c8"),
+          col("c9"),
+          col("c10"),
+          col("c11"),
+          col("c12"),
+          col("c13"),
+          col("c14"),
+          col("c15"),
+          col("c16"),
+          col("c17"),
+          col("c18"),
+          col("c19"),
+          col("c20"),
+          col("c21")))
         .select("res"),
       Seq(Row(result)))
     checkAnswer(
       df.withColumn(
-          "res",
-          sum1(
-            col("c1"),
-            col("c2"),
-            col("c3"),
-            col("c4"),
-            col("c5"),
-            col("c6"),
-            col("c7"),
-            col("c8"),
-            col("c9"),
-            col("c10"),
-            col("c11"),
-            col("c12"),
-            col("c13"),
-            col("c14"),
-            col("c15"),
-            col("c16"),
-            col("c17"),
-            col("c18"),
-            col("c19"),
-            col("c20"),
-            col("c21")))
+        "res",
+        sum1(
+          col("c1"),
+          col("c2"),
+          col("c3"),
+          col("c4"),
+          col("c5"),
+          col("c6"),
+          col("c7"),
+          col("c8"),
+          col("c9"),
+          col("c10"),
+          col("c11"),
+          col("c12"),
+          col("c13"),
+          col("c14"),
+          col("c15"),
+          col("c16"),
+          col("c17"),
+          col("c18"),
+          col("c19"),
+          col("c20"),
+          col("c21")))
         .select("res"),
       Seq(Row(result)))
     checkAnswer(
       df.withColumn(
-          "res",
-          callUDF(
-            funcName,
-            col("c1"),
-            col("c2"),
-            col("c3"),
-            col("c4"),
-            col("c5"),
-            col("c6"),
-            col("c7"),
-            col("c8"),
-            col("c9"),
-            col("c10"),
-            col("c11"),
-            col("c12"),
-            col("c13"),
-            col("c14"),
-            col("c15"),
-            col("c16"),
-            col("c17"),
-            col("c18"),
-            col("c19"),
-            col("c20"),
-            col("c21")))
+        "res",
+        callUDF(
+          funcName,
+          col("c1"),
+          col("c2"),
+          col("c3"),
+          col("c4"),
+          col("c5"),
+          col("c6"),
+          col("c7"),
+          col("c8"),
+          col("c9"),
+          col("c10"),
+          col("c11"),
+          col("c12"),
+          col("c13"),
+          col("c14"),
+          col("c15"),
+          col("c16"),
+          col("c17"),
+          col("c18"),
+          col("c19"),
+          col("c20"),
+          col("c21")))
         .select("res"),
       Seq(Row(result)))
   }
@@ -2502,54 +2469,56 @@ trait UDFSuite extends TestData {
     val columns = (1 to 22).map("c" + _)
     val df = Seq((1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22))
       .toDF(columns)
-    val sum = udf((
-        c1: Int,
-        c2: Int,
-        c3: Int,
-        c4: Int,
-        c5: Int,
-        c6: Int,
-        c7: Int,
-        c8: Int,
-        c9: Int,
-        c10: Int,
-        c11: Int,
-        c12: Int,
-        c13: Int,
-        c14: Int,
-        c15: Int,
-        c16: Int,
-        c17: Int,
-        c18: Int,
-        c19: Int,
-        c20: Int,
-        c21: Int,
-        c22: Int) =>
-      c1 + c2 + c3 + c4 + c5 + c6 + c7 + c8 + c9 + c10 + c11 + c12 + c13 + c14 + c15 + c16 + c17 + c18 + c19 + c20 + c21 + c22)
-    val sum1 = session.udf.registerTemporary((
-        c1: Int,
-        c2: Int,
-        c3: Int,
-        c4: Int,
-        c5: Int,
-        c6: Int,
-        c7: Int,
-        c8: Int,
-        c9: Int,
-        c10: Int,
-        c11: Int,
-        c12: Int,
-        c13: Int,
-        c14: Int,
-        c15: Int,
-        c16: Int,
-        c17: Int,
-        c18: Int,
-        c19: Int,
-        c20: Int,
-        c21: Int,
-        c22: Int) =>
-      c1 + c2 + c3 + c4 + c5 + c6 + c7 + c8 + c9 + c10 + c11 + c12 + c13 + c14 + c15 + c16 + c17 + c18 + c19 + c20 + c21 + c22)
+    val sum = udf(
+      (
+          c1: Int,
+          c2: Int,
+          c3: Int,
+          c4: Int,
+          c5: Int,
+          c6: Int,
+          c7: Int,
+          c8: Int,
+          c9: Int,
+          c10: Int,
+          c11: Int,
+          c12: Int,
+          c13: Int,
+          c14: Int,
+          c15: Int,
+          c16: Int,
+          c17: Int,
+          c18: Int,
+          c19: Int,
+          c20: Int,
+          c21: Int,
+          c22: Int) =>
+        c1 + c2 + c3 + c4 + c5 + c6 + c7 + c8 + c9 + c10 + c11 + c12 + c13 + c14 + c15 + c16 + c17 + c18 + c19 + c20 + c21 + c22)
+    val sum1 = session.udf.registerTemporary(
+      (
+          c1: Int,
+          c2: Int,
+          c3: Int,
+          c4: Int,
+          c5: Int,
+          c6: Int,
+          c7: Int,
+          c8: Int,
+          c9: Int,
+          c10: Int,
+          c11: Int,
+          c12: Int,
+          c13: Int,
+          c14: Int,
+          c15: Int,
+          c16: Int,
+          c17: Int,
+          c18: Int,
+          c19: Int,
+          c20: Int,
+          c21: Int,
+          c22: Int) =>
+        c1 + c2 + c3 + c4 + c5 + c6 + c7 + c8 + c9 + c10 + c11 + c12 + c13 + c14 + c15 + c16 + c17 + c18 + c19 + c20 + c21 + c22)
     val funcName = randomName()
     session.udf.registerTemporary(
       funcName,
@@ -2579,87 +2548,87 @@ trait UDFSuite extends TestData {
         c1 + c2 + c3 + c4 + c5 + c6 + c7 + c8 + c9 + c10 + c11 + c12 + c13 + c14 + c15 + c16 + c17 + c18 + c19 + c20 + c21 + c22)
     checkAnswer(
       df.withColumn(
-          "res",
-          sum(
-            col("c1"),
-            col("c2"),
-            col("c3"),
-            col("c4"),
-            col("c5"),
-            col("c6"),
-            col("c7"),
-            col("c8"),
-            col("c9"),
-            col("c10"),
-            col("c11"),
-            col("c12"),
-            col("c13"),
-            col("c14"),
-            col("c15"),
-            col("c16"),
-            col("c17"),
-            col("c18"),
-            col("c19"),
-            col("c20"),
-            col("c21"),
-            col("c22")))
+        "res",
+        sum(
+          col("c1"),
+          col("c2"),
+          col("c3"),
+          col("c4"),
+          col("c5"),
+          col("c6"),
+          col("c7"),
+          col("c8"),
+          col("c9"),
+          col("c10"),
+          col("c11"),
+          col("c12"),
+          col("c13"),
+          col("c14"),
+          col("c15"),
+          col("c16"),
+          col("c17"),
+          col("c18"),
+          col("c19"),
+          col("c20"),
+          col("c21"),
+          col("c22")))
         .select("res"),
       Seq(Row(result)))
     checkAnswer(
       df.withColumn(
-          "res",
-          sum1(
-            col("c1"),
-            col("c2"),
-            col("c3"),
-            col("c4"),
-            col("c5"),
-            col("c6"),
-            col("c7"),
-            col("c8"),
-            col("c9"),
-            col("c10"),
-            col("c11"),
-            col("c12"),
-            col("c13"),
-            col("c14"),
-            col("c15"),
-            col("c16"),
-            col("c17"),
-            col("c18"),
-            col("c19"),
-            col("c20"),
-            col("c21"),
-            col("c22")))
+        "res",
+        sum1(
+          col("c1"),
+          col("c2"),
+          col("c3"),
+          col("c4"),
+          col("c5"),
+          col("c6"),
+          col("c7"),
+          col("c8"),
+          col("c9"),
+          col("c10"),
+          col("c11"),
+          col("c12"),
+          col("c13"),
+          col("c14"),
+          col("c15"),
+          col("c16"),
+          col("c17"),
+          col("c18"),
+          col("c19"),
+          col("c20"),
+          col("c21"),
+          col("c22")))
         .select("res"),
       Seq(Row(result)))
     checkAnswer(
       df.withColumn(
-          "res",
-          callUDF(
-            funcName,
-            col("c1"),
-            col("c2"),
-            col("c3"),
-            col("c4"),
-            col("c5"),
-            col("c6"),
-            col("c7"),
-            col("c8"),
-            col("c9"),
-            col("c10"),
-            col("c11"),
-            col("c12"),
-            col("c13"),
-            col("c14"),
-            col("c15"),
-            col("c16"),
-            col("c17"),
-            col("c18"),
-            col("c19"),
-            col("c20"),
-            col("c21"),
-            col("c22")))
+        "res",
+        callUDF(
+          funcName,
+          col("c1"),
+          col("c2"),
+          col("c3"),
+          col("c4"),
+          col("c5"),
+          col("c6"),
+          col("c7"),
+          col("c8"),
+          col("c9"),
+          col("c10"),
+          col("c11"),
+          col("c12"),
+          col("c13"),
+          col("c14"),
+          col("c15"),
+          col("c16"),
+          col("c17"),
+          col("c18"),
+          col("c19"),
+          col("c20"),
+          col("c21"),
+          col("c22")))
         .select("res"),
       Seq(Row(result)))
   }
@@ -2763,10 +2732,9 @@ trait UDFSuite extends TestData {
     // by calling the UDF on each metrics column along with the precomputed min and max.
     // Note new column names are constructed for the results
     val metricsNormalized = myAggTuples
-      .map {
-        case (col, colMin, colMax) =>
-          normUdf(col, lit(colMin), lit(colMax)) as
-            "norm_" + col.getName.get.dropRight(1).drop(1)
+      .map { case (col, colMin, colMax) =>
+        normUdf(col, lit(colMin), lit(colMax)) as
+          "norm_" + col.getName.get.dropRight(1).drop(1)
       }
 
     // Now query the table retrieving normalized column values instead of absolute values

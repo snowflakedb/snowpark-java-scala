@@ -9,13 +9,17 @@ import scala.collection.mutable
 
 class FatJarBuilder {
 
-  /**
-   * @param classFiles class bytes that are copied to the fat jar
-   * @param classDirs directories from which files are copied to the fat jar
-   * @param jars Jars to be copied to the fat jar
-   * @param funcBytesMap func bytes map (entry format: fileName -> funcBytes)
-   * @param target The outputstream the jar contents should be written to
-   */
+  /** @param classFiles
+    *   class bytes that are copied to the fat jar
+    * @param classDirs
+    *   directories from which files are copied to the fat jar
+    * @param jars
+    *   Jars to be copied to the fat jar
+    * @param funcBytesMap
+    *   func bytes map (entry format: fileName -> funcBytes)
+    * @param target
+    *   The outputstream the jar contents should be written to
+    */
   def createFatJar(
       classFiles: List[InMemoryClassObject],
       classDirs: List[File],
@@ -40,12 +44,14 @@ class FatJarBuilder {
     }
   }
 
-  /**
-   * This method adds a class file to target jar.
-   * @param classObj Class file that is copied to target jar
-   * @param target OutputStream for target jar
-   * @param trackPaths This tracks all the directories already added to the jar
-   */
+  /** This method adds a class file to target jar.
+    * @param classObj
+    *   Class file that is copied to target jar
+    * @param target
+    *   OutputStream for target jar
+    * @param trackPaths
+    *   This tracks all the directories already added to the jar
+    */
   private def copyFileToTargetJar(
       classObj: InMemoryClassObject,
       target: JarOutputStream,
@@ -66,12 +72,14 @@ class FatJarBuilder {
     target.closeEntry()
   }
 
-  /**
-   * This method recursively adds all directories and files in root dir to the target jar
-   * @param root Root directory, all directories are added to the jar relative to root's path
-   * @param target OutputStream for target jar
-   * @param trackPaths This tracks all the directories already added to the jar
-   */
+  /** This method recursively adds all directories and files in root dir to the target jar
+    * @param root
+    *   Root directory, all directories are added to the jar relative to root's path
+    * @param target
+    *   OutputStream for target jar
+    * @param trackPaths
+    *   This tracks all the directories already added to the jar
+    */
   private def copyDirToTargetJar(
       root: File,
       target: JarOutputStream,
@@ -98,12 +106,14 @@ class FatJarBuilder {
       })
   }
 
-  /**
-   * This method adds all entries in source jar to the target jar
-   * @param sourceJar Source directory
-   * @param target OutputStream for target jar
-   * @param trackPaths This tracks all the directories already added to the jar
-   */
+  /** This method adds all entries in source jar to the target jar
+    * @param sourceJar
+    *   Source directory
+    * @param target
+    *   OutputStream for target jar
+    * @param trackPaths
+    *   This tracks all the directories already added to the jar
+    */
   private def copyJarToTargetJar(
       sourceJar: JarFile,
       target: JarOutputStream,
@@ -120,12 +130,14 @@ class FatJarBuilder {
     }
   }
 
-  /**
-   * This method adds a file entry into the target jar
-   * @param entryName Name of entry
-   * @param is Input stream to fetch file bytes, it closes the input stream once done
-   * @param target OutputStream for target jar
-   */
+  /** This method adds a file entry into the target jar
+    * @param entryName
+    *   Name of entry
+    * @param is
+    *   Input stream to fetch file bytes, it closes the input stream once done
+    * @param target
+    *   OutputStream for target jar
+    */
   private def addFileEntryToJar(
       entryName: String,
       is: InputStream,

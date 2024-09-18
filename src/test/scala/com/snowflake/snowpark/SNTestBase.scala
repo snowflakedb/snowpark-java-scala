@@ -102,8 +102,7 @@ trait SNTestBase extends FunSuite with BeforeAndAfterAll with SFTestUtils with S
 
   def checkAnswer(df1: DataFrame, df2: DataFrame, sort: Boolean): Unit = {
     if (sort) {
-      assert(
-        TestUtils.compare(df1.collect().sortBy(_.toString), df2.collect().sortBy(_.toString)))
+      assert(TestUtils.compare(df1.collect().sortBy(_.toString), df2.collect().sortBy(_.toString)))
     } else {
       assert(TestUtils.compare(df1.collect(), df2.collect()))
     }
@@ -124,8 +123,8 @@ trait SNTestBase extends FunSuite with BeforeAndAfterAll with SFTestUtils with S
     // scalastyle:off
     Session
       .loadConfFromFile(defaultProfile)
-      .map {
-        case (key, value) => key.toLowerCase -> value
+      .map { case (key, value) =>
+        key.toLowerCase -> value
       }
       .get(key.toLowerCase)
     // scalastyle:on
@@ -289,14 +288,13 @@ trait SNTestBase extends FunSuite with BeforeAndAfterAll with SFTestUtils with S
       skipPreprod: Boolean = false)(thunk: => Unit): Unit = {
     if (!(skipPreprod && isPreprodAccount)) {
       try {
-        params.foreach {
-          case (paramName, value) =>
-            runQuery(s"alter session set $paramName = $value", currentSession)
+        params.foreach { case (paramName, value) =>
+          runQuery(s"alter session set $paramName = $value", currentSession)
         }
         thunk
       } finally {
-        params.foreach {
-          case (paramName, _) => runQuery(s"alter session unset $paramName", currentSession)
+        params.foreach { case (paramName, _) =>
+          runQuery(s"alter session unset $paramName", currentSession)
         }
       }
     }

@@ -197,9 +197,7 @@ trait DataFrameJoinSuite extends SNTestBase {
   test("join -- ambiguous columns with specified sources") {
     val df = Seq(1, 2).toDF("a")
     val df2 = Seq(1, 2).map(i => (i, s"test$i")).toDF("a", "b")
-    checkAnswer(
-      df.join(df2, df("a") === df2("a")),
-      Row(1, 1, "test1") :: Row(2, 2, "test2") :: Nil)
+    checkAnswer(df.join(df2, df("a") === df2("a")), Row(1, 1, "test1") :: Row(2, 2, "test2") :: Nil)
     checkAnswer(
       df.join(df2, df("a") === df2("a")).select(df("a") * df2("a"), 'b),
       Row(1, "test1") :: Row(4, "test2") :: Nil)

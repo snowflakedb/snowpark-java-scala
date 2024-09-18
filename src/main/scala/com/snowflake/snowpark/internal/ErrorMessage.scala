@@ -142,7 +142,7 @@ private[snowpark] object ErrorMessage {
     "0408" -> "Your Snowpark session has expired. You must recreate your session.\n%s",
     "0409" -> "You cannot use a nested Option type (e.g. Option[Option[Int]]).",
     "0410" -> "Could not infer schema from data of type: %s",
-    "0411" -> "Scala version %s detected. Snowpark only supports Scala version %s with the minor version %s and higher.",
+    "0411" -> "Scala version %s detected. Snowpark only supports Scala version %s",
     "0412" -> "The object name '%s' is invalid.",
     "0413" -> "Unexpected stored procedure active session reset.",
     "0414" -> "Cannot perform this operation because the session has been closed.",
@@ -257,8 +257,7 @@ private[snowpark] object ErrorMessage {
   def DF_MORE_THAN_ONE_TF_IN_SELECT(): SnowparkClientException =
     createException("0131")
 
-  def DF_ALIAS_DUPLICATES(
-      duplicatedAlias: scala.collection.Set[String]): SnowparkClientException =
+  def DF_ALIAS_DUPLICATES(duplicatedAlias: scala.collection.Set[String]): SnowparkClientException =
     createException("0132", duplicatedAlias.mkString(", "))
 
   /*
@@ -315,9 +314,7 @@ private[snowpark] object ErrorMessage {
     createException("0313", format)
   def PLAN_IN_EXPRESSION_UNSUPPORTED_VALUE(value: String): SnowparkClientException =
     createException("0314", value)
-  def PLAN_IN_EXPRESSION_INVALID_VALUE_COUNT(
-      actual: Int,
-      expected: Int): SnowparkClientException =
+  def PLAN_IN_EXPRESSION_INVALID_VALUE_COUNT(actual: Int, expected: Int): SnowparkClientException =
     createException("0315", actual, expected)
   def PLAN_COPY_INVALID_COLUMN_NAME_SIZE(actual: Int, expected: Int): SnowparkClientException =
     createException("0316", actual, expected)
@@ -357,8 +354,7 @@ private[snowpark] object ErrorMessage {
     createException("0404", version)
   def MISC_INVALID_CONNECTION_STRING(connectionString: String): SnowparkClientException =
     createException("0405", connectionString)
-  def MISC_MULTIPLE_VALUES_RETURNED_FOR_PARAMETER(
-      parameterName: String): SnowparkClientException =
+  def MISC_MULTIPLE_VALUES_RETURNED_FOR_PARAMETER(parameterName: String): SnowparkClientException =
     createException("0406", parameterName)
   def MISC_NO_VALUES_RETURNED_FOR_PARAMETER(parameterName: String): SnowparkClientException =
     createException("0407", parameterName)
@@ -370,9 +366,8 @@ private[snowpark] object ErrorMessage {
     createException("0410", typeName)
   def MISC_SCALA_VERSION_NOT_SUPPORTED(
       currentVersion: String,
-      expectedVersion: String,
-      minorVersion: String): SnowparkClientException =
-    createException("0411", currentVersion, expectedVersion, minorVersion)
+      expectedVersion: String): SnowparkClientException =
+    createException("0411", currentVersion, expectedVersion)
   def MISC_INVALID_OBJECT_NAME(typeName: String): SnowparkClientException =
     createException("0412", typeName)
   def MISC_SP_ACTIVE_SESSION_RESET(): SnowparkClientException =
@@ -395,9 +390,7 @@ private[snowpark] object ErrorMessage {
     createException("0419", eventName, maxTime)
   def MISC_INVALID_RSA_PRIVATE_KEY(message: String): SnowparkClientException =
     createException("0420", message)
-  def MISC_INVALID_STAGE_LOCATION(
-      stageLocation: String,
-      reason: String): SnowparkClientException =
+  def MISC_INVALID_STAGE_LOCATION(stageLocation: String, reason: String): SnowparkClientException =
     createException("0421", stageLocation, reason)
   def MISC_NO_SERVER_VALUE_NO_DEFAULT_FOR_PARAMETER(
       parameterName: String): SnowparkClientException =
@@ -421,13 +414,15 @@ private[snowpark] object ErrorMessage {
   def MISC_FAILED_TO_SERIALIZE_QUERY_TAG(): SnowparkClientException =
     createException("0428")
 
-  /**
-   * Create Snowpark client Exception.
-   *
-   * @param errorCode error code for the message
-   * @param args parameters for the Exception
-   * @return Snowpark client Exception
-   */
+  /** Create Snowpark client Exception.
+    *
+    * @param errorCode
+    *   error code for the message
+    * @param args
+    *   parameters for the Exception
+    * @return
+    *   Snowpark client Exception
+    */
   private def createException(errorCode: String, args: Any*): SnowparkClientException = {
     val message = allMessages(errorCode)
     new SnowparkClientException(

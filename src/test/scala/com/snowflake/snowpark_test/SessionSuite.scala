@@ -352,9 +352,7 @@ class SessionSuite extends SNTestBase {
 
     checkAnswer(df1.unionAll(df2), Seq(Row(0), Row(0), Row(1), Row(1), Row(2)))
 
-    checkAnswer(
-      df1.toDF("a").join(df2.toDF("b"), col("a") === col("b")),
-      Seq(Row(0, 0), Row(1, 1)))
+    checkAnswer(df1.toDF("a").join(df2.toDF("b"), col("a") === col("b")), Seq(Row(0, 0), Row(1, 1)))
   }
 
   test("get session info") {

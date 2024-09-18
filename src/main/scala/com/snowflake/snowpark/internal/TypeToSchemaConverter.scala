@@ -49,10 +49,9 @@ object TypeToSchemaConverter {
       case t
           if t <:< typeOf[Product] && tpe.typeArgs.nonEmpty &&
             tpe.typeSymbol.name.toString.startsWith("Tuple") =>
-        tpe.typeArgs.zipWithIndex.map {
-          case (value, i) =>
-            val (dt, nullable) = analyzeType(value)
-            StructField(s"_${i + 1}", dt, nullable) // same name as tuple
+        tpe.typeArgs.zipWithIndex.map { case (value, i) =>
+          val (dt, nullable) = analyzeType(value)
+          StructField(s"_${i + 1}", dt, nullable) // same name as tuple
         }
       // single value
       case _ =>

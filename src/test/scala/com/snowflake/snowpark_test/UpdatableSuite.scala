@@ -389,4 +389,3 @@ class UpdatableSuite extends TestData {
     }
   }
 }
-

@@ -1,4 +1,4 @@
-name: precommit test - Java Doc Validation
+name: precommit test - Nonparallel
 on:
   push:
     branches: [ main ]
@@ -9,15 +9,16 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout Code
-        uses: actions/checkout@v2
-      - name: Install Java
-        uses: actions/setup-java@v1
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Setup JDK
+        uses: actions/setup-java@v3
         with:
-          java-version: 1.8
+          distribution: temurin
+          java-version: 8
       - name: Decrypt profile.properties
         run: .github/scripts/decrypt_profile.sh
         env:
           PROFILE_PASSWORD: ${{ secrets.PROFILE_PASSWORD }}
       - name: Run test
-        run: scripts/generateJavaDoc.sh
+        run: sbt NonparallelTests:test

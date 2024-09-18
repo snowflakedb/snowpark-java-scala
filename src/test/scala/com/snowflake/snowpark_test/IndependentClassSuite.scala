@@ -2,19 +2,22 @@ package com.snowflake.snowpark_test
 
 import org.scalatest.FunSuite
 import org.scalatest.exceptions.TestFailedException
+import com.snowflake.snowpark.internal.Utils
 
 import scala.language.postfixOps
 import sys.process._
 
 // verify those classes do not depend on Snowpark package
 class IndependentClassSuite extends FunSuite {
+  lazy val pathPrefix = s"target/scala-${Utils.ScalaCompatVersion}/"
+  private def generatePath(path: String): String = pathPrefix + path
   test("scala variant") {
     checkDependencies(
-      "target/classes/com/snowflake/snowpark/types/Variant.class",
+      generatePath("classes/com/snowflake/snowpark/types/Variant.class"),
       Seq("com.snowflake.snowpark.types.Variant"))
 
     checkDependencies(
-      "target/classes/com/snowflake/snowpark/types/Variant$.class",
+      generatePath("classes/com/snowflake/snowpark/types/Variant$.class"),
       Seq(
         "com.snowflake.snowpark.types.Variant",
         "com.snowflake.snowpark.types.Geography",
@@ -23,7 +26,7 @@ class IndependentClassSuite extends FunSuite {
 
   test("java variant") {
     checkDependencies(
-      "target/classes/com/snowflake/snowpark_java/types/Variant.class",
+      generatePath("classes/com/snowflake/snowpark_java/types/Variant.class"),
       Seq(
         "com.snowflake.snowpark_java.types.Variant",
         "com.snowflake.snowpark_java.types.Geography"))
@@ -31,33 +34,33 @@ class IndependentClassSuite extends FunSuite {
 
   test("scala geography") {
     checkDependencies(
-      "target/classes/com/snowflake/snowpark/types/Geography.class",
+      generatePath("classes/com/snowflake/snowpark/types/Geography.class"),
       Seq("com.snowflake.snowpark.types.Geography"))
 
     checkDependencies(
-      "target/classes/com/snowflake/snowpark/types/Geography$.class",
+      generatePath("classes/com/snowflake/snowpark/types/Geography$.class"),
       Seq("com.snowflake.snowpark.types.Geography"))
   }
 
   test("java geography") {
     checkDependencies(
-      "target/classes/com/snowflake/snowpark_java/types/Geography.class",
+      generatePath("classes/com/snowflake/snowpark_java/types/Geography.class"),
       Seq("com.snowflake.snowpark_java.types.Geography"))
   }
 
   test("scala geometry") {
     checkDependencies(
-      "target/classes/com/snowflake/snowpark/types/Geometry.class",
+      generatePath("classes/com/snowflake/snowpark/types/Geometry.class"),
       Seq("com.snowflake.snowpark.types.Geometry"))
 
     checkDependencies(
-      "target/classes/com/snowflake/snowpark/types/Geometry$.class",
+      generatePath("classes/com/snowflake/snowpark/types/Geometry$.class"),
       Seq("com.snowflake.snowpark.types.Geometry"))
   }
 
   test("java geometry") {
     checkDependencies(
-      "target/classes/com/snowflake/snowpark_java/types/Geometry.class",
+      generatePath("classes/com/snowflake/snowpark_java/types/Geometry.class"),
       Seq("com.snowflake.snowpark_java.types.Geometry"))
   }
 
@@ -65,7 +68,7 @@ class IndependentClassSuite extends FunSuite {
   test("session") {
     assertThrows[TestFailedException] {
       checkDependencies(
-        "target/classes/com/snowflake/snowpark/Session.class",
+        generatePath("classes/com/snowflake/snowpark/Session.class"),
         Seq("com.snowflake.snowpark.Session"))
     }
   }

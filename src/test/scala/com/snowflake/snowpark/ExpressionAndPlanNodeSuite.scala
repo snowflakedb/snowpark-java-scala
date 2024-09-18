@@ -127,11 +127,14 @@ class ExpressionAndPlanNodeSuite extends SNTestBase {
           .foldRight((List.empty[Expression], List.empty[String], Option(Set.empty[String]))) {
             // generate test data and expected result
             case ((exp, name, invoked), (expList, nameList, invokedSet)) =>
-              (exp :: expList, name :: nameList, if (invoked.isEmpty || invokedSet.isEmpty) {
-                None
-              } else {
-                Some(invoked.get ++ invokedSet.get)
-              })
+              (
+                exp :: expList,
+                name :: nameList,
+                if (invoked.isEmpty || invokedSet.isEmpty) {
+                  None
+                } else {
+                  Some(invoked.get ++ invokedSet.get)
+                })
           }
 
         val exp = func(exprs)
@@ -180,8 +183,7 @@ class ExpressionAndPlanNodeSuite extends SNTestBase {
 
     childrenChecker(
       5,
-      data =>
-        InsertMergeExpression(Some(data.head), Seq(data(1), data(2)), Seq(data(3), data(4))))
+      data => InsertMergeExpression(Some(data.head), Seq(data(1), data(2)), Seq(data(3), data(4))))
     childrenChecker(
       4,
       data => InsertMergeExpression(None, Seq(data(1), data(2)), Seq(data(3), data.head)))
@@ -408,8 +410,7 @@ class ExpressionAndPlanNodeSuite extends SNTestBase {
 
     analyzerChecker(
       5,
-      data =>
-        InsertMergeExpression(Some(data.head), Seq(data(1), data(2)), Seq(data(3), data(4))))
+      data => InsertMergeExpression(Some(data.head), Seq(data(1), data(2)), Seq(data(3), data(4))))
     analyzerChecker(
       4,
       data => InsertMergeExpression(None, Seq(data.head, data(1)), Seq(data(2), data(3))))
@@ -761,8 +762,7 @@ class ExpressionAndPlanNodeSuite extends SNTestBase {
 
     val plan1 = Filter(attr3, child2)
     assert(plan1.aliasMap.isEmpty)
-    assert(
-      plan1.analyzed.asInstanceOf[Filter].condition.asInstanceOf[Attribute].name == "\"COL3\"")
+    assert(plan1.analyzed.asInstanceOf[Filter].condition.asInstanceOf[Attribute].name == "\"COL3\"")
   }
 
   test("Project - Analyzer") {
@@ -1067,7 +1067,7 @@ class ExpressionAndPlanNodeSuite extends SNTestBase {
         // small change for future verification
         case Range(_, end, _) => Range(end, 1, 1)
         case _ => plan
-    }
+      }
     val plan = func(testData)
     val newPlan = plan.updateChildren(testFunc)
     assert(newPlan.children.zipWithIndex.forall {
@@ -1122,8 +1122,7 @@ class ExpressionAndPlanNodeSuite extends SNTestBase {
     unarySimplifierChecker(x => TableUpdate("a", Map.empty, None, Some(x)))
     unarySimplifierChecker(x => TableDelete("a", None, Some(x)))
     unarySimplifierChecker(x => SnowflakeCreateTable("a", SaveMode.Append, Some(x)))
-    leafSimplifierChecker(
-      SnowflakePlan(Seq.empty, "222", session, None, supportAsyncMode = false))
+    leafSimplifierChecker(SnowflakePlan(Seq.empty, "222", session, None, supportAsyncMode = false))
 
   }
 }

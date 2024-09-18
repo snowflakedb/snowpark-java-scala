@@ -1,4 +1,4 @@
-name: precommit test - udf
+name: precommit test - UDF
 on:
   push:
     branches: [ main ]
@@ -9,9 +9,9 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout Code
-        uses: actions/checkout@v2
-      - name: Install Java
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Setup JDK
         uses: actions/setup-java@v1
         with:
           java-version: 1.8
@@ -20,4 +20,4 @@ jobs:
         env:
           PROFILE_PASSWORD: ${{ secrets.PROFILE_PASSWORD }}
       - name: Run test
-        run: mvn -Dgpg.skip -DtagsToInclude=com.snowflake.snowpark.UDFTest -DtagsToExclude="UnstableTest" test
+        run: sbt UDFTests:test

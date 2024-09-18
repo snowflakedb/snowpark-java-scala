@@ -132,7 +132,7 @@ class ResultSchemaSuite extends TestData {
     val columnCount = resultMeta.getColumnCount
     val tsSchema = session.table(fullTypesTable2).schema
     (0 until columnCount)
-    // todo: remove this line after JDBC is released
+      // todo: remove this line after JDBC is released
       .filter(x => x != 31 && x != 32) // temporarily skip object for incoming behavior change
       .foreach(index => {
         assert(resultMeta.getColumnType(index + 1) == typeMap(index).jdbcType)

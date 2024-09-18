@@ -423,15 +423,7 @@ class PermanentUDFSuite extends TestData {
       session.udf.registerPermanent(funcName, func, stageName)
       checkAnswer(
         df.select(
-          callUDF(
-            funcName,
-            df("a1"),
-            df("a2"),
-            df("a3"),
-            df("a4"),
-            df("a5"),
-            df("a6"),
-            df("a7"))),
+          callUDF(funcName, df("a1"), df("a2"), df("a3"), df("a4"), df("a5"), df("a6"), df("a7"))),
         Seq(Row(28), Row(98)),
         sort = false)
       checkAnswer(
@@ -559,17 +551,9 @@ class PermanentUDFSuite extends TestData {
       .createDataFrame(
         Seq((1, 2, 3, 4, 5, 6, 7, 8, 9, 10), (11, 12, 13, 14, 15, 16, 17, 18, 19, 20)))
       .toDF(Seq("a1", "a2", "a3", "a4", "a5", "a6", "a7", "a8", "a9", "a10"))
-    val func = (
-        a1: Int,
-        a2: Int,
-        a3: Int,
-        a4: Int,
-        a5: Int,
-        a6: Int,
-        a7: Int,
-        a8: Int,
-        a9: Int,
-        a10: Int) => a1 + a2 + a3 + a4 + a5 + a6 + a7 + a8 + a9 + a10
+    val func =
+      (a1: Int, a2: Int, a3: Int, a4: Int, a5: Int, a6: Int, a7: Int, a8: Int, a9: Int, a10: Int) =>
+        a1 + a2 + a3 + a4 + a5 + a6 + a7 + a8 + a9 + a10
     val funcName: String = randomName()
     val newDf = newSession
       .createDataFrame(
@@ -749,9 +733,7 @@ class PermanentUDFSuite extends TestData {
         Seq(Row(78), Row(198)),
         sort = false)
     } finally {
-      runQuery(
-        s"drop function $funcName(INT,INT,INT,INT,INT,INT,INT,INT,INT,INT,INT,INT)",
-        session)
+      runQuery(s"drop function $funcName(INT,INT,INT,INT,INT,INT,INT,INT,INT,INT,INT,INT)", session)
     }
     // scalastyle:on
   }
@@ -985,8 +967,7 @@ class PermanentUDFSuite extends TestData {
         a12: Int,
         a13: Int,
         a14: Int,
-        a15: Int) =>
-      a1 + a2 + a3 + a4 + a5 + a6 + a7 + a8 + a9 + a10 + a11 + a12 + a13 + a14 + a15
+        a15: Int) => a1 + a2 + a3 + a4 + a5 + a6 + a7 + a8 + a9 + a10 + a11 + a12 + a13 + a14 + a15
     val funcName: String = randomName()
     val newDf = newSession
       .createDataFrame(
@@ -1873,9 +1854,10 @@ class PermanentUDFSuite extends TestData {
     // scalastyle:off
     import functions.callUDF
     val df = session
-      .createDataFrame(Seq(
-        (1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22),
-        (11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32)))
+      .createDataFrame(
+        Seq(
+          (1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22),
+          (11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32)))
       .toDF(
         Seq(
           "a1",
@@ -1926,9 +1908,10 @@ class PermanentUDFSuite extends TestData {
       a1 + a2 + a3 + a4 + a5 + a6 + a7 + a8 + a9 + a10 + a11 + a12 + a13 + a14 + a15 + a16 + a17 + a18 + a19 + a20 + a21 + a22
     val funcName: String = randomName()
     val newDf = newSession
-      .createDataFrame(Seq(
-        (1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22),
-        (11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32)))
+      .createDataFrame(
+        Seq(
+          (1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22),
+          (11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32)))
       .toDF(
         Seq(
           "a1",
@@ -2180,8 +2163,8 @@ class PermanentUDFSuite extends TestData {
       2.toShort,
       3.toInt,
       4L,
-      1.1F,
-      1.2D,
+      1.1f,
+      1.2d,
       new java.math.BigDecimal(1.3).setScale(3, RoundingMode.HALF_DOWN))
 
     val func = (a: Short, b: Int, c: Long, d: Float, e: Double, f: java.math.BigDecimal) =>
@@ -2193,8 +2176,7 @@ class PermanentUDFSuite extends TestData {
       // test callUDF()
       val df = session
         .range(1)
-        .select(
-          callUDF(funcName, values._1, values._2, values._3, values._4, values._5, values._6))
+        .select(callUDF(funcName, values._1, values._2, values._3, values._4, values._5, values._6))
       checkAnswer(df, Seq(Row("2 3 4 1.1 1.2 1.300000000000000000")))
       // test callBuiltin()
       val df2 = session
@@ -2205,8 +2187,7 @@ class PermanentUDFSuite extends TestData {
       // test builtin()()
       val df3 = session
         .range(1)
-        .select(
-          builtin(funcName)(values._1, values._2, values._3, values._4, values._5, values._6))
+        .select(builtin(funcName)(values._1, values._2, values._3, values._4, values._5, values._6))
       checkAnswer(df3, Seq(Row("2 3 4 1.1 1.2 1.300000000000000000")))
     } finally {
       runQuery(
@@ -2250,9 +2231,7 @@ class PermanentUDFSuite extends TestData {
       checkAnswer(df3, Seq(Row("str true 0x3d3e 2020-11-23 16:59:01.182 2020-11-23")))
     } finally {
       TimeZone.setDefault(defaultTimeZone)
-      runQuery(
-        s"drop function if exists $funcName(STRING,BOOLEAN,BINARY,TIMESTAMP,DATE)",
-        session)
+      runQuery(s"drop function if exists $funcName(STRING,BOOLEAN,BINARY,TIMESTAMP,DATE)", session)
     }
   }
 

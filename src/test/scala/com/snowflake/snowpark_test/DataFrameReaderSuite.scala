@@ -12,10 +12,7 @@ class DataFrameReaderSuite extends SNTestBase {
   val tmpStageName: String = randomStageName()
   val tmpStageName2: String = randomStageName()
   private val userSchema: StructType = StructType(
-    Seq(
-      StructField("a", IntegerType),
-      StructField("b", StringType),
-      StructField("c", DoubleType)))
+    Seq(StructField("a", IntegerType), StructField("b", StringType), StructField("c", DoubleType)))
 
   override def beforeAll(): Unit = {
     super.beforeAll()

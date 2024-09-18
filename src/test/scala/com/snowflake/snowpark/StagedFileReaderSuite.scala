@@ -6,10 +6,7 @@ import com.snowflake.snowpark.types._
 class StagedFileReaderSuite extends SNTestBase {
 
   private val userSchema: StructType = StructType(
-    Seq(
-      StructField("a", IntegerType),
-      StructField("b", StringType),
-      StructField("c", DoubleType)))
+    Seq(StructField("a", IntegerType), StructField("b", StringType), StructField("c", DoubleType)))
 
   test("File Format Type") {
     val fileReadOrCopyPlanBuilder = new StagedFileReader(session)

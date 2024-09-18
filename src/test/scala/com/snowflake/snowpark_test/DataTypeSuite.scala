@@ -173,9 +173,7 @@ class DataTypeSuite extends SNTestBase {
 
     val df = session
       .range(1)
-      .select(
-        lit(0.05).cast(DecimalType(5, 2)).as("a"),
-        lit(0.01).cast(DecimalType(7, 2)).as("b"))
+      .select(lit(0.05).cast(DecimalType(5, 2)).as("a"), lit(0.01).cast(DecimalType(7, 2)).as("b"))
 
     assert(
       TestUtils.treeString(df.schema, 0) ==

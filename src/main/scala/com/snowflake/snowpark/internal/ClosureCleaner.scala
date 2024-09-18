@@ -71,11 +71,11 @@ private[snowpark] object ClosureCleaner extends Logging {
     }
   }
 
-  /**
-   * Try to get a serialized Lambda from the closure.
-   *
-   * @param closure the closure to check.
-   */
+  /** Try to get a serialized Lambda from the closure.
+    *
+    * @param closure
+    *   the closure to check.
+    */
   private def getSerializedLambda(closure: AnyRef): Option[SerializedLambda] = {
     val isClosureCandidate =
       closure.getClass.isSynthetic &&
@@ -141,21 +141,19 @@ private[snowpark] object ClosureCleaner extends Logging {
     clone
   }
 
-  /**
-   * Clean the given closure in place.
-   * The mechanism is to traverse the hierarchy of enclosing closures and null out any
-   * references along the way that are not actually used by the starting closure, but are
-   * nevertheless included in the compiled anonymous classes.
-   *
-   * Closures are cleaned transitively.
-   * Does not verify whether the closure is serializable after cleaning.
-   *
-   * @param func the closure to be cleaned
-   * @param closureCleanerMode closure cleaner mode, can be always, never, repl_only.
-   */
-  private[snowpark] def clean(
-      func: AnyRef,
-      closureCleanerMode: ClosureCleanerMode.Value): Unit = {
+  /** Clean the given closure in place. The mechanism is to traverse the hierarchy of enclosing
+    * closures and null out any references along the way that are not actually used by the starting
+    * closure, but are nevertheless included in the compiled anonymous classes.
+    *
+    * Closures are cleaned transitively. Does not verify whether the closure is serializable after
+    * cleaning.
+    *
+    * @param func
+    *   the closure to be cleaned
+    * @param closureCleanerMode
+    *   closure cleaner mode, can be always, never, repl_only.
+    */
+  private[snowpark] def clean(func: AnyRef, closureCleanerMode: ClosureCleanerMode.Value): Unit = {
     if (func == null || closureCleanerMode == ClosureCleanerMode.never) {
       return
     }
@@ -270,23 +268,20 @@ private object IndylambdaScalaClosures extends Logging {
     writeReplace.invoke(closure).asInstanceOf[SerializedLambda]
   }
 
-  /**
-   * Check if the handle represents the LambdaMetafactory that indylambda Scala closures
-   * use for creating the lambda class and getting a closure instance.
-   */
+  /** Check if the handle represents the LambdaMetafactory that indylambda Scala closures use for
+    * creating the lambda class and getting a closure instance.
+    */
   def isLambdaMetafactory(bsmHandle: Handle): Boolean = {
     bsmHandle.getOwner == LambdaMetafactoryClassName &&
     bsmHandle.getName == LambdaMetafactoryMethodName &&
     bsmHandle.getDesc == LambdaMetafactoryMethodDesc
   }
 
-  /**
-   * Check if the handle represents a target method that is:
-   * - a STATIC method that implements a Scala lambda body in the indylambda style
-   * - captures the enclosing `this`, i.e. the first argument is a reference to the same type as
-   *   the owning class.
-   * Returns true if both criteria above are met.
-   */
+  /** Check if the handle represents a target method that is:
+    *   - a STATIC method that implements a Scala lambda body in the indylambda style
+    *   - captures the enclosing `this`, i.e. the first argument is a reference to the same type as
+    *     the owning class. Returns true if both criteria above are met.
+    */
   def isLambdaBodyCapturingOuter(handle: Handle, ownerInternalName: String): Boolean = {
     handle.getTag == H_INVOKESTATIC &&
     handle.getName.contains("$anonfun$") &&
@@ -294,13 +289,12 @@ private object IndylambdaScalaClosures extends Logging {
     handle.getDesc.startsWith(s"(L$ownerInternalName;")
   }
 
-  /**
-   * Check if the callee of a call site is a inner class constructor.
-   * - A constructor has to be invoked via INVOKESPECIAL
-   * - A constructor's internal name is "&lt;init&gt;" and the return type is "V" (void)
-   * - An inner class' first argument in the signature has to be a reference to the
-   *   enclosing "this", aka `$outer` in Scala.
-   */
+  /** Check if the callee of a call site is a inner class constructor.
+    *   - A constructor has to be invoked via INVOKESPECIAL
+    *   - A constructor's internal name is "&lt;init&gt;" and the return type is "V" (void)
+    *   - An inner class' first argument in the signature has to be a reference to the enclosing
+    *     "this", aka `$outer` in Scala.
+    */
   def isInnerClassCtorCapturingOuter(
       op: Int,
       owner: String,
@@ -341,29 +335,28 @@ private object IndylambdaScalaClosures extends Logging {
     }
     // ------- end ------- //
     def getOrUpdateClassInfo(classInternalName: String): (Class[_], ClassNode) = {
-      val classInfo = classInfoByInternalName.getOrElseUpdate(classInternalName, {
-        val classExternalName = classInternalName.replace('/', '.')
-        // scalastyle:off classforname
-        val clazz = Class.forName(classExternalName, false, lambdaClassLoader)
-        // scalastyle:on classforname
+      val classInfo = classInfoByInternalName.getOrElseUpdate(
+        classInternalName, {
+          val classExternalName = classInternalName.replace('/', '.')
+          // scalastyle:off classforname
+          val clazz = Class.forName(classExternalName, false, lambdaClassLoader)
+          // scalastyle:on classforname
 
-        // This change is used to add methods of the super-classes to methodNodeById map.
-        // Without this change, if the closure accessed any method of its super-classes,
-        // we will have key not found error.
-        // ------- added by Snowpark ------- //
-        updateMethodMap(clazz, clazz)
-        // ------- end ------- //
-      })
+          // This change is used to add methods of the super-classes to methodNodeById map.
+          // Without this change, if the closure accessed any method of its super-classes,
+          // we will have key not found error.
+          // ------- added by Snowpark ------- //
+          updateMethodMap(clazz, clazz)
+          // ------- end ------- //
+        })
       classInfo
     }
 
     val implClassInternalName = lambdaProxy.getImplClass
     val (implClass, _) = getOrUpdateClassInfo(implClassInternalName)
 
-    val implMethodId = MethodIdentifier(
-      implClass,
-      lambdaProxy.getImplMethodName,
-      lambdaProxy.getImplMethodSignature)
+    val implMethodId =
+      MethodIdentifier(implClass, lambdaProxy.getImplMethodName, lambdaProxy.getImplMethodSignature)
 
     // The set internal names of classes that we would consider following the calls into.
     // Candidates are: known outer class which happens to be the starting closure's impl class,
@@ -423,11 +416,11 @@ private object IndylambdaScalaClosures extends Logging {
             // could be invoking a helper method or a field accessor method, just follow it.
             pushIfNotVisited(MethodIdentifier(currentClass, name, desc))
           } else if (isInnerClassCtorCapturingOuter(
-                       op,
-                       owner,
-                       name,
-                       desc,
-                       currentClassInternalName)) {
+              op,
+              owner,
+              name,
+              desc,
+              currentClassInternalName)) {
             // Discover inner classes.
             // This this the InnerClassFinder equivalent for inner classes, which still use the
             // `$outer` chain. So this is NOT controlled by the `findTransitively` flag.

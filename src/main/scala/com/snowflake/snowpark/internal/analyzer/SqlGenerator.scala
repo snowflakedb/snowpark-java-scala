@@ -118,9 +118,13 @@ private object SqlGenerator extends Logging {
           Some(plan))
       // update
       case TableUpdate(tableName, assignments, condition, sourceData) =>
-        update(tableName, assignments.map {
-          case (k, v) => (expressionToSql(k), expressionToSql(v))
-        }, condition.map(expressionToSql), sourceData.map(resolveChild))
+        update(
+          tableName,
+          assignments.map { case (k, v) =>
+            (expressionToSql(k), expressionToSql(v))
+          },
+          condition.map(expressionToSql),
+          sourceData.map(resolveChild))
       // delete
       case TableDelete(tableName, condition, sourceData) =>
         delete(tableName, condition.map(expressionToSql), sourceData.map(resolveChild))
@@ -176,12 +180,14 @@ private object SqlGenerator extends Logging {
       case CaseWhen(branches, elseValue) =>
         // translated to
         // CASE WHEN condition1 THEN value1 WHEN condition2 THEN value2 ELSE value3 END
-        caseWhenExpression(branches.map {
-          case (condition, value) => (expressionToSql(condition), expressionToSql(value))
-        }, elseValue match {
-          case Some(value) => expressionToSql(value)
-          case _ => "NULL"
-        })
+        caseWhenExpression(
+          branches.map { case (condition, value) =>
+            (expressionToSql(condition), expressionToSql(value))
+          },
+          elseValue match {
+            case Some(value) => expressionToSql(value)
+            case _ => "NULL"
+          })
       case MultipleExpression(expressions) => blockExpression(expressions.map(expressionToSql))
       case InExpression(column, values) =>
         inExpression(expressionToSql(column), values.map(expressionToSql))
@@ -232,9 +238,11 @@ private object SqlGenerator extends Logging {
           keys.map(expressionToSql),
           values.map(expressionToSql))
       case UpdateMergeExpression(condition, assignments) =>
-        updateMergeStatement(condition.map(expressionToSql), assignments.map {
-          case (k, v) => (expressionToSql(k), expressionToSql(v))
-        })
+        updateMergeStatement(
+          condition.map(expressionToSql),
+          assignments.map { case (k, v) =>
+            (expressionToSql(k), expressionToSql(v))
+          })
       case DeleteMergeExpression(condition) =>
         deleteMergeStatement(condition.map(expressionToSql))
       case ListAgg(expr, delimiter, isDistinct) =>
@@ -254,9 +262,11 @@ private object SqlGenerator extends Logging {
         case TableFunction(functionName, args) =>
           functionExpression(functionName, args.map(expressionToSql), isDistinct = false)
         case NamedArgumentsTableFunction(funcName, args) =>
-          namedArgumentsFunction(funcName, args.map {
-            case (str, expression) => str -> expressionToSql(expression)
-          })
+          namedArgumentsFunction(
+            funcName,
+            args.map { case (str, expression) =>
+              str -> expressionToSql(expression)
+            })
       })
   }
 

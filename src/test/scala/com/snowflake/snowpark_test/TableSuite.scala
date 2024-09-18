@@ -254,9 +254,12 @@ class TableSuite extends TestData {
           |----------------------
         |""".stripMargin)
 
-    testWithAlteredSessionParameter({
-      assertThrows[SnowparkClientException](df2.collect())
-    }, "GEOGRAPHY_OUTPUT_FORMAT", "'WKT'")
+    testWithAlteredSessionParameter(
+      {
+        assertThrows[SnowparkClientException](df2.collect())
+      },
+      "GEOGRAPHY_OUTPUT_FORMAT",
+      "'WKT'")
   }
 
   test("table with time type") {

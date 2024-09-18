@@ -15,8 +15,7 @@ class JavaUtilsSuite extends FunSuite {
   test("geography to string") {
     val data = "{\"type\":\"Point\",\"coordinates\":[125.6, 10.1]}"
     assert(geographyToString(com.snowflake.snowpark.types.Geography.fromGeoJSON(data)) == data)
-    assert(
-      geographyToString(com.snowflake.snowpark_java.types.Geography.fromGeoJSON(data)) == data)
+    assert(geographyToString(com.snowflake.snowpark_java.types.Geography.fromGeoJSON(data)) == data)
   }
 
   test("geometry to string") {

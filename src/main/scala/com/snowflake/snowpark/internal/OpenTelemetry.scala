@@ -97,8 +97,8 @@ object OpenTelemetry extends Logging {
       ("N/A", 0)
     } else {
       while (index < stacks.length &&
-             (stacks(index).getClassName.startsWith("com.snowflake.snowpark.") ||
-             stacks(index).getClassName.startsWith("com.snowflake.snowpark_java."))) {
+        (stacks(index).getClassName.startsWith("com.snowflake.snowpark.") ||
+          stacks(index).getClassName.startsWith("com.snowflake.snowpark_java."))) {
         index += 1
       }
       if (index == stacks.length) {

@@ -76,27 +76,6 @@ class UtilsSuite extends SNTestBase {
     assert(Logging.maskSecrets(null) == null)
   }
 
-  test("version check") {
-    // valid versions
-    Utils.checkScalaVersionCompatibility("2.12.9")
-    Utils.checkScalaVersionCompatibility("2.12.10")
-
-    // invalid versions
-    assertThrows[SnowparkClientException](Utils.checkScalaVersionCompatibility("2.12.8"))
-    assertThrows[SnowparkClientException](Utils.checkScalaVersionCompatibility("2.11.10"))
-    assertThrows[SnowparkClientException](Utils.checkScalaVersionCompatibility("2.13.1"))
-  }
-
-  test("version compare check") {
-    assert(Utils.compareVersion("5.19.0", "5.20.0") < 0)
-    assert(Utils.compareVersion("5.20.0", "5.20.0") == 0)
-    assert(Utils.compareVersion("5.20.0", "5.20") == 0)
-    assert(Utils.compareVersion("5.20", "5.20.0") == 0)
-    assert(Utils.compareVersion("5", "5.20.0") < 0)
-    assert(Utils.compareVersion("5.20.0", "5.19.19") > 0)
-    assert(Utils.compareVersion("5.10.0", "5.9.29") > 0)
-  }
-
   test("normalize name") {
 
     assert(quoteName("\"_AF0*9A_\"") == "\"_AF0*9A_\"")
@@ -128,8 +107,7 @@ class UtilsSuite extends SNTestBase {
     assert(TypeToSchemaConverter.inferSchema[Date]().head.dataType == DateType)
     assert(TypeToSchemaConverter.inferSchema[Timestamp]().head.dataType == TimestampType)
     assert(TypeToSchemaConverter.inferSchema[Time]().head.dataType == TimeType)
-    assert(
-      TypeToSchemaConverter.inferSchema[Array[Int]]().head.dataType == ArrayType(IntegerType))
+    assert(TypeToSchemaConverter.inferSchema[Array[Int]]().head.dataType == ArrayType(IntegerType))
     assert(
       TypeToSchemaConverter.inferSchema[Map[String, Boolean]]().head.dataType == MapType(
         StringType,
@@ -276,7 +254,8 @@ class UtilsSuite extends SNTestBase {
 
     assert(
       Utils.calculateMD5(file) ==
-        "85bd7b9363853f1815254b1cbc608c22") // pragma: allowlist secret
+        "85bd7b9363853f1815254b1cbc608c22"
+    ) // pragma: allowlist secret
   }
 
   test("stage file prefix length") {
@@ -426,8 +405,7 @@ class UtilsSuite extends SNTestBase {
     assert(Utils.getUDFUploadPrefix("schema.view").equals("schemaview_1055679790"))
     assert(Utils.getUDFUploadPrefix(""""SCHEMA"."VIEW"""").equals("SCHEMAVIEW_1919772726"))
     assert(Utils.getUDFUploadPrefix("db.schema.table").equals("dbschematable_848839503"))
-    assert(
-      Utils.getUDFUploadPrefix(""""db"."schema"."table"""").equals("dbschematable_964272755"))
+    assert(Utils.getUDFUploadPrefix(""""db"."schema"."table"""").equals("dbschematable_964272755"))
 
     validIdentifiers.foreach { name =>
       // println(s"test: $name")
@@ -509,8 +487,8 @@ class UtilsSuite extends SNTestBase {
     }
   }
 
-  test("Utils.version matches pom version") {
-    assert(TestUtils.getVersionProperty("version").get == Utils.Version)
+  test("Utils.version matches sbt build") {
+    assert(Utils.Version == "1.15.0-SNAPSHOT")
   }
 
   test("Utils.retrySleepTimeInMS") {
@@ -650,8 +628,7 @@ class UtilsSuite extends SNTestBase {
     val ex = intercept[Exception] {
       JavaUtils.readFileAsByteArray("not_exist_file")
     }
-    assert(
-      ex.getMessage.equals("JavaUtils.readFileAsByteArray() cannot find file: not_exist_file"))
+    assert(ex.getMessage.equals("JavaUtils.readFileAsByteArray() cannot find file: not_exist_file"))
   }
 
   test("invalid private key") {
@@ -689,7 +666,7 @@ class UtilsSuite extends SNTestBase {
       "longKey" -> 1234567890L,
       "byteKey" -> 123.toByte,
       "doubleKey" -> 3.1415926,
-      "floatKey" -> 3.14F,
+      "floatKey" -> 3.14f,
       "boolKey" -> false,
       "javaListKey" -> new util.ArrayList[String](util.Arrays.asList("a", "b")),
       "javaMapKey" -> javaHashMap,

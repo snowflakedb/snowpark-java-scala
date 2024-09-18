@@ -44,9 +44,8 @@ class SnowflakePlanSuite extends SNTestBase {
       s"create or replace temporary table $tableName1 as select * from " +
         "values(1::INT, 'a'::STRING),(2::INT, 'b'::STRING) as T(A,B)",
       s"select * from $tableName1").map(Query(_))
-    val attrs = Seq(
-      Attribute("A", IntegerType, nullable = true),
-      Attribute("B", StringType, nullable = true))
+    val attrs =
+      Seq(Attribute("A", IntegerType, nullable = true), Attribute("B", StringType, nullable = true))
 
     val plan =
       new SnowflakePlan(
@@ -98,13 +97,14 @@ class SnowflakePlanSuite extends SNTestBase {
   }
 
   test("empty schema query") {
-    assertThrows[SnowflakeSQLException](new SnowflakePlan(
-      Seq.empty,
-      "",
-      Seq.empty,
-      session,
-      None,
-      supportAsyncMode = true).attributes)
+    assertThrows[SnowflakeSQLException](
+      new SnowflakePlan(
+        Seq.empty,
+        "",
+        Seq.empty,
+        session,
+        None,
+        supportAsyncMode = true).attributes)
   }
 
   test("test SnowflakePlan.supportAsyncMode()") {

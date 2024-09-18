@@ -146,16 +146,20 @@ class UDFInternalSuite extends TestData {
 
   test("Scoped temp UDF") {
     import newSession.implicits._
-    testWithAlteredSessionParameter({
-      // If scoped temp objects are not enabled, skip this test.
-      if (newSession.useScopedTempObjects) {
-        val df = Seq(1).toDF("a")
-        val doubleUDF = newSession.udf.registerTemporary((x: Int) => x + x)
-        val df2 = df.select(doubleUDF(col("a")))
-        checkAnswer(df2, Seq(Row(2)))
-        assertEquals(0, newSession.getTempObjectMap.size)
-      }
-    }, "snowpark_use_scoped_temp_objects", "true", skipIfParamNotExist = true)
+    testWithAlteredSessionParameter(
+      {
+        // If scoped temp objects are not enabled, skip this test.
+        if (newSession.useScopedTempObjects) {
+          val df = Seq(1).toDF("a")
+          val doubleUDF = newSession.udf.registerTemporary((x: Int) => x + x)
+          val df2 = df.select(doubleUDF(col("a")))
+          checkAnswer(df2, Seq(Row(2)))
+          assertEquals(0, newSession.getTempObjectMap.size)
+        }
+      },
+      "snowpark_use_scoped_temp_objects",
+      "true",
+      skipIfParamNotExist = true)
   }
 
   test("register UDF should not upload duplicated dependencies", JavaStoredProcExclude) {

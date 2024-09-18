@@ -1218,7 +1218,7 @@ trait DataFrameSuite extends TestData with BeforeAndAfterEach {
         2.toShort,
         3,
         4L,
-        1.1F,
+        1.1f,
         1.2,
         BigDecimal(1.2),
         true,
@@ -1469,15 +1469,12 @@ trait DataFrameSuite extends TestData with BeforeAndAfterEach {
   test("primitive array") {
     checkAnswer(
       session
-        .createDataFrame(
-          Seq(Row(Array(1))),
-          StructType(Seq(StructField("arr", ArrayType(null))))),
+        .createDataFrame(Seq(Row(Array(1))), StructType(Seq(StructField("arr", ArrayType(null))))),
       Seq(Row("[\n  1\n]")))
   }
 
   test("time, date and timestamp test") {
-    assert(
-      session.sql("select '00:00:00' :: Time").collect()(0).getTime(0).toString == "00:00:00")
+    assert(session.sql("select '00:00:00' :: Time").collect()(0).getTime(0).toString == "00:00:00")
     assert(
       session
         .sql("select '1970-1-1 00:00:00' :: Timestamp")
@@ -1971,10 +1968,11 @@ trait DataFrameSuite extends TestData with BeforeAndAfterEach {
     val ex1 = intercept[SnowparkClientException] {
       df.rename("c", lit("c"))
     }
-    assert(ex1.errorCode.equals("0120") &&
-      ex1.message.contains(
-        "Unable to rename the column Column[Literal(c,Some(String))] as \"C\"" +
-          " because this DataFrame doesn't have a column named Column[Literal(c,Some(String))]."))
+    assert(
+      ex1.errorCode.equals("0120") &&
+        ex1.message.contains(
+          "Unable to rename the column Column[Literal(c,Some(String))] as \"C\"" +
+            " because this DataFrame doesn't have a column named Column[Literal(c,Some(String))]."))
 
     // rename un-exist column
     val ex2 = intercept[SnowparkClientException] {

@@ -6,9 +6,8 @@ import scala.reflect.runtime.universe.TypeTag
 abstract class Implicits {
   protected def _session: Session
 
-  /**
-   * Converts $"col name" into a [[Column]].
-   */
+  /** Converts $"col name" into a [[Column]].
+    */
   implicit class ColumnFromString(val sc: StringContext) {
     def $(args: Any*): Column = {
       Column(sc.s(args: _*))

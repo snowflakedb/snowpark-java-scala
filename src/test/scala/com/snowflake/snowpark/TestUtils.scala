@@ -97,8 +97,7 @@ object TestUtils extends Logging {
     session.runQuery(s"drop table if exists $name")
 
   def insertIntoTable(name: String, data: Seq[Any], session: Session): Unit =
-    session.runQuery(
-      s"insert into $name values ${data.map("(" + _.toString + ")").mkString(",")}")
+    session.runQuery(s"insert into $name values ${data.map("(" + _.toString + ")").mkString(",")}")
 
   def insertIntoTable(name: String, data: java.util.List[Object], session: Session): Unit =
     insertIntoTable(name, data.asScala.map(_.toString), session)
@@ -155,9 +154,7 @@ object TestUtils extends Logging {
       })
   }
 
-  def addDepsToClassPathJava(
-      sess: com.snowflake.snowpark_java.Session,
-      stageName: String): Unit = {
+  def addDepsToClassPathJava(sess: com.snowflake.snowpark_java.Session, stageName: String): Unit = {
     val stage: String =
       if (stageName != null) stageName
       else {
@@ -199,22 +196,21 @@ object TestUtils extends Logging {
     val columnCount = resultMeta.getColumnCount
 
     assert(columnCount == expectedSchema.size)
-    (0 until columnCount).foreach(
-      index => {
-        assert(
-          quoteNameWithoutUpperCasing(resultMeta.getColumnLabel(index + 1)) == expectedSchema(
-            index).columnIdentifier.quotedName)
-        assert(
-          (resultMeta.isNullable(index + 1) != ResultSetMetaData.columnNoNulls) == expectedSchema(
-            index).nullable)
-        assert(
-          ServerConnection.getDataType(
-            resultMeta.getColumnType(index + 1),
-            resultMeta.getColumnTypeName(index + 1),
-            resultMeta.getPrecision(index + 1),
-            resultMeta.getScale(index + 1),
-            resultMeta.isSigned(index + 1)) == expectedSchema(index).dataType)
-      })
+    (0 until columnCount).foreach(index => {
+      assert(
+        quoteNameWithoutUpperCasing(resultMeta.getColumnLabel(index + 1)) == expectedSchema(
+          index).columnIdentifier.quotedName)
+      assert(
+        (resultMeta.isNullable(index + 1) != ResultSetMetaData.columnNoNulls) == expectedSchema(
+          index).nullable)
+      assert(
+        ServerConnection.getDataType(
+          resultMeta.getColumnType(index + 1),
+          resultMeta.getColumnTypeName(index + 1),
+          resultMeta.getPrecision(index + 1),
+          resultMeta.getScale(index + 1),
+          resultMeta.isSigned(index + 1)) == expectedSchema(index).dataType)
+    })
     statement.close()
   }
 
@@ -360,8 +356,8 @@ object TestUtils extends Logging {
   }
 
   private[snowpark] def createJDBCConnection(propertyFile: String): SnowflakeConnectionV1 = {
-    val options = loadConfFromFile(propertyFile).map {
-      case (key, value) => key.toLowerCase(Locale.ENGLISH) -> value
+    val options = loadConfFromFile(propertyFile).map { case (key, value) =>
+      key.toLowerCase(Locale.ENGLISH) -> value
     }
 
     val connURL = ServerConnection.connectionString(options)

@@ -144,8 +144,8 @@ object JavaUtils {
       col: Column,
       fractions: java.util.Map[_, _],
       func: DataFrameStatFunctions): DataFrame = {
-    val scalaMap = fractions.asScala.map {
-      case (key, value) => key -> value.asInstanceOf[Double]
+    val scalaMap = fractions.asScala.map { case (key, value) =>
+      key -> value.asInstanceOf[Double]
     }.toMap
     func.sampleBy(col, scalaMap)
   }
@@ -154,8 +154,8 @@ object JavaUtils {
       col: String,
       fractions: java.util.Map[_, _],
       func: DataFrameStatFunctions): DataFrame = {
-    val scalaMap = fractions.asScala.map {
-      case (key, value) => key -> value.asInstanceOf[Double]
+    val scalaMap = fractions.asScala.map { case (key, value) =>
+      key -> value.asInstanceOf[Double]
     }.toMap
     func.sampleBy(col, scalaMap)
   }
@@ -254,9 +254,8 @@ object JavaUtils {
       result
     }
 
-  def javaVariantMapToStringMap(
-      v: java.util.Map[String, com.snowflake.snowpark_java.types.Variant])
-    : java.util.Map[String, String] =
+  def javaVariantMapToStringMap(v: java.util.Map[String, com.snowflake.snowpark_java.types.Variant])
+      : java.util.Map[String, String] =
     if (v == null) null
     else {
       val result = new java.util.HashMap[String, String]()
@@ -275,8 +274,7 @@ object JavaUtils {
     if (v == null) null
     else JavaConverters.mapAsScalaMap(v).map(e => (e._1, stringToVariant(e._2)))
 
-  def stringMapToVariantJavaMap(
-      v: java.util.Map[String, String]): java.util.Map[String, Variant] =
+  def stringMapToVariantJavaMap(v: java.util.Map[String, String]): java.util.Map[String, Variant] =
     if (v == null) null
     else {
       val result = new java.util.HashMap[String, Variant]()
@@ -285,7 +283,7 @@ object JavaUtils {
     }
 
   def stringMapToJavaVariantMap(v: java.util.Map[String, String])
-    : java.util.Map[String, com.snowflake.snowpark_java.types.Variant] =
+      : java.util.Map[String, com.snowflake.snowpark_java.types.Variant] =
     if (v == null) null
     else {
       val result = new java.util.HashMap[String, com.snowflake.snowpark_java.types.Variant]()

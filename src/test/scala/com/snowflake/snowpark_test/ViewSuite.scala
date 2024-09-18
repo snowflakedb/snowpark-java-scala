@@ -17,10 +17,7 @@ class ViewSuite extends TestData {
 
   test("create view") {
     integer1.createOrReplaceView(viewName1)
-    checkAnswer(
-      session.sql(s"select * from $viewName1"),
-      Seq(Row(1), Row(2), Row(3)),
-      sort = false)
+    checkAnswer(session.sql(s"select * from $viewName1"), Seq(Row(1), Row(2), Row(3)), sort = false)
 
     // test replace
     double1.createOrReplaceView(viewName1)

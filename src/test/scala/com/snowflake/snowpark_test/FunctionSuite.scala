@@ -426,15 +426,19 @@ trait FunctionSuite extends TestData {
         Row(
           "5a105e8b9d40e1329780d62ea2265d8a", // pragma: allowlist secret
           "b444ac06613fc8d63795be9ad0beaf55011936ac", // pragma: allowlist secret
-          "aff3c83c40e2f1ae099a0166e1f27580525a9de6acd995f21717e984"), // pragma: allowlist secret
+          "aff3c83c40e2f1ae099a0166e1f27580525a9de6acd995f21717e984"
+        ), // pragma: allowlist secret
         Row(
           "ad0234829205b9033196ba818f7a872b", // pragma: allowlist secret
           "109f4b3c50d7b0df729d299bc6f8e9ef9066971f", // pragma: allowlist secret
-          "35f757ad7f998eb6dd3dd1cd3b5c6de97348b84a951f13de25355177"), // pragma: allowlist secret
+          "35f757ad7f998eb6dd3dd1cd3b5c6de97348b84a951f13de25355177"
+        ), // pragma: allowlist secret
         Row(
           "8ad8757baa8564dc136c1e07507f4a98", // pragma: allowlist secret
           "3ebfa301dc59196f18593c45e519287a23297589", // pragma: allowlist secret
-          "d2d5c076b2435565f66649edd604dd5987163e8a8240953144ec652f")), // pragma: allowlist secret
+          "d2d5c076b2435565f66649edd604dd5987163e8a8240953144ec652f"
+        )
+      ), // pragma: allowlist secret
       sort = false)
   }
 
@@ -459,20 +463,14 @@ trait FunctionSuite extends TestData {
   test("initcap length lower upper") {
     checkAnswer(
       string2.select(initcap(col("A")), length(col("A")), lower(col("A")), upper(col("A"))),
-      Seq(
-        Row("Asdfg", 5, "asdfg", "ASDFG"),
-        Row("Qqq", 3, "qqq", "QQQ"),
-        Row("Qw", 2, "qw", "QW")),
+      Seq(Row("Asdfg", 5, "asdfg", "ASDFG"), Row("Qqq", 3, "qqq", "QQQ"), Row("Qw", 2, "qw", "QW")),
       sort = false)
   }
 
   test("lpad rpad") {
     checkAnswer(
       string2.select(lpad(col("A"), lit(8), lit("X")), rpad(col("A"), lit(9), lit("S"))),
-      Seq(
-        Row("XXXasdFg", "asdFgSSSS"),
-        Row("XXXXXqqq", "qqqSSSSSS"),
-        Row("XXXXXXQw", "QwSSSSSSS")),
+      Seq(Row("XXXasdFg", "asdFgSSSS"), Row("XXXXXqqq", "qqqSSSSSS"), Row("XXXXXXQw", "QwSSSSSSS")),
       sort = false)
   }
 
@@ -484,10 +482,7 @@ trait FunctionSuite extends TestData {
 
     checkAnswer(
       string3
-        .select(
-          ltrim(col("A"), lit(" a")),
-          rtrim(col("A"), lit(" a")),
-          trim(col("A"), lit("a "))),
+        .select(ltrim(col("A"), lit(" a")), rtrim(col("A"), lit(" a")), trim(col("A"), lit("a "))),
       Seq(Row("bcba  ", "  abcb", "bcb"), Row("12321a   ", " a12321", "12321")),
       sort = false)
   }
@@ -536,15 +531,30 @@ trait FunctionSuite extends TestData {
     // zero1.select(current_date()) gets the date on server, which uses session timezone.
     // System.currentTimeMillis() is based on jvm timezone. They should not always be equal.
     // We can set local JVM timezone to session timezone to ensure it passes.
-    testWithAlteredSessionParameter(testWithTimezone({
-      checkAnswer(zero1.select(current_date()), Seq(Row(new Date(System.currentTimeMillis()))))
-    }, getTimeZone(session)), "TIMEZONE", "'GMT'")
-    testWithAlteredSessionParameter(testWithTimezone({
-      checkAnswer(zero1.select(current_date()), Seq(Row(new Date(System.currentTimeMillis()))))
-    }, getTimeZone(session)), "TIMEZONE", "'Etc/GMT+8'")
-    testWithAlteredSessionParameter(testWithTimezone({
-      checkAnswer(zero1.select(current_date()), Seq(Row(new Date(System.currentTimeMillis()))))
-    }, getTimeZone(session)), "TIMEZONE", "'Etc/GMT-8'")
+    testWithAlteredSessionParameter(
+      testWithTimezone(
+        {
+          checkAnswer(zero1.select(current_date()), Seq(Row(new Date(System.currentTimeMillis()))))
+        },
+        getTimeZone(session)),
+      "TIMEZONE",
+      "'GMT'")
+    testWithAlteredSessionParameter(
+      testWithTimezone(
+        {
+          checkAnswer(zero1.select(current_date()), Seq(Row(new Date(System.currentTimeMillis()))))
+        },
+        getTimeZone(session)),
+      "TIMEZONE",
+      "'Etc/GMT+8'")
+    testWithAlteredSessionParameter(
+      testWithTimezone(
+        {
+          checkAnswer(zero1.select(current_date()), Seq(Row(new Date(System.currentTimeMillis()))))
+        },
+        getTimeZone(session)),
+      "TIMEZONE",
+      "'Etc/GMT-8'")
   }
 
   test("current timestamp") {
@@ -1113,7 +1123,6 @@ trait FunctionSuite extends TestData {
         .collect()(0)
         .getTimestamp(0)
         .toString == "2020-10-28 13:35:47.001234567")
-
   }
 
   test("timestamp_ltz_from_parts") {
@@ -1319,8 +1328,9 @@ trait FunctionSuite extends TestData {
   }
 
   test("array_agg") {
-    assert(monthlySales.select(array_agg(col("amount"))).collect()(0).get(0).toString ==
-      "[\n  10000,\n  400,\n  4500,\n  35000,\n  5000,\n  3000,\n  200,\n  90500,\n  6000,\n  " +
+    assert(
+      monthlySales.select(array_agg(col("amount"))).collect()(0).get(0).toString ==
+        "[\n  10000,\n  400,\n  4500,\n  35000,\n  5000,\n  3000,\n  200,\n  90500,\n  6000,\n  " +
         "5000,\n  2500,\n  9500,\n  8000,\n  10000,\n  800,\n  4500\n]")
   }
 
@@ -1332,7 +1342,7 @@ trait FunctionSuite extends TestData {
         .get(0)
         .toString ==
         "[\n  200,\n  400,\n  800,\n  2500,\n  3000,\n  4500,\n  4500,\n  5000,\n  5000,\n  " +
-          "6000,\n  8000,\n  9500,\n  10000,\n  10000,\n  35000,\n  90500\n]")
+        "6000,\n  8000,\n  9500,\n  10000,\n  10000,\n  35000,\n  90500\n]")
   }
 
   test("array_agg WITHIN GROUP ORDER BY DESC") {
@@ -1343,7 +1353,7 @@ trait FunctionSuite extends TestData {
         .get(0)
         .toString ==
         "[\n  90500,\n  35000,\n  10000,\n  10000,\n  9500,\n  8000,\n  6000,\n  5000,\n" +
-          "  5000,\n  4500,\n  4500,\n  3000,\n  2500,\n  800,\n  400,\n  200\n]")
+        "  5000,\n  4500,\n  4500,\n  3000,\n  2500,\n  800,\n  400,\n  200\n]")
   }
 
   test("array_agg WITHIN GROUP ORDER BY multiple columns") {
@@ -1526,10 +1536,7 @@ trait FunctionSuite extends TestData {
 
     checkAnswer(array2.select(array_size(col("d"))), Seq(Row(null), Row(null)), sort = false)
 
-    checkAnswer(
-      array2.select(array_size(parse_json(col("f")))),
-      Seq(Row(1), Row(2)),
-      sort = false)
+    checkAnswer(array2.select(array_size(parse_json(col("f")))), Seq(Row(1), Row(2)), sort = false)
   }
 
   test("array_slice") {
@@ -1816,8 +1823,7 @@ trait FunctionSuite extends TestData {
         .select(to_variant(col("a"))),
       Seq(Row("1"), Row("2"), Row("3")),
       sort = false)
-    assert(
-      integer1.select(to_variant(col("a"))).collect()(0).getVariant(0).equals(new Variant(1)))
+    assert(integer1.select(to_variant(col("a"))).collect()(0).getVariant(0).equals(new Variant(1)))
   }
 
   test("to_xml") {
@@ -1905,30 +1911,28 @@ trait FunctionSuite extends TestData {
   }
 
   test("approx_percentile") {
-    checkAnswer(
-      approxNumbers.select(approx_percentile(col("a"), 0.5)),
-      Seq(Row(4.5)),
-      sort = false)
+    checkAnswer(approxNumbers.select(approx_percentile(col("a"), 0.5)), Seq(Row(4.5)), sort = false)
   }
 
   test("approx_percentile_accumulate") {
     checkAnswer(
       approxNumbers.select(approx_percentile_accumulate(col("a"))),
-      Seq(Row("{\n  \"state\": [\n    0.000000000000000e+00,\n    1.000000000000000e+00,\n    " +
-        "1.000000000000000e+00,\n    1.000000000000000e+00,\n    2.000000000000000e+00,\n    " +
-        "1.000000000000000e+00,\n    3.000000000000000e+00,\n    1.000000000000000e+00,\n    " +
-        "4.000000000000000e+00,\n    1.000000000000000e+00,\n    5.000000000000000e+00,\n    " +
-        "1.000000000000000e+00,\n    6.000000000000000e+00,\n    1.000000000000000e+00,\n    " +
-        "7.000000000000000e+00,\n    1.000000000000000e+00,\n    8.000000000000000e+00,\n    " +
-        "1.000000000000000e+00,\n    9.000000000000000e+00,\n    1.000000000000000e+00\n  ],\n  " +
-        "\"type\": \"tdigest\",\n  \"version\": 1\n}")),
+      Seq(
+        Row(
+          "{\n  \"state\": [\n    0.000000000000000e+00,\n    1.000000000000000e+00,\n    " +
+            "1.000000000000000e+00,\n    1.000000000000000e+00,\n    2.000000000000000e+00,\n    " +
+            "1.000000000000000e+00,\n    3.000000000000000e+00,\n    1.000000000000000e+00,\n    " +
+            "4.000000000000000e+00,\n    1.000000000000000e+00,\n    5.000000000000000e+00,\n    " +
+            "1.000000000000000e+00,\n    6.000000000000000e+00,\n    1.000000000000000e+00,\n    " +
+            "7.000000000000000e+00,\n    1.000000000000000e+00,\n    8.000000000000000e+00,\n    " +
+            "1.000000000000000e+00,\n    9.000000000000000e+00,\n    1.000000000000000e+00\n  ]," +
+            "\n  \"type\": \"tdigest\",\n  \"version\": 1\n}")),
       sort = false)
   }
 
   test("approx_percentile_estimate") {
     checkAnswer(
-      approxNumbers.select(
-        approx_percentile_estimate(approx_percentile_accumulate(col("a")), 0.5)),
+      approxNumbers.select(approx_percentile_estimate(approx_percentile_accumulate(col("a")), 0.5)),
       approxNumbers.select(approx_percentile(col("a"), 0.5)),
       sort = false)
   }
@@ -1943,19 +1947,21 @@ trait FunctionSuite extends TestData {
     print(df.collect()(0))
     checkAnswer(
       df.select(approx_percentile_combine(col("b"))),
-      Seq(Row("{\n  \"state\": [\n    0.000000000000000e+00,\n    1.000000000000000e+00,\n    " +
-        "1.000000000000000e+00,\n    1.000000000000000e+00,\n    2.000000000000000e+00,\n    " +
-        "1.000000000000000e+00,\n    3.000000000000000e+00,\n    1.000000000000000e+00,\n    " +
-        "3.000000000000000e+00,\n    1.000000000000000e+00,\n    4.000000000000000e+00,\n    " +
-        "1.000000000000000e+00,\n    4.000000000000000e+00,\n    1.000000000000000e+00,\n    " +
-        "5.000000000000000e+00,\n    1.000000000000000e+00,\n    5.000000000000000e+00,\n    " +
-        "1.000000000000000e+00,\n    6.000000000000000e+00,\n    1.000000000000000e+00,\n    " +
-        "6.000000000000000e+00,\n    1.000000000000000e+00,\n    7.000000000000000e+00,\n    " +
-        "1.000000000000000e+00,\n    7.000000000000000e+00,\n    1.000000000000000e+00,\n    " +
-        "8.000000000000000e+00,\n    1.000000000000000e+00,\n    8.000000000000000e+00,\n    " +
-        "1.000000000000000e+00,\n    9.000000000000000e+00,\n    1.000000000000000e+00,\n    " +
-        "9.000000000000000e+00,\n    1.000000000000000e+00\n  ],\n  \"type\": \"tdigest\",\n  " +
-        "\"version\": 1\n}")),
+      Seq(
+        Row(
+          "{\n  \"state\": [\n    0.000000000000000e+00,\n    1.000000000000000e+00,\n    " +
+            "1.000000000000000e+00,\n    1.000000000000000e+00,\n    2.000000000000000e+00,\n    " +
+            "1.000000000000000e+00,\n    3.000000000000000e+00,\n    1.000000000000000e+00,\n    " +
+            "3.000000000000000e+00,\n    1.000000000000000e+00,\n    4.000000000000000e+00,\n    " +
+            "1.000000000000000e+00,\n    4.000000000000000e+00,\n    1.000000000000000e+00,\n    " +
+            "5.000000000000000e+00,\n    1.000000000000000e+00,\n    5.000000000000000e+00,\n    " +
+            "1.000000000000000e+00,\n    6.000000000000000e+00,\n    1.000000000000000e+00,\n    " +
+            "6.000000000000000e+00,\n    1.000000000000000e+00,\n    7.000000000000000e+00,\n    " +
+            "1.000000000000000e+00,\n    7.000000000000000e+00,\n    1.000000000000000e+00,\n    " +
+            "8.000000000000000e+00,\n    1.000000000000000e+00,\n    8.000000000000000e+00,\n    " +
+            "1.000000000000000e+00,\n    9.000000000000000e+00,\n    1.000000000000000e+00,\n    " +
+            "9.000000000000000e+00,\n    1.000000000000000e+00\n  ],\n  \"type\": \"tdigest\"," +
+            "\n  \"version\": 1\n}")),
       sort = false)
   }
 
@@ -2010,9 +2016,7 @@ trait FunctionSuite extends TestData {
 
     // Test Column operation such as +/- on col(DataFrame)
     expectedResult = Seq(Row(1 + 3, 3 - 1), Row(2 + 3, 3 - 1))
-    checkAnswer(
-      testData1.select(col("num") + col(dfMax), col(dfMax) - col(dfMin)),
-      expectedResult)
+    checkAnswer(testData1.select(col("num") + col(dfMax), col(dfMax) - col(dfMin)), expectedResult)
   }
 
   test("col(DataFrame) with WHERE") {

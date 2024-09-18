@@ -585,13 +585,7 @@ class UDTFSuite extends TestData {
 
   test("test UDTFX of UDTF6", JavaStoredProcExclude) {
     class MyUDTF6 extends UDTF6[Int, Int, Int, Int, Int, Int] {
-      override def process(
-          a1: Int,
-          a2: Int,
-          a3: Int,
-          a4: Int,
-          a5: Int,
-          a6: Int): Iterable[Row] = {
+      override def process(a1: Int, a2: Int, a3: Int, a4: Int, a5: Int, a6: Int): Iterable[Row] = {
         val sum = Seq(a1, a2, a3, a4, a5, a6).sum
         Seq(Row(sum), Row(sum))
       }
@@ -608,7 +602,7 @@ class UDTFSuite extends TestData {
   test("test UDTFX of UDTF7", JavaStoredProcExclude) {
     class MyUDTF7 extends UDTF7[Int, Int, Int, Int, Int, Int, Int] {
       override def process(a1: Int, a2: Int, a3: Int, a4: Int, a5: Int, a6: Int, a7: Int)
-        : Iterable[Row] = {
+          : Iterable[Row] = {
         val sum = Seq(a1, a2, a3, a4, a5, a6, a7).sum
         Seq(Row(sum), Row(sum))
       }
@@ -626,7 +620,7 @@ class UDTFSuite extends TestData {
   test("test UDTFX of UDTF8", JavaStoredProcExclude) {
     class MyUDTF8 extends UDTF8[Int, Int, Int, Int, Int, Int, Int, Int] {
       override def process(a1: Int, a2: Int, a3: Int, a4: Int, a5: Int, a6: Int, a7: Int, a8: Int)
-        : Iterable[Row] = {
+          : Iterable[Row] = {
         val sum = Seq(a1, a2, a3, a4, a5, a6, a7, a8).sum
         Seq(Row(sum), Row(sum))
       }
@@ -806,8 +800,7 @@ class UDTFSuite extends TestData {
   }
 
   test("test UDTFX of UDTF13", JavaStoredProcExclude) {
-    class MyUDTF13
-        extends UDTF13[Int, Int, Int, Int, Int, Int, Int, Int, Int, Int, Int, Int, Int] {
+    class MyUDTF13 extends UDTF13[Int, Int, Int, Int, Int, Int, Int, Int, Int, Int, Int, Int, Int] {
       // scalastyle:off
       override def process(
           a1: Int,
@@ -1873,9 +1866,7 @@ class UDTFSuite extends TestData {
     val tableFunction200 = session.udtf.registerTemporary(new ReturnManyColumns(200))
     val df200 = session.tableFunction(tableFunction200, lit(100))
     assert(df200.schema.length == 200)
-    checkAnswer(
-      df200,
-      Seq(Row.fromArray((101 to 300).toArray), Row.fromArray((1 to 200).toArray)))
+    checkAnswer(df200, Seq(Row.fromArray((101 to 300).toArray), Row.fromArray((1 to 200).toArray)))
   }
 
   test("test output type: basic types") {

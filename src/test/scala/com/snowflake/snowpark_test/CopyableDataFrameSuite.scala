@@ -13,10 +13,7 @@ class CopyableDataFrameSuite extends SNTestBase {
   val testTableName: String = randomName()
 
   private val userSchema: StructType = StructType(
-    Seq(
-      StructField("a", IntegerType),
-      StructField("b", StringType),
-      StructField("c", DoubleType)))
+    Seq(StructField("a", IntegerType), StructField("b", StringType), StructField("c", DoubleType)))
 
   override def beforeAll(): Unit = {
     super.beforeAll()

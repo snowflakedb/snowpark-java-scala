@@ -138,18 +138,17 @@ private[snowpark] object ServerConnection {
         } else {
           // object
           StructType(
-            field.map(
-              f =>
-                StructField(
-                  f.getName,
-                  getDataType(
-                    f.getType,
-                    f.getTypeName,
-                    f.getPrecision,
-                    f.getScale,
-                    signed = true,
-                    f.getFields.asScala.toList),
-                  f.isNullable)))
+            field.map(f =>
+              StructField(
+                f.getName,
+                getDataType(
+                  f.getType,
+                  f.getTypeName,
+                  f.getPrecision,
+                  f.getScale,
+                  signed = true,
+                  f.getFields.asScala.toList),
+                f.isNullable)))
         }
       case "GEOGRAPHY" => GeographyType
       case "GEOMETRY" => GeometryType
@@ -287,8 +286,7 @@ private[snowpark] class ServerConnection(
       true,
       false,
       getStatementParameters(isDDLOnTempObject = false, Map.empty)).rows.get
-      .map(r =>
-        r.getString(0).toLowerCase() + PackageNameDelimiter + r.getString(1).toLowerCase())
+      .map(r => r.getString(0).toLowerCase() + PackageNameDelimiter + r.getString(1).toLowerCase())
       .toSet
 
   private[snowflake] def setStatementParameters(
@@ -343,52 +341,49 @@ private[snowpark] class ServerConnection(
         private def readNext(): Unit = {
           _hasNext = data.next()
           _currentRow = if (_hasNext) {
-            Row.fromSeq(schema.zipWithIndex.map {
-              case (attribute, index) =>
-                val resultIndex: Int = index + 1
-                val resultSetExt = SnowflakeResultSetExt(data)
-                if (resultSetExt.isNull(resultIndex)) {
-                  null
-                } else {
-                  attribute.dataType match {
-                    case VariantType => data.getString(resultIndex)
-                    case _: StructuredArrayType | _: StructuredMapType | _: StructType =>
-                      resultSetExt.getObject(resultIndex)
-                    case ArrayType(StringType) => data.getString(resultIndex)
-                    case MapType(StringType, StringType) => data.getString(resultIndex)
-                    case StringType => data.getString(resultIndex)
-                    case _: DecimalType => data.getBigDecimal(resultIndex)
-                    case DoubleType => data.getDouble(resultIndex)
-                    case FloatType => data.getFloat(resultIndex)
-                    case BooleanType => data.getBoolean(resultIndex)
-                    case BinaryType => data.getBytes(resultIndex)
-                    case DateType => data.getDate(resultIndex)
-                    case TimeType => data.getTime(resultIndex)
-                    case ByteType => data.getByte(resultIndex)
-                    case IntegerType => data.getInt(resultIndex)
-                    case LongType => data.getLong(resultIndex)
-                    case TimestampType => data.getTimestamp(resultIndex)
-                    case ShortType => data.getShort(resultIndex)
-                    case GeographyType =>
-                      geographyOutputFormat match {
-                        case "GeoJSON" => Geography.fromGeoJSON(data.getString(resultIndex))
-                        case _ =>
-                          throw ErrorMessage.MISC_UNSUPPORTED_GEOGRAPHY_FORMAT(
-                            geographyOutputFormat)
-                      }
-                    case GeometryType =>
-                      geometryOutputFormat match {
-                        case "GeoJSON" => Geometry.fromGeoJSON(data.getString(resultIndex))
-                        case _ =>
-                          throw ErrorMessage.MISC_UNSUPPORTED_GEOMETRY_FORMAT(
-                            geometryOutputFormat)
-                      }
-                    case _ =>
-                      // ArrayType, StructType, MapType
-                      throw new UnsupportedOperationException(
-                        s"Unsupported type: ${attribute.dataType}")
-                  }
+            Row.fromSeq(schema.zipWithIndex.map { case (attribute, index) =>
+              val resultIndex: Int = index + 1
+              val resultSetExt = SnowflakeResultSetExt(data)
+              if (resultSetExt.isNull(resultIndex)) {
+                null
+              } else {
+                attribute.dataType match {
+                  case VariantType => data.getString(resultIndex)
+                  case _: StructuredArrayType | _: StructuredMapType | _: StructType =>
+                    resultSetExt.getObject(resultIndex)
+                  case ArrayType(StringType) => data.getString(resultIndex)
+                  case MapType(StringType, StringType) => data.getString(resultIndex)
+                  case StringType => data.getString(resultIndex)
+                  case _: DecimalType => data.getBigDecimal(resultIndex)
+                  case DoubleType => data.getDouble(resultIndex)
+                  case FloatType => data.getFloat(resultIndex)
+                  case BooleanType => data.getBoolean(resultIndex)
+                  case BinaryType => data.getBytes(resultIndex)
+                  case DateType => data.getDate(resultIndex)
+                  case TimeType => data.getTime(resultIndex)
+                  case ByteType => data.getByte(resultIndex)
+                  case IntegerType => data.getInt(resultIndex)
+                  case LongType => data.getLong(resultIndex)
+                  case TimestampType => data.getTimestamp(resultIndex)
+                  case ShortType => data.getShort(resultIndex)
+                  case GeographyType =>
+                    geographyOutputFormat match {
+                      case "GeoJSON" => Geography.fromGeoJSON(data.getString(resultIndex))
+                      case _ =>
+                        throw ErrorMessage.MISC_UNSUPPORTED_GEOGRAPHY_FORMAT(geographyOutputFormat)
+                    }
+                  case GeometryType =>
+                    geometryOutputFormat match {
+                      case "GeoJSON" => Geometry.fromGeoJSON(data.getString(resultIndex))
+                      case _ =>
+                        throw ErrorMessage.MISC_UNSUPPORTED_GEOMETRY_FORMAT(geometryOutputFormat)
+                    }
+                  case _ =>
+                    // ArrayType, StructType, MapType
+                    throw new UnsupportedOperationException(
+                      s"Unsupported type: ${attribute.dataType}")
                 }
+              }
             })
           } else {
             // After all rows are consumed, close the statement to release resource
@@ -404,9 +399,8 @@ private[snowpark] class ServerConnection(
           result
         }
 
-        /**
-         * Close the underlying data source.
-         */
+        /** Close the underlying data source.
+          */
         override def close(): Unit = {
           _hasNext = false
           statement.close()
@@ -424,12 +418,10 @@ private[snowpark] class ServerConnection(
     connection.uploadStream(stageName, destPrefix, inputStream, destFileName, compressData)
   }
 
-  def downloadStream(
-      stageName: String,
-      sourceFileName: String,
-      decompress: Boolean): InputStream = withValidConnection {
-    connection.downloadStream(stageName, sourceFileName, decompress)
-  }
+  def downloadStream(stageName: String, sourceFileName: String, decompress: Boolean): InputStream =
+    withValidConnection {
+      connection.downloadStream(stageName, sourceFileName, decompress)
+    }
 
   // Run the query and return the queryID when the caller doesn't need the ResultSet
   def runQuery(
@@ -702,7 +694,7 @@ private[snowpark] class ServerConnection(
     val timeout = readRequestTimeoutSecond
     // Timeout should be greater than 0 and less than 7 days
     if (timeout <= MIN_REQUEST_TIMEOUT_IN_SECONDS
-        || timeout >= MAX_REQUEST_TIMEOUT_IN_SECONDS) {
+      || timeout >= MAX_REQUEST_TIMEOUT_IN_SECONDS) {
       throw ErrorMessage.MISC_INVALID_INT_PARAMETER(
         timeout.toString,
         SnowparkRequestTimeoutInSeconds,
@@ -902,7 +894,7 @@ private[snowpark] class ServerConnection(
     var lastLogTime = 0
     var totalWaitTime = 0
     while (QueryStatus.isStillRunning(qs) &&
-           totalWaitTime + getSeepTime(retry + 1) < maxWaitTimeInSeconds * 1000) {
+      totalWaitTime + getSeepTime(retry + 1) < maxWaitTimeInSeconds * 1000) {
       Thread.sleep(getSeepTime(retry))
       totalWaitTime = totalWaitTime + getSeepTime(retry)
       qs = session.getQueryStatus(queryID)
@@ -1085,16 +1077,14 @@ private[snowflake] class SnowflakeResultSetExt(data: SnowflakeResultSetV1) {
         value match {
           // nested structured maps are JsonStringArrayValues
           case subMap: JsonStringArrayList[_] =>
-            subMap.asScala.map {
-              case mapValue: JsonStringHashMap[_, _] =>
-                convertToSnowparkValue(mapValue.get("key"), meta.getFields.get(0)) ->
-                  convertToSnowparkValue(mapValue.get("value"), meta.getFields.get(1))
+            subMap.asScala.map { case mapValue: JsonStringHashMap[_, _] =>
+              convertToSnowparkValue(mapValue.get("key"), meta.getFields.get(0)) ->
+                convertToSnowparkValue(mapValue.get("value"), meta.getFields.get(1))
             }.toMap
           case map: util.HashMap[_, _] =>
-            map.asScala.map {
-              case (key, value) =>
-                convertToSnowparkValue(key, meta.getFields.get(0)) ->
-                  convertToSnowparkValue(value, meta.getFields.get(1))
+            map.asScala.map { case (key, value) =>
+              convertToSnowparkValue(key, meta.getFields.get(0)) ->
+                convertToSnowparkValue(value, meta.getFields.get(1))
             }.toMap
         }
       // object, object's field name can't be empty
@@ -1106,9 +1096,8 @@ private[snowflake] class SnowflakeResultSetExt(data: SnowflakeResultSetV1) {
             Row.fromMap(
               map.asScala.toList
                 .zip(meta.getFields.asScala)
-                .map {
-                  case ((key, value), metadata) =>
-                    key -> convertToSnowparkValue(value, metadata)
+                .map { case ((key, value), metadata) =>
+                  key -> convertToSnowparkValue(value, metadata)
                 }
                 .toMap)
         }

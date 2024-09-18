@@ -59,8 +59,8 @@ private[snowpark] class StagedFileReader(
   }
 
   def options(configs: Map[String, Any]): StagedFileReader = {
-    configs.foreach {
-      case (k, v) => option(k, v)
+    configs.foreach { case (k, v) =>
+      option(k, v)
     }
     this
   }

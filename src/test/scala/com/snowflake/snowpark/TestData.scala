@@ -159,8 +159,7 @@ trait TestData extends SNTestBase {
         " to_variant(15) as num1 ")
 
   lazy val variant2: DataFrame =
-    session.sql(
-      """
+    session.sql("""
         |select parse_json(column1) as src
         |from values
         |('{
@@ -185,8 +184,8 @@ trait TestData extends SNTestBase {
     "select parse_json(column1) as v, column2 as k from values ('{\"a\": null}','a'), " +
       "('{\"a\": \"foo\"}','a'), ('{\"a\": \"foo\"}','b'), (null,'a')")
 
-  lazy val invalidJson1: DataFrame = session.sql(
-    "select (column1) as v from values ('{\"a\": null'), ('{\"a: \"foo\"}'), ('{\"a:')")
+  lazy val invalidJson1: DataFrame =
+    session.sql("select (column1) as v from values ('{\"a\": null'), ('{\"a: \"foo\"}'), ('{\"a:')")
 
   lazy val nullXML1: DataFrame = session.sql(
     "select (column1) as v from values ('<t1>foo<t2>bar</t2><t3></t3></t1>'), " +

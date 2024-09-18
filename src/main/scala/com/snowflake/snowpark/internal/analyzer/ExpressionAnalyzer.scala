@@ -30,8 +30,8 @@ private[snowpark] object ExpressionAnalyzer {
   def apply(
       maps: Seq[Map[ExprId, String]],
       dfAliasMap: Map[String, Seq[Attribute]]): ExpressionAnalyzer = {
-    maps.foldLeft(ExpressionAnalyzer()) {
-      case (expAnalyzer, map) => ExpressionAnalyzer(expAnalyzer.getAliasMap, map, dfAliasMap)
+    maps.foldLeft(ExpressionAnalyzer()) { case (expAnalyzer, map) =>
+      ExpressionAnalyzer(expAnalyzer.getAliasMap, map, dfAliasMap)
     }
   }
 }
@@ -48,8 +48,8 @@ private[snowpark] class ExpressionAnalyzer(
     case Alias(child: Attribute, name, _) =>
       val quotedName = quoteName(name)
       generatedAliasMap += (child.exprId -> quotedName)
-      aliasMap.filter(_._2 == child.name).foreach {
-        case (id, _) => generatedAliasMap += (id -> quotedName)
+      aliasMap.filter(_._2 == child.name).foreach { case (id, _) =>
+        generatedAliasMap += (id -> quotedName)
       }
       if (quoteName(child.name) == quotedName) {
         // in case of renaming to the current name, we can't directly remove this alias,
@@ -88,8 +88,8 @@ private[snowpark] class ExpressionAnalyzer(
 
   def getAliasMap: Map[ExprId, String] = {
     val result = MMap(aliasMap.toSeq: _*)
-    generatedAliasMap.foreach {
-      case (key, value) => result += (key -> value)
+    generatedAliasMap.foreach { case (key, value) =>
+      result += (key -> value)
     }
     result.toMap
   }

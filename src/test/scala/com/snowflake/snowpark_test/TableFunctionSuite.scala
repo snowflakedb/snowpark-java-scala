@@ -419,9 +419,7 @@ class TableFunctionSuite extends TestData {
   test("explode with DataFrame.join") {
     val df = Seq("[1, 2]").toDF("a")
     val df1 = df.select(parse_json(df("a")).cast(types.ArrayType(types.IntegerType)).as("a"))
-    checkAnswer(
-      df1.join(tableFunctions.explode(df1("a"))).select("VALUE"),
-      Seq(Row("1"), Row("2")))
+    checkAnswer(df1.join(tableFunctions.explode(df1("a"))).select("VALUE"), Seq(Row("1"), Row("2")))
   }
 
   test("explode with session.tableFunction") {

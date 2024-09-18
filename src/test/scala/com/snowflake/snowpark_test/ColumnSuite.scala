@@ -45,12 +45,9 @@ class ColumnSuite extends TestData {
   }
 
   test("unary operators") {
+    assert(testData1.select(-testData1("NUM")).collect() sameElements Array[Row](Row(-1), Row(-2)))
     assert(
-      testData1.select(-testData1("NUM")).collect() sameElements Array[Row](Row(-1), Row(-2)))
-    assert(
-      testData1.select(!testData1("BOOL")).collect() sameElements Array[Row](
-        Row(false),
-        Row(true)))
+      testData1.select(!testData1("BOOL")).collect() sameElements Array[Row](Row(false), Row(true)))
   }
 
   test("alias") {
@@ -90,8 +87,7 @@ class ColumnSuite extends TestData {
 
   test("leq and geq") {
     assert(
-      testData1.where(testData1("NUM") >= 2).collect() sameElements Array[Row](
-        Row(2, false, "b")))
+      testData1.where(testData1("NUM") >= 2).collect() sameElements Array[Row](Row(2, false, "b")))
     assert(
       testData1.where(testData1("NUM") geq lit(2)).collect() sameElements Array[Row](
         Row(2, false, "b")))
@@ -323,9 +319,11 @@ class ColumnSuite extends TestData {
     try {
       session.sql(s"""create table ${temp}.${rName} ("d(" int)""").collect()
       session.sql(s"""create table ${temp}.${sName} ("c(" int)""").collect()
-      session.sql(s"""create function ${temp}.${udfName}(v integer)
+      session
+        .sql(s"""create function ${temp}.${udfName}(v integer)
         returns float
-        as '3.141592654::FLOAT'""").collect()
+        as '3.141592654::FLOAT'""")
+        .collect()
       val df = session.sql(s"""select ${temp}.${rName}."d(",
           ${temp}.${sName}."c(", ${temp}.${udfName}(1 :: INT)
           FROM ${temp}.${rName}, ${temp}.${sName}""")
@@ -474,10 +472,7 @@ class ColumnSuite extends TestData {
 
     checkAnswer(array2.select(col("arr1")(0)), Seq(Row("1"), Row("6")), sort = false)
 
-    checkAnswer(
-      array2.select(parse_json(col("f"))(0)("a")),
-      Seq(Row("1"), Row("1")),
-      sort = false)
+    checkAnswer(array2.select(parse_json(col("f"))(0)("a")), Seq(Row("1"), Row("1")), sort = false)
 
     // Row name is not case-sensitive. field name is case-sensitive
     checkAnswer(
@@ -700,8 +695,8 @@ class ColumnSuite extends TestData {
             2.toShort,
             3,
             4L,
-            1.1F,
-            1.2D,
+            1.1f,
+            1.2d,
             new java.math.BigDecimal(1.2),
             true,
             Array(1.toByte, 2.toByte),
@@ -719,8 +714,8 @@ class ColumnSuite extends TestData {
           col("short").in(Seq(2, 3)) &&
           col("int").in(Seq(3, 4)) &&
           col("long").in(Seq(4, 5)) &&
-          col("float").in(Seq(1.1F, 1.2F)) &&
-          col("double").in(Seq(1.2D, 1.3D)) &&
+          col("float").in(Seq(1.1f, 1.2f)) &&
+          col("double").in(Seq(1.2d, 1.3d)) &&
           col("decimal").in(
             Seq(
               new java.math.BigDecimal(1.2).setScale(3, RoundingMode.HALF_UP),
@@ -793,8 +788,7 @@ class ColumnSuite extends TestData {
 
     // filter with NOT
     val df2 =
-      df.filter(
-        !functions.in(Seq(col("a"), col("b")), Seq(Seq(1, "a"), Seq(2, "b"), Seq(3, "c"))))
+      df.filter(!functions.in(Seq(col("a"), col("b")), Seq(Seq(1, "a"), Seq(2, "b"), Seq(3, "c"))))
     checkAnswer(df2, Seq(Row(3, "b", 33, 33)))
 
     // select without NOT
