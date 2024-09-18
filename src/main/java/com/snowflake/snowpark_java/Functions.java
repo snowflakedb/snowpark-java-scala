@@ -4647,11 +4647,11 @@ public final class Functions {
    *
    * <p>NOTE:
    *
-   * <ul>
-   *   <li>Timestamp type: there is no interpretation of date values as UTC
-   *   <li>Identifiers with spaces: Snowflake returns error when an invalid expression is sent.
-   *       <p>Usage:
-   *       <pre>{@code
+   *
+   *   Timestamp type: there is no interpretation of date values as UTC
+   *   Identifiers with spaces: Snowflake returns error when an invalid expression is sent.
+   *  <p>Usage:
+   *  <pre>{@code
    * {
    *   df = session.createDataFrame(Seq(("CR", "{\"id\": 5,
    *             \"name\": \"Jose\", \"age\": 29}")))
