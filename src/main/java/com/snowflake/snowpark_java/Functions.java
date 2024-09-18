@@ -4641,6 +4641,212 @@ public final class Functions {
     return new Column(com.snowflake.snowpark.functions.format_number(x.toScalaColumn(), d));
   }
 
+  /**
+   * This leverages JSON_EXTRACT_PATH_TEXT and improves functionality by allowing multiple columns
+   * in a single call, whereas JSON_EXTRACT_PATH_TEXT must be called once for every column.
+   *
+   * <p>NOTE:
+   *
+   * <ul>
+   *   <li>Timestamp type: there is no interpretation of date values as UTC
+   *   <li>Identifiers with spaces: Snowflake returns error when an invalid expression is sent.
+   *       <p>Usage:
+   *       <pre>{@code
+   * {
+   *   df = session.createDataFrame(Seq(("CR", "{\"id\": 5,
+   *             \"name\": \"Jose\", \"age\": 29}")))
+   *               .toDF(Seq("nationality", "json_string"))
+   * }
+   * When the result of this function is the only part of
+   * the select statement, no changes are needed
+   * df.select(json_tuple(col("json_string"), "id", "name", "age")).show()
+   * ----------------------
+   * |"C0"  |"C1"  |"C2"  |
+   * ----------------------
+   * |5     |Jose  |29    |
+   * ----------------------
+   *
+   * However, when specifying multiple columns, an expression like this is required:
+   *
+   * df.select(
+   *   col("nationality")
+   *   , json_tuple(col("json_string"), "id", "name", "age"):_* // Notice the :_* syntax.
+   * ).show()
+   *
+   *
+   *
+   * -------------------------------------------------
+   * |"NATIONALITY"  |"C0"  |"C1"  |"C2"  |"C3"      |
+   * -------------------------------------------------
+   * |CR             |5     |Jose  |29    |Mobilize  |
+   * -------------------------------------------------
+   * }</pre>
+   *
+   * @since 1.15.0
+   * @param json Column containing the JSON string text.
+   * @param fields Fields to pull from the JSON file.
+   * @return seqToList[] sequence with the specified strings.
+   */
+  public static List<com.snowflake.snowpark_java.Column> json_tuple(Column json, String... fields) {
+    int i = -1;
+    java.util.ArrayList<com.snowflake.snowpark_java.Column> result =
+        new java.util.ArrayList<Column>();
+    for (int j = 0; j < fields.length; j++) {
+      i = i + 1;
+      result.add(Functions.callUDF("JSON_EXTRACT_PATH_TEXT", json, col(fields[j])).as("c" + i));
+    }
+    return result;
+  }
+
+  public static List<com.snowflake.snowpark_java.Column> json_tuple(Column json, Column... fields) {
+    int i = -1;
+    java.util.ArrayList<com.snowflake.snowpark_java.Column> result =
+        new java.util.ArrayList<Column>();
+    for (int j = 0; j < fields.length; j++) {
+      i = i + 1;
+      result.add(Functions.callUDF("JSON_EXTRACT_PATH_TEXT", json, fields[j]).as("c" + i));
+    }
+    return result;
+  }
+
+  /**
+   * Used to calculate the cubic root of a number.
+   *
+   * <p>Example
+   *
+   * <pre>{@code
+   * SELECT x, cbrt(x) FROM tab;
+   *
+   * --------+-------------+
+   * x    |   cbrt(x)   |
+   * --------+-------------+
+   * 0      | 0           |
+   * 2      | 1.25992105  |
+   * -10    | -2.15443469 |
+   * [NULL] | [NULL]      |
+   * --------+-------------+
+   * }</pre>
+   *
+   * @since 1.15.0
+   * @param x Column to calculate the cubic root.
+   * @return Column object.
+   */
+  public static Column cbrt(Column x) {
+    return new Column(com.snowflake.snowpark.functions.cbrt(x.toScalaColumn()));
+  }
+
+  /**
+   * Used to calculate the cubic root of a number. There were slight differences found:
+   *
+   * <p>Example
+   *
+   * <pre>{@code
+   * SELECT x, cbrt(x) FROM tab;
+   *
+   * --------+-------------+
+   * x    |   cbrt(x)   |
+   * --------+-------------+
+   * 0      | 0           |
+   * 2      | 1.25992105  |
+   * -10    | -2.15443469 |
+   * [NULL] | [NULL]      |
+   * --------+-------------+
+   * }</pre>
+   *
+   * @since 1.15.0
+   * @param columnName as a stringto calculate the cubic root.
+   * @return Column object.
+   */
+  public static Column cbrt(String columnName) {
+    return new Column(functions.cbrt(columnName));
+  }
+
+  /**
+   * This function converts a JSON string to a variant in Snowflake.
+   *
+   * <p>In Snowflake the values are converted automatically, however they're converted as variants,
+   * meaning that the printSchema function would return different datatypes. To convert the datatype
+   * and it to be printed as the expected datatype, it should be read on the
+   *
+   * <p>Example
+   *
+   * <pre>{@code
+   * selectExpr function as "json['relative']['age']::integer"
+   * val data_for_json = Seq(
+   *   (1, "{\"id\": 172319, \"age\": 41, \"relative\": {\"id\": 885471, \"age\": 29}}")
+   *   (2, "{\"id\": 532161, \"age\": 17, \"relative\":{\"id\": 873513, \"age\": 47}}")
+   * )
+   * val data_for_json_column = Seq("col1", "col2")
+   * val df_for_json = session.createDataFrame(data_for_json).toDF(data_for_json_column)
+   *
+   * val json_df = df_for_json.select(
+   *   from_json(col("col2")).as("json")
+   * )
+   *
+   * json_df.selectExpr(
+   *   "json['id']::integer as id"
+   *   , "json['age']::integer as age"
+   *   , "json['relative']['id']::integer as rel_id"
+   *   , "json['relative']['age']::integer as rel_age"
+   * ).show(10, 10000)
+   * -----------------------------------------
+   * |"ID"    |"AGE"  |"REL_ID"  |"REL_AGE"  |
+   * -----------------------------------------
+   * |172319  |41     |885471    |29         |
+   * |532161  |17     |873513    |47         |
+   * -----------------------------------------
+   * }</pre>
+   *
+   * @since 1.15.0
+   * @param e String column to convert to variant.
+   * @return Column object.
+   */
+  public static Column from_json(Column e) {
+    return new Column(functions.from_json(e.toScalaColumn()));
+  }
+  /**
+   * Returns the value of sourceExpr cast to data type targetType if possible, or NULL if not
+   * possible.
+   *
+   * <p>Example::
+   *
+   * <pre>{@code
+   * df = session.create_dataframe(['0.12', 'USD 27.90',
+   * '13.97 USD', '97.0', '17,-'], schema=["a"])
+   * df.select(try_cast(col("a"), FloatType()).as_('ans')).collect()
+   * [Row(ANS=0.12), Row(ANS=None), Row(ANS=None), Row(ANS=None), Row(ANS=None)]
+   * }</pre>
+   *
+   * @since 1.15.0
+   * @param e Any castable expression
+   * @param targetType The type of the result
+   * @return The result is of type targetType. special version of CAST for a subset of datatype
+   *     conversions. It performs the same operation (i.e. converts a value of one data type into
+   *     another data type), but returns a NULL value instead of raising an error when the
+   *     conversion can not be performed. The column argument must be a string column in Snowflake.
+   */
+  public static Column try_cast(Column e, DataType targetType) {
+    return e.cast(targetType);
+  }
+  /**
+   * This function receives a date or timestamp, as well as a properly formatted string and
+   * subtracts the specified amount of days from it. If receiving a string, this string is casted to
+   * date using try_cast and if it's not possible to cast, returns null. If receiving a timestamp it
+   * will be casted to date (removing its time). Example::
+   *
+   * <p>>>> from snowflake.snowpark.functions import date_sub, to_date >>> df =
+   * session.createDataFrame([("1976-01-06")], ["date"]) >>> df = df.withColumn("date",
+   * to_date("date")) >>> df.withColumn("date", date_sub("date", 2)).show() -------------- |"DATE" |
+   * -------------- |1976-01-04 | -------------- """
+   *
+   * @since 1.15.0
+   * @param start Date, Timestamp or String column to subtract days from.
+   * @param days Days to subtract.
+   * @return Column object.
+   */
+  public static Column date_sub(Column start, Integer days) {
+    return new Column(functions.date_sub(start.toScalaColumn(), days));
+  }
   /* Returns a Column expression with values sorted in descending order.
    *
    * <p>Example: order column values in descending
