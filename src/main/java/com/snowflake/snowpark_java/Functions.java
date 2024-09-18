@@ -4816,6 +4816,7 @@ public final class Functions {
    * '13.97 USD', '97.0', '17,-'], schema=["a"])
    * df.select(try_cast(col("a"), FloatType()).as_('ans')).collect()
    * [Row(ANS=0.12), Row(ANS=None), Row(ANS=None), Row(ANS=None), Row(ANS=None)]
+   *
    * }</pre>
    *
    * @since 1.15.0
