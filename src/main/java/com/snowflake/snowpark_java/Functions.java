@@ -4685,7 +4685,7 @@ public final class Functions {
    *
    * @since 1.15.0
    * @param json Column containing the JSON string text.
-   * @param fields Fields to pull from the JSON file.
+   * @param fields Fields as string to pull from the JSON file.
    * @return seqToList[] sequence with the specified strings.
    */
   public static List<com.snowflake.snowpark_java.Column> json_tuple(Column json, String... fields) {
@@ -4698,7 +4698,53 @@ public final class Functions {
     }
     return result;
   }
-
+  /**
+   * This leverages JSON_EXTRACT_PATH_TEXT and improves functionality by allowing multiple columns
+   * in a single call, whereas JSON_EXTRACT_PATH_TEXT must be called once for every column.
+   *
+   * <p>NOTE:
+   *
+   * <p>Timestamp type: there is no interpretation of date values as UTC Identifiers with spaces:
+   * Snowflake returns error when an invalid expression is sent.
+   *
+   * <p>Usage:
+   *
+   * <pre>{@code
+   * {
+   *   df = session.createDataFrame(Seq(("CR", "{\"id\": 5,
+   *             \"name\": \"Jose\", \"age\": 29}")))
+   *               .toDF(Seq("nationality", "json_string"))
+   * }
+   * When the result of this function is the only part of
+   * the select statement, no changes are needed
+   * df.select(json_tuple(col("json_string"), "id", "name", "age")).show()
+   * ----------------------
+   * |"C0"  |"C1"  |"C2"  |
+   * ----------------------
+   * |5     |Jose  |29    |
+   * ----------------------
+   *
+   * However, when specifying multiple columns, an expression like this is required:
+   *
+   * df.select(
+   *   col("nationality")
+   *   , json_tuple(col("json_string"), "id", "name", "age"):_* // Notice the :_* syntax.
+   * ).show()
+   *
+   *
+   *
+   * -------------------------------------------------
+   * |"NATIONALITY"  |"C0"  |"C1"  |"C2"  |"C3"      |
+   * -------------------------------------------------
+   * |CR             |5     |Jose  |29    |Mobilize  |
+   * -------------------------------------------------
+   * }</pre>
+   *
+   * @since 1.15.0
+   * @param json Column containing the JSON string text.
+   * @param fields Fields as column to pull from the JSON file.
+   * @return seqToList[] sequence with the specified strings.
+   */
   public static List<com.snowflake.snowpark_java.Column> json_tuple(Column json, Column... fields) {
     int i = -1;
     java.util.ArrayList<com.snowflake.snowpark_java.Column> result =
