@@ -1,5 +1,13 @@
 import scala.util.Properties
 
+lazy val isFipsRelease = {
+  val result = sys.env.get("SNOWPARK_FIPS").getOrElse("false").toBoolean
+  println(s"FIPS Build: $result")
+  result
+}
+lazy val snowparkName = s"snowpark${if(isFipsRelease) "-fips" else ""}"
+lazy val jdbcName = s"snowflake-jdbc${if(isFipsRelease) "-fips" else ""}"
+
 val jacksonVersion = "2.17.2"
 val openTelemetryVersion = "1.41.0"
 val slf4jVersion = "2.0.4"
@@ -14,7 +22,7 @@ lazy val root = (project in file("."))
   .configs(UDTFTests)
   .configs(SprocTests)
   .settings(
-    name := "snowpark",
+    name := snowparkName,
     version := "1.15.0-SNAPSHOT",
     scalaVersion := sys.props.getOrElse("SCALA_VERSION", default = "2.12.18"),
     organization := "com.snowflake",
@@ -38,7 +46,7 @@ lazy val root = (project in file("."))
       "org.slf4j" % "slf4j-simple" % slf4jVersion,
       "commons-codec" % "commons-codec" % "1.17.0",
       "io.opentelemetry" % "opentelemetry-api" % openTelemetryVersion,
-      "net.snowflake" % "snowflake-jdbc" % "3.17.0",
+      "net.snowflake" % jdbcName % "3.17.0",
       "com.github.vertical-blank" % "sql-formatter" % "1.0.2",
       "com.fasterxml.jackson.core" % "jackson-databind" % jacksonVersion,
       "com.fasterxml.jackson.core" % "jackson-core" % jacksonVersion,
