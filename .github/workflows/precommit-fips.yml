@@ -20,4 +20,6 @@ jobs:
         env:
           PROFILE_PASSWORD: ${{ secrets.PROFILE_PASSWORD }}
       - name: Run test
-        run: export SNOWPARK_FIPS=true;sbt "testOnly com.snowflake.snowpark_test.SessionSuite" -J-DFIPS_TEST=true
+        run: sbt "testOnly com.snowflake.snowpark_test.SessionSuite" -J-DFIPS_TEST=true
+        env:
+          SNOWPARK_FIPS: true
