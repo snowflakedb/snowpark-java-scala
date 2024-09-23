@@ -24,6 +24,6 @@ jobs:
         env:
           PROFILE_PASSWORD: ${{ secrets.PROFILE_PASSWORD }}
       - name: Set env
-        run: echo 'JAVA_OPTS="--add-opens=java.base/java.io=ALL-UNNAMED --add-opens=java.base/java.nio=ALL-UNNAMED --add-opens=java.base/java.lang=ALL-UNNAMED --add-opens=java.base/java.lang.reflect=ALL-UNNAMED --add-opens=java.base/java.util=ALL-UNNAMED --add-exports=java.base/sun.nio.ch=ALL-UNNAMED --add-exports=jdk.unsupported/sun.misc=ALL-UNNAMED --add-opens=java.base/sun.security.util=ALL-UNNAMED"' >> $GITHUB_ENV
+        run: echo "JAVA_OPTS=\"--add-opens=java.base/java.io=ALL-UNNAMED --add-opens=java.base/java.nio=ALL-UNNAMED --add-opens=java.base/java.lang=ALL-UNNAMED --add-opens=java.base/java.lang.reflect=ALL-UNNAMED --add-opens=java.base/java.util=ALL-UNNAMED --add-exports=java.base/sun.nio.ch=ALL-UNNAMED --add-exports=jdk.unsupported/sun.misc=ALL-UNNAMED --add-opens=java.base/sun.security.util=ALL-UNNAMED\"" >> $GITHUB_ENV
       - name: Run test
         run: sbt "testOnly com.snowflake.snowpark_test.UDTFSuite com.snowflake.snowpark_test.AlwaysCleanUDFSuite com.snowflake.snowpark_test.StoredProcedureSuite" 
