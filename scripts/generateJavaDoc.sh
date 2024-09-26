@@ -9,7 +9,7 @@
 export JAVA_DIR="javaDoc"
 
 # release scala code to local .m2 repo
-mvn -Dgpg.skip -DskipTests clean install
+sbt publishM2
 
 # clean sub dir
 rm -rf $JAVA_DIR
