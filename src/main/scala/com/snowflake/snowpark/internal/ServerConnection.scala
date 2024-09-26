@@ -330,6 +330,7 @@ private[snowpark] class ServerConnection(
       val data = statement.getResultSet
 
       val schema = ServerConnection.convertResultMetaToAttribute(data.getMetaData)
+      val schemaOption = Some(StructType.fromAttributes(schema))
 
       lazy val geographyOutputFormat = getParameterValue(ParameterUtils.GeographyOutputFormat)
       lazy val geometryOutputFormat = getParameterValue(ParameterUtils.GeometryOutputFormat)
@@ -343,53 +344,55 @@ private[snowpark] class ServerConnection(
         private def readNext(): Unit = {
           _hasNext = data.next()
           _currentRow = if (_hasNext) {
-            Row.fromSeq(schema.zipWithIndex.map {
-              case (attribute, index) =>
-                val resultIndex: Int = index + 1
-                val resultSetExt = SnowflakeResultSetExt(data)
-                if (resultSetExt.isNull(resultIndex)) {
-                  null
-                } else {
-                  attribute.dataType match {
-                    case VariantType => data.getString(resultIndex)
-                    case _: StructuredArrayType | _: StructuredMapType | _: StructType =>
-                      resultSetExt.getObject(resultIndex)
-                    case ArrayType(StringType) => data.getString(resultIndex)
-                    case MapType(StringType, StringType) => data.getString(resultIndex)
-                    case StringType => data.getString(resultIndex)
-                    case _: DecimalType => data.getBigDecimal(resultIndex)
-                    case DoubleType => data.getDouble(resultIndex)
-                    case FloatType => data.getFloat(resultIndex)
-                    case BooleanType => data.getBoolean(resultIndex)
-                    case BinaryType => data.getBytes(resultIndex)
-                    case DateType => data.getDate(resultIndex)
-                    case TimeType => data.getTime(resultIndex)
-                    case ByteType => data.getByte(resultIndex)
-                    case IntegerType => data.getInt(resultIndex)
-                    case LongType => data.getLong(resultIndex)
-                    case TimestampType => data.getTimestamp(resultIndex)
-                    case ShortType => data.getShort(resultIndex)
-                    case GeographyType =>
-                      geographyOutputFormat match {
-                        case "GeoJSON" => Geography.fromGeoJSON(data.getString(resultIndex))
-                        case _ =>
-                          throw ErrorMessage.MISC_UNSUPPORTED_GEOGRAPHY_FORMAT(
-                            geographyOutputFormat)
-                      }
-                    case GeometryType =>
-                      geometryOutputFormat match {
-                        case "GeoJSON" => Geometry.fromGeoJSON(data.getString(resultIndex))
-                        case _ =>
-                          throw ErrorMessage.MISC_UNSUPPORTED_GEOMETRY_FORMAT(
-                            geometryOutputFormat)
-                      }
-                    case _ =>
-                      // ArrayType, StructType, MapType
-                      throw new UnsupportedOperationException(
-                        s"Unsupported type: ${attribute.dataType}")
+            Row.fromSeqWithSchema(
+              schema.zipWithIndex.map {
+                case (attribute, index) =>
+                  val resultIndex: Int = index + 1
+                  val resultSetExt = SnowflakeResultSetExt(data)
+                  if (resultSetExt.isNull(resultIndex)) {
+                    null
+                  } else {
+                    attribute.dataType match {
+                      case VariantType => data.getString(resultIndex)
+                      case _: StructuredArrayType | _: StructuredMapType | _: StructType =>
+                        resultSetExt.getObject(resultIndex)
+                      case ArrayType(StringType) => data.getString(resultIndex)
+                      case MapType(StringType, StringType) => data.getString(resultIndex)
+                      case StringType => data.getString(resultIndex)
+                      case _: DecimalType => data.getBigDecimal(resultIndex)
+                      case DoubleType => data.getDouble(resultIndex)
+                      case FloatType => data.getFloat(resultIndex)
+                      case BooleanType => data.getBoolean(resultIndex)
+                      case BinaryType => data.getBytes(resultIndex)
+                      case DateType => data.getDate(resultIndex)
+                      case TimeType => data.getTime(resultIndex)
+                      case ByteType => data.getByte(resultIndex)
+                      case IntegerType => data.getInt(resultIndex)
+                      case LongType => data.getLong(resultIndex)
+                      case TimestampType => data.getTimestamp(resultIndex)
+                      case ShortType => data.getShort(resultIndex)
+                      case GeographyType =>
+                        geographyOutputFormat match {
+                          case "GeoJSON" => Geography.fromGeoJSON(data.getString(resultIndex))
+                          case _ =>
+                            throw ErrorMessage.MISC_UNSUPPORTED_GEOGRAPHY_FORMAT(
+                              geographyOutputFormat)
+                        }
+                      case GeometryType =>
+                        geometryOutputFormat match {
+                          case "GeoJSON" => Geometry.fromGeoJSON(data.getString(resultIndex))
+                          case _ =>
+                            throw ErrorMessage.MISC_UNSUPPORTED_GEOMETRY_FORMAT(
+                              geometryOutputFormat)
+                        }
+                      case _ =>
+                        // ArrayType, StructType, MapType
+                        throw new UnsupportedOperationException(
+                          s"Unsupported type: ${attribute.dataType}")
+                    }
                   }
-                }
-            })
+              },
+              schemaOption)
           } else {
             // After all rows are consumed, close the statement to release resource
             close()

@@ -484,6 +484,38 @@ public class Row implements Serializable, Cloneable {
   }
 
   /**
+   * Returns the field value for the specified field name and casts it to the desired type {@code
+   * T}.
+   *
+   * <p>Example:
+   *
+   * <pre>{@code
+   * StructType schema =
+   *     StructType.create(
+   *        new StructField("name", DataTypes.StringType),
+   *        new StructField("val", DataTypes.IntegerType));
+   * Row[] data = { Row.create("Alice", 1) };
+   * DataFrame df = session.createDataFrame(data, schema);
+   * Row row = df.collect()[0];
+   *
+   * row.getAs("name", String.class); // Returns "Alice" as a String
+   * row.getAs("val", Integer.class); // Returns 1 as an Int
+   * }</pre>
+   *
+   * @param fieldName the name of the field within the row.
+   * @param clazz the {@code Class} object representing the type {@code T}.
+   * @param <T> the expected type of the value for the specified field name.
+   * @return the field value for the specified field name cast to type {@code T}.
+   * @throws ClassCastException if the value of the field cannot be cast to type {@code T}.
+   * @throws IllegalArgumentException if the name of the field is not part of the row schema.
+   * @throws UnsupportedOperationException if the schema information is not available.
+   * @since 1.15.0
+   */
+  public <T> T getAs(String fieldName, Class<T> clazz) {
+    return this.getAs(this.scalaRow.fieldIndex(fieldName), clazz);
+  }
+
+  /**
    * Generates a string value to represent the content of this row.
    *
    * @return A String value representing the content of this row
