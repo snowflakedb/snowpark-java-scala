@@ -6,4 +6,6 @@ gpg --quiet --batch --yes --decrypt --passphrase="$GPG_KEY" --output snowhouse.p
 
 sbt clean compile
 sbt "testOnly com.snowflake.snowpark.PerfTest" -J-DargLine="-DPERF_TEST=true -Xss1G"
+export JAVA_OPTS="-Xss1G"
+sbt "testOnly com.snowflake.perf.OptimizerPerfSuite" -J-DPERF_TEST=true
 
