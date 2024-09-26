@@ -109,7 +109,7 @@ case class StructType(fields: Array[StructField] = Array())
    * Return the index of the specified field.
    *
    * @param fieldName the name of the field.
-   * @returns the index of the field with the specified name.
+   * @return the index of the field with the specified name.
    * @throws IllegalArgumentException if the given field name does not exist in the schema.
    * @since 1.15.0
    */

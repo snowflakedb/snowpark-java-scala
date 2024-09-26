@@ -629,4 +629,21 @@ public class JavaRowSuite extends TestBase {
         UnsupportedOperationException.class,
         () -> rowWithoutSchema.getAs("NonExistingColumn", Integer.class));
   }
+
+  @Test
+  public void fieldIndex() {
+    StructType schema =
+        StructType.create(
+            new StructField("EmpName", DataTypes.StringType),
+            new StructField("NumVal", DataTypes.IntegerType));
+
+    Row[] data = {Row.create("abcd", 10), Row.create("efgh", 20)};
+
+    DataFrame df = getSession().createDataFrame(data, schema);
+    Row row = df.collect()[0];
+
+    assert (row.fieldIndex("EmpName") == 0);
+    assert (row.fieldIndex("NumVal") == 1);
+    assertThrows(IllegalArgumentException.class, () -> row.fieldIndex("NonExistingColumn"));
+  }
 }

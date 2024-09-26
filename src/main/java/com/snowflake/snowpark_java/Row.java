@@ -426,6 +426,18 @@ public class Row implements Serializable, Cloneable {
   }
 
   /**
+   * Returns the index of the field with the specified name.
+   *
+   * @param fieldName the name of the field.
+   * @return the index of the specified field.
+   * @throws UnsupportedOperationException if schema information is not available.
+   * @since 1.15.0
+   */
+  public int fieldIndex(String fieldName) {
+    return this.scalaRow.fieldIndex(fieldName);
+  }
+
+  /**
    * Returns the value at the specified column index and casts it to the desired type {@code T}.
    *
    * <p>Example:

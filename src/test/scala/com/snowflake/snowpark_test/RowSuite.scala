@@ -423,6 +423,14 @@ class RowSuite extends SNTestBase {
       rowWithoutSchema.getAs[Integer]("NonExistingColumn"));
   }
 
+  test("fieldIndex") {
+    val schema =
+      StructType(Seq(StructField("EmpName", StringType), StructField("NumVal", IntegerType)))
+    assert(schema.fieldIndex("EmpName") == 0)
+    assert(schema.fieldIndex("NumVal") == 1)
+    assertThrows[IllegalArgumentException](schema.fieldIndex("NonExistingColumn"))
+  }
+
   test("hashCode") {
     val row1 = Row(1, 2, 3)
     val row2 = Row("str", null, 3)

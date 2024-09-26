@@ -373,15 +373,15 @@ class Row protected (values: Array[Any], schema: Option[StructType]) extends Ser
   /**
    * Returns the index of the field with the specified name.
    *
-   * @param name the name of the field.
+   * @param fieldName the name of the field.
    * @return the index of the specified field.
    * @throws UnsupportedOperationException if schema information is not available.
    * @since 1.15.0
    */
-  def fieldIndex(name: String): Int = {
+  def fieldIndex(fieldName: String): Int = {
     var schema = this.schema.getOrElse(
       throw new UnsupportedOperationException("Cannot get field index for row without schema"))
-    schema.fieldIndex(name)
+    schema.fieldIndex(fieldName)
   }
 
   /**
