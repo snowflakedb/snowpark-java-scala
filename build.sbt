@@ -86,6 +86,8 @@ lazy val root = (project in file("."))
     // Build Info
     buildInfoKeys := Seq[BuildInfoKey](name, version, scalaVersion, sbtVersion),
     buildInfoPackage := "com.snowflake.snowpark.internal",
+    // doc settings
+    Compile / doc / scalacOptions ++= Seq("-skip-packages", "com.snowflake.snowpark_java::com.snowflake.snowpark.internal"),
     // Release settings
     // usePgpKeyHex(Properties.envOrElse("GPG_SIGNATURE", "12345")),
     Global / pgpPassphrase := Properties.envOrNone("GPG_KEY_PASSPHRASE").map(_.toCharArray),
