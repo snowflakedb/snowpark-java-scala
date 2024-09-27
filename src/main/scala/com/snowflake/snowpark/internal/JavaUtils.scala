@@ -317,7 +317,7 @@ object JavaUtils {
   def stringArrayToStringSeq(arr: Array[String]): Seq[String] = arr
 
   def objectListToAnySeq(input: java.util.List[java.util.List[Object]]): Seq[Seq[Any]] =
-    input.asScala.map(list => list.asScala)
+    input.asScala.map(list => list.asScala.toSeq).toSeq
 
   def registerUDF(
       udfRegistration: UDFRegistration,
@@ -365,11 +365,13 @@ object JavaUtils {
     }.toMap
 
   def scalaMapToJavaWithVariantConversion(map: Map[_, _]): java.util.Map[Object, Object] =
-    map.map {
-      case (key, value: com.snowflake.snowpark.types.Variant) =>
-        key.asInstanceOf[Object] -> InternalUtils.createVariant(value)
-      case (key, value) => key.asInstanceOf[Object] -> value.asInstanceOf[Object]
-    }.asJava
+    map
+      .map[Object, Object] {
+        case (key, value: com.snowflake.snowpark.types.Variant) =>
+          key.asInstanceOf[Object] -> InternalUtils.createVariant(value).asInstanceOf[Object]
+        case (key, value) => key.asInstanceOf[Object] -> value.asInstanceOf[Object]
+      }
+      .asJava
 
   def serialize(obj: Any): Array[Byte] = {
     val bos = new ByteArrayOutputStream()

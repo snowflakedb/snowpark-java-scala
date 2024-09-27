@@ -532,7 +532,7 @@ class Session private (private[snowpark] val conn: ServerConnection) extends Log
    * @since 0.2.0
    */
   def table(multipartIdentifier: java.util.List[String]): Updatable =
-    table(multipartIdentifier.asScala)
+    table(multipartIdentifier.asScala.toSeq)
 
   /**
    * Returns an Updatable that points to the specified table.
@@ -590,7 +590,7 @@ class Session private (private[snowpark] val conn: ServerConnection) extends Log
    * @param remaining
    *   all remaining function arguments.
    */
-  def tableFunction(func: TableFunctionEx, firstArg: Column, remaining: Column*): DataFrame =
+  def tableFunction(func: TableFunction, firstArg: Column, remaining: Column*): DataFrame =
     tableFunction(func, firstArg +: remaining)
 
   /**
@@ -620,14 +620,14 @@ class Session private (private[snowpark] val conn: ServerConnection) extends Log
    * @param args
    *   function arguments of the given table function.
    */
-  def tableFunction(func: TableFunctionEx, args: Seq[Column]): DataFrame = {
+  def tableFunction(func: TableFunction, args: Seq[Column]): DataFrame = {
     // Use df.join to apply function result if args contains a DF column
     val sourceDFs = args.flatMap(_.expr.sourceDFs)
     if (sourceDFs.isEmpty) {
       // explode function requires a special handling since it is a client side function.
       if (func.funcName.trim.toLowerCase() == "explode") {
         callExplode(args.head)
-      } else DataFrame(this, TableFunctionRelation(func.call(args: _*)))
+      } else DataFrame(this, TableFunctionRelation(func.call(args.toSeq: _*)))
     } else if (sourceDFs.toSet.size > 1) {
       throw UDF_CANNOT_ACCEPT_MANY_DF_COLS()
     } else {
@@ -665,7 +665,7 @@ class Session private (private[snowpark] val conn: ServerConnection) extends Log
    *   function arguments map of the given table function. Some functions, like flatten, have named
    *   parameters. use this map to assign values to the corresponding parameters.
    */
-  def tableFunction(func: TableFunctionEx, args: Map[String, Column]): DataFrame = {
+  def tableFunction(func: TableFunction, args: Map[String, Column]): DataFrame = {
     // Use df.join to apply function result if args contains a DF column
     val sourceDFs = args.values.flatMap(_.expr.sourceDFs)
     if (sourceDFs.isEmpty) {

@@ -229,7 +229,7 @@ class Variant private[snowpark] (
    *
    * @since 0.2.0
    */
-  def this(list: JavaList[Object]) = this(list.asScala)
+  def this(list: JavaList[Object]) = this(list.asScala.toSeq)
 
   /**
    * Creates a Variant from array
@@ -248,7 +248,9 @@ class Variant private[snowpark] (
       {
         def mapToNode(map: JavaMap[Object, Object]): ObjectNode = {
           val result = MAPPER.createObjectNode()
-          map.keySet().forEach(key => result.set(key.toString, objectToJsonNode(map.get(key))))
+          map.asScala.foreach { case (key, value) =>
+            result.set(key.toString, objectToJsonNode(value))
+          }
           result
         }
         obj match {

@@ -1022,7 +1022,7 @@ class DataFrame private[snowpark] (
    *   A [[DataFrame]]
    */
   def agg(exprs: Seq[(String, String)]): DataFrame = transformation("agg") {
-    groupBy().agg(exprs.map({ case (c, a) => (col(c), a) }))
+    groupBy().agg(exprs.map({ case (c, a) => (col(c), a) }).toSeq)
   }
 
   /**
@@ -1077,7 +1077,7 @@ class DataFrame private[snowpark] (
    *   A [[DataFrame]]
    */
   def agg[T: ClassTag](exprs: Seq[Column]): DataFrame = transformation("agg") {
-    groupBy().agg(exprs)
+    groupBy().agg(exprs.toSeq)
   }
 
   /**
@@ -2632,7 +2632,7 @@ class DataFrame private[snowpark] (
         }
       }
       lines.append(value.substring(startIndex))
-      lines
+      lines.toSeq
     }
 
     def convertValueToString(value: Any): String =
@@ -2769,7 +2769,7 @@ class DataFrame private[snowpark] (
    */
   def createOrReplaceView(multipartIdentifier: java.util.List[String]): Unit =
     action("createOrReplaceView") {
-      createOrReplaceView(multipartIdentifier.asScala)
+      createOrReplaceView(multipartIdentifier.asScala.toSeq)
     }
 
   /**
@@ -2837,7 +2837,7 @@ class DataFrame private[snowpark] (
    */
   def createOrReplaceTempView(multipartIdentifier: java.util.List[String]): Unit =
     action("createOrReplaceTempView") {
-      createOrReplaceTempView(multipartIdentifier.asScala)
+      createOrReplaceTempView(multipartIdentifier.asScala.toSeq)
     }
 
   private def doCreateOrReplaceView(viewName: String, viewType: ViewType): Unit = {

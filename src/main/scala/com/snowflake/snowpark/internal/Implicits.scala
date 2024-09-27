@@ -11,7 +11,7 @@ abstract class Implicits {
    */
   implicit class ColumnFromString(val sc: StringContext) {
     def $(args: Any*): Column = {
-      Column(sc.s(args: _*))
+      Column(sc.s(args.toSeq: _*))
     }
   }
 

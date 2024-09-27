@@ -28,9 +28,10 @@ object ClassUtils extends Logging {
       .toSeq
   }
 
-  /** Check if two classes have same function names. It is not perfect since it can only check
-    * function names but not args.
-    */
+  /**
+   * Check if two classes have same function names. It is not perfect since it can only check
+   * function names but not args.
+   */
   def containsSameFunctionNames[A: TypeTag, B: TypeTag](
       class1: Class[A],
       class2: Class[B],
