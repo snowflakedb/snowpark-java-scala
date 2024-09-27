@@ -29,6 +29,7 @@ import net.snowflake.client.jdbc.{
   SnowflakeConnectString,
   SnowflakeConnectionV1
 }
+import org.scalatest.funsuite.AnyFunSuite
 
 import java.security.Provider
 import scala.collection.JavaConverters._
@@ -142,6 +143,8 @@ object TestUtils extends Logging {
 
     List(
       classOf[BeforeAndAfterAll], // scala test jar
+      classOf[AnyFunSuite],
+      classOf[org.scalatest.compatible.Assertion],
       classOf[org.scalactic.TripleEquals], // scalactic jar
       classOf[io.opentelemetry.exporters.inmemory.InMemorySpanExporter],
       classOf[io.opentelemetry.sdk.trace.export.SpanExporter])
