@@ -3,7 +3,6 @@ package com.snowflake.snowpark_test
 import com.snowflake.snowpark.functions._
 import com.snowflake.snowpark.{DataFrame, Row, TestData, Window}
 import net.snowflake.client.jdbc.SnowflakeSQLException
-import org.scalatest.Matchers.the
 
 import scala.reflect.ClassTag
 
@@ -56,7 +55,7 @@ class WindowSpecSuite extends TestData {
 
   test("Window functions inside WHERE and HAVING clauses") {
     def checkAnalysisError[T: ClassTag](df: => DataFrame): Unit = {
-      the[T] thrownBy {
+      assertThrows[ClassTag[T]] {
         df.collect()
       }
     }

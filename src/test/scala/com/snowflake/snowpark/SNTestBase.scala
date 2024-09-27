@@ -8,14 +8,15 @@ import com.snowflake.snowpark.internal.{ParameterUtils, ServerConnection, UDFCla
 import com.snowflake.snowpark.types._
 import com.snowflake.snowpark_test.TestFiles
 import org.mockito.Mockito.{doReturn, spy, when}
-import org.scalatest.{BeforeAndAfterAll, FunSuite}
+import org.scalatest.BeforeAndAfterAll
+import org.scalatest.funsuite.AnyFunSuite
 
 import scala.collection.mutable.ArrayBuffer
 import scala.concurrent.{Await, Future}
 import scala.concurrent.duration._
 import scala.concurrent.ExecutionContext.Implicits.global
 
-trait SNTestBase extends FunSuite with BeforeAndAfterAll with SFTestUtils with SnowTestFiles {
+trait SNTestBase extends AnyFunSuite with BeforeAndAfterAll with SFTestUtils with SnowTestFiles {
 
   protected val defaultProfile: String = TestUtils.defaultProfile
 

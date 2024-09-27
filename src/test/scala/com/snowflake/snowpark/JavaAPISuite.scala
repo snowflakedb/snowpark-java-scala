@@ -1,10 +1,11 @@
 package com.snowflake.snowpark
 
-import org.scalatest.FunSuite
+import org.scalatest.funsuite.AnyFunSuite
+
 import java.io.ByteArrayOutputStream
 
 @JavaAPITest
-class JavaAPISuite extends FunSuite {
+class JavaAPISuite extends AnyFunSuite {
   // some tests can't be implemented in Java are listed below
 
   // console redirect doesn't work in Java since run JUnit from Scala

@@ -1,9 +1,9 @@
 package com.snowflake.snowpark
 
-import org.scalatest.FunSuite
 import com.snowflake.snowpark.internal.SnowparkSFConnectionHandler
+import org.scalatest.funsuite.AnyFunSuite
 
-class SnowparkSFConnectionHandlerSuite extends FunSuite {
+class SnowparkSFConnectionHandlerSuite extends AnyFunSuite {
 
   test("version") {
     assert(SnowparkSFConnectionHandler.extractValidVersionNumber("0.1.0-snapshot").equals("0.1.0"))

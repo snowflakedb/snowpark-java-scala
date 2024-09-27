@@ -1,9 +1,9 @@
 package com.snowflake.snowpark
 
 import com.snowflake.snowpark.internal.Logging
-import org.scalatest.FunSuite
+import org.scalatest.funsuite.AnyFunSuite
 
-class LoggingSuite extends FunSuite {
+class LoggingSuite extends AnyFunSuite {
 
   test("log name") {
     val a = new LoggingTestA

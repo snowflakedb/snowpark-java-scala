@@ -1,12 +1,12 @@
 package com.snowflake.code_verification
 
 import com.snowflake.snowpark.CodeVerification
-import org.scalatest.FunSuite
+import org.scalatest.funsuite.AnyFunSuite
 
 import scala.collection.mutable
 
 @CodeVerification
-class PomSuite extends FunSuite {
+class PomSuite extends AnyFunSuite {
 
   private val pomFileName = "pom.xml"
   private val fipsPomFileName = "fips-pom.xml"
