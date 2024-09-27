@@ -259,7 +259,7 @@ private object SqlGenerator extends Logging {
       Option(expr match {
         case FlattenFunction(input, path, outer, recursive, mode) =>
           flattenExpression(expressionToSql(input), path, outer, recursive, mode)
-        case TableFunction(functionName, args) =>
+        case TableFunctionEx(functionName, args) =>
           functionExpression(functionName, args.map(expressionToSql), isDistinct = false)
         case NamedArgumentsTableFunction(funcName, args) =>
           namedArgumentsFunction(

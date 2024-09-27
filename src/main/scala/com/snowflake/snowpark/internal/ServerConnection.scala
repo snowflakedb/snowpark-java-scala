@@ -399,8 +399,9 @@ private[snowpark] class ServerConnection(
           result
         }
 
-        /** Close the underlying data source.
-          */
+        /**
+         * Close the underlying data source.
+         */
         override def close(): Unit = {
           _hasNext = false
           statement.close()

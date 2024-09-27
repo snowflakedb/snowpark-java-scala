@@ -232,7 +232,7 @@ class NewColumnReferenceSuite extends SNTestBase {
 
   // internal renamed columns tests
   test("internal renamed columns") {
-    val tableExp = internal.analyzer.TableFunction("dummy", Seq.empty)
+    val tableExp = internal.analyzer.TableFunctionEx("dummy", Seq.empty)
     val att = internal.analyzer.Attribute("a", IntegerType)
     // Project
     val p1 = Project(Seq(Alias(Attribute("c", IntegerType), "d", isInternal = true)), project1)

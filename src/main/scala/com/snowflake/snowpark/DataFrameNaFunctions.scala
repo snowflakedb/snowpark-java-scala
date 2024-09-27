@@ -5,31 +5,33 @@ import com.snowflake.snowpark.types._
 import com.snowflake.snowpark.functions.{lit, when}
 import com.snowflake.snowpark.internal.analyzer.quoteName
 
-/** Provides functions for handling missing values in a DataFrame.
-  *
-  * @since 0.2.0
-  */
+/**
+ * Provides functions for handling missing values in a DataFrame.
+ *
+ * @since 0.2.0
+ */
 final class DataFrameNaFunctions private[snowpark] (df: DataFrame) extends Logging {
 
-  /** Returns a new DataFrame that excludes all rows containing fewer than {@code minNonNullsPerRow}
-    * non-null and non-NaN values in the specified columns {@code cols} .
-    *
-    *   - If {@code minNonNullsPerRow} is greater than the number of the specified columns, the
-    *     method returns an empty DataFrame.
-    *   - If {@code minNonNullsPerRow} is less than 1, the method returns the original DataFrame.
-    *   - If {@code cols} is empty, the method returns the original DataFrame.
-    *
-    * @param minNonNullsPerRow
-    *   The minimum number of non-null and non-NaN values that should be in the specified columns in
-    *   order for the row to be included.
-    * @param cols
-    *   A sequence of the names of columns to check for null and NaN values.
-    * @return
-    *   A [[DataFrame]]
-    * @throws SnowparkClientException
-    *   if cols contains any unrecognized column name
-    * @since 0.2.0
-    */
+  /**
+   * Returns a new DataFrame that excludes all rows containing fewer than {@code minNonNullsPerRow}
+   * non-null and non-NaN values in the specified columns {@code cols} .
+   *
+   *   - If {@code minNonNullsPerRow} is greater than the number of the specified columns, the
+   *     method returns an empty DataFrame.
+   *   - If {@code minNonNullsPerRow} is less than 1, the method returns the original DataFrame.
+   *   - If {@code cols} is empty, the method returns the original DataFrame.
+   *
+   * @param minNonNullsPerRow
+   *   The minimum number of non-null and non-NaN values that should be in the specified columns in
+   *   order for the row to be included.
+   * @param cols
+   *   A sequence of the names of columns to check for null and NaN values.
+   * @return
+   *   A [[DataFrame]]
+   * @throws SnowparkClientException
+   *   if cols contains any unrecognized column name
+   * @since 0.2.0
+   */
   def drop(minNonNullsPerRow: Int, cols: Seq[String]): DataFrame = transformation("drop") {
     // translate to
     // select * from table where
@@ -80,25 +82,26 @@ final class DataFrameNaFunctions private[snowpark] (df: DataFrame) extends Loggi
     }
   }
 
-  /** Returns a new DataFrame that replaces all null and NaN values in the specified columns with
-    * the values provided.
-    *
-    * {@code valueMap} describes which columns will be replaced and what the replacement values are.
-    *
-    *   - It only supports Long, Int, short, byte, String, Boolean, float, and Double values.
-    *   - If the type of the given value doesn't match the column type (e.g. a Long value for a
-    *     StringType column), the replacement in this column will be skipped.
-    *
-    * @param valueMap
-    *   A Map that associates the names of columns with the values that should be used to replace
-    *   null and NaN values in those columns.
-    * @return
-    *   A [[DataFrame]]
-    * @throws SnowparkClientException
-    *   if valueMap contains unrecognized columns
-    *
-    * @since 0.2.0
-    */
+  /**
+   * Returns a new DataFrame that replaces all null and NaN values in the specified columns with the
+   * values provided.
+   *
+   * {@code valueMap} describes which columns will be replaced and what the replacement values are.
+   *
+   *   - It only supports Long, Int, short, byte, String, Boolean, float, and Double values.
+   *   - If the type of the given value doesn't match the column type (e.g. a Long value for a
+   *     StringType column), the replacement in this column will be skipped.
+   *
+   * @param valueMap
+   *   A Map that associates the names of columns with the values that should be used to replace
+   *   null and NaN values in those columns.
+   * @return
+   *   A [[DataFrame]]
+   * @throws SnowparkClientException
+   *   if valueMap contains unrecognized columns
+   *
+   * @since 0.2.0
+   */
   def fill(valueMap: Map[String, Any]): DataFrame = transformation("fill") {
     // translate to
     // select col, iff(floatCol is null or floatCol == 'NaN', replacement, floatCol),
@@ -149,27 +152,28 @@ final class DataFrameNaFunctions private[snowpark] (df: DataFrame) extends Loggi
     df.select(columns)
   }
 
-  /** Returns a new DataFrame that replaces values in a specified column.
-    *
-    * Use the {@code replacement} parameter to specify a Map that associates the values to replace
-    * with new values. To replace a null value, use None as the key in the Map.
-    *
-    * For example, suppose that you pass `col1` for {@code colName} and
-    * {@code Map(2 -> 3, None -> 2, 4 -> null)} for {@code replacement} . In `col1`, this function
-    * replaces:
-    *
-    *   - `2` with `3`
-    *   - null with `2`
-    *   - `4` with null
-    *
-    * @param colName
-    *   The name of the column in which the values should be replaced.
-    * @param replacement
-    *   A Map that associates the original values with the replacement values.
-    * @throws SnowparkClientException
-    *   if colName is an unrecognized column name
-    * @since 0.2.0
-    */
+  /**
+   * Returns a new DataFrame that replaces values in a specified column.
+   *
+   * Use the {@code replacement} parameter to specify a Map that associates the values to replace
+   * with new values. To replace a null value, use None as the key in the Map.
+   *
+   * For example, suppose that you pass `col1` for {@code colName} and
+   * {@code Map(2 -> 3, None -> 2, 4 -> null)} for {@code replacement} . In `col1`, this function
+   * replaces:
+   *
+   *   - `2` with `3`
+   *   - null with `2`
+   *   - `4` with null
+   *
+   * @param colName
+   *   The name of the column in which the values should be replaced.
+   * @param replacement
+   *   A Map that associates the original values with the replacement values.
+   * @throws SnowparkClientException
+   *   if colName is an unrecognized column name
+   * @since 0.2.0
+   */
   def replace(colName: String, replacement: Map[Any, Any]): DataFrame =
     transformation("replace") {
       // verify name

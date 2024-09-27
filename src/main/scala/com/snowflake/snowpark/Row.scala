@@ -7,23 +7,27 @@ import com.snowflake.snowpark.types.{Geography, Geometry, Variant}
 import scala.reflect.ClassTag
 import scala.util.hashing.MurmurHash3
 
-/** @since 0.1.0
-  */
+/**
+ * @since 0.1.0
+ */
 object Row {
 
-  /** Returns a [[Row]] based on the given values.
-    * @since 0.1.0
-    */
+  /**
+   * Returns a [[Row]] based on the given values.
+   * @since 0.1.0
+   */
   def apply(values: Any*): Row = new Row(values.toArray)
 
-  /** Return a [[Row]] based on the values in the given Seq.
-    * @since 0.1.0
-    */
+  /**
+   * Return a [[Row]] based on the values in the given Seq.
+   * @since 0.1.0
+   */
   def fromSeq(values: Seq[Any]): Row = new Row(values.toArray)
 
-  /** Return a [[Row]] based on the values in the given Array.
-    * @since 0.2.0
-    */
+  /**
+   * Return a [[Row]] based on the values in the given Array.
+   * @since 0.2.0
+   */
   def fromArray(values: Array[Any]): Row = new Row(values)
 
   private[snowpark] def fromMap(map: Map[String, Any]): Row =
@@ -36,60 +40,69 @@ private[snowpark] class SnowflakeObject private[snowpark] (
   override def toString: String = convertValueToString(this)
 }
 
-/** Represents a row returned by the evaluation of a [[DataFrame]].
-  *
-  * @groupname getter Getter Functions
-  * @groupname utl Utility Functions
-  * @since 0.1.0
-  */
+/**
+ * Represents a row returned by the evaluation of a [[DataFrame]].
+ *
+ * @groupname getter Getter Functions
+ * @groupname utl Utility Functions
+ * @since 0.1.0
+ */
 class Row protected (values: Array[Any]) extends Serializable {
 
-  /** Converts this [[Row]] to a Seq
-    * @since 0.1.0
-    * @group utl
-    */
+  /**
+   * Converts this [[Row]] to a Seq
+   * @since 0.1.0
+   * @group utl
+   */
   def toSeq: Seq[Any] = values.toSeq
 
-  /** Total number of [[Column]] in this [[Row]]. Alias of [[length]]
-    * @group utl
-    * @since 0.1.0
-    */
+  /**
+   * Total number of [[Column]] in this [[Row]]. Alias of [[length]]
+   * @group utl
+   * @since 0.1.0
+   */
   def size: Int = length
 
-  /** Total number of [[Column]] in this [[Row]]
-    * @since 0.1.0
-    * @group utl
-    */
+  /**
+   * Total number of [[Column]] in this [[Row]]
+   * @since 0.1.0
+   * @group utl
+   */
   def length: Int = values.length
 
-  /** Returns the value of the column in the row at the given index. Alias of [[get]]
-    * @since 0.1.0
-    * @group getter
-    */
+  /**
+   * Returns the value of the column in the row at the given index. Alias of [[get]]
+   * @since 0.1.0
+   * @group getter
+   */
   def apply(index: Int): Any = get(index)
 
-  /** Returns the value of the column in the row at the given index.
-    * @since 0.1.0
-    * @group getter
-    */
+  /**
+   * Returns the value of the column in the row at the given index.
+   * @since 0.1.0
+   * @group getter
+   */
   def get(index: Int): Any = values(index)
 
-  /** Returns a clone of this row.
-    * @since 0.1.0
-    * @group utl
-    */
+  /**
+   * Returns a clone of this row.
+   * @since 0.1.0
+   * @group utl
+   */
   def copy(): Row = new Row(values)
 
-  /** Returns a clone of this row object. Alias of [[copy]]
-    * @since 0.1.0
-    * @group utl
-    */
+  /**
+   * Returns a clone of this row object. Alias of [[copy]]
+   * @since 0.1.0
+   * @group utl
+   */
   override def clone(): AnyRef = copy()
 
-  /** Returns true iff the given row equals this row.
-    * @since 0.1.0
-    * @group utl
-    */
+  /**
+   * Returns true iff the given row equals this row.
+   * @since 0.1.0
+   * @group utl
+   */
   override def equals(obj: Any): Boolean =
     if (!obj.isInstanceOf[Row]) {
       false
@@ -107,10 +120,11 @@ class Row protected (values: Array[Any]) extends Serializable {
       }
     }
 
-  /** Calculates hashcode of this row.
-    * @since 0.1.0
-    * @group utl
-    */
+  /**
+   * Calculates hashcode of this row.
+   * @since 0.1.0
+   * @group utl
+   */
   override def hashCode(): Int = {
     var n = 0
     var h = MurmurHash3.seqSeed
@@ -122,23 +136,26 @@ class Row protected (values: Array[Any]) extends Serializable {
     MurmurHash3.finalizeHash(h, n)
   }
 
-  /** Returns true if the value of the column at the given index is null, otherwise, returns false.
-    * @since 0.1.0
-    * @group utl
-    */
+  /**
+   * Returns true if the value of the column at the given index is null, otherwise, returns false.
+   * @since 0.1.0
+   * @group utl
+   */
   def isNullAt(index: Int): Boolean = get(index) == null
 
-  /** Returns the value of the column at the given index as a Boolean value
-    * @since 0.1.0
-    * @group getter
-    */
+  /**
+   * Returns the value of the column at the given index as a Boolean value
+   * @since 0.1.0
+   * @group getter
+   */
   def getBoolean(index: Int): Boolean = getAnyValAs[Boolean](index)
 
-  /** Returns the value of the column at the given index as a Byte value. Casts Short, Int, Long
-    * number to Byte if possible.
-    * @since 0.1.0
-    * @group getter
-    */
+  /**
+   * Returns the value of the column at the given index as a Byte value. Casts Short, Int, Long
+   * number to Byte if possible.
+   * @since 0.1.0
+   * @group getter
+   */
   def getByte(index: Int): Byte = get(index) match {
     case byte: Byte => byte
     case short: Short if short <= Byte.MaxValue && short >= Byte.MinValue => short.toByte
@@ -148,11 +165,12 @@ class Row protected (values: Array[Any]) extends Serializable {
       throw ErrorMessage.MISC_CANNOT_CAST_VALUE(other.getClass.getName, s"$other", "Byte")
   }
 
-  /** Returns the value of the column at the given index as a Short value. Casts Byte, Int, Long
-    * number to Short if possible.
-    * @since 0.1.0
-    * @group getter
-    */
+  /**
+   * Returns the value of the column at the given index as a Short value. Casts Byte, Int, Long
+   * number to Short if possible.
+   * @since 0.1.0
+   * @group getter
+   */
   def getShort(index: Int): Short = get(index) match {
     case byte: Byte => byte.toShort
     case short: Short => short
@@ -162,11 +180,12 @@ class Row protected (values: Array[Any]) extends Serializable {
       throw ErrorMessage.MISC_CANNOT_CAST_VALUE(other.getClass.getName, s"$other", "Short")
   }
 
-  /** Returns the value of the column at the given index as a Int value. Casts Byte, Short, Long
-    * number to Int if possible.
-    * @since 0.1.0
-    * @group getter
-    */
+  /**
+   * Returns the value of the column at the given index as a Int value. Casts Byte, Short, Long
+   * number to Int if possible.
+   * @since 0.1.0
+   * @group getter
+   */
   def getInt(index: Int): Int = get(index) match {
     case byte: Byte => byte.toInt
     case short: Short => short.toInt
@@ -176,11 +195,12 @@ class Row protected (values: Array[Any]) extends Serializable {
       throw ErrorMessage.MISC_CANNOT_CAST_VALUE(other.getClass.getName, s"$other", "Int")
   }
 
-  /** Returns the value of the column at the given index as a Long value. Casts Byte, Short, Int
-    * number to Long if possible.
-    * @since 0.1.0
-    * @group getter
-    */
+  /**
+   * Returns the value of the column at the given index as a Long value. Casts Byte, Short, Int
+   * number to Long if possible.
+   * @since 0.1.0
+   * @group getter
+   */
   def getLong(index: Int): Long = get(index) match {
     case byte: Byte => byte.toLong
     case short: Short => short.toLong
@@ -190,11 +210,12 @@ class Row protected (values: Array[Any]) extends Serializable {
       throw ErrorMessage.MISC_CANNOT_CAST_VALUE(other.getClass.getName, s"$other", "Long")
   }
 
-  /** Returns the value of the column at the given index as a Float value. Casts Byte, Short, Int,
-    * Long and Double number to Float if possible.
-    * @since 0.1.0
-    * @group getter
-    */
+  /**
+   * Returns the value of the column at the given index as a Float value. Casts Byte, Short, Int,
+   * Long and Double number to Float if possible.
+   * @since 0.1.0
+   * @group getter
+   */
   def getFloat(index: Int): Float = get(index) match {
     case float: Float => float
     case double: Double if double <= Float.MaxValue && double >= Float.MinValue => double.toFloat
@@ -206,11 +227,12 @@ class Row protected (values: Array[Any]) extends Serializable {
       throw ErrorMessage.MISC_CANNOT_CAST_VALUE(other.getClass.getName, s"$other", "Float")
   }
 
-  /** Returns the value of the column at the given index as a Double value. Casts Byte, Short, Int,
-    * Long, Float number to Double.
-    * @since 0.1.0
-    * @group getter
-    */
+  /**
+   * Returns the value of the column at the given index as a Double value. Casts Byte, Short, Int,
+   * Long, Float number to Double.
+   * @since 0.1.0
+   * @group getter
+   */
   def getDouble(index: Int): Double = get(index) match {
     case float: Float => float.toDouble
     case double: Double => double
@@ -222,11 +244,12 @@ class Row protected (values: Array[Any]) extends Serializable {
       throw ErrorMessage.MISC_CANNOT_CAST_VALUE(other.getClass.getName, s"$other", "Double")
   }
 
-  /** Returns the value of the column at the given index as a String value. Returns geography data
-    * as string, if geography data of GeoJSON, WKT or EWKT is found.
-    * @since 0.1.0
-    * @group getter
-    */
+  /**
+   * Returns the value of the column at the given index as a String value. Returns geography data as
+   * string, if geography data of GeoJSON, WKT or EWKT is found.
+   * @since 0.1.0
+   * @group getter
+   */
   def getString(index: Int): String = {
     get(index) match {
       case variant: Variant => variant.toString
@@ -239,82 +262,94 @@ class Row protected (values: Array[Any]) extends Serializable {
     }
   }
 
-  /** Returns the value of the column at the given index as a Byte array value.
-    * @since 0.2.0
-    * @group getter
-    */
+  /**
+   * Returns the value of the column at the given index as a Byte array value.
+   * @since 0.2.0
+   * @group getter
+   */
   def getBinary(index: Int): Array[Byte] = getAs[Array[Byte]](index)
 
-  /** Returns the value of the column at the given index as a BigDecimal value
-    * @since 0.1.0
-    * @group getter
-    */
+  /**
+   * Returns the value of the column at the given index as a BigDecimal value
+   * @since 0.1.0
+   * @group getter
+   */
   def getDecimal(index: Int): java.math.BigDecimal = getAs[java.math.BigDecimal](index)
 
-  /** Returns the value of the column at the given index as a Date value
-    * @since 0.1.0
-    * @group getter
-    */
+  /**
+   * Returns the value of the column at the given index as a Date value
+   * @since 0.1.0
+   * @group getter
+   */
   def getDate(index: Int): Date = getAs[Date](index)
 
-  /** Returns the value of the column at the given index as a Time value
-    * @since 0.2.0
-    * @group getter
-    */
+  /**
+   * Returns the value of the column at the given index as a Time value
+   * @since 0.2.0
+   * @group getter
+   */
   def getTime(index: Int): Time = getAs[Time](index)
 
-  /** Returns the value of the column at the given index as a Timestamp value
-    * @since 0.2.0
-    * @group getter
-    */
+  /**
+   * Returns the value of the column at the given index as a Timestamp value
+   * @since 0.2.0
+   * @group getter
+   */
   def getTimestamp(index: Int): Timestamp = getAs[Timestamp](index)
 
-  /** Returns the value of the column at the given index as Variant class
-    * @since 0.2.0
-    * @group getter
-    */
+  /**
+   * Returns the value of the column at the given index as Variant class
+   * @since 0.2.0
+   * @group getter
+   */
   def getVariant(index: Int): Variant = new Variant(getString(index))
 
-  /** Returns the value of the column at the given index as Geography class
-    * @since 0.2.0
-    * @group getter
-    */
+  /**
+   * Returns the value of the column at the given index as Geography class
+   * @since 0.2.0
+   * @group getter
+   */
   def getGeography(index: Int): Geography = getAs[Geography](index)
 
-  /** Returns the value of the column at the given index as Geometry class
-    *
-    * @since 1.12.0
-    * @group getter
-    */
+  /**
+   * Returns the value of the column at the given index as Geometry class
+   *
+   * @since 1.12.0
+   * @group getter
+   */
   def getGeometry(index: Int): Geometry = getAs[Geometry](index)
 
-  /** Returns the value of the column at the given index as a Seq of Variant
-    * @since 0.2.0
-    * @group getter
-    */
+  /**
+   * Returns the value of the column at the given index as a Seq of Variant
+   * @since 0.2.0
+   * @group getter
+   */
   def getSeqOfVariant(index: Int): Seq[Variant] =
     new Variant(getString(index)).asSeq()
 
-  /** Returns the value of the column at the given index as a java map of Variant
-    * @since 0.2.0
-    * @group getter
-    */
+  /**
+   * Returns the value of the column at the given index as a java map of Variant
+   * @since 0.2.0
+   * @group getter
+   */
   def getMapOfVariant(index: Int): Map[String, Variant] =
     new Variant(getString(index)).asMap()
 
-  /** Returns the Snowflake Object value at the given index as a Row value.
-    *
-    * @since 1.13.0
-    * @group getter
-    */
+  /**
+   * Returns the Snowflake Object value at the given index as a Row value.
+   *
+   * @since 1.13.0
+   * @group getter
+   */
   def getObject(index: Int): Row =
     getAs[Row](index)
 
-  /** Returns the value of the column at the given index as a Seq value.
-    *
-    * @since 1.13.0
-    * @group getter
-    */
+  /**
+   * Returns the value of the column at the given index as a Seq value.
+   *
+   * @since 1.13.0
+   * @group getter
+   */
   def getSeq[T](index: Int): Seq[T] = {
     val result = getAs[Array[_]](index)
     result.map { case x: T =>
@@ -322,38 +357,40 @@ class Row protected (values: Array[Any]) extends Serializable {
     }
   }
 
-  /** Returns the value of the column at the given index as a Map value.
-    *
-    * @since 1.13.0
-    * @group getter
-    */
+  /**
+   * Returns the value of the column at the given index as a Map value.
+   *
+   * @since 1.13.0
+   * @group getter
+   */
   def getMap[T, U](index: Int): Map[T, U] = {
     getAs[Map[T, U]](index)
   }
 
-  /** Returns the value at the specified column index and casts it to the desired type `T`.
-    *
-    * Example:
-    * {{{
-    *   val row = Row(1, "Alice", 95.5)
-    *   row.getAs[Int](0) // Returns 1 as an Int
-    *   row.getAs[String](1) // Returns "Alice" as a String
-    *   row.getAs[Double](2) // Returns 95.5 as a Double
-    * }}}
-    *
-    * @param index
-    *   the zero-based column index within the row.
-    * @tparam T
-    *   the expected type of the value at the specified column index.
-    * @return
-    *   the value at the specified column index cast to type `T`.
-    * @throws ClassCastException
-    *   if the value at the given index cannot be cast to type `T`.
-    * @throws ArrayIndexOutOfBoundsException
-    *   if the column index is out of bounds.
-    * @group getter
-    * @since 1.15.0
-    */
+  /**
+   * Returns the value at the specified column index and casts it to the desired type `T`.
+   *
+   * Example:
+   * {{{
+   *   val row = Row(1, "Alice", 95.5)
+   *   row.getAs[Int](0) // Returns 1 as an Int
+   *   row.getAs[String](1) // Returns "Alice" as a String
+   *   row.getAs[Double](2) // Returns 95.5 as a Double
+   * }}}
+   *
+   * @param index
+   *   the zero-based column index within the row.
+   * @tparam T
+   *   the expected type of the value at the specified column index.
+   * @return
+   *   the value at the specified column index cast to type `T`.
+   * @throws ClassCastException
+   *   if the value at the given index cannot be cast to type `T`.
+   * @throws ArrayIndexOutOfBoundsException
+   *   if the column index is out of bounds.
+   * @group getter
+   * @since 1.15.0
+   */
   def getAs[T](index: Int)(implicit classTag: ClassTag[T]): T = {
     classTag.runtimeClass match {
       case _ if isNullAt(index) => get(index).asInstanceOf[T]
@@ -390,10 +427,11 @@ class Row protected (values: Array[Any]) extends Serializable {
       case other => other.toString
     }
 
-  /** Returns a string value to represent the content of this row
-    * @since 0.1.0
-    * @group utl
-    */
+  /**
+   * Returns a string value to represent the content of this row
+   * @since 0.1.0
+   * @group utl
+   */
   override def toString: String =
     values
       .map(convertValueToString)

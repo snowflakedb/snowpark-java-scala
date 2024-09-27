@@ -1072,23 +1072,24 @@ class UDXRegistrationHandler(session: Session) extends Logging {
     byteArrayOutputStream.toByteArray
   }
 
-  /** This method uses the Piped{Input/Output}Stream classes to create an in-memory jar file and
-    * write to a snowflake stage in parallel in two threads. This design is not the most-efficient
-    * since the implementation of PipedInputStream puts the thread to sleep for 1 sec if it is
-    * waiting to read/write data. But this is still faster than writing stream to a temp file.
-    *
-    * @param classDirs
-    *   class directories that are copied to the jar
-    * @param stageName
-    *   Name of stage
-    * @param destPrefix
-    *   Destination prefix
-    * @param jarFileName
-    *   Name of the jar file
-    * @param funcBytesMap
-    *   func bytes map (entry format: fileName -> funcBytes)
-    * @since 0.1.0
-    */
+  /**
+   * This method uses the Piped{Input/Output}Stream classes to create an in-memory jar file and
+   * write to a snowflake stage in parallel in two threads. This design is not the most-efficient
+   * since the implementation of PipedInputStream puts the thread to sleep for 1 sec if it is
+   * waiting to read/write data. But this is still faster than writing stream to a temp file.
+   *
+   * @param classDirs
+   *   class directories that are copied to the jar
+   * @param stageName
+   *   Name of stage
+   * @param destPrefix
+   *   Destination prefix
+   * @param jarFileName
+   *   Name of the jar file
+   * @param funcBytesMap
+   *   func bytes map (entry format: fileName -> funcBytes)
+   * @since 0.1.0
+   */
   private[snowpark] def createAndUploadJarToStage(
       classDirs: List[File],
       stageName: String,

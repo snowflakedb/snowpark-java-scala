@@ -165,7 +165,7 @@ class ExpressionAndPlanNodeSuite extends SNTestBase {
     binaryChecker(Like)
     binaryChecker(RegExp)
     binaryChecker((x, y) => FunctionExpression("dummy", Seq(x, y), isDistinct = false))
-    binaryChecker((x, y) => internal.analyzer.TableFunction("dummy", Seq(x, y)))
+    binaryChecker((x, y) => internal.analyzer.TableFunctionEx("dummy", Seq(x, y)))
     binaryChecker((x, y) => NamedArgumentsTableFunction("dummy", Map("a" -> x, "b" -> y)))
     binaryChecker((x, y) => GroupingSetsExpression(Seq(Set(x, y))))
     binaryChecker((x, y) => GroupingSetsExpression(Seq(Set(x), Set(y))))
@@ -386,7 +386,7 @@ class ExpressionAndPlanNodeSuite extends SNTestBase {
     unaryAnalyzerChecker(SubfieldInt(_, 1))
     analyzerChecker(2, FunctionExpression("dummy", _, isDistinct = false))
     unaryAnalyzerChecker(FlattenFunction(_, "a", outer = false, recursive = true, "b"))
-    analyzerChecker(2, internal.analyzer.TableFunction("dummy", _))
+    analyzerChecker(2, internal.analyzer.TableFunctionEx("dummy", _))
     analyzerChecker(
       2,
       data => NamedArgumentsTableFunction("dummy", Map("a" -> data.head, "b" -> data(1))))
@@ -607,12 +607,12 @@ class ExpressionAndPlanNodeSuite extends SNTestBase {
   }
 
   test("TableFunctionRelation - Analyzer") {
-    val exp = internal.analyzer.TableFunction("dummy", Seq.empty)
+    val exp = internal.analyzer.TableFunctionEx("dummy", Seq.empty)
     val plan = TableFunctionRelation(exp)
     assert(plan.aliasMap.isEmpty)
     assert(plan.analyzed == plan)
 
-    val exp1 = internal.analyzer.TableFunction("dummy", Seq(alias1, alias2))
+    val exp1 = internal.analyzer.TableFunctionEx("dummy", Seq(alias1, alias2))
     val plan1 = TableFunctionRelation(exp1)
     assert(plan1.aliasMap == map1)
     assert(plan1.analyzed.toString == plan1.toString)
@@ -832,7 +832,7 @@ class ExpressionAndPlanNodeSuite extends SNTestBase {
   }
 
   test("Lateral - Analyzer") {
-    import com.snowflake.snowpark.internal.analyzer.{TableFunction => TableFunc}
+    import com.snowflake.snowpark.internal.analyzer.{TableFunctionEx => TableFunc}
     val tf = TableFunc("dummy", Seq(attr3))
     val plan1 = Lateral(child1, tf)
     assert(plan1.aliasMap == map2)
@@ -880,7 +880,7 @@ class ExpressionAndPlanNodeSuite extends SNTestBase {
   }
 
   test("TableFunctionJoin - Analyzer") {
-    import com.snowflake.snowpark.internal.analyzer.{TableFunction => TableFunc}
+    import com.snowflake.snowpark.internal.analyzer.{TableFunctionEx => TableFunc}
     val tf = TableFunc("dummy", Seq(attr3))
     val plan1 = TableFunctionJoin(child1, tf, None)
     assert(plan1.aliasMap == map2)
@@ -1087,7 +1087,7 @@ class ExpressionAndPlanNodeSuite extends SNTestBase {
     simplifierChecker(2, data => func(data.head, data(1)))
 
   test("simplifier") {
-    val tableFunction = internal.analyzer.TableFunction("dummy", Seq.empty)
+    val tableFunction = internal.analyzer.TableFunctionEx("dummy", Seq.empty)
     leafSimplifierChecker(TableFunctionRelation(tableFunction))
     leafSimplifierChecker(Range(1, 1, 2))
     leafSimplifierChecker(Generator(Seq(tableFunction), 1))

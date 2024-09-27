@@ -162,16 +162,17 @@ private[snowpark] trait UnaryNode extends LogicalPlan {
   override val internalRenamedColumns: Map[String, String] = child.internalRenamedColumns
 }
 
-/** Plan Node to sample some rows from a DataFrame. Either a fraction or a row number needs to be
-  * specified.
-  *
-  * @param probabilityFraction
-  *   the sampling fraction(0.0 - 1.0)
-  * @param rowCount
-  *   the sampling row count
-  * @param child
-  *   the LogicalPlan
-  */
+/**
+ * Plan Node to sample some rows from a DataFrame. Either a fraction or a row number needs to be
+ * specified.
+ *
+ * @param probabilityFraction
+ *   the sampling fraction(0.0 - 1.0)
+ * @param rowCount
+ *   the sampling row count
+ * @param child
+ *   the LogicalPlan
+ */
 private[snowpark] case class SnowflakeSampleNode(
     probabilityFraction: Option[Double],
     rowCount: Option[Long],

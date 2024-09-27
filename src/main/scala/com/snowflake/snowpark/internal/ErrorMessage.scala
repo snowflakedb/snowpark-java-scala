@@ -414,15 +414,16 @@ private[snowpark] object ErrorMessage {
   def MISC_FAILED_TO_SERIALIZE_QUERY_TAG(): SnowparkClientException =
     createException("0428")
 
-  /** Create Snowpark client Exception.
-    *
-    * @param errorCode
-    *   error code for the message
-    * @param args
-    *   parameters for the Exception
-    * @return
-    *   Snowpark client Exception
-    */
+  /**
+   * Create Snowpark client Exception.
+   *
+   * @param errorCode
+   *   error code for the message
+   * @param args
+   *   parameters for the Exception
+   * @return
+   *   Snowpark client Exception
+   */
   private def createException(errorCode: String, args: Any*): SnowparkClientException = {
     val message = allMessages(errorCode)
     new SnowparkClientException(
