@@ -364,15 +364,18 @@ object JavaUtils {
       case (key, value) => key -> value
     }.toMap
 
-  def scalaMapToJavaWithVariantConversion(map: Map[_, _]): java.util.Map[Object, Object] =
-    map
-      .map[Object, Object] {
-        case (key, value: com.snowflake.snowpark.types.Variant) =>
-          key.asInstanceOf[Object] -> InternalUtils.createVariant(value).asInstanceOf[Object]
-        case (key, value) => key.asInstanceOf[Object] -> value.asInstanceOf[Object]
-      }
-      .asInstanceOf[Map[Object, Object]]
-      .asJava
+  def scalaMapToJavaWithVariantConversion(map: Map[_, _]): java.util.Map[Object, Object] = {
+    val result = new java.util.HashMap[Object, Object]()
+    map.foreach {
+      case (key, value: com.snowflake.snowpark.types.Variant) =>
+        result.put(
+          key.asInstanceOf[Object],
+          InternalUtils.createVariant(value).asInstanceOf[Object])
+      case (key, value) =>
+        result.put(key.asInstanceOf[Object], value.asInstanceOf[Object])
+    }
+    result
+  }
 
   def serialize(obj: Any): Array[Byte] = {
     val bos = new ByteArrayOutputStream()

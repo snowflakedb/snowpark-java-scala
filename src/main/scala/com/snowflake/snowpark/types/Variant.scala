@@ -11,6 +11,7 @@ import Variant._
 import org.apache.commons.codec.binary.{Base64, Hex}
 
 import java.io.{IOException, UncheckedIOException}
+import java.util.function.Consumer
 import scala.util.hashing.MurmurHash3
 
 private[snowpark] object Variant {
@@ -248,9 +249,11 @@ class Variant private[snowpark] (
       {
         def mapToNode(map: JavaMap[Object, Object]): ObjectNode = {
           val result = MAPPER.createObjectNode()
-          map.asScala.foreach { case (key, value) =>
-            result.set(key.toString, objectToJsonNode(value))
-          }
+          map.keySet.forEach(new Consumer[Object] {
+            override def accept(key: Object): Unit = {
+              result.set(key.toString, objectToJsonNode(map.get(key)))
+            }
+          })
           result
         }
         obj match {
