@@ -371,6 +371,7 @@ object JavaUtils {
           key.asInstanceOf[Object] -> InternalUtils.createVariant(value).asInstanceOf[Object]
         case (key, value) => key.asInstanceOf[Object] -> value.asInstanceOf[Object]
       }
+      .asInstanceOf[Map[Object, Object]]
       .asJava
 
   def serialize(obj: Any): Array[Byte] = {
