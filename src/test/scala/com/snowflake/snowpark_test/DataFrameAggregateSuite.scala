@@ -305,7 +305,7 @@ class DataFrameAggregateSuite extends TestData {
   // Used temporary VIEW which is not supported by owner's mode stored proc yet
   test("Window functions inside aggregate functions", JavaStoredProcExcludeOwner) {
     def checkWindowError(df: => DataFrame): Unit = {
-      assertThrows[SnowparkClientException](df.collect())
+      assertThrows[SnowflakeSQLException](df.collect())
     }
     checkWindowError(testData2.select(min(avg($"b").over(Window.partitionBy($"a")))))
     checkWindowError(testData2.agg(sum($"b"), max(rank().over(Window.orderBy($"a")))))
