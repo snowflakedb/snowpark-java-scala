@@ -11,6 +11,7 @@ import Variant._
 import org.apache.commons.codec.binary.{Base64, Hex}
 
 import java.io.{IOException, UncheckedIOException}
+import java.util.function.Consumer
 import scala.util.hashing.MurmurHash3
 
 private[snowpark] object Variant {
@@ -70,85 +71,97 @@ private[snowpark] object Variant {
   }
 }
 
-/** Representation of Snowflake Variant data
-  *
-  * @since 0.2.0
-  */
+/**
+ * Representation of Snowflake Variant data
+ *
+ * @since 0.2.0
+ */
 class Variant private[snowpark] (
     private[snowpark] val value: JsonNode,
     private[snowpark] val dataType: VariantType) {
 
-  /** Creates a Variant from double value
-    *
-    * @since 0.2.0
-    */
+  /**
+   * Creates a Variant from double value
+   *
+   * @since 0.2.0
+   */
   def this(num: Double) =
     this(JsonNodeFactory.instance.numberNode(num), VariantTypes.RealNumber)
 
-  /** Creates a Variant from float value
-    *
-    * @since 0.2.0
-    */
+  /**
+   * Creates a Variant from float value
+   *
+   * @since 0.2.0
+   */
   def this(num: Float) =
     this(JsonNodeFactory.instance.numberNode(num), VariantTypes.RealNumber)
 
-  /** Creates a Variant from long integer value
-    *
-    * @since 0.2.0
-    */
+  /**
+   * Creates a Variant from long integer value
+   *
+   * @since 0.2.0
+   */
   def this(num: Long) =
     this(JsonNodeFactory.instance.numberNode(num), VariantTypes.FixedNumber)
 
-  /** Creates a Variant from integer value
-    *
-    * @since 0.2.0
-    */
+  /**
+   * Creates a Variant from integer value
+   *
+   * @since 0.2.0
+   */
   def this(num: Int) = this(JsonNodeFactory.instance.numberNode(num), VariantTypes.FixedNumber)
 
-  /** Creates a Variant from short integer value
-    *
-    * @since 0.2.0
-    */
+  /**
+   * Creates a Variant from short integer value
+   *
+   * @since 0.2.0
+   */
   def this(num: Short) =
     this(JsonNodeFactory.instance.numberNode(num), VariantTypes.FixedNumber)
 
-  /** Creates a Variant from Java BigDecimal value
-    *
-    * @since 0.2.0
-    */
+  /**
+   * Creates a Variant from Java BigDecimal value
+   *
+   * @since 0.2.0
+   */
   def this(num: JavaBigDecimal) =
     this(JsonNodeFactory.instance.numberNode(num), VariantTypes.FixedNumber)
 
-  /** Creates a Variant from Scala BigDecimal value
-    *
-    * @since 0.6.0
-    */
+  /**
+   * Creates a Variant from Scala BigDecimal value
+   *
+   * @since 0.6.0
+   */
   def this(num: BigDecimal) = this(num.bigDecimal)
 
-  /** Creates a Variant from Java BigInteger value
-    *
-    * @since 0.2.0
-    */
+  /**
+   * Creates a Variant from Java BigInteger value
+   *
+   * @since 0.2.0
+   */
   def this(num: JavaBigInteger) =
     this(JsonNodeFactory.instance.numberNode(num), VariantTypes.FixedNumber)
 
-  /** Creates a Variant from Scala BigInt value
-    *
-    * @since 0.6.0
-    */
+  /**
+   * Creates a Variant from Scala BigInt value
+   *
+   * @since 0.6.0
+   */
   def this(num: BigInt) = this(num.bigInteger)
 
-  /** Creates a Variant from Boolean value
-    *
-    * @since 0.2.0
-    */
+  /**
+   * Creates a Variant from Boolean value
+   *
+   * @since 0.2.0
+   */
   def this(bool: Boolean) = this(JsonNodeFactory.instance.booleanNode(bool), VariantTypes.Boolean)
 
-  /** Creates a Variant from String value. By default string is parsed as Json. If the parsing
-    * failed, the string is stored as text.
-    *
-    * @since 0.2.0
-    */
+  /**
+   * Creates a Variant from String value. By default string is parsed as Json. If the parsing
+   * failed, the string is stored as text.
+   *
+   * @since 0.2.0
+   */
   def this(str: String) =
     this(
       {
@@ -168,36 +181,41 @@ class Variant private[snowpark] (
       },
       VariantTypes.String)
 
-  /** Creates a Variant from binary value
-    *
-    * @since 0.2.0
-    */
+  /**
+   * Creates a Variant from binary value
+   *
+   * @since 0.2.0
+   */
   def this(bytes: Array[Byte]) =
     this(JsonNodeFactory.instance.binaryNode(bytes), VariantTypes.Binary)
 
-  /** Creates a Variant from time value
-    *
-    * @since 0.2.0
-    */
+  /**
+   * Creates a Variant from time value
+   *
+   * @since 0.2.0
+   */
   def this(time: Time) = this(JsonNodeFactory.instance.textNode(time.toString), VariantTypes.Time)
 
-  /** Creates a Variant from date value
-    *
-    * @since 0.2.0
-    */
+  /**
+   * Creates a Variant from date value
+   *
+   * @since 0.2.0
+   */
   def this(date: Date) = this(JsonNodeFactory.instance.textNode(date.toString), VariantTypes.Date)
 
-  /** Creates a Variant from timestamp value
-    *
-    * @since 0.2.0
-    */
+  /**
+   * Creates a Variant from timestamp value
+   *
+   * @since 0.2.0
+   */
   def this(timestamp: Timestamp) =
     this(JsonNodeFactory.instance.textNode(timestamp.toString), VariantTypes.Timestamp)
 
-  /** Creates a Variant from Scala Seq
-    *
-    * @since 0.6.0
-    */
+  /**
+   * Creates a Variant from Scala Seq
+   *
+   * @since 0.6.0
+   */
   def this(seq: Seq[Any]) =
     this(
       {
@@ -207,28 +225,35 @@ class Variant private[snowpark] (
       },
       VariantTypes.String)
 
-  /** Creates a Variant from Java List
-    *
-    * @since 0.2.0
-    */
-  def this(list: JavaList[Object]) = this(list.asScala)
+  /**
+   * Creates a Variant from Java List
+   *
+   * @since 0.2.0
+   */
+  def this(list: JavaList[Object]) = this(list.asScala.toSeq)
 
-  /** Creates a Variant from array
-    *
-    * @since 0.2.0
-    */
+  /**
+   * Creates a Variant from array
+   *
+   * @since 0.2.0
+   */
   def this(objects: Array[Any]) = this(objects.toSeq)
 
-  /** Creates a Variant from Object
-    *
-    * @since 0.2.0
-    */
+  /**
+   * Creates a Variant from Object
+   *
+   * @since 0.2.0
+   */
   def this(obj: Any) =
     this(
       {
         def mapToNode(map: JavaMap[Object, Object]): ObjectNode = {
           val result = MAPPER.createObjectNode()
-          map.keySet().forEach(key => result.set(key.toString, objectToJsonNode(map.get(key))))
+          map.keySet.forEach(new Consumer[Object] {
+            override def accept(key: Object): Unit = {
+              result.set(key.toString, objectToJsonNode(map.get(key)))
+            }
+          })
           result
         }
         obj match {
@@ -247,50 +272,56 @@ class Variant private[snowpark] (
       },
       VariantTypes.String)
 
-  /** Converts the variant as double value
-    *
-    * @since 0.2.0
-    */
+  /**
+   * Converts the variant as double value
+   *
+   * @since 0.2.0
+   */
   def asDouble(): Double = convert(VariantTypes.RealNumber) {
     value.asDouble()
   }
 
-  /** Converts the variant as float value
-    *
-    * @since 0.2.0
-    */
+  /**
+   * Converts the variant as float value
+   *
+   * @since 0.2.0
+   */
   def asFloat(): Float = convert(VariantTypes.RealNumber) {
     value.asDouble().toFloat
   }
 
-  /** Converts the variant as long value
-    *
-    * @since 0.2.0
-    */
+  /**
+   * Converts the variant as long value
+   *
+   * @since 0.2.0
+   */
   def asLong(): Long = convert(VariantTypes.FixedNumber) {
     value.asLong()
   }
 
-  /** Converts the variant as integer value
-    *
-    * @since 0.2.0
-    */
+  /**
+   * Converts the variant as integer value
+   *
+   * @since 0.2.0
+   */
   def asInt(): Int = convert(VariantTypes.FixedNumber) {
     value.asInt()
   }
 
-  /** Converts the variant as short value
-    *
-    * @since 0.2.0
-    */
+  /**
+   * Converts the variant as short value
+   *
+   * @since 0.2.0
+   */
   def asShort(): Short = convert(VariantTypes.FixedNumber) {
     value.asInt().toShort
   }
 
-  /** Converts the variant as BigDecimal value
-    *
-    * @since 0.6.0
-    */
+  /**
+   * Converts the variant as BigDecimal value
+   *
+   * @since 0.6.0
+   */
   def asBigDecimal(): BigDecimal = convert(VariantTypes.RealNumber) {
     if (value.isBoolean) {
       BigDecimal(value.asInt())
@@ -299,10 +330,11 @@ class Variant private[snowpark] (
     }
   }
 
-  /** Converts the variant as Scala BigInt value
-    *
-    * @since 0.6.0
-    */
+  /**
+   * Converts the variant as Scala BigInt value
+   *
+   * @since 0.6.0
+   */
   def asBigInt(): BigInt = convert(VariantTypes.FixedNumber) {
     if (value.isBoolean) {
       BigInt(value.asInt())
@@ -311,18 +343,20 @@ class Variant private[snowpark] (
     }
   }
 
-  /** Converts the variant as boolean value
-    *
-    * @since 0.2.0
-    */
+  /**
+   * Converts the variant as boolean value
+   *
+   * @since 0.2.0
+   */
   def asBoolean(): Boolean = convert(VariantTypes.Boolean) {
     value.asBoolean()
   }
 
-  /** Converts the variant as string value
-    *
-    * @since 0.2.0
-    */
+  /**
+   * Converts the variant as string value
+   *
+   * @since 0.2.0
+   */
   def asString(): String = convert(VariantTypes.String) {
     if (value.isBinary) {
       val decoded = Base64.decodeBase64(value.asText())
@@ -334,15 +368,17 @@ class Variant private[snowpark] (
     }
   }
 
-  /** An alias of [[asString]]
-    *
-    * @since 0.2.0
-    */
+  /**
+   * An alias of [[asString]]
+   *
+   * @since 0.2.0
+   */
   override def toString: String = asString()
 
-  /** Converts the variant as valid Json String
-    * @since 0.2.0
-    */
+  /**
+   * Converts the variant as valid Json String
+   * @since 0.2.0
+   */
   def asJsonString(): String = convert(VariantTypes.String) {
     if (value.isBinary) {
       val decoded = Base64.decodeBase64(value.asText())
@@ -352,25 +388,27 @@ class Variant private[snowpark] (
     }
   }
 
-  /** Return the variant value as a JsonNode. This function allows to read the JSON object directly
-    * as JsonNode from variant column rather parsing it as String Example - to get the first value
-    * from array for key "a"
-    * {{{
-    *   val sv = new Variant("{\"a\": [1, 2], \"b\": 3, \"c\": \"xyz\"}")
-    *   println(sv.asJsonNode().get("a").get(0))
-    * output
-    * 1
-    * }}}
-    *
-    * @since 1.14.0
-    */
+  /**
+   * Return the variant value as a JsonNode. This function allows to read the JSON object directly
+   * as JsonNode from variant column rather parsing it as String Example - to get the first value
+   * from array for key "a"
+   * {{{
+   *   val sv = new Variant("{\"a\": [1, 2], \"b\": 3, \"c\": \"xyz\"}")
+   *   println(sv.asJsonNode().get("a").get(0))
+   * output
+   * 1
+   * }}}
+   *
+   * @since 1.14.0
+   */
   def asJsonNode(): JsonNode = {
     value
   }
 
-  /** Converts the variant as binary value
-    * @since 0.2.0
-    */
+  /**
+   * Converts the variant as binary value
+   * @since 0.2.0
+   */
   def asBinary(): Array[Byte] = convert(VariantTypes.Binary) {
     try {
       value.binaryValue()
@@ -388,23 +426,26 @@ class Variant private[snowpark] (
     }
   }
 
-  /** Converts the variant as time value
-    * @since 0.2.0
-    */
+  /**
+   * Converts the variant as time value
+   * @since 0.2.0
+   */
   def asTime(): Time = convert(VariantTypes.Time) {
     Time.valueOf(value.asText())
   }
 
-  /** Converts the variant as date value
-    * @since 0.2.0
-    */
+  /**
+   * Converts the variant as date value
+   * @since 0.2.0
+   */
   def asDate(): Date = convert(VariantTypes.Date) {
     Date.valueOf(value.asText())
   }
 
-  /** Converts the variant as timestamp value
-    * @since 0.2.0
-    */
+  /**
+   * Converts the variant as timestamp value
+   * @since 0.2.0
+   */
   def asTimestamp(): Timestamp = convert(VariantTypes.Timestamp) {
     if (value.isNumber) {
       new Timestamp(value.asLong())
@@ -413,14 +454,16 @@ class Variant private[snowpark] (
     }
   }
 
-  /** Converts the variant as Scala Seq of Variant
-    * @since 0.6.0
-    */
+  /**
+   * Converts the variant as Scala Seq of Variant
+   * @since 0.6.0
+   */
   def asSeq(): Seq[Variant] = asArray()
 
-  /** Converts the variant as Array of Variant
-    * @since 0.2.0
-    */
+  /**
+   * Converts the variant as Array of Variant
+   * @since 0.2.0
+   */
   def asArray(): Array[Variant] = value match {
     case null => null;
     case arr: ArrayNode =>
@@ -432,9 +475,10 @@ class Variant private[snowpark] (
       result
   }
 
-  /** Converts the variant as Scala Map of String to Variant
-    * @since 0.6.0
-    */
+  /**
+   * Converts the variant as Scala Map of String to Variant
+   * @since 0.6.0
+   */
   def asMap(): Map[String, Variant] = value match {
     case null => null
     case obj: ObjectNode =>
@@ -447,17 +491,19 @@ class Variant private[snowpark] (
       map
   }
 
-  /** Checks whether two Variants are equal
-    * @since 0.2.0
-    */
+  /**
+   * Checks whether two Variants are equal
+   * @since 0.2.0
+   */
   override def equals(obj: Any): Boolean = obj match {
     case v: Variant => value.equals(v.value)
     case _ => false
   }
 
-  /** Calculates hashcode of this Variant
-    * @since 0.6.0
-    */
+  /**
+   * Calculates hashcode of this Variant
+   * @since 0.6.0
+   */
   override def hashCode(): Int = {
     var h = MurmurHash3.seqSeed
     h = MurmurHash3.mix(h, dataType.##)

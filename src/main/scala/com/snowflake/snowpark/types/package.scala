@@ -2,9 +2,10 @@ package com.snowflake.snowpark
 
 import com.snowflake.snowpark.internal.ErrorMessage
 
-/** This package contains all Snowpark logical types.
-  * @since 0.1.0
-  */
+/**
+ * This package contains all Snowpark logical types.
+ * @since 0.1.0
+ */
 package object types {
 
   private[snowpark] def toJavaType(datatype: DataType): String =

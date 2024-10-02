@@ -6,8 +6,9 @@ import com.snowflake.snowpark.types._
 
 import scala.util.Random
 
-/** All functions in this object are temporary solutions.
-  */
+/**
+ * All functions in this object are temporary solutions.
+ */
 private[snowpark] object SchemaUtils {
 
   val CommandAttributes: Seq[Attribute] = Seq(Attribute("\"status\"", StringType))

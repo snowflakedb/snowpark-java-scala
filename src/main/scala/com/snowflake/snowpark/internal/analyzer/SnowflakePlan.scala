@@ -74,9 +74,9 @@ class SnowflakePlan(
     }
     val supportAsyncMode = subqueryPlans.forall(_.supportAsyncMode)
     SnowflakePlan(
-      preQueries :+ queries.last,
+      preQueries.toSeq :+ queries.last,
       newSchemaQuery,
-      newPostActions,
+      newPostActions.toSeq,
       session,
       sourcePlan,
       supportAsyncMode)
@@ -750,13 +750,14 @@ class SnowflakePlanBuilder(session: Session) extends Logging {
   }
 }
 
-/** Assign a place holder for all queries. replace this place holder by real uuid if necessary. for
-  * example, a query list
-  *   1. show tables , "query_id_place_holder_XXXX" 2. select * from
-  *      table(result_scan('query_id_place_holder_XXXX')) , "query_id_place_holder_YYYY" when
-  *      executing 1, execute query 1, and get read uuid, such as 1234567 2, replace
-  *      uuid_place_holder_XXXXX by 1234567 in query 2, and execute it
-  */
+/**
+ * Assign a place holder for all queries. replace this place holder by real uuid if necessary. for
+ * example, a query list
+ *   1. show tables , "query_id_place_holder_XXXX" 2. select * from
+ *      table(result_scan('query_id_place_holder_XXXX')) , "query_id_place_holder_YYYY" when
+ *      executing 1, execute query 1, and get read uuid, such as 1234567 2, replace
+ *      uuid_place_holder_XXXXX by 1234567 in query 2, and execute it
+ */
 private[snowpark] class Query(
     val sql: String,
     val queryIdPlaceHolder: String,

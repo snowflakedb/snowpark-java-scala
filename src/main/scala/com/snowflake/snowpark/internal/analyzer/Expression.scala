@@ -119,12 +119,12 @@ private[snowpark] case class FlattenFunction(
     FlattenFunction(analyzedChildren.head, path, outer, recursive, mode)
 }
 
-private[snowpark] case class TableFunction(funcName: String, args: Seq[Expression])
+private[snowpark] case class TableFunctionEx(funcName: String, args: Seq[Expression])
     extends TableFunctionExpression {
   override def children: Seq[Expression] = args
 
   override protected def createAnalyzedExpression(analyzedChildren: Seq[Expression]): Expression =
-    TableFunction(funcName, analyzedChildren)
+    TableFunctionEx(funcName, analyzedChildren)
 }
 
 private[snowpark] case class NamedArgumentsTableFunction(

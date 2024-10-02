@@ -1,16 +1,17 @@
 package com.snowflake.snowpark_test
 
-import org.scalatest.FunSuite
 import com.snowflake.snowpark.internal.JavaUtils._
 import com.snowflake.snowpark.types.Variant
 import com.snowflake.snowpark_java.types.{Variant => JavaVariant}
+import org.scalatest.funsuite.AnyFunSuite
+
 import scala.collection.JavaConverters._
 import java.util
 
 // test UDF utils functions
 // those functions work on server side.
 // can't be detected by test coverage report.
-class JavaUtilsSuite extends FunSuite {
+class JavaUtilsSuite extends AnyFunSuite {
 
   test("geography to string") {
     val data = "{\"type\":\"Point\",\"coordinates\":[125.6, 10.1]}"

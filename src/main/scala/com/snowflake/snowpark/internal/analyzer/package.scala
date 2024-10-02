@@ -699,9 +699,10 @@ package object analyzer {
       _LeftParenthesis + aggregate + _For + pivotColumn + _In +
       pivotValues.mkString(_LeftParenthesis, _Comma, _RightParenthesis) + _RightParenthesis
 
-  /** copy into <tableName> from <filePath> file_format = (type = <format> <formatTypeOptions>)
-    * <copyOptions>
-    */
+  /**
+   * copy into <tableName> from <filePath> file_format = (type = <format> <formatTypeOptions>)
+   * <copyOptions>
+   */
   private[snowpark] def copyIntoTable(
       tableName: String,
       filePath: String,
@@ -780,11 +781,12 @@ package object analyzer {
     }
   }
 
-  /** Use this function to normalize all user input and client generated names
-    *
-    * Rule: Name with quote: Do nothing Without quote: Starts with _A-Za-z or and only contains
-    * _A-Za-z0-9$, upper case all letters and quote otherwise, quote without upper casing
-    */
+  /**
+   * Use this function to normalize all user input and client generated names
+   *
+   * Rule: Name with quote: Do nothing Without quote: Starts with _A-Za-z or and only contains
+   * _A-Za-z0-9$, upper case all letters and quote otherwise, quote without upper casing
+   */
   def quoteName(name: String): String = {
     val alreadyQuoted = "^(\".+\")$".r
     val unquotedCaseInsenstive = "^([_A-Za-z]+[_A-Za-z0-9$]*)$".r
@@ -808,9 +810,10 @@ package object analyzer {
     }
   }
 
-  /** Quotes name without upper casing if not quoted NOTE: All characters in name are DATA so "c1"
-    * will be converted to """c1""".
-    */
+  /**
+   * Quotes name without upper casing if not quoted NOTE: All characters in name are DATA so "c1"
+   * will be converted to """c1""".
+   */
   def quoteNameWithoutUpperCasing(name: String): String =
     _DoubleQuote + escapeQuotes(name) + _DoubleQuote
 

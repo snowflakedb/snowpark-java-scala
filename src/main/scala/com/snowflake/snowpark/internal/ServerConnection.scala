@@ -315,7 +315,7 @@ private[snowpark] class ServerConnection(
 
   private[snowpark] def resultSetToRows(statement: Statement): Array[Row] = withValidConnection {
     val iterator = resultSetToIterator(statement)._1
-    val buff = mutable.ArrayBuilder.make[Row]()
+    val buff = mutable.ArrayBuilder.make[Row]
     while (iterator.hasNext) {
       buff += iterator.next()
     }
@@ -399,8 +399,9 @@ private[snowpark] class ServerConnection(
           result
         }
 
-        /** Close the underlying data source.
-          */
+        /**
+         * Close the underlying data source.
+         */
         override def close(): Unit = {
           _hasNext = false
           statement.close()

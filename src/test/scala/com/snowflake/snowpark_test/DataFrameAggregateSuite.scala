@@ -3,7 +3,6 @@ package com.snowflake.snowpark_test
 import com.snowflake.snowpark.functions._
 import com.snowflake.snowpark._
 import net.snowflake.client.jdbc.SnowflakeSQLException
-import org.scalatest.Matchers.the
 
 import java.sql.ResultSet
 
@@ -306,9 +305,7 @@ class DataFrameAggregateSuite extends TestData {
   // Used temporary VIEW which is not supported by owner's mode stored proc yet
   test("Window functions inside aggregate functions", JavaStoredProcExcludeOwner) {
     def checkWindowError(df: => DataFrame): Unit = {
-      the[SnowflakeSQLException] thrownBy {
-        df.collect()
-      }
+      assertThrows[SnowflakeSQLException](df.collect())
     }
     checkWindowError(testData2.select(min(avg($"b").over(Window.partitionBy($"a")))))
     checkWindowError(testData2.agg(sum($"b"), max(rank().over(Window.orderBy($"a")))))

@@ -1,12 +1,12 @@
 package com.snowflake.snowpark_test
 
 import com.snowflake.snowpark.types.{Geography, Variant}
-import org.scalatest.FunSuite
+import org.scalatest.funsuite.AnyFunSuite
 
 import java.io.UncheckedIOException
 import java.sql.{Date, Time, Timestamp}
 
-class ScalaVariantSuite extends FunSuite {
+class ScalaVariantSuite extends AnyFunSuite {
   test("scala constructor and extension functions") {
     assert(new Variant(1.1).asDouble() == 1.1)
     assert(new Variant(1.2f).asFloat() == 1.2f)

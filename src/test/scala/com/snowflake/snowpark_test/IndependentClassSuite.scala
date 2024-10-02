@@ -1,14 +1,14 @@
 package com.snowflake.snowpark_test
 
-import org.scalatest.FunSuite
 import org.scalatest.exceptions.TestFailedException
 import com.snowflake.snowpark.internal.Utils
+import org.scalatest.funsuite.AnyFunSuite
 
 import scala.language.postfixOps
 import sys.process._
 
 // verify those classes do not depend on Snowpark package
-class IndependentClassSuite extends FunSuite {
+class IndependentClassSuite extends AnyFunSuite {
   lazy val pathPrefix = s"target/scala-${Utils.ScalaCompatVersion}/"
   private def generatePath(path: String): String = pathPrefix + path
   test("scala variant") {

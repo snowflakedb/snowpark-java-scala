@@ -6,9 +6,9 @@ import com.snowflake.snowpark.internal.ParameterUtils.{
   MIN_REQUEST_TIMEOUT_IN_SECONDS,
   SnowparkRequestTimeoutInSeconds
 }
-import org.scalatest.FunSuite
+import org.scalatest.funsuite.AnyFunSuite
 
-class ErrorMessageSuite extends FunSuite {
+class ErrorMessageSuite extends AnyFunSuite {
 
   test("INTERNAL_TEST_MESSAGE") {
     val ex = ErrorMessage.INTERNAL_TEST_MESSAGE("my message: '%d $'")

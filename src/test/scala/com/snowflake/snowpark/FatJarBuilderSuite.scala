@@ -3,14 +3,13 @@ package com.snowflake.snowpark
 import java.io.{File, FileOutputStream}
 import java.util.jar.{JarFile, JarOutputStream}
 import java.util.zip.ZipException
-
 import com.snowflake.snowpark.internal.{FatJarBuilder, JavaCodeCompiler}
-import org.scalatest.FunSuite
+import org.scalatest.funsuite.AnyFunSuite
 
 import scala.collection.mutable.ArrayBuffer
 import scala.util.Random
 
-class FatJarBuilderSuite extends FunSuite with FileUtils {
+class FatJarBuilderSuite extends AnyFunSuite with FileUtils {
 
   test("Check that fat jar is built correctly") {
     val className = "HelloWorld"

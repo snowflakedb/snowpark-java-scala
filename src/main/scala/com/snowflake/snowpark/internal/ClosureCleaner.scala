@@ -71,11 +71,12 @@ private[snowpark] object ClosureCleaner extends Logging {
     }
   }
 
-  /** Try to get a serialized Lambda from the closure.
-    *
-    * @param closure
-    *   the closure to check.
-    */
+  /**
+   * Try to get a serialized Lambda from the closure.
+   *
+   * @param closure
+   *   the closure to check.
+   */
   private def getSerializedLambda(closure: AnyRef): Option[SerializedLambda] = {
     val isClosureCandidate =
       closure.getClass.isSynthetic &&
@@ -141,18 +142,19 @@ private[snowpark] object ClosureCleaner extends Logging {
     clone
   }
 
-  /** Clean the given closure in place. The mechanism is to traverse the hierarchy of enclosing
-    * closures and null out any references along the way that are not actually used by the starting
-    * closure, but are nevertheless included in the compiled anonymous classes.
-    *
-    * Closures are cleaned transitively. Does not verify whether the closure is serializable after
-    * cleaning.
-    *
-    * @param func
-    *   the closure to be cleaned
-    * @param closureCleanerMode
-    *   closure cleaner mode, can be always, never, repl_only.
-    */
+  /**
+   * Clean the given closure in place. The mechanism is to traverse the hierarchy of enclosing
+   * closures and null out any references along the way that are not actually used by the starting
+   * closure, but are nevertheless included in the compiled anonymous classes.
+   *
+   * Closures are cleaned transitively. Does not verify whether the closure is serializable after
+   * cleaning.
+   *
+   * @param func
+   *   the closure to be cleaned
+   * @param closureCleanerMode
+   *   closure cleaner mode, can be always, never, repl_only.
+   */
   private[snowpark] def clean(func: AnyRef, closureCleanerMode: ClosureCleanerMode.Value): Unit = {
     if (func == null || closureCleanerMode == ClosureCleanerMode.never) {
       return
@@ -268,20 +270,22 @@ private object IndylambdaScalaClosures extends Logging {
     writeReplace.invoke(closure).asInstanceOf[SerializedLambda]
   }
 
-  /** Check if the handle represents the LambdaMetafactory that indylambda Scala closures use for
-    * creating the lambda class and getting a closure instance.
-    */
+  /**
+   * Check if the handle represents the LambdaMetafactory that indylambda Scala closures use for
+   * creating the lambda class and getting a closure instance.
+   */
   def isLambdaMetafactory(bsmHandle: Handle): Boolean = {
     bsmHandle.getOwner == LambdaMetafactoryClassName &&
     bsmHandle.getName == LambdaMetafactoryMethodName &&
     bsmHandle.getDesc == LambdaMetafactoryMethodDesc
   }
 
-  /** Check if the handle represents a target method that is:
-    *   - a STATIC method that implements a Scala lambda body in the indylambda style
-    *   - captures the enclosing `this`, i.e. the first argument is a reference to the same type as
-    *     the owning class. Returns true if both criteria above are met.
-    */
+  /**
+   * Check if the handle represents a target method that is:
+   *   - a STATIC method that implements a Scala lambda body in the indylambda style
+   *   - captures the enclosing `this`, i.e. the first argument is a reference to the same type as
+   *     the owning class. Returns true if both criteria above are met.
+   */
   def isLambdaBodyCapturingOuter(handle: Handle, ownerInternalName: String): Boolean = {
     handle.getTag == H_INVOKESTATIC &&
     handle.getName.contains("$anonfun$") &&
@@ -289,12 +293,13 @@ private object IndylambdaScalaClosures extends Logging {
     handle.getDesc.startsWith(s"(L$ownerInternalName;")
   }
 
-  /** Check if the callee of a call site is a inner class constructor.
-    *   - A constructor has to be invoked via INVOKESPECIAL
-    *   - A constructor's internal name is "&lt;init&gt;" and the return type is "V" (void)
-    *   - An inner class' first argument in the signature has to be a reference to the enclosing
-    *     "this", aka `$outer` in Scala.
-    */
+  /**
+   * Check if the callee of a call site is a inner class constructor.
+   *   - A constructor has to be invoked via INVOKESPECIAL
+   *   - A constructor's internal name is "&lt;init&gt;" and the return type is "V" (void)
+   *   - An inner class' first argument in the signature has to be a reference to the enclosing
+   *     "this", aka `$outer` in Scala.
+   */
   def isInnerClassCtorCapturingOuter(
       op: Int,
       owner: String,

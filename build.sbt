@@ -25,6 +25,7 @@ lazy val root = (project in file("."))
     name := snowparkName,
     version := "1.15.0-SNAPSHOT",
     scalaVersion := sys.props.getOrElse("SCALA_VERSION", default = "2.12.18"),
+    crossScalaVersions := Seq("2.12.18", "2.13.15"),
     organization := "com.snowflake",
     javaOptions ++= Seq("-source", "1.8", "-target", "1.8"),
     licenses := Seq("The Apache Software License, Version 2.0" ->
@@ -58,7 +59,7 @@ lazy val root = (project in file("."))
 //      "junit" % "juint" % "4.13.1" % Test,
       "com.github.sbt" % "junit-interface" % "0.13.3" % Test,
       "org.mockito" % "mockito-core" % "2.23.0" % Test,
-      "org.scalatest" %% "scalatest" % "3.0.5" % Test,
+      "org.scalatest" %% "scalatest" % "3.2.19" % Test,
     ),
     scalafmtOnCompile := true,
     javafmtOnCompile := true,

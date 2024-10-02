@@ -415,10 +415,11 @@ object ScalaFunctions {
  }
    */
 
-  /** Creates a Scala closure of 0 arguments as user-defined function (UDF).
-    * @tparam RT
-    *   return type of UDF.
-    */
+  /**
+   * Creates a Scala closure of 0 arguments as user-defined function (UDF).
+   * @tparam RT
+   *   return type of UDF.
+   */
   def _toUdf[RT: TypeTag](func: Function0[RT]): UserDefinedFunction = {
     Vector().foreach(isSupported(_))
     isSupported(typeOf[RT])
@@ -427,10 +428,11 @@ object ScalaFunctions {
     UserDefinedFunction(func, returnColumn, inputColumns)
   }
 
-  /** Creates a Scala closure of 1 arguments as user-defined function (UDF).
-    * @tparam RT
-    *   return type of UDF.
-    */
+  /**
+   * Creates a Scala closure of 1 arguments as user-defined function (UDF).
+   * @tparam RT
+   *   return type of UDF.
+   */
   def _toUdf[RT: TypeTag, A1: TypeTag](func: Function1[A1, RT]): UserDefinedFunction = {
     Vector(typeOf[A1]).foreach(isSupported(_))
     isSupported(typeOf[RT])
@@ -439,10 +441,11 @@ object ScalaFunctions {
     UserDefinedFunction(func, returnColumn, inputColumns)
   }
 
-  /** Creates a Scala closure of 2 arguments as user-defined function (UDF).
-    * @tparam RT
-    *   return type of UDF.
-    */
+  /**
+   * Creates a Scala closure of 2 arguments as user-defined function (UDF).
+   * @tparam RT
+   *   return type of UDF.
+   */
   def _toUdf[RT: TypeTag, A1: TypeTag, A2: TypeTag](
       func: Function2[A1, A2, RT]): UserDefinedFunction = {
     Vector(typeOf[A1], typeOf[A2]).foreach(isSupported(_))
@@ -452,10 +455,11 @@ object ScalaFunctions {
     UserDefinedFunction(func, returnColumn, inputColumns)
   }
 
-  /** Creates a Scala closure of 3 arguments as user-defined function (UDF).
-    * @tparam RT
-    *   return type of UDF.
-    */
+  /**
+   * Creates a Scala closure of 3 arguments as user-defined function (UDF).
+   * @tparam RT
+   *   return type of UDF.
+   */
   def _toUdf[RT: TypeTag, A1: TypeTag, A2: TypeTag, A3: TypeTag](
       func: Function3[A1, A2, A3, RT]): UserDefinedFunction = {
     Vector(typeOf[A1], typeOf[A2], typeOf[A3]).foreach(isSupported(_))
@@ -466,10 +470,11 @@ object ScalaFunctions {
     UserDefinedFunction(func, returnColumn, inputColumns)
   }
 
-  /** Creates a Scala closure of 4 arguments as user-defined function (UDF).
-    * @tparam RT
-    *   return type of UDF.
-    */
+  /**
+   * Creates a Scala closure of 4 arguments as user-defined function (UDF).
+   * @tparam RT
+   *   return type of UDF.
+   */
   def _toUdf[RT: TypeTag, A1: TypeTag, A2: TypeTag, A3: TypeTag, A4: TypeTag](
       func: Function4[A1, A2, A3, A4, RT]): UserDefinedFunction = {
     Vector(typeOf[A1], typeOf[A2], typeOf[A3], typeOf[A4]).foreach(isSupported(_))
@@ -480,10 +485,11 @@ object ScalaFunctions {
     UserDefinedFunction(func, returnColumn, inputColumns)
   }
 
-  /** Creates a Scala closure of 5 arguments as user-defined function (UDF).
-    * @tparam RT
-    *   return type of UDF.
-    */
+  /**
+   * Creates a Scala closure of 5 arguments as user-defined function (UDF).
+   * @tparam RT
+   *   return type of UDF.
+   */
   def _toUdf[RT: TypeTag, A1: TypeTag, A2: TypeTag, A3: TypeTag, A4: TypeTag, A5: TypeTag](
       func: Function5[A1, A2, A3, A4, A5, RT]): UserDefinedFunction = {
     Vector(typeOf[A1], typeOf[A2], typeOf[A3], typeOf[A4], typeOf[A5]).foreach(isSupported(_))
@@ -494,10 +500,11 @@ object ScalaFunctions {
     UserDefinedFunction(func, returnColumn, inputColumns)
   }
 
-  /** Creates a Scala closure of 6 arguments as user-defined function (UDF).
-    * @tparam RT
-    *   return type of UDF.
-    */
+  /**
+   * Creates a Scala closure of 6 arguments as user-defined function (UDF).
+   * @tparam RT
+   *   return type of UDF.
+   */
   def _toUdf[
       RT: TypeTag,
       A1: TypeTag,
@@ -516,10 +523,11 @@ object ScalaFunctions {
     UserDefinedFunction(func, returnColumn, inputColumns)
   }
 
-  /** Creates a Scala closure of 7 arguments as user-defined function (UDF).
-    * @tparam RT
-    *   return type of UDF.
-    */
+  /**
+   * Creates a Scala closure of 7 arguments as user-defined function (UDF).
+   * @tparam RT
+   *   return type of UDF.
+   */
   def _toUdf[
       RT: TypeTag,
       A1: TypeTag,
@@ -539,10 +547,11 @@ object ScalaFunctions {
     UserDefinedFunction(func, returnColumn, inputColumns)
   }
 
-  /** Creates a Scala closure of 8 arguments as user-defined function (UDF).
-    * @tparam RT
-    *   return type of UDF.
-    */
+  /**
+   * Creates a Scala closure of 8 arguments as user-defined function (UDF).
+   * @tparam RT
+   *   return type of UDF.
+   */
   def _toUdf[
       RT: TypeTag,
       A1: TypeTag,
@@ -570,10 +579,11 @@ object ScalaFunctions {
     UserDefinedFunction(func, returnColumn, inputColumns)
   }
 
-  /** Creates a Scala closure of 9 arguments as user-defined function (UDF).
-    * @tparam RT
-    *   return type of UDF.
-    */
+  /**
+   * Creates a Scala closure of 9 arguments as user-defined function (UDF).
+   * @tparam RT
+   *   return type of UDF.
+   */
   def _toUdf[
       RT: TypeTag,
       A1: TypeTag,
@@ -604,10 +614,11 @@ object ScalaFunctions {
     UserDefinedFunction(func, returnColumn, inputColumns)
   }
 
-  /** Creates a Scala closure of 10 arguments as user-defined function (UDF).
-    * @tparam RT
-    *   return type of UDF.
-    */
+  /**
+   * Creates a Scala closure of 10 arguments as user-defined function (UDF).
+   * @tparam RT
+   *   return type of UDF.
+   */
   def _toUdf[
       RT: TypeTag,
       A1: TypeTag,
@@ -641,10 +652,11 @@ object ScalaFunctions {
     UserDefinedFunction(func, returnColumn, inputColumns)
   }
 
-  /** Creates a Scala closure of 11 arguments as user-defined function (UDF).
-    * @tparam RT
-    *   return type of UDF.
-    */
+  /**
+   * Creates a Scala closure of 11 arguments as user-defined function (UDF).
+   * @tparam RT
+   *   return type of UDF.
+   */
   def _toUdf[
       RT: TypeTag,
       A1: TypeTag,
@@ -681,10 +693,11 @@ object ScalaFunctions {
     UserDefinedFunction(func, returnColumn, inputColumns)
   }
 
-  /** Creates a Scala closure of 12 arguments as user-defined function (UDF).
-    * @tparam RT
-    *   return type of UDF.
-    */
+  /**
+   * Creates a Scala closure of 12 arguments as user-defined function (UDF).
+   * @tparam RT
+   *   return type of UDF.
+   */
   def _toUdf[
       RT: TypeTag,
       A1: TypeTag,
@@ -723,10 +736,11 @@ object ScalaFunctions {
     UserDefinedFunction(func, returnColumn, inputColumns)
   }
 
-  /** Creates a Scala closure of 13 arguments as user-defined function (UDF).
-    * @tparam RT
-    *   return type of UDF.
-    */
+  /**
+   * Creates a Scala closure of 13 arguments as user-defined function (UDF).
+   * @tparam RT
+   *   return type of UDF.
+   */
   def _toUdf[
       RT: TypeTag,
       A1: TypeTag,
@@ -767,10 +781,11 @@ object ScalaFunctions {
     UserDefinedFunction(func, returnColumn, inputColumns)
   }
 
-  /** Creates a Scala closure of 14 arguments as user-defined function (UDF).
-    * @tparam RT
-    *   return type of UDF.
-    */
+  /**
+   * Creates a Scala closure of 14 arguments as user-defined function (UDF).
+   * @tparam RT
+   *   return type of UDF.
+   */
   def _toUdf[
       RT: TypeTag,
       A1: TypeTag,
@@ -815,10 +830,11 @@ object ScalaFunctions {
     UserDefinedFunction(func, returnColumn, inputColumns)
   }
 
-  /** Creates a Scala closure of 15 arguments as user-defined function (UDF).
-    * @tparam RT
-    *   return type of UDF.
-    */
+  /**
+   * Creates a Scala closure of 15 arguments as user-defined function (UDF).
+   * @tparam RT
+   *   return type of UDF.
+   */
   def _toUdf[
       RT: TypeTag,
       A1: TypeTag,
@@ -865,10 +881,11 @@ object ScalaFunctions {
     UserDefinedFunction(func, returnColumn, inputColumns)
   }
 
-  /** Creates a Scala closure of 16 arguments as user-defined function (UDF).
-    * @tparam RT
-    *   return type of UDF.
-    */
+  /**
+   * Creates a Scala closure of 16 arguments as user-defined function (UDF).
+   * @tparam RT
+   *   return type of UDF.
+   */
   def _toUdf[
       RT: TypeTag,
       A1: TypeTag,
@@ -917,10 +934,11 @@ object ScalaFunctions {
     UserDefinedFunction(func, returnColumn, inputColumns)
   }
 
-  /** Creates a Scala closure of 17 arguments as user-defined function (UDF).
-    * @tparam RT
-    *   return type of UDF.
-    */
+  /**
+   * Creates a Scala closure of 17 arguments as user-defined function (UDF).
+   * @tparam RT
+   *   return type of UDF.
+   */
   def _toUdf[
       RT: TypeTag,
       A1: TypeTag,
@@ -989,10 +1007,11 @@ object ScalaFunctions {
     UserDefinedFunction(func, returnColumn, inputColumns)
   }
 
-  /** Creates a Scala closure of 18 arguments as user-defined function (UDF).
-    * @tparam RT
-    *   return type of UDF.
-    */
+  /**
+   * Creates a Scala closure of 18 arguments as user-defined function (UDF).
+   * @tparam RT
+   *   return type of UDF.
+   */
   def _toUdf[
       RT: TypeTag,
       A1: TypeTag,
@@ -1064,10 +1083,11 @@ object ScalaFunctions {
     UserDefinedFunction(func, returnColumn, inputColumns)
   }
 
-  /** Creates a Scala closure of 19 arguments as user-defined function (UDF).
-    * @tparam RT
-    *   return type of UDF.
-    */
+  /**
+   * Creates a Scala closure of 19 arguments as user-defined function (UDF).
+   * @tparam RT
+   *   return type of UDF.
+   */
   def _toUdf[
       RT: TypeTag,
       A1: TypeTag,
@@ -1142,10 +1162,11 @@ object ScalaFunctions {
     UserDefinedFunction(func, returnColumn, inputColumns)
   }
 
-  /** Creates a Scala closure of 20 arguments as user-defined function (UDF).
-    * @tparam RT
-    *   return type of UDF.
-    */
+  /**
+   * Creates a Scala closure of 20 arguments as user-defined function (UDF).
+   * @tparam RT
+   *   return type of UDF.
+   */
   def _toUdf[
       RT: TypeTag,
       A1: TypeTag,
@@ -1224,10 +1245,11 @@ object ScalaFunctions {
     UserDefinedFunction(func, returnColumn, inputColumns)
   }
 
-  /** Creates a Scala closure of 21 arguments as user-defined function (UDF).
-    * @tparam RT
-    *   return type of UDF.
-    */
+  /**
+   * Creates a Scala closure of 21 arguments as user-defined function (UDF).
+   * @tparam RT
+   *   return type of UDF.
+   */
   def _toUdf[
       RT: TypeTag,
       A1: TypeTag,
@@ -1309,10 +1331,11 @@ object ScalaFunctions {
     UserDefinedFunction(func, returnColumn, inputColumns)
   }
 
-  /** Creates a Scala closure of 22 arguments as user-defined function (UDF).
-    * @tparam RT
-    *   return type of UDF.
-    */
+  /**
+   * Creates a Scala closure of 22 arguments as user-defined function (UDF).
+   * @tparam RT
+   *   return type of UDF.
+   */
   def _toUdf[
       RT: TypeTag,
       A1: TypeTag,
@@ -1602,10 +1625,11 @@ object ScalaFunctions {
    * }
    */
 
-  /** Creates a Scala closure of 0 arguments as Stored Procedure function (SProc).
-    * @tparam RT
-    *   return type of UDF.
-    */
+  /**
+   * Creates a Scala closure of 0 arguments as Stored Procedure function (SProc).
+   * @tparam RT
+   *   return type of UDF.
+   */
   def _toSP[RT: TypeTag](sp: Function1[Session, RT]): StoredProcedure = {
     Vector().foreach(isSupported)
     isSupported(typeOf[RT])
@@ -1614,10 +1638,11 @@ object ScalaFunctions {
     StoredProcedure(sp, returnColumn, inputColumns)
   }
 
-  /** Creates a Scala closure of 1 arguments as Stored Procedure function (SProc).
-    * @tparam RT
-    *   return type of UDF.
-    */
+  /**
+   * Creates a Scala closure of 1 arguments as Stored Procedure function (SProc).
+   * @tparam RT
+   *   return type of UDF.
+   */
   def _toSP[RT: TypeTag, A1: TypeTag](sp: Function2[Session, A1, RT]): StoredProcedure = {
     Vector(typeOf[A1]).foreach(isSupported)
     isSupported(typeOf[RT])
@@ -1626,10 +1651,11 @@ object ScalaFunctions {
     StoredProcedure(sp, returnColumn, inputColumns)
   }
 
-  /** Creates a Scala closure of 2 arguments as Stored Procedure function (SProc).
-    * @tparam RT
-    *   return type of UDF.
-    */
+  /**
+   * Creates a Scala closure of 2 arguments as Stored Procedure function (SProc).
+   * @tparam RT
+   *   return type of UDF.
+   */
   def _toSP[RT: TypeTag, A1: TypeTag, A2: TypeTag](
       sp: Function3[Session, A1, A2, RT]): StoredProcedure = {
     Vector(typeOf[A1], typeOf[A2]).foreach(isSupported)
@@ -1639,10 +1665,11 @@ object ScalaFunctions {
     StoredProcedure(sp, returnColumn, inputColumns)
   }
 
-  /** Creates a Scala closure of 3 arguments as Stored Procedure function (SProc).
-    * @tparam RT
-    *   return type of UDF.
-    */
+  /**
+   * Creates a Scala closure of 3 arguments as Stored Procedure function (SProc).
+   * @tparam RT
+   *   return type of UDF.
+   */
   def _toSP[RT: TypeTag, A1: TypeTag, A2: TypeTag, A3: TypeTag](
       sp: Function4[Session, A1, A2, A3, RT]): StoredProcedure = {
     Vector(typeOf[A1], typeOf[A2], typeOf[A3]).foreach(isSupported)
@@ -1653,10 +1680,11 @@ object ScalaFunctions {
     StoredProcedure(sp, returnColumn, inputColumns)
   }
 
-  /** Creates a Scala closure of 4 arguments as Stored Procedure function (SProc).
-    * @tparam RT
-    *   return type of UDF.
-    */
+  /**
+   * Creates a Scala closure of 4 arguments as Stored Procedure function (SProc).
+   * @tparam RT
+   *   return type of UDF.
+   */
   def _toSP[RT: TypeTag, A1: TypeTag, A2: TypeTag, A3: TypeTag, A4: TypeTag](
       sp: Function5[Session, A1, A2, A3, A4, RT]): StoredProcedure = {
     Vector(typeOf[A1], typeOf[A2], typeOf[A3], typeOf[A4]).foreach(isSupported)
@@ -1667,10 +1695,11 @@ object ScalaFunctions {
     StoredProcedure(sp, returnColumn, inputColumns)
   }
 
-  /** Creates a Scala closure of 5 arguments as Stored Procedure function (SProc).
-    * @tparam RT
-    *   return type of UDF.
-    */
+  /**
+   * Creates a Scala closure of 5 arguments as Stored Procedure function (SProc).
+   * @tparam RT
+   *   return type of UDF.
+   */
   def _toSP[RT: TypeTag, A1: TypeTag, A2: TypeTag, A3: TypeTag, A4: TypeTag, A5: TypeTag](
       sp: Function6[Session, A1, A2, A3, A4, A5, RT]): StoredProcedure = {
     Vector(typeOf[A1], typeOf[A2], typeOf[A3], typeOf[A4], typeOf[A5]).foreach(isSupported)
@@ -1681,10 +1710,11 @@ object ScalaFunctions {
     StoredProcedure(sp, returnColumn, inputColumns)
   }
 
-  /** Creates a Scala closure of 6 arguments as Stored Procedure function (SProc).
-    * @tparam RT
-    *   return type of UDF.
-    */
+  /**
+   * Creates a Scala closure of 6 arguments as Stored Procedure function (SProc).
+   * @tparam RT
+   *   return type of UDF.
+   */
   def _toSP[
       RT: TypeTag,
       A1: TypeTag,
@@ -1703,10 +1733,11 @@ object ScalaFunctions {
     StoredProcedure(sp, returnColumn, inputColumns)
   }
 
-  /** Creates a Scala closure of 7 arguments as Stored Procedure function (SProc).
-    * @tparam RT
-    *   return type of UDF.
-    */
+  /**
+   * Creates a Scala closure of 7 arguments as Stored Procedure function (SProc).
+   * @tparam RT
+   *   return type of UDF.
+   */
   def _toSP[
       RT: TypeTag,
       A1: TypeTag,
@@ -1726,10 +1757,11 @@ object ScalaFunctions {
     StoredProcedure(sp, returnColumn, inputColumns)
   }
 
-  /** Creates a Scala closure of 8 arguments as Stored Procedure function (SProc).
-    * @tparam RT
-    *   return type of UDF.
-    */
+  /**
+   * Creates a Scala closure of 8 arguments as Stored Procedure function (SProc).
+   * @tparam RT
+   *   return type of UDF.
+   */
   def _toSP[
       RT: TypeTag,
       A1: TypeTag,
@@ -1757,10 +1789,11 @@ object ScalaFunctions {
     StoredProcedure(sp, returnColumn, inputColumns)
   }
 
-  /** Creates a Scala closure of 9 arguments as Stored Procedure function (SProc).
-    * @tparam RT
-    *   return type of UDF.
-    */
+  /**
+   * Creates a Scala closure of 9 arguments as Stored Procedure function (SProc).
+   * @tparam RT
+   *   return type of UDF.
+   */
   def _toSP[
       RT: TypeTag,
       A1: TypeTag,
@@ -1792,10 +1825,11 @@ object ScalaFunctions {
     StoredProcedure(sp, returnColumn, inputColumns)
   }
 
-  /** Creates a Scala closure of 10 arguments as Stored Procedure function (SProc).
-    * @tparam RT
-    *   return type of UDF.
-    */
+  /**
+   * Creates a Scala closure of 10 arguments as Stored Procedure function (SProc).
+   * @tparam RT
+   *   return type of UDF.
+   */
   def _toSP[
       RT: TypeTag,
       A1: TypeTag,
@@ -1829,10 +1863,11 @@ object ScalaFunctions {
     StoredProcedure(sp, returnColumn, inputColumns)
   }
 
-  /** Creates a Scala closure of 11 arguments as Stored Procedure function (SProc).
-    * @tparam RT
-    *   return type of UDF.
-    */
+  /**
+   * Creates a Scala closure of 11 arguments as Stored Procedure function (SProc).
+   * @tparam RT
+   *   return type of UDF.
+   */
   def _toSP[
       RT: TypeTag,
       A1: TypeTag,
@@ -1869,10 +1904,11 @@ object ScalaFunctions {
     StoredProcedure(sp, returnColumn, inputColumns)
   }
 
-  /** Creates a Scala closure of 12 arguments as Stored Procedure function (SProc).
-    * @tparam RT
-    *   return type of UDF.
-    */
+  /**
+   * Creates a Scala closure of 12 arguments as Stored Procedure function (SProc).
+   * @tparam RT
+   *   return type of UDF.
+   */
   def _toSP[
       RT: TypeTag,
       A1: TypeTag,
@@ -1911,10 +1947,11 @@ object ScalaFunctions {
     StoredProcedure(sp, returnColumn, inputColumns)
   }
 
-  /** Creates a Scala closure of 13 arguments as Stored Procedure function (SProc).
-    * @tparam RT
-    *   return type of UDF.
-    */
+  /**
+   * Creates a Scala closure of 13 arguments as Stored Procedure function (SProc).
+   * @tparam RT
+   *   return type of UDF.
+   */
   def _toSP[
       RT: TypeTag,
       A1: TypeTag,
@@ -1956,10 +1993,11 @@ object ScalaFunctions {
     StoredProcedure(sp, returnColumn, inputColumns)
   }
 
-  /** Creates a Scala closure of 14 arguments as Stored Procedure function (SProc).
-    * @tparam RT
-    *   return type of UDF.
-    */
+  /**
+   * Creates a Scala closure of 14 arguments as Stored Procedure function (SProc).
+   * @tparam RT
+   *   return type of UDF.
+   */
   def _toSP[
       RT: TypeTag,
       A1: TypeTag,
@@ -2004,10 +2042,11 @@ object ScalaFunctions {
     StoredProcedure(sp, returnColumn, inputColumns)
   }
 
-  /** Creates a Scala closure of 15 arguments as Stored Procedure function (SProc).
-    * @tparam RT
-    *   return type of UDF.
-    */
+  /**
+   * Creates a Scala closure of 15 arguments as Stored Procedure function (SProc).
+   * @tparam RT
+   *   return type of UDF.
+   */
   def _toSP[
       RT: TypeTag,
       A1: TypeTag,
@@ -2054,10 +2093,11 @@ object ScalaFunctions {
     StoredProcedure(sp, returnColumn, inputColumns)
   }
 
-  /** Creates a Scala closure of 16 arguments as Stored Procedure function (SProc).
-    * @tparam RT
-    *   return type of UDF.
-    */
+  /**
+   * Creates a Scala closure of 16 arguments as Stored Procedure function (SProc).
+   * @tparam RT
+   *   return type of UDF.
+   */
   def _toSP[
       RT: TypeTag,
       A1: TypeTag,
@@ -2123,10 +2163,11 @@ object ScalaFunctions {
     StoredProcedure(sp, returnColumn, inputColumns)
   }
 
-  /** Creates a Scala closure of 17 arguments as Stored Procedure function (SProc).
-    * @tparam RT
-    *   return type of UDF.
-    */
+  /**
+   * Creates a Scala closure of 17 arguments as Stored Procedure function (SProc).
+   * @tparam RT
+   *   return type of UDF.
+   */
   def _toSP[
       RT: TypeTag,
       A1: TypeTag,
@@ -2196,10 +2237,11 @@ object ScalaFunctions {
     StoredProcedure(sp, returnColumn, inputColumns)
   }
 
-  /** Creates a Scala closure of 18 arguments as Stored Procedure function (SProc).
-    * @tparam RT
-    *   return type of UDF.
-    */
+  /**
+   * Creates a Scala closure of 18 arguments as Stored Procedure function (SProc).
+   * @tparam RT
+   *   return type of UDF.
+   */
   def _toSP[
       RT: TypeTag,
       A1: TypeTag,
@@ -2272,10 +2314,11 @@ object ScalaFunctions {
     StoredProcedure(sp, returnColumn, inputColumns)
   }
 
-  /** Creates a Scala closure of 19 arguments as Stored Procedure function (SProc).
-    * @tparam RT
-    *   return type of UDF.
-    */
+  /**
+   * Creates a Scala closure of 19 arguments as Stored Procedure function (SProc).
+   * @tparam RT
+   *   return type of UDF.
+   */
   def _toSP[
       RT: TypeTag,
       A1: TypeTag,
@@ -2351,10 +2394,11 @@ object ScalaFunctions {
     StoredProcedure(sp, returnColumn, inputColumns)
   }
 
-  /** Creates a Scala closure of 20 arguments as Stored Procedure function (SProc).
-    * @tparam RT
-    *   return type of UDF.
-    */
+  /**
+   * Creates a Scala closure of 20 arguments as Stored Procedure function (SProc).
+   * @tparam RT
+   *   return type of UDF.
+   */
   def _toSP[
       RT: TypeTag,
       A1: TypeTag,
@@ -2434,10 +2478,11 @@ object ScalaFunctions {
     StoredProcedure(sp, returnColumn, inputColumns)
   }
 
-  /** Creates a Scala closure of 21 arguments as Stored Procedure function (SProc).
-    * @tparam RT
-    *   return type of UDF.
-    */
+  /**
+   * Creates a Scala closure of 21 arguments as Stored Procedure function (SProc).
+   * @tparam RT
+   *   return type of UDF.
+   */
   def _toSP[
       RT: TypeTag,
       A1: TypeTag,

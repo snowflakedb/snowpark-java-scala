@@ -219,12 +219,13 @@ object Utils extends Logging {
     res
   }
 
-  /** Parses a stage file location into stageName, path and fileName
-    * @param stageLocation
-    *   a string that represent a file on a stage
-    * @return
-    *   stageName, path and fileName
-    */
+  /**
+   * Parses a stage file location into stageName, path and fileName
+   * @param stageLocation
+   *   a string that represent a file on a stage
+   * @return
+   *   stageName, path and fileName
+   */
   private[snowpark] def parseStageFileLocation(stageLocation: String): (String, String, String) = {
     val normalized = normalizeStageLocation(stageLocation)
     if (stageLocation.endsWith("/")) {
@@ -304,8 +305,9 @@ object Utils extends Logging {
     override def toString: String = this.getClass.getName.split("\\$").last.stripSuffix("$")
   }
 
-  /** Define types of temporary objects that will be created by Snowpark.
-    */
+  /**
+   * Define types of temporary objects that will be created by Snowpark.
+   */
   private[snowpark] object TempObjectType {
     case object Table extends TempObjectType
     case object Stage extends TempObjectType
