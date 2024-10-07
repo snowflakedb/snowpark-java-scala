@@ -404,6 +404,33 @@ class RowSuite extends SNTestBase {
     }
   }
 
+  test("getAs with field name") {
+    val schema =
+      StructType(Seq(StructField("EmpName", StringType), StructField("NumVal", IntegerType)))
+    val df = session.createDataFrame(Seq(Row("abcd", 10), Row("efgh", 20)), schema)
+    val row = df.collect()(0)
+
+    assert(row.getAs[String]("EmpName") == row.getAs[String](0))
+    assert(row.getAs[String]("EmpName").charAt(3) == 'd')
+    assert(row.getAs[Int]("NumVal") == row.getAs[Int](1))
+
+    assert(row.getAs[String]("EMPNAME") == row.getAs[String](0))
+
+    assertThrows[IllegalArgumentException](row.getAs[String]("NonExistingColumn"))
+
+    val rowWithoutSchema = Row(40, "Alice")
+    assertThrows[UnsupportedOperationException](
+      rowWithoutSchema.getAs[Integer]("NonExistingColumn"));
+  }
+
+  test("fieldIndex") {
+    val schema =
+      StructType(Seq(StructField("EmpName", StringType), StructField("NumVal", IntegerType)))
+    assert(schema.fieldIndex("EmpName") == 0)
+    assert(schema.fieldIndex("NumVal") == 1)
+    assertThrows[IllegalArgumentException](schema.fieldIndex("NonExistingColumn"))
+  }
+
   test("hashCode") {
     val row1 = Row(1, 2, 3)
     val row2 = Row("str", null, 3)

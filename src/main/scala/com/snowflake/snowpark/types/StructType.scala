@@ -40,6 +40,10 @@ case class StructType(fields: Array[StructField] = Array())
     extends DataType
     with Seq[StructField] {
 
+  private lazy val fieldPositions = scala.collection.immutable
+    .SortedMap(fields.zipWithIndex.map(tuple => (tuple._1.name -> tuple._2)): _*)(
+      scala.math.Ordering.comparatorToOrdering(String.CASE_INSENSITIVE_ORDER))
+
   /**
    * Returns the total number of [[StructField]]
    * @since 0.1.0
@@ -100,6 +104,20 @@ case class StructType(fields: Array[StructField] = Array())
   def apply(name: String): StructField =
     nameToField(name).getOrElse(
       throw new IllegalArgumentException(s"$name does not exits. Names: ${names.mkString(", ")}"))
+
+  /**
+   * Return the index of the specified field.
+   *
+   * @param fieldName the name of the field.
+   * @return the index of the field with the specified name.
+   * @throws IllegalArgumentException if the given field name does not exist in the schema.
+   * @since 1.15.0
+   */
+  def fieldIndex(fieldName: String): Int = {
+    fieldPositions.getOrElse(
+      fieldName,
+      throw new IllegalArgumentException("Field " + fieldName + " does not exist"))
+  }
 
   protected[snowpark] def toAttributes: Seq[Attribute] = {
     /*
