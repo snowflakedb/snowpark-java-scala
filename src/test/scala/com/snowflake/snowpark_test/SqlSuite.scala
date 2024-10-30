@@ -104,6 +104,37 @@ trait SqlSuite extends SNTestBase {
       new Directory(new File(outputPath)).deleteRecursively()
     }
   }
+
+
+  test("Run sql query with bindings") {
+    val df1 = session.sql("select * from values (?),(?),(?)", List(1, 2, 3))
+    assert(df1.collect() sameElements Array[Row](Row(1), Row(2), Row(3)))
+
+    val df2 =
+      session.sql(
+        "select variance(identifier(?)) from values(1,1),(1,2),(2,1),(2,2),(3,1),(3,2) as T(a, b)",
+        Seq("a"))
+    assert(df2.collect()(0).getDecimal(0).toString == "0.800000")
+
+    val df3 = session
+      .sql("select * from values (?),(?),(?) as T(id)", Seq(1, 2, 3))
+      .filter(col("id") < 3)
+    assert(df3.collect() sameElements Array[Row](Row(1), Row(2)))
+
+    val df4 = session.sql("select * from values (?,?),(?,?),(?,?) as T(a, b)", Seq(1, 1, 2, 1, 3, 1))
+    val df5 = session.sql(
+      "select * from values (?,?),(?,?),(?,?) as T(a, b)",
+      List(1, 2, 2, 1, 4, 3))
+    val df6 = df4.union(df5).filter(col("a") < 3)
+    assert(df6.collect() sameElements Array[Row](Row(1, 1), Row(2, 1), Row(1, 2)))
+
+    val df7 = df4.join(df5, Seq("a", "b"), "inner")
+    assert(df7.collect() sameElements Array[Row](Row(2, 1)))
+
+    // Async result
+    assert(df1.async.collect().getResult() sameElements Array[Row](Row(1), Row(2), Row(3)))
+    assert(df6.async.collect().getResult() sameElements Array[Row](Row(1, 1), Row(2, 1), Row(1, 2)))
+  }
 }
 
 class EagerSqlSuite extends SqlSuite with EagerSession {
@@ -184,6 +215,7 @@ class EagerSqlSuite extends SqlSuite with EagerSession {
     assertThrows[SnowflakeSQLException](session.sql("SHOW TABLE"))
   }
 }
+
 class LazySqlSuite extends SqlSuite with LazySession {
   test("Run sql query") {
     val df1 = session.sql("select * from values (1),(2),(3)")

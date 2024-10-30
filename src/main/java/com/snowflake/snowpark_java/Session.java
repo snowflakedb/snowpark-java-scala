@@ -65,7 +65,22 @@ public class Session {
    * @since 0.8.0
    */
   public DataFrame sql(String query) {
-    return new DataFrame(session.sql(query));
+    return new DataFrame(session.sql(query, JavaUtils.objectArrayToSeq(new Object[0])));
+  }
+
+  /**
+   * Returns a new {@code DataFrame} representing the results of a SQL query.
+   *
+   * <p>You can use this method to execute an arbitrary SQL statement.
+   *
+   * @param query The SQL statement to execute.
+   * @param params The binding parameters for SQL statement (optional)
+   * @return A {@code DataFrame} object
+   * @since 0.8.0
+   */
+  public DataFrame sql(String query, Object... params) {
+    return new DataFrame(
+        session.sql(query, JavaUtils.objectArrayToSeq(params)));
   }
 
   /**

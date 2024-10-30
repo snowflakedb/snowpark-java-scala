@@ -156,4 +156,22 @@ class ServerConnectionSuite extends SNTestBase {
     }
   }
 
+  test("ServerConnection with binding parameters") {
+    val sql = "select * from values (?),(?),(?)"
+    val params = Seq(1, 2, 3)
+
+    val statement = session.conn.connection.prepareStatement(sql)
+    params.zipWithIndex.foreach {
+      case (p, i) => statement.setObject(i + 1, p)
+    }
+
+    val rs = statement.executeQuery()
+    assert(rs.eq(statement.getResultSet))
+    rs.next()
+    assert(rs.getInt(1) == 1)
+    rs.next()
+    assert(rs.getInt(1) == 2)
+    rs.next()
+    assert(rs.getInt(1) == 3)
+  }
 }
