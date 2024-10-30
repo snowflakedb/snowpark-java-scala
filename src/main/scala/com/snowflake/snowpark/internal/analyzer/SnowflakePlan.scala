@@ -292,8 +292,7 @@ class SnowflakePlanBuilder(session: Session) extends Logging {
       selectLeft.queries.slice(0, selectLeft.queries.length - 1) ++
         selectRight.queries.slice(0, selectRight.queries.length - 1) :+ Query(
         sqlGenerator(lastQueryLeft.sql, lastQueryRight.sql),
-        lastQueryLeft.params ++ lastQueryRight.params
-      )
+        lastQueryLeft.params ++ lastQueryRight.params)
     val leftSchemaQuery = schemaValueStatement(selectLeft.attributes)
     val rightSchemaQuery = schemaValueStatement(selectRight.attributes)
     val schemaQuery = sqlGenerator(leftSchemaQuery, rightSchemaQuery)

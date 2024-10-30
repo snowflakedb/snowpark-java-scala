@@ -105,7 +105,6 @@ trait SqlSuite extends SNTestBase {
     }
   }
 
-
   test("Run sql query with bindings") {
     val df1 = session.sql("select * from values (?),(?),(?)", List(1, 2, 3))
     assert(df1.collect() sameElements Array[Row](Row(1), Row(2), Row(3)))
@@ -121,10 +120,10 @@ trait SqlSuite extends SNTestBase {
       .filter(col("id") < 3)
     assert(df3.collect() sameElements Array[Row](Row(1), Row(2)))
 
-    val df4 = session.sql("select * from values (?,?),(?,?),(?,?) as T(a, b)", Seq(1, 1, 2, 1, 3, 1))
-    val df5 = session.sql(
-      "select * from values (?,?),(?,?),(?,?) as T(a, b)",
-      List(1, 2, 2, 1, 4, 3))
+    val df4 =
+      session.sql("select * from values (?,?),(?,?),(?,?) as T(a, b)", Seq(1, 1, 2, 1, 3, 1))
+    val df5 =
+      session.sql("select * from values (?,?),(?,?),(?,?) as T(a, b)", List(1, 2, 2, 1, 4, 3))
     val df6 = df4.union(df5).filter(col("a") < 3)
     assert(df6.collect() sameElements Array[Row](Row(1, 1), Row(2, 1), Row(1, 2)))
 
@@ -133,7 +132,8 @@ trait SqlSuite extends SNTestBase {
 
     // Async result
     assert(df1.async.collect().getResult() sameElements Array[Row](Row(1), Row(2), Row(3)))
-    assert(df6.async.collect().getResult() sameElements Array[Row](Row(1, 1), Row(2, 1), Row(1, 2)))
+    assert(
+      df6.async.collect().getResult() sameElements Array[Row](Row(1, 1), Row(2, 1), Row(1, 2)))
   }
 }
 

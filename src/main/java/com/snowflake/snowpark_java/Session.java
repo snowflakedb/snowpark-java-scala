@@ -79,8 +79,7 @@ public class Session {
    * @since 0.8.0
    */
   public DataFrame sql(String query, Object... params) {
-    return new DataFrame(
-        session.sql(query, JavaUtils.objectArrayToSeq(params)));
+    return new DataFrame(session.sql(query, JavaUtils.objectArrayToSeq(params)));
   }
 
   /**

@@ -288,8 +288,7 @@ private[snowpark] class ServerConnection(
       true,
       false,
       getStatementParameters(isDDLOnTempObject = false, Map.empty),
-      Seq.empty
-    ).rows.get
+      Seq.empty).rows.get
       .map(r =>
         r.getString(0).toLowerCase() + PackageNameDelimiter + r.getString(1).toLowerCase())
       .toSet
@@ -298,7 +297,7 @@ private[snowpark] class ServerConnection(
       statement: PreparedStatement,
       params: Seq[Any]): Unit =
     params.zipWithIndex.foreach {
-        case (p, i) => statement.setObject(i + 1, p)
+      case (p, i) => statement.setObject(i + 1, p)
     }
 
   private[snowflake] def setStatementParameters(
@@ -883,7 +882,8 @@ private[snowpark] class ServerConnection(
         val statement = connection.prepareStatement(multipleStatements)
         try {
           // Note binding parameters only supported for single query
-          val bindingParameters = if (plan.queries.length == 1) plan.queries.last.params else Seq()
+          val bindingParameters =
+            if (plan.queries.length == 1) plan.queries.last.params else Seq()
           val statementParameters = getStatementParameters() +
             ("MULTI_STATEMENT_COUNT" -> plan.queries.size)
           setBindingParameters(statement, bindingParameters)
