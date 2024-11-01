@@ -292,6 +292,7 @@ class SnowflakePlanBuilder(session: Session) extends Logging {
       selectLeft.queries.slice(0, selectLeft.queries.length - 1) ++
         selectRight.queries.slice(0, selectRight.queries.length - 1) :+ Query(
         sqlGenerator(lastQueryLeft.sql, lastQueryRight.sql),
+        false,
         lastQueryLeft.params ++ lastQueryRight.params)
     val leftSchemaQuery = schemaValueStatement(selectLeft.attributes)
     val rightSchemaQuery = schemaValueStatement(selectRight.attributes)
@@ -315,7 +316,10 @@ class SnowflakePlanBuilder(session: Session) extends Logging {
     val queries: Seq[Query] =
       selectChildren
         .map(c => c.queries.slice(0, c.queries.length - 1))
-        .reduce(_ ++ _) :+ Query(sqlGenerator(selectChildren.map(_.queries.last.sql)), params)
+        .reduce(_ ++ _) :+ Query(
+        sqlGenerator(selectChildren.map(_.queries.last.sql)),
+        false,
+        params)
 
     val schemaQueries = children.map(c => schemaValueStatement(c.attributes))
     val schemaQuery = sqlGenerator(schemaQueries)
@@ -329,7 +333,7 @@ class SnowflakePlanBuilder(session: Session) extends Logging {
       sourcePlan: Option[LogicalPlan],
       supportAsyncMode: Boolean = true,
       params: Seq[Any] = Seq.empty): SnowflakePlan =
-    SnowflakePlan(Seq(Query(sql, params)), sql, session, sourcePlan, supportAsyncMode)
+    SnowflakePlan(Seq(Query(sql, false, params)), sql, session, sourcePlan, supportAsyncMode)
 
   def largeLocalRelationPlan(
       output: Seq[Attribute],
@@ -838,19 +842,10 @@ object Query {
   private def placeHolder(): String =
     s"query_id_place_holder_${Random.alphanumeric.take(10).mkString}"
 
-  def apply(sql: String): Query = {
-    new Query(sql, placeHolder(), false, Seq.empty)
-  }
-
-  def apply(sql: String, params: Seq[Any]): Query = {
-    new Query(sql, placeHolder(), false, params)
-  }
-
-  def apply(sql: String, isDDLOnTempObject: Boolean): Query = {
-    new Query(sql, placeHolder(), isDDLOnTempObject, Seq.empty)
-  }
-
-  def apply(sql: String, isDDLOnTempObject: Boolean, params: Seq[Any]): Query = {
+  def apply(
+      sql: String,
+      isDDLOnTempObject: Boolean = false,
+      params: Seq[Any] = Seq.empty): Query = {
     new Query(sql, placeHolder(), isDDLOnTempObject, params)
   }
 

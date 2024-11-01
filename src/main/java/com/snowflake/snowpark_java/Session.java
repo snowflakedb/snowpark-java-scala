@@ -76,7 +76,7 @@ public class Session {
    * @param query The SQL statement to execute.
    * @param params The binding parameters for SQL statement (optional)
    * @return A {@code DataFrame} object
-   * @since 0.8.0
+   * @since 1.15.0
    */
   public DataFrame sql(String query, Object... params) {
     return new DataFrame(session.sql(query, JavaUtils.objectArrayToSeq(params)));

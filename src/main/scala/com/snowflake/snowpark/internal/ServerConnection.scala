@@ -871,7 +871,6 @@ private[snowpark] class ServerConnection(
 
         logDebug(s"""execute plan in async mode:
                    |----------SNOW-----------
-                   |
                    |$plan
                    |-------------------------
                    |""".stripMargin)
@@ -882,8 +881,10 @@ private[snowpark] class ServerConnection(
         val statement = connection.prepareStatement(multipleStatements)
         try {
           // Note binding parameters only supported for single query
-          val bindingParameters =
-            if (plan.queries.length == 1) plan.queries.last.params else Seq()
+          val bindingParameters = plan.queries.map(_.params).flatten
+          if (plan.queries.length > 1 && bindingParameters.length > 0) {
+            throw ErrorMessage.BINDING_PARAMETER_MULTI_STATEMENT_NOT_SUPPORTED
+          }
           val statementParameters = getStatementParameters() +
             ("MULTI_STATEMENT_COUNT" -> plan.queries.size)
           setBindingParameters(statement, bindingParameters)
