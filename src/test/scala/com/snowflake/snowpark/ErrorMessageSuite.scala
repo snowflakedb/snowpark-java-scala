@@ -886,4 +886,11 @@ class ErrorMessageSuite extends FunSuite {
       ex.message.startsWith(
         "Error Code: 0428, Error message: Failed to serialize the query tag into a JSON string."))
   }
+
+  test("BINDING_PARAMETER_MULTI_STATEMENT_NOT_SUPPORTED") {
+    val ex = ErrorMessage.BINDING_PARAMETER_MULTI_STATEMENT_NOT_SUPPORTED()
+    assert(ex.telemetryMessage.equals(ErrorMessage.getMessage("0429")))
+    assert(ex.message.startsWith(
+      "Error Code: 0429, Error message: Binding parameter not supported on multi-statement query."))
+  }
 }

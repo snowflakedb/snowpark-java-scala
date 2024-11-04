@@ -156,4 +156,44 @@ class ServerConnectionSuite extends SNTestBase {
     }
   }
 
+  test("ServerConnection with binding parameters") {
+    val sql = "select * from values (?),(?),(?)"
+    val params = Seq(1, 2, 3)
+
+    val statement = session.conn.connection.prepareStatement(sql)
+    params.zipWithIndex.foreach {
+      case (p, i) => statement.setObject(i + 1, p)
+    }
+
+    val rs = statement.executeQuery()
+    assert(rs.eq(statement.getResultSet))
+    rs.next()
+    assert(rs.getInt(1) == 1)
+    rs.next()
+    assert(rs.getInt(1) == 2)
+    rs.next()
+    assert(rs.getInt(1) == 3)
+
+    // Test multi-statement with binding parameters not supported.implicit class
+    val tableName = randomName()
+    val queries = Seq(
+      Query(s"create or replace temporary table $tableName (c1 int, c2 string)"),
+      Query(
+        s"insert into $tableName values (?, ?), (?, ?)",
+        false,
+        Seq(1, "abc", 123, "dfdffdfdf")),
+      Query("select SYSTEM$WAIT(?)", false, Seq(2)),
+      Query(s"select max(c1) from $tableName"))
+    val plan = new SnowflakePlan(
+      queries,
+      schemaValueStatement(Seq(Attribute("C1", LongType))),
+      Seq(Query(s"drop table if exists $tableName", true)),
+      session,
+      None,
+      supportAsyncMode = true)
+
+    assertThrows[SnowparkClientException] {
+      session.conn.executeAsync(plan)
+    }
+  }
 }
