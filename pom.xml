@@ -44,7 +44,7 @@
         <bouncycastle.version>1.64</bouncycastle.version>
         <scoverage.aggregate>true</scoverage.aggregate>
         <scalaPluginVersion>4.3.0</scalaPluginVersion>
-        <jackson.version>2.13.2</jackson.version>
+        <jackson.version>2.18.0</jackson.version>
         <jackson.databind.version>2.13.4.2</jackson.databind.version>
 
     </properties>
