@@ -1109,16 +1109,14 @@ trait DataFrameSuite extends TestData with BeforeAndAfterEach {
     val flatten = table1.flatten(table1("value"), "", outer = false, recursive = false, "both")
     checkAnswer(
       flatten.select(table1("value"), flatten("value")),
-      Seq(Row("[\n  1,\n  2\n]", "1"), Row("[\n  1,\n  2\n]", "2")),
-      sort = false)
+      Seq(Row("[\n  1,\n  2\n]", "1"), Row("[\n  1,\n  2\n]", "2")))
 
     // multiple flatten
     val flatten1 =
       flatten.flatten(table1("value"), "[0]", outer = true, recursive = true, "array")
     checkAnswer(
       flatten1.select(table1("value"), flatten("value"), flatten1("value")),
-      Seq(Row("[\n  1,\n  2\n]", "1", "1"), Row("[\n  1,\n  2\n]", "2", "1")),
-      sort = false)
+      Seq(Row("[\n  1,\n  2\n]", "1", "1"), Row("[\n  1,\n  2\n]", "2", "1")))
 
     // wrong mode
     assertThrows[SnowparkClientException](
@@ -1128,7 +1126,7 @@ trait DataFrameSuite extends TestData with BeforeAndAfterEach {
     val df = session.sql("show tables").limit(1)
     val df1 = df.withColumn("value", lit("[1,2]")).select(parse_json(col("value")).as("value"))
     val flatten2 = df1.flatten(df1("value"))
-    checkAnswer(flatten2.select(flatten2("value")), Seq(Row("1"), Row("2")), sort = false)
+    checkAnswer(flatten2.select(flatten2("value")), Seq(Row("1"), Row("2")))
 
     // flatten with object traversing
     val table2 = session
@@ -1136,7 +1134,7 @@ trait DataFrameSuite extends TestData with BeforeAndAfterEach {
       .select(parse_json(col("a")).as("a"))
 
     val flatten3 = table2.flatten(table2("a")("a"))
-    checkAnswer(flatten3.select(flatten3("value")), Seq(Row("1"), Row("2")), sort = false)
+    checkAnswer(flatten3.select(flatten3("value")), Seq(Row("1"), Row("2")))
 
     // join
     val df2 = table.flatten(table("a")).select(col("a"), col("value"))
@@ -1144,21 +1142,16 @@ trait DataFrameSuite extends TestData with BeforeAndAfterEach {
 
     checkAnswer(
       df2.join(df3, df2("value") === df3("value")).select(df3("value")),
-      Seq(Row("1"), Row("2")),
-      sort = false)
+      Seq(Row("1"), Row("2")))
 
     // union
-    checkAnswer(
-      df2.union(df3).select(col("value")),
-      Seq(Row("1"), Row("2"), Row("1"), Row("2")),
-      sort = false)
+    checkAnswer(df2.union(df3).select(col("value")), Seq(Row("1"), Row("2"), Row("1"), Row("2")))
   }
 
   test("flatten in session") {
     checkAnswer(
       session.flatten(parse_json(lit("""["a","'"]"""))).select(col("value")),
-      Seq(Row("\"a\""), Row("\"'\"")),
-      sort = false)
+      Seq(Row("\"a\""), Row("\"'\"")))
 
     checkAnswer(
       session
@@ -1181,16 +1174,14 @@ trait DataFrameSuite extends TestData with BeforeAndAfterEach {
     // union
     checkAnswer(
       df1.union(df2).select("path"),
-      Seq(Row("[0]"), Row("[1]"), Row("a[0]"), Row("a[1]")),
-      sort = false)
+      Seq(Row("[0]"), Row("[1]"), Row("a[0]"), Row("a[1]")))
 
     // join
     checkAnswer(
       df1
         .join(df2, df1("value") === df2("value"))
         .select(df1("path").as("path1"), df2("path").as("path2")),
-      Seq(Row("[0]", "a[0]"), Row("[1]", "a[1]")),
-      sort = false)
+      Seq(Row("[0]", "a[0]"), Row("[1]", "a[1]")))
 
   }
 
