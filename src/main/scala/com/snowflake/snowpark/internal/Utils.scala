@@ -49,6 +49,8 @@ object Utils extends Logging {
   val TempObjectNamePattern: String =
     "^SNOWPARK_TEMP_(TABLE|VIEW|STAGE|FUNCTION|TABLE_FUNCTION|FILE_FORMAT|PROCEDURE)_[0-9A-Z]+$"
 
+  val SnowflakePathPrefixes: List[String] = List("@", "snow://", "/")
+
   // Temp object name generation
   val randomGenerator = new Random(System.nanoTime())
   @inline private final val _TEMP_OBJECT_PREFIX: String = "SNOWPARK_TEMP"
@@ -152,7 +154,7 @@ object Utils extends Logging {
 
   def normalizeStageLocation(name: String): String = {
     val trimName = name.trim
-    if (trimName.startsWith("@")) trimName else s"@$trimName"
+    if (SnowflakePathPrefixes.exists(trimName.startsWith(_))) trimName else s"@$trimName"
   }
 
   private def isSingleQuoted(name: String): Boolean =
