@@ -56,11 +56,9 @@ class DataFrameReaderSuite extends SNTestBase {
 
   testReadFile("read csv test")(reader => {
     val testFileOnStage = s"@$tmpStageName/$testFileCsv"
-    val df1 = reader().schema(userSchema).csv(testFileOnStage).collect()
+    val df1 = reader().schema(userSchema).csv(testFileOnStage)
 
-    assert(df1.length == 2)
-    assert(df1(0).length == 3)
-    assert(df1 sameElements Array[Row](Row(1, "one", 1.2), Row(2, "two", 2.2)))
+    checkAnswer(df1, Array[Row](Row(1, "one", 1.2), Row(2, "two", 2.2)))
 
     assertThrows[SnowparkClientException](session.read.csv(testFileOnStage))
 
@@ -88,7 +86,7 @@ class DataFrameReaderSuite extends SNTestBase {
         StructField("c", IntegerType),
         StructField("d", IntegerType)))
     val df = session.read.schema(incorrectSchema2).csv(testFileOnStage)
-    assert(df.collect() sameElements Array[Row](Row(1, "one", 1, null), Row(2, "two", 2, null)))
+    checkAnswer(df, Array[Row](Row(1, "one", 1, null), Row(2, "two", 2, null)))
   }
 
   test("read csv, incorrect schema - COPY") {
@@ -114,34 +112,28 @@ class DataFrameReaderSuite extends SNTestBase {
     // test for self union
     val df = session.read.schema(userSchema).csv(testFileOnStage)
     val df2 = df.union(df)
-    assert(df2.collect() sameElements Array[Row](Row(1, "one", 1.2), Row(2, "two", 2.2)))
+    checkAnswer(df2, Array[Row](Row(1, "one", 1.2), Row(2, "two", 2.2)))
     val df22 = df.unionAll(df)
-    assert(
-      df22.collect() sameElements Array[Row](
-        Row(1, "one", 1.2),
-        Row(2, "two", 2.2),
-        Row(1, "one", 1.2),
-        Row(2, "two", 2.2)))
+    checkAnswer(
+      df22,
+      Array[Row](Row(1, "one", 1.2), Row(2, "two", 2.2), Row(1, "one", 1.2), Row(2, "two", 2.2)))
 
     // test for union between two stages
     val testFileOnStage2 = s"@$tmpStageName2/$testFileCsv"
     val df3 = session.read.schema(userSchema).csv(testFileOnStage2)
     val df4 = df.union(df3)
-    assert(df4.collect() sameElements Array[Row](Row(1, "one", 1.2), Row(2, "two", 2.2)))
+    checkAnswer(df4, Array[Row](Row(1, "one", 1.2), Row(2, "two", 2.2)))
     val df44 = df.unionAll(df3)
-    assert(
-      df44.collect() sameElements Array[Row](
-        Row(1, "one", 1.2),
-        Row(2, "two", 2.2),
-        Row(1, "one", 1.2),
-        Row(2, "two", 2.2)))
+    checkAnswer(
+      df44,
+      Array[Row](Row(1, "one", 1.2), Row(2, "two", 2.2), Row(1, "one", 1.2), Row(2, "two", 2.2)))
   }
 
   testReadFile("read csv with formatTypeOptions")(reader => {
     val testFileColon = s"@$tmpStageName/$testFileCsvColon"
     val options = Map("field_delimiter" -> "';'", "skip_blank_lines" -> true, "skip_header" -> 1)
     val df1 = reader().schema(userSchema).options(options).csv(testFileColon)
-    assert(df1.collect() sameElements Array[Row](Row(1, "one", 1.2), Row(2, "two", 2.2)))
+    checkAnswer(df1, Array[Row](Row(1, "one", 1.2), Row(2, "two", 2.2)))
 
     // test when user does not input a right option
     val df2 = reader().schema(userSchema).csv(testFileColon)
@@ -156,21 +148,19 @@ class DataFrameReaderSuite extends SNTestBase {
       .option("COMPRESSION", "NONE")
       .option("skip_header", 1)
       .csv(testFileColon)
-    assert(df3.collect() sameElements Array[Row](Row(1, "one", 1.2), Row(2, "two", 2.2)))
+    checkAnswer(df3, Array[Row](Row(1, "one", 1.2), Row(2, "two", 2.2)))
 
     // test for union between files with different schema and different stage
     val testFileOnStage2 = s"@$tmpStageName2/$testFileCsv"
     val df4 = reader().schema(userSchema).csv(testFileOnStage2)
     val df5 = df1.unionAll(df4)
-    assert(
-      df5.collect() sameElements Array[Row](
-        Row(1, "one", 1.2),
-        Row(2, "two", 2.2),
-        Row(1, "one", 1.2),
-        Row(2, "two", 2.2)))
+    checkAnswer(
+      df5,
+      Array[Row](Row(1, "one", 1.2), Row(2, "two", 2.2), Row(1, "one", 1.2), Row(2, "two", 2.2)))
 
     val df6 = df1.union(df4)
-    assert(df6.collect() sameElements Array[Row](Row(1, "one", 1.2), Row(2, "two", 2.2)))
+
+    checkAnswer(df6, Array[Row](Row(1, "one", 1.2), Row(2, "two", 2.2)))
   })
 
   // Compression is not supported in file uploads from stored procs
