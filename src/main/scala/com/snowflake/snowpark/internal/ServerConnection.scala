@@ -484,6 +484,11 @@ private[snowpark] class ServerConnection(
       var statement: PreparedStatement = null
       try {
         statement = connection.prepareStatement(query)
+
+        connection.createStatement().executeQuery("text")
+
+        // connection.createSnowparkStatement.executeQuery(ProtoBuf)
+
         setBindingParameters(statement, params)
         setStatementParameters(statement, statementParameters)
         val rs = statement.executeQuery()
