@@ -17,5 +17,7 @@ lazy val root = (project in file("."))
       "com.github.sbt" % "junit-interface" % "0.13.3" % Test,
       "org.mockito" % "mockito-core" % "2.23.0" % Test,
       "org.scalatest" %% "scalatest" % "3.2.19" % Test,
-    )
+    ),
+    scalafmtOnCompile := true,
+    javafmtOnCompile := true
   )
