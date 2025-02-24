@@ -8,6 +8,9 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./v2
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -17,5 +20,4 @@ jobs:
           distribution: temurin
           java-version: 8
       - name: Check Format
-        working-directory: ./v2
         run: scripts/format_checker.sh
