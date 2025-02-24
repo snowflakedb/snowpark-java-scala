@@ -1,5 +1,3 @@
 package com.snowflake.snowpark
 
-class TestBase {
-
-}
+class TestBase {}
