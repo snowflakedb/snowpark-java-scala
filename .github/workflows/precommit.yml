@@ -7,7 +7,7 @@ on:
 
 jobs:
   build:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     defaults:
       run:
         working-directory: ./v2
@@ -23,7 +23,5 @@ jobs:
         run: scripts/decrypt_profile.sh
         env:
           PROFILE_PASSWORD: ${{ secrets.PROFILE_PASSWORD }}
-      - name: Setup SBT
-        uses: sbt/setup-sbt@v1
       - name: Run test
         run: sbt test

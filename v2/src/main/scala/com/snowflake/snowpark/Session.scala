@@ -1,5 +1,3 @@
 package com.snowflake.snowpark
 
-class Session {
-
-}
+class Session {}
