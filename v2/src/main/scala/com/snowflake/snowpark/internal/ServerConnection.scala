@@ -36,6 +36,8 @@ private[snowpark] object ServerConnection {
     }
 }
 
+private[snowpark] case class QueryResult()
+
 trait ServerConnection {
   protected val configs: Map[String, String]
   val isScalaAPI: Boolean
@@ -63,6 +65,13 @@ trait ServerConnection {
       additionalParameters: Map[String, Any] = Map.empty): Map[String, Any]
 
   /**
+   * List all available java/scala packages on the Snowflake server.
+   * @return
+   *   A Set of package names
+   */
+  def listServerPackages: Set[String]
+
+  /**
    * Run sql query and return the queryID when the caller doesn't need the result set.
    * @param query
    *   Sql text
@@ -79,6 +88,38 @@ trait ServerConnection {
       isDdlOnTempObject: Boolean = false,
       statementParameters: Map[String, Any] = Map.empty,
       params: Seq[Any] = Seq.empty): String
+
+  /**
+   * Execute the given query and fetch the query result.
+   *
+   * If the caller needs to get Iterator[Row], the internal JDBC ResultSet and Statement will NOT be
+   * closed.
+   *
+   * If the caller needs to get Array[Row], the internal JDBC ResultSet and Statement will be
+   * closed.
+   *
+   * If the caller doesn't need Array[Row] and Iterator[Row], the internal JDBC ResultSet and
+   * Statement will be closed.
+   *
+   * @param query
+   *   A Sql text.
+   * @param returnRowArray
+   *   Whether the result contains Array of Rows or not.
+   * @param returnRowIterator
+   *   Whether the result contains Iterator of Rows or not.
+   * @param statementParameters
+   *   A list of statement parameters.
+   * @param params
+   *   A list of SQL Bind variables
+   * @return
+   *   The query result.
+   */
+  def runQueryAndGetResult(
+      query: String,
+      returnRowArray: Boolean,
+      returnRowIterator: Boolean,
+      statementParameters: Map[String, Any],
+      params: Seq[Any]): QueryResult
 
   /**
    * Fetch the value of the given session parameter. There are three ways to get a parameter and
@@ -161,6 +202,8 @@ class JDBCServerConnection(
       (if (isDdlOnTempObject) Map("SNOWPARK_SKIP_TXN_COMMIT_IN_DDL" -> true)
        else Map()) ++ additionalParameters
 
+  override def listServerPackages: Set[String] = Set.empty
+
   override def runQuery(
       query: String,
       isDdlOnTempObject: Boolean,
@@ -171,5 +214,12 @@ class JDBCServerConnection(
       parameterName: String,
       skipActiveRead: Boolean,
       defaultValue: Option[String]): String = { "" }
+
+  override def runQueryAndGetResult(
+      query: String,
+      returnRowArray: Boolean,
+      returnRowIterator: Boolean,
+      statementParameters: Map[String, Any],
+      params: Seq[Any]): QueryResult = QueryResult()
 
 }
