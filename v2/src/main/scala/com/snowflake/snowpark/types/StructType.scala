@@ -27,12 +27,11 @@ object StructType {
 
 /**
  * StructType data type, represents table schema.
- * @constructor Creates a new [[StructType]] object based on the given array of [[StructField]].
+ * @constructor
+ *   Creates a new [[StructType]] object based on the given array of [[StructField]].
  * @since 0.1.0
  */
-case class StructType(fields: Array[StructField] = Array())
-  extends DataType
-    with Seq[StructField] {
+case class StructType(fields: Array[StructField] = Array()) extends DataType with Seq[StructField] {
 
   private lazy val fieldPositions = scala.collection.immutable
     .SortedMap(fields.zipWithIndex.map(tuple => (tuple._1.name -> tuple._2)): _*)(
@@ -102,9 +101,12 @@ case class StructType(fields: Array[StructField] = Array())
   /**
    * Return the index of the specified field.
    *
-   * @param fieldName the name of the field.
-   * @return the index of the field with the specified name.
-   * @throws IllegalArgumentException if the given field name does not exist in the schema.
+   * @param fieldName
+   *   the name of the field.
+   * @return
+   *   the index of the field with the specified name.
+   * @throws IllegalArgumentException
+   *   if the given field name does not exist in the schema.
    * @since 1.15.0
    */
   def fieldIndex(fieldName: String): Int = {
@@ -155,9 +157,9 @@ object StructField {
  * @since 0.1.0
  */
 case class StructField(
-                        columnIdentifier: ColumnIdentifier,
-                        dataType: DataType,
-                        nullable: Boolean = true) {
+    columnIdentifier: ColumnIdentifier,
+    dataType: DataType,
+    nullable: Boolean = true) {
 
   /**
    * Returns the column name.
@@ -184,15 +186,14 @@ case class StructField(
 }
 
 /**
- *  Constructors and Util functions of ColumnIdentifier
- *  @since 0.1.0
+ * Constructors and Util functions of ColumnIdentifier
+ * @since 0.1.0
  */
 object ColumnIdentifier {
 
   /**
-   * Creates a [[ColumnIdentifier]] object for the giving column name.
-   * Identifier Requirement can be found from
-   * https://docs.snowflake.com/en/sql-reference/identifiers-syntax.html
+   * Creates a [[ColumnIdentifier]] object for the giving column name. Identifier Requirement can be
+   * found from https://docs.snowflake.com/en/sql-reference/identifiers-syntax.html
    * @since 0.1.0
    */
   def apply(name: String): ColumnIdentifier =
@@ -201,8 +202,8 @@ object ColumnIdentifier {
   /**
    * Removes the unnecessary quotes from name
    *
-   * Remove quotes if name starts with _A-Z and only contains _0-9A-Z$, or
-   * starts with $ and follows by digits
+   * Remove quotes if name starts with _A-Z and only contains _0-9A-Z$, or starts with $ and follows
+   * by digits
    * @since 0.1.0
    */
   private def stripUnnecessaryQuotes(str: String): String = {
@@ -221,16 +222,13 @@ object ColumnIdentifier {
 class ColumnIdentifier private (normalizedName: String) {
 
   /**
-   * Returns the name of column.
-   * Name format:
-   * 1. if the name quoted.
-   *   a. starts with _A-Z and follows by _A-Z0-9$: remove quotes
-   *   b. starts with $ and follows by digits: remove quotes
-   *   c. otherwise, do nothing
-   * 2. if not quoted.
-   *   a. starts with _a-zA-Z and follows by _a-zA-Z0-9$, upper case all letters.
-   *   b. starts with $ and follows by digits, do nothing
-   *   c. otherwise, quote name
+   * Returns the name of column. Name format:
+   *   1. if the name quoted.
+   *      a. starts with _A-Z and follows by _A-Z0-9$: remove quotes b. starts with $ and follows by
+   *         digits: remove quotes c. otherwise, do nothing
+   *      2. if not quoted.
+   *      a. starts with _a-zA-Z and follows by _a-zA-Z0-9$, upper case all letters. b. starts with
+   *         $ and follows by digits, do nothing c. otherwise, quote name
    *
    * More details can be found from
    * https://docs.snowflake.com/en/sql-reference/identifiers-syntax.html
@@ -239,16 +237,13 @@ class ColumnIdentifier private (normalizedName: String) {
   val name: String = ColumnIdentifier.stripUnnecessaryQuotes(normalizedName)
 
   /**
-   * Returns the quoted name of this column
-   * Name Format:
-   * 1. if quoted, do nothing
-   * 2. if not quoted.
-   *   a. starts with _a-zA-Z and follows by _a-zA-Z0-9$, upper case all letters
-   *     and then quote
-   *   b. otherwise, quote name
+   * Returns the quoted name of this column Name Format:
+   *   1. if quoted, do nothing 2. if not quoted.
+   *      a. starts with _a-zA-Z and follows by _a-zA-Z0-9$, upper case all letters and then quote
+   *         b. otherwise, quote name
    *
-   * It is same as [[name]], but quotes always added.
-   * It is always safe to do String comparisons between quoted column names
+   * It is same as [[name]], but quotes always added. It is always safe to do String comparisons
+   * between quoted column names
    * @since 0.1.0
    */
   def quotedName: String = normalizedName
@@ -266,8 +261,8 @@ class ColumnIdentifier private (normalizedName: String) {
   override def hashCode(): Int = normalizedName.hashCode
 
   /**
-   * Compares this [[ColumnIdentifier]] with the giving one, returns true if these
-   * two are equivalent, otherwise, returns false.
+   * Compares this [[ColumnIdentifier]] with the giving one, returns true if these two are
+   * equivalent, otherwise, returns false.
    * @since 0.1.0
    */
   override def equals(obj: Any): Boolean =
@@ -282,4 +277,3 @@ class ColumnIdentifier private (normalizedName: String) {
    */
   override def toString: String = name
 }
-

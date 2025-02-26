@@ -2,6 +2,9 @@ package com.snowflake.snowpark_test
 
 import com.snowflake.snowpark.UnitTestBase
 import com.snowflake.snowpark.types._
+import org.mockito.Mockito
+
+import java.io.UncheckedIOException
 
 class DataTypeSuite extends UnitTestBase {
 
@@ -159,5 +162,65 @@ class DataTypeSuite extends UnitTestBase {
 
     assert(column1.hashCode() == column3.hashCode())
     assert(column1.clone() == column2)
+  }
+
+  test("ArrayType") {
+    val arrayType1 = ArrayType(IntegerType)
+    val arrayType2 = ArrayType(StringType)
+    assert(arrayType1.isInstanceOf[DataType])
+    assert(arrayType1.elementType == IntegerType)
+    assert(arrayType2.elementType == StringType)
+    assert(arrayType1.schemaString == "Array")
+    assert(arrayType2.toString == "ArrayType[String]")
+  }
+
+  test("DecimalType Object") {
+    val mockedBigDec = Mockito.mock(classOf[java.math.BigDecimal])
+    // case 1:  precision < scale
+    val scale1 = 2
+    val precision1 = 1
+    Mockito.when(mockedBigDec.precision()).thenReturn(precision1)
+    Mockito.when(mockedBigDec.scale()).thenReturn(scale1)
+    val dec1 = DecimalType(mockedBigDec)
+    assert(dec1.scale==scale1)
+    assert(dec1.precision==scale1)
+
+    // case 2: scale < 0
+    val scale2 = -1
+    Mockito.when(mockedBigDec.scale()).thenReturn(scale2)
+    val dec2 = DecimalType(mockedBigDec)
+    assert(dec2.precision == precision1 - scale2)
+    assert(dec2.scale == 0)
+
+    // case 3: other
+    val scale3 = 10
+    val precision3 = 13
+    Mockito.when(mockedBigDec.precision()).thenReturn(precision3)
+    Mockito.when(mockedBigDec.scale()).thenReturn(scale3)
+    val dec3 = DecimalType(mockedBigDec)
+    assert(dec3.scale == scale3)
+    assert(dec3.precision == precision3)
+
+  }
+
+  test("Geography") {
+    assert(GeographyType.isInstanceOf[DataType])
+    assert(GeographyType.toString == "GeographyType")
+    assert(GeographyType.schemaString == "Geography")
+
+    val ex = intercept[UncheckedIOException](Geography.fromGeoJSON(null))
+    assert(ex.getMessage.contains("Cannot create geography object from null input"))
+
+    val testStr = "dummy"
+    val geography = Geography.fromGeoJSON(testStr)
+
+    assert(geography == Geography.fromGeoJSON("dummy"))
+    assert(geography != Geography.fromGeoJSON("dummy1"))
+    assert(geography.asInstanceOf[Object] != "dummy".asInstanceOf[Object])
+    assert(geography.hashCode() == testStr.hashCode)
+    assert(geography.toString == testStr)
+    assert(geography.asGeoJSON() == testStr)
+    assert(geography.getString == testStr)
+
   }
 }

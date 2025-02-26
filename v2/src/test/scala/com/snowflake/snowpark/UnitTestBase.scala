@@ -1,6 +1,3 @@
 package com.snowflake.snowpark
 
-
-trait UnitTestBase extends CommonTestBase {
-
-}
+trait UnitTestBase extends CommonTestBase {}

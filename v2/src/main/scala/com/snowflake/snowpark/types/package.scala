@@ -11,7 +11,7 @@ package object types {
       case alreadyQuoted(n) => validateQuotedName(n)
       case unquotedCaseInsenstive(n) =>
         // scalastyle:off caselocale
-         doubleQuoteName(escapeQuotes(n.toUpperCase))
+        doubleQuoteName(escapeQuotes(n.toUpperCase))
       // scalastyle:on caselocale
       case n => doubleQuoteName(escapeQuotes(n))
     }

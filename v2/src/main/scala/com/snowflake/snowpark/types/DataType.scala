@@ -1,6 +1,5 @@
 package com.snowflake.snowpark.types
 
-
 /**
  * The trait of Snowpark data types
  *
@@ -62,30 +61,25 @@ private[snowpark] object StructuredArrayType {
 }
 
 /**
- * Binary data type.
- * Mapped to BINARY Snowflake data type.
+ * Binary data type. Mapped to BINARY Snowflake data type.
  * @since 0.1.0
  */
 object BinaryType extends AtomicType
 
 /**
- * Boolean data type.
- * Mapped to BOOLEAN Snowflake data type.
+ * Boolean data type. Mapped to BOOLEAN Snowflake data type.
  * @since 0.1.0
  */
 object BooleanType extends AtomicType
 
-
 /**
- * Date data type.
- * Mapped to DATE Snowflake data type.
+ * Date data type. Mapped to DATE Snowflake data type.
  * @since 0.1.0
  */
 object DateType extends AtomicType
 
 /**
- * Map data type.
- * This maps to OBJECT data type in Snowflake.
+ * Map data type. This maps to OBJECT data type in Snowflake.
  * @since 0.1.0
  */
 case class MapType(keyType: DataType, valueType: DataType) extends DataType {
@@ -98,10 +92,10 @@ case class MapType(keyType: DataType, valueType: DataType) extends DataType {
 }
 
 private[snowpark] class StructuredMapType(
-                                           override val keyType: DataType,
-                                           override val valueType: DataType,
-                                           val isValueNullable: Boolean)
-  extends MapType(keyType, valueType) {
+    override val keyType: DataType,
+    override val valueType: DataType,
+    val isValueNullable: Boolean)
+    extends MapType(keyType, valueType) {
   override def toString: String = {
     s"MapType[${keyType.toString}, ${valueType.toString} nullable = $isValueNullable]"
   }
@@ -121,50 +115,43 @@ private[snowpark] abstract class IntegralType extends NumericType
 private[snowpark] abstract class FractionalType extends NumericType
 
 /**
- * Byte data type.
- * Mapped to TINYINT Snowflake date type.
+ * Byte data type. Mapped to TINYINT Snowflake date type.
  * @since 0.1.0
  */
 object ByteType extends IntegralType
 
 /**
- * Short integer data type.
- * Mapped to SMALLINT Snowflake date type.
+ * Short integer data type. Mapped to SMALLINT Snowflake date type.
  * @since 0.1.0
  */
 object ShortType extends IntegralType
 
 /**
- * Integer data type.
- * Mapped to INT Snowflake date type.
+ * Integer data type. Mapped to INT Snowflake date type.
  * @since 0.1.0
  */
 object IntegerType extends IntegralType
 
 /**
- * Long integer data type.
- * Mapped to BIGINT Snowflake date type.
+ * Long integer data type. Mapped to BIGINT Snowflake date type.
  * @since 0.1.0
  */
 object LongType extends IntegralType
 
 /**
- * Float data type.
- * Mapped to FLOAT Snowflake date type.
+ * Float data type. Mapped to FLOAT Snowflake date type.
  * @since 0.1.0
  */
 object FloatType extends FractionalType
 
 /**
- * Double data type.
- * Mapped to DOUBLE Snowflake date type.
+ * Double data type. Mapped to DOUBLE Snowflake date type.
  * @since 0.1.0
  */
 object DoubleType extends FractionalType
 
 /**
- * Decimal data type.
- * Mapped to NUMBER Snowflake date type.
+ * Decimal data type. Mapped to NUMBER Snowflake date type.
  * @since 0.1.0
  */
 case class DecimalType(precision: Int, scale: Int) extends FractionalType {
@@ -212,26 +199,20 @@ object DecimalType {
 }
 
 /**
- * String data type.
- * Mapped to VARCHAR Snowflake data type.
+ * String data type. Mapped to VARCHAR Snowflake data type.
  * @since 0.1.0
  */
 object StringType extends AtomicType
 
-
 /**
- * Timestamp data type.
- * Mapped to TIMESTAMP Snowflake data type.
+ * Timestamp data type. Mapped to TIMESTAMP Snowflake data type.
  * @since 0.1.0
  */
 object TimestampType extends AtomicType
 
 /**
- * Time data type.
- * Mapped to TIME Snowflake data type.
+ * Time data type. Mapped to TIME Snowflake data type.
  *
  * @since 0.2.0
  */
 object TimeType extends AtomicType
-
-

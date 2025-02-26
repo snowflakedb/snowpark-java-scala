@@ -75,8 +75,8 @@ private[snowpark] object Variant {
  * @since 0.2.0
  */
 class Variant private[snowpark] (
-                                  private[snowpark] val value: JsonNode,
-                                  private[snowpark] val dataType: VariantT) {
+    private[snowpark] val value: JsonNode,
+    private[snowpark] val dataType: VariantT) {
 
   /**
    * Creates a Variant from double value
@@ -155,8 +155,8 @@ class Variant private[snowpark] (
   def this(bool: Boolean) = this(JsonNodeFactory.instance.booleanNode(bool), VariantTypes.Boolean)
 
   /**
-   * Creates a Variant from String value. By default string is parsed as Json.
-   * If the parsing failed, the string is stored as text.
+   * Creates a Variant from String value. By default string is parsed as Json. If the parsing
+   * failed, the string is stored as text.
    *
    * @since 0.2.0
    */
@@ -215,11 +215,13 @@ class Variant private[snowpark] (
    * @since 0.6.0
    */
   def this(seq: Seq[Any]) =
-    this({
-      val arr = MAPPER.createArrayNode()
-      seq.foreach(obj => arr.add(objectToJsonNode(obj)))
-      arr
-    }, VariantTypes.String)
+    this(
+      {
+        val arr = MAPPER.createArrayNode()
+        seq.foreach(obj => arr.add(objectToJsonNode(obj)))
+        arr
+      },
+      VariantTypes.String)
 
   /**
    * Creates a Variant from Java List
@@ -256,8 +258,8 @@ class Variant private[snowpark] (
             arr
           case map: JavaMap[Object, Object] => mapToNode(map)
           case map: Map[_, _] =>
-            mapToNode(map.map {
-              case (key, value) => key.asInstanceOf[Object] -> value.asInstanceOf[Object]
+            mapToNode(map.map { case (key, value) =>
+              key.asInstanceOf[Object] -> value.asInstanceOf[Object]
             }.asJava)
           case _ => MAPPER.valueToTree(obj.asInstanceOf[Object])
         }
@@ -382,8 +384,8 @@ class Variant private[snowpark] (
 
   /**
    * Return the variant value as a JsonNode. This function allows to read the JSON object directly
-   * as JsonNode from variant column rather parsing it as String
-   * Example - to get the first value from array for key "a"
+   * as JsonNode from variant column rather parsing it as String Example - to get the first value
+   * from array for key "a"
    * {{{
    *   val sv = new Variant("{\"a\": [1, 2], \"b\": 3, \"c\": \"xyz\"}")
    *   println(sv.asJsonNode().get("a").get(0))
@@ -411,8 +413,9 @@ class Variant private[snowpark] (
         } catch {
           case _: Exception =>
             throw new UncheckedIOException(
-              new IOException(s"Failed to convert ${value.asText()} to Binary. " +
-                "Only Hex string is supported."))
+              new IOException(
+                s"Failed to convert ${value.asText()} to Binary. " +
+                  "Only Hex string is supported."))
         }
     }
   }
@@ -519,10 +522,8 @@ class Variant private[snowpark] (
     }
 }
 
-
 /**
- * Variant data type.
- * This maps to VARIANT data type in Snowflake.
+ * Variant data type. This maps to VARIANT data type in Snowflake.
  * @since 0.1.0
  */
 object VariantType extends DataType
