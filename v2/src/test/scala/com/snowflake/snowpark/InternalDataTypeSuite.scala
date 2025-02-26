@@ -29,5 +29,18 @@ class InternalDataTypeSuite extends UnitTestBase {
     assert(GeometryType.schemaString == "Geometry")
     assert(GeographyType.schemaString == "Geography")
     assert(StructType().schemaString == "Struct")
+    assert(VariantType.schemaString == "Variant")
+  }
+
+  test("StructuredArray") {
+    val arr1 = StructuredArrayType(IntegerType, nullable = false)
+    assert(arr1.isInstanceOf[ArrayType])
+    assert(arr1.toString == "ArrayType[Integer nullable = false]")
+  }
+
+  test("StructuredMap") {
+    val map1 = StructuredMapType(StringType, IntegerType, isValueType = true)
+    assert(map1.isInstanceOf[MapType])
+    assert(map1.toString == "MapType[String, Integer nullable = true]")
   }
 }
