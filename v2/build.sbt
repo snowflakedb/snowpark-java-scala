@@ -17,11 +17,11 @@ lazy val root = (project in file("."))
       "com.fasterxml.jackson.core" % "jackson-databind" % jacksonVersion,
       "com.fasterxml.jackson.core" % "jackson-core" % jacksonVersion,
       "com.fasterxml.jackson.core" % "jackson-annotations" % jacksonVersion,
-      "com.fasterxml.jackson.module" %% "jackson-module-scala" % jacksonVersion,
       "commons-codec" % "commons-codec" % "1.18.0",
       // Tests
       "com.github.sbt" % "junit-interface" % "0.13.3" % Test,
       "org.mockito" % "mockito-core" % "5.15.2" % Test,
       "org.scalatest" %% "scalatest" % "3.2.19" % Test),
+    coverageEnabled := true,
     scalafmtOnCompile := true,
     javafmtOnCompile := true)
