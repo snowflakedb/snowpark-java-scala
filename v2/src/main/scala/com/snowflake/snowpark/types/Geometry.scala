@@ -72,5 +72,5 @@ object GeometryType extends DataType {
     s"GeometryType"
   }
 
-  override def schemaString: String = s"Geometry"
+  override private[snowpark] def schemaString: String = s"Geometry"
 }

@@ -170,7 +170,6 @@ class DataTypeSuite extends UnitTestBase {
     assert(arrayType1.isInstanceOf[DataType])
     assert(arrayType1.elementType == IntegerType)
     assert(arrayType2.elementType == StringType)
-    assert(arrayType1.schemaString == "Array")
     assert(arrayType2.toString == "ArrayType[String]")
   }
 
@@ -206,7 +205,6 @@ class DataTypeSuite extends UnitTestBase {
   test("Geography") {
     assert(GeographyType.isInstanceOf[DataType])
     assert(GeographyType.toString == "GeographyType")
-    assert(GeographyType.schemaString == "Geography")
 
     val ex = intercept[UncheckedIOException](Geography.fromGeoJSON(null))
     assert(ex.getMessage.contains("Cannot create geography object from null input"))
@@ -222,5 +220,29 @@ class DataTypeSuite extends UnitTestBase {
     assert(geography.asGeoJSON() == testStr)
     assert(geography.getString == testStr)
 
+  }
+
+  test("Geometry") {
+    assert(GeometryType.isInstanceOf[DataType])
+    assert(GeometryType.toString == "GeometryType")
+
+    val ex = intercept[UncheckedIOException](Geometry.fromGeoJSON(null))
+    assert(ex.getMessage.contains("Cannot create geometry object from null input"))
+
+    val testStr = "dummy"
+    val geometry = Geometry.fromGeoJSON(testStr)
+
+    assert(geometry == Geometry.fromGeoJSON("dummy"))
+    assert(geometry != Geometry.fromGeoJSON("dummy1"))
+    assert(geometry.asInstanceOf[Object] != "dummy".asInstanceOf[Object])
+    assert(geometry.hashCode() == testStr.hashCode)
+    assert(geometry.toString == testStr)
+
+  }
+
+  test("MapType") {
+    val map1 = MapType(IntegerType, StringType)
+    assert(map1.isInstanceOf[DataType])
+    assert(map1.toString == "MapType[Integer, String]")
   }
 }

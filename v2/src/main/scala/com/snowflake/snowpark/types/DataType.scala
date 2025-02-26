@@ -34,7 +34,7 @@ case class ArrayType(elementType: DataType) extends DataType {
     s"ArrayType[${elementType.toString}]"
   }
 
-  override def schemaString: String =
+  override private[snowpark] def schemaString: String =
     s"Array"
 }
 
@@ -50,7 +50,7 @@ private[snowpark] class StructuredArrayType(
     s"ArrayType[${elementType.toString} nullable = $nullable]"
   }
 
-  override def schemaString: String =
+  override private[snowpark] def schemaString: String =
     s"Array[${elementType.schemaString} nullable = $nullable]"
 }
 
@@ -87,8 +87,7 @@ case class MapType(keyType: DataType, valueType: DataType) extends DataType {
     s"MapType[${keyType.toString}, ${valueType.toString}]"
   }
 
-  override private[snowpark] def schemaString =
-    s"Map"
+  override private[snowpark] def schemaString: String = s"Map"
 }
 
 private[snowpark] class StructuredMapType(

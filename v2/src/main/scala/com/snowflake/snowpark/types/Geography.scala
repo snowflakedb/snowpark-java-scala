@@ -91,5 +91,5 @@ object GeographyType extends DataType {
     s"GeographyType"
   }
 
-  override def schemaString: String = s"Geography"
+  override private[snowpark] def schemaString: String = s"Geography"
 }
