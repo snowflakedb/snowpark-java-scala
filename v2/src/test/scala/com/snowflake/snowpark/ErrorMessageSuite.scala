@@ -3,7 +3,7 @@ package com.snowflake.snowpark
 import com.snowflake.snowpark.internal.ErrorMessage
 import org.scalatest.funsuite.AnyFunSuite
 
-class ErrorMessageSuite extends AnyFunSuite {
+class ErrorMessageSuite extends UnitTestBase {
 
   test("INTERNAL_TEST_MESSAGE") {
     val ex = ErrorMessage.INTERNAL_TEST_MESSAGE("my message: '%d $'")
