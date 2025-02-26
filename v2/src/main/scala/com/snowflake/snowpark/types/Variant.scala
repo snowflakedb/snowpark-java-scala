@@ -22,7 +22,7 @@ private[snowpark] object Variant {
     }
   }
 
-  private object VariantTypes {
+  object VariantTypes {
     object RealNumber extends VariantT
 
     object FixedNumber extends VariantT

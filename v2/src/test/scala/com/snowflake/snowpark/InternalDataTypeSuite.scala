@@ -43,4 +43,23 @@ class InternalDataTypeSuite extends UnitTestBase {
     assert(map1.isInstanceOf[MapType])
     assert(map1.toString == "MapType[String, Integer nullable = true]")
   }
+
+  test("Decimal") {
+    assert(DecimalType.MAX_SCALE == 38)
+    assert(DecimalType.MAX_PRECISION == 38)
+  }
+
+  test("Variant") {
+    assert(Variant.VariantTypes.getType("RealNumber") == Variant.VariantTypes.RealNumber)
+    assert(Variant.VariantTypes.getType("FixedNumber") == Variant.VariantTypes.FixedNumber)
+    assert(Variant.VariantTypes.getType("Boolean") == Variant.VariantTypes.Boolean)
+    assert(Variant.VariantTypes.getType("String") == Variant.VariantTypes.String)
+    assert(Variant.VariantTypes.getType("Binary") == Variant.VariantTypes.Binary)
+    assert(Variant.VariantTypes.getType("Time") == Variant.VariantTypes.Time)
+    assert(Variant.VariantTypes.getType("Date") == Variant.VariantTypes.Date)
+    assert(Variant.VariantTypes.getType("Timestamp") == Variant.VariantTypes.Timestamp)
+    assert(Variant.VariantTypes.getType("Array") == Variant.VariantTypes.Array)
+    assert(Variant.VariantTypes.getType("Object") == Variant.VariantTypes.Object)
+    intercept[Exception] { Variant.VariantTypes.getType("not_exist_type") }
+  }
 }
