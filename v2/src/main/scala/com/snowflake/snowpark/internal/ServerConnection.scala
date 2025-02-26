@@ -47,13 +47,26 @@ trait ServerConnection {
   def unsetQueryTag(): Unit
   def isQueryTagSetInSession: Boolean
 
-  protected val QUERY_TAG_NAME: String = "QUERY_TAG"
+  protected val QueryTagName: String = "QUERY_TAG"
+
+  /**
+   * Generate a list of statement parameters. The result contains the parameters from context and
+   * the given additional statement parameters.
+   * @param isDdlOnTempObject
+   *   Whether is a DDL on temporary object or not.
+   * @param additionalParameters
+   *   A list of additional statement parameters being set.
+   * @return
+   */
+  def generateStatementParameters(
+      isDdlOnTempObject: Boolean = false,
+      additionalParameters: Map[String, Any] = Map.empty): Map[String, Any]
 
   /**
    * Run sql query and return the queryID when the caller doesn't need the result set.
    * @param query
    *   Sql text
-   * @param isDDLOnTempObject
+   * @param isDdlOnTempObject
    *   Whether is a DDL on temporary object or not.
    * @param statementParameters
    *   A map of statement parameters.
@@ -63,7 +76,7 @@ trait ServerConnection {
    */
   def runQuery(
       query: String,
-      isDDLOnTempObject: Boolean = false,
+      isDdlOnTempObject: Boolean = false,
       statementParameters: Map[String, Any] = Map.empty,
       params: Seq[Any] = Seq.empty): String
 
@@ -81,6 +94,7 @@ trait ServerConnection {
    * @param defaultValue
    *   Default value of parameter in case of the client can't read parameter from server.
    * @return
+   *   The value of parameter.
    */
   def getParameterValue(
       parameterName: String,
@@ -113,14 +127,14 @@ class JDBCServerConnection(
 
   private var queryTag: Option[String] = None
   override def setQueryTag(queryTag: String): Unit = {
-    runQuery(s"alter session set $QUERY_TAG_NAME = '$queryTag'")
+    runQuery(s"alter session set $QueryTagName = '$queryTag'")
     this.queryTag = Some(queryTag)
   }
 
   override def getQueryTag: Option[String] = queryTag
 
   override def unsetQueryTag(): Unit = {
-    runQuery(s"alter session unset $QUERY_TAG_NAME")
+    runQuery(s"alter session unset $QueryTagName")
     queryTag = None
   }
 
@@ -129,7 +143,7 @@ class JDBCServerConnection(
 
   lazy private val isQueryTagSet: Boolean = {
     try {
-      getParameterValue(QUERY_TAG_NAME).nonEmpty
+      getParameterValue(QueryTagName).nonEmpty
     } catch {
       // Any error in reading QUERY_TAG session param should result
       // in snowpark skipping the logic to set QUERY_TAG
@@ -137,9 +151,19 @@ class JDBCServerConnection(
     }
   }
 
+  override def generateStatementParameters(
+      isDdlOnTempObject: Boolean,
+      additionalParameters: Map[String, Any]): Map[String, Any] =
+    // Only set queryTag if in client mode and if it is not already set
+    (if (isStoredProc || isQueryTagSetInSession) Map()
+     else Map(QueryTagName -> queryTag.getOrElse(Utils.getUserCodeMeta))) ++
+      // Use SNOWPARK_SKIP_TXN_COMMIT_IN_DDL to avoid the DDL command to commit the open transaction
+      (if (isDdlOnTempObject) Map("SNOWPARK_SKIP_TXN_COMMIT_IN_DDL" -> true)
+       else Map()) ++ additionalParameters
+
   override def runQuery(
       query: String,
-      isDDLOnTempObject: Boolean,
+      isDdlOnTempObject: Boolean,
       statementParameters: Map[String, Any],
       params: Seq[Any]): String = { "" }
 
