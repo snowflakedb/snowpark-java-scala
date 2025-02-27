@@ -20,4 +20,6 @@ jobs:
           distribution: temurin
           java-version: 8
       - name: Check Format
+        env:
+          SBT_OPTS: -Xms512m -Xmx2048m
         run: scripts/format_checker.sh
