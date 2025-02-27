@@ -225,8 +225,7 @@ class ColumnIdentifier private (normalizedName: String) {
    * Returns the name of column. Name format:
    *   1. if the name quoted.
    *      a. starts with _A-Z and follows by _A-Z0-9$: remove quotes b. starts with $ and follows by
-   *         digits: remove quotes c. otherwise, do nothing
-   *      2. if not quoted.
+   *         digits: remove quotes c. otherwise, do nothing 2. if not quoted.
    *      a. starts with _a-zA-Z and follows by _a-zA-Z0-9$, upper case all letters. b. starts with
    *         $ and follows by digits, do nothing c. otherwise, quote name
    *

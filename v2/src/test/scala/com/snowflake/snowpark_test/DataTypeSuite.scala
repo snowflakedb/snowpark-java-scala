@@ -181,8 +181,8 @@ class DataTypeSuite extends UnitTestBase {
     Mockito.when(mockedBigDec.precision()).thenReturn(precision1)
     Mockito.when(mockedBigDec.scale()).thenReturn(scale1)
     val dec1 = DecimalType(mockedBigDec)
-    assert(dec1.scale==scale1)
-    assert(dec1.precision==scale1)
+    assert(dec1.scale == scale1)
+    assert(dec1.precision == scale1)
 
     // case 2: scale < 0
     val scale2 = -1

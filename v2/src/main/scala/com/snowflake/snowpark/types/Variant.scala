@@ -256,7 +256,7 @@ class Variant private[snowpark] (
             val arr = MAPPER.createArrayNode()
             array.foreach(obj => arr.add(objectToJsonNode(obj)))
             arr
-          case map: JavaMap[Object, Object] => mapToNode(map)
+          case map: JavaMap[_, _] => mapToNode(map.asInstanceOf[JavaMap[Object, Object]])
           case map: Map[_, _] =>
             mapToNode(map.map { case (key, value) =>
               key.asInstanceOf[Object] -> value.asInstanceOf[Object]
