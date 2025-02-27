@@ -25,5 +25,5 @@ jobs:
           PROFILE_PASSWORD: ${{ secrets.PROFILE_PASSWORD }}
       - name: Run test
         env:
-          SBT_OPTS: -Xms512m -Xmx2048m
+          SBT_OPTS: -Xms512m -Xmx2048m -Xss8m
         run: sbt test
