@@ -1,6 +1,8 @@
 lazy val snowparkName = s"snowpark"
 lazy val JDBCVersion = "3.22.0"
 
+val jacksonVersion = "2.18.2"
+
 lazy val root = (project in file("."))
   .enablePlugins(BuildInfoPlugin)
   .settings(
@@ -15,14 +17,20 @@ lazy val root = (project in file("."))
       "org.scala-lang" % "scala-library" % scalaVersion.value,
       "org.scala-lang" % "scala-compiler" % scalaVersion.value,
       "net.snowflake" % "snowflake-jdbc" % JDBCVersion,
+      "com.fasterxml.jackson.core" % "jackson-databind" % jacksonVersion,
+      "com.fasterxml.jackson.core" % "jackson-core" % jacksonVersion,
+      "com.fasterxml.jackson.core" % "jackson-annotations" % jacksonVersion,
+      "commons-codec" % "commons-codec" % "1.18.0",
       // Tests
       "com.github.sbt" % "junit-interface" % "0.13.3" % Test,
       "org.mockito" % "mockito-core" % "2.23.0" % Test,
       "org.scalatest" %% "scalatest" % "3.2.19" % Test),
     // formatter
+    coverageEnabled := true,
     scalafmtOnCompile := true,
     javafmtOnCompile := true,
     // Build Info
     buildInfoKeys := Seq[BuildInfoKey](name, version, scalaVersion, sbtVersion),
     buildInfoPackage := "com.snowflake.snowpark.internal",
   )
+    
