@@ -1,12 +1,12 @@
 package com.snowflake.snowpark_test
 
+import com.snowflake.snowpark.UnitTestBase
 import com.snowflake.snowpark.types.{Geography, Variant}
-import org.scalatest.FunSuite
 
 import java.io.UncheckedIOException
 import java.sql.{Date, Time, Timestamp}
 
-class ScalaVariantSuite extends FunSuite {
+class ScalaVariantSuite extends UnitTestBase {
   test("scala constructor and extension functions") {
     assert(new Variant(1.1).asDouble() == 1.1)
     assert(new Variant(1.2f).asFloat() == 1.2f)
@@ -307,7 +307,7 @@ class ScalaVariantSuite extends FunSuite {
     assert(v1 == v2)
     assert(v1 != v3)
 
-    assert(v1 != "aa")
+    assert(v1.asInstanceOf[Object] != "aa".asInstanceOf[Object])
 
     assert(v1.toString() == "123")
   }
