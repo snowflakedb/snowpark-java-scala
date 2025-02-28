@@ -20,5 +20,13 @@ class InternalRowSuite extends UnitTestBase {
     assert(
       intercept[UnsupportedOperationException](Row.apply(1, 2, 3).fieldIndex("dummy")).getMessage
         .contains("Cannot get field index for row without schema"))
+
+    assert(row.getAs[Integer]("num") == 1)
+  }
+
+  test("from map") {
+    val map = Map("col1" -> 1, "col2" -> 2)
+    val row = Row.fromMap(map)
+    assert(row.toString == "Object(col1:1,col2:2)")
   }
 }

@@ -3,7 +3,7 @@ package com.snowflake.snowpark_test
 import com.snowflake.snowpark.types._
 import com.snowflake.snowpark.{Row, SnowparkClientException, UnitTestBase}
 
-import java.sql.{Date, Timestamp}
+import java.sql.{Date, Time, Timestamp}
 import java.time.{Instant, LocalDate}
 import java.util
 
@@ -20,9 +20,13 @@ class RowSuite extends UnitTestBase {
     val row1 = Row(1, null, "str")
     val row2 = Row(2, null, "str")
     val row3 = Row.fromSeq(Seq(1, null, "str"))
+    val row4 = Row(1, null)
     assert(row1 == row3)
     assert(row1 != row2)
     assert(row2.equals(row2.clone()))
+    assert(row1.asInstanceOf[Object] != "dummy".asInstanceOf[Object])
+    assert(row1 != row4)
+    assert(Row(Double.NaN) == Row(Double.NaN))
   }
 
   test("get") {
@@ -232,6 +236,26 @@ class RowSuite extends UnitTestBase {
     assert(err.message.matches(msg))
   }
 
+  test("get time") {
+    val time = new Time(1234567L)
+    val row1 = Row(time)
+    assert(row1.getTime(0) == time)
+  }
+
+  test("variant") {
+    val seqOfVariants = Seq(new Variant(12), new Variant(true))
+    val mapOfVariants = Map("a" -> new Variant("aa"), "b" -> new Variant(123))
+    val obj = Row(1, 2, 3)
+    val seq = Array(4, 5, 6)
+    val map = Map("a" -> 1, "b" -> 2)
+    val row = Row(seqOfVariants, mapOfVariants, obj, seq, map)
+    assert(row.getSeqOfVariant(0) == seqOfVariants)
+    assert(row.getMapOfVariant(1) == mapOfVariants)
+    assert(row.getObject(2) == obj)
+    assert(row.getSeq(3).toArray sameElements seq)
+    assert(row.getMap(4) == map)
+  }
+
   test("from array") {
     val arr = Array(1, true, "aaa")
     val row = Row.fromArray(arr)
@@ -276,5 +300,10 @@ class RowSuite extends UnitTestBase {
     val row2 = Row(Map("1" -> new Variant("one")), Map("2" -> new Variant("two")))
     assert(row2.getVariant(0) == new Variant("{\"1\": \"one\"}"))
     assert(row2.getVariant(1) == new Variant("{\"2\": \"two\"}"))
+  }
+
+  test("toString") {
+    val row = Row(1, 2, 3)
+    assert(row.toString == "Row[1,2,3]")
   }
 }

@@ -355,9 +355,7 @@ class Row protected (values: Array[Any], schema: Option[StructType]) extends Ser
    */
   def getSeq[T](index: Int): Seq[T] = {
     val result = getAs[Array[_]](index)
-    result.map { case x: T =>
-      x
-    }
+    result.map(_.asInstanceOf[T])
   }
 
   /**
