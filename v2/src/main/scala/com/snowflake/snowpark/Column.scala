@@ -1,3 +1,5 @@
 package com.snowflake.snowpark
 
-class Column {}
+import com.snowflake.snowpark.internal.AstFunc
+
+class Column extends AstFunc{}

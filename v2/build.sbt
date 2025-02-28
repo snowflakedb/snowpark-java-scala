@@ -1,6 +1,8 @@
-lazy val snowparkName = s"snowpark"
+val snowparkName = s"snowpark"
 
 val jacksonVersion = "2.18.2"
+val jdbcVersion = "3.23.0"
+val sl4jVersion = "2.0.17"
 
 lazy val root = (project in file("."))
   .settings(
@@ -18,10 +20,14 @@ lazy val root = (project in file("."))
       "com.fasterxml.jackson.core" % "jackson-core" % jacksonVersion,
       "com.fasterxml.jackson.core" % "jackson-annotations" % jacksonVersion,
       "commons-codec" % "commons-codec" % "1.18.0",
+      "net.snowflake" % "snowflake-jdbc" % jdbcVersion,
+      "org.slf4j" % "slf4j-api" % sl4jVersion,
+      "org.slf4j" % "slf4j-simple" % sl4jVersion,
       // Tests
       "com.github.sbt" % "junit-interface" % "0.13.3" % Test,
       "org.mockito" % "mockito-core" % "2.23.0" % Test,
-      "org.scalatest" %% "scalatest" % "3.2.19" % Test),
+      "org.scalatest" %% "scalatest" % "3.2.19" % Test,
+      ),
     coverageEnabled := true,
     scalafmtOnCompile := true,
     javafmtOnCompile := true)
