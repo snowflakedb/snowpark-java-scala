@@ -1,3 +1,7 @@
 package com.snowflake.snowpark
 
-class DataFrame {}
+import com.snowflake.snowpark.internal.Utils.withSourcePosition
+
+class DataFrame {
+  def func: Int => Int = withSourcePosition (a => a + 1)
+}
