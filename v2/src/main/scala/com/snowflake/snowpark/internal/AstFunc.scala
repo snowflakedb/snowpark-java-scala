@@ -12,9 +12,9 @@ trait AstFunc {
 
   private[snowpark] val ast: GeneratedMessage
 
-  private[snowpark] def createExpr(value: Any): Expr = {
+  private[snowpark] def createExpr(value: Any): Expr = value match {
     case null => createExpr(Variant.NullVal(NullVal()))
-    case expr => expr
+    case expr: Expr => expr
     case variant: Variant => Expr(variant)
     case column: Column => column.ast
     case literal if createExprFromLiteral.isDefinedAt(literal) => createExprFromLiteral(literal)
@@ -37,6 +37,7 @@ trait AstFunc {
             unscaledValue = ByteString.copyFrom(decimal.unscaledValue().toByteArray))))
     case bytes: Array[Byte] =>
       createExpr(Variant.BinaryVal(BinaryVal(v = ByteString.copyFrom(bytes))))
+    // todo: SNOW-1961939 add support for timestamp and date literals
 //    case i: Instant => null
 //    case t: Timestamp => null
 //    case d: Date => null
