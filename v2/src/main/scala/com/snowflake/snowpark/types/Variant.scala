@@ -228,7 +228,7 @@ class Variant private[snowpark] (
    *
    * @since 0.2.0
    */
-  def this(list: JavaList[Object]) = this(list.asScala)
+  def this(list: JavaList[Object]) = this(list.asScala.toSeq)
 
   /**
    * Creates a Variant from array
