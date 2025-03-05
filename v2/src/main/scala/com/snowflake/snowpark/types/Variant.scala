@@ -247,7 +247,10 @@ class Variant private[snowpark] (
       {
         def mapToNode(map: JavaMap[Object, Object]): ObjectNode = {
           val result = MAPPER.createObjectNode()
-          map.keySet().forEach(key => result.set(key.toString, objectToJsonNode(map.get(key))))
+          map
+            .keySet()
+            .asScala
+            .foreach(key => result.set(key.toString, objectToJsonNode(map.get(key))))
           result
         }
         obj match {
