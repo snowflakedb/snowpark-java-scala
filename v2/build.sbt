@@ -4,6 +4,10 @@ val commonSettings = Seq(
   version := "2.0.0-SNAPSHOT",
   scalaVersion := sys.props.getOrElse("SCALA_VERSION", default = "2.12.18"),
   crossScalaVersions := Seq("2.12.18", "2.13.15"),
+  libraryDependencies ++= Seq(
+    "org.scala-lang" % "scala-library" % scalaVersion.value,
+    "org.scala-lang" % "scala-compiler" % scalaVersion.value,
+  )
 )
 
 val jacksonVersion = "2.18.2"
@@ -12,23 +16,20 @@ lazy val macros = (project in file("macros"))
   .settings(
     name := s"${snowparkName}-macros",
     commonSettings,
-    libraryDependencies ++= Seq(
-      "org.scala-lang" % "scala-library" % scalaVersion.value,
-      "org.scala-lang" % "scala-compiler" % scalaVersion.value,
-    )
-  )
-
-lazy val root = (project in file("."))
-  .dependsOn(macros)
-  .settings(
-    name := snowparkName,
-    commonSettings,
     Compile / PB.targets := Seq(scalapb.gen() -> (Compile / sourceManaged).value / "scalapb"),
     libraryDependencies ++= Seq(
       "com.thesamet.scalapb" %% "scalapb-runtime" % scalapb.compiler.Version.scalapbVersion %
         "protobuf",
-      "org.scala-lang" % "scala-library" % scalaVersion.value,
-      "org.scala-lang" % "scala-compiler" % scalaVersion.value,
+    ),
+  )
+
+lazy val root = (project in file("."))
+  .dependsOn(macros)
+  .aggregate(macros)
+  .settings(
+    name := snowparkName,
+    commonSettings,
+    libraryDependencies ++= Seq(
       "com.fasterxml.jackson.core" % "jackson-databind" % jacksonVersion,
       "com.fasterxml.jackson.core" % "jackson-core" % jacksonVersion,
       "com.fasterxml.jackson.core" % "jackson-annotations" % jacksonVersion,

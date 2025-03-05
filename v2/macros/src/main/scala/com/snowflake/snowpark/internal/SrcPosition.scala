@@ -3,7 +3,7 @@ package com.snowflake.snowpark.internal
 import scala.language.experimental.macros
 import scala.reflect.macros.blackbox
 
-case class SrcPosition (fileName: String, line: Int, column: Int)
+case class SrcPosition (filename: String, line: Int, column: Int)
 
 object SrcPosition {
   implicit def srcPosition: SrcPosition = macro getSrcPosition
