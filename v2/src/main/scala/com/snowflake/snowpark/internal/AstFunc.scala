@@ -23,10 +23,12 @@ trait AstFunc {
 
   private val createExprFromLiteral: PartialFunction[Any, Expr] = {
     case str @ (_: String | _: Char) => createExpr(Variant.StringVal(StringVal(v = str.toString)))
-    case num @ (_: Int | _: Long | _: Byte | _: Short) =>
-      createExpr(Variant.Int64Val(Int64Val(v = num.asInstanceOf[Long])))
-    case float @ (_: Float | _: Double) =>
-      createExpr(Variant.Float64Val(Float64Val(v = float.asInstanceOf[Double])))
+    case i: Int => createExpr(i.toLong)
+    case b: Byte => createExpr(b.toLong)
+    case s: Short => createExpr(s.toLong)
+    case l: Long => createExpr(Variant.Int64Val(Int64Val(v = l)))
+    case f: Float => createExpr(f.toDouble)
+    case d: Double => createExpr(Variant.Float64Val(Float64Val(v = d)))
     case bool: Boolean => createExpr(Variant.BoolVal(BoolVal(v = bool)))
     case decimal: BigDecimal => createExpr(decimal.bigDecimal)
     case decimal: JavaBigDecimal =>

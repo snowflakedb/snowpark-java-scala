@@ -1,5 +1,6 @@
 package com.snowflake.snowpark
 
+import com.snowflake.snowpark.internal.AstFunc
 import com.snowflake.snowpark.types.{
   AtomicType,
   DataType,
@@ -9,6 +10,9 @@ import com.snowflake.snowpark.types.{
   StructType
 }
 import org.scalatest.funsuite.AnyFunSuite
+import scalapb.GeneratedMessage
+
+import scala.reflect.ClassTag
 
 trait CommonTestBase extends AnyFunSuite {
 
@@ -17,4 +21,18 @@ trait CommonTestBase extends AnyFunSuite {
   def isNumericType(tpe: DataType): Boolean = tpe.isInstanceOf[NumericType]
   def isIntegralType(tpe: DataType): Boolean = tpe.isInstanceOf[IntegralType]
   def isFractionalType(tpe: DataType): Boolean = tpe.isInstanceOf[FractionalType]
+
+  def checkAst(expected: GeneratedMessage, actual: AstFunc): Unit = {
+    checkAst(expected, actual.ast)
+  }
+
+  def checkAst(expected: GeneratedMessage, actual: GeneratedMessage): Unit = {
+    assert(expected.toProtoString == actual.toProtoString)
+  }
+
+  def checkException[T <: Throwable](msg: String)(f: => Any)(implicit
+      classTag: ClassTag[T]): Unit = {
+    val thrown = intercept[T](f)
+    assert(thrown.getMessage.contains(msg))
+  }
 }
