@@ -16,11 +16,6 @@ lazy val macros = (project in file("macros"))
   .settings(
     name := s"${snowparkName}-macros",
     commonSettings,
-    Compile / PB.targets := Seq(scalapb.gen() -> (Compile / sourceManaged).value / "scalapb"),
-    libraryDependencies ++= Seq(
-      "com.thesamet.scalapb" %% "scalapb-runtime" % scalapb.compiler.Version.scalapbVersion %
-        "protobuf",
-    ),
   )
 
 lazy val root = (project in file("."))
@@ -29,7 +24,10 @@ lazy val root = (project in file("."))
   .settings(
     name := snowparkName,
     commonSettings,
+    Compile / PB.targets := Seq(scalapb.gen() -> (Compile / sourceManaged).value / "scalapb"),
     libraryDependencies ++= Seq(
+      "com.thesamet.scalapb" %% "scalapb-runtime" % scalapb.compiler.Version.scalapbVersion %
+        "protobuf",
       "com.fasterxml.jackson.core" % "jackson-databind" % jacksonVersion,
       "com.fasterxml.jackson.core" % "jackson-core" % jacksonVersion,
       "com.fasterxml.jackson.core" % "jackson-annotations" % jacksonVersion,
