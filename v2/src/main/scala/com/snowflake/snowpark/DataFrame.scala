@@ -1,4 +1,3 @@
 package com.snowflake.snowpark
 
-class DataFrame {
-}
+class DataFrame {}
