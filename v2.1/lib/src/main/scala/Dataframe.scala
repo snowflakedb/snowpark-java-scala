@@ -3,6 +3,11 @@ package com.snowflake.snowpark
 import scala.language.experimental.macros
 
 class Dataframe(m: Int) {
+  def exampleProperty(implicit src: SrcPosition): Int = {
+    println(s"exampleProperty src $src")
+    42
+  }
+
   def fillna(n: Int)(implicit src: SrcPosition): Int = {
     println(s"fillna src $src")
     m + n
