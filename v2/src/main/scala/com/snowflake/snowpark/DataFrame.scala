@@ -1,9 +1,9 @@
 package com.snowflake.snowpark
 
-import com.snowflake.snowpark.proto.ast.SrcPosition
+import com.snowflake.snowpark.internal.SrcPosition
 
 class DataFrame {
-  def exampleProperty(implicit src: SrcPosition): Int = {
+  def select(col: String)(implicit src: SrcPosition): Int = {
     println(s"exampleProperty src $src")
     42
   }
