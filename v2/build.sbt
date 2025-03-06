@@ -2,7 +2,7 @@ val snowparkName = s"snowpark"
 
 val commonSettings = Seq(
   version := "2.0.0-SNAPSHOT",
-  scalaVersion := sys.props.getOrElse("SCALA_VERSION", default = "2.12.18"),
+  scalaVersion := "2.13.16",
   crossScalaVersions := Seq("2.12.18", "2.13.16"),
   libraryDependencies ++= Seq(
     "org.scala-lang" % "scala-library" % scalaVersion.value,

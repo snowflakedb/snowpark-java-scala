@@ -8,9 +8,6 @@ on:
 jobs:
   build:
     runs-on: ubuntu-22.04
-    strategy:
-      matrix:
-        scala: [ "2.12.18", "2.13.16" ]
     defaults:
       run:
         working-directory: ./v2
@@ -29,5 +26,4 @@ jobs:
       - name: Run test
         env:
           SBT_OPTS: -Xms512m -Xmx2048m -Xss8m
-          SCALA_VERSION: ${{ matrix.scala }}
-        run: sbt test
+        run: sbt +test
