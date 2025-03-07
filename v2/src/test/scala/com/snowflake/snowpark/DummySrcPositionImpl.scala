@@ -1,9 +1,9 @@
 package com.snowflake.snowpark
 
-import com.snowflake.snowpark.internal.SrcPosition
+import com.snowflake.snowpark.internal.SrcPositionInfo
 
 class DummySrcPositionImpl {
 
-  def func(num: Int)(implicit src: SrcPosition): SrcPosition = src
+  def func(num: Int)(implicit src: SrcPositionInfo): SrcPositionInfo = src
 
 }
