@@ -353,7 +353,7 @@ class Row protected (values: Array[Any], schema: Option[StructType]) extends Ser
    * @since 1.13.0
    * @group getter
    */
-  def getSeq[T](index: Int): Seq[T] = {
+  def getSeq[T: ClassTag](index: Int): Seq[T] = {
     val result = getAs[Array[_]](index)
     result.map(_.asInstanceOf[T])
   }

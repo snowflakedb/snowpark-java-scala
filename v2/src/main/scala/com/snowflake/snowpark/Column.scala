@@ -1,7 +1,6 @@
 package com.snowflake.snowpark
 
-import com.snowflake.snowpark.internal.AstFunc
-import com.snowflake.snowpark.internal.Logging
+import com.snowflake.snowpark.internal.{AstNode, Logging}
 import com.snowflake.snowpark.proto.ast._
 import com.snowflake.snowpark.proto.ast.Expr.Variant
 import com.snowflake.snowpark.types.DataType
@@ -25,9 +24,7 @@ import com.snowflake.snowpark.types.DataType
  * @since 0.1.0
  */
 // scalastyle:on
-case class Column private[snowpark] (override private[snowpark] val ast: Expr)
-    extends AstFunc
-    with Logging {
+case class Column(override private[snowpark] val ast: Expr) extends AstNode with Logging {
 
   /**
    * Returns a conditional expression that you can pass to the filter or where method to perform the
@@ -44,16 +41,17 @@ case class Column private[snowpark] (override private[snowpark] val ast: Expr)
    * @group op
    * @since 0.10.0
    */
-  def in(values: Seq[Any]): Column = createColumn {
-    Variant.ColumnIn(
-      ColumnIn(
-        col = Some(ast),
-        values = values.map {
-          case tuple: Seq[_] => null
-          case df: DataFrame => null
-          case v => createExpr(v)
-        }))
-  }
+  def in(values: Seq[Any]): Column = null
+//    createColumn {
+//    Variant.ColumnIn(
+//      ColumnIn(
+//        col = Some(ast),
+//        values = values.map {
+//          case tuple: Seq[_] => null
+//          case df: DataFrame => null
+//          case v => createExpr(v)
+//        }))
+//  }
 
   /**
    * Returns a conditional expression that you can pass to the filter or where method to perform a

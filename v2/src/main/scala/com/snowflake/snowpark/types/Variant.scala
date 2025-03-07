@@ -228,7 +228,7 @@ class Variant private[snowpark] (
    *
    * @since 0.2.0
    */
-  def this(list: JavaList[Object]) = this(list.asScala)
+  def this(list: JavaList[Object]) = this(list.asScala.toSeq)
 
   /**
    * Creates a Variant from array
@@ -245,9 +245,12 @@ class Variant private[snowpark] (
   def this(obj: Any) =
     this(
       {
-        def mapToNode(map: JavaMap[Object, Object]): ObjectNode = {
+        def mapToNode(map: Map[_, _]): ObjectNode = {
           val result = MAPPER.createObjectNode()
-          map.keySet().forEach(key => result.set(key.toString, objectToJsonNode(map.get(key))))
+          map.foreach(kv => {
+            result.set(kv._1.toString, objectToJsonNode(kv._2))
+            "" // avoid casting to Nothing bug
+          })
           result
         }
         obj match {
@@ -256,11 +259,8 @@ class Variant private[snowpark] (
             val arr = MAPPER.createArrayNode()
             array.foreach(obj => arr.add(objectToJsonNode(obj)))
             arr
-          case map: JavaMap[_, _] => mapToNode(map.asInstanceOf[JavaMap[Object, Object]])
-          case map: Map[_, _] =>
-            mapToNode(map.map { case (key, value) =>
-              key.asInstanceOf[Object] -> value.asInstanceOf[Object]
-            }.asJava)
+          case map: JavaMap[_, _] => mapToNode(map.asScala.toMap)
+          case map: Map[_, _] => mapToNode(map)
           case _ => MAPPER.valueToTree(obj.asInstanceOf[Object])
         }
       },
