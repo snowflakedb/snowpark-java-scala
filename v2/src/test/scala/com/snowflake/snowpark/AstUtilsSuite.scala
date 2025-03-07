@@ -1,18 +1,11 @@
 package com.snowflake.snowpark
 
 import com.google.protobuf.ByteString
-import com.snowflake.snowpark.internal.AstFunc
 import com.snowflake.snowpark.proto.ast._
 import com.snowflake.snowpark.proto.ast.Expr.Variant
-import scalapb.GeneratedMessage
+import com.snowflake.snowpark.internal.AstUtils._
 
-class AstFunSuite extends UnitTestBase {
-
-  object TestAstFunc extends AstFunc {
-    override private[snowpark] val ast: GeneratedMessage = null
-  }
-
-  private val createExpr: Any => Expr = TestAstFunc.createExpr
+class AstUtilsSuite extends UnitTestBase {
 
   test("createExpr with null value") {
     checkAst(Expr(Variant.NullVal(NullVal())), createExpr(null))
