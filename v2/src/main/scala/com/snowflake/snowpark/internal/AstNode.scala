@@ -2,6 +2,6 @@ package com.snowflake.snowpark.internal
 
 import scalapb.GeneratedMessage
 
-trait AstFunc {
+trait AstNode {
   private[snowpark] val ast: GeneratedMessage
 }

@@ -1,6 +1,6 @@
 package com.snowflake.snowpark
 
-import com.snowflake.snowpark.internal.AstFunc
+import com.snowflake.snowpark.internal.AstNode
 import com.snowflake.snowpark.types.{
   AtomicType,
   DataType,
@@ -22,7 +22,7 @@ trait CommonTestBase extends AnyFunSuite {
   def isIntegralType(tpe: DataType): Boolean = tpe.isInstanceOf[IntegralType]
   def isFractionalType(tpe: DataType): Boolean = tpe.isInstanceOf[FractionalType]
 
-  def checkAst(expected: GeneratedMessage, actual: AstFunc): Unit = {
+  def checkAst(expected: GeneratedMessage, actual: AstNode): Unit = {
     checkAst(expected, actual.ast)
   }
 
