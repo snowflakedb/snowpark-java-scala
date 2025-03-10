@@ -1,8 +1,8 @@
 package com.snowflake.snowpark
 
-import com.snowflake.snowpark.internal.{AstNode, Logging}
+import com.snowflake.snowpark.internal.{AstNode, Logging, SrcPositionInfo}
 import com.snowflake.snowpark.proto.ast._
-import com.snowflake.snowpark.proto.ast.Expr.Variant
+import com.snowflake.snowpark.internal.AstUtils._
 import com.snowflake.snowpark.types.DataType
 
 // scalastyle:off
@@ -41,17 +41,18 @@ case class Column(override private[snowpark] val ast: Expr) extends AstNode with
    * @group op
    * @since 0.10.0
    */
-  def in(values: Seq[Any]): Column = null
-//    createColumn {
-//    Variant.ColumnIn(
-//      ColumnIn(
-//        col = Some(ast),
-//        values = values.map {
-//          case tuple: Seq[_] => null
-//          case df: DataFrame => null
-//          case v => createExpr(v)
-//        }))
-//  }
+  def in(values: Seq[Any])(implicit src: SrcPositionInfo): Column = {
+    Column(
+      Expr.Variant.ColumnIn(ColumnIn(
+        col = Some(ast),
+        src = createSroPosition(src),
+        values = values.map {
+          // todo: SNOW-1974661 add support for dataframe and tuple literals
+          case df: DataFrame => null
+          case tuple: Seq[_] => null
+          case v => createExpr(v, src)
+        })))
+  }
 
   /**
    * Returns a conditional expression that you can pass to the filter or where method to perform a
@@ -648,8 +649,10 @@ case class Column(override private[snowpark] val ast: Expr) extends AstNode with
 
 }
 
-// private[snowpark] object Column {
-//  def apply(name: String): Column =
+private[snowpark] object Column {
+  def apply(variant: Expr.Variant): Column = {
+    Column(Expr(variant))
+  }
 //    new Column(name match {
 //      case "*" => Star(Seq.empty)
 //      case c if c.contains(".") => UnresolvedDFAliasAttribute(name)
@@ -657,7 +660,7 @@ case class Column(override private[snowpark] val ast: Expr) extends AstNode with
 //    })
 //
 //  def expr(e: String): Column = new Column(UnresolvedAttribute(e))
-// }
+}
 
 /**
  * Represents a [[https://docs.snowflake.com/en/sql-reference/functions/case.html CASE]] expression.

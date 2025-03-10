@@ -14,7 +14,7 @@ class AstUtilsSuite extends UnitTestBase {
       expected: Option[SrcPosition] => Any,
       actual: SrcPositionInfo => Expr)(implicit srcPositionInfo: SrcPositionInfo): Unit = {
     val srcPosition = createSroPosition(srcPositionInfo)
-    val expectedExprWithSrc: Expr = expected(Some(srcPosition)) match {
+    val expectedExprWithSrc: Expr = expected(srcPosition) match {
       case expr: Expr => expr
       case variant: Variant => Expr(variant)
     }

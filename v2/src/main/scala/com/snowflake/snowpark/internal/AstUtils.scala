@@ -17,15 +17,18 @@ object AstUtils {
     filenames.getOrElseUpdate(filename, filenames.size)
   }
 
-  private[snowpark] def createSroPosition(srcPositionInfo: SrcPositionInfo): SrcPosition = {
-    SrcPosition(
-      file = getFileId(srcPositionInfo.filename),
-      startLine = srcPositionInfo.line,
-      startColumn = srcPositionInfo.column)
+  private[snowpark] def createSroPosition(srcPositionInfo: SrcPositionInfo): Option[SrcPosition] = {
+    if (srcPositionInfo != null) {
+      Some(
+        SrcPosition(
+          file = getFileId(srcPositionInfo.filename),
+          startLine = srcPositionInfo.line,
+          startColumn = srcPositionInfo.column))
+    } else None
   }
 
   private[snowpark] def createExpr(value: Any, srcPositionInfo: SrcPositionInfo): Expr = {
-    toExpr(value, if (srcPositionInfo == null) None else Some(createSroPosition(srcPositionInfo)))
+    toExpr(value, createSroPosition(srcPositionInfo))
   }
 
   private def toExpr(value: Any, srcPosition: Option[SrcPosition] = None): Expr = value match {
