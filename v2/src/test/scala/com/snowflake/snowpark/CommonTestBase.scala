@@ -1,6 +1,6 @@
 package com.snowflake.snowpark
 
-import com.snowflake.snowpark.internal.AstNode
+import com.snowflake.snowpark.internal.{AstNode, SrcPositionInfo}
 import com.snowflake.snowpark.types.{
   AtomicType,
   DataType,
