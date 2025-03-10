@@ -1,5 +1,7 @@
 package com.snowflake.snowpark_test;
 
+import static com.snowflake.snowpark_java.types.DataTypes.DateType;
+
 import com.snowflake.snowpark_java.*;
 import java.sql.Date;
 import java.sql.Time;
@@ -3185,5 +3187,82 @@ public class JavaFunctionSuite extends TestBase {
     DataFrame df = getSession().sql("select * from values('2024-04-05 01:02:03') as t(a)");
     Row[] expected = {Row.create(Timestamp.valueOf("2024-04-05 01:02:03.0"))};
     checkAnswer(df.select(Functions.to_utc_timestamp(df.col("a"))), expected, false);
+  }
+
+  @Test
+  public void json_tuple1() {
+    DataFrame df =
+        getSession()
+            .sql(
+                "select parse_json(column1) as v, column2 as k from values ('{\"a\": null}','a'), "
+                    + "('{\"a\": \"foo\"}','a'), ('{\"a\": \"foo\"}','b'), (null,'a')");
+    df.show();
+    DataFrame jsontupleDF =
+        df.select(
+            (Functions.json_tuple(Functions.col("v"), Functions.col("k")).toArray(new Column[0])));
+    Row[] expected = {
+      Row.create((Object) null),
+      Row.create("foo"),
+      Row.create((Object) null),
+      Row.create((Object) null)
+    };
+    checkAnswer(jsontupleDF, expected, false);
+  }
+
+  @Test
+  public void json_tuple2() {
+    DataFrame df =
+        getSession()
+            .sql(
+                "select parse_json(column1) as v,column2 as id,column3 as name"
+                    + " from values ( '{\"id\": 5,\"name\": \"Jose\", \"age\": 29}','id','name','age')");
+
+    DataFrame jsontupleDF =
+        df.select(
+            (Functions.json_tuple(Functions.col("v"), Functions.col("id"), Functions.col("name"))
+                .toArray(new Column[0])));
+    jsontupleDF.show();
+    Row[] expected = {Row.create(("5"), ("Jose"))};
+    checkAnswer(jsontupleDF, expected, false);
+  }
+
+  @Test
+  public void try_cast() {
+    DataFrame df = getSession().sql("select * from values('2024-04-05') as t(a)");
+    Row[] expected = {Row.create(Date.valueOf("2024-04-05"))};
+    checkAnswer(df.select(Functions.try_cast(df.col("a"), DateType)), expected, false);
+  }
+
+  @Test
+  public void date_sub() {
+    DataFrame df =
+        getSession()
+            .sql(
+                "select * from values('2020-05-01 13:11:20.000' :: timestamp),"
+                    + "('2020-08-21 01:30:05.000' :: timestamp) as T(a)");
+    Row[] expected = {
+      Row.create(Date.valueOf("2020-04-30")), Row.create(Date.valueOf("2020-08-20"))
+    };
+    checkAnswer(df.select(Functions.date_sub(df.col("a"), 1)), expected, false);
+  }
+
+  @Test
+  public void from_json() {
+    DataFrame df =
+        getSession()
+            .sql(
+                "select parse_json(column1) as v,column2 as id,column3 as name"
+                    + " from values ( '{\"id\": 5,\"name\": \"Jose\", \"age\": 29}','id','name','age')");
+
+    DataFrame jsonDF = df.select((Functions.from_json(Functions.col("v"))));
+    jsonDF.show();
+  }
+
+  @Test
+  public void cbrt() {
+    DataFrame df = getSession().sql("select column1 from values ( '5'),('1')");
+
+    Row[] expected = {Row.create((1.7099759466766968)), Row.create((1.0))};
+    checkAnswer(df.select(Functions.cbrt(df.col("column1"))), expected, false);
   }
 }
