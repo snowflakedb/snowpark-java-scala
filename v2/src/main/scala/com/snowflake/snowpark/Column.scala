@@ -1,6 +1,6 @@
 package com.snowflake.snowpark
 
-import com.snowflake.snowpark.internal.{AstNode, Logging, SrcPositionInfo}
+import com.snowflake.snowpark.internal.{ExprNode, Logging, SrcPositionInfo}
 import com.snowflake.snowpark.proto.ast._
 import com.snowflake.snowpark.internal.AstUtils._
 import com.snowflake.snowpark.types.DataType
@@ -24,7 +24,7 @@ import com.snowflake.snowpark.types.DataType
  * @since 0.1.0
  */
 // scalastyle:on
-case class Column(override private[snowpark] val ast: Expr) extends AstNode with Logging {
+case class Column(override private[snowpark] val expr: Expr) extends ExprNode with Logging {
 
   /**
    * Returns a conditional expression that you can pass to the filter or where method to perform the
@@ -44,7 +44,7 @@ case class Column(override private[snowpark] val ast: Expr) extends AstNode with
   def in(values: Seq[Any])(implicit src: SrcPositionInfo): Column = {
     Column(
       Expr.Variant.ColumnIn(ColumnIn(
-        col = Some(ast),
+        col = Some(expr),
         src = createSroPosition(src),
         values = values.map {
           // todo: SNOW-1974661 add support for dataframe and tuple literals
@@ -114,7 +114,7 @@ case class Column(override private[snowpark] val ast: Expr) extends AstNode with
   def apply(field: String)(implicit src: SrcPositionInfo): Column =
     Column(
       Expr.Variant.ColumnApplyString(
-        ColumnApply_String(col = Some(ast), field = field, src = createSroPosition(src))))
+        ColumnApply_String(col = Some(expr), field = field, src = createSroPosition(src))))
 
   /**
    * Returns the element (field) at the specified index in a column that contains
@@ -154,7 +154,7 @@ case class Column(override private[snowpark] val ast: Expr) extends AstNode with
   def apply(idx: Int)(implicit src: SrcPositionInfo): Column =
     Column(
       Expr.Variant.ColumnApplyInt(
-        ColumnApply_Int(col = Some(ast), idx = idx, src = createSroPosition(src))))
+        ColumnApply_Int(col = Some(expr), idx = idx, src = createSroPosition(src))))
 
   /**
    * Returns the column name (if the column has a name).
@@ -201,7 +201,7 @@ case class Column(override private[snowpark] val ast: Expr) extends AstNode with
    * @since 0.1.0
    */
   def unary_-(implicit src: SrcPositionInfo): Column =
-    Column(Expr.Variant.Neg(Neg(operand = Some(ast), src = createSroPosition(src))))
+    Column(Expr.Variant.Neg(Neg(operand = Some(expr), src = createSroPosition(src))))
 
   /**
    * Unary not.
@@ -209,7 +209,7 @@ case class Column(override private[snowpark] val ast: Expr) extends AstNode with
    * @since 0.1.0
    */
   def unary_!(implicit src: SrcPositionInfo): Column =
-    Column(Expr.Variant.Not(Not(operand = Some(ast), src = createSroPosition(src))))
+    Column(Expr.Variant.Not(Not(operand = Some(expr), src = createSroPosition(src))))
 
   /**
    * Equal to. Alias for [[equal_to]]. Use this instead of `==` to perform an equality check in an
