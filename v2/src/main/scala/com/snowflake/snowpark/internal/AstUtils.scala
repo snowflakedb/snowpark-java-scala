@@ -35,7 +35,7 @@ object AstUtils {
     case null => toExpr(Variant.NullVal(NullVal(src = srcPosition)))
     case expr: Expr => expr
     case variant: Variant => Expr(variant)
-    case column: Column => column.ast
+    case column: Column => column.expr
     case str @ (_: String | _: Char) =>
       toExpr(Variant.StringVal(StringVal(v = str.toString, src = srcPosition)))
     case i: Int => toExpr(i.toLong, srcPosition)
