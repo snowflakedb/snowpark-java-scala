@@ -35,15 +35,8 @@ class InternalColumnSuite extends UnitTestBase {
     checkAst(
       Expr(
         Expr.Variant.ColumnApplyString(
-          ColumnApply_String(
-            col = Some(expr),
-            field = columnName,
-            src = src
-          )
-        )
-      ),
-      column
-    )
+          ColumnApply_String(col = Some(expr), field = columnName, src = src))),
+      column)
   }
 
   test("column apply with int field name") {
@@ -55,17 +48,8 @@ class InternalColumnSuite extends UnitTestBase {
     val column = Column(expr).apply(index)(srcPositionInfo)
 
     checkAst(
-      Expr(
-        Expr.Variant.ColumnApplyInt(
-          ColumnApply_Int(
-            col = Some(expr),
-            idx = index,
-            src = src
-          )
-        )
-      ),
-      column
-    )
+      Expr(Expr.Variant.ColumnApplyInt(ColumnApply_Int(col = Some(expr), idx = index, src = src))),
+      column)
   }
 
   test("unary minus") {
@@ -75,17 +59,7 @@ class InternalColumnSuite extends UnitTestBase {
     val expr = Expr()
     val column = (-Column(expr))(srcPositionInfo)
 
-    checkAst(
-      Expr(
-        Expr.Variant.Neg(
-          Neg(
-            operand = Some(expr),
-            src = src
-          )
-        )
-      ),
-      column
-    )
+    checkAst(Expr(Expr.Variant.Neg(Neg(operand = Some(expr), src = src))), column)
   }
 
   test("unary not") {
@@ -95,16 +69,6 @@ class InternalColumnSuite extends UnitTestBase {
     val expr = Expr()
     val column = (!Column(expr))(srcPositionInfo)
 
-    checkAst(
-      Expr(
-        Expr.Variant.Not(
-          Not(
-            operand = Some(expr),
-            src = src
-          )
-        )
-      ),
-      column
-    )
+    checkAst(Expr(Expr.Variant.Not(Not(operand = Some(expr), src = src))), column)
   }
 }
