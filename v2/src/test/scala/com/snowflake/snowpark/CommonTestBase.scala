@@ -1,6 +1,6 @@
 package com.snowflake.snowpark
 
-import com.snowflake.snowpark.internal.{ExprNode, SrcPositionInfo}
+import com.snowflake.snowpark.internal.{ExprNode, SrcPositionInfo, StmtNode}
 import com.snowflake.snowpark.types.{
   AtomicType,
   DataType,

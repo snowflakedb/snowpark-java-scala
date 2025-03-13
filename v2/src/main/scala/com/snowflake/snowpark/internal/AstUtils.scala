@@ -2,7 +2,7 @@ package com.snowflake.snowpark.internal
 
 import com.google.protobuf.ByteString
 import com.snowflake.snowpark.Column
-import com.snowflake.snowpark.proto.ast.Expr.Variant
+import com.snowflake.snowpark.proto.ast.Expr.{INT64_VAL_FIELD_NUMBER, Variant, scalaDescriptor}
 import com.snowflake.snowpark.proto.ast._
 
 import java.math.{BigDecimal => JavaBigDecimal}
@@ -10,12 +10,30 @@ import scala.collection.mutable
 
 object AstUtils {
   private val filenames: mutable.Map[String, Int] = mutable.Map.empty
+  private val internedValueTable: mutable.Map[Int, String] = mutable.Map.empty
 
-  private[snowpark] def getFileId(filename: String): Int = {
+  private[snowpark] def getInternedValueTable: Option[InternedValueTable] = this.synchronized {
+    if (internedValueTable.isEmpty) {
+      None
+    } else {
+      Some(InternedValueTable(stringValues = internedValueTable.toMap))
+    }
+  }
+
+  private[snowpark] def getFileId(filename: String): Int = this.synchronized {
     // return file id if it has been seen before,
     // otherwise set the size of map to be the id and add it to the map.
-    filenames.getOrElseUpdate(filename, filenames.size)
+    filenames.getOrElseUpdate(
+      filename, {
+        val index = filenames.size
+        internedValueTable.put(index, filename)
+        index
+      })
   }
+
+  lazy val language: Language = Language.LanguageTypeMapper.toCustom(
+    LanguageMessage.of(LanguageMessage.SealedValue.ScalaLanguage(
+      ScalaLanguage(version = Some(Version(label = "3.0.0-M1", major = 1, minor = 0, patch = 0))))))
 
   private[snowpark] def createSroPosition(srcPositionInfo: SrcPositionInfo): Option[SrcPosition] = {
     if (srcPositionInfo != null) {

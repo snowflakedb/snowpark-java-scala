@@ -1,6 +1,6 @@
 package com.snowflake.snowpark
 
-import com.snowflake.snowpark.internal.{AstNode, Logging}
+import com.snowflake.snowpark.internal.{Logging, StmtNode}
 import com.snowflake.snowpark.proto.ast._
 
 import scala.reflect.ClassTag
@@ -151,8 +151,8 @@ import scala.reflect.ClassTag
  * @groupname transform Transformations
  * @since 0.1.0
  */
-class DataFrame private[snowpark] (override private[snowpark] val ast: Assign)
-    extends AstNode
+class DataFrame private[snowpark] (override private[snowpark] val varId: VarId)
+    extends StmtNode
     with Logging {
 
   // todo: verify whether this function is still needed
@@ -165,7 +165,7 @@ class DataFrame private[snowpark] (override private[snowpark] val ast: Assign)
    * @return
    *   A [[DataFrame]]
    */
-  override def clone: DataFrame = new DataFrame(ast)
+  override def clone: DataFrame = new DataFrame(varId)
 
   // todo: SNOW-1975241
   /**
