@@ -221,14 +221,17 @@ case class Column(override private[snowpark] val expr: Expr) extends ExprNode wi
    * @group op
    * @since 0.1.0
    */
-  def ===(other: Any): Column = null
+  def ===(other: Any)(implicit src: SrcPositionInfo): Column =
+    Column(
+      Expr.Variant.Eq(
+        Eq(lhs = Some(expr), rhs = Some(createExpr(other, src)), src = createSroPosition(src))))
 
   /**
    * Equal to. Same as `===`.
    * @group op
    * @since 0.1.0
    */
-  def equal_to(other: Column): Column = this === other
+  def equal_to(other: Column)(implicit src: SrcPositionInfo): Column = (this === other)(src)
 
   /**
    * Not equal to. Alias for [[not_equal]].
@@ -236,70 +239,85 @@ case class Column(override private[snowpark] val expr: Expr) extends ExprNode wi
    * @group op
    * @since 0.1.0
    */
-  def =!=(other: Any): Column = null
+  def =!=(other: Any)(implicit src: SrcPositionInfo): Column =
+    Column(
+      Expr.Variant.Neq(
+        Neq(lhs = Some(expr), rhs = Some(createExpr(other, src)), src = createSroPosition(src))))
 
   /**
    * Not equal to.
    * @group op
    * @since 0.1.0
    */
-  def not_equal(other: Column): Column = this =!= other
+  def not_equal(other: Column)(implicit src: SrcPositionInfo): Column = (this =!= other)(src)
 
   /**
    * Greater than. Alias for [[gt]].
    * @group op
    * @since 0.1.0
    */
-  def >(other: Any): Column = null
+  def >(other: Any)(implicit src: SrcPositionInfo) =
+    Column(
+      Expr.Variant.Gt(
+        Gt(lhs = Some(expr), rhs = Some(createExpr(other, src)), src = createSroPosition(src))))
 
   /**
    * Greater than.
    * @group op
    * @since 0.1.0
    */
-  def gt(other: Column): Column = this > other
+  def gt(other: Column)(implicit src: SrcPositionInfo): Column = (this > other)(src)
 
   /**
    * Less than. Alias for [[lt]].
    * @group op
    * @since 0.1.0
    */
-  def <(other: Any): Column = null
+  def <(other: Any)(implicit src: SrcPositionInfo): Column =
+    Column(
+      Expr.Variant.Lt(
+        Lt(lhs = Some(expr), rhs = Some(createExpr(other, src)), src = createSroPosition(src))))
 
   /**
    * Less than.
    * @group op
    * @since 0.1.0
    */
-  def lt(other: Column): Column = this < other
+  def lt(other: Column)(implicit src: SrcPositionInfo): Column = (this < other)(src)
 
   /**
    * Less than or equal to. Alias for [[leq]].
    * @group op
    * @since 0.1.0
    */
-  def <=(other: Any): Column = null
+  def <=(other: Any)(implicit src: SrcPositionInfo): Column =
+    Column(
+      Expr.Variant.Leq(
+        Leq(lhs = Some(expr), rhs = Some(createExpr(other, src)), src = createSroPosition(src))))
 
   /**
    * Less than or equal to.
    * @group op
    * @since 0.1.0
    */
-  def leq(other: Column): Column = this <= other
+  def leq(other: Column)(implicit src: SrcPositionInfo): Column = (this <= other)(src)
 
   /**
    * Greater than or equal to. Alias for [[geq]].
    * @group op
    * @since 0.1.0
    */
-  def >=(other: Any): Column = null
+  def >=(other: Any)(implicit src: SrcPositionInfo): Column =
+    Column(
+      Expr.Variant.Geq(
+        Geq(lhs = Some(expr), rhs = Some(createExpr(other, src)), src = createSroPosition(src))))
 
   /**
    * Greater than or equal to.
    * @group op
    * @since 0.1.0
    */
-  def geq(other: Column): Column = this >= other
+  def geq(other: Column)(implicit src: SrcPositionInfo): Column = (this >= other)(src)
 
   /**
    * Equal to. You can use this for comparisons against a null value. Alias for [[equal_null]].
@@ -307,21 +325,29 @@ case class Column(override private[snowpark] val expr: Expr) extends ExprNode wi
    * @group op
    * @since 0.1.0
    */
-  def <=>(other: Any): Column = null
+  def <=>(other: Any)(implicit src: SrcPositionInfo): Column =
+    Column(
+      Expr.Variant.ColumnEqualNull(
+        ColumnEqualNull(
+          lhs = Some(expr),
+          rhs = Some(createExpr(other, src)),
+          src = createSroPosition(src))))
 
   /**
    * Equal to. You can use this for comparisons against a null value.
    * @group op
    * @since 0.1.0
    */
-  def equal_null(other: Column): Column = this <=> other
+  def equal_null(other: Column)(implicit src: SrcPositionInfo): Column = (this <=> other)(src)
 
   /**
    * Is NaN.
    * @group op
    * @since 0.1.0
    */
-  def equal_nan: Column = null
+  def equal_nan(implicit src: SrcPositionInfo): Column =
+    Column(
+      Expr.Variant.ColumnEqualNan(ColumnEqualNan(col = Some(expr), src = createSroPosition(src))))
 
   /**
    * Is null.
