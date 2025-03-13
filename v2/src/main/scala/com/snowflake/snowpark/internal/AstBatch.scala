@@ -36,7 +36,8 @@ class AstBatch {
       internedValueTable = AstUtils.getInternedValueTable,
       body = body,
       clientAstVersion = __Version__.MAX_VERSION.value.toLong,
-      clientLanguage = AstUtils.language)
+      clientLanguage = AstUtils.language,
+      clientVersion = Some(AstUtils.clientVersion))
   }
 
   private def addWithoutLock(expr: Expr = null, symbol: String = null): VarId = {

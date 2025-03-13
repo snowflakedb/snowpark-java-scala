@@ -12,6 +12,7 @@ object AstUtils {
   private val filenames: mutable.Map[String, Int] = mutable.Map.empty
   private val internedValueTable: mutable.Map[Int, String] = mutable.Map.empty
 
+  // todo: only include used values in the interned value table
   private[snowpark] def getInternedValueTable: Option[InternedValueTable] = this.synchronized {
     if (internedValueTable.isEmpty) {
       None
@@ -31,9 +32,20 @@ object AstUtils {
       })
   }
 
+  private[snowpark] def parseVersion(versionStr: String): Version = {
+    val regex = """(\d+)\.(\d+)\.(\d+)(?:-([A-Za-z0-9-]+))?""".r
+    versionStr match {
+      case regex(major, minor, patch, label) =>
+        Version(major = major.toInt, minor = minor.toInt, patch = patch.toInt, label = label)
+      case _ => Version(label = versionStr) // fallback to the original version string
+    }
+  }
+
+  lazy val clientVersion: Version = parseVersion(BuildInfo.version)
+
   lazy val language: Language = Language.LanguageTypeMapper.toCustom(
     LanguageMessage.of(LanguageMessage.SealedValue.ScalaLanguage(
-      ScalaLanguage(version = Some(Version(label = "3.0.0-M1", major = 1, minor = 0, patch = 0))))))
+      ScalaLanguage(version = Some(parseVersion(BuildInfo.scalaVersion))))))
 
   private[snowpark] def createSroPosition(srcPositionInfo: SrcPositionInfo): Option[SrcPosition] = {
     if (srcPositionInfo != null) {
