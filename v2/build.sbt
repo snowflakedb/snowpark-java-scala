@@ -22,6 +22,7 @@ lazy val macros = (project in file("macros"))
 
 lazy val root = (project in file("."))
   .dependsOn(macros)
+  .enablePlugins(BuildInfoPlugin)
   .aggregate(macros)
   .settings(
     name := snowparkName,
@@ -42,6 +43,9 @@ lazy val root = (project in file("."))
       "org.mockito" % "mockito-core" % "2.23.0" % Test,
       "org.scalatest" %% "scalatest" % "3.2.19" % Test,
       ),
+    // Build Info
+    buildInfoKeys := Seq[BuildInfoKey](name, version, scalaVersion, sbtVersion),
+    buildInfoPackage := "com.snowflake.snowpark.internal",
     coverageEnabled := true,
     scalafmtOnCompile := true,
     javafmtOnCompile := true)

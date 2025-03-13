@@ -26,7 +26,7 @@ class AstBatch {
 
   def flush(expr: Expr = null, symbol: String = null): Request = this.synchronized {
     val varId = addWithoutLock(expr, symbol)
-    stmts.addOne(Stmt(Stmt.Variant.Eval(Eval(uid = getStmtId, varId = Some(varId)))))
+    stmts += Stmt(Stmt.Variant.Eval(Eval(uid = getStmtId, varId = Some(varId))))
 
     val body = stmts.toSeq
     // reset stmts list
@@ -42,10 +42,10 @@ class AstBatch {
   private def addWithoutLock(expr: Expr = null, symbol: String = null): VarId = {
     val id: Long = getStmtId
     val varId: VarId = VarId(id)
-    stmts.addOne(
+    stmts +=
       Stmt(
         Stmt.Variant.Assign(
-          Assign(expr = Option(expr), symbol = Option(symbol), uid = id, varId = Some(varId)))))
+          Assign(expr = Option(expr), symbol = Option(symbol), uid = id, varId = Some(varId))))
     varId
   }
 
