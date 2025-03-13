@@ -89,7 +89,7 @@ class InternalColumnSuite extends UnitTestBase {
           src = src)))
 
     checkAst(expectedExpr, (column1 === column2)(srcPositionInfo))
-    checkAst(expectedExpr, column1.equal_to(column2)(srcPositionInfo))
+    checkAst(expectedExpr, (column1 equal_to column2)(srcPositionInfo))
   }
 
   test("=!= and not_equal") {
@@ -109,7 +109,7 @@ class InternalColumnSuite extends UnitTestBase {
           src = src)))
 
     checkAst(expectedExpr, (column1 =!= column2)(srcPositionInfo))
-    checkAst(expectedExpr, column1.not_equal(column2)(srcPositionInfo))
+    checkAst(expectedExpr, (column1 not_equal column2)(srcPositionInfo))
   }
 
   test("> gt") {
@@ -129,7 +129,7 @@ class InternalColumnSuite extends UnitTestBase {
           src = src)))
 
     checkAst(expectedExpr, (column1 > column2)(srcPositionInfo))
-    checkAst(expectedExpr, column1.gt(column2)(srcPositionInfo))
+    checkAst(expectedExpr, (column1 gt column2)(srcPositionInfo))
   }
 
   test("< lt") {
@@ -149,7 +149,7 @@ class InternalColumnSuite extends UnitTestBase {
           src = src)))
 
     checkAst(expectedExpr, (column1 < column2)(srcPositionInfo))
-    checkAst(expectedExpr, column1.lt(column2)(srcPositionInfo))
+    checkAst(expectedExpr, (column1 lt column2)(srcPositionInfo))
   }
 
   test("<= leq") {
@@ -169,7 +169,7 @@ class InternalColumnSuite extends UnitTestBase {
           src = src)))
 
     checkAst(expectedExpr, (column1 <= column2)(srcPositionInfo))
-    checkAst(expectedExpr, column1.leq(column2)(srcPositionInfo))
+    checkAst(expectedExpr, (column1 leq column2)(srcPositionInfo))
   }
 
   test(">= geq") {
@@ -189,7 +189,7 @@ class InternalColumnSuite extends UnitTestBase {
           src = src)))
 
     checkAst(expectedExpr, (column1 >= column2)(srcPositionInfo))
-    checkAst(expectedExpr, column1.geq(column2)(srcPositionInfo))
+    checkAst(expectedExpr, (column1 geq column2)(srcPositionInfo))
   }
 
   test("<=> equal_null") {
@@ -209,7 +209,7 @@ class InternalColumnSuite extends UnitTestBase {
           src = src)))
 
     checkAst(expectedExpr, (column1 <=> column2)(srcPositionInfo))
-    checkAst(expectedExpr, column1.equal_null(column2)(srcPositionInfo))
+    checkAst(expectedExpr, (column1 equal_null column2)(srcPositionInfo))
   }
 
   test("equal_nan") {
