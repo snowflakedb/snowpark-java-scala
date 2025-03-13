@@ -224,4 +224,167 @@ class InternalColumnSuite extends UnitTestBase {
 
     checkAst(expectedExpr, column.equal_nan(srcPositionInfo))
   }
+
+  test("is_null and isNull") {
+    val srcPositionInfo = SrcPositionInfo("test", 1, 12)
+    val src = createSroPosition(srcPositionInfo)
+
+    val expr = Expr()
+    val column = Column(expr)
+
+    val expectedExpr =
+      Expr(Expr.Variant.ColumnIsNull(ColumnIsNull(col = Some(expr), src = src)))
+
+    checkAst(expectedExpr, column.is_null(srcPositionInfo))
+    checkAst(expectedExpr, column.isNull(srcPositionInfo))
+  }
+
+  test("is_not_null") {
+    val srcPositionInfo = SrcPositionInfo("test", 1, 12)
+    val src = createSroPosition(srcPositionInfo)
+
+    val expr = Expr()
+    val column = Column(expr)
+
+    checkAst(
+      Expr(Expr.Variant.ColumnIsNotNull(ColumnIsNotNull(col = Some(expr), src = src))),
+      column.is_not_null(srcPositionInfo))
+  }
+
+  test("|| or") {
+    val srcPositionInfo = SrcPositionInfo("test", 1, 12)
+    val src = createSroPosition(srcPositionInfo)
+
+    val expr1 = Expr(Expr.Variant.BoolVal(BoolVal(v = true, src = src)))
+    val expr2 = Expr(Expr.Variant.BoolVal(BoolVal(v = false, src = src)))
+    val column1 = Column(expr1)
+    val column2 = Column(expr2)
+
+    val expectedExpr = Expr(
+      Expr.Variant.Or(
+        Or(
+          lhs = Some(expr1),
+          rhs = Some(Expr(Expr.Variant.BoolVal(BoolVal(v = false, src = src)))),
+          src = src)))
+
+    checkAst(expectedExpr, (column1 || column2)(srcPositionInfo))
+    checkAst(expectedExpr, (column1 or column2)(srcPositionInfo))
+  }
+
+  test("&& and") {
+    val srcPositionInfo = SrcPositionInfo("test", 1, 12)
+    val src = createSroPosition(srcPositionInfo)
+
+    val expr1 = Expr(Expr.Variant.BoolVal(BoolVal(v = true, src = src)))
+    val expr2 = Expr(Expr.Variant.BoolVal(BoolVal(v = false, src = src)))
+    val column1 = Column(expr1)
+    val column2 = Column(expr2)
+
+    val expectedExpr = Expr(
+      Expr.Variant.And(
+        And(
+          lhs = Some(expr1),
+          rhs = Some(Expr(Expr.Variant.BoolVal(BoolVal(v = false, src = src)))),
+          src = src)))
+
+    checkAst(expectedExpr, (column1 && column2)(srcPositionInfo))
+    checkAst(expectedExpr, column1.and(column2)(srcPositionInfo))
+  }
+
+  test("between") {
+    val srcPositionInfo = SrcPositionInfo("test", 1, 12)
+    val src = createSroPosition(srcPositionInfo)
+
+    val expr = Expr(Expr.Variant.Int64Val(Int64Val(v = 5, src = src)))
+    val lowerExpr = Expr(Expr.Variant.Int64Val(Int64Val(v = 3, src = src)))
+    val higherExpr = Expr(Expr.Variant.Int64Val(Int64Val(v = 9, src = src)))
+
+    val col = Column(expr)
+    val lowerCol = Column(lowerExpr)
+    val higherCol = Column(higherExpr)
+
+    val expectedExpr = Expr(
+      Expr.Variant.And(And(
+        lhs = Some(Expr(Expr.Variant.Geq(Geq(lhs = Some(expr), rhs = Some(lowerExpr), src = src)))),
+        rhs =
+          Some(Expr(Expr.Variant.Leq(Leq(lhs = Some(expr), rhs = Some(higherExpr), src = src)))),
+        src = src)))
+
+    checkAst(expectedExpr, col.between(lowerCol, higherCol)(srcPositionInfo))
+  }
+
+  test("+ plus") {
+    val srcPositionInfo = SrcPositionInfo("test", 1, 12)
+    val src = createSroPosition(srcPositionInfo)
+
+    val expr1 = Expr(Expr.Variant.Int64Val(Int64Val(v = 1, src = src)))
+    val expr2 = Expr(Expr.Variant.Int64Val(Int64Val(v = 2, src = src)))
+    val column1 = Column(expr1)
+    val column2 = Column(expr2)
+
+    val expectedExpr = Expr(Expr.Variant.Add(Add(lhs = Some(expr1), rhs = Some(expr2), src = src)))
+
+    checkAst(expectedExpr, (column1 + column2)(srcPositionInfo))
+    checkAst(expectedExpr, column1.plus(column2)(srcPositionInfo))
+  }
+
+  test("- minus") {
+    val srcPositionInfo = SrcPositionInfo("test", 1, 12)
+    val src = createSroPosition(srcPositionInfo)
+
+    val expr1 = Expr(Expr.Variant.Int64Val(Int64Val(v = 1, src = src)))
+    val expr2 = Expr(Expr.Variant.Int64Val(Int64Val(v = 2, src = src)))
+    val column1 = Column(expr1)
+    val column2 = Column(expr2)
+
+    val expectedExpr = Expr(Expr.Variant.Sub(Sub(lhs = Some(expr1), rhs = Some(expr2), src = src)))
+
+    checkAst(expectedExpr, (column1 - column2)(srcPositionInfo))
+    checkAst(expectedExpr, column1.minus(column2)(srcPositionInfo))
+  }
+
+  test("* multiply") {
+    val srcPositionInfo = SrcPositionInfo("test", 1, 12)
+    val src = createSroPosition(srcPositionInfo)
+
+    val expr1 = Expr(Expr.Variant.Int64Val(Int64Val(v = 1, src = src)))
+    val expr2 = Expr(Expr.Variant.Int64Val(Int64Val(v = 2, src = src)))
+    val column1 = Column(expr1)
+    val column2 = Column(expr2)
+
+    val expectedExpr = Expr(Expr.Variant.Mul(Mul(lhs = Some(expr1), rhs = Some(expr2), src = src)))
+
+    checkAst(expectedExpr, (column1 * column2)(srcPositionInfo))
+    checkAst(expectedExpr, column1.multiply(column2)(srcPositionInfo))
+  }
+
+  test("/ divide") {
+    val srcPositionInfo = SrcPositionInfo("test", 1, 12)
+    val src = createSroPosition(srcPositionInfo)
+
+    val expr1 = Expr(Expr.Variant.Int64Val(Int64Val(v = 1, src = src)))
+    val expr2 = Expr(Expr.Variant.Int64Val(Int64Val(v = 2, src = src)))
+    val column1 = Column(expr1)
+    val column2 = Column(expr2)
+
+    val expectedExpr = Expr(Expr.Variant.Div(Div(lhs = Some(expr1), rhs = Some(expr2), src = src)))
+
+    checkAst(expectedExpr, (column1 / column2)(srcPositionInfo))
+    checkAst(expectedExpr, column1.divide(column2)(srcPositionInfo))
+  }
+
+  test("% remainder") {
+    val srcPositionInfo = SrcPositionInfo("test", 1, 12)
+    val src = createSroPosition(srcPositionInfo)
+
+    val expr1 = Expr(Expr.Variant.Int64Val(Int64Val(v = 1, src = src)))
+    val expr2 = Expr(Expr.Variant.Int64Val(Int64Val(v = 2, src = src)))
+    val column1 = Column(expr1)
+    val column2 = Column(expr2)
+
+    val expectedExpr = Expr(Expr.Variant.Mod(Mod(lhs = Some(expr1), rhs = Some(expr2), src = src)))
+
+    checkAst(expectedExpr, (column1 % column2)(srcPositionInfo))
+    checkAst(expectedExpr, column1.mod(column2)(srcPositionInfo))
+  }
 }
