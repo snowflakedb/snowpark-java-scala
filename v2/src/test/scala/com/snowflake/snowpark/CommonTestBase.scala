@@ -28,7 +28,7 @@ trait CommonTestBase extends AnyFunSuite {
   }
 
   def checkAst(expected: GeneratedMessage, actual: GeneratedMessage): Unit = {
-    assert(expected.toProtoString == actual.toProtoString)
+    assert(expected == actual)
   }
 
   def checkException[T <: Throwable](msg: String)(f: => Any)(implicit
