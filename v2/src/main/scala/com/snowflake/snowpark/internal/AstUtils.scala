@@ -33,11 +33,13 @@ object AstUtils {
     LanguageMessage.of(LanguageMessage.SealedValue.ScalaLanguage(
       ScalaLanguage(version = Some(parseVersion(BuildInfo.scalaVersion))))))
 
-  private[snowpark] def createSroPosition(srcPositionInfo: SrcPositionInfo): Option[SrcPosition] = {
+  private[snowpark] def createSroPosition(
+      srcPositionInfo: SrcPositionInfo,
+      filenames: FilenameTable = filenameTable): Option[SrcPosition] = {
     if (srcPositionInfo != null) {
       Some(
         SrcPosition(
-          file = filenameTable.getFileId(srcPositionInfo.filename),
+          file = filenames.getFileId(srcPositionInfo.filename),
           startLine = srcPositionInfo.line,
           startColumn = srcPositionInfo.column))
     } else None

@@ -4,7 +4,7 @@ import com.snowflake.snowpark.proto.ast.{Assign, Eval, Expr, Request, Stmt, VarI
 
 import scala.collection.mutable.ListBuffer
 
-class AstBatch {
+class AstBatch(filenameTable: FilenameTable = AstUtils.filenameTable) {
   private var stmts: ListBuffer[Stmt] = ListBuffer.empty
 
   def add(expr: Expr = null, symbol: String = null): VarId = this.synchronized {
@@ -20,7 +20,7 @@ class AstBatch {
     stmts = ListBuffer.empty
 
     Request(
-      internedValueTable = AstUtils.filenameTable.getInternedValueTable,
+      internedValueTable = filenameTable.getInternedValueTable,
       body = body,
       clientAstVersion = AstUtils.astVersion,
       clientLanguage = AstUtils.language,
