@@ -354,7 +354,8 @@ case class Column(override private[snowpark] val expr: Expr) extends ExprNode wi
    * @group op
    * @since 0.1.0
    */
-  def is_null: Column = null
+  def is_null(implicit src: SrcPositionInfo): Column =
+    Column(Expr.Variant.ColumnIsNull(ColumnIsNull(col = Some(expr), src = createSroPosition(src))))
 
   /**
    * Wrapper for is_null function.
@@ -362,50 +363,58 @@ case class Column(override private[snowpark] val expr: Expr) extends ExprNode wi
    * @group op
    * @since 1.10.0
    */
-  def isNull: Column = is_null
+  def isNull(implicit src: SrcPositionInfo): Column = is_null(src)
 
   /**
    * Is not null.
    * @group op
    * @since 0.1.0
    */
-  def is_not_null: Column = null
+  def is_not_null(implicit src: SrcPositionInfo): Column =
+    Column(
+      Expr.Variant.ColumnIsNotNull(ColumnIsNotNull(col = Some(expr), src = createSroPosition(src))))
 
   /**
    * Or. Alias for [[or]].
    * @group op
    * @since 0.1.0
    */
-  def ||(other: Any): Column = null
+  def ||(other: Any)(implicit src: SrcPositionInfo): Column =
+    Column(
+      Expr.Variant.Or(
+        Or(lhs = Some(expr), rhs = Some(createExpr(other, src)), src = createSroPosition(src))))
 
   /**
    * Or.
    * @group op
    * @since 0.1.0
    */
-  def or(other: Column): Column = this || other
+  def or(other: Column)(implicit src: SrcPositionInfo): Column = (this || other)(src)
 
   /**
    * And. Alias for [[and]].
    * @group op
    * @since 0.1.0
    */
-  def &&(other: Any): Column = null
+  def &&(other: Any)(implicit src: SrcPositionInfo): Column =
+    Column(
+      Expr.Variant.And(
+        And(lhs = Some(expr), rhs = Some(createExpr(other, src)), src = createSroPosition(src))))
 
   /**
    * And.
    * @group op
    * @since 0.1.0
    */
-  def and(other: Column): Column = this && other
+  def and(other: Column)(implicit src: SrcPositionInfo): Column = (this && other)(src)
 
   /**
    * Between lower bound and upper bound.
    * @group op
    * @since 0.1.0
    */
-  def between(lowerBound: Column, upperBound: Column): Column = {
-    (this >= lowerBound) && (this <= upperBound)
+  def between(lowerBound: Column, upperBound: Column)(implicit src: SrcPositionInfo): Column = {
+    (this >= lowerBound)(src) && (this <= upperBound)(src)
   }
 
   /**
@@ -413,70 +422,85 @@ case class Column(override private[snowpark] val expr: Expr) extends ExprNode wi
    * @group op
    * @since 0.1.0
    */
-  def +(other: Any): Column = null
+  def +(other: Any)(implicit src: SrcPositionInfo): Column =
+    Column(
+      Expr.Variant.Add(
+        Add(lhs = Some(expr), rhs = Some(createExpr(other, src)), src = createSroPosition(src))))
 
   /**
    * Plus.
    * @group op
    * @since 0.1.0
    */
-  def plus(other: Column): Column = this + other
+  def plus(other: Column)(implicit src: SrcPositionInfo): Column = (this + other)(src)
 
   /**
    * Minus. Alias for [[minus]].
    * @group op
    * @since 0.1.0
    */
-  def -(other: Any): Column = null
+  def -(other: Any)(implicit src: SrcPositionInfo): Column =
+    Column(
+      Expr.Variant.Sub(
+        Sub(lhs = Some(expr), rhs = Some(createExpr(other, src)), src = createSroPosition(src))))
 
   /**
    * Minus.
    * @group op
    * @since 0.1.0
    */
-  def minus(other: Column): Column = this - other
+  def minus(other: Column)(implicit src: SrcPositionInfo): Column = (this - other)(src)
 
   /**
    * Multiply. Alias for [[multiply]].
    * @group op
    * @since 0.1.0
    */
-  def *(other: Any): Column = null
+  def *(other: Any)(implicit src: SrcPositionInfo): Column =
+    Column(
+      Expr.Variant.Mul(
+        Mul(lhs = Some(expr), rhs = Some(createExpr(other, src)), src = createSroPosition(src))))
 
   /**
    * Multiply.
    * @group op
    * @since 0.1.0
    */
-  def multiply(other: Column): Column = this * other
+  def multiply(other: Column)(implicit src: SrcPositionInfo): Column = (this * other)(src)
 
   /**
    * Divide. Alias for [[divide]].
    * @group op
    * @since 0.1.0
    */
-  def /(other: Any): Column = null
+  def /(other: Any)(implicit src: SrcPositionInfo): Column =
+    Column(
+      Expr.Variant.Div(
+        Div(lhs = Some(expr), rhs = Some(createExpr(other, src)), src = createSroPosition(src))))
 
   /**
    * Divide.
    * @group op
    * @since 0.1.0
    */
-  def divide(other: Column): Column = this / other
+  def divide(other: Column)(implicit src: SrcPositionInfo): Column = (this / other)(src)
 
   /**
    * Remainder. Alias for [[mod]].
    * @group op
    * @since 0.1.0
    */
-  def %(other: Any): Column = null
+  def %(other: Any)(implicit src: SrcPositionInfo): Column =
+    Column(
+      Expr.Variant.Mod(
+        Mod(lhs = Some(expr), rhs = Some(createExpr(other, src)), src = createSroPosition(src))))
 
   /**
    * Remainder.
    * @group op
    * @since 0.1.0
    */
-  def mod(other: Column): Column = this % other
+  def mod(other: Column)(implicit src: SrcPositionInfo): Column = (this % other)(src)
 
   /**
    * Casts the values in the Column to the specified data type.
