@@ -13,6 +13,7 @@ import org.scalatest.funsuite.AnyFunSuite
 import scalapb.GeneratedMessage
 
 import scala.reflect.ClassTag
+import scala.util.Random
 
 trait CommonTestBase extends AnyFunSuite {
 
@@ -35,4 +36,6 @@ trait CommonTestBase extends AnyFunSuite {
     val thrown = intercept[T](f)
     assert(thrown.getMessage.contains(msg))
   }
+
+  def randomName: String = Random.alphanumeric.take(10).mkString
 }

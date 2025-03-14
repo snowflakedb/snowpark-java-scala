@@ -1,6 +1,6 @@
 package com.snowflake.snowpark
 
-import com.snowflake.snowpark.internal.StmtNode
+import com.snowflake.snowpark.internal.{AstUtils, StmtNode}
 import scalapb.GeneratedMessage
 
 trait UnitTestBase extends CommonTestBase {

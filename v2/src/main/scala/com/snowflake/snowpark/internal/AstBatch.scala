@@ -1,19 +1,6 @@
 package com.snowflake.snowpark.internal
 
-import com.snowflake.snowpark.proto.ast.{
-  Assign,
-  Eval,
-  Expr,
-  InternedValueTable,
-  Language,
-  LanguageMessage,
-  Request,
-  ScalaLanguage,
-  Stmt,
-  VarId,
-  Version,
-  __Version__
-}
+import com.snowflake.snowpark.proto.ast.{Assign, Eval, Expr, Request, Stmt, VarId}
 
 import scala.collection.mutable.ListBuffer
 
@@ -33,9 +20,9 @@ class AstBatch {
     stmts = ListBuffer.empty
 
     Request(
-      internedValueTable = AstUtils.getInternedValueTable,
+      internedValueTable = AstUtils.filenameTable.getInternedValueTable,
       body = body,
-      clientAstVersion = __Version__.MAX_VERSION.value.toLong,
+      clientAstVersion = AstUtils.astVersion,
       clientLanguage = AstUtils.language,
       clientVersion = Some(AstUtils.clientVersion))
   }
