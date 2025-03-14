@@ -1,6 +1,6 @@
 package com.snowflake.snowpark
 
-import com.snowflake.snowpark.internal.{ExprNode, SrcPositionInfo}
+import com.snowflake.snowpark.internal.{ExprNode, SrcPositionInfo, StmtNode}
 import com.snowflake.snowpark.types.{
   AtomicType,
   DataType,
@@ -13,6 +13,7 @@ import org.scalatest.funsuite.AnyFunSuite
 import scalapb.GeneratedMessage
 
 import scala.reflect.ClassTag
+import scala.util.Random
 
 trait CommonTestBase extends AnyFunSuite {
 
@@ -27,7 +28,7 @@ trait CommonTestBase extends AnyFunSuite {
   }
 
   def checkAst(expected: GeneratedMessage, actual: GeneratedMessage): Unit = {
-    assert(expected.toProtoString == actual.toProtoString)
+    assert(expected == actual)
   }
 
   def checkException[T <: Throwable](msg: String)(f: => Any)(implicit
@@ -35,4 +36,6 @@ trait CommonTestBase extends AnyFunSuite {
     val thrown = intercept[T](f)
     assert(thrown.getMessage.contains(msg))
   }
+
+  def randomName: String = Random.alphanumeric.take(10).mkString
 }

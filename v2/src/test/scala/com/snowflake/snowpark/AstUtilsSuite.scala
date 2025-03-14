@@ -4,7 +4,7 @@ import com.google.protobuf.ByteString
 import com.snowflake.snowpark.proto.ast._
 import com.snowflake.snowpark.proto.ast.Expr.Variant
 import com.snowflake.snowpark.internal.AstUtils._
-import com.snowflake.snowpark.internal.SrcPositionInfo
+import com.snowflake.snowpark.internal.{BuildInfo, FilenameTable, SrcPositionInfo}
 
 class AstUtilsSuite extends UnitTestBase {
 
@@ -136,5 +136,49 @@ class AstUtilsSuite extends UnitTestBase {
     checkException[IllegalArgumentException]("Unsupported value type:") {
       createExpr(this, null)
     }
+  }
+
+  test("get file id") {
+    val filenameTable = new FilenameTable
+    val filename1 = randomName
+    val filename2 = randomName
+    assert(filenameTable.getFileId(filename1) == 0)
+    assert(filenameTable.getFileId(filename2) == 1)
+    assert(filenameTable.getFileId(filename1) == 0)
+  }
+
+  test("get interned value table") {
+    val filenameTable = new FilenameTable
+    assert(filenameTable.getInternedValueTable.isEmpty)
+
+    val filename1 = randomName
+    val filename2 = randomName
+    val filename3 = randomName
+    checkAst(
+      InternedValueTable(stringValues = Map(
+        filenameTable.getFileId(filename1) -> filename1,
+        filenameTable.getFileId(filename2) -> filename2,
+        filenameTable.getFileId(filename3) -> filename3)),
+      filenameTable.getInternedValueTable.get)
+
+  }
+
+  test("parse version number") {
+    checkAst(Version(major = 1, minor = 2, patch = 3, label = "beta"), parseVersion("1.2.3-beta"))
+
+    checkAst(Version(major = 4, minor = 5, patch = 6), parseVersion("4.5.6"))
+
+    checkAst(Version(label = "dummy"), parseVersion("dummy"))
+
+    checkAst(Version(label = "1..3-beta"), parseVersion("1..3-beta"))
+  }
+
+  test("versions") {
+    assert(astVersion == __Version__.MAX_VERSION.value.toLong)
+    checkAst(parseVersion(BuildInfo.version), clientVersion)
+    assert(
+      Language.LanguageTypeMapper.toCustom(
+        LanguageMessage.of(LanguageMessage.SealedValue.ScalaLanguage(
+          ScalaLanguage(version = Some(parseVersion(BuildInfo.scalaVersion)))))) == language)
   }
 }
