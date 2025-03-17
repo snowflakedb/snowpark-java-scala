@@ -24,7 +24,11 @@ import com.snowflake.snowpark.types.DataType
  * @since 0.1.0
  */
 // scalastyle:on
-case class Column(override private[snowpark] val expr: Expr) extends ExprNode with Logging {
+case class Column(
+    override private[snowpark] val expr: Expr,
+    override private[snowpark] val nameIndices: Set[Int])
+    extends ExprNode
+    with Logging {
 
   /**
    * Returns a conditional expression that you can pass to the filter or where method to perform the
