@@ -1,5 +1,7 @@
 package com.snowflake.snowpark.types
 
+import com.snowflake.snowpark.proto.ast
+
 /**
  * The trait of Snowpark data types
  *
@@ -21,6 +23,9 @@ abstract class DataType {
   override def toString: String = typeName
 
   private[snowpark] def schemaString: String = toString
+
+  lazy private[snowpark] val toAst: ast.DataType = null
+  // todo: remove default value after implement all
 }
 
 private[snowpark] abstract class AtomicType extends DataType
@@ -36,6 +41,10 @@ case class ArrayType(elementType: DataType) extends DataType {
 
   override private[snowpark] def schemaString: String =
     s"Array"
+
+  lazy override private[snowpark] val toAst =
+    ast.DataType(variant =
+      ast.DataType.Variant.ArrayType(ast.ArrayType(ty = Some(elementType.toAst))))
 }
 
 /**
@@ -70,7 +79,10 @@ object BinaryType extends AtomicType
  * Boolean data type. Mapped to BOOLEAN Snowflake data type.
  * @since 0.1.0
  */
-object BooleanType extends AtomicType
+object BooleanType extends AtomicType {
+  lazy override private[snowpark] val toAst: ast.DataType =
+    ast.DataType(variant = ast.DataType.Variant.BooleanType(value = true))
+}
 
 /**
  * Date data type. Mapped to DATE Snowflake data type.
@@ -129,7 +141,10 @@ object ShortType extends IntegralType
  * Integer data type. Mapped to INT Snowflake date type.
  * @since 0.1.0
  */
-object IntegerType extends IntegralType
+object IntegerType extends IntegralType {
+  lazy override private[snowpark] val toAst =
+    ast.DataType(variant = ast.DataType.Variant.IntegerType(true))
+}
 
 /**
  * Long integer data type. Mapped to BIGINT Snowflake date type.

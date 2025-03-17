@@ -3,7 +3,6 @@ package com.snowflake.snowpark
 import com.snowflake.snowpark.internal.{ExprNode, Logging, SrcPositionInfo}
 import com.snowflake.snowpark.proto.ast._
 import com.snowflake.snowpark.internal.AstUtils._
-import com.snowflake.snowpark.types.DataType
 
 // scalastyle:off
 /**
@@ -507,7 +506,7 @@ case class Column(override private[snowpark] val expr: Expr) extends ExprNode wi
    * @group op
    * @since 0.1.0
    */
-  def cast(to: DataType): Column = null
+  def cast(to: types.DataType): Column = null
 
   /**
    * Returns a Column expression with values sorted in descending order.
