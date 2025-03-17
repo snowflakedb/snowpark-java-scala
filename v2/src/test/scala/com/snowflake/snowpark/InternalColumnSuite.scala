@@ -8,7 +8,7 @@ class InternalColumnSuite extends UnitTestBase {
 
   test("column in") {
     val srcPositionInfo = SrcPositionInfo("test", 1, 12)
-    val src = createSroPosition(srcPositionInfo)
+    val src = createSrcPosition(srcPositionInfo)
 
     val expr = Expr()
     val column = Column(expr)
@@ -26,7 +26,7 @@ class InternalColumnSuite extends UnitTestBase {
 
   test("column apply with string field name") {
     val srcPositionInfo = SrcPositionInfo("test", 1, 12)
-    val src = createSroPosition(srcPositionInfo)
+    val src = createSrcPosition(srcPositionInfo)
 
     val expr = Expr()
     val columnName = "dummyColumnName"
@@ -41,7 +41,7 @@ class InternalColumnSuite extends UnitTestBase {
 
   test("column apply with int field name") {
     val srcPositionInfo = SrcPositionInfo("test", 1, 12)
-    val src = createSroPosition(srcPositionInfo)
+    val src = createSrcPosition(srcPositionInfo)
 
     val expr = Expr()
     val index = 1
@@ -54,7 +54,7 @@ class InternalColumnSuite extends UnitTestBase {
 
   test("column unary minus") {
     val srcPositionInfo = SrcPositionInfo("test", 1, 12)
-    val src = createSroPosition(srcPositionInfo)
+    val src = createSrcPosition(srcPositionInfo)
 
     val expr = Expr()
     val column = (-Column(expr))(srcPositionInfo)
@@ -64,7 +64,7 @@ class InternalColumnSuite extends UnitTestBase {
 
   test("column unary not") {
     val srcPositionInfo = SrcPositionInfo("test", 1, 12)
-    val src = createSroPosition(srcPositionInfo)
+    val src = createSrcPosition(srcPositionInfo)
 
     val expr = Expr()
     val column = (!Column(expr))(srcPositionInfo)
@@ -74,7 +74,7 @@ class InternalColumnSuite extends UnitTestBase {
 
   test("column === and is_equal") {
     val srcPositionInfo = SrcPositionInfo("test", 1, 12)
-    val src = createSroPosition(srcPositionInfo)
+    val src = createSrcPosition(srcPositionInfo)
 
     val expr1 = Expr(Expr.Variant.StringVal(StringVal(v = "a", src = src)))
     val expr2 = Expr(Expr.Variant.StringVal(StringVal(v = "a", src = src)))
@@ -94,7 +94,7 @@ class InternalColumnSuite extends UnitTestBase {
 
   test("column =!= and not_equal") {
     val srcPositionInfo = SrcPositionInfo("test", 1, 12)
-    val src = createSroPosition(srcPositionInfo)
+    val src = createSrcPosition(srcPositionInfo)
 
     val expr1 = Expr(Expr.Variant.StringVal(StringVal(v = "a", src = src)))
     val expr2 = Expr(Expr.Variant.StringVal(StringVal(v = "b", src = src)))
@@ -114,7 +114,7 @@ class InternalColumnSuite extends UnitTestBase {
 
   test("column > gt") {
     val srcPositionInfo = SrcPositionInfo("test", 1, 12)
-    val src = createSroPosition(srcPositionInfo)
+    val src = createSrcPosition(srcPositionInfo)
 
     val expr1 = Expr(Expr.Variant.Int64Val(Int64Val(v = 1, src = src)))
     val expr2 = Expr(Expr.Variant.Int64Val(Int64Val(v = 2, src = src)))
@@ -134,7 +134,7 @@ class InternalColumnSuite extends UnitTestBase {
 
   test("column < lt") {
     val srcPositionInfo = SrcPositionInfo("test", 1, 12)
-    val src = createSroPosition(srcPositionInfo)
+    val src = createSrcPosition(srcPositionInfo)
 
     val expr1 = Expr(Expr.Variant.Int64Val(Int64Val(v = 1, src = src)))
     val expr2 = Expr(Expr.Variant.Int64Val(Int64Val(v = 2, src = src)))
@@ -154,7 +154,7 @@ class InternalColumnSuite extends UnitTestBase {
 
   test("column <= leq") {
     val srcPositionInfo = SrcPositionInfo("test", 1, 12)
-    val src = createSroPosition(srcPositionInfo)
+    val src = createSrcPosition(srcPositionInfo)
 
     val expr1 = Expr(Expr.Variant.Int64Val(Int64Val(v = 1, src = src)))
     val expr2 = Expr(Expr.Variant.Int64Val(Int64Val(v = 2, src = src)))
@@ -174,7 +174,7 @@ class InternalColumnSuite extends UnitTestBase {
 
   test("column >= geq") {
     val srcPositionInfo = SrcPositionInfo("test", 1, 12)
-    val src = createSroPosition(srcPositionInfo)
+    val src = createSrcPosition(srcPositionInfo)
 
     val expr1 = Expr(Expr.Variant.Int64Val(Int64Val(v = 1, src = src)))
     val expr2 = Expr(Expr.Variant.Int64Val(Int64Val(v = 2, src = src)))
@@ -194,7 +194,7 @@ class InternalColumnSuite extends UnitTestBase {
 
   test("column <=> equal_null") {
     val srcPositionInfo = SrcPositionInfo("test", 1, 12)
-    val src = createSroPosition(srcPositionInfo)
+    val src = createSrcPosition(srcPositionInfo)
 
     val expr1 = Expr(Expr.Variant.Int64Val(Int64Val(v = 1, src = src)))
     val expr2 = Expr(Expr.Variant.NullVal(NullVal(src = src)))
@@ -214,7 +214,7 @@ class InternalColumnSuite extends UnitTestBase {
 
   test("column equal_nan") {
     val srcPositionInfo = SrcPositionInfo("test", 1, 12)
-    val src = createSroPosition(srcPositionInfo)
+    val src = createSrcPosition(srcPositionInfo)
 
     val expr = Expr()
     val column = Column(expr)
@@ -227,7 +227,7 @@ class InternalColumnSuite extends UnitTestBase {
 
   test("column is_null and isNull") {
     val srcPositionInfo = SrcPositionInfo("test", 1, 12)
-    val src = createSroPosition(srcPositionInfo)
+    val src = createSrcPosition(srcPositionInfo)
 
     val expr = Expr()
     val column = Column(expr)
@@ -241,7 +241,7 @@ class InternalColumnSuite extends UnitTestBase {
 
   test("column is_not_null") {
     val srcPositionInfo = SrcPositionInfo("test", 1, 12)
-    val src = createSroPosition(srcPositionInfo)
+    val src = createSrcPosition(srcPositionInfo)
 
     val expr = Expr()
     val column = Column(expr)
@@ -253,7 +253,7 @@ class InternalColumnSuite extends UnitTestBase {
 
   test("column || or") {
     val srcPositionInfo = SrcPositionInfo("test", 1, 12)
-    val src = createSroPosition(srcPositionInfo)
+    val src = createSrcPosition(srcPositionInfo)
 
     val expr1 = Expr(Expr.Variant.BoolVal(BoolVal(v = true, src = src)))
     val expr2 = Expr(Expr.Variant.BoolVal(BoolVal(v = false, src = src)))
@@ -273,7 +273,7 @@ class InternalColumnSuite extends UnitTestBase {
 
   test("column && and") {
     val srcPositionInfo = SrcPositionInfo("test", 1, 12)
-    val src = createSroPosition(srcPositionInfo)
+    val src = createSrcPosition(srcPositionInfo)
 
     val expr1 = Expr(Expr.Variant.BoolVal(BoolVal(v = true, src = src)))
     val expr2 = Expr(Expr.Variant.BoolVal(BoolVal(v = false, src = src)))
@@ -293,7 +293,7 @@ class InternalColumnSuite extends UnitTestBase {
 
   test("column between") {
     val srcPositionInfo = SrcPositionInfo("test", 1, 12)
-    val src = createSroPosition(srcPositionInfo)
+    val src = createSrcPosition(srcPositionInfo)
 
     val expr = Expr(Expr.Variant.Int64Val(Int64Val(v = 5, src = src)))
     val lowerExpr = Expr(Expr.Variant.Int64Val(Int64Val(v = 3, src = src)))
@@ -315,7 +315,7 @@ class InternalColumnSuite extends UnitTestBase {
 
   test("column + plus") {
     val srcPositionInfo = SrcPositionInfo("test", 1, 12)
-    val src = createSroPosition(srcPositionInfo)
+    val src = createSrcPosition(srcPositionInfo)
 
     val expr1 = Expr(Expr.Variant.Int64Val(Int64Val(v = 1, src = src)))
     val expr2 = Expr(Expr.Variant.Int64Val(Int64Val(v = 2, src = src)))
@@ -330,7 +330,7 @@ class InternalColumnSuite extends UnitTestBase {
 
   test("column - minus") {
     val srcPositionInfo = SrcPositionInfo("test", 1, 12)
-    val src = createSroPosition(srcPositionInfo)
+    val src = createSrcPosition(srcPositionInfo)
 
     val expr1 = Expr(Expr.Variant.Int64Val(Int64Val(v = 1, src = src)))
     val expr2 = Expr(Expr.Variant.Int64Val(Int64Val(v = 2, src = src)))
@@ -345,7 +345,7 @@ class InternalColumnSuite extends UnitTestBase {
 
   test("column * multiply") {
     val srcPositionInfo = SrcPositionInfo("test", 1, 12)
-    val src = createSroPosition(srcPositionInfo)
+    val src = createSrcPosition(srcPositionInfo)
 
     val expr1 = Expr(Expr.Variant.Int64Val(Int64Val(v = 1, src = src)))
     val expr2 = Expr(Expr.Variant.Int64Val(Int64Val(v = 2, src = src)))
@@ -360,7 +360,7 @@ class InternalColumnSuite extends UnitTestBase {
 
   test("column / divide") {
     val srcPositionInfo = SrcPositionInfo("test", 1, 12)
-    val src = createSroPosition(srcPositionInfo)
+    val src = createSrcPosition(srcPositionInfo)
 
     val expr1 = Expr(Expr.Variant.Int64Val(Int64Val(v = 1, src = src)))
     val expr2 = Expr(Expr.Variant.Int64Val(Int64Val(v = 2, src = src)))
@@ -375,7 +375,7 @@ class InternalColumnSuite extends UnitTestBase {
 
   test("column % remainder") {
     val srcPositionInfo = SrcPositionInfo("test", 1, 12)
-    val src = createSroPosition(srcPositionInfo)
+    val src = createSrcPosition(srcPositionInfo)
 
     val expr1 = Expr(Expr.Variant.Int64Val(Int64Val(v = 1, src = src)))
     val expr2 = Expr(Expr.Variant.Int64Val(Int64Val(v = 2, src = src)))
@@ -390,7 +390,7 @@ class InternalColumnSuite extends UnitTestBase {
 
   test("column desc") {
     val srcPositionInfo = SrcPositionInfo("test", 1, 12)
-    implicit val src: Option[SrcPosition] = createSroPosition(srcPositionInfo)
+    implicit val src: Option[SrcPosition] = createSrcPosition(srcPositionInfo)
 
     val expr = Expr(
       Expr.Variant.ListVal(
@@ -411,7 +411,7 @@ class InternalColumnSuite extends UnitTestBase {
 
   test("column desc_nulls_first") {
     val srcPositionInfo = SrcPositionInfo("test", 1, 12)
-    implicit val src: Option[SrcPosition] = createSroPosition(srcPositionInfo)
+    implicit val src: Option[SrcPosition] = createSrcPosition(srcPositionInfo)
 
     val expr = Expr(
       Expr.Variant.ListVal(
@@ -432,7 +432,7 @@ class InternalColumnSuite extends UnitTestBase {
 
   test("column desc_nulls_last") {
     val srcPositionInfo = SrcPositionInfo("test", 1, 12)
-    implicit val src: Option[SrcPosition] = createSroPosition(srcPositionInfo)
+    implicit val src: Option[SrcPosition] = createSrcPosition(srcPositionInfo)
 
     val expr = Expr(
       Expr.Variant.ListVal(
@@ -453,7 +453,7 @@ class InternalColumnSuite extends UnitTestBase {
 
   test("column asc") {
     val srcPositionInfo = SrcPositionInfo("test", 1, 12)
-    implicit val src: Option[SrcPosition] = createSroPosition(srcPositionInfo)
+    implicit val src: Option[SrcPosition] = createSrcPosition(srcPositionInfo)
 
     val expr = Expr(
       Expr.Variant.ListVal(
@@ -474,7 +474,7 @@ class InternalColumnSuite extends UnitTestBase {
 
   test("column asc_nulls_first") {
     val srcPositionInfo = SrcPositionInfo("test", 1, 12)
-    implicit val src: Option[SrcPosition] = createSroPosition(srcPositionInfo)
+    implicit val src: Option[SrcPosition] = createSrcPosition(srcPositionInfo)
 
     val expr = Expr(
       Expr.Variant.ListVal(
@@ -495,7 +495,7 @@ class InternalColumnSuite extends UnitTestBase {
 
   test("column asc_nulls_last") {
     val srcPositionInfo = SrcPositionInfo("test", 1, 12)
-    implicit val src: Option[SrcPosition] = createSroPosition(srcPositionInfo)
+    implicit val src: Option[SrcPosition] = createSrcPosition(srcPositionInfo)
 
     val expr = Expr(
       Expr.Variant.ListVal(
@@ -516,7 +516,7 @@ class InternalColumnSuite extends UnitTestBase {
 
   test("column bitor") {
     val srcPositionInfo = SrcPositionInfo("test", 1, 12)
-    val src = createSroPosition(srcPositionInfo)
+    val src = createSrcPosition(srcPositionInfo)
 
     val expr1 = Expr(Expr.Variant.Int64Val(Int64Val(v = 3, src = src)))
     val expr2 = Expr(Expr.Variant.Int64Val(Int64Val(v = 6, src = src)))
@@ -531,7 +531,7 @@ class InternalColumnSuite extends UnitTestBase {
 
   test("column bitand") {
     val srcPositionInfo = SrcPositionInfo("test", 1, 12)
-    val src = createSroPosition(srcPositionInfo)
+    val src = createSrcPosition(srcPositionInfo)
 
     val expr1 = Expr(Expr.Variant.Int64Val(Int64Val(v = 3, src = src)))
     val expr2 = Expr(Expr.Variant.Int64Val(Int64Val(v = 6, src = src)))
@@ -546,7 +546,7 @@ class InternalColumnSuite extends UnitTestBase {
 
   test("column bitxor") {
     val srcPositionInfo = SrcPositionInfo("test", 1, 12)
-    val src = createSroPosition(srcPositionInfo)
+    val src = createSrcPosition(srcPositionInfo)
 
     val expr1 = Expr(Expr.Variant.Int64Val(Int64Val(v = 3, src = src)))
     val expr2 = Expr(Expr.Variant.Int64Val(Int64Val(v = 6, src = src)))
@@ -561,7 +561,7 @@ class InternalColumnSuite extends UnitTestBase {
 
   test("column like with pattern") {
     val srcPositionInfo = SrcPositionInfo("test", 1, 12)
-    val src = createSroPosition(srcPositionInfo)
+    val src = createSrcPosition(srcPositionInfo)
 
     val expr = Expr()
     val pattern = "tesT"
@@ -579,7 +579,7 @@ class InternalColumnSuite extends UnitTestBase {
 
   test("column regexp") {
     val srcPositionInfo = SrcPositionInfo("test", 1, 12)
-    val src = createSroPosition(srcPositionInfo)
+    val src = createSrcPosition(srcPositionInfo)
 
     val expr = Expr()
     val pattern = "tesT"
@@ -597,7 +597,7 @@ class InternalColumnSuite extends UnitTestBase {
 
   test("column withinGroup") {
     val srcPositionInfo = SrcPositionInfo("test", 1, 12)
-    implicit val src: Option[SrcPosition] = createSroPosition(srcPositionInfo)
+    implicit val src: Option[SrcPosition] = createSrcPosition(srcPositionInfo)
 
     val cols = Seq(Column(Expr()), Column(Expr()))
     val expr = Expr()
@@ -615,7 +615,7 @@ class InternalColumnSuite extends UnitTestBase {
 
   test("column collate") {
     val srcPositionInfo = SrcPositionInfo("test", 1, 12)
-    val src = createSroPosition(srcPositionInfo)
+    val src = createSrcPosition(srcPositionInfo)
 
     val expr = Expr()
     val spec = "tesT"

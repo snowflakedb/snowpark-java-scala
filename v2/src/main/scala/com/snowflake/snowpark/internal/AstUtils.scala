@@ -33,7 +33,7 @@ object AstUtils {
     LanguageMessage.of(LanguageMessage.SealedValue.ScalaLanguage(
       ScalaLanguage(version = Some(parseVersion(BuildInfo.scalaVersion))))))
 
-  private[snowpark] def createSroPosition(
+  private[snowpark] def createSrcPosition(
       srcPositionInfo: SrcPositionInfo,
       filenames: FilenameTable = filenameTable): Option[SrcPosition] = {
     if (srcPositionInfo != null) {
@@ -46,7 +46,7 @@ object AstUtils {
   }
 
   private[snowpark] def createExpr(value: Any, srcPositionInfo: SrcPositionInfo): Expr = {
-    toExpr(value, createSroPosition(srcPositionInfo))
+    toExpr(value, createSrcPosition(srcPositionInfo))
   }
 
   private def toExpr(value: Any, srcPosition: Option[SrcPosition] = None): Expr = value match {

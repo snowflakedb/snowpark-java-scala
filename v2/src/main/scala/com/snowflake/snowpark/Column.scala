@@ -45,7 +45,7 @@ case class Column(override private[snowpark] val expr: Expr) extends ExprNode wi
     Column(
       Expr.Variant.ColumnIn(ColumnIn(
         col = Some(expr),
-        src = createSroPosition(src),
+        src = createSrcPosition(src),
         values = values.map {
           // todo: SNOW-1974661 add support for dataframe and tuple literals
           case df: DataFrame => null
@@ -114,7 +114,7 @@ case class Column(override private[snowpark] val expr: Expr) extends ExprNode wi
   def apply(field: String)(implicit src: SrcPositionInfo): Column =
     Column(
       Expr.Variant.ColumnApplyString(
-        ColumnApply_String(col = Some(expr), field = field, src = createSroPosition(src))))
+        ColumnApply_String(col = Some(expr), field = field, src = createSrcPosition(src))))
 
   /**
    * Returns the element (field) at the specified index in a column that contains
@@ -154,7 +154,7 @@ case class Column(override private[snowpark] val expr: Expr) extends ExprNode wi
   def apply(idx: Int)(implicit src: SrcPositionInfo): Column =
     Column(
       Expr.Variant.ColumnApplyInt(
-        ColumnApply_Int(col = Some(expr), idx = idx, src = createSroPosition(src))))
+        ColumnApply_Int(col = Some(expr), idx = idx, src = createSrcPosition(src))))
 
   /**
    * Returns the column name (if the column has a name).
@@ -201,7 +201,7 @@ case class Column(override private[snowpark] val expr: Expr) extends ExprNode wi
    * @since 0.1.0
    */
   def unary_-(implicit src: SrcPositionInfo): Column =
-    Column(Expr.Variant.Neg(Neg(operand = Some(expr), src = createSroPosition(src))))
+    Column(Expr.Variant.Neg(Neg(operand = Some(expr), src = createSrcPosition(src))))
 
   /**
    * Unary not.
@@ -209,7 +209,7 @@ case class Column(override private[snowpark] val expr: Expr) extends ExprNode wi
    * @since 0.1.0
    */
   def unary_!(implicit src: SrcPositionInfo): Column =
-    Column(Expr.Variant.Not(Not(operand = Some(expr), src = createSroPosition(src))))
+    Column(Expr.Variant.Not(Not(operand = Some(expr), src = createSrcPosition(src))))
 
   /**
    * Equal to. Alias for [[equal_to]]. Use this instead of `==` to perform an equality check in an
@@ -224,7 +224,7 @@ case class Column(override private[snowpark] val expr: Expr) extends ExprNode wi
   def ===(other: Any)(implicit src: SrcPositionInfo): Column =
     Column(
       Expr.Variant.Eq(
-        Eq(lhs = Some(expr), rhs = Some(createExpr(other, src)), src = createSroPosition(src))))
+        Eq(lhs = Some(expr), rhs = Some(createExpr(other, src)), src = createSrcPosition(src))))
 
   /**
    * Equal to. Same as `===`.
@@ -242,7 +242,7 @@ case class Column(override private[snowpark] val expr: Expr) extends ExprNode wi
   def =!=(other: Any)(implicit src: SrcPositionInfo): Column =
     Column(
       Expr.Variant.Neq(
-        Neq(lhs = Some(expr), rhs = Some(createExpr(other, src)), src = createSroPosition(src))))
+        Neq(lhs = Some(expr), rhs = Some(createExpr(other, src)), src = createSrcPosition(src))))
 
   /**
    * Not equal to.
@@ -259,7 +259,7 @@ case class Column(override private[snowpark] val expr: Expr) extends ExprNode wi
   def >(other: Any)(implicit src: SrcPositionInfo) =
     Column(
       Expr.Variant.Gt(
-        Gt(lhs = Some(expr), rhs = Some(createExpr(other, src)), src = createSroPosition(src))))
+        Gt(lhs = Some(expr), rhs = Some(createExpr(other, src)), src = createSrcPosition(src))))
 
   /**
    * Greater than.
@@ -276,7 +276,7 @@ case class Column(override private[snowpark] val expr: Expr) extends ExprNode wi
   def <(other: Any)(implicit src: SrcPositionInfo): Column =
     Column(
       Expr.Variant.Lt(
-        Lt(lhs = Some(expr), rhs = Some(createExpr(other, src)), src = createSroPosition(src))))
+        Lt(lhs = Some(expr), rhs = Some(createExpr(other, src)), src = createSrcPosition(src))))
 
   /**
    * Less than.
@@ -293,7 +293,7 @@ case class Column(override private[snowpark] val expr: Expr) extends ExprNode wi
   def <=(other: Any)(implicit src: SrcPositionInfo): Column =
     Column(
       Expr.Variant.Leq(
-        Leq(lhs = Some(expr), rhs = Some(createExpr(other, src)), src = createSroPosition(src))))
+        Leq(lhs = Some(expr), rhs = Some(createExpr(other, src)), src = createSrcPosition(src))))
 
   /**
    * Less than or equal to.
@@ -310,7 +310,7 @@ case class Column(override private[snowpark] val expr: Expr) extends ExprNode wi
   def >=(other: Any)(implicit src: SrcPositionInfo): Column =
     Column(
       Expr.Variant.Geq(
-        Geq(lhs = Some(expr), rhs = Some(createExpr(other, src)), src = createSroPosition(src))))
+        Geq(lhs = Some(expr), rhs = Some(createExpr(other, src)), src = createSrcPosition(src))))
 
   /**
    * Greater than or equal to.
@@ -331,7 +331,7 @@ case class Column(override private[snowpark] val expr: Expr) extends ExprNode wi
         ColumnEqualNull(
           lhs = Some(expr),
           rhs = Some(createExpr(other, src)),
-          src = createSroPosition(src))))
+          src = createSrcPosition(src))))
 
   /**
    * Equal to. You can use this for comparisons against a null value.
@@ -347,7 +347,7 @@ case class Column(override private[snowpark] val expr: Expr) extends ExprNode wi
    */
   def equal_nan(implicit src: SrcPositionInfo): Column =
     Column(
-      Expr.Variant.ColumnEqualNan(ColumnEqualNan(col = Some(expr), src = createSroPosition(src))))
+      Expr.Variant.ColumnEqualNan(ColumnEqualNan(col = Some(expr), src = createSrcPosition(src))))
 
   /**
    * Is null.
@@ -355,7 +355,7 @@ case class Column(override private[snowpark] val expr: Expr) extends ExprNode wi
    * @since 0.1.0
    */
   def is_null(implicit src: SrcPositionInfo): Column =
-    Column(Expr.Variant.ColumnIsNull(ColumnIsNull(col = Some(expr), src = createSroPosition(src))))
+    Column(Expr.Variant.ColumnIsNull(ColumnIsNull(col = Some(expr), src = createSrcPosition(src))))
 
   /**
    * Wrapper for is_null function.
@@ -372,7 +372,7 @@ case class Column(override private[snowpark] val expr: Expr) extends ExprNode wi
    */
   def is_not_null(implicit src: SrcPositionInfo): Column =
     Column(
-      Expr.Variant.ColumnIsNotNull(ColumnIsNotNull(col = Some(expr), src = createSroPosition(src))))
+      Expr.Variant.ColumnIsNotNull(ColumnIsNotNull(col = Some(expr), src = createSrcPosition(src))))
 
   /**
    * Or. Alias for [[or]].
@@ -382,7 +382,7 @@ case class Column(override private[snowpark] val expr: Expr) extends ExprNode wi
   def ||(other: Any)(implicit src: SrcPositionInfo): Column =
     Column(
       Expr.Variant.Or(
-        Or(lhs = Some(expr), rhs = Some(createExpr(other, src)), src = createSroPosition(src))))
+        Or(lhs = Some(expr), rhs = Some(createExpr(other, src)), src = createSrcPosition(src))))
 
   /**
    * Or.
@@ -399,7 +399,7 @@ case class Column(override private[snowpark] val expr: Expr) extends ExprNode wi
   def &&(other: Any)(implicit src: SrcPositionInfo): Column =
     Column(
       Expr.Variant.And(
-        And(lhs = Some(expr), rhs = Some(createExpr(other, src)), src = createSroPosition(src))))
+        And(lhs = Some(expr), rhs = Some(createExpr(other, src)), src = createSrcPosition(src))))
 
   /**
    * And.
@@ -425,7 +425,7 @@ case class Column(override private[snowpark] val expr: Expr) extends ExprNode wi
   def +(other: Any)(implicit src: SrcPositionInfo): Column =
     Column(
       Expr.Variant.Add(
-        Add(lhs = Some(expr), rhs = Some(createExpr(other, src)), src = createSroPosition(src))))
+        Add(lhs = Some(expr), rhs = Some(createExpr(other, src)), src = createSrcPosition(src))))
 
   /**
    * Plus.
@@ -442,7 +442,7 @@ case class Column(override private[snowpark] val expr: Expr) extends ExprNode wi
   def -(other: Any)(implicit src: SrcPositionInfo): Column =
     Column(
       Expr.Variant.Sub(
-        Sub(lhs = Some(expr), rhs = Some(createExpr(other, src)), src = createSroPosition(src))))
+        Sub(lhs = Some(expr), rhs = Some(createExpr(other, src)), src = createSrcPosition(src))))
 
   /**
    * Minus.
@@ -459,7 +459,7 @@ case class Column(override private[snowpark] val expr: Expr) extends ExprNode wi
   def *(other: Any)(implicit src: SrcPositionInfo): Column =
     Column(
       Expr.Variant.Mul(
-        Mul(lhs = Some(expr), rhs = Some(createExpr(other, src)), src = createSroPosition(src))))
+        Mul(lhs = Some(expr), rhs = Some(createExpr(other, src)), src = createSrcPosition(src))))
 
   /**
    * Multiply.
@@ -476,7 +476,7 @@ case class Column(override private[snowpark] val expr: Expr) extends ExprNode wi
   def /(other: Any)(implicit src: SrcPositionInfo): Column =
     Column(
       Expr.Variant.Div(
-        Div(lhs = Some(expr), rhs = Some(createExpr(other, src)), src = createSroPosition(src))))
+        Div(lhs = Some(expr), rhs = Some(createExpr(other, src)), src = createSrcPosition(src))))
 
   /**
    * Divide.
@@ -493,7 +493,7 @@ case class Column(override private[snowpark] val expr: Expr) extends ExprNode wi
   def %(other: Any)(implicit src: SrcPositionInfo): Column =
     Column(
       Expr.Variant.Mod(
-        Mod(lhs = Some(expr), rhs = Some(createExpr(other, src)), src = createSroPosition(src))))
+        Mod(lhs = Some(expr), rhs = Some(createExpr(other, src)), src = createSrcPosition(src))))
 
   /**
    * Remainder.
@@ -520,7 +520,7 @@ case class Column(override private[snowpark] val expr: Expr) extends ExprNode wi
         ColumnDesc(
           col = Some(expr),
           nullOrder = Some(NullOrder(variant = NullOrder.Variant.NullOrderDefault(true))),
-          src = createSroPosition(src))))
+          src = createSrcPosition(src))))
 
   /**
    * Returns a Column expression with values sorted in descending order (null values sorted before
@@ -535,7 +535,7 @@ case class Column(override private[snowpark] val expr: Expr) extends ExprNode wi
         ColumnDesc(
           col = Some(expr),
           nullOrder = Some(NullOrder(variant = NullOrder.Variant.NullOrderNullsFirst(true))),
-          src = createSroPosition(src))))
+          src = createSrcPosition(src))))
 
   /**
    * Returns a Column expression with values sorted in descending order (null values sorted after
@@ -550,7 +550,7 @@ case class Column(override private[snowpark] val expr: Expr) extends ExprNode wi
         ColumnDesc(
           col = Some(expr),
           nullOrder = Some(NullOrder(variant = NullOrder.Variant.NullOrderNullsLast(true))),
-          src = createSroPosition(src))))
+          src = createSrcPosition(src))))
 
   /**
    * Returns a Column expression with values sorted in ascending order.
@@ -564,7 +564,7 @@ case class Column(override private[snowpark] val expr: Expr) extends ExprNode wi
         ColumnAsc(
           col = Some(expr),
           nullOrder = Some(NullOrder(variant = NullOrder.Variant.NullOrderDefault(true))),
-          src = createSroPosition(src))))
+          src = createSrcPosition(src))))
 
   /**
    * Returns a Column expression with values sorted in ascending order (null values sorted before
@@ -579,7 +579,7 @@ case class Column(override private[snowpark] val expr: Expr) extends ExprNode wi
         ColumnAsc(
           col = Some(expr),
           nullOrder = Some(NullOrder(variant = NullOrder.Variant.NullOrderNullsFirst(true))),
-          src = createSroPosition(src))))
+          src = createSrcPosition(src))))
 
   /**
    * Returns a Column expression with values sorted in ascending order (null values sorted after
@@ -594,7 +594,7 @@ case class Column(override private[snowpark] val expr: Expr) extends ExprNode wi
         ColumnAsc(
           col = Some(expr),
           nullOrder = Some(NullOrder(variant = NullOrder.Variant.NullOrderNullsLast(true))),
-          src = createSroPosition(src))))
+          src = createSrcPosition(src))))
 
   /**
    * Bitwise or.
@@ -605,7 +605,7 @@ case class Column(override private[snowpark] val expr: Expr) extends ExprNode wi
   def bitor(other: Column)(implicit src: SrcPositionInfo): Column =
     Column(
       Expr.Variant.BitOr(
-        BitOr(lhs = Some(expr), rhs = Some(createExpr(other, src)), src = createSroPosition(src))))
+        BitOr(lhs = Some(expr), rhs = Some(createExpr(other, src)), src = createSrcPosition(src))))
 
   /**
    * Bitwise and.
@@ -616,7 +616,7 @@ case class Column(override private[snowpark] val expr: Expr) extends ExprNode wi
   def bitand(other: Column)(implicit src: SrcPositionInfo): Column =
     Column(
       Expr.Variant.BitAnd(
-        BitAnd(lhs = Some(expr), rhs = Some(createExpr(other, src)), src = createSroPosition(src))))
+        BitAnd(lhs = Some(expr), rhs = Some(createExpr(other, src)), src = createSrcPosition(src))))
 
   /**
    * Bitwise xor.
@@ -627,7 +627,7 @@ case class Column(override private[snowpark] val expr: Expr) extends ExprNode wi
   def bitxor(other: Column)(implicit src: SrcPositionInfo): Column =
     Column(
       Expr.Variant.BitXor(
-        BitXor(lhs = Some(expr), rhs = Some(createExpr(other, src)), src = createSroPosition(src))))
+        BitXor(lhs = Some(expr), rhs = Some(createExpr(other, src)), src = createSrcPosition(src))))
 
   /**
    * Returns a windows frame, based on the specified [[WindowSpec]].
@@ -660,7 +660,7 @@ case class Column(override private[snowpark] val expr: Expr) extends ExprNode wi
         ColumnStringLike(
           col = Some(expr),
           pattern = Some(createExpr(pattern, src)),
-          src = createSroPosition(src))))
+          src = createSrcPosition(src))))
 
   // scalastyle:off
   /**
@@ -679,7 +679,7 @@ case class Column(override private[snowpark] val expr: Expr) extends ExprNode wi
         ColumnRegexp(
           col = Some(expr),
           pattern = Some(createExpr(pattern, src)),
-          src = createSroPosition(src))))
+          src = createSrcPosition(src))))
 
   /**
    * Returns a Column expression that adds a WITHIN GROUP clause to sort the rows by the specified
@@ -750,7 +750,7 @@ case class Column(override private[snowpark] val expr: Expr) extends ExprNode wi
         ColumnWithinGroup(
           col = Some(expr),
           cols = Some(ExprArgList(cols.map(col => col.expr))),
-          src = createSroPosition(src))))
+          src = createSrcPosition(src))))
 
   // scalastyle:off
   /**
@@ -770,7 +770,7 @@ case class Column(override private[snowpark] val expr: Expr) extends ExprNode wi
         ColumnStringCollate(
           col = Some(expr),
           collationSpec = Some(createExpr(collateSpec, src)),
-          src = createSroPosition(src))))
+          src = createSrcPosition(src))))
 
 }
 
