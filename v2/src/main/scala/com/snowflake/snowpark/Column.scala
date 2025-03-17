@@ -514,7 +514,13 @@ case class Column(override private[snowpark] val expr: Expr) extends ExprNode wi
    * @group op
    * @since 0.1.0
    */
-  def desc: Column = null
+  def desc(implicit src: SrcPositionInfo): Column =
+    Column(
+      Expr.Variant.ColumnDesc(
+        ColumnDesc(
+          col = Some(expr),
+          nullOrder = Some(NullOrder(variant = NullOrder.Variant.NullOrderDefault(true))),
+          src = createSroPosition(src))))
 
   /**
    * Returns a Column expression with values sorted in descending order (null values sorted before
@@ -523,7 +529,13 @@ case class Column(override private[snowpark] val expr: Expr) extends ExprNode wi
    * @group op
    * @since 0.1.0
    */
-  def desc_nulls_first: Column = null
+  def desc_nulls_first(implicit src: SrcPositionInfo): Column =
+    Column(
+      Expr.Variant.ColumnDesc(
+        ColumnDesc(
+          col = Some(expr),
+          nullOrder = Some(NullOrder(variant = NullOrder.Variant.NullOrderNullsFirst(true))),
+          src = createSroPosition(src))))
 
   /**
    * Returns a Column expression with values sorted in descending order (null values sorted after
@@ -532,7 +544,13 @@ case class Column(override private[snowpark] val expr: Expr) extends ExprNode wi
    * @group op
    * @since 0.1.0
    */
-  def desc_nulls_last: Column = null
+  def desc_nulls_last(implicit src: SrcPositionInfo): Column =
+    Column(
+      Expr.Variant.ColumnDesc(
+        ColumnDesc(
+          col = Some(expr),
+          nullOrder = Some(NullOrder(variant = NullOrder.Variant.NullOrderNullsLast(true))),
+          src = createSroPosition(src))))
 
   /**
    * Returns a Column expression with values sorted in ascending order.
@@ -540,7 +558,13 @@ case class Column(override private[snowpark] val expr: Expr) extends ExprNode wi
    * @group op
    * @since 0.1.0
    */
-  def asc: Column = null
+  def asc(implicit src: SrcPositionInfo): Column =
+    Column(
+      Expr.Variant.ColumnAsc(
+        ColumnAsc(
+          col = Some(expr),
+          nullOrder = Some(NullOrder(variant = NullOrder.Variant.NullOrderDefault(true))),
+          src = createSroPosition(src))))
 
   /**
    * Returns a Column expression with values sorted in ascending order (null values sorted before
@@ -549,7 +573,13 @@ case class Column(override private[snowpark] val expr: Expr) extends ExprNode wi
    * @group op
    * @since 0.1.0
    */
-  def asc_nulls_first: Column = null
+  def asc_nulls_first(implicit src: SrcPositionInfo): Column =
+    Column(
+      Expr.Variant.ColumnAsc(
+        ColumnAsc(
+          col = Some(expr),
+          nullOrder = Some(NullOrder(variant = NullOrder.Variant.NullOrderNullsFirst(true))),
+          src = createSroPosition(src))))
 
   /**
    * Returns a Column expression with values sorted in ascending order (null values sorted after
@@ -558,7 +588,13 @@ case class Column(override private[snowpark] val expr: Expr) extends ExprNode wi
    * @group op
    * @since 0.1.0
    */
-  def asc_nulls_last: Column = null
+  def asc_nulls_last(implicit src: SrcPositionInfo): Column =
+    Column(
+      Expr.Variant.ColumnAsc(
+        ColumnAsc(
+          col = Some(expr),
+          nullOrder = Some(NullOrder(variant = NullOrder.Variant.NullOrderNullsLast(true))),
+          src = createSroPosition(src))))
 
   /**
    * Bitwise or.
@@ -566,7 +602,10 @@ case class Column(override private[snowpark] val expr: Expr) extends ExprNode wi
    * @group op
    * @since 0.1.0
    */
-  def bitor(other: Column): Column = null
+  def bitor(other: Column)(implicit src: SrcPositionInfo): Column =
+    Column(
+      Expr.Variant.BitOr(
+        BitOr(lhs = Some(expr), rhs = Some(createExpr(other, src)), src = createSroPosition(src))))
 
   /**
    * Bitwise and.
@@ -574,7 +613,10 @@ case class Column(override private[snowpark] val expr: Expr) extends ExprNode wi
    * @group op
    * @since 0.1.0
    */
-  def bitand(other: Column): Column = null
+  def bitand(other: Column)(implicit src: SrcPositionInfo): Column =
+    Column(
+      Expr.Variant.BitAnd(
+        BitAnd(lhs = Some(expr), rhs = Some(createExpr(other, src)), src = createSroPosition(src))))
 
   /**
    * Bitwise xor.
@@ -582,7 +624,10 @@ case class Column(override private[snowpark] val expr: Expr) extends ExprNode wi
    * @group op
    * @since 0.1.0
    */
-  def bitxor(other: Column): Column = null
+  def bitxor(other: Column)(implicit src: SrcPositionInfo): Column =
+    Column(
+      Expr.Variant.BitXor(
+        BitXor(lhs = Some(expr), rhs = Some(createExpr(other, src)), src = createSroPosition(src))))
 
   /**
    * Returns a windows frame, based on the specified [[WindowSpec]].
@@ -609,7 +654,13 @@ case class Column(override private[snowpark] val expr: Expr) extends ExprNode wi
    * @group op
    * @since 0.1.0
    */
-  def like(pattern: Column): Column = null
+  def like(pattern: Column)(implicit src: SrcPositionInfo): Column =
+    Column(
+      Expr.Variant.ColumnStringLike(
+        ColumnStringLike(
+          col = Some(expr),
+          pattern = Some(createExpr(pattern, src)),
+          src = createSroPosition(src))))
 
   // scalastyle:off
   /**
@@ -622,7 +673,13 @@ case class Column(override private[snowpark] val expr: Expr) extends ExprNode wi
    * @since 0.1.0
    */
   // scalastyle:on
-  def regexp(pattern: Column): Column = null
+  def regexp(pattern: Column)(implicit src: SrcPositionInfo): Column =
+    Column(
+      Expr.Variant.ColumnRegexp(
+        ColumnRegexp(
+          col = Some(expr),
+          pattern = Some(createExpr(pattern, src)),
+          src = createSroPosition(src))))
 
   /**
    * Returns a Column expression that adds a WITHIN GROUP clause to sort the rows by the specified
@@ -654,8 +711,8 @@ case class Column(override private[snowpark] val expr: Expr) extends ExprNode wi
    * @group op
    * @since 0.6.0
    */
-  def withinGroup(first: Column, remaining: Column*): Column =
-    withinGroup(first +: remaining)
+  def withinGroup(first: Column, remaining: Column*)(implicit src: SrcPositionInfo): Column =
+    withinGroup(first +: remaining)(src)
 
   /**
    * Returns a Column expression that adds a WITHIN GROUP clause to sort the rows by the specified
@@ -687,7 +744,13 @@ case class Column(override private[snowpark] val expr: Expr) extends ExprNode wi
    * @group op
    * @since 0.6.0
    */
-  def withinGroup(cols: Seq[Column]): Column = null
+  def withinGroup(cols: Seq[Column])(implicit src: SrcPositionInfo): Column =
+    Column(
+      Expr.Variant.ColumnWithinGroup(
+        ColumnWithinGroup(
+          col = Some(expr),
+          cols = Some(ExprArgList(cols.map(col => col.expr))),
+          src = createSroPosition(src))))
 
   // scalastyle:off
   /**
@@ -701,7 +764,13 @@ case class Column(override private[snowpark] val expr: Expr) extends ExprNode wi
    * @since 0.1.0
    */
   // scalastyle:on
-  def collate(collateSpec: String): Column = null
+  def collate(collateSpec: String)(implicit src: SrcPositionInfo): Column =
+    Column(
+      Expr.Variant.ColumnStringCollate(
+        ColumnStringCollate(
+          col = Some(expr),
+          collationSpec = Some(createExpr(collateSpec, src)),
+          src = createSroPosition(src))))
 
 }
 

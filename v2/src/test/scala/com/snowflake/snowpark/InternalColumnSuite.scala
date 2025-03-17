@@ -52,7 +52,7 @@ class InternalColumnSuite extends UnitTestBase {
       column)
   }
 
-  test("unary minus") {
+  test("column unary minus") {
     val srcPositionInfo = SrcPositionInfo("test", 1, 12)
     val src = createSroPosition(srcPositionInfo)
 
@@ -62,7 +62,7 @@ class InternalColumnSuite extends UnitTestBase {
     checkAst(Expr(Expr.Variant.Neg(Neg(operand = Some(expr), src = src))), column)
   }
 
-  test("unary not") {
+  test("column unary not") {
     val srcPositionInfo = SrcPositionInfo("test", 1, 12)
     val src = createSroPosition(srcPositionInfo)
 
@@ -72,7 +72,7 @@ class InternalColumnSuite extends UnitTestBase {
     checkAst(Expr(Expr.Variant.Not(Not(operand = Some(expr), src = src))), column)
   }
 
-  test("=== and is_equal") {
+  test("column === and is_equal") {
     val srcPositionInfo = SrcPositionInfo("test", 1, 12)
     val src = createSroPosition(srcPositionInfo)
 
@@ -92,7 +92,7 @@ class InternalColumnSuite extends UnitTestBase {
     checkAst(expectedExpr, (column1 equal_to column2)(srcPositionInfo))
   }
 
-  test("=!= and not_equal") {
+  test("column =!= and not_equal") {
     val srcPositionInfo = SrcPositionInfo("test", 1, 12)
     val src = createSroPosition(srcPositionInfo)
 
@@ -112,7 +112,7 @@ class InternalColumnSuite extends UnitTestBase {
     checkAst(expectedExpr, (column1 not_equal column2)(srcPositionInfo))
   }
 
-  test("> gt") {
+  test("column > gt") {
     val srcPositionInfo = SrcPositionInfo("test", 1, 12)
     val src = createSroPosition(srcPositionInfo)
 
@@ -132,7 +132,7 @@ class InternalColumnSuite extends UnitTestBase {
     checkAst(expectedExpr, (column1 gt column2)(srcPositionInfo))
   }
 
-  test("< lt") {
+  test("column < lt") {
     val srcPositionInfo = SrcPositionInfo("test", 1, 12)
     val src = createSroPosition(srcPositionInfo)
 
@@ -152,7 +152,7 @@ class InternalColumnSuite extends UnitTestBase {
     checkAst(expectedExpr, (column1 lt column2)(srcPositionInfo))
   }
 
-  test("<= leq") {
+  test("column <= leq") {
     val srcPositionInfo = SrcPositionInfo("test", 1, 12)
     val src = createSroPosition(srcPositionInfo)
 
@@ -172,7 +172,7 @@ class InternalColumnSuite extends UnitTestBase {
     checkAst(expectedExpr, (column1 leq column2)(srcPositionInfo))
   }
 
-  test(">= geq") {
+  test("column >= geq") {
     val srcPositionInfo = SrcPositionInfo("test", 1, 12)
     val src = createSroPosition(srcPositionInfo)
 
@@ -192,7 +192,7 @@ class InternalColumnSuite extends UnitTestBase {
     checkAst(expectedExpr, (column1 geq column2)(srcPositionInfo))
   }
 
-  test("<=> equal_null") {
+  test("column <=> equal_null") {
     val srcPositionInfo = SrcPositionInfo("test", 1, 12)
     val src = createSroPosition(srcPositionInfo)
 
@@ -212,7 +212,7 @@ class InternalColumnSuite extends UnitTestBase {
     checkAst(expectedExpr, (column1 equal_null column2)(srcPositionInfo))
   }
 
-  test("equal_nan") {
+  test("column equal_nan") {
     val srcPositionInfo = SrcPositionInfo("test", 1, 12)
     val src = createSroPosition(srcPositionInfo)
 
@@ -225,7 +225,7 @@ class InternalColumnSuite extends UnitTestBase {
     checkAst(expectedExpr, column.equal_nan(srcPositionInfo))
   }
 
-  test("is_null and isNull") {
+  test("column is_null and isNull") {
     val srcPositionInfo = SrcPositionInfo("test", 1, 12)
     val src = createSroPosition(srcPositionInfo)
 
@@ -239,7 +239,7 @@ class InternalColumnSuite extends UnitTestBase {
     checkAst(expectedExpr, column.isNull(srcPositionInfo))
   }
 
-  test("is_not_null") {
+  test("column is_not_null") {
     val srcPositionInfo = SrcPositionInfo("test", 1, 12)
     val src = createSroPosition(srcPositionInfo)
 
@@ -251,7 +251,7 @@ class InternalColumnSuite extends UnitTestBase {
       column.is_not_null(srcPositionInfo))
   }
 
-  test("|| or") {
+  test("column || or") {
     val srcPositionInfo = SrcPositionInfo("test", 1, 12)
     val src = createSroPosition(srcPositionInfo)
 
@@ -271,7 +271,7 @@ class InternalColumnSuite extends UnitTestBase {
     checkAst(expectedExpr, (column1 or column2)(srcPositionInfo))
   }
 
-  test("&& and") {
+  test("column && and") {
     val srcPositionInfo = SrcPositionInfo("test", 1, 12)
     val src = createSroPosition(srcPositionInfo)
 
@@ -291,7 +291,7 @@ class InternalColumnSuite extends UnitTestBase {
     checkAst(expectedExpr, column1.and(column2)(srcPositionInfo))
   }
 
-  test("between") {
+  test("column between") {
     val srcPositionInfo = SrcPositionInfo("test", 1, 12)
     val src = createSroPosition(srcPositionInfo)
 
@@ -313,7 +313,7 @@ class InternalColumnSuite extends UnitTestBase {
     checkAst(expectedExpr, col.between(lowerCol, higherCol)(srcPositionInfo))
   }
 
-  test("+ plus") {
+  test("column + plus") {
     val srcPositionInfo = SrcPositionInfo("test", 1, 12)
     val src = createSroPosition(srcPositionInfo)
 
@@ -328,7 +328,7 @@ class InternalColumnSuite extends UnitTestBase {
     checkAst(expectedExpr, column1.plus(column2)(srcPositionInfo))
   }
 
-  test("- minus") {
+  test("column - minus") {
     val srcPositionInfo = SrcPositionInfo("test", 1, 12)
     val src = createSroPosition(srcPositionInfo)
 
@@ -343,7 +343,7 @@ class InternalColumnSuite extends UnitTestBase {
     checkAst(expectedExpr, column1.minus(column2)(srcPositionInfo))
   }
 
-  test("* multiply") {
+  test("column * multiply") {
     val srcPositionInfo = SrcPositionInfo("test", 1, 12)
     val src = createSroPosition(srcPositionInfo)
 
@@ -358,7 +358,7 @@ class InternalColumnSuite extends UnitTestBase {
     checkAst(expectedExpr, column1.multiply(column2)(srcPositionInfo))
   }
 
-  test("/ divide") {
+  test("column / divide") {
     val srcPositionInfo = SrcPositionInfo("test", 1, 12)
     val src = createSroPosition(srcPositionInfo)
 
@@ -373,7 +373,7 @@ class InternalColumnSuite extends UnitTestBase {
     checkAst(expectedExpr, column1.divide(column2)(srcPositionInfo))
   }
 
-  test("% remainder") {
+  test("column % remainder") {
     val srcPositionInfo = SrcPositionInfo("test", 1, 12)
     val src = createSroPosition(srcPositionInfo)
 
@@ -386,5 +386,248 @@ class InternalColumnSuite extends UnitTestBase {
 
     checkAst(expectedExpr, (column1 % column2)(srcPositionInfo))
     checkAst(expectedExpr, column1.mod(column2)(srcPositionInfo))
+  }
+
+  test("column desc") {
+    val srcPositionInfo = SrcPositionInfo("test", 1, 12)
+    implicit val src: Option[SrcPosition] = createSroPosition(srcPositionInfo)
+
+    val expr = Expr(
+      Expr.Variant.ListVal(
+        ListVal(vs = Seq(
+          Expr(Expr.Variant.Int64Val(Int64Val(v = 3, src = src))),
+          Expr(Expr.Variant.Int64Val(Int64Val(v = 1, src = src)))))))
+    val column = Column(expr).desc(src = srcPositionInfo)
+
+    checkAst(
+      Expr(
+        Expr.Variant.ColumnDesc(
+          ColumnDesc(
+            col = Some(expr),
+            nullOrder = Some(NullOrder(variant = NullOrder.Variant.NullOrderDefault(true))),
+            src = src))),
+      column)
+  }
+
+  test("column desc_nulls_first") {
+    val srcPositionInfo = SrcPositionInfo("test", 1, 12)
+    implicit val src: Option[SrcPosition] = createSroPosition(srcPositionInfo)
+
+    val expr = Expr(
+      Expr.Variant.ListVal(
+        ListVal(vs = Seq(
+          Expr(Expr.Variant.NullVal(NullVal(src = src))),
+          Expr(Expr.Variant.Int64Val(Int64Val(v = 1, src = src)))))))
+    val column = Column(expr).desc_nulls_first(src = srcPositionInfo)
+
+    checkAst(
+      Expr(
+        Expr.Variant.ColumnDesc(
+          ColumnDesc(
+            col = Some(expr),
+            nullOrder = Some(NullOrder(variant = NullOrder.Variant.NullOrderNullsFirst(true))),
+            src = src))),
+      column)
+  }
+
+  test("column desc_nulls_last") {
+    val srcPositionInfo = SrcPositionInfo("test", 1, 12)
+    implicit val src: Option[SrcPosition] = createSroPosition(srcPositionInfo)
+
+    val expr = Expr(
+      Expr.Variant.ListVal(
+        ListVal(vs = Seq(
+          Expr(Expr.Variant.NullVal(NullVal(src = src))),
+          Expr(Expr.Variant.Int64Val(Int64Val(v = 1, src = src)))))))
+    val column = Column(expr).desc_nulls_last(src = srcPositionInfo)
+
+    checkAst(
+      Expr(
+        Expr.Variant.ColumnDesc(
+          ColumnDesc(
+            col = Some(expr),
+            nullOrder = Some(NullOrder(variant = NullOrder.Variant.NullOrderNullsLast(true))),
+            src = src))),
+      column)
+  }
+
+  test("column asc") {
+    val srcPositionInfo = SrcPositionInfo("test", 1, 12)
+    implicit val src: Option[SrcPosition] = createSroPosition(srcPositionInfo)
+
+    val expr = Expr(
+      Expr.Variant.ListVal(
+        ListVal(vs = Seq(
+          Expr(Expr.Variant.Int64Val(Int64Val(v = 3, src = src))),
+          Expr(Expr.Variant.Int64Val(Int64Val(v = 1, src = src)))))))
+    val column = Column(expr).asc(src = srcPositionInfo)
+
+    checkAst(
+      Expr(
+        Expr.Variant.ColumnAsc(
+          ColumnAsc(
+            col = Some(expr),
+            nullOrder = Some(NullOrder(variant = NullOrder.Variant.NullOrderDefault(true))),
+            src = src))),
+      column)
+  }
+
+  test("column asc_nulls_first") {
+    val srcPositionInfo = SrcPositionInfo("test", 1, 12)
+    implicit val src: Option[SrcPosition] = createSroPosition(srcPositionInfo)
+
+    val expr = Expr(
+      Expr.Variant.ListVal(
+        ListVal(vs = Seq(
+          Expr(Expr.Variant.NullVal(NullVal(src = src))),
+          Expr(Expr.Variant.Int64Val(Int64Val(v = 1, src = src)))))))
+    val column = Column(expr).asc_nulls_first(src = srcPositionInfo)
+
+    checkAst(
+      Expr(
+        Expr.Variant.ColumnAsc(
+          ColumnAsc(
+            col = Some(expr),
+            nullOrder = Some(NullOrder(variant = NullOrder.Variant.NullOrderNullsFirst(true))),
+            src = src))),
+      column)
+  }
+
+  test("column asc_nulls_last") {
+    val srcPositionInfo = SrcPositionInfo("test", 1, 12)
+    implicit val src: Option[SrcPosition] = createSroPosition(srcPositionInfo)
+
+    val expr = Expr(
+      Expr.Variant.ListVal(
+        ListVal(vs = Seq(
+          Expr(Expr.Variant.NullVal(NullVal(src = src))),
+          Expr(Expr.Variant.Int64Val(Int64Val(v = 1, src = src)))))))
+    val column = Column(expr).asc_nulls_last(src = srcPositionInfo)
+
+    checkAst(
+      Expr(
+        Expr.Variant.ColumnAsc(
+          ColumnAsc(
+            col = Some(expr),
+            nullOrder = Some(NullOrder(variant = NullOrder.Variant.NullOrderNullsLast(true))),
+            src = src))),
+      column)
+  }
+
+  test("column bitor") {
+    val srcPositionInfo = SrcPositionInfo("test", 1, 12)
+    val src = createSroPosition(srcPositionInfo)
+
+    val expr1 = Expr(Expr.Variant.Int64Val(Int64Val(v = 3, src = src)))
+    val expr2 = Expr(Expr.Variant.Int64Val(Int64Val(v = 6, src = src)))
+    val column1 = Column(expr1)
+    val column2 = Column(expr2)
+
+    val expectedExpr =
+      Expr(Expr.Variant.BitOr(BitOr(lhs = Some(expr1), rhs = Some(expr2), src = src)))
+
+    checkAst(expectedExpr, (column1 bitor column2)(srcPositionInfo))
+  }
+
+  test("column bitand") {
+    val srcPositionInfo = SrcPositionInfo("test", 1, 12)
+    val src = createSroPosition(srcPositionInfo)
+
+    val expr1 = Expr(Expr.Variant.Int64Val(Int64Val(v = 3, src = src)))
+    val expr2 = Expr(Expr.Variant.Int64Val(Int64Val(v = 6, src = src)))
+    val column1 = Column(expr1)
+    val column2 = Column(expr2)
+
+    val expectedExpr =
+      Expr(Expr.Variant.BitAnd(BitAnd(lhs = Some(expr1), rhs = Some(expr2), src = src)))
+
+    checkAst(expectedExpr, (column1 bitand column2)(srcPositionInfo))
+  }
+
+  test("column bitxor") {
+    val srcPositionInfo = SrcPositionInfo("test", 1, 12)
+    val src = createSroPosition(srcPositionInfo)
+
+    val expr1 = Expr(Expr.Variant.Int64Val(Int64Val(v = 3, src = src)))
+    val expr2 = Expr(Expr.Variant.Int64Val(Int64Val(v = 6, src = src)))
+    val column1 = Column(expr1)
+    val column2 = Column(expr2)
+
+    val expectedExpr =
+      Expr(Expr.Variant.BitXor(BitXor(lhs = Some(expr1), rhs = Some(expr2), src = src)))
+
+    checkAst(expectedExpr, (column1 bitxor column2)(srcPositionInfo))
+  }
+
+  test("column like with pattern") {
+    val srcPositionInfo = SrcPositionInfo("test", 1, 12)
+    val src = createSroPosition(srcPositionInfo)
+
+    val expr = Expr()
+    val pattern = "tesT"
+    val column = Column(expr).like(Column(createExpr(pattern, srcPositionInfo)))(srcPositionInfo)
+
+    checkAst(
+      Expr(
+        Expr.Variant.ColumnStringLike(
+          ColumnStringLike(
+            col = Some(expr),
+            pattern = Some(createExpr(pattern, srcPositionInfo)),
+            src = src))),
+      column)
+  }
+
+  test("column regexp") {
+    val srcPositionInfo = SrcPositionInfo("test", 1, 12)
+    val src = createSroPosition(srcPositionInfo)
+
+    val expr = Expr()
+    val pattern = "tesT"
+    val column = Column(expr).regexp(Column(createExpr(pattern, srcPositionInfo)))(srcPositionInfo)
+
+    checkAst(
+      Expr(
+        Expr.Variant.ColumnRegexp(
+          ColumnRegexp(
+            col = Some(expr),
+            pattern = Some(createExpr(pattern, srcPositionInfo)),
+            src = src))),
+      column)
+  }
+
+  test("column withinGroup") {
+    val srcPositionInfo = SrcPositionInfo("test", 1, 12)
+    implicit val src: Option[SrcPosition] = createSroPosition(srcPositionInfo)
+
+    val cols = Seq(Column(Expr()), Column(Expr()))
+    val expr = Expr()
+    val column = Column(expr).withinGroup(cols)(srcPositionInfo)
+
+    checkAst(
+      Expr(
+        Expr.Variant.ColumnWithinGroup(
+          ColumnWithinGroup(
+            col = Some(expr),
+            cols = Some(ExprArgList(cols.map(col => col.expr))),
+            src = src))),
+      column)
+  }
+
+  test("column collate") {
+    val srcPositionInfo = SrcPositionInfo("test", 1, 12)
+    val src = createSroPosition(srcPositionInfo)
+
+    val expr = Expr()
+    val spec = "tesT"
+    val column = Column(expr).collate(spec)(srcPositionInfo)
+
+    checkAst(
+      Expr(
+        Expr.Variant.ColumnStringCollate(
+          ColumnStringCollate(
+            col = Some(expr),
+            collationSpec = Some(createExpr(spec, srcPositionInfo)),
+            src = src))),
+      column)
   }
 }
