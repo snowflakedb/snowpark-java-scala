@@ -1465,6 +1465,17 @@ class DataFrame private[snowpark] (
   }
 
   /**
+   * Returns a new DataFrame that skips the first `offset` rows (similar to SQL OFFSET).
+   *
+   * @param offset The number of rows to skip.
+   * @return A new DataFrame starting after the specified offset.
+   * @since 1.16.0
+   */
+  def offset(offset: Int): DataFrame = transformation("offset") {
+    withPlan(Offset(Literal(offset), plan))
+  }
+
+  /**
    * Returns a new DataFrame that contains all the rows in the current DataFrame and another
    * DataFrame (`other`), excluding any duplicate rows. Both input DataFrames must contain
    * the same number of columns.

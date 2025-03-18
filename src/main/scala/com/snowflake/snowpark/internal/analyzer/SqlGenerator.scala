@@ -110,6 +110,8 @@ private object SqlGenerator extends Logging {
       // limits
       case Limit(offset, child) =>
         limit(toSqlAvoidOffset(offset), resolveChild(child), Some(plan))
+      case Offset(offsetExpr, child) =>
+        offset(toSqlAvoidOffset(offsetExpr), resolveChild(child), Some(plan))
       case LimitOnSort(child, offset, order) =>
         limitOnSort(
           resolveChild(child),
