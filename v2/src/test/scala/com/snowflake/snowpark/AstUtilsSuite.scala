@@ -13,7 +13,7 @@ class AstUtilsSuite extends UnitTestBase {
   def checkAstWithSrcPosition(
       expected: Option[SrcPosition] => Any,
       actual: SrcPositionInfo => Expr)(implicit srcPositionInfo: SrcPositionInfo): Unit = {
-    val srcPosition = createSroPosition(srcPositionInfo)
+    val srcPosition = createSrcPosition(srcPositionInfo)
     val expectedExprWithSrc: Expr = expected(srcPosition) match {
       case expr: Expr => expr
       case variant: Variant => Expr(variant)
@@ -44,7 +44,7 @@ class AstUtilsSuite extends UnitTestBase {
 
   test("createExpr with Column value") {
     val expr = Expr(Variant.StringVal(StringVal(v = "test")))
-    val column = Column(expr)
+    val column = Column(expr, Set.empty[Int])
     checkAstWithSrcPosition(_ => expr, createExpr(column, _))
   }
 
