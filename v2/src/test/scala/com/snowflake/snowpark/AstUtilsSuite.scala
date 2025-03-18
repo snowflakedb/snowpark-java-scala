@@ -44,7 +44,7 @@ class AstUtilsSuite extends UnitTestBase {
 
   test("createExpr with Column value") {
     val expr = Expr(Variant.StringVal(StringVal(v = "test")))
-    val column = Column(expr)
+    val column = Column(expr, Set.empty[Int])
     checkAstWithSrcPosition(_ => expr, createExpr(column, _))
   }
 

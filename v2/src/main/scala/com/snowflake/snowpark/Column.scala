@@ -1,6 +1,6 @@
 package com.snowflake.snowpark
 
-import com.snowflake.snowpark.internal.{ExprNode, Logging, SrcPositionInfo}
+import com.snowflake.snowpark.internal.{AstUtils, ExprNode, Logging, NameIndices, SrcPositionInfo}
 import com.snowflake.snowpark.proto.ast._
 import com.snowflake.snowpark.internal.AstUtils._
 import com.snowflake.snowpark.types.DataType
@@ -46,16 +46,24 @@ case class Column(
    * @since 0.10.0
    */
   def in(values: Seq[Any])(implicit src: SrcPositionInfo): Column = {
+    val childNameIndices: collection.mutable.Set[Int] =
+      collection.mutable.Set(AstUtils.filenameTable.getFileId(src.filename))
+
     Column(
-      Expr.Variant.ColumnIn(ColumnIn(
-        col = Some(expr),
-        src = createSrcPosition(src),
-        values = values.map {
-          // todo: SNOW-1974661 add support for dataframe and tuple literals
-          case df: DataFrame => null
-          case tuple: Seq[_] => null
-          case v => createExpr(v, src)
-        })))
+      Expr.Variant.ColumnIn(
+        ColumnIn(
+          col = Some(expr),
+          src = createSrcPosition(src),
+          values = values.map {
+            // todo: SNOW-1974661 add support for dataframe and tuple literals
+            case df: DataFrame => null
+            case tuple: Seq[_] => null
+            case v: NameIndices =>
+              childNameIndices ++= v.nameIndices
+              createExpr(v, src)
+            case v => createExpr(v, src)
+          })),
+      childNameIndices.toSet)
   }
 
   /**
@@ -77,7 +85,7 @@ case class Column(
    * @group op
    * @since 0.10.0
    */
-  def in(df: DataFrame): Column = in(Seq(df))
+  def in(df: DataFrame)(implicit src: SrcPositionInfo): Column = in(Seq(df))(src)
 
   // scalastyle:off
   /**
@@ -118,7 +126,8 @@ case class Column(
   def apply(field: String)(implicit src: SrcPositionInfo): Column =
     Column(
       Expr.Variant.ColumnApplyString(
-        ColumnApply_String(col = Some(expr), field = field, src = createSrcPosition(src))))
+        ColumnApply_String(col = Some(expr), field = field, src = createSrcPosition(src))),
+      src)
 
   /**
    * Returns the element (field) at the specified index in a column that contains
@@ -158,21 +167,22 @@ case class Column(
   def apply(idx: Int)(implicit src: SrcPositionInfo): Column =
     Column(
       Expr.Variant.ColumnApplyInt(
-        ColumnApply_Int(col = Some(expr), idx = idx, src = createSrcPosition(src))))
+        ColumnApply_Int(col = Some(expr), idx = idx, src = createSrcPosition(src))),
+      src)
 
   /**
    * Returns the column name (if the column has a name).
    * @group utl
    * @since 0.2.0
    */
-  def getName: Option[String] = null
+  def getName: Option[String] = null // todo: snow-1992311
 
   /**
    * Returns a string representation of the expression corresponding to this Column instance.
    * @since 0.1.0
    * @group utl
    */
-  override def toString: String = "" // s"Column[${expr.toString()}]"
+  override def toString: String = "" // todo: snow-1992311
 
   /**
    * Returns a new renamed Column. Alias for [[name]].
@@ -188,15 +198,12 @@ case class Column(
    */
   def alias(alias: String): Column = name(alias)
 
-  // used by join when column name conflict
-  private[snowpark] def internalAlias(alias: String): Column = null
-
   /**
    * Returns a new renamed Column.
    * @group op
    * @since 0.1.0
    */
-  def name(alias: String): Column = null
+  def name(alias: String): Column = null // todo: snow-1992314
 
   /**
    * Unary minus.
@@ -205,7 +212,7 @@ case class Column(
    * @since 0.1.0
    */
   def unary_-(implicit src: SrcPositionInfo): Column =
-    Column(Expr.Variant.Neg(Neg(operand = Some(expr), src = createSrcPosition(src))))
+    Column(Expr.Variant.Neg(Neg(operand = Some(expr), src = createSrcPosition(src))), src)
 
   /**
    * Unary not.
@@ -213,7 +220,7 @@ case class Column(
    * @since 0.1.0
    */
   def unary_!(implicit src: SrcPositionInfo): Column =
-    Column(Expr.Variant.Not(Not(operand = Some(expr), src = createSrcPosition(src))))
+    Column(Expr.Variant.Not(Not(operand = Some(expr), src = createSrcPosition(src))), src)
 
   /**
    * Equal to. Alias for [[equal_to]]. Use this instead of `==` to perform an equality check in an
@@ -228,7 +235,9 @@ case class Column(
   def ===(other: Any)(implicit src: SrcPositionInfo): Column =
     Column(
       Expr.Variant.Eq(
-        Eq(lhs = Some(expr), rhs = Some(createExpr(other, src)), src = createSrcPosition(src))))
+        Eq(lhs = Some(expr), rhs = Some(createExpr(other, src)), src = createSrcPosition(src))),
+      src,
+      other)
 
   /**
    * Equal to. Same as `===`.
@@ -246,7 +255,9 @@ case class Column(
   def =!=(other: Any)(implicit src: SrcPositionInfo): Column =
     Column(
       Expr.Variant.Neq(
-        Neq(lhs = Some(expr), rhs = Some(createExpr(other, src)), src = createSrcPosition(src))))
+        Neq(lhs = Some(expr), rhs = Some(createExpr(other, src)), src = createSrcPosition(src))),
+      src,
+      other)
 
   /**
    * Not equal to.
@@ -260,10 +271,12 @@ case class Column(
    * @group op
    * @since 0.1.0
    */
-  def >(other: Any)(implicit src: SrcPositionInfo) =
+  def >(other: Any)(implicit src: SrcPositionInfo): Column =
     Column(
       Expr.Variant.Gt(
-        Gt(lhs = Some(expr), rhs = Some(createExpr(other, src)), src = createSrcPosition(src))))
+        Gt(lhs = Some(expr), rhs = Some(createExpr(other, src)), src = createSrcPosition(src))),
+      src,
+      other)
 
   /**
    * Greater than.
@@ -280,7 +293,9 @@ case class Column(
   def <(other: Any)(implicit src: SrcPositionInfo): Column =
     Column(
       Expr.Variant.Lt(
-        Lt(lhs = Some(expr), rhs = Some(createExpr(other, src)), src = createSrcPosition(src))))
+        Lt(lhs = Some(expr), rhs = Some(createExpr(other, src)), src = createSrcPosition(src))),
+      src,
+      other)
 
   /**
    * Less than.
@@ -297,7 +312,9 @@ case class Column(
   def <=(other: Any)(implicit src: SrcPositionInfo): Column =
     Column(
       Expr.Variant.Leq(
-        Leq(lhs = Some(expr), rhs = Some(createExpr(other, src)), src = createSrcPosition(src))))
+        Leq(lhs = Some(expr), rhs = Some(createExpr(other, src)), src = createSrcPosition(src))),
+      src,
+      other)
 
   /**
    * Less than or equal to.
@@ -314,7 +331,9 @@ case class Column(
   def >=(other: Any)(implicit src: SrcPositionInfo): Column =
     Column(
       Expr.Variant.Geq(
-        Geq(lhs = Some(expr), rhs = Some(createExpr(other, src)), src = createSrcPosition(src))))
+        Geq(lhs = Some(expr), rhs = Some(createExpr(other, src)), src = createSrcPosition(src))),
+      src,
+      other)
 
   /**
    * Greater than or equal to.
@@ -335,7 +354,9 @@ case class Column(
         ColumnEqualNull(
           lhs = Some(expr),
           rhs = Some(createExpr(other, src)),
-          src = createSrcPosition(src))))
+          src = createSrcPosition(src))),
+      src,
+      other)
 
   /**
    * Equal to. You can use this for comparisons against a null value.
@@ -351,7 +372,8 @@ case class Column(
    */
   def equal_nan(implicit src: SrcPositionInfo): Column =
     Column(
-      Expr.Variant.ColumnEqualNan(ColumnEqualNan(col = Some(expr), src = createSrcPosition(src))))
+      Expr.Variant.ColumnEqualNan(ColumnEqualNan(col = Some(expr), src = createSrcPosition(src))),
+      src)
 
   /**
    * Is null.
@@ -359,7 +381,9 @@ case class Column(
    * @since 0.1.0
    */
   def is_null(implicit src: SrcPositionInfo): Column =
-    Column(Expr.Variant.ColumnIsNull(ColumnIsNull(col = Some(expr), src = createSrcPosition(src))))
+    Column(
+      Expr.Variant.ColumnIsNull(ColumnIsNull(col = Some(expr), src = createSrcPosition(src))),
+      src)
 
   /**
    * Wrapper for is_null function.
@@ -376,7 +400,8 @@ case class Column(
    */
   def is_not_null(implicit src: SrcPositionInfo): Column =
     Column(
-      Expr.Variant.ColumnIsNotNull(ColumnIsNotNull(col = Some(expr), src = createSrcPosition(src))))
+      Expr.Variant.ColumnIsNotNull(ColumnIsNotNull(col = Some(expr), src = createSrcPosition(src))),
+      src)
 
   /**
    * Or. Alias for [[or]].
@@ -386,7 +411,8 @@ case class Column(
   def ||(other: Any)(implicit src: SrcPositionInfo): Column =
     Column(
       Expr.Variant.Or(
-        Or(lhs = Some(expr), rhs = Some(createExpr(other, src)), src = createSrcPosition(src))))
+        Or(lhs = Some(expr), rhs = Some(createExpr(other, src)), src = createSrcPosition(src))),
+      src)
 
   /**
    * Or.
@@ -403,7 +429,9 @@ case class Column(
   def &&(other: Any)(implicit src: SrcPositionInfo): Column =
     Column(
       Expr.Variant.And(
-        And(lhs = Some(expr), rhs = Some(createExpr(other, src)), src = createSrcPosition(src))))
+        And(lhs = Some(expr), rhs = Some(createExpr(other, src)), src = createSrcPosition(src))),
+      src,
+      other)
 
   /**
    * And.
@@ -429,7 +457,9 @@ case class Column(
   def +(other: Any)(implicit src: SrcPositionInfo): Column =
     Column(
       Expr.Variant.Add(
-        Add(lhs = Some(expr), rhs = Some(createExpr(other, src)), src = createSrcPosition(src))))
+        Add(lhs = Some(expr), rhs = Some(createExpr(other, src)), src = createSrcPosition(src))),
+      src,
+      other)
 
   /**
    * Plus.
@@ -446,7 +476,9 @@ case class Column(
   def -(other: Any)(implicit src: SrcPositionInfo): Column =
     Column(
       Expr.Variant.Sub(
-        Sub(lhs = Some(expr), rhs = Some(createExpr(other, src)), src = createSrcPosition(src))))
+        Sub(lhs = Some(expr), rhs = Some(createExpr(other, src)), src = createSrcPosition(src))),
+      src,
+      other)
 
   /**
    * Minus.
@@ -463,7 +495,9 @@ case class Column(
   def *(other: Any)(implicit src: SrcPositionInfo): Column =
     Column(
       Expr.Variant.Mul(
-        Mul(lhs = Some(expr), rhs = Some(createExpr(other, src)), src = createSrcPosition(src))))
+        Mul(lhs = Some(expr), rhs = Some(createExpr(other, src)), src = createSrcPosition(src))),
+      src,
+      other)
 
   /**
    * Multiply.
@@ -480,7 +514,9 @@ case class Column(
   def /(other: Any)(implicit src: SrcPositionInfo): Column =
     Column(
       Expr.Variant.Div(
-        Div(lhs = Some(expr), rhs = Some(createExpr(other, src)), src = createSrcPosition(src))))
+        Div(lhs = Some(expr), rhs = Some(createExpr(other, src)), src = createSrcPosition(src))),
+      src,
+      other)
 
   /**
    * Divide.
@@ -497,7 +533,9 @@ case class Column(
   def %(other: Any)(implicit src: SrcPositionInfo): Column =
     Column(
       Expr.Variant.Mod(
-        Mod(lhs = Some(expr), rhs = Some(createExpr(other, src)), src = createSrcPosition(src))))
+        Mod(lhs = Some(expr), rhs = Some(createExpr(other, src)), src = createSrcPosition(src))),
+      src,
+      other)
 
   /**
    * Remainder.
@@ -524,7 +562,8 @@ case class Column(
         ColumnDesc(
           col = Some(expr),
           nullOrder = Some(NullOrder(variant = NullOrder.Variant.NullOrderDefault(true))),
-          src = createSrcPosition(src))))
+          src = createSrcPosition(src))),
+      src)
 
   /**
    * Returns a Column expression with values sorted in descending order (null values sorted before
@@ -539,7 +578,8 @@ case class Column(
         ColumnDesc(
           col = Some(expr),
           nullOrder = Some(NullOrder(variant = NullOrder.Variant.NullOrderNullsFirst(true))),
-          src = createSrcPosition(src))))
+          src = createSrcPosition(src))),
+      src)
 
   /**
    * Returns a Column expression with values sorted in descending order (null values sorted after
@@ -554,7 +594,8 @@ case class Column(
         ColumnDesc(
           col = Some(expr),
           nullOrder = Some(NullOrder(variant = NullOrder.Variant.NullOrderNullsLast(true))),
-          src = createSrcPosition(src))))
+          src = createSrcPosition(src))),
+      src)
 
   /**
    * Returns a Column expression with values sorted in ascending order.
@@ -568,7 +609,8 @@ case class Column(
         ColumnAsc(
           col = Some(expr),
           nullOrder = Some(NullOrder(variant = NullOrder.Variant.NullOrderDefault(true))),
-          src = createSrcPosition(src))))
+          src = createSrcPosition(src))),
+      src)
 
   /**
    * Returns a Column expression with values sorted in ascending order (null values sorted before
@@ -583,7 +625,8 @@ case class Column(
         ColumnAsc(
           col = Some(expr),
           nullOrder = Some(NullOrder(variant = NullOrder.Variant.NullOrderNullsFirst(true))),
-          src = createSrcPosition(src))))
+          src = createSrcPosition(src))),
+      src)
 
   /**
    * Returns a Column expression with values sorted in ascending order (null values sorted after
@@ -598,7 +641,8 @@ case class Column(
         ColumnAsc(
           col = Some(expr),
           nullOrder = Some(NullOrder(variant = NullOrder.Variant.NullOrderNullsLast(true))),
-          src = createSrcPosition(src))))
+          src = createSrcPosition(src))),
+      src)
 
   /**
    * Bitwise or.
@@ -609,7 +653,9 @@ case class Column(
   def bitor(other: Column)(implicit src: SrcPositionInfo): Column =
     Column(
       Expr.Variant.BitOr(
-        BitOr(lhs = Some(expr), rhs = Some(createExpr(other, src)), src = createSrcPosition(src))))
+        BitOr(lhs = Some(expr), rhs = Some(createExpr(other, src)), src = createSrcPosition(src))),
+      src,
+      other)
 
   /**
    * Bitwise and.
@@ -620,7 +666,9 @@ case class Column(
   def bitand(other: Column)(implicit src: SrcPositionInfo): Column =
     Column(
       Expr.Variant.BitAnd(
-        BitAnd(lhs = Some(expr), rhs = Some(createExpr(other, src)), src = createSrcPosition(src))))
+        BitAnd(lhs = Some(expr), rhs = Some(createExpr(other, src)), src = createSrcPosition(src))),
+      src,
+      other)
 
   /**
    * Bitwise xor.
@@ -631,7 +679,9 @@ case class Column(
   def bitxor(other: Column)(implicit src: SrcPositionInfo): Column =
     Column(
       Expr.Variant.BitXor(
-        BitXor(lhs = Some(expr), rhs = Some(createExpr(other, src)), src = createSrcPosition(src))))
+        BitXor(lhs = Some(expr), rhs = Some(createExpr(other, src)), src = createSrcPosition(src))),
+      src,
+      other)
 
   /**
    * Returns a windows frame, based on the specified [[WindowSpec]].
@@ -639,7 +689,7 @@ case class Column(
    * @group op
    * @since 0.1.0
    */
-//  def over(window: WindowSpec): Column = window.withAggregate(expr)
+//  def over(window: WindowSpec): Column = window.withAggregate(expr) todo: snow-1992325
 
   /**
    * Returns a windows frame, based on an empty [[WindowSpec]] expression.
@@ -647,7 +697,7 @@ case class Column(
    * @group op
    * @since 0.1.0
    */
-  def over(): Column = null
+  def over(): Column = null // todo: snow-1992325
 
   /**
    * Allows case-sensitive matching of strings based on comparison with a pattern.
@@ -664,7 +714,9 @@ case class Column(
         ColumnStringLike(
           col = Some(expr),
           pattern = Some(createExpr(pattern, src)),
-          src = createSrcPosition(src))))
+          src = createSrcPosition(src))),
+      src,
+      pattern)
 
   // scalastyle:off
   /**
@@ -683,7 +735,9 @@ case class Column(
         ColumnRegexp(
           col = Some(expr),
           pattern = Some(createExpr(pattern, src)),
-          src = createSrcPosition(src))))
+          src = createSrcPosition(src))),
+      src,
+      pattern)
 
   /**
    * Returns a Column expression that adds a WITHIN GROUP clause to sort the rows by the specified
@@ -754,7 +808,9 @@ case class Column(
         ColumnWithinGroup(
           col = Some(expr),
           cols = Some(ExprArgList(cols.map(col => col.expr))),
-          src = createSrcPosition(src))))
+          src = createSrcPosition(src))),
+      src,
+      cols: _*)
 
   // scalastyle:off
   /**
@@ -774,21 +830,32 @@ case class Column(
         ColumnStringCollate(
           col = Some(expr),
           collationSpec = Some(createExpr(collateSpec, src)),
-          src = createSrcPosition(src))))
+          src = createSrcPosition(src))),
+      src)
 
 }
 
 private[snowpark] object Column {
-  def apply(variant: Expr.Variant): Column = {
-    Column(Expr(variant))
+  def apply(variant: Expr.Variant, nameIndices: Set[Int]): Column = {
+    Column(Expr(variant), nameIndices)
   }
-//    new Column(name match {
-//      case "*" => Star(Seq.empty)
-//      case c if c.contains(".") => UnresolvedDFAliasAttribute(name)
-//      case _ => UnresolvedAttribute(quoteName(name))
-//    })
-//
-//  def expr(e: String): Column = new Column(UnresolvedAttribute(e))
+
+  // include all child elements when creating a Column to update all
+  // the interned value table.
+  def apply(variant: Expr.Variant, srcPositionInfo: SrcPositionInfo, children: Any*): Column = {
+    val childNameIndices: Set[Int] =
+      children
+        .map {
+          case child: NameIndices => child.nameIndices
+          case _ => Set.empty[Int]
+        }
+        .foldLeft(Set.empty[Int])(_ ++ _)
+
+    Column(
+      variant,
+      Set(AstUtils.filenameTable.getFileId(srcPositionInfo.filename)) ++
+        childNameIndices)
+  }
 }
 
 /**
@@ -811,6 +878,7 @@ private[snowpark] object Column {
  *
  * @since 0.2.0
  */
+// todo: snow-1992329
 // class CaseExpr private[snowpark] (branches: Seq[(Expression, Expression)])
 //    extends Column(CaseWhen(branches)) {
 //
