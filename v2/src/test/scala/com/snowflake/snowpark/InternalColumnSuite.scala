@@ -490,17 +490,25 @@ class InternalColumnSuite extends UnitTestBase {
 
   test("column withinGroup") {
     val cols = Seq(column1, column1)
-    val expr = Expr()
     val column = column1.withinGroup(cols)(srcPositionInfo1)
 
     checkAst(
       Expr(
         Expr.Variant.ColumnWithinGroup(
           ColumnWithinGroup(
-            col = Some(expr),
+            col = Some(expr1),
             cols = Some(ExprArgList(cols.map(col => col.expr))),
             src = src1))),
       column)
+
+    checkAst(
+      Expr(
+        Expr.Variant.ColumnWithinGroup(
+          ColumnWithinGroup(
+            col = Some(expr1),
+            cols = Some(ExprArgList(cols.map(col => col.expr))),
+            src = src1))),
+      column1.withinGroup(column1, column1)(srcPositionInfo1))
   }
 
   test("column collate") {
