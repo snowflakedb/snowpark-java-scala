@@ -24,8 +24,8 @@ abstract class DataType {
 
   private[snowpark] def schemaString: String = toString
 
-  lazy private[snowpark] val toAst: ast.DataType = null
-  // todo: remove default value after implement all
+  private[snowpark] def toAst: ast.DataType
+
 }
 
 private[snowpark] abstract class AtomicType extends DataType
@@ -73,7 +73,10 @@ private[snowpark] object StructuredArrayType {
  * Binary data type. Mapped to BINARY Snowflake data type.
  * @since 0.1.0
  */
-object BinaryType extends AtomicType
+object BinaryType extends AtomicType {
+  lazy override private[snowpark] val toAst: ast.DataType =
+    ast.DataType(variant = ast.DataType.Variant.BinaryType(value = true))
+}
 
 /**
  * Boolean data type. Mapped to BOOLEAN Snowflake data type.
@@ -88,7 +91,10 @@ object BooleanType extends AtomicType {
  * Date data type. Mapped to DATE Snowflake data type.
  * @since 0.1.0
  */
-object DateType extends AtomicType
+object DateType extends AtomicType {
+  lazy override private[snowpark] val toAst: ast.DataType =
+    ast.DataType(variant = ast.DataType.Variant.DateType(value = true))
+}
 
 /**
  * Map data type. This maps to OBJECT data type in Snowflake.
@@ -100,6 +106,10 @@ case class MapType(keyType: DataType, valueType: DataType) extends DataType {
   }
 
   override private[snowpark] def schemaString: String = s"Map"
+
+  lazy override private[snowpark] val toAst =
+    ast.DataType(variant = ast.DataType.Variant.MapType(
+      ast.MapType(keyTy = Some(keyType.toAst), valueTy = Some(valueType.toAst))))
 }
 
 private[snowpark] class StructuredMapType(
@@ -129,13 +139,19 @@ private[snowpark] abstract class FractionalType extends NumericType
  * Byte data type. Mapped to TINYINT Snowflake date type.
  * @since 0.1.0
  */
-object ByteType extends IntegralType
+object ByteType extends IntegralType {
+  lazy override private[snowpark] val toAst: ast.DataType =
+    ast.DataType(variant = ast.DataType.Variant.ByteType(value = true))
+}
 
 /**
  * Short integer data type. Mapped to SMALLINT Snowflake date type.
  * @since 0.1.0
  */
-object ShortType extends IntegralType
+object ShortType extends IntegralType {
+  lazy override private[snowpark] val toAst: ast.DataType =
+    ast.DataType(variant = ast.DataType.Variant.ShortType(value = true))
+}
 
 /**
  * Integer data type. Mapped to INT Snowflake date type.
@@ -150,19 +166,28 @@ object IntegerType extends IntegralType {
  * Long integer data type. Mapped to BIGINT Snowflake date type.
  * @since 0.1.0
  */
-object LongType extends IntegralType
+object LongType extends IntegralType {
+  lazy override private[snowpark] val toAst: ast.DataType =
+    ast.DataType(variant = ast.DataType.Variant.LongType(value = true))
+}
 
 /**
  * Float data type. Mapped to FLOAT Snowflake date type.
  * @since 0.1.0
  */
-object FloatType extends FractionalType
+object FloatType extends FractionalType {
+  lazy override private[snowpark] val toAst: ast.DataType =
+    ast.DataType(variant = ast.DataType.Variant.FloatType(value = true))
+}
 
 /**
  * Double data type. Mapped to DOUBLE Snowflake date type.
  * @since 0.1.0
  */
-object DoubleType extends FractionalType
+object DoubleType extends FractionalType {
+  lazy override private[snowpark] val toAst: ast.DataType =
+    ast.DataType(variant = ast.DataType.Variant.DoubleType(value = true))
+}
 
 /**
  * Decimal data type. Mapped to NUMBER Snowflake date type.
@@ -182,6 +207,9 @@ case class DecimalType(precision: Int, scale: Int) extends FractionalType {
    */
   override def toString: String = s"Decimal($precision, $scale)"
 
+  lazy override private[snowpark] val toAst =
+    ast.DataType(variant =
+      ast.DataType.Variant.DecimalType(ast.DecimalType(precision = precision, scale = scale)))
 }
 
 /**
@@ -198,7 +226,7 @@ object DecimalType {
    */
   def apply(decimal: BigDecimal): DecimalType = {
     if (decimal.precision < decimal.scale) {
-      // For DecimalType, Snowflake Compiler expects the precision is equal to or large than
+      // For DecimalType, Snowflake Compiler expects the precision is equal to or larger than
       // the scale, however, in BigDecimal, the digit count starts from the leftmost nonzero digit
       // of the exact result. For example, the precision of 0.01 equals to 1 based on the
       // definition, but the scale is 2. The expected precision should be 2.
@@ -216,17 +244,28 @@ object DecimalType {
  * String data type. Mapped to VARCHAR Snowflake data type.
  * @since 0.1.0
  */
-object StringType extends AtomicType
+object StringType extends AtomicType {
+  lazy override private[snowpark] val toAst: ast.DataType =
+    ast.DataType(variant =
+      ast.DataType.Variant.StringType(value = ast.StringType(length = Some(1))))
+}
 
 /**
  * Timestamp data type. Mapped to TIMESTAMP Snowflake data type.
  * @since 0.1.0
  */
-object TimestampType extends AtomicType
+object TimestampType extends AtomicType {
+  lazy override private[snowpark] val toAst: ast.DataType =
+    ast.DataType(variant = ast.DataType.Variant.TimestampType(value =
+      ast.TimestampType(timeZone = Some(ast.TimestampTimeZone()))))
+}
 
 /**
  * Time data type. Mapped to TIME Snowflake data type.
  *
  * @since 0.2.0
  */
-object TimeType extends AtomicType
+object TimeType extends AtomicType {
+  lazy override private[snowpark] val toAst: ast.DataType =
+    ast.DataType(variant = ast.DataType.Variant.TimeType(value = true))
+}

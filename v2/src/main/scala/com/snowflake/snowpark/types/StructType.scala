@@ -1,5 +1,7 @@
 package com.snowflake.snowpark.types
 
+import com.snowflake.snowpark.proto.ast
+
 /**
  * StructType data type, represents table schema.
  * @since 0.1.0
@@ -61,6 +63,9 @@ case class StructType(fields: Array[StructField] = Array()) extends DataType wit
    */
   override def toString: String =
     s"StructType[${fields.map(_.toString).mkString(", ")}]"
+
+  lazy override private[snowpark] val toAst =
+    ast.DataType(variant = ast.DataType.Variant.StructType(value = ast.StructType()))
 
   override private[snowpark] def schemaString: String = "Struct"
 
