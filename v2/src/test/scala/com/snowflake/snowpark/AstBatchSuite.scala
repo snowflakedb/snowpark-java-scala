@@ -1,6 +1,6 @@
 package com.snowflake.snowpark
 
-import com.snowflake.snowpark.internal.AstUtils.createSroPosition
+import com.snowflake.snowpark.internal.AstUtils.createSrcPosition
 import com.snowflake.snowpark.internal.{AstBatch, AstUtils, FilenameTable, SrcPositionInfo}
 import com.snowflake.snowpark.proto.ast.{Assign, Eval, Expr, Neg, Not, Request, Stmt, VarId}
 
@@ -9,10 +9,10 @@ class AstBatchSuite extends UnitTestBase {
     val filenameTable = new FilenameTable
     val batch = new AstBatch(filenameTable)
     val srcPositionInfo1 = SrcPositionInfo("test1", 12, 123)
-    val src1 = createSroPosition(srcPositionInfo1, filenameTable)
+    val src1 = createSrcPosition(srcPositionInfo1, filenameTable)
     val expr1: Expr = Expr(Expr.Variant.Neg(Neg(operand = Some(Expr()), src = src1)))
     val srcPositionInfo2 = SrcPositionInfo("test2", 22, 223)
-    val src2 = createSroPosition(srcPositionInfo2, filenameTable)
+    val src2 = createSrcPosition(srcPositionInfo2, filenameTable)
     val expr2 = Expr(Expr.Variant.Not(Not(operand = Some(Expr()), src = src2)))
 
     batch.add(expr = expr1)
