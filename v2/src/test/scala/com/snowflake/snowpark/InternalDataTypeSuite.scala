@@ -1,6 +1,7 @@
 package com.snowflake.snowpark
 
 import com.snowflake.snowpark.types._
+import com.snowflake.snowpark.proto.ast
 
 class InternalDataTypeSuite extends UnitTestBase {
   test("schema string") {
@@ -61,5 +62,35 @@ class InternalDataTypeSuite extends UnitTestBase {
     assert(Variant.VariantTypes.getType("Array") == Variant.VariantTypes.Array)
     assert(Variant.VariantTypes.getType("Object") == Variant.VariantTypes.Object)
     intercept[Exception] { Variant.VariantTypes.getType("not_exist_type") }
+  }
+
+  test("toAst") {
+    assert(ArrayType(IntegerType).toAst.variant.isInstanceOf[ast.DataType.Variant.ArrayType])
+    assert(
+      StructuredArrayType(IntegerType, nullable = true).toAst.variant
+        .isInstanceOf[ast.DataType.Variant.ArrayType])
+    assert(BinaryType.toAst.variant.isInstanceOf[ast.DataType.Variant.BinaryType])
+    assert(BooleanType.toAst.variant.isInstanceOf[ast.DataType.Variant.BooleanType])
+    assert(ByteType.toAst.variant.isInstanceOf[ast.DataType.Variant.ByteType])
+    assert(DateType.toAst.variant.isInstanceOf[ast.DataType.Variant.DateType])
+    assert(DecimalType(2, 1).toAst.variant.isInstanceOf[ast.DataType.Variant.DecimalType])
+    assert(DoubleType.toAst.variant.isInstanceOf[ast.DataType.Variant.DoubleType])
+    assert(FloatType.toAst.variant.isInstanceOf[ast.DataType.Variant.FloatType])
+    assert(GeographyType.toAst.variant.isInstanceOf[ast.DataType.Variant.GeographyType])
+    assert(GeometryType.toAst.variant.isInstanceOf[ast.DataType.Variant.GeometryType])
+    assert(IntegerType.toAst.variant.isInstanceOf[ast.DataType.Variant.IntegerType])
+    assert(LongType.toAst.variant.isInstanceOf[ast.DataType.Variant.LongType])
+    assert(
+      MapType(IntegerType, StringType).toAst.variant.isInstanceOf[ast.DataType.Variant.MapType])
+    assert(
+      StructuredMapType(IntegerType, StringType, isValueType = true).toAst.variant
+        .isInstanceOf[ast.DataType.Variant.MapType])
+    assert(DoubleType.toAst.variant.isInstanceOf[ast.DataType.Variant.DoubleType])
+    assert(ShortType.toAst.variant.isInstanceOf[ast.DataType.Variant.ShortType])
+    assert(StringType.toAst.variant.isInstanceOf[ast.DataType.Variant.StringType])
+    assert(StructType().toAst.variant.isInstanceOf[ast.DataType.Variant.StructType])
+    assert(TimeType.toAst.variant.isInstanceOf[ast.DataType.Variant.TimeType])
+    assert(TimestampType.toAst.variant.isInstanceOf[ast.DataType.Variant.TimestampType])
+    assert(VariantType.toAst.variant.isInstanceOf[ast.DataType.Variant.VariantType])
   }
 }

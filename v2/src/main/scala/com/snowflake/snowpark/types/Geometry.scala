@@ -76,5 +76,5 @@ object GeometryType extends DataType {
   override private[snowpark] def schemaString: String = s"Geometry"
 
   lazy override private[snowpark] val toAst =
-    ast.DataType(variant = ast.DataType.Variant.GeographyType(value = true))
+    ast.DataType(variant = ast.DataType.Variant.GeometryType(value = true))
 }
