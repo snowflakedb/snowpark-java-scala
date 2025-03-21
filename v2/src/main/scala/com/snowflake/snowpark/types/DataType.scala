@@ -35,6 +35,9 @@ private[snowpark] abstract class AtomicType extends DataType
  * @since 0.1.0
  */
 case class ArrayType(elementType: DataType) extends DataType {
+
+  protected var isStructured: Boolean = false
+
   override def toString: String = {
     s"ArrayType[${elementType.toString}]"
   }
@@ -43,8 +46,8 @@ case class ArrayType(elementType: DataType) extends DataType {
     s"Array"
 
   lazy override private[snowpark] val toAst =
-    ast.DataType(variant =
-      ast.DataType.Variant.ArrayType(ast.ArrayType(ty = Some(elementType.toAst))))
+    ast.DataType(variant = ast.DataType.Variant.ArrayType(
+      ast.ArrayType(structured = isStructured, ty = Some(elementType.toAst))))
 }
 
 /**
@@ -55,6 +58,9 @@ private[snowpark] class StructuredArrayType(
     override val elementType: DataType,
     val nullable: Boolean)
     extends ArrayType(elementType) {
+
+  isStructured = true
+
   override def toString: String = {
     s"ArrayType[${elementType.toString} nullable = $nullable]"
   }
@@ -101,6 +107,8 @@ object DateType extends AtomicType {
  * @since 0.1.0
  */
 case class MapType(keyType: DataType, valueType: DataType) extends DataType {
+  protected var isStructured = false
+
   override def toString: String = {
     s"MapType[${keyType.toString}, ${valueType.toString}]"
   }
@@ -109,7 +117,10 @@ case class MapType(keyType: DataType, valueType: DataType) extends DataType {
 
   lazy override private[snowpark] val toAst =
     ast.DataType(variant = ast.DataType.Variant.MapType(
-      ast.MapType(keyTy = Some(keyType.toAst), valueTy = Some(valueType.toAst))))
+      ast.MapType(
+        keyTy = Some(keyType.toAst),
+        structured = isStructured,
+        valueTy = Some(valueType.toAst))))
 }
 
 private[snowpark] class StructuredMapType(
@@ -117,6 +128,8 @@ private[snowpark] class StructuredMapType(
     override val valueType: DataType,
     val isValueNullable: Boolean)
     extends MapType(keyType, valueType) {
+  isStructured = true
+
   override def toString: String = {
     s"MapType[${keyType.toString}, ${valueType.toString} nullable = $isValueNullable]"
   }
@@ -255,9 +268,10 @@ object StringType extends AtomicType {
  * @since 0.1.0
  */
 object TimestampType extends AtomicType {
-  lazy override private[snowpark] val toAst: ast.DataType =
-    ast.DataType(variant = ast.DataType.Variant.TimestampType(value =
-      ast.TimestampType(timeZone = Some(ast.TimestampTimeZone()))))
+  lazy override private[snowpark] val toAst: ast.DataType = {
+    ast.DataType(variant =
+      ast.DataType.Variant.TimestampType(value = ast.TimestampType(timeZone = None)))
+  }
 }
 
 /**

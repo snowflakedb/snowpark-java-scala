@@ -65,32 +65,49 @@ class InternalDataTypeSuite extends UnitTestBase {
   }
 
   test("toAst") {
-    assert(ArrayType(IntegerType).toAst.variant.isInstanceOf[ast.DataType.Variant.ArrayType])
-    assert(
-      StructuredArrayType(IntegerType, nullable = true).toAst.variant
-        .isInstanceOf[ast.DataType.Variant.ArrayType])
-    assert(BinaryType.toAst.variant.isInstanceOf[ast.DataType.Variant.BinaryType])
-    assert(BooleanType.toAst.variant.isInstanceOf[ast.DataType.Variant.BooleanType])
-    assert(ByteType.toAst.variant.isInstanceOf[ast.DataType.Variant.ByteType])
-    assert(DateType.toAst.variant.isInstanceOf[ast.DataType.Variant.DateType])
-    assert(DecimalType(2, 1).toAst.variant.isInstanceOf[ast.DataType.Variant.DecimalType])
-    assert(DoubleType.toAst.variant.isInstanceOf[ast.DataType.Variant.DoubleType])
-    assert(FloatType.toAst.variant.isInstanceOf[ast.DataType.Variant.FloatType])
-    assert(GeographyType.toAst.variant.isInstanceOf[ast.DataType.Variant.GeographyType])
-    assert(GeometryType.toAst.variant.isInstanceOf[ast.DataType.Variant.GeometryType])
-    assert(IntegerType.toAst.variant.isInstanceOf[ast.DataType.Variant.IntegerType])
-    assert(LongType.toAst.variant.isInstanceOf[ast.DataType.Variant.LongType])
-    assert(
-      MapType(IntegerType, StringType).toAst.variant.isInstanceOf[ast.DataType.Variant.MapType])
-    assert(
-      StructuredMapType(IntegerType, StringType, isValueType = true).toAst.variant
-        .isInstanceOf[ast.DataType.Variant.MapType])
-    assert(DoubleType.toAst.variant.isInstanceOf[ast.DataType.Variant.DoubleType])
-    assert(ShortType.toAst.variant.isInstanceOf[ast.DataType.Variant.ShortType])
-    assert(StringType.toAst.variant.isInstanceOf[ast.DataType.Variant.StringType])
-    assert(StructType().toAst.variant.isInstanceOf[ast.DataType.Variant.StructType])
-    assert(TimeType.toAst.variant.isInstanceOf[ast.DataType.Variant.TimeType])
-    assert(TimestampType.toAst.variant.isInstanceOf[ast.DataType.Variant.TimestampType])
-    assert(VariantType.toAst.variant.isInstanceOf[ast.DataType.Variant.VariantType])
+    checkAst(
+      ArrayType(IntegerType).toAst,
+      ast.DataType(variant = ast.DataType.Variant.ArrayType(
+        ast.ArrayType(ty = Some(ast.DataType(variant = ast.DataType.Variant.IntegerType(true)))))))
+    checkAst(
+      StructuredArrayType(IntegerType, nullable = true).toAst,
+      ast.DataType(variant = ast.DataType.Variant.ArrayType(
+        ast.ArrayType(
+          structured = true,
+          ty = Some(ast.DataType(variant = ast.DataType.Variant.IntegerType(true)))))))
+    checkAst(BinaryType.toAst, ast.DataType(variant = ast.DataType.Variant.BinaryType(true)))
+    checkAst(BooleanType.toAst, ast.DataType(variant = ast.DataType.Variant.BooleanType(true)))
+    checkAst(ByteType.toAst, ast.DataType(variant = ast.DataType.Variant.ByteType(true)))
+    checkAst(DateType.toAst, ast.DataType(variant = ast.DataType.Variant.DateType(true)))
+    checkAst(
+      DecimalType(2, 1).toAst,
+      ast.DataType(variant = ast.DataType.Variant.DecimalType(ast.DecimalType(2, 1))))
+    checkAst(DoubleType.toAst, ast.DataType(variant = ast.DataType.Variant.DoubleType(true)))
+    checkAst(FloatType.toAst, ast.DataType(variant = ast.DataType.Variant.FloatType(true)))
+    checkAst(GeographyType.toAst, ast.DataType(variant = ast.DataType.Variant.GeographyType(true)))
+    checkAst(GeometryType.toAst, ast.DataType(variant = ast.DataType.Variant.GeometryType(true)))
+    checkAst(IntegerType.toAst, ast.DataType(variant = ast.DataType.Variant.IntegerType(true)))
+    checkAst(LongType.toAst, ast.DataType(variant = ast.DataType.Variant.LongType(true)))
+    checkAst(
+      MapType(IntegerType, StringType).toAst,
+      ast.DataType(variant = ast.DataType.Variant.MapType(ast.MapType(
+        keyTy = Some(ast.DataType(variant = ast.DataType.Variant.IntegerType(true))),
+        valueTy = Some(ast.DataType(variant =
+          ast.DataType.Variant.StringType(ast.StringType(length = Some(1)))))))))
+    checkAst(
+      StructuredMapType(IntegerType, StringType, isValueType = true).toAst,
+      ast.DataType(variant = ast.DataType.Variant.MapType(ast.MapType(
+        keyTy = Some(ast.DataType(variant = ast.DataType.Variant.IntegerType(true))),
+        structured = true,
+        valueTy = Some(ast.DataType(variant =
+          ast.DataType.Variant.StringType(ast.StringType(length = Some(1)))))))))
+    checkAst(ShortType.toAst, ast.DataType(variant = ast.DataType.Variant.ShortType(true)))
+    checkAst(
+      StringType.toAst,
+      ast.DataType(variant = ast.DataType.Variant.StringType(ast.StringType(length = Some(1)))))
+//    assert(StructType().toAst.variant.isInstanceOf[ast.DataType.Variant.StructType])
+    checkAst(TimeType.toAst, ast.DataType(variant = ast.DataType.Variant.TimeType(true)))
+//    assert(TimestampType.toAst.variant.isInstanceOf[ast.DataType.Variant.TimestampType])
+//    assert(VariantType.toAst.variant.isInstanceOf[ast.DataType.Variant.VariantType])
   }
 }

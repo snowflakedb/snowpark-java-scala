@@ -65,7 +65,11 @@ case class StructType(fields: Array[StructField] = Array()) extends DataType wit
     s"StructType[${fields.map(_.toString).mkString(", ")}]"
 
   lazy override private[snowpark] val toAst =
-    ast.DataType(variant = ast.DataType.Variant.StructType(value = ast.StructType()))
+    ast.DataType(variant = ast.DataType.Variant.StructType(value = ast.StructType(
+      structured = true,
+      fields =
+        if (fields.isEmpty) None
+        else Some(ast.List_StructField(list = Seq.empty)))))
 
   override private[snowpark] def schemaString: String = "Struct"
 
