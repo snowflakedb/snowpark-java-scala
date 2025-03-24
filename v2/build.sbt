@@ -1,3 +1,6 @@
+import scala.reflect.runtime.{universe => ru}
+import scala.tools.reflect.ToolBox
+
 val snowparkName = s"snowpark"
 
 val commonSettings = Seq(
@@ -48,4 +51,48 @@ lazy val root = (project in file("."))
     buildInfoPackage := "com.snowflake.snowpark.internal",
     coverageEnabled := true,
     scalafmtOnCompile := true,
-    javafmtOnCompile := true)
+    javafmtOnCompile := true,
+
+    Compile / sourceGenerators += generateSourcesTask.taskValue,
+    Compile / managedSourceDirectories += (Compile / sourceManaged).value
+  )
+
+lazy val generateSourcesTask = Def.task {
+  val outputDir = (Compile / sourceManaged).value / "generated"
+  val outputFile = outputDir / "GeneratedFunctions.scala"
+  IO.createDirectory(outputDir)
+
+  val templatesDir = baseDirectory.value / "src/main/scala/com/snowflake/snowpark/code_templates"
+  val templateFiles = templatesDir.listFiles().filter(_.getName.endsWith(".txt")).toList
+
+  val mirror = ru.runtimeMirror(getClass.getClassLoader)
+  val toolbox = mirror.mkToolBox()
+
+  val generatedBodies = templateFiles.map { file =>
+    val code = IO.read(file)
+    val wrappedCode = s"{$code}"
+    try {
+      val tree = toolbox.parse(wrappedCode)
+      val evaluated = toolbox.eval(tree)
+      evaluated.toString
+    } catch {
+      case e: Throwable =>
+        sys.error(s"Failed to evaluate template ${file.getName}: ${e.getMessage}")
+    }
+  }
+
+  val traitHeader =
+    """|package com.snowflake.generated
+       |
+       |import com.snowflake.snowpark._
+       |
+       |trait GeneratedFunctions {
+       |""".stripMargin
+
+  val traitFooter = "\n}"
+
+  val finalCode = traitHeader + generatedBodies.mkString("\n") + traitFooter
+
+  IO.write(outputFile, finalCode)
+  Seq(outputFile)
+}
