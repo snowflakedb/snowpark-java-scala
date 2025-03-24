@@ -66,7 +66,7 @@ case class StructType(fields: Array[StructField] = Array()) extends DataType wit
 
   lazy override private[snowpark] val toAst =
     ast.DataType(variant = ast.DataType.Variant.StructType(value = ast.StructType(
-      structured = true,  // TODO: handle structure later
+      structured = true, // TODO: handle structure later
       fields =
         if (fields.isEmpty) None
         else Some(ast.List_StructField(list = Seq.empty)))))

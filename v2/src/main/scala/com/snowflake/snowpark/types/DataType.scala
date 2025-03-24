@@ -270,8 +270,8 @@ object StringType extends AtomicType {
 object TimestampType extends AtomicType {
   lazy override private[snowpark] val toAst: ast.DataType = {
     ast.DataType(variant =
-      ast.DataType.Variant.TimestampType(
-        value = ast.TimestampType(timeZone = None)))   // TODO: Check timezones
+      ast.DataType.Variant.TimestampType(value = ast.TimestampType(timeZone = None))
+    ) // TODO: Check timezones
   }
 }
 
