@@ -424,8 +424,7 @@ trait DataFrameJoinSuite extends SNTestBase {
     // "outer" self join
     checkAnswer(
       df.join(clonedDF, df("c1") === clonedDF("c2"), "outer"),
-      Seq(Row(2, 3, 1, 2), Row(null, null, 2, 3), Row(1, 2, null, null)),
-      false)
+      Seq(Row(2, 3, 1, 2), Row(null, null, 2, 3), Row(1, 2, null, null)))
   }
 
   test("test natural/cross join") {
