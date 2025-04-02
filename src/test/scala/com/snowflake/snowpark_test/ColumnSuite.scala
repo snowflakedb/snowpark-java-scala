@@ -622,29 +622,11 @@ class ColumnSuite extends TestData {
 
     // select without NOT
     val df3 = df.select(col("a").in(df0.filter(col("a") < 2)).as("in_result"))
-    assert(
-      getShowString(df3, 10, 50) ==
-        """---------------
-          ||"IN_RESULT"  |
-          |---------------
-          ||true         |
-          ||false        |
-          ||false        |
-          |---------------
-          |""".stripMargin)
+    checkAnswer(df3, Seq(Row(true), Row(false), Row(false)))
 
     // select with NOT
     val df4 = df.select(!df("a").in(df0.filter(col("a") < 2)).as("in_result"))
-    assert(
-      getShowString(df4, 10, 50) ==
-        """---------------
-          ||"IN_RESULT"  |
-          |---------------
-          ||false        |
-          ||true         |
-          ||true         |
-          |---------------
-          |""".stripMargin)
+    checkAnswer(df4, Seq(Row(false), Row(true), Row(true)))
   }
 
   test("In Expression 3: IN with all types") {
