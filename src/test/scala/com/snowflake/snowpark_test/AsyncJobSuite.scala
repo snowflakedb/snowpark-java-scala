@@ -519,8 +519,7 @@ class AsyncJobSuite extends TestData with BeforeAndAfterEach {
       df2.write.mode("APPEND").async.saveAsTable(tableName).getResult()
       checkAnswer(
         session.table(tableName),
-        Seq(Row(1, "one", 1.2), Row(2, "two", 2.2), Row(1, "one", 1.2), Row(2, "two", 2.2)),
-        false)
+        Seq(Row(1, "one", 1.2), Row(2, "two", 2.2), Row(1, "one", 1.2), Row(2, "two", 2.2)))
     } finally {
       dropTable(tableName)
     }
@@ -563,8 +562,7 @@ class AsyncJobSuite extends TestData with BeforeAndAfterEach {
     assert(asyncJob1.getResult() == UpdateResult(3, 3))
     checkAnswer(
       t2,
-      Seq(Row(0, "A"), Row(0, "B"), Row(0, "C"), Row(4, "D"), Row(5, "E"), Row(6, "F")),
-      sort = false)
+      Seq(Row(0, "A"), Row(0, "B"), Row(0, "C"), Row(4, "D"), Row(5, "E"), Row(6, "F")))
 
     testData2.write.mode(SaveMode.Overwrite).saveAsTable(tableName1)
     upperCaseData.write.mode(SaveMode.Overwrite).saveAsTable(tableName2)
@@ -572,8 +570,7 @@ class AsyncJobSuite extends TestData with BeforeAndAfterEach {
     assert(asyncJob2.getResult() == UpdateResult(3, 3))
     checkAnswer(
       t2,
-      Seq(Row(0, "A"), Row(0, "B"), Row(0, "C"), Row(4, "D"), Row(5, "E"), Row(6, "F")),
-      sort = false)
+      Seq(Row(0, "A"), Row(0, "B"), Row(0, "C"), Row(4, "D"), Row(5, "E"), Row(6, "F")))
 
     upperCaseData.write.mode(SaveMode.Overwrite).saveAsTable(tableName2)
     import session.implicits._
@@ -612,7 +609,7 @@ class AsyncJobSuite extends TestData with BeforeAndAfterEach {
     val t2 = session.table(tableName2)
     val asyncJob1 = t2.async.delete(t1("a") === t2("n"), t1)
     assert(asyncJob1.getResult() == DeleteResult(3))
-    checkAnswer(t2, Seq(Row(4, "D"), Row(5, "E"), Row(6, "F")), sort = false)
+    checkAnswer(t2, Seq(Row(4, "D"), Row(5, "E"), Row(6, "F")))
 
     upperCaseData.write.mode(SaveMode.Overwrite).saveAsTable(tableName2)
     import session.implicits._

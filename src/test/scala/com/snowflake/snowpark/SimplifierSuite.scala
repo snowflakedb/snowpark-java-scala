@@ -11,19 +11,19 @@ class SimplifierSuite extends TestData {
     val df4 = Seq((4, 2)).toDF("a", "b")
 
     val result1 = df1.union(df2).union(df3.union(df4))
-    checkAnswer(result1, Seq(Row(1, 2), Row(2, 2), Row(3, 2), Row(4, 2)), sort = false)
+    checkAnswer(result1, Seq(Row(1, 2), Row(2, 2), Row(3, 2), Row(4, 2)))
     val query1 = result1.snowflakePlan.queries.last.sql
     assert(query1.split("UNION \\( SELECT").length == 4)
 
     val result2 = df1.union(df2).union(df3)
-    checkAnswer(result2, Seq(Row(1, 2), Row(2, 2), Row(3, 2)), sort = false)
+    checkAnswer(result2, Seq(Row(1, 2), Row(2, 2), Row(3, 2)))
     val query2 = result2.snowflakePlan.queries.last.sql
     assert(query2.split("UNION \\( SELECT").length == 3)
 
     // mix union and union all
 
     val result3 = df1.union(df2).union(df3.unionAll(df4))
-    checkAnswer(result3, Seq(Row(1, 2), Row(2, 2), Row(3, 2), Row(4, 2)), sort = false)
+    checkAnswer(result3, Seq(Row(1, 2), Row(2, 2), Row(3, 2), Row(4, 2)))
     val query3 = result3.snowflakePlan.queries.last.sql
     assert(query3.split("UNION \\( SELECT").length == 2)
     assert(query3.split("UNION \\(\\( SELECT").length == 2)

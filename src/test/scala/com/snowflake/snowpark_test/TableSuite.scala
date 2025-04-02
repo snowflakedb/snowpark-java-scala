@@ -125,12 +125,12 @@ class TableSuite extends TestData {
     // append mode
     df.write.mode("append").saveAsTable(tableName5)
     val df4 = session.table(tableName5)
-    checkAnswer(df4, Seq(Row(1), Row(2), Row(3), Row(1), Row(2), Row(3)), sort = false)
+    checkAnswer(df4, Seq(Row(1), Row(2), Row(3), Row(1), Row(2), Row(3)))
 
     // ignore mode
     df.write.mode("IGNORE").saveAsTable(tableName5)
     val df3 = session.table(tableName5)
-    checkAnswer(df3, Seq(Row(1), Row(2), Row(3), Row(1), Row(2), Row(3)), sort = false)
+    checkAnswer(df3, Seq(Row(1), Row(2), Row(3), Row(1), Row(2), Row(3)))
 
     // override mode
     df.write.mode("OvErWrItE").saveAsTable(tableName5)
@@ -221,8 +221,7 @@ class TableSuite extends TestData {
           "{\n  \"b\": 2\n}",
           "[\n  1,\n  2,\n  3\n]",
           Geography.fromGeoJSON(
-            "{\n  \"coordinates\": [\n    -12,\n    37\n  ],\n  \"type\": \"Point\"\n}"))),
-      sort = false)
+            "{\n  \"coordinates\": [\n    -12,\n    37\n  ],\n  \"type\": \"Point\"\n}"))))
   }
 
   // Contains 'alter session', which is not supported by owner's right java sp
@@ -262,10 +261,7 @@ class TableSuite extends TestData {
   test("table with time type") {
     val df2 = session.table(timeTable)
     // Java time has accuracy of 1ms. Snowflake time has accuracy of 1ns. Lost accuracy here.
-    checkAnswer(
-      df2,
-      Seq(Row(Time.valueOf("09:15:29")), Row(Time.valueOf("09:15:29"))),
-      sort = false)
+    checkAnswer(df2, Seq(Row(Time.valueOf("09:15:29")), Row(Time.valueOf("09:15:29"))))
   }
 
   // getDatabaseFromProperties will read local files, which is not supported in Java SP yet.

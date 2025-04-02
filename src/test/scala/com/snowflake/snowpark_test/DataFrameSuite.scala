@@ -1606,7 +1606,7 @@ trait DataFrameSuite extends TestData with BeforeAndAfterEach {
     val clonedDF = df.clone()
     val result = df.collect()
     clonedDF.show()
-    checkAnswer(clonedDF, result, false)
+    checkAnswer(clonedDF, result)
   }
 
   test("toLocalIterator") {
@@ -1741,7 +1741,7 @@ trait DataFrameSuite extends TestData with BeforeAndAfterEach {
   test("sort with array arg") {
     val df = Seq((1, 1, 1), (2, 0, 4), (1, 2, 3)).toDF("col1", "col2", "col3")
     val dfSorted = df.sort(Array(col("col1").asc, col("col2").desc, col("col3")))
-    checkAnswer(dfSorted, Array(Row(1, 2, 3), Row(1, 1, 1), Row(2, 0, 4)), sort = false)
+    checkAnswer(dfSorted, Array(Row(1, 2, 3), Row(1, 1, 1), Row(2, 0, 4)))
   }
 
   test("select with array args") {

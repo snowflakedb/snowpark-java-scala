@@ -894,7 +894,7 @@ class APIInternalSuite extends TestData {
     res.attributes
       .zip(df.snowflakePlan.attributes)
       .foreach(pair => assert(pair._1.toString == pair._2.toString))
-    checkAnswer(df, res.rows.get, sort = false)
+    checkAnswer(df, res.rows.get)
 
     // Test df.executeAndGetQueryId() with statement parameter
     checkExecuteAndGetQueryIdWithStatementParameter(df)

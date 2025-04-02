@@ -111,18 +111,15 @@ trait FunctionSuite extends TestData {
   test("sum") {
     checkAnswer(
       duplicatedNumbers.groupBy("A").agg(sum(col("A"))),
-      Seq(Row(3, 6), Row(2, 4), Row(1, 1)),
-      sort = false)
+      Seq(Row(3, 6), Row(2, 4), Row(1, 1)))
 
     checkAnswer(
       duplicatedNumbers.groupBy("A").agg(sum("A")),
-      Seq(Row(3, 6), Row(2, 4), Row(1, 1)),
-      sort = false)
+      Seq(Row(3, 6), Row(2, 4), Row(1, 1)))
 
     checkAnswer(
       duplicatedNumbers.groupBy("A").agg(sum_distinct(col("A"))),
-      Seq(Row(3, 3), Row(2, 2), Row(1, 1)),
-      sort = false)
+      Seq(Row(3, 3), Row(2, 2), Row(1, 1)))
   }
 
   test("variance") {
