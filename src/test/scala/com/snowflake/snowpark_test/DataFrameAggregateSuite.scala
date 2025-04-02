@@ -815,7 +815,7 @@ class DataFrameAggregateSuite extends TestData {
   test("limit + aggregates") {
     val df = Seq(("a", 1), ("b", 2), ("c", 1), ("d", 5)).toDF("id", "value")
     val limit2Df = df.limit(2)
-    checkAnswer(limit2Df.groupBy("id").count().select($"id"), limit2Df.select($"id"), true)
+    checkAnswer(limit2Df.groupBy("id").count().select($"id"), limit2Df.select($"id"))
   }
 
   test("listagg") {

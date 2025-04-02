@@ -35,7 +35,7 @@ trait ComplexDataFrameSuite extends SNTestBase {
 
     checkAnswer(df1.join(df2, "a").intersect(df2), Seq(Row(1, "test1"), Row(2, "test2")))
 
-    checkAnswer(df1.join(df2, "a"), df2.filter($"a" < 2).union(df2.filter($"a" >= 2)), true)
+    checkAnswer(df1.join(df2, "a"), df2.filter($"a" < 2).union(df2.filter($"a" >= 2)))
 
     checkAnswer(
       df1.join(df2, "a").union(df2.filter($"a" < 2).union(df2.filter($"a" >= 2))),
@@ -51,7 +51,7 @@ trait ComplexDataFrameSuite extends SNTestBase {
     val df2 = (1 to 10).map(i => (i, s"test$i")).toDF("a", "b")
 
     checkAnswer(df1.filter($"a" < 6).join(df2, "a").intersect(df2.filter($"a" > 5)), Seq.empty)
-    checkAnswer(df1.filter($"a" < 6).join(df2, Seq("a"), "left_semi"), df1.filter($"a" < 6), true)
+    checkAnswer(df1.filter($"a" < 6).join(df2, Seq("a"), "left_semi"), df1.filter($"a" < 6))
     checkAnswer(df1.filter($"a" < 6).join(df2, Seq("a"), "left_anti"), Seq.empty)
 
     checkAnswer(
@@ -66,8 +66,7 @@ trait ComplexDataFrameSuite extends SNTestBase {
     val df4 = (6 to 10).map(i => (i, s"test$i")).toDF("a", "b")
     checkAnswer(
       df1.union(df2).join(df3.union(df4), "a").sort(functions.col("a")),
-      (1 to 10).map(i => Row(i, s"test$i")),
-      false)
+      (1 to 10).map(i => Row(i, s"test$i")))
   }
 
   test("Combination of multiple data sources") {

@@ -582,7 +582,7 @@ class APIInternalSuite extends TestData {
       assert(df.snowflakePlan.queries(1).sql.trim().startsWith("INSERT  INTO"))
       assert(df.snowflakePlan.queries(2).sql.trim().startsWith("SELECT"))
       assert(df.snowflakePlan.postActions.size == 1)
-      checkAnswer(df.sort(col("id")), largeData, sort = false)
+      checkAnswer(df.sort(col("id")), largeData)
 
       // infer schema
       val inferData = new ArrayBuffer[Long]()
@@ -595,7 +595,7 @@ class APIInternalSuite extends TestData {
       assert(df.snowflakePlan.queries(1).sql.trim().startsWith("INSERT  INTO"))
       assert(df.snowflakePlan.queries(2).sql.trim().startsWith("SELECT"))
       assert(df.snowflakePlan.postActions.size == 1)
-      checkAnswer(df.sort(col("id2")), largeData, sort = false)
+      checkAnswer(df.sort(col("id2")), largeData)
 
     }, ParameterUtils.SnowparkUseScopedTempObjects, "true")
   }

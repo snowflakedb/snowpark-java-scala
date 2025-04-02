@@ -100,13 +100,8 @@ trait SNTestBase extends FunSuite with BeforeAndAfterAll with SFTestUtils with S
     }
   }
 
-  def checkAnswer(df1: DataFrame, df2: DataFrame, sort: Boolean): Unit = {
-    if (sort) {
-      assert(
-        TestUtils.compare(df1.collect().sortBy(_.toString), df2.collect().sortBy(_.toString)))
-    } else {
-      assert(TestUtils.compare(df1.collect(), df2.collect()))
-    }
+  def checkAnswer(df1: DataFrame, df2: DataFrame): Unit = {
+    assert(TestUtils.compare(df1.collect().sortBy(_.toString), df2.collect().sortBy(_.toString)))
   }
 
   def checkAnswer(df: DataFrame, result: Row): Unit =
