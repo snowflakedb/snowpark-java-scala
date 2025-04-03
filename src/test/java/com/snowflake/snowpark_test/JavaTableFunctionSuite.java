@@ -17,8 +17,7 @@ public class JavaTableFunctionSuite extends TestBase {
                 TableFunctions.split_to_table(),
                 Functions.lit("split by space"),
                 Functions.lit(" ")),
-        new Row[] {Row.create(1, 1, "split"), Row.create(1, 2, "by"), Row.create(1, 3, "space")},
-        false);
+        new Row[] {Row.create(1, 1, "split"), Row.create(1, 2, "by"), Row.create(1, 3, "space")});
   }
 
   @Test
@@ -30,8 +29,7 @@ public class JavaTableFunctionSuite extends TestBase {
                 StructType.create(new StructField("a", DataTypes.StringType)));
     checkAnswer(
         df.join(TableFunctions.split_to_table(), df.col("a"), Functions.lit(",")).select("value"),
-        new Row[] {Row.create("[1"), Row.create("2]"), Row.create("[3"), Row.create("4]")},
-        false);
+        new Row[] {Row.create("[1"), Row.create("2]"), Row.create("[3"), Row.create("4]")});
   }
 
   @Test
@@ -54,8 +52,7 @@ public class JavaTableFunctionSuite extends TestBase {
     args.put("input", Functions.parse_json(df.col("a")));
     checkAnswer(
         df.join(new TableFunction("flatten"), args).select("value"),
-        new Row[] {Row.create("1"), Row.create("2"), Row.create("3"), Row.create("4")},
-        false);
+        new Row[] {Row.create("1"), Row.create("2"), Row.create("3"), Row.create("4")});
   }
 
   @Test
@@ -71,8 +68,7 @@ public class JavaTableFunctionSuite extends TestBase {
             .tableFunction(
                 new TableFunction("split_to_table")
                     .call(Functions.lit("split by space"), Functions.lit(" "))),
-        new Row[] {Row.create(1, 1, "split"), Row.create(1, 2, "by"), Row.create(1, 3, "space")},
-        true);
+        new Row[] {Row.create(1, 1, "split"), Row.create(1, 2, "by"), Row.create(1, 3, "space")});
     DataFrame df =
         getSession()
             .createDataFrame(

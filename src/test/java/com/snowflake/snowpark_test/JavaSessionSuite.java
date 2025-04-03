@@ -83,8 +83,7 @@ public class JavaSessionSuite extends TestBase {
         getSession()
             .flatten(Functions.parse_json(Functions.lit("[\"a\",\"'\"]")))
             .select(Functions.col("value")),
-        new Row[] {Row.create("\"a\""), Row.create("\"'\"")},
-        false);
+        new Row[] {Row.create("\"a\""), Row.create("\"'\"")});
     checkAnswer(
         getSession()
             .flatten(Functions.parse_json(Functions.lit("{\"a\":[1,2]}")), "a", true, true, "ARRAY")

@@ -19,7 +19,7 @@ public class JavaColumnSuite extends TestBase {
                 "select parse_json(column1) as v from values ('{\"a\": null}'), ('{\"a\": \"foo\"}'), (null)");
 
     Row[] expected = {Row.create("null"), Row.create("\"foo\""), Row.create((Object) null)};
-    checkAnswer(data.select(data.col("v").subField("a")), expected, false);
+    checkAnswer(data.select(data.col("v").subField("a")), expected);
   }
 
   @Test
@@ -31,7 +31,7 @@ public class JavaColumnSuite extends TestBase {
                     + "(6,7,8,1,'e2','[{a:1},{b:2}]') as T(a,b,c,d,e,f)");
 
     Row[] expected = {Row.create("1"), Row.create("6")};
-    checkAnswer(data.select(data.col("arr1").subField(0)), expected, false);
+    checkAnswer(data.select(data.col("arr1").subField(0)), expected);
   }
 
   @Test
@@ -63,14 +63,14 @@ public class JavaColumnSuite extends TestBase {
   public void unaryMinus() {
     DataFrame data = getSession().sql("select * from values(1),(-2) as T(a)");
     Row[] expected = {Row.create(-1), Row.create(2)};
-    checkAnswer(data.select(data.col("a").unary_minus()), expected, false);
+    checkAnswer(data.select(data.col("a").unary_minus()), expected);
   }
 
   @Test
   public void unaryNot() {
     DataFrame data = getSession().sql("select * from values(true),(false) as T(a)");
     Row[] expected = {Row.create(false), Row.create(true)};
-    checkAnswer(data.select(data.col("a").unary_not()), expected, false);
+    checkAnswer(data.select(data.col("a").unary_not()), expected);
   }
 
   @Test
@@ -102,22 +102,22 @@ public class JavaColumnSuite extends TestBase {
     DataFrame data =
         getSession().sql("select * from values(null, 1),(2, 2),(null, null) as T(a,b)");
     Row[] expected = {Row.create(false), Row.create(true), Row.create(true)};
-    checkAnswer(data.select(data.col("a").equal_null(data.col("b"))), expected, false);
+    checkAnswer(data.select(data.col("a").equal_null(data.col("b"))), expected);
   }
 
   @Test
   public void equalNan() {
     DataFrame data = getSession().sql("select * from values(1.1),(null),('NaN' :: Float) as T(a)");
     Row[] expected = {Row.create(false), Row.create((Object) null), Row.create(true)};
-    checkAnswer(data.select(data.col("a").equal_nan()), expected, false);
+    checkAnswer(data.select(data.col("a").equal_nan()), expected);
   }
 
   @Test
   public void isNull() {
     DataFrame data = getSession().sql("select * from values(1),(null) as T(a)");
     Row[] expected = {Row.create(false, true), Row.create(true, false)};
-    checkAnswer(data.select(data.col("a").is_null(), data.col("a").is_not_null()), expected, false);
-    checkAnswer(data.select(data.col("a").isNull(), data.col("a").is_not_null()), expected, false);
+    checkAnswer(data.select(data.col("a").is_null(), data.col("a").is_not_null()), expected);
+    checkAnswer(data.select(data.col("a").isNull(), data.col("a").is_not_null()), expected);
   }
 
   @Test
@@ -135,9 +135,7 @@ public class JavaColumnSuite extends TestBase {
       Row.create(true, false)
     };
     checkAnswer(
-        data.select(data.col("a").or(data.col("b")), data.col("a").and(data.col("b"))),
-        expected,
-        false);
+        data.select(data.col("a").or(data.col("b")), data.col("a").and(data.col("b"))), expected);
   }
 
   @Test
@@ -146,9 +144,7 @@ public class JavaColumnSuite extends TestBase {
     Row[] expected = {Row.create(2), Row.create(3)};
 
     checkAnswer(
-        data.where(Functions.col("a").between(Functions.lit(2), Functions.lit(3))),
-        expected,
-        false);
+        data.where(Functions.col("a").between(Functions.lit(2), Functions.lit(3))), expected);
   }
 
   @Test
@@ -162,8 +158,7 @@ public class JavaColumnSuite extends TestBase {
 
     Column a = data.col("a");
     Column b = data.col("b");
-    checkAnswer(
-        data.select(a.plus(b), a.minus(b), a.multiply(b), a.divide(b), a.mod(b)), expected, false);
+    checkAnswer(data.select(a.plus(b), a.minus(b), a.multiply(b), a.divide(b), a.mod(b)), expected);
   }
 
   @Test
@@ -188,9 +183,9 @@ public class JavaColumnSuite extends TestBase {
       Row.create(5),
       Row.create(8)
     };
-    checkAnswer(data.sort(data.col("a")), expected, false);
-    checkAnswer(data.sort(data.col("a").asc()), expected, false);
-    checkAnswer(data.sort(data.col("a").asc_nulls_first()), expected, false);
+    checkAnswer(data.sort(data.col("a")), expected);
+    checkAnswer(data.sort(data.col("a").asc()), expected);
+    checkAnswer(data.sort(data.col("a").asc_nulls_first()), expected);
 
     Row[] expected1 = {
       Row.create(8),
@@ -200,8 +195,8 @@ public class JavaColumnSuite extends TestBase {
       Row.create((Object) null),
       Row.create((Object) null)
     };
-    checkAnswer(data.sort(data.col("a").desc()), expected1, false);
-    checkAnswer(data.sort(data.col("a").desc_nulls_last()), expected1, false);
+    checkAnswer(data.sort(data.col("a").desc()), expected1);
+    checkAnswer(data.sort(data.col("a").desc_nulls_last()), expected1);
 
     Row[] expected2 = {
       Row.create((Object) null),
@@ -211,7 +206,7 @@ public class JavaColumnSuite extends TestBase {
       Row.create(2),
       Row.create(1)
     };
-    checkAnswer(data.sort(data.col("a").desc_nulls_first()), expected2, false);
+    checkAnswer(data.sort(data.col("a").desc_nulls_first()), expected2);
 
     Row[] expected3 = {
       Row.create(1),
@@ -221,7 +216,7 @@ public class JavaColumnSuite extends TestBase {
       Row.create((Object) null),
       Row.create((Object) null)
     };
-    checkAnswer(data.sort(data.col("a").asc_nulls_last()), expected3, false);
+    checkAnswer(data.sort(data.col("a").asc_nulls_last()), expected3);
   }
 
   @Test
@@ -242,7 +237,7 @@ public class JavaColumnSuite extends TestBase {
     DataFrame data = getSession().sql("select * from values('apple'),('banana'),('peach') as T(a)");
 
     Row[] expected = {Row.create("apple"), Row.create("peach")};
-    checkAnswer(data.where(data.col("a").like(Functions.lit("%p%"))), expected, false);
+    checkAnswer(data.where(data.col("a").like(Functions.lit("%p%"))), expected);
   }
 
   @Test
@@ -270,8 +265,7 @@ public class JavaColumnSuite extends TestBase {
                 .when(df.col("a").equal_to(Functions.lit(1)), Functions.lit(6))
                 .otherwise(Functions.lit(7))
                 .as("a")),
-        new Row[] {Row.create(5), Row.create(7), Row.create(6), Row.create(7), Row.create(5)},
-        false);
+        new Row[] {Row.create(5), Row.create(7), Row.create(6), Row.create(7), Row.create(5)});
 
     checkAnswer(
         df.select(
@@ -284,8 +278,7 @@ public class JavaColumnSuite extends TestBase {
           Row.create(6),
           Row.create((Object) null),
           Row.create(5)
-        },
-        false);
+        });
   }
 
   @Test
@@ -302,10 +295,10 @@ public class JavaColumnSuite extends TestBase {
                 Arrays.asList(
                     Arrays.asList(1, "a"), Arrays.asList(2, "b"), Arrays.asList(3, "c"))));
     Row[] expected = {Row.create(1, "a", 1, 1), Row.create(2, "b", 2, 2)};
-    checkAnswer(df1, expected, true);
+    checkAnswer(df1, expected);
 
     DataFrame df2 = df.filter(Functions.in(new Column[] {df.col("a"), df.col("b")}, df0));
-    checkAnswer(df2, expected, true);
+    checkAnswer(df2, expected);
   }
 
   @Test
@@ -315,9 +308,9 @@ public class JavaColumnSuite extends TestBase {
             .sql(
                 "select * from values(1, 'a', 1, 1), (2, 'b', 2, 2), (3, 'b', 33, 33) as T(a,b,c,d)");
     Row[] expected = {Row.create(2, "b", 2, 2), Row.create(3, "b", 33, 33)};
-    checkAnswer(df.filter(df.col("a").in(2, 3)), expected, false);
+    checkAnswer(df.filter(df.col("a").in(2, 3)), expected);
 
     DataFrame df1 = getSession().sql("select * from values(2),(3) as t(a)");
-    checkAnswer(df.filter(df.col("a").in(df1)), expected, false);
+    checkAnswer(df.filter(df.col("a").in(df1)), expected);
   }
 }

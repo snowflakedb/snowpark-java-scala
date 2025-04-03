@@ -547,8 +547,7 @@ trait UDFSuite extends TestData {
     })
     checkAnswer(
       nullJson1.select(variantNullInputUDF(col("v"))),
-      Seq(Row("null"), Row("\"foo\""), Row(null)),
-      sort = false)
+      Seq(Row("null"), Row("\"foo\""), Row(null)))
   }
 
   test("Test for string Variant output") {

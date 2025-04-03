@@ -11,26 +11,21 @@ class TableFunctionSuite extends TestData {
 
     checkAnswer(
       df.join(tableFunctions.flatten, Map("input" -> parse_json(df("a")))).select("value"),
-      Seq(Row("1"), Row("2"), Row("3"), Row("4")),
-      sort = false)
+      Seq(Row("1"), Row("2"), Row("3"), Row("4")))
     checkAnswer(
       df.join(TableFunction("flatten"), Map("input" -> parse_json(df("a"))))
         .select("value"),
-      Seq(Row("1"), Row("2"), Row("3"), Row("4")),
-      sort = false)
+      Seq(Row("1"), Row("2"), Row("3"), Row("4")))
 
     checkAnswer(
       df.join(tableFunctions.split_to_table, df("a"), lit(",")).select("value"),
-      Seq(Row("[1"), Row("2]"), Row("[3"), Row("4]")),
-      sort = false)
+      Seq(Row("[1"), Row("2]"), Row("[3"), Row("4]")))
     checkAnswer(
       df.join(tableFunctions.split_to_table, Seq(df("a"), lit(","))).select("value"),
-      Seq(Row("[1"), Row("2]"), Row("[3"), Row("4]")),
-      sort = false)
+      Seq(Row("[1"), Row("2]"), Row("[3"), Row("4]")))
     checkAnswer(
       df.join(TableFunction("split_to_table"), df("a"), lit(",")).select("value"),
-      Seq(Row("[1"), Row("2]"), Row("[3"), Row("4]")),
-      sort = false)
+      Seq(Row("[1"), Row("2]"), Row("[3"), Row("4]")))
   }
 
   test("session table functions") {
@@ -38,33 +33,28 @@ class TableFunctionSuite extends TestData {
       session
         .tableFunction(tableFunctions.flatten, Map("input" -> parse_json(lit("[1,2]"))))
         .select("value"),
-      Seq(Row("1"), Row("2")),
-      sort = false)
+      Seq(Row("1"), Row("2")))
     checkAnswer(
       session
         .tableFunction(TableFunction("flatten"), Map("input" -> parse_json(lit("[1,2]"))))
         .select("value"),
-      Seq(Row("1"), Row("2")),
-      sort = false)
+      Seq(Row("1"), Row("2")))
 
     checkAnswer(
       session
         .tableFunction(tableFunctions.split_to_table, lit("split by space"), lit(" "))
         .select("value"),
-      Seq(Row("split"), Row("by"), Row("space")),
-      sort = false)
+      Seq(Row("split"), Row("by"), Row("space")))
     checkAnswer(
       session
         .tableFunction(tableFunctions.split_to_table, Seq(lit("split by space"), lit(" ")))
         .select("value"),
-      Seq(Row("split"), Row("by"), Row("space")),
-      sort = false)
+      Seq(Row("split"), Row("by"), Row("space")))
     checkAnswer(
       session
         .tableFunction(TableFunction("split_to_table"), lit("split by space"), lit(" "))
         .select("value"),
-      Seq(Row("split"), Row("by"), Row("space")),
-      sort = false)
+      Seq(Row("split"), Row("by"), Row("space")))
   }
 
   test("session table functions with dataframe columns") {
@@ -73,28 +63,24 @@ class TableFunctionSuite extends TestData {
       session
         .tableFunction(tableFunctions.split_to_table, Seq(df("a"), lit(" ")))
         .select("value"),
-      Seq(Row("split"), Row("by"), Row("space")),
-      sort = false)
+      Seq(Row("split"), Row("by"), Row("space")))
     checkAnswer(
       session
         .tableFunction(TableFunction("split_to_table"), Seq(df("a"), lit(" ")))
         .select("value"),
-      Seq(Row("split"), Row("by"), Row("space")),
-      sort = false)
+      Seq(Row("split"), Row("by"), Row("space")))
 
     val df2 = Seq(("[1,2]", "[5,6]"), ("[3,4]", "[7,8]")).toDF(Seq("a", "b"))
     checkAnswer(
       session
         .tableFunction(tableFunctions.flatten, Map("input" -> parse_json(df2("b"))))
         .select("value"),
-      Seq(Row("5"), Row("6"), Row("7"), Row("8")),
-      sort = false)
+      Seq(Row("5"), Row("6"), Row("7"), Row("8")))
     checkAnswer(
       session
         .tableFunction(TableFunction("flatten"), Map("input" -> parse_json(df2("b"))))
         .select("value"),
-      Seq(Row("5"), Row("6"), Row("7"), Row("8")),
-      sort = false)
+      Seq(Row("5"), Row("6"), Row("7"), Row("8")))
 
     val df3 = Seq("[9, 10]").toDF("c")
     val dfJoined = df2.join(df3)
@@ -102,8 +88,7 @@ class TableFunctionSuite extends TestData {
       session
         .tableFunction(tableFunctions.flatten, Map("input" -> parse_json(dfJoined("b"))))
         .select("value"),
-      Seq(Row("5"), Row("6"), Row("7"), Row("8")),
-      sort = false)
+      Seq(Row("5"), Row("6"), Row("7"), Row("8")))
 
     val tableName = randomName()
     try {
@@ -113,8 +98,7 @@ class TableFunctionSuite extends TestData {
         session
           .tableFunction(tableFunctions.split_to_table, Seq(df4("a"), lit(" ")))
           .select("value"),
-        Seq(Row("split"), Row("by"), Row("space")),
-        sort = false)
+        Seq(Row("split"), Row("by"), Row("space")))
     } finally {
       dropTable(tableName)
     }

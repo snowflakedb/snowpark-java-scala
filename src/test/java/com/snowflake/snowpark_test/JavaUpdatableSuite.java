@@ -61,8 +61,7 @@ public class JavaUpdatableSuite extends TestBase {
       assert result.getMultiJoinedRowsUpdated() == 0;
       checkAnswer(
           getSession().table(tableName),
-          new Row[] {Row.create(3, "a", true), Row.create(2, "b", false)},
-          false);
+          new Row[] {Row.create(3, "a", true), Row.create(2, "b", false)});
     } finally {
       dropTable(tableName);
     }
@@ -83,8 +82,7 @@ public class JavaUpdatableSuite extends TestBase {
       assert result.getMultiJoinedRowsUpdated() == 0;
       checkAnswer(
           getSession().table(tableName),
-          new Row[] {Row.create(3, "a", true), Row.create(2, "b", false)},
-          false);
+          new Row[] {Row.create(3, "a", true), Row.create(2, "b", false)});
     } finally {
       dropTable(tableName);
     }
@@ -106,8 +104,7 @@ public class JavaUpdatableSuite extends TestBase {
       assert result.getMultiJoinedRowsUpdated() == 1;
       checkAnswer(
           getSession().table(tableName),
-          new Row[] {Row.create(3, "a", true), Row.create(2, "b", false)},
-          false);
+          new Row[] {Row.create(3, "a", true), Row.create(2, "b", false)});
     } finally {
       dropTable(tableName);
     }
@@ -129,8 +126,7 @@ public class JavaUpdatableSuite extends TestBase {
       assert result.getMultiJoinedRowsUpdated() == 1;
       checkAnswer(
           getSession().table(tableName),
-          new Row[] {Row.create(3, "a", true), Row.create(2, "b", false)},
-          false);
+          new Row[] {Row.create(3, "a", true), Row.create(2, "b", false)});
     } finally {
       dropTable(tableName);
     }
@@ -199,8 +195,7 @@ public class JavaUpdatableSuite extends TestBase {
       assert result.getRowsInserted() == 0;
       checkAnswer(
           getSession().table(tableName),
-          new Row[] {Row.create(2, "a", true), Row.create(2, "b", false)},
-          false);
+          new Row[] {Row.create(2, "a", true), Row.create(2, "b", false)});
     } finally {
       dropTable(tableName);
     }
@@ -226,8 +221,7 @@ public class JavaUpdatableSuite extends TestBase {
       assert result.getRowsInserted() == 0;
       checkAnswer(
           getSession().table(tableName),
-          new Row[] {Row.create(1, "a", true), Row.create(4, "b", false)},
-          false);
+          new Row[] {Row.create(1, "a", true), Row.create(4, "b", false)});
     } finally {
       dropTable(tableName);
     }
@@ -249,7 +243,7 @@ public class JavaUpdatableSuite extends TestBase {
       assert result.getRowsUpdated() == 0;
       assert result.getRowsDeleted() == 1;
       assert result.getRowsInserted() == 0;
-      checkAnswer(getSession().table(tableName), new Row[] {Row.create(2, "b", false)}, false);
+      checkAnswer(getSession().table(tableName), new Row[] {Row.create(2, "b", false)});
     } finally {
       dropTable(tableName);
     }
@@ -273,8 +267,9 @@ public class JavaUpdatableSuite extends TestBase {
       assert result.getRowsInserted() == 1;
       checkAnswer(
           getSession().table(tableName),
-          new Row[] {Row.create(1, "a", true), Row.create(2, "b", false), Row.create(4, "c", true)},
-          true);
+          new Row[] {
+            Row.create(1, "a", true), Row.create(2, "b", false), Row.create(4, "c", true)
+          });
     } finally {
       dropTable(tableName);
     }
@@ -302,8 +297,7 @@ public class JavaUpdatableSuite extends TestBase {
           getSession().table(tableName),
           new Row[] {
             Row.create(1, "a", true), Row.create(2, "b", false), Row.create(4, null, null)
-          },
-          true);
+          });
     } finally {
       dropTable(tableName);
     }
@@ -331,8 +325,7 @@ public class JavaUpdatableSuite extends TestBase {
           getSession().table(tableName),
           new Row[] {
             Row.create(1, "a", true), Row.create(2, "b", false), Row.create(4, null, null)
-          },
-          true);
+          });
     } finally {
       dropTable(tableName);
     }

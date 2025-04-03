@@ -284,8 +284,7 @@ class DataFrameReaderSuite extends SNTestBase {
       df1,
       Seq(
         Row("{\n  \"num\": 1,\n  \"str\": \"str1\"\n}"),
-        Row("{\n  \"num\": 2,\n  \"str\": \"str2\"\n}")),
-      sort = false)
+        Row("{\n  \"num\": 2,\n  \"str\": \"str2\"\n}")))
 
     // query test
     checkAnswer(
@@ -301,8 +300,7 @@ class DataFrameReaderSuite extends SNTestBase {
       df2,
       Seq(
         Row("{\n  \"num\": 1,\n  \"str\": \"str1\"\n}"),
-        Row("{\n  \"num\": 2,\n  \"str\": \"str2\"\n}")),
-      sort = false)
+        Row("{\n  \"num\": 2,\n  \"str\": \"str2\"\n}")))
   })
 
   testReadFile("Test for all parquet compression types")(reader => {
@@ -337,14 +335,12 @@ class DataFrameReaderSuite extends SNTestBase {
       df1,
       Seq(
         Row("{\n  \"num\": 1,\n  \"str\": \"str1\"\n}"),
-        Row("{\n  \"num\": 2,\n  \"str\": \"str2\"\n}")),
-      sort = false)
+        Row("{\n  \"num\": 2,\n  \"str\": \"str2\"\n}")))
 
     // query test
     checkAnswer(
       df1.where(sqlExpr("$1:num") > 1),
-      Seq(Row("{\n  \"num\": 2,\n  \"str\": \"str2\"\n}")),
-      sort = false)
+      Seq(Row("{\n  \"num\": 2,\n  \"str\": \"str2\"\n}")))
 
     // assert user cannot input a schema to read parquet
     assertThrows[IllegalArgumentException](session.read.schema(userSchema).parquet(path))
@@ -355,8 +351,7 @@ class DataFrameReaderSuite extends SNTestBase {
       df2,
       Seq(
         Row("{\n  \"num\": 1,\n  \"str\": \"str1\"\n}"),
-        Row("{\n  \"num\": 2,\n  \"str\": \"str2\"\n}")),
-      sort = false)
+        Row("{\n  \"num\": 2,\n  \"str\": \"str2\"\n}")))
   })
 
   testReadFile("read orc with no schema")(reader => {
@@ -366,14 +361,12 @@ class DataFrameReaderSuite extends SNTestBase {
       df1,
       Seq(
         Row("{\n  \"num\": 1,\n  \"str\": \"str1\"\n}"),
-        Row("{\n  \"num\": 2,\n  \"str\": \"str2\"\n}")),
-      sort = false)
+        Row("{\n  \"num\": 2,\n  \"str\": \"str2\"\n}")))
 
     // query test
     checkAnswer(
       df1.where(sqlExpr("$1:num") > 1),
-      Seq(Row("{\n  \"num\": 2,\n  \"str\": \"str2\"\n}")),
-      sort = false)
+      Seq(Row("{\n  \"num\": 2,\n  \"str\": \"str2\"\n}")))
 
     // assert user cannot input a schema to read avro
     assertThrows[IllegalArgumentException](session.read.schema(userSchema).orc(path))
@@ -384,8 +377,7 @@ class DataFrameReaderSuite extends SNTestBase {
       df2,
       Seq(
         Row("{\n  \"num\": 1,\n  \"str\": \"str1\"\n}"),
-        Row("{\n  \"num\": 2,\n  \"str\": \"str2\"\n}")),
-      sort = false)
+        Row("{\n  \"num\": 2,\n  \"str\": \"str2\"\n}")))
   })
 
   testReadFile("read xml with no schema")(reader => {
@@ -395,15 +387,13 @@ class DataFrameReaderSuite extends SNTestBase {
       df1,
       Seq(
         Row("<test>\n  <num>1</num>\n  <str>str1</str>\n</test>"),
-        Row("<test>\n  <num>2</num>\n  <str>str2</str>\n</test>")),
-      sort = false)
+        Row("<test>\n  <num>2</num>\n  <str>str2</str>\n</test>")))
 
     // query test
     checkAnswer(
       df1
         .where(sqlExpr("xmlget($1, 'num', 0):\"$\"") > 1),
-      Seq(Row("<test>\n  <num>2</num>\n  <str>str2</str>\n</test>")),
-      sort = false)
+      Seq(Row("<test>\n  <num>2</num>\n  <str>str2</str>\n</test>")))
 
     // assert user cannot input a schema to read avro
     assertThrows[IllegalArgumentException](session.read.schema(userSchema).xml(path))
@@ -414,8 +404,7 @@ class DataFrameReaderSuite extends SNTestBase {
       df2,
       Seq(
         Row("<test>\n  <num>1</num>\n  <str>str1</str>\n</test>"),
-        Row("<test>\n  <num>2</num>\n  <str>str2</str>\n</test>")),
-      sort = false)
+        Row("<test>\n  <num>2</num>\n  <str>str2</str>\n</test>")))
   })
 
   test("read file on_error = continue on CSV") {

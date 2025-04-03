@@ -17,25 +17,16 @@ class ViewSuite extends TestData {
 
   test("create view") {
     integer1.createOrReplaceView(viewName1)
-    checkAnswer(
-      session.sql(s"select * from $viewName1"),
-      Seq(Row(1), Row(2), Row(3)),
-      sort = false)
+    checkAnswer(session.sql(s"select * from $viewName1"), Seq(Row(1), Row(2), Row(3)))
 
     // test replace
     double1.createOrReplaceView(viewName1)
-    checkAnswer(
-      session.sql(s"select * from $viewName1"),
-      Seq(Row(1.111), Row(2.222), Row(3.333)),
-      sort = false)
+    checkAnswer(session.sql(s"select * from $viewName1"), Seq(Row(1.111), Row(2.222), Row(3.333)))
   }
 
   test("view name with special character") {
     columnNameHasSpecialCharacter.createOrReplaceView(viewName2)
-    checkAnswer(
-      session.sql(s"select * from ${quoteName(viewName2)}"),
-      Seq(Row(1, 2), Row(3, 4)),
-      sort = false)
+    checkAnswer(session.sql(s"select * from ${quoteName(viewName2)}"), Seq(Row(1, 2), Row(3, 4)))
   }
 
   test("only works on select") {
