@@ -58,12 +58,13 @@ lazy val root = (project in file("."))
   )
 
 lazy val generateSourcesTask = Def.task {
+  val className = "GeneratedFunctions"
   val outputDir = (Compile / sourceManaged).value / "generated"
-  val outputFile = outputDir / "GeneratedFunctions.scala"
+  val outputFile = outputDir / s"$className.scala"
   IO.createDirectory(outputDir)
 
-  val templatesDir = baseDirectory.value / "src/main/scala/com/snowflake/snowpark/code_templates"
-  val templateFiles = templatesDir.listFiles().filter(_.getName.endsWith(".txt")).toList
+  val templatesDir = baseDirectory.value / "src/main/generated/code_templates"
+  val templateFiles = templatesDir.listFiles().filter(_.getName.endsWith(".scala")).toList
 
   val mirror = ru.runtimeMirror(getClass.getClassLoader)
   val toolbox = mirror.mkToolBox()
@@ -82,12 +83,12 @@ lazy val generateSourcesTask = Def.task {
   }
 
   val traitHeader =
-    """|package com.snowflake.generated
-       |
-       |import com.snowflake.snowpark._
-       |
-       |trait GeneratedFunctions {
-       |""".stripMargin
+    s"""|package com.snowflake.snowpark.generated
+        |
+        |import com.snowflake.snowpark._
+        |
+        |trait $className {
+        |""".stripMargin
 
   val traitFooter = "\n}"
 
