@@ -133,7 +133,7 @@ class LargeDataFrameSuite extends TestData {
     // float and double are converted to double
     result.schema.printTreeString()
     assert(getSchemaString(result.schema) == schemaString)
-    checkAnswer(result.sort(col("id")), largeData, false)
+    checkAnswer(result.sort(col("id")), largeData)
   }
 
   test("createDataFrame for large values: time") {
@@ -160,7 +160,7 @@ class LargeDataFrameSuite extends TestData {
       expected.append(Row(i.toLong, snowflakeTime))
     }
     expected.append(Row(rowCount, null))
-    checkAnswer(df.sort(col("id")), expected, sort = false)
+    checkAnswer(df.sort(col("id")), expected)
   }
 
   // In the result, Array, Map and Geography are String data
@@ -224,7 +224,7 @@ class LargeDataFrameSuite extends TestData {
             |}""".stripMargin)))
     }
     expected.append(Row(rowCount, null, null, null, null, null))
-    checkAnswer(df.sort(col("id")), expected, sort = false)
+    checkAnswer(df.sort(col("id")), expected)
   }
 
   test("createDataFrame for large values: variant in array and map") {
@@ -246,7 +246,7 @@ class LargeDataFrameSuite extends TestData {
       expected.append(Row(i.toLong, "[\n  1,\n  \"\\\"'\"\n]", "{\n  \"a\": \"\\\"'\"\n}"))
     }
     expected.append(Row(rowCount, null, null))
-    checkAnswer(df.sort(col("id")), expected, sort = false)
+    checkAnswer(df.sort(col("id")), expected)
   }
 
   test("createDataFrame for large values: geography in array and map") {
@@ -281,7 +281,7 @@ class LargeDataFrameSuite extends TestData {
             "      300,\n      100\n    ],\n    \"type\": \"Point\"\n  }\n}"))
     }
     expected.append(Row(rowCount, null, null))
-    checkAnswer(df.sort(col("id")), expected, sort = false)
+    checkAnswer(df.sort(col("id")), expected)
   }
 
   test("test large ResultSet with multiple chunks") {

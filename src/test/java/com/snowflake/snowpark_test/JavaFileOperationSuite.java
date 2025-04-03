@@ -38,8 +38,7 @@ public class JavaFileOperationSuite extends TestBase {
       PutResult[] result = getSession().file().put(filePath, stageName);
       checkAnswer(
           getSession().read().schema(schema).csv("@" + stageName),
-          new Row[] {Row.create(1, "one", 1.2), Row.create(2, "two", 2.2)},
-          false);
+          new Row[] {Row.create(1, "one", 1.2), Row.create(2, "two", 2.2)});
       assert result.length == 1;
       assert result[0].getSourceFileName().equals(TestFiles.testFileCsv);
       assert result[0].getTargetFileName().equals(TestFiles.testFileCsv + ".gz");
@@ -71,8 +70,7 @@ public class JavaFileOperationSuite extends TestBase {
       PutResult[] result = getSession().file().put(filePath, stageName, options);
       checkAnswer(
           getSession().read().schema(schema).csv("@" + stageName),
-          new Row[] {Row.create(1, "one", 1.2), Row.create(2, "two", 2.2)},
-          false);
+          new Row[] {Row.create(1, "one", 1.2), Row.create(2, "two", 2.2)});
       assert result.length == 1;
       assert result[0].getSourceFileName().equals(TestFiles.testFileCsv);
       assert result[0].getTargetFileName().equals(TestFiles.testFileCsv);

@@ -30,7 +30,7 @@ class DataFrameRangeSuite extends SNTestBase {
     assert(session.range(-3, -5, 1).count() == 0)
 
     checkAnswer(session.range(-3, -10, -2), Seq(Row(-3), Row(-5), Row(-7), Row(-9)))
-    checkAnswer(session.range(10, 3, -3), Seq(Row(10), Row(7), Row(4)), false)
+    checkAnswer(session.range(10, 3, -3), Seq(Row(10), Row(7), Row(4)))
   }
 
   test("range api") {

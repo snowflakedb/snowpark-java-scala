@@ -40,7 +40,7 @@ public class JavaDataFrameReaderSuite extends TestBase {
       uploadFileToStage(stageName, TestFiles.testFileCsv, false);
       DataFrame df =
           getSession().read().schema(schema).csv("@" + stageName + "/" + TestFiles.testFileCsv);
-      checkAnswer(df, new Row[] {Row.create(1, "one", 1.2), Row.create(2, "two", 2.2)}, false);
+      checkAnswer(df, new Row[] {Row.create(1, "one", 1.2), Row.create(2, "two", 2.2)});
     } finally {
       dropStage(stageName);
     }

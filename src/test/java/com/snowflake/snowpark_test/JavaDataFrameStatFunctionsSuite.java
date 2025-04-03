@@ -133,8 +133,8 @@ public class JavaDataFrameStatFunctionsSuite extends TestBase {
       Row.create(2, 800, "APR"),
       Row.create(2, 4500, "APR")
     };
-    checkAnswer(df.stat().sampleBy(df.col("empid"), map), expected, false);
+    checkAnswer(df.stat().sampleBy(df.col("empid"), map), expected);
 
-    checkAnswer(df.stat().sampleBy("empid", map), expected, false);
+    checkAnswer(df.stat().sampleBy("empid", map), expected);
   }
 }
