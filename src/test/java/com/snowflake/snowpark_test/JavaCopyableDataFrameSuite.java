@@ -33,8 +33,7 @@ public class JavaCopyableDataFrameSuite extends TestBase {
           .copyInto(tableName);
       checkAnswer(
           getSession().table(tableName),
-          new Row[] {Row.create(1, "one", 1.2), Row.create(2, "two", 2.2)},
-          false);
+          new Row[] {Row.create(1, "one", 1.2), Row.create(2, "two", 2.2)});
     } finally {
       dropTable(tableName);
       dropStage(stageName);
@@ -60,8 +59,7 @@ public class JavaCopyableDataFrameSuite extends TestBase {
           .schema(schema)
           .csv("@" + stageName + "/" + TestFiles.testFileCsv)
           .copyInto(tableName, transformation);
-      checkAnswer(
-          getSession().table(tableName), new Row[] {Row.create(1, 3), Row.create(2, 3)}, false);
+      checkAnswer(getSession().table(tableName), new Row[] {Row.create(1, 3), Row.create(2, 3)});
     } finally {
       dropTable(tableName);
       dropStage(stageName);
@@ -90,7 +88,7 @@ public class JavaCopyableDataFrameSuite extends TestBase {
           .schema(schema)
           .csv("@" + stageName + "/" + TestFiles.testFileCsv)
           .copyInto(tableName, transformation, options);
-      checkAnswer(getSession().table(tableName), new Row[] {Row.create(2, 3)}, false);
+      checkAnswer(getSession().table(tableName), new Row[] {Row.create(2, 3)});
     } finally {
       dropTable(tableName);
       dropStage(stageName);
@@ -120,7 +118,7 @@ public class JavaCopyableDataFrameSuite extends TestBase {
           .schema(schema)
           .csv("@" + stageName + "/" + TestFiles.testFileCsv)
           .copyInto(tableName, columns, transformation, options);
-      checkAnswer(getSession().table(tableName), new Row[] {Row.create(2, 3)}, false);
+      checkAnswer(getSession().table(tableName), new Row[] {Row.create(2, 3)});
     } finally {
       dropTable(tableName);
       dropStage(stageName);
@@ -149,8 +147,7 @@ public class JavaCopyableDataFrameSuite extends TestBase {
       df.copyInto(tableName);
       checkAnswer(
           getSession().table(tableName),
-          new Row[] {Row.create(1, "one", 1.2), Row.create(2, "two", 2.2)},
-          false);
+          new Row[] {Row.create(1, "one", 1.2), Row.create(2, "two", 2.2)});
     } finally {
       dropTable(tableName);
       dropStage(stageName);

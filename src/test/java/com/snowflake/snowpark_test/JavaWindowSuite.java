@@ -60,7 +60,7 @@ public class JavaWindowSuite extends TestBase {
       Row.create(1, 1.666),
       Row.create(1, 1.333)
     };
-    checkAnswer(df.select(df.col("key"), Functions.avg(df.col("key")).over(w)), expected1, false);
+    checkAnswer(df.select(df.col("key"), Functions.avg(df.col("key")).over(w)), expected1);
   }
 
   @Test

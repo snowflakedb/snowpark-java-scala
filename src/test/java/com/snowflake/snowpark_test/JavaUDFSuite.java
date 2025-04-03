@@ -200,6 +200,6 @@ public class JavaUDFSuite extends UDFTestBase {
             input,
             DataTypes.IntegerType);
     Row[] result = {Row.create(100), Row.create((Object) null), Row.create(9)};
-    checkAnswer(df.select(udf.apply(df.col("col1"), df.col("col2"))), result, false);
+    checkAnswer(df.select(udf.apply(df.col("col1"), df.col("col2"))), result);
   }
 }

@@ -161,12 +161,12 @@ public class JavaDataFrameWriterSuite extends TestBase {
       Map<String, Object> readConfigs = new HashMap<>();
       readConfigs.put("skip_header", 1);
       DataFrame df2 = getSession().read().schema(schema).options(readConfigs).csv(path);
-      checkAnswer(df2, new Row[] {Row.create(1, "a"), Row.create(2, "b")}, false);
+      checkAnswer(df2, new Row[] {Row.create(1, "a"), Row.create(2, "b")});
 
       // Test overwrite without HEADER
       df.write().mode(SaveMode.Overwrite).option("compression", "none").csv(path);
       DataFrame df4 = getSession().read().schema(schema).csv(path);
-      checkAnswer(df4, new Row[] {Row.create(1, "a"), Row.create(2, "b")}, false);
+      checkAnswer(df4, new Row[] {Row.create(1, "a"), Row.create(2, "b")});
     } finally {
       dropStage(stageName);
     }
@@ -200,17 +200,13 @@ public class JavaDataFrameWriterSuite extends TestBase {
       // read back data to verify content
       DataFrame df3 = getSession().read().json(path);
       checkAnswer(
-          df3,
-          new Row[] {Row.create("[\n  1,\n  \"a\"\n]"), Row.create("[\n  2,\n  \"b\"\n]")},
-          false);
+          df3, new Row[] {Row.create("[\n  1,\n  \"a\"\n]"), Row.create("[\n  2,\n  \"b\"\n]")});
 
       // Test overwrite
       df2.write().mode(SaveMode.Overwrite).option("compression", "none").json(path);
       DataFrame df4 = getSession().read().json(path);
       checkAnswer(
-          df4,
-          new Row[] {Row.create("[\n  1,\n  \"a\"\n]"), Row.create("[\n  2,\n  \"b\"\n]")},
-          false);
+          df4, new Row[] {Row.create("[\n  1,\n  \"a\"\n]"), Row.create("[\n  2,\n  \"b\"\n]")});
     } finally {
       dropStage(stageName);
     }
@@ -248,8 +244,7 @@ public class JavaDataFrameWriterSuite extends TestBase {
           new Row[] {
             Row.create("{\n  \"_COL_0\": 1,\n  \"_COL_1\": \"a\"\n}"),
             Row.create("{\n  \"_COL_0\": 2,\n  \"_COL_1\": \"b\"\n}")
-          },
-          false);
+          });
 
       // Test overwrite
       df.write().mode(SaveMode.Overwrite).option("compression", "lzo").parquet(path);
@@ -260,8 +255,7 @@ public class JavaDataFrameWriterSuite extends TestBase {
           new Row[] {
             Row.create("{\n  \"_COL_0\": 1,\n  \"_COL_1\": \"a\"\n}"),
             Row.create("{\n  \"_COL_0\": 2,\n  \"_COL_1\": \"b\"\n}")
-          },
-          false);
+          });
     } finally {
       dropStage(stageName);
     }

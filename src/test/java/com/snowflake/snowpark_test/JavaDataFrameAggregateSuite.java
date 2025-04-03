@@ -31,8 +31,8 @@ public class JavaDataFrameAggregateSuite extends TestBase {
                     new StructField("rest", DataTypes.StringType)));
 
     Row[] expected = {Row.create("a", 2.0, 22.0), Row.create("b", 3.0, 33.0)};
-    checkAnswer(df.groupBy("key").avg(df.col("value1"), df.col("value2")), expected, false);
-    checkAnswer(df.groupBy("key").mean(df.col("value1"), df.col("value2")), expected, false);
+    checkAnswer(df.groupBy("key").avg(df.col("value1"), df.col("value2")), expected);
+    checkAnswer(df.groupBy("key").mean(df.col("value1"), df.col("value2")), expected);
   }
 
   @Test
@@ -227,7 +227,7 @@ public class JavaDataFrameAggregateSuite extends TestBase {
             .agg(Functions.count(Functions.col("*")).as("count"))
             .sort(Functions.col("count"));
 
-    checkAnswer(groupingSets, result, false);
+    checkAnswer(groupingSets, result);
   }
 
   @Test
@@ -264,14 +264,12 @@ public class JavaDataFrameAggregateSuite extends TestBase {
         df.pivot("month", new String[] {"JAN", "FEB", "MAR", "APR"})
             .agg(Functions.sum(df.col("amount")))
             .sort(df.col("empid")),
-        expected,
-        false);
+        expected);
 
     checkAnswer(
         df.pivot(df.col("month"), new String[] {"JAN", "FEB", "MAR", "APR"})
             .agg(Functions.sum(df.col("amount")))
             .sort(df.col("empid")),
-        expected,
-        false);
+        expected);
   }
 }

@@ -40,8 +40,7 @@ public class JavaDataFrameNaFunctionsSuite extends TestBase {
           Row.create(4.0, 11, false, "d"),
           Row.create(12.3, 11, false, "f"),
           Row.create(12.3, 11, false, "f")
-        },
-        false);
+        });
   }
 
   @Test
@@ -64,8 +63,7 @@ public class JavaDataFrameNaFunctionsSuite extends TestBase {
           Row.create(4.0, null, null, "d"),
           Row.create(null, null, null, null),
           Row.create(Double.NaN, null, null, null)
-        },
-        false);
+        });
 
     Map<Object, Object> replacement1 = new HashMap<>();
     replacement1.put(null, true);
@@ -78,7 +76,6 @@ public class JavaDataFrameNaFunctionsSuite extends TestBase {
           Row.create(4.0, null, true, "d"),
           Row.create(null, null, true, null),
           Row.create(Double.NaN, null, true, null)
-        },
-        false);
+        });
   }
 }
