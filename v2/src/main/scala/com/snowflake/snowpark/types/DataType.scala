@@ -107,7 +107,7 @@ object DateType extends AtomicType {
  * @since 0.1.0
  */
 case class MapType(keyType: DataType, valueType: DataType) extends DataType {
-  protected var isStructured = false
+  protected val isStructured = false
 
   override def toString: String = {
     s"MapType[${keyType.toString}, ${valueType.toString}]"
@@ -128,7 +128,7 @@ private[snowpark] class StructuredMapType(
     override val valueType: DataType,
     val isValueNullable: Boolean)
     extends MapType(keyType, valueType) {
-  isStructured = true
+  override val isStructured = true
 
   override def toString: String = {
     s"MapType[${keyType.toString}, ${valueType.toString} nullable = $isValueNullable]"
