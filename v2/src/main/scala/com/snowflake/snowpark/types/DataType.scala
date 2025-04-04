@@ -36,7 +36,7 @@ private[snowpark] abstract class AtomicType extends DataType
  */
 case class ArrayType(elementType: DataType) extends DataType {
 
-  protected var isStructured: Boolean = false
+  protected val isStructured: Boolean = false
 
   override def toString: String = {
     s"ArrayType[${elementType.toString}]"
@@ -59,7 +59,7 @@ private[snowpark] class StructuredArrayType(
     val nullable: Boolean)
     extends ArrayType(elementType) {
 
-  isStructured = true
+  override val isStructured = true
 
   override def toString: String = {
     s"ArrayType[${elementType.toString} nullable = $nullable]"
