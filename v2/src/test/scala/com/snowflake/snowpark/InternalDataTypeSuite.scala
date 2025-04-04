@@ -1,6 +1,7 @@
 package com.snowflake.snowpark
 
 import com.snowflake.snowpark.types._
+import com.snowflake.snowpark.proto.ast
 
 class InternalDataTypeSuite extends UnitTestBase {
   test("schema string") {
@@ -61,5 +62,52 @@ class InternalDataTypeSuite extends UnitTestBase {
     assert(Variant.VariantTypes.getType("Array") == Variant.VariantTypes.Array)
     assert(Variant.VariantTypes.getType("Object") == Variant.VariantTypes.Object)
     intercept[Exception] { Variant.VariantTypes.getType("not_exist_type") }
+  }
+
+  test("toAst") {
+    checkAst(
+      ArrayType(IntegerType).toAst,
+      ast.DataType(variant = ast.DataType.Variant.ArrayType(
+        ast.ArrayType(ty = Some(ast.DataType(variant = ast.DataType.Variant.IntegerType(true)))))))
+    checkAst(
+      StructuredArrayType(IntegerType, nullable = true).toAst,
+      ast.DataType(variant = ast.DataType.Variant.ArrayType(
+        ast.ArrayType(
+          structured = true,
+          ty = Some(ast.DataType(variant = ast.DataType.Variant.IntegerType(true)))))))
+    checkAst(BinaryType.toAst, ast.DataType(variant = ast.DataType.Variant.BinaryType(true)))
+    checkAst(BooleanType.toAst, ast.DataType(variant = ast.DataType.Variant.BooleanType(true)))
+    checkAst(ByteType.toAst, ast.DataType(variant = ast.DataType.Variant.ByteType(true)))
+    checkAst(DateType.toAst, ast.DataType(variant = ast.DataType.Variant.DateType(true)))
+    checkAst(
+      DecimalType(2, 1).toAst,
+      ast.DataType(variant = ast.DataType.Variant.DecimalType(ast.DecimalType(2, 1))))
+    checkAst(DoubleType.toAst, ast.DataType(variant = ast.DataType.Variant.DoubleType(true)))
+    checkAst(FloatType.toAst, ast.DataType(variant = ast.DataType.Variant.FloatType(true)))
+    checkAst(GeographyType.toAst, ast.DataType(variant = ast.DataType.Variant.GeographyType(true)))
+    checkAst(GeometryType.toAst, ast.DataType(variant = ast.DataType.Variant.GeometryType(true)))
+    checkAst(IntegerType.toAst, ast.DataType(variant = ast.DataType.Variant.IntegerType(true)))
+    checkAst(LongType.toAst, ast.DataType(variant = ast.DataType.Variant.LongType(true)))
+    checkAst(
+      MapType(IntegerType, StringType).toAst,
+      ast.DataType(variant = ast.DataType.Variant.MapType(ast.MapType(
+        keyTy = Some(ast.DataType(variant = ast.DataType.Variant.IntegerType(true))),
+        valueTy = Some(ast.DataType(variant =
+          ast.DataType.Variant.StringType(ast.StringType(length = Some(1)))))))))
+    checkAst(
+      StructuredMapType(IntegerType, StringType, isValueType = true).toAst,
+      ast.DataType(variant = ast.DataType.Variant.MapType(ast.MapType(
+        keyTy = Some(ast.DataType(variant = ast.DataType.Variant.IntegerType(true))),
+        structured = true,
+        valueTy = Some(ast.DataType(variant =
+          ast.DataType.Variant.StringType(ast.StringType(length = Some(1)))))))))
+    checkAst(ShortType.toAst, ast.DataType(variant = ast.DataType.Variant.ShortType(true)))
+    checkAst(
+      StringType.toAst,
+      ast.DataType(variant = ast.DataType.Variant.StringType(ast.StringType(length = Some(1)))))
+//    assert(StructType().toAst.variant.isInstanceOf[ast.DataType.Variant.StructType])
+    checkAst(TimeType.toAst, ast.DataType(variant = ast.DataType.Variant.TimeType(true)))
+//    assert(TimestampType.toAst.variant.isInstanceOf[ast.DataType.Variant.TimestampType])
+//    assert(VariantType.toAst.variant.isInstanceOf[ast.DataType.Variant.VariantType])
   }
 }

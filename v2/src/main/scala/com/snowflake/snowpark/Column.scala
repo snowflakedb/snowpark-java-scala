@@ -3,7 +3,6 @@ package com.snowflake.snowpark
 import com.snowflake.snowpark.internal.{AstUtils, ExprNode, Logging, NameIndices, SrcPositionInfo}
 import com.snowflake.snowpark.proto.ast._
 import com.snowflake.snowpark.internal.AstUtils._
-import com.snowflake.snowpark.types.DataType
 
 // scalastyle:off
 /**
@@ -557,7 +556,7 @@ case class Column(
    * @group op
    * @since 0.1.0
    */
-  def cast(to: DataType): Column = null
+  def cast(to: types.DataType): Column = null
 
   /**
    * Returns a Column expression with values sorted in descending order.
