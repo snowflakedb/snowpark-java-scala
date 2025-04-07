@@ -58,9 +58,7 @@ lazy val root = (project in file("."))
   )
 
 lazy val generateSourcesTask = Def.task {
-  val className = "GeneratedFunctions"
   val outputDir = (Compile / sourceManaged).value / "generated"
-  val outputFile = outputDir / s"$className.scala"
   IO.createDirectory(outputDir)
 
   val templatesDir = baseDirectory.value / "src/main/generated/code_templates"
@@ -69,31 +67,46 @@ lazy val generateSourcesTask = Def.task {
   val mirror = ru.runtimeMirror(getClass.getClassLoader)
   val toolbox = mirror.mkToolBox()
 
-  val generatedBodies = templateFiles.map { file =>
-    val code = IO.read(file)
-    val wrappedCode = s"{$code}"
-    try {
-      val tree = toolbox.parse(wrappedCode)
-      val evaluated = toolbox.eval(tree)
-      evaluated.toString
-    } catch {
-      case e: Throwable =>
-        sys.error(s"Failed to evaluate template ${file.getName}: ${e.getMessage}")
-    }
+  def fileToClassName(file: File): String = {
+    val base = file.getName.stripSuffix(".scala")
+    val cleaned = base.replaceAll("[^a-zA-Z0-9]", "_")
+    cleaned.head.toUpper + cleaned.tail
   }
 
-  val traitHeader =
-    s"""|package com.snowflake.snowpark.generated
-        |
-        |import com.snowflake.snowpark._
-        |
-        |trait $className {
-        |""".stripMargin
+  val outputFiles = templateFiles.map { file =>
+    val baseName = file.getName.stripSuffix(".scala")
+    val className = fileToClassName(file)
+    val outputFile = outputDir / s"$className.scala"
 
-  val traitFooter = "\n}"
+    val code = IO.read(file).trim
 
-  val finalCode = traitHeader + generatedBodies.mkString("\n") + traitFooter
+    val generatedCode: String = try {
+      val tree = toolbox.parse(s"{$code}")
+      val result = toolbox.eval(tree)
+      result match {
+        case s: String => s
+        case other =>
+          sys.error(s"Template ${file.getName}" +
+            s"should return a String. Got: ${other.getClass.getSimpleName}")
+      }
+    } catch {
+      case e: Throwable =>
+        sys.error(s"Error in evaluating template ${file.getName}: ${e.getMessage}")
+    }
 
-  IO.write(outputFile, finalCode)
-  Seq(outputFile)
+    val wrappedOutput =
+      s"""|package com.snowflake.snowpark.generated
+          |
+          |import com.snowflake.snowpark._
+          |
+          |class $className {
+          |$generatedCode
+          |}
+          |""".stripMargin
+
+    IO.write(outputFile, wrappedOutput)
+    outputFile
+  }
+
+  outputFiles
 }
