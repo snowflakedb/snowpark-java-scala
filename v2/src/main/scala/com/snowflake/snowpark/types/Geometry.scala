@@ -1,5 +1,6 @@
 package com.snowflake.snowpark.types
 
+import com.snowflake.snowpark.proto.ast
 import java.io.{IOException, UncheckedIOException}
 
 /**
@@ -73,4 +74,7 @@ object GeometryType extends DataType {
   }
 
   override private[snowpark] def schemaString: String = s"Geometry"
+
+  lazy override private[snowpark] val toAst =
+    ast.DataType(variant = ast.DataType.Variant.GeometryType(value = true))
 }
