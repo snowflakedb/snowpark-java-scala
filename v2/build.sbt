@@ -1,6 +1,3 @@
-import scala.reflect.runtime.{universe => ru}
-import scala.tools.reflect.ToolBox
-
 val snowparkName = s"snowpark"
 
 val commonSettings = Seq(
@@ -53,60 +50,5 @@ lazy val root = (project in file("."))
     scalafmtOnCompile := true,
     javafmtOnCompile := true,
 
-    Compile / sourceGenerators += generateSourcesTask.taskValue,
     Compile / managedSourceDirectories += (Compile / sourceManaged).value
   )
-
-lazy val generateSourcesTask = Def.task {
-  val outputDir = (Compile / sourceManaged).value / "generated"
-  IO.createDirectory(outputDir)
-
-  val templatesDir = baseDirectory.value / "src/main/generated/code_templates"
-  val templateFiles = templatesDir.listFiles().filter(_.getName.endsWith(".scala")).toList
-
-  val mirror = ru.runtimeMirror(getClass.getClassLoader)
-  val toolbox = mirror.mkToolBox()
-
-  def fileToClassName(file: File): String = {
-    val base = file.getName.stripSuffix(".scala")
-    val cleaned = base.replaceAll("[^a-zA-Z0-9]", "_")
-    cleaned.head.toUpper + cleaned.tail
-  }
-
-  val outputFiles = templateFiles.map { file =>
-    val baseName = file.getName.stripSuffix(".scala")
-    val className = fileToClassName(file)
-    val outputFile = outputDir / s"$className.scala"
-
-    val code = IO.read(file).trim
-
-    val generatedCode: String = try {
-      val tree = toolbox.parse(s"{$code}")
-      val result = toolbox.eval(tree)
-      result match {
-        case s: String => s
-        case other =>
-          sys.error(s"Template ${file.getName}" +
-            s"should return a String. Got: ${other.getClass.getSimpleName}")
-      }
-    } catch {
-      case e: Throwable =>
-        sys.error(s"Error in evaluating template ${file.getName}: ${e.getMessage}")
-    }
-
-    val wrappedOutput =
-      s"""|package com.snowflake.snowpark.generated
-          |
-          |import com.snowflake.snowpark._
-          |
-          |class $className {
-          |$generatedCode
-          |}
-          |""".stripMargin
-
-    IO.write(outputFile, wrappedOutput)
-    outputFile
-  }
-
-  outputFiles
-}
