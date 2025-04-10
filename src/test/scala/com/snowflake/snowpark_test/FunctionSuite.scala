@@ -2304,6 +2304,53 @@ trait FunctionSuite extends TestData {
     checkAnswer(data.select(to_utc_timestamp(col("a"))), expected)
   }
 
+  test("cbrt") {
+    checkAnswer(
+      testData1.select(cbrt(col("NUM"))),
+      Seq(Row(1.0), Row(1.25992104989)),
+      sort = false)
+  }
+  test("from_json") {
+    val data_for_json = Seq(
+      (1, "{\"id\": 172319, \"age\": 41, \"relative\": {\"id\": 885471, \"age\": 29}}"),
+      (2, "{\"id\": 532161, \"age\": 17, \"relative\":{\"id\": 873513, \"age\": 47}}"))
+    val data_for_json_column = Seq("col1", "col2")
+    val df_for_json = session.createDataFrame(data_for_json).toDF(data_for_json_column)
+    val json_df = df_for_json.select(from_json(col("col2")).as("json")).show()
+
+  }
+
+  test("json_tuple") {
+    val json_tuple = builtin("JSON_EXTRACT_PATH_TEXT")
+    checkAnswer(
+      validJson1.select(json_tuple(col("v"), col("K"))),
+      Seq(Row(null), Row("foo"), Row(null), Row(null)),
+      sort = false)
+  }
+
+  test("json_tuple1") {
+    val df = session.sql(
+      "select parse_json(column1) as v,column2 as id,column3 as name"
+        + " from values ( '{\"id\": 5,\"name\": \"Jose\", \"age\": 29}','id','name','age')")
+    df.show()
+
+    checkAnswer(
+      df.select(json_tuple(col("v"), col("id"), col("name"))),
+      Seq(Row(("5"), ("Jose"))),
+      sort = false)
+  }
+  test("try_cast") {
+    val df = Seq("1", "2").toDF("a")
+    checkAnswer(df.select(try_cast(col("a"), IntegerType)), Seq(1, 2), sort = false)
+  }
+  test("date_sub") {
+    var expected = Seq(Date.valueOf("2020-04-30"), Date.valueOf("2020-08-20")).toDF("b")
+    checkAnswer(
+      timestamp1
+        .select(date_sub(col("a"), 1)),
+      expected,
+      sort = false)
+  }
 }
 
 class EagerFunctionSuite extends FunctionSuite with EagerSession
