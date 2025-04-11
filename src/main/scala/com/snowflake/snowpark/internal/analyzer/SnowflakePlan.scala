@@ -542,15 +542,22 @@ class SnowflakePlanBuilder(session: Session) extends Logging {
         "Creating a view from this DataFrame is currently not supported.")
 
     // scalastyle:off caselocale
-    require(
-      child.queries.head.sql.toLowerCase.trim.startsWith("select"),
-      "Only support creating view from SELECT queries")
+    val plan: SnowflakePlan =
+      if (child.queries.head.sql.toLowerCase.trim.startsWith("select")) {
+        child
+      } else if (child.queries.head.sql.toLowerCase.replaceAll("\\s", "").startsWith("(select")) {
+        session.analyzer.resolve(Project.apply(Star(Seq.empty).expressions, child))
+      } else {
+        throw new IllegalArgumentException(
+          "requirement failed: Only support creating view from SELECT queries")
+      }
     // scalastyle:on caselocale
+
     val tempType: TempType = session.getTempType(isTemp, name)
     session.recordTempObjectIfNecessary(TempObjectType.View, name, tempType)
 
     // source plan is not necessary in action
-    build(createOrReplaceViewStatement(name, _, tempType), child, None)
+    build(createOrReplaceViewStatement(name, _, tempType), plan, None)
   }
 
   def createTempTable(name: String, child: SnowflakePlan): SnowflakePlan = {
