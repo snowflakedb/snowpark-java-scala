@@ -6,10 +6,7 @@ import scala.tools.reflect.ToolBox
 object GeneratorPlugin extends AutoPlugin {
   override def trigger: PluginTrigger = allRequirements
 
-  object autoImport {
-    val generateSourcesTask = taskKey[Seq[File]]("Generates source files from templates")
-  }
-  import autoImport._
+  val generateSourcesTask = taskKey[Seq[File]]("Generates source files from templates")
 
   override def projectSettings: Seq[Setting[_]] = Seq(
     generateSourcesTask := {
