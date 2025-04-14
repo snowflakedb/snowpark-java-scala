@@ -64,6 +64,9 @@ case class Column private[snowpark] (private[snowpark] val expr: Expression) ext
    * @since 0.10.0
    */
   def in(values: Seq[Any]): Column = {
+    if (values.isEmpty) {
+      return withExpr(Literal(false))
+    }
     val columnCount = expr match {
       case me: MultipleExpression => me.expressions.size
       case _ => 1
