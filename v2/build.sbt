@@ -48,4 +48,7 @@ lazy val root = (project in file("."))
     buildInfoPackage := "com.snowflake.snowpark.internal",
     coverageEnabled := true,
     scalafmtOnCompile := true,
-    javafmtOnCompile := true)
+    javafmtOnCompile := true,
+
+    Compile / managedSourceDirectories += (Compile / sourceManaged).value
+  )
