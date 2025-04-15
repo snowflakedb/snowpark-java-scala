@@ -1,5 +1,6 @@
 package com.snowflake.snowpark.types
 
+import com.snowflake.snowpark.proto.ast
 import com.fasterxml.jackson.databind.{JsonNode, ObjectMapper}
 import com.fasterxml.jackson.databind.node.{ArrayNode, JsonNodeFactory, ObjectNode}
 import Variant._
@@ -526,4 +527,7 @@ class Variant private[snowpark] (
  * Variant data type. This maps to VARIANT data type in Snowflake.
  * @since 0.1.0
  */
-object VariantType extends DataType
+object VariantType extends DataType {
+  lazy override private[snowpark] val toAst: ast.DataType =
+    ast.DataType(variant = ast.DataType.Variant.VariantType(value = true))
+}
