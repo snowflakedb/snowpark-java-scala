@@ -859,4 +859,9 @@ class ColumnSuite extends TestData {
     assert(ex2.errorCode.equals("0315"))
   }
 
+  test("Column.in(Column, Seq) fails when Sequence is empty") {
+    val inCond = Seq()
+    val df = session.table("information_schema.packages").filter(col("language").in(inCond))
+    assert(df.count().equals(0L))
+  }
 }
