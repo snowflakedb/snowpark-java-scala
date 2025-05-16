@@ -3,53 +3,15 @@ package com.snowflake.snowpark.internal
 import java.io.{Closeable, InputStream}
 import java.sql.{PreparedStatement, ResultSet, ResultSetMetaData, SQLException, Statement}
 import java.time.LocalDateTime
-import com.snowflake.snowpark.{
-  MergeBuilder,
-  MergeTypedAsyncJob,
-  Row,
-  SnowparkClientException,
-  TypedAsyncJob
-}
-import com.snowflake.snowpark.internal.ParameterUtils.{
-  ClosureCleanerMode,
-  DEFAULT_MAX_FILE_DOWNLOAD_RETRY_COUNT,
-  DEFAULT_MAX_FILE_UPLOAD_RETRY_COUNT,
-  DEFAULT_REQUEST_TIMEOUT_IN_SECONDS,
-  DEFAULT_SNOWPARK_USE_SCOPED_TEMP_OBJECTS,
-  MAX_REQUEST_TIMEOUT_IN_SECONDS,
-  MIN_REQUEST_TIMEOUT_IN_SECONDS,
-  SnowparkMaxFileDownloadRetryCount,
-  SnowparkMaxFileUploadRetryCount,
-  SnowparkRequestTimeoutInSeconds,
-  Url
-}
+import com.snowflake.snowpark.{MergeBuilder, MergeTypedAsyncJob, Row, SnowparkClientException, TypedAsyncJob}
+import com.snowflake.snowpark.internal.ParameterUtils.{ClosureCleanerMode, DEFAULT_MAX_FILE_DOWNLOAD_RETRY_COUNT, DEFAULT_MAX_FILE_UPLOAD_RETRY_COUNT, DEFAULT_REQUEST_TIMEOUT_IN_SECONDS, DEFAULT_SNOWPARK_USE_SCOPED_TEMP_OBJECTS, MAX_REQUEST_TIMEOUT_IN_SECONDS, MIN_REQUEST_TIMEOUT_IN_SECONDS, SnowparkMaxFileDownloadRetryCount, SnowparkMaxFileUploadRetryCount, SnowparkRequestTimeoutInSeconds, Url}
 import com.snowflake.snowpark.internal.Utils.PackageNameDelimiter
 import com.snowflake.snowpark.internal.analyzer.{Attribute, Query, SnowflakePlan}
-import net.snowflake.client.jdbc.{
-  FieldMetadata,
-  SnowflakeBaseResultSet,
-  SnowflakeConnectString,
-  SnowflakeConnectionV1,
-  SnowflakePreparedStatement,
-  SnowflakeReauthenticationRequest,
-  SnowflakeResultSet,
-  SnowflakeResultSetMetaData,
-  SnowflakeResultSetV1,
-  SnowflakeStatement,
-  SnowflakeUtil
-}
+import net.snowflake.client.jdbc.{FieldMetadata, SnowflakeBaseResultSet, SnowflakeConnectString, SnowflakeConnectionV1, SnowflakePreparedStatement, SnowflakeReauthenticationRequest, SnowflakeResultSet, SnowflakeResultSetMetaData, SnowflakeResultSetV1, SnowflakeStatement, SnowflakeUtil}
 import com.snowflake.snowpark.types._
-import net.snowflake.client.core.{
-  ArrowSqlInput,
-  ColumnTypeHelper,
-  QueryStatus,
-  SFArrowResultSet,
-  SFBaseResultSet
-}
-import net.snowflake.client.jdbc.internal.apache.arrow.vector.util.{
-  JsonStringArrayList,
-  JsonStringHashMap
-}
+import net.snowflake.client.core.arrow.StructObjectWrapper
+import net.snowflake.client.core.{ArrowSqlInput, ColumnTypeHelper, QueryStatus, SFArrowResultSet, SFBaseResultSet}
+import net.snowflake.client.jdbc.internal.apache.arrow.vector.util.{JsonStringArrayList, JsonStringHashMap}
 
 import java.util
 import scala.collection.mutable
@@ -1096,10 +1058,20 @@ private[snowflake] class SnowflakeResultSetExt(data: SnowflakeResultSetV1) {
       case "ARRAY" if meta.getFields.isEmpty => value.toString
       // structured array
       case "ARRAY" if meta.getFields.size() == 1 =>
-        value
-          .asInstanceOf[util.ArrayList[_]]
-          .toArray
-          .map(v => convertToSnowparkValue(v, meta.getFields.get(0)))
+        value match {
+          case arr: util.ArrayList[_] => // for JDBC older than 3.20.0
+            arr.toArray
+              .map(v => convertToSnowparkValue(v, meta.getFields.get(0)))
+          case arr: StructObjectWrapper => // for JDBC 3.21.0+
+            arr.getObject
+              .asInstanceOf[JsonStringArrayList[_]]
+              .asScala
+              .map(v => convertToSnowparkValue(v, meta.getFields.get(0)))
+          case _ =>
+            throw new IllegalArgumentException(
+              s"Unsupported Structured Array Type: ${value.getClass.getSimpleName}");
+        }
+
       // semi-structured
       case "OBJECT" if meta.getFields.isEmpty => value.toString
       // structured map, Map type has two fields, and both field names are empty
