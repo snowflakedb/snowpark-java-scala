@@ -5,15 +5,7 @@ import java.nio.file.Files
 import java.sql.{Date, ResultSet, ResultSetMetaData, Statement, Time, Timestamp}
 import java.util.jar.JarOutputStream
 import com.snowflake.snowpark.RelationalGroupedDataFrame.GroupType
-import com.snowflake.snowpark.internal.{
-  FatJarBuilder,
-  JavaCodeCompiler,
-  Logging,
-  ParameterUtils,
-  ServerConnection,
-  UDFClassPath,
-  Utils
-}
+import com.snowflake.snowpark.internal.{FatJarBuilder, JavaCodeCompiler, Logging, ParameterUtils, ServerConnection, UDFClassPath, Utils}
 import com.snowflake.snowpark.internal.UDFClassPath.getPathForClass
 import com.snowflake.snowpark.internal.analyzer.{quoteName, quoteNameWithoutUpperCasing}
 import com.snowflake.snowpark.types._
@@ -24,14 +16,11 @@ import java.util.{Locale, Properties}
 import com.snowflake.snowpark.Session.loadConfFromFile
 import com.snowflake.snowpark.internal.ParameterUtils.ClosureCleanerMode
 import com.snowflake.snowpark.internal.Utils.TempObjectType
-import net.snowflake.client.jdbc.{
-  DefaultSFConnectionHandler,
-  SnowflakeConnectString,
-  SnowflakeConnectionV1
-}
+import net.snowflake.client.jdbc.{DefaultSFConnectionHandler, SnowflakeConnectString, SnowflakeConnectionV1}
 
 import java.security.Provider
 import scala.collection.JavaConverters._
+import scala.collection.mutable.ArrayBuffer
 import scala.reflect.io.Directory
 import scala.util.Random
 
@@ -233,6 +222,10 @@ object TestUtils extends Logging {
       case (null, null) => true
       case (null, _) => false
       case (_, null) => false
+      case (a: Array[_], b: ArrayBuffer[_]) =>
+        a.length == b.length && a.zip(b).forall { case (l, r) => compare(l, r) }
+      case (a: ArrayBuffer[_], b: Array[_]) =>
+        a.length == b.length && a.zip(b).forall { case (l, r) => compare(l, r) }
       case (a: Array[_], b: Array[_]) =>
         a.length == b.length && a.zip(b).forall { case (l, r) => compare(l, r) }
       case (a: Map[_, _], b: Map[_, _]) =>
