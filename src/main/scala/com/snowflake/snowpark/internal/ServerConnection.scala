@@ -3,15 +3,54 @@ package com.snowflake.snowpark.internal
 import java.io.{Closeable, InputStream}
 import java.sql.{PreparedStatement, ResultSet, ResultSetMetaData, SQLException, Statement}
 import java.time.LocalDateTime
-import com.snowflake.snowpark.{MergeBuilder, MergeTypedAsyncJob, Row, SnowparkClientException, TypedAsyncJob}
-import com.snowflake.snowpark.internal.ParameterUtils.{ClosureCleanerMode, DEFAULT_MAX_FILE_DOWNLOAD_RETRY_COUNT, DEFAULT_MAX_FILE_UPLOAD_RETRY_COUNT, DEFAULT_REQUEST_TIMEOUT_IN_SECONDS, DEFAULT_SNOWPARK_USE_SCOPED_TEMP_OBJECTS, MAX_REQUEST_TIMEOUT_IN_SECONDS, MIN_REQUEST_TIMEOUT_IN_SECONDS, SnowparkMaxFileDownloadRetryCount, SnowparkMaxFileUploadRetryCount, SnowparkRequestTimeoutInSeconds, Url}
+import com.snowflake.snowpark.{
+  MergeBuilder,
+  MergeTypedAsyncJob,
+  Row,
+  SnowparkClientException,
+  TypedAsyncJob
+}
+import com.snowflake.snowpark.internal.ParameterUtils.{
+  ClosureCleanerMode,
+  DEFAULT_MAX_FILE_DOWNLOAD_RETRY_COUNT,
+  DEFAULT_MAX_FILE_UPLOAD_RETRY_COUNT,
+  DEFAULT_REQUEST_TIMEOUT_IN_SECONDS,
+  DEFAULT_SNOWPARK_USE_SCOPED_TEMP_OBJECTS,
+  MAX_REQUEST_TIMEOUT_IN_SECONDS,
+  MIN_REQUEST_TIMEOUT_IN_SECONDS,
+  SnowparkMaxFileDownloadRetryCount,
+  SnowparkMaxFileUploadRetryCount,
+  SnowparkRequestTimeoutInSeconds,
+  Url
+}
 import com.snowflake.snowpark.internal.Utils.PackageNameDelimiter
 import com.snowflake.snowpark.internal.analyzer.{Attribute, Query, SnowflakePlan}
-import net.snowflake.client.jdbc.{FieldMetadata, SnowflakeBaseResultSet, SnowflakeConnectString, SnowflakeConnectionV1, SnowflakePreparedStatement, SnowflakeReauthenticationRequest, SnowflakeResultSet, SnowflakeResultSetMetaData, SnowflakeResultSetV1, SnowflakeStatement, SnowflakeUtil}
+import net.snowflake.client.jdbc.{
+  FieldMetadata,
+  SnowflakeBaseResultSet,
+  SnowflakeConnectString,
+  SnowflakeConnectionV1,
+  SnowflakePreparedStatement,
+  SnowflakeReauthenticationRequest,
+  SnowflakeResultSet,
+  SnowflakeResultSetMetaData,
+  SnowflakeResultSetV1,
+  SnowflakeStatement,
+  SnowflakeUtil
+}
 import com.snowflake.snowpark.types._
 import net.snowflake.client.core.arrow.StructObjectWrapper
-import net.snowflake.client.core.{ArrowSqlInput, ColumnTypeHelper, QueryStatus, SFArrowResultSet, SFBaseResultSet}
-import net.snowflake.client.jdbc.internal.apache.arrow.vector.util.{JsonStringArrayList, JsonStringHashMap}
+import net.snowflake.client.core.{
+  ArrowSqlInput,
+  ColumnTypeHelper,
+  QueryStatus,
+  SFArrowResultSet,
+  SFBaseResultSet
+}
+import net.snowflake.client.jdbc.internal.apache.arrow.vector.util.{
+  JsonStringArrayList,
+  JsonStringHashMap
+}
 
 import java.util
 import scala.collection.mutable
@@ -1090,9 +1129,33 @@ private[snowflake] class SnowflakeResultSetExt(data: SnowflakeResultSetV1) {
                 convertToSnowparkValue(key, meta.getFields.get(0)) ->
                   convertToSnowparkValue(value, meta.getFields.get(1))
             }.toMap
+          case map: StructObjectWrapper => // for JDBC 3.21.0 +
+            map.getObject
+              .asInstanceOf[util.HashMap[_, _]]
+              .asScala
+              .map {
+                case (key, value) =>
+                  convertToSnowparkValue(key, meta.getFields.get(0)) ->
+                    convertToSnowparkValue(value, meta.getFields.get(1))
+              }
+              .toMap
         }
       // object, object's field name can't be empty
-      case "OBJECT" =>
+      case "OBJECT" if value.isInstanceOf[StructObjectWrapper] =>
+        value.asInstanceOf[StructObjectWrapper].getObject match {
+          case arrowSqlInput: ArrowSqlInput =>
+            convertToSnowparkValue(arrowSqlInput.getInput, meta)
+          case map: java.util.Map[String, _] =>
+            Row.fromMap(
+              map.asScala.toList
+                .zip(meta.getFields.asScala)
+                .map {
+                  case ((key, value), metadata) =>
+                    key -> convertToSnowparkValue(value, metadata)
+                }
+                .toMap)
+        }
+      case "OBJECT" => // JDBC older than 3.20.0
         value match {
           case arrowSqlInput: ArrowSqlInput =>
             convertToSnowparkValue(arrowSqlInput.getInput, meta)
