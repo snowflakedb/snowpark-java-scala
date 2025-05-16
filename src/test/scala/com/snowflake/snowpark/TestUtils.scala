@@ -5,7 +5,15 @@ import java.nio.file.Files
 import java.sql.{Date, ResultSet, ResultSetMetaData, Statement, Time, Timestamp}
 import java.util.jar.JarOutputStream
 import com.snowflake.snowpark.RelationalGroupedDataFrame.GroupType
-import com.snowflake.snowpark.internal.{FatJarBuilder, JavaCodeCompiler, Logging, ParameterUtils, ServerConnection, UDFClassPath, Utils}
+import com.snowflake.snowpark.internal.{
+  FatJarBuilder,
+  JavaCodeCompiler,
+  Logging,
+  ParameterUtils,
+  ServerConnection,
+  UDFClassPath,
+  Utils
+}
 import com.snowflake.snowpark.internal.UDFClassPath.getPathForClass
 import com.snowflake.snowpark.internal.analyzer.{quoteName, quoteNameWithoutUpperCasing}
 import com.snowflake.snowpark.types._
@@ -16,7 +24,11 @@ import java.util.{Locale, Properties}
 import com.snowflake.snowpark.Session.loadConfFromFile
 import com.snowflake.snowpark.internal.ParameterUtils.ClosureCleanerMode
 import com.snowflake.snowpark.internal.Utils.TempObjectType
-import net.snowflake.client.jdbc.{DefaultSFConnectionHandler, SnowflakeConnectString, SnowflakeConnectionV1}
+import net.snowflake.client.jdbc.{
+  DefaultSFConnectionHandler,
+  SnowflakeConnectString,
+  SnowflakeConnectionV1
+}
 
 import java.security.Provider
 import scala.collection.JavaConverters._
