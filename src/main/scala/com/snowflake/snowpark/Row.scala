@@ -445,6 +445,11 @@ class Row protected (values: Array[Any], schema: Option[StructType]) extends Ser
       case c if c == classOf[Long] => getLong(index).asInstanceOf[T]
       case c if c == classOf[Short] => getShort(index).asInstanceOf[T]
       case c if c == classOf[Variant] => getVariant(index).asInstanceOf[T]
+      case c if c == classOf[Array[Any]] =>
+        get(index) match {
+          case arr: Array[_] => arr.asInstanceOf[T]
+          case arr: ArrayBuffer[Object] => arr.toArray.asInstanceOf[T] // for JDBC 3.21.0 +
+        }
       case _ => get(index).asInstanceOf[T]
     }
   }
