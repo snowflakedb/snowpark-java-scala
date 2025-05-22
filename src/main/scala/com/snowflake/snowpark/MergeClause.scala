@@ -112,8 +112,8 @@ class NotMatchedClauseBuilder private[snowpark] (
       mergeBuilder.joinExpr,
       mergeBuilder.clauses :+ InsertMergeExpression(
         condition.map(_.expr),
-        assignments.keys.toSeq.map(_.expr),
-        assignments.values.toSeq.map(_.expr)),
+        assignments.toSeq.map(_._1.expr),
+        assignments.toSeq.map(_._2.expr)),
       inserted = true,
       mergeBuilder.updated,
       mergeBuilder.deleted)
