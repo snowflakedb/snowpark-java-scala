@@ -106,14 +106,15 @@ class NotMatchedClauseBuilder private[snowpark] (
    * @return [[MergeBuilder]]
    */
   def insert(assignments: Map[Column, Column]): MergeBuilder = {
+    val assignmentSeq = assignments.toSeq
     MergeBuilder(
       mergeBuilder.target,
       mergeBuilder.source,
       mergeBuilder.joinExpr,
       mergeBuilder.clauses :+ InsertMergeExpression(
         condition.map(_.expr),
-        assignments.keys.toSeq.map(_.expr),
-        assignments.values.toSeq.map(_.expr)),
+        assignmentSeq.map(_._1.expr),
+        assignmentSeq.map(_._2.expr)),
       inserted = true,
       mergeBuilder.updated,
       mergeBuilder.deleted)
