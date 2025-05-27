@@ -11,6 +11,8 @@ import java.sql.Date;
 import java.sql.Time;
 import java.sql.Timestamp;
 import java.util.*;
+import scala.collection.mutable.ArrayBuffer;
+import scala.reflect.ClassTag;
 
 /**
  * Represents a row returned by the evaluation of a {@code DataFrame}.
@@ -165,6 +167,9 @@ public class Row implements Serializable, Cloneable {
       return result;
     } else if (value instanceof com.snowflake.snowpark.Row) {
       return new Row((com.snowflake.snowpark.Row) value);
+    } else if (value instanceof ArrayBuffer) { // to JDBC 3.21.0 +
+      ArrayBuffer<Object> arrayBuffer = (ArrayBuffer<Object>) value;
+      return toJavaValue(arrayBuffer.toArray(ClassTag.Object()));
     } else {
       return value;
     }

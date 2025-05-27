@@ -39,6 +39,7 @@ import net.snowflake.client.jdbc.{
   SnowflakeUtil
 }
 import com.snowflake.snowpark.types._
+import net.snowflake.client.core.arrow.StructObjectWrapper
 import net.snowflake.client.core.{
   ArrowSqlInput,
   ColumnTypeHelper,
@@ -1096,10 +1097,20 @@ private[snowflake] class SnowflakeResultSetExt(data: SnowflakeResultSetV1) {
       case "ARRAY" if meta.getFields.isEmpty => value.toString
       // structured array
       case "ARRAY" if meta.getFields.size() == 1 =>
-        value
-          .asInstanceOf[util.ArrayList[_]]
-          .toArray
-          .map(v => convertToSnowparkValue(v, meta.getFields.get(0)))
+        value match {
+          case arr: util.ArrayList[_] => // for JDBC older than 3.20.0
+            arr.toArray
+              .map(v => convertToSnowparkValue(v, meta.getFields.get(0)))
+          case arr: StructObjectWrapper => // for JDBC 3.21.0+
+            arr.getObject
+              .asInstanceOf[JsonStringArrayList[_]]
+              .asScala
+              .map(v => convertToSnowparkValue(v, meta.getFields.get(0)))
+          case _ =>
+            throw new IllegalArgumentException(
+              s"Unsupported Structured Array Type: ${value.getClass.getSimpleName}");
+        }
+
       // semi-structured
       case "OBJECT" if meta.getFields.isEmpty => value.toString
       // structured map, Map type has two fields, and both field names are empty
@@ -1118,9 +1129,33 @@ private[snowflake] class SnowflakeResultSetExt(data: SnowflakeResultSetV1) {
                 convertToSnowparkValue(key, meta.getFields.get(0)) ->
                   convertToSnowparkValue(value, meta.getFields.get(1))
             }.toMap
+          case map: StructObjectWrapper => // for JDBC 3.21.0 +
+            map.getObject
+              .asInstanceOf[util.HashMap[_, _]]
+              .asScala
+              .map {
+                case (key, value) =>
+                  convertToSnowparkValue(key, meta.getFields.get(0)) ->
+                    convertToSnowparkValue(value, meta.getFields.get(1))
+              }
+              .toMap
         }
       // object, object's field name can't be empty
-      case "OBJECT" =>
+      case "OBJECT" if value.isInstanceOf[StructObjectWrapper] =>
+        value.asInstanceOf[StructObjectWrapper].getObject match {
+          case arrowSqlInput: ArrowSqlInput =>
+            convertToSnowparkValue(arrowSqlInput.getInput, meta)
+          case map: java.util.Map[String, _] =>
+            Row.fromMap(
+              map.asScala.toList
+                .zip(meta.getFields.asScala)
+                .map {
+                  case ((key, value), metadata) =>
+                    key -> convertToSnowparkValue(value, metadata)
+                }
+                .toMap)
+        }
+      case "OBJECT" => // JDBC older than 3.20.0
         value match {
           case arrowSqlInput: ArrowSqlInput =>
             convertToSnowparkValue(arrowSqlInput.getInput, meta)

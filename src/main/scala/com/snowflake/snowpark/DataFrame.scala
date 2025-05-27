@@ -2457,6 +2457,7 @@ class DataFrame private[snowpark] (
           arr.map(convertValueToString).mkString("[", ",", "]")
         case arr: java.sql.Array =>
           arr.getArray().asInstanceOf[Array[_]].map(convertValueToString).mkString("[", ",", "]")
+        case arr: ArrayBuffer[Object] => convertValueToString(arr.toArray) // for JDBC 3.21.0 +
         case _ => value.toString
       }
 

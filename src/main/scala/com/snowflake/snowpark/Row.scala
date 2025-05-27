@@ -4,6 +4,7 @@ import java.sql.{Date, Time, Timestamp}
 import com.snowflake.snowpark.internal.ErrorMessage
 import com.snowflake.snowpark.types.{Geography, Geometry, StructType, Variant}
 
+import scala.collection.mutable.ArrayBuffer
 import scala.reflect.ClassTag
 import scala.util.hashing.MurmurHash3
 
@@ -354,7 +355,10 @@ class Row protected (values: Array[Any], schema: Option[StructType]) extends Ser
    * @group getter
    */
   def getSeq[T](index: Int): Seq[T] = {
-    val result = getAs[Array[_]](index)
+    val result = get(index) match {
+      case arr: Array[_] => arr.toSeq // for JDBC older than 3.20.0
+      case arrBuf: ArrayBuffer[_] => arrBuf.toSeq // for JDBC 3.21.0 +
+    }
     result.map {
       case x: T => x
     }
@@ -441,6 +445,11 @@ class Row protected (values: Array[Any], schema: Option[StructType]) extends Ser
       case c if c == classOf[Long] => getLong(index).asInstanceOf[T]
       case c if c == classOf[Short] => getShort(index).asInstanceOf[T]
       case c if c == classOf[Variant] => getVariant(index).asInstanceOf[T]
+      case c if c == classOf[Array[Any]] =>
+        get(index) match {
+          case arr: Array[_] => arr.asInstanceOf[T]
+          case arr: ArrayBuffer[Object] => arr.toArray.asInstanceOf[T] // for JDBC 3.21.0 +
+        }
       case _ => get(index).asInstanceOf[T]
     }
   }
