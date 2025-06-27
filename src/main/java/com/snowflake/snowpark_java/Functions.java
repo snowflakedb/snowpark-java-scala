@@ -2129,6 +2129,18 @@ public final class Functions {
   }
 
   /**
+   * Converts an input expression into the corresponding timestamp, but with error-handling support
+   * (i.e. if the conversion cannot be performed, it returns a NULL value instead of raising an error)
+   *
+   * @since 1.17.0
+   * @param s The input column
+   * @return The result column
+   */
+  public static Column try_to_timestamp(Column s) {
+    return new Column(com.snowflake.snowpark.functions.try_to_timestamp(s.toScalaColumn()));
+  }
+
+  /**
    * Converts an input expression into the corresponding timestamp.
    *
    * @since 0.11.0
@@ -2139,6 +2151,20 @@ public final class Functions {
   public static Column to_timestamp(Column s, Column fmt) {
     return new Column(
         com.snowflake.snowpark.functions.to_timestamp(s.toScalaColumn(), fmt.toScalaColumn()));
+  }
+
+  /**
+   * Converts an input expression into the corresponding timestamp, but with error-handling support
+   * (i.e. if the conversion cannot be performed, it returns a NULL value instead of raising an error)
+   *
+   * @since 1.17.0
+   * @param s The input value
+   * @param fmt The time format
+   * @return The result column
+   */
+  public static Column try_to_timestamp(Column s, Column fmt) {
+    return new Column(
+            com.snowflake.snowpark.functions.try_to_timestamp(s.toScalaColumn(), fmt.toScalaColumn()));
   }
 
   /**
@@ -2153,6 +2179,18 @@ public final class Functions {
   }
 
   /**
+   * Converts an input expression to a date, but with error-handling support
+   * (i.e. if the conversion cannot be performed, it returns a NULL value instead of raising an error)
+   *
+   * @since 1.17.0
+   * @param e The input value
+   * @return The result column
+   */
+  public static Column try_to_date(Column e) {
+    return new Column(com.snowflake.snowpark.functions.try_to_date(e.toScalaColumn()));
+  }
+
+  /**
    * Converts an input expression to a date.
    *
    * @since 0.11.0
@@ -2163,6 +2201,20 @@ public final class Functions {
   public static Column to_date(Column e, Column fmt) {
     return new Column(
         com.snowflake.snowpark.functions.to_date(e.toScalaColumn(), fmt.toScalaColumn()));
+  }
+
+  /**
+   * Converts an input expression to a date, but with error-handling support
+   * (i.e. if the conversion cannot be performed, it returns a NULL value instead of raising an error)
+   *
+   * @since 1.17.0
+   * @param e The input value
+   * @param fmt The time format
+   * @return The result column
+   */
+  public static Column try_to_date(Column e, Column fmt) {
+    return new Column(
+            com.snowflake.snowpark.functions.try_to_date(e.toScalaColumn(), fmt.toScalaColumn()));
   }
 
   /**
