@@ -1812,12 +1812,30 @@ object functions {
   def to_timestamp(s: Column): Column = builtin("to_timestamp")(s)
 
   /**
+   * Converts an input expression into the corresponding timestamp, but with error-handling support
+   * (i.e. if the conversion cannot be performed, it returns a NULL value instead of raising an error)
+   *
+   * @group date_func
+   * @since 1.17.0
+   */
+  def try_to_timestamp(s: Column): Column = builtin("try_to_timestamp")(s)
+
+  /**
    * Converts an input expression into the corresponding timestamp.
    *
    * @group date_func
    * @since 0.1.0
    */
   def to_timestamp(s: Column, fmt: Column): Column = builtin("to_timestamp")(s, fmt)
+
+  /**
+   * Converts an input expression into the corresponding timestamp, but with error-handling support
+   * (i.e. if the conversion cannot be performed, it returns a NULL value instead of raising an error)
+   *
+   * @group date_func
+   * @since 1.17.0
+   */
+  def try_to_timestamp(s: Column, fmt: Column): Column = builtin("try_to_timestamp")(s, fmt)
 
   /**
    * Converts an input expression to a date.
@@ -1828,12 +1846,30 @@ object functions {
   def to_date(e: Column): Column = builtin("to_date")(e)
 
   /**
+   * Converts an input expression to a date, but with error-handling support
+   * (i.e. if the conversion cannot be performed, it returns a NULL value instead of raising an error)
+   *
+   * @group date_func
+   * @since 1.17.0
+   */
+  def try_to_date(e: Column): Column = builtin("try_to_date")(e)
+
+  /**
    * Converts an input expression to a date.
    *
    * @group date_func
    * @since 0.1.0
    */
   def to_date(e: Column, fmt: Column): Column = builtin("to_date")(e, fmt)
+
+  /**
+   * Converts an input expression to a date, but with error-handling support
+   * (i.e. if the conversion cannot be performed, it returns a NULL value instead of raising an error)
+   *
+   * @group date_func
+   * @since 1.17.0
+   */
+  def try_to_date(e: Column, fmt: Column): Column = builtin("try_to_date")(e, fmt)
 
   /**
    * Creates a date from individual numeric components that represent the year, month, and day of
