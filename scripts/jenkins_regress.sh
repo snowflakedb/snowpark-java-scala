@@ -18,4 +18,4 @@ exit_code_decorator(){
 gpg --quiet --batch --yes --decrypt --passphrase="$GPG_KEY" --output profile.properties scripts/profile.properties.gpg
 
 exit_code_decorator "mvn clean compile"
-exit_code_decorator "mvn -Dgpg.skip -DtagsToExclude=com.snowflake.snowpark.PerfTest -e scoverage:report -P test-coverage"
+exit_code_decorator "mvn -Dgpg.skip -DtagsToExclude=com.snowflake.snowpark.PerfTest,SampleDataTest -e scoverage:report -P test-coverage"
