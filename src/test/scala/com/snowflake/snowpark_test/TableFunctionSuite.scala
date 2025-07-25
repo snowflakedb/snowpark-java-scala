@@ -146,25 +146,21 @@ class TableFunctionSuite extends TestData {
       .join(dataRows, colNames("INDEX") === dataRows("INDEX"), "inner")
       .select(col("rowLabel"), col("colName"), col("cellValue"))
 
-    assert(
-      getShowString(kvMatrix, 20) ==
-        """----------------------------------------
-     ||"ROWLABEL"  |"COLNAME"  |"CELLVALUE"  |
-     |----------------------------------------
-     ||"Obs1"      |Sample1    |-0.74        |
-     ||"Obs2"      |Sample1    |5442         |
-     ||"Obs3"      |Sample1    |0.34         |
-     ||"Obs4"      |Sample1    |-0.15        |
-     ||"Obs1"      |Sample2    |-0.2         |
-     ||"Obs2"      |Sample2    |0.19         |
-     ||"Obs3"      |Sample2    |0.46         |
-     ||"Obs4"      |Sample2    |0.71         |
-     ||"Obs1"      |Sample3    |0.3          |
-     ||"Obs2"      |Sample3    |0.16         |
-     ||"Obs3"      |Sample3    |0.72         |
-     ||"Obs4"      |Sample3    |0.13         |
-     |----------------------------------------
-     |""".stripMargin)
+    checkAnswer(
+      kvMatrix,
+      Seq(
+        Row("\"Obs1\"", "Sample1", "-0.74"),
+        Row("\"Obs2\"", "Sample1", "5442"),
+        Row("\"Obs3\"", "Sample1", "0.34"),
+        Row("\"Obs4\"", "Sample1", "-0.15"),
+        Row("\"Obs1\"", "Sample2", "-0.2"),
+        Row("\"Obs2\"", "Sample2", "0.19"),
+        Row("\"Obs3\"", "Sample2", "0.46"),
+        Row("\"Obs4\"", "Sample2", "0.71"),
+        Row("\"Obs1\"", "Sample3", "0.3"),
+        Row("\"Obs2\"", "Sample3", "0.16"),
+        Row("\"Obs3\"", "Sample3", "0.72"),
+        Row("\"Obs4\"", "Sample3", "0.13")))
   }
 
   test("Argument in table function: flatten") {
