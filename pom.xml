@@ -34,7 +34,7 @@
         <maven.compiler.source>1.8</maven.compiler.source>
         <maven.compiler.target>1.8</maven.compiler.target>
         <encoding>UTF-8</encoding>
-        <scala.version>2.12.18</scala.version>
+        <scala.version>2.13.15</scala.version>
         <scala.compat.version>2.12</scala.compat.version>
         <spec2.version>4.2.0</spec2.version>
         <snowflake.jdbc.version>3.24.2</snowflake.jdbc.version>
@@ -523,7 +523,7 @@
         <profile>
             <id>test-coverage</id>
             <properties>
-                <scala.version>2.12.15</scala.version>
+                <scala.version>2.13.15</scala.version>
             </properties>
             <build>
                 <plugins>
