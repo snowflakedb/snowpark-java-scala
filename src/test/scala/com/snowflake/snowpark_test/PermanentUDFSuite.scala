@@ -278,14 +278,8 @@ class PermanentUDFSuite extends TestData {
     val newDf = newSession.createDataFrame(Seq((1, 2), (11, 12))).toDF(Seq("a1", "a2"))
     try {
       session.udf.registerPermanent(funcName, func, stageName)
-      checkAnswer(
-        df.select(callUDF(funcName, df("a1"), df("a2"))),
-        Seq(Row(3), Row(23)),
-        sort = false)
-      checkAnswer(
-        newDf.select(callUDF(funcName, newDf("a1"), newDf("a2"))),
-        Seq(Row(3), Row(23)),
-        sort = false)
+      checkAnswer(df.select(callUDF(funcName, df("a1"), df("a2"))), Seq(Row(3), Row(23)))
+      checkAnswer(newDf.select(callUDF(funcName, newDf("a1"), newDf("a2"))), Seq(Row(3), Row(23)))
     } finally {
       runQuery(s"drop function $funcName(INT,INT)", session)
     }
@@ -304,12 +298,10 @@ class PermanentUDFSuite extends TestData {
       session.udf.registerPermanent(funcName, func, stageName)
       checkAnswer(
         df.select(callUDF(funcName, df("a1"), df("a2"), df("a3"))),
-        Seq(Row(6), Row(36)),
-        sort = false)
+        Seq(Row(6), Row(36)))
       checkAnswer(
         newDf.select(callUDF(funcName, newDf("a1"), newDf("a2"), newDf("a3"))),
-        Seq(Row(6), Row(36)),
-        sort = false)
+        Seq(Row(6), Row(36)))
     } finally {
       runQuery(s"drop function $funcName(INT,INT,INT)", session)
     }
@@ -331,12 +323,10 @@ class PermanentUDFSuite extends TestData {
       session.udf.registerPermanent(funcName, func, stageName)
       checkAnswer(
         df.select(callUDF(funcName, df("a1"), df("a2"), df("a3"), df("a4"))),
-        Seq(Row(10), Row(50)),
-        sort = false)
+        Seq(Row(10), Row(50)))
       checkAnswer(
         newDf.select(callUDF(funcName, newDf("a1"), newDf("a2"), newDf("a3"), newDf("a4"))),
-        Seq(Row(10), Row(50)),
-        sort = false)
+        Seq(Row(10), Row(50)))
     } finally {
       runQuery(s"drop function $funcName(INT,INT,INT,INT)", session)
     }
@@ -358,13 +348,11 @@ class PermanentUDFSuite extends TestData {
       session.udf.registerPermanent(funcName, func, stageName)
       checkAnswer(
         df.select(callUDF(funcName, df("a1"), df("a2"), df("a3"), df("a4"), df("a5"))),
-        Seq(Row(15), Row(65)),
-        sort = false)
+        Seq(Row(15), Row(65)))
       checkAnswer(
         newDf.select(
           callUDF(funcName, newDf("a1"), newDf("a2"), newDf("a3"), newDf("a4"), newDf("a5"))),
-        Seq(Row(15), Row(65)),
-        sort = false)
+        Seq(Row(15), Row(65)))
     } finally {
       runQuery(s"drop function $funcName(INT,INT,INT,INT,INT)", session)
     }
@@ -387,8 +375,7 @@ class PermanentUDFSuite extends TestData {
       session.udf.registerPermanent(funcName, func, stageName)
       checkAnswer(
         df.select(callUDF(funcName, df("a1"), df("a2"), df("a3"), df("a4"), df("a5"), df("a6"))),
-        Seq(Row(21), Row(81)),
-        sort = false)
+        Seq(Row(21), Row(81)))
       checkAnswer(
         newDf.select(
           callUDF(
@@ -399,8 +386,7 @@ class PermanentUDFSuite extends TestData {
             newDf("a4"),
             newDf("a5"),
             newDf("a6"))),
-        Seq(Row(21), Row(81)),
-        sort = false)
+        Seq(Row(21), Row(81)))
     } finally {
       runQuery(s"drop function $funcName(INT,INT,INT,INT,INT,INT)", session)
     }
@@ -424,8 +410,7 @@ class PermanentUDFSuite extends TestData {
       checkAnswer(
         df.select(
           callUDF(funcName, df("a1"), df("a2"), df("a3"), df("a4"), df("a5"), df("a6"), df("a7"))),
-        Seq(Row(28), Row(98)),
-        sort = false)
+        Seq(Row(28), Row(98)))
       checkAnswer(
         newDf.select(
           callUDF(
@@ -437,8 +422,7 @@ class PermanentUDFSuite extends TestData {
             newDf("a5"),
             newDf("a6"),
             newDf("a7"))),
-        Seq(Row(28), Row(98)),
-        sort = false)
+        Seq(Row(28), Row(98)))
     } finally {
       runQuery(s"drop function $funcName(INT,INT,INT,INT,INT,INT,INT)", session)
     }
@@ -471,8 +455,7 @@ class PermanentUDFSuite extends TestData {
             df("a6"),
             df("a7"),
             df("a8"))),
-        Seq(Row(36), Row(116)),
-        sort = false)
+        Seq(Row(36), Row(116)))
       checkAnswer(
         newDf.select(
           callUDF(
@@ -485,8 +468,7 @@ class PermanentUDFSuite extends TestData {
             newDf("a6"),
             newDf("a7"),
             newDf("a8"))),
-        Seq(Row(36), Row(116)),
-        sort = false)
+        Seq(Row(36), Row(116)))
     } finally {
       runQuery(s"drop function $funcName(INT,INT,INT,INT,INT,INT,INT,INT)", session)
     }
@@ -521,8 +503,7 @@ class PermanentUDFSuite extends TestData {
             df("a7"),
             df("a8"),
             df("a9"))),
-        Seq(Row(45), Row(135)),
-        sort = false)
+        Seq(Row(45), Row(135)))
       checkAnswer(
         newDf.select(
           callUDF(
@@ -536,8 +517,7 @@ class PermanentUDFSuite extends TestData {
             newDf("a7"),
             newDf("a8"),
             newDf("a9"))),
-        Seq(Row(45), Row(135)),
-        sort = false)
+        Seq(Row(45), Row(135)))
     } finally {
       runQuery(s"drop function $funcName(INT,INT,INT,INT,INT,INT,INT,INT,INT)", session)
     }
@@ -575,8 +555,7 @@ class PermanentUDFSuite extends TestData {
             df("a8"),
             df("a9"),
             df("a10"))),
-        Seq(Row(55), Row(155)),
-        sort = false)
+        Seq(Row(55), Row(155)))
       checkAnswer(
         newDf.select(
           callUDF(
@@ -591,8 +570,7 @@ class PermanentUDFSuite extends TestData {
             newDf("a8"),
             newDf("a9"),
             newDf("a10"))),
-        Seq(Row(55), Row(155)),
-        sort = false)
+        Seq(Row(55), Row(155)))
     } finally {
       runQuery(s"drop function $funcName(INT,INT,INT,INT,INT,INT,INT,INT,INT,INT)", session)
     }
@@ -640,8 +618,7 @@ class PermanentUDFSuite extends TestData {
             df("a9"),
             df("a10"),
             df("a11"))),
-        Seq(Row(66), Row(176)),
-        sort = false)
+        Seq(Row(66), Row(176)))
       checkAnswer(
         newDf.select(
           callUDF(
@@ -657,8 +634,7 @@ class PermanentUDFSuite extends TestData {
             newDf("a9"),
             newDf("a10"),
             newDf("a11"))),
-        Seq(Row(66), Row(176)),
-        sort = false)
+        Seq(Row(66), Row(176)))
     } finally {
       runQuery(s"drop function $funcName(INT,INT,INT,INT,INT,INT,INT,INT,INT,INT,INT)", session)
     }
@@ -712,8 +688,7 @@ class PermanentUDFSuite extends TestData {
             df("a10"),
             df("a11"),
             df("a12"))),
-        Seq(Row(78), Row(198)),
-        sort = false)
+        Seq(Row(78), Row(198)))
       checkAnswer(
         newDf.select(
           callUDF(
@@ -730,8 +705,7 @@ class PermanentUDFSuite extends TestData {
             newDf("a10"),
             newDf("a11"),
             newDf("a12"))),
-        Seq(Row(78), Row(198)),
-        sort = false)
+        Seq(Row(78), Row(198)))
     } finally {
       runQuery(s"drop function $funcName(INT,INT,INT,INT,INT,INT,INT,INT,INT,INT,INT,INT)", session)
     }
@@ -787,8 +761,7 @@ class PermanentUDFSuite extends TestData {
             df("a11"),
             df("a12"),
             df("a13"))),
-        Seq(Row(91), Row(221)),
-        sort = false)
+        Seq(Row(91), Row(221)))
       checkAnswer(
         newDf.select(
           callUDF(
@@ -806,8 +779,7 @@ class PermanentUDFSuite extends TestData {
             newDf("a11"),
             newDf("a12"),
             newDf("a13"))),
-        Seq(Row(91), Row(221)),
-        sort = false)
+        Seq(Row(91), Row(221)))
     } finally {
       runQuery(
         s"drop function $funcName(INT,INT,INT,INT,INT,INT,INT,INT,INT,INT,INT,INT,INT)",
@@ -897,8 +869,7 @@ class PermanentUDFSuite extends TestData {
             df("a12"),
             df("a13"),
             df("a14"))),
-        Seq(Row(105), Row(245)),
-        sort = false)
+        Seq(Row(105), Row(245)))
       checkAnswer(
         newDf.select(
           callUDF(
@@ -917,8 +888,7 @@ class PermanentUDFSuite extends TestData {
             newDf("a12"),
             newDf("a13"),
             newDf("a14"))),
-        Seq(Row(105), Row(245)),
-        sort = false)
+        Seq(Row(105), Row(245)))
     } finally {
       runQuery(
         s"drop function $funcName(INT,INT,INT,INT,INT,INT,INT,INT,INT,INT,INT,INT,INT,INT)",
@@ -1012,8 +982,7 @@ class PermanentUDFSuite extends TestData {
             df("a13"),
             df("a14"),
             df("a15"))),
-        Seq(Row(120), Row(270)),
-        sort = false)
+        Seq(Row(120), Row(270)))
       checkAnswer(
         newDf.select(
           callUDF(
@@ -1033,8 +1002,7 @@ class PermanentUDFSuite extends TestData {
             newDf("a13"),
             newDf("a14"),
             newDf("a15"))),
-        Seq(Row(120), Row(270)),
-        sort = false)
+        Seq(Row(120), Row(270)))
     } finally {
       runQuery(
         s"drop function $funcName(INT,INT,INT,INT,INT,INT,INT,INT,INT,INT,INT,INT,INT,INT,INT)",
@@ -1133,8 +1101,7 @@ class PermanentUDFSuite extends TestData {
             df("a14"),
             df("a15"),
             df("a16"))),
-        Seq(Row(136), Row(296)),
-        sort = false)
+        Seq(Row(136), Row(296)))
       checkAnswer(
         newDf.select(
           callUDF(
@@ -1155,8 +1122,7 @@ class PermanentUDFSuite extends TestData {
             newDf("a14"),
             newDf("a15"),
             newDf("a16"))),
-        Seq(Row(136), Row(296)),
-        sort = false)
+        Seq(Row(136), Row(296)))
     } finally {
       runQuery(
         s"drop function $funcName(INT,INT,INT,INT,INT,INT,INT,INT,INT,INT,INT,INT,INT,INT,INT,INT)",
@@ -1259,8 +1225,7 @@ class PermanentUDFSuite extends TestData {
             df("a15"),
             df("a16"),
             df("a17"))),
-        Seq(Row(153), Row(323)),
-        sort = false)
+        Seq(Row(153), Row(323)))
       checkAnswer(
         newDf.select(
           callUDF(
@@ -1282,8 +1247,7 @@ class PermanentUDFSuite extends TestData {
             newDf("a15"),
             newDf("a16"),
             newDf("a17"))),
-        Seq(Row(153), Row(323)),
-        sort = false)
+        Seq(Row(153), Row(323)))
     } finally {
       runQuery(
         s"drop function $funcName(INT,INT,INT,INT,INT,INT,INT,INT,INT,INT,INT,INT,INT,INT,INT,INT,INT)",
@@ -1390,8 +1354,7 @@ class PermanentUDFSuite extends TestData {
             df("a16"),
             df("a17"),
             df("a18"))),
-        Seq(Row(171), Row(351)),
-        sort = false)
+        Seq(Row(171), Row(351)))
       checkAnswer(
         newDf.select(
           callUDF(
@@ -1414,8 +1377,7 @@ class PermanentUDFSuite extends TestData {
             newDf("a16"),
             newDf("a17"),
             newDf("a18"))),
-        Seq(Row(171), Row(351)),
-        sort = false)
+        Seq(Row(171), Row(351)))
     } finally {
       runQuery(
         s"drop function $funcName(INT,INT,INT,INT,INT,INT,INT,INT,INT,INT,INT,INT,INT,INT,INT,INT,INT,INT)",
@@ -1526,8 +1488,7 @@ class PermanentUDFSuite extends TestData {
             df("a17"),
             df("a18"),
             df("a19"))),
-        Seq(Row(190), Row(380)),
-        sort = false)
+        Seq(Row(190), Row(380)))
       checkAnswer(
         newDf.select(
           callUDF(
@@ -1551,8 +1512,7 @@ class PermanentUDFSuite extends TestData {
             newDf("a17"),
             newDf("a18"),
             newDf("a19"))),
-        Seq(Row(190), Row(380)),
-        sort = false)
+        Seq(Row(190), Row(380)))
     } finally {
       runQuery(
         s"drop function $funcName(INT,INT,INT,INT,INT,INT,INT,INT,INT,INT,INT,INT,INT,INT,INT,INT,INT,INT,INT)",
@@ -1667,8 +1627,7 @@ class PermanentUDFSuite extends TestData {
             df("a18"),
             df("a19"),
             df("a20"))),
-        Seq(Row(210), Row(410)),
-        sort = false)
+        Seq(Row(210), Row(410)))
       checkAnswer(
         newDf.select(
           callUDF(
@@ -1693,8 +1652,7 @@ class PermanentUDFSuite extends TestData {
             newDf("a18"),
             newDf("a19"),
             newDf("a20"))),
-        Seq(Row(210), Row(410)),
-        sort = false)
+        Seq(Row(210), Row(410)))
     } finally {
       runQuery(
         s"drop function $funcName(INT,INT,INT,INT,INT,INT,INT,INT,INT,INT,INT,INT,INT,INT,INT,INT,INT,INT,INT,INT)",
@@ -1813,8 +1771,7 @@ class PermanentUDFSuite extends TestData {
             df("a19"),
             df("a20"),
             df("a21"))),
-        Seq(Row(231), Row(441)),
-        sort = false)
+        Seq(Row(231), Row(441)))
       checkAnswer(
         newDf.select(
           callUDF(
@@ -1840,8 +1797,7 @@ class PermanentUDFSuite extends TestData {
             newDf("a19"),
             newDf("a20"),
             newDf("a21"))),
-        Seq(Row(231), Row(441)),
-        sort = false)
+        Seq(Row(231), Row(441)))
     } finally {
       runQuery(
         s"drop function $funcName(INT,INT,INT,INT,INT,INT,INT,INT,INT,INT,INT,INT,INT,INT,INT,INT,INT,INT,INT,INT,INT)",
@@ -1964,8 +1920,7 @@ class PermanentUDFSuite extends TestData {
             df("a20"),
             df("a21"),
             df("a22"))),
-        Seq(Row(253), Row(473)),
-        sort = false)
+        Seq(Row(253), Row(473)))
       checkAnswer(
         newDf.select(
           callUDF(
@@ -1992,8 +1947,7 @@ class PermanentUDFSuite extends TestData {
             newDf("a20"),
             newDf("a21"),
             newDf("a22"))),
-        Seq(Row(253), Row(473)),
-        sort = false)
+        Seq(Row(253), Row(473)))
     } finally {
       runQuery(
         s"drop function $funcName(INT,INT,INT,INT,INT,INT,INT,INT,INT,INT,INT,INT,INT,INT,INT,INT,INT,INT,INT,INT,INT,INT)",

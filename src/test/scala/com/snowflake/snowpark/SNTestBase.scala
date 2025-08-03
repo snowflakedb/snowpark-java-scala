@@ -101,24 +101,20 @@ trait SNTestBase extends AnyFunSuite with BeforeAndAfterAll with SFTestUtils wit
     }
   }
 
-  def checkAnswer(df1: DataFrame, df2: DataFrame, sort: Boolean): Unit = {
-    if (sort) {
-      assert(TestUtils.compare(df1.collect().sortBy(_.toString), df2.collect().sortBy(_.toString)))
-    } else {
-      assert(TestUtils.compare(df1.collect(), df2.collect()))
-    }
+  def checkAnswer(df1: DataFrame, df2: DataFrame): Unit = {
+    assert(TestUtils.compare(df1.collect().sortBy(_.toString), df2.collect().sortBy(_.toString)))
   }
 
   def checkAnswer(df: DataFrame, result: Row): Unit =
-    checkResult(df.collect(), Seq(result), false)
+    checkResult(df.collect(), Seq(result))
 
-  def checkAnswer(df: DataFrame, result: Seq[Row], sort: Boolean = true): Unit =
-    checkResult(df.collect(), result, sort)
+  def checkAnswer(df: DataFrame, result: Seq[Row]): Unit =
+    checkResult(df.collect(), result)
 
-  def checkResult(result: Array[Row], expected: Seq[Row], sort: Boolean = true): Unit =
-    TestUtils.checkResult(result, expected, sort)
-  def checkResultIterator(result: Iterator[Row], expected: Seq[Row], sort: Boolean = true): Unit =
-    checkResult(result.toArray, expected, sort)
+  def checkResult(result: Array[Row], expected: Seq[Row]): Unit =
+    TestUtils.checkResult(result, expected)
+  def checkResultIterator(result: Iterator[Row], expected: Seq[Row]): Unit =
+    checkResult(result.toArray, expected)
 
   private def readPropertyFromFile(key: String): Option[String] = {
     // scalastyle:off

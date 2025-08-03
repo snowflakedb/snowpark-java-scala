@@ -602,4 +602,48 @@ public class JavaRowSuite extends TestBase {
         },
         getSession());
   }
+
+  @Test
+  public void getAsWithFieldName() {
+    StructType schema =
+        StructType.create(
+            new StructField("EmpName", DataTypes.StringType),
+            new StructField("NumVal", DataTypes.IntegerType));
+
+    Row[] data = {Row.create("abcd", 10), Row.create("efgh", 20)};
+
+    DataFrame df = getSession().createDataFrame(data, schema);
+    Row row = df.collect()[0];
+
+    assert (row.getAs("EmpName", String.class) == row.getAs(0, String.class));
+    assert (row.getAs("EmpName", String.class).charAt(3) == 'd');
+    assert (row.getAs("NumVal", Integer.class) == row.getAs(1, Integer.class));
+
+    assert (row.getAs("EMPNAME", String.class) == row.getAs(0, String.class));
+
+    assertThrows(
+        IllegalArgumentException.class, () -> row.getAs("NonExistingColumn", Integer.class));
+
+    Row rowWithoutSchema = Row.create(40, "Alice");
+    assertThrows(
+        UnsupportedOperationException.class,
+        () -> rowWithoutSchema.getAs("NonExistingColumn", Integer.class));
+  }
+
+  @Test
+  public void fieldIndex() {
+    StructType schema =
+        StructType.create(
+            new StructField("EmpName", DataTypes.StringType),
+            new StructField("NumVal", DataTypes.IntegerType));
+
+    Row[] data = {Row.create("abcd", 10), Row.create("efgh", 20)};
+
+    DataFrame df = getSession().createDataFrame(data, schema);
+    Row row = df.collect()[0];
+
+    assert (row.fieldIndex("EmpName") == 0);
+    assert (row.fieldIndex("NumVal") == 1);
+    assertThrows(IllegalArgumentException.class, () -> row.fieldIndex("NonExistingColumn"));
+  }
 }

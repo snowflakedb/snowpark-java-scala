@@ -21,8 +21,7 @@ class WindowSpecSuite extends TestData {
     val window2 = Window.rowsBetween(Window.currentRow, 2).orderBy($"key")
     checkAnswer(
       df.select($"key", avg($"key").over(window2)),
-      Seq(Row(2, 2.000), Row(2, 2.000), Row(2, 2.000), Row(1, 1.666), Row(1, 1.333)),
-      sort = false)
+      Seq(Row(2, 2.000), Row(2, 2.000), Row(2, 2.000), Row(1, 1.666), Row(1, 1.333)))
   }
 
   test("rangeBetween") {
@@ -161,8 +160,7 @@ class WindowSpecSuite extends TestData {
         Row("a", 2, null, null),
         Row("b", 4, null, null),
         Row("b", 3, null, null),
-        Row("b", 2, null, null)),
-      false)
+        Row("b", 2, null, null)))
   }
 
   test("SN - window function should fail if order by clause is not specified") {

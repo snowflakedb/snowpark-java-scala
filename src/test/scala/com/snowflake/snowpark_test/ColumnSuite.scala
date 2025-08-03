@@ -458,46 +458,31 @@ class ColumnSuite extends TestData {
   }
 
   test("like") {
-    checkAnswer(
-      string4.where(col("A").like(lit("%p%"))),
-      Seq(Row("apple"), Row("peach")),
-      sort = false)
+    checkAnswer(string4.where(col("A").like(lit("%p%"))), Seq(Row("apple"), Row("peach")))
   }
 
   test("subfield") {
-    checkAnswer(
-      nullJson1.select(col("v")("a")),
-      Seq(Row("null"), Row("\"foo\""), Row(null)),
-      sort = false)
+    checkAnswer(nullJson1.select(col("v")("a")), Seq(Row("null"), Row("\"foo\""), Row(null)))
 
-    checkAnswer(array2.select(col("arr1")(0)), Seq(Row("1"), Row("6")), sort = false)
+    checkAnswer(array2.select(col("arr1")(0)), Seq(Row("1"), Row("6")))
 
-    checkAnswer(array2.select(parse_json(col("f"))(0)("a")), Seq(Row("1"), Row("1")), sort = false)
+    checkAnswer(array2.select(parse_json(col("f"))(0)("a")), Seq(Row("1"), Row("1")))
 
     // Row name is not case-sensitive. field name is case-sensitive
-    checkAnswer(
-      variant2.select(col("src")("vehicle")(0)("make")),
-      Seq(Row("\"Honda\"")),
-      sort = false)
-    checkAnswer(
-      variant2.select(col("SRC")("vehicle")(0)("make")),
-      Seq(Row("\"Honda\"")),
-      sort = false)
-    checkAnswer(variant2.select(col("src")("vehicle")(0)("MAKE")), Seq(Row(null)), sort = false)
-    checkAnswer(variant2.select(col("src")("VEHICLE")(0)("make")), Seq(Row(null)), sort = false)
+    checkAnswer(variant2.select(col("src")("vehicle")(0)("make")), Seq(Row("\"Honda\"")))
+    checkAnswer(variant2.select(col("SRC")("vehicle")(0)("make")), Seq(Row("\"Honda\"")))
+    checkAnswer(variant2.select(col("src")("vehicle")(0)("MAKE")), Seq(Row(null)))
+    checkAnswer(variant2.select(col("src")("VEHICLE")(0)("make")), Seq(Row(null)))
 
     // Space and dot in key is fine. User need to escape single quote with two single quotes.
-    checkAnswer(
-      variant2.select(col("src")("date with '' and .")),
-      Seq(Row("\"2017-04-28\"")),
-      sort = false)
+    checkAnswer(variant2.select(col("src")("date with '' and .")), Seq(Row("\"2017-04-28\"")))
 
     // path is not accepted
-    checkAnswer(variant2.select(col("src")("salesperson.id")), Seq(Row(null)), sort = false)
+    checkAnswer(variant2.select(col("src")("salesperson.id")), Seq(Row(null)))
   }
 
   test("regexp") {
-    checkAnswer(string4.where(col("a").regexp(lit("ap.le"))), Seq(Row("apple")), sort = false)
+    checkAnswer(string4.where(col("a").regexp(lit("ap.le"))), Seq(Row("apple")))
   }
 
   test("collate") {
@@ -517,8 +502,7 @@ class ColumnSuite extends TestData {
           .when(col("a") === 1, lit(6))
           .otherwise(lit(7))
           .as("a")),
-      Seq(Row(5), Row(7), Row(6), Row(7), Row(5)),
-      sort = false)
+      Seq(Row(5), Row(7), Row(6), Row(7), Row(5)))
 
     checkAnswer(
       nullData1.select(
@@ -527,8 +511,7 @@ class ColumnSuite extends TestData {
           .when(col("a") === 1, lit(6))
           .`else`(lit(7))
           .as("a")),
-      Seq(Row(5), Row(7), Row(6), Row(7), Row(5)),
-      sort = false)
+      Seq(Row(5), Row(7), Row(6), Row(7), Row(5)))
 
     // empty otherwise
     checkAnswer(
@@ -537,8 +520,7 @@ class ColumnSuite extends TestData {
           .when(col("a").is_null, lit(5))
           .when(col("a") === 1, lit(6))
           .as("a")),
-      Seq(Row(5), Row(null), Row(6), Row(null), Row(5)),
-      sort = false)
+      Seq(Row(5), Row(null), Row(6), Row(null), Row(5)))
 
     // wrong type, snowflake sql exception
     assertThrows[SnowflakeSQLException](
@@ -638,29 +620,11 @@ class ColumnSuite extends TestData {
 
     // select without NOT
     val df3 = df.select(col("a").in(df0.filter(col("a") < 2)).as("in_result"))
-    assert(
-      getShowString(df3, 10, 50) ==
-        """---------------
-          ||"IN_RESULT"  |
-          |---------------
-          ||true         |
-          ||false        |
-          ||false        |
-          |---------------
-          |""".stripMargin)
+    checkAnswer(df3, Seq(Row(true), Row(false), Row(false)))
 
     // select with NOT
     val df4 = df.select(!df("a").in(df0.filter(col("a") < 2)).as("in_result"))
-    assert(
-      getShowString(df4, 10, 50) ==
-        """---------------
-          ||"IN_RESULT"  |
-          |---------------
-          ||false        |
-          ||true         |
-          ||true         |
-          |---------------
-          |""".stripMargin)
+    checkAnswer(df4, Seq(Row(false), Row(true), Row(true)))
   }
 
   test("In Expression 3: IN with all types") {
@@ -892,4 +856,9 @@ class ColumnSuite extends TestData {
     assert(ex2.errorCode.equals("0315"))
   }
 
+  test("Column.in(Column, Seq) fails when Sequence is empty") {
+    val inCond = Seq()
+    val df = session.table("information_schema.packages").filter(col("language").in(inCond))
+    assert(df.count().equals(0L))
+  }
 }

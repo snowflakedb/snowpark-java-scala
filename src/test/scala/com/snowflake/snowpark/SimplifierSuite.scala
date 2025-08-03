@@ -11,19 +11,19 @@ class SimplifierSuite extends TestData {
     val df4 = Seq((4, 2)).toDF("a", "b")
 
     val result1 = df1.union(df2).union(df3.union(df4))
-    checkAnswer(result1, Seq(Row(1, 2), Row(2, 2), Row(3, 2), Row(4, 2)), sort = false)
+    checkAnswer(result1, Seq(Row(1, 2), Row(2, 2), Row(3, 2), Row(4, 2)))
     val query1 = result1.snowflakePlan.queries.last.sql
     assert(query1.split("UNION \\( SELECT").length == 4)
 
     val result2 = df1.union(df2).union(df3)
-    checkAnswer(result2, Seq(Row(1, 2), Row(2, 2), Row(3, 2)), sort = false)
+    checkAnswer(result2, Seq(Row(1, 2), Row(2, 2), Row(3, 2)))
     val query2 = result2.snowflakePlan.queries.last.sql
     assert(query2.split("UNION \\( SELECT").length == 3)
 
     // mix union and union all
 
     val result3 = df1.union(df2).union(df3.unionAll(df4))
-    checkAnswer(result3, Seq(Row(1, 2), Row(2, 2), Row(3, 2), Row(4, 2)), sort = false)
+    checkAnswer(result3, Seq(Row(1, 2), Row(2, 2), Row(3, 2), Row(4, 2)))
     val query3 = result3.snowflakePlan.queries.last.sql
     assert(query3.split("UNION \\( SELECT").length == 2)
     assert(query3.split("UNION \\(\\( SELECT").length == 2)
@@ -37,19 +37,19 @@ class SimplifierSuite extends TestData {
     val df4 = Seq((4, 2)).toDF("a", "b")
 
     val result1 = df1.unionAll(df2).unionAll(df3.unionAll(df4))
-    checkAnswer(result1, Seq(Row(1, 2), Row(2, 2), Row(3, 2), Row(4, 2)), sort = false)
+    checkAnswer(result1, Seq(Row(1, 2), Row(2, 2), Row(3, 2), Row(4, 2)))
     val query1 = result1.snowflakePlan.queries.last.sql
     assert(query1.split("UNION ALL \\( SELECT").length == 4)
 
     val result2 = df1.unionAll(df2).unionAll(df3)
-    checkAnswer(result2, Seq(Row(1, 2), Row(2, 2), Row(3, 2)), sort = false)
+    checkAnswer(result2, Seq(Row(1, 2), Row(2, 2), Row(3, 2)))
     val query2 = result2.snowflakePlan.queries.last.sql
     assert(query2.split("UNION ALL \\( SELECT").length == 3)
 
     // mix union and union all
 
     val result3 = df1.unionAll(df2).unionAll(df3.union(df4))
-    checkAnswer(result3, Seq(Row(1, 2), Row(2, 2), Row(3, 2), Row(4, 2)), sort = false)
+    checkAnswer(result3, Seq(Row(1, 2), Row(2, 2), Row(3, 2), Row(4, 2)))
     val query3 = result3.snowflakePlan.queries.last.sql
     assert(query3.split("UNION ALL \\( SELECT").length == 2)
     assert(query3.split("UNION ALL \\(\\( SELECT").length == 2)
@@ -65,7 +65,7 @@ class SimplifierSuite extends TestData {
       .filter(df("b") =!= 10)
       .filter(df("c") === 100)
 
-    checkAnswer(result, Seq(Row(2, 11, 100), Row(4, 1, 100)), sort = false)
+    checkAnswer(result, Seq(Row(2, 11, 100), Row(4, 1, 100)))
     val query = result.snowflakePlan.queries.last.sql
     assert(query.split("WHERE").length == 2) // contains only one WHERE
     assert(
@@ -106,7 +106,7 @@ class SimplifierSuite extends TestData {
   test("Sort + Limit") {
     val df = Seq(5, 1, 2, 6, 7, 8, 3).toDF("a")
     val result = df.sort(df("a")).limit(3)
-    checkAnswer(result, Seq(Row(1), Row(2), Row(3)), sort = false)
+    checkAnswer(result, Seq(Row(1), Row(2), Row(3)))
     val query = result.snowflakePlan.queries.last.sql
     assert(query.contains("ORDER BY \"A\" ASC NULLS FIRST LIMIT 3"))
   }
@@ -239,27 +239,27 @@ class SimplifierSuite extends TestData {
     val df = Seq((1, 2, 3), (3, 4, 5), (0, 1, 2)).toDF("a", "b", "c")
     // select unresolved attribute
     val result = df.select(df("a"), lit(-1).as("b")).filter(df("b") < 0)
-    checkAnswer(result, Seq(Row(1, -1), Row(3, -1), Row(0, -1)), sort = false)
+    checkAnswer(result, Seq(Row(1, -1), Row(3, -1), Row(0, -1)))
     val query = result.snowflakePlan.queries.last
     assert(query.countString("SELECT") == 5)
 
     val result1 = df.select(df("a"), lit(-1).as("B")).filter(df("b") < 0)
-    checkAnswer(result1, Seq(Row(1, -1), Row(3, -1), Row(0, -1)), sort = false)
+    checkAnswer(result1, Seq(Row(1, -1), Row(3, -1), Row(0, -1)))
     val query1 = result1.snowflakePlan.queries.last
     assert(query1.countString("SELECT") == 5)
 
     val result2 = df.select(df("a"), lit(-1).as("b")).filter(df("B") < 0)
-    checkAnswer(result2, Seq(Row(1, -1), Row(3, -1), Row(0, -1)), sort = false)
+    checkAnswer(result2, Seq(Row(1, -1), Row(3, -1), Row(0, -1)))
     val query2 = result2.snowflakePlan.queries.last
     assert(query2.countString("SELECT") == 5)
 
     val result3 = df.select(df("a"), df("b")).filter(col("b") < 2)
-    checkAnswer(result3, Seq(Row(0, 1)), sort = false)
+    checkAnswer(result3, Seq(Row(0, 1)))
     val query3 = result3.snowflakePlan.queries.last
     assert(query3.countString("SELECT") == 5)
 
     val result4 = df.select(df("a"), col("b")).filter(df("b") < 2)
-    checkAnswer(result4, Seq(Row(0, 1)), sort = false)
+    checkAnswer(result4, Seq(Row(0, 1)))
     val query4 = result4.snowflakePlan.queries.last
     assert(query4.countString("SELECT") == 5)
   }

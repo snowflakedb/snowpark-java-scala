@@ -33,6 +33,7 @@ import org.scalatest.funsuite.AnyFunSuite
 
 import java.security.Provider
 import scala.collection.JavaConverters._
+import scala.collection.mutable.ArrayBuffer
 import scala.reflect.io.Directory
 import scala.util.Random
 
@@ -232,6 +233,10 @@ object TestUtils extends Logging {
       case (null, null) => true
       case (null, _) => false
       case (_, null) => false
+      case (a: Array[_], b: ArrayBuffer[_]) =>
+        a.length == b.length && a.zip(b).forall { case (l, r) => compare(l, r) }
+      case (a: ArrayBuffer[_], b: Array[_]) =>
+        a.length == b.length && a.zip(b).forall { case (l, r) => compare(l, r) }
       case (a: Array[_], b: Array[_]) =>
         a.length == b.length && a.zip(b).forall { case (l, r) => compare(l, r) }
       case (a: Map[_, _], b: Map[_, _]) =>

@@ -15,8 +15,7 @@ class DataFrameAggregateSuite extends TestData {
         .pivot("month", Seq("JAN", "FEB", "MAR", "APR"))
         .agg(sum(col("amount")))
         .sort(col("empid")),
-      Seq(Row(1, 10400, 8000, 11000, 18000), Row(2, 39500, 90700, 12000, 5300)),
-      sort = false)
+      Seq(Row(1, 10400, 8000, 11000, 18000), Row(2, 39500, 90700, 12000, 5300)))
 
     // multiple aggregation isn't supported
     val e = intercept[SnowparkClientException](
@@ -40,8 +39,7 @@ class DataFrameAggregateSuite extends TestData {
 
     checkAnswer(
       df1.join(df2, "empid"),
-      Seq(Row(1, 10400, 8000, 11000, 18000, 12345), Row(2, 39500, 90700, 12000, 5300, 67890)),
-      sort = false)
+      Seq(Row(1, 10400, 8000, 11000, 18000, 12345), Row(2, 39500, 90700, 12000, 5300, 67890)))
   }
 
   test("pivot on join") {
@@ -52,8 +50,7 @@ class DataFrameAggregateSuite extends TestData {
         .pivot("month", Seq("JAN", "FEB", "MAR", "APR"))
         .agg(sum(col("amount")))
         .sort(col("name")),
-      Seq(Row(1, "One", 10400, 8000, 11000, 18000), Row(2, "Two", 39500, 90700, 12000, 5300)),
-      sort = false)
+      Seq(Row(1, "One", 10400, 8000, 11000, 18000), Row(2, "Two", 39500, 90700, 12000, 5300)))
   }
 
   test("RelationalGroupedDataFrame.agg()") {
@@ -96,7 +93,7 @@ class DataFrameAggregateSuite extends TestData {
       .agg(count(col("*")).as("count"))
       .sort(col("count"))
 
-    checkAnswer(groupingSets, result, sort = false)
+    checkAnswer(groupingSets, result)
 
     checkAnswer(
       groupingSets,
@@ -106,8 +103,7 @@ class DataFrameAggregateSuite extends TestData {
         Row("RN", null, 2),
         Row(null, "Technician", 2),
         Row(null, null, 3),
-        Row("LVN", null, 5)),
-      sort = false)
+        Row("LVN", null, 5)))
 
     // comparing with groupBy
     checkAnswer(
@@ -121,8 +117,7 @@ class DataFrameAggregateSuite extends TestData {
         Row(1, "RN", "Amateur Extra"),
         Row(1, "RN", null),
         Row(2, "LVN", "Technician"),
-        Row(2, "LVN", null)),
-      sort = false)
+        Row(2, "LVN", null)))
 
     // mixed grouping expression
     checkAnswer(
@@ -138,8 +133,7 @@ class DataFrameAggregateSuite extends TestData {
         Row("RN", null),
         Row("RN", "Amateur Extra"),
         Row("LVN", "General"),
-        Row("LVN", "Technician")),
-      sort = false)
+        Row("LVN", "Technician")))
 
     // default constructor
     checkAnswer(
@@ -156,8 +150,7 @@ class DataFrameAggregateSuite extends TestData {
         Row("RN", null),
         Row("RN", "Amateur Extra"),
         Row("LVN", "General"),
-        Row("LVN", "Technician")),
-      sort = false)
+        Row("LVN", "Technician")))
   }
 
   test("RelationalGroupedDataFrame.max()") {
@@ -814,7 +807,7 @@ class DataFrameAggregateSuite extends TestData {
   test("limit + aggregates") {
     val df = Seq(("a", 1), ("b", 2), ("c", 1), ("d", 5)).toDF("id", "value")
     val limit2Df = df.limit(2)
-    checkAnswer(limit2Df.groupBy("id").count().select($"id"), limit2Df.select($"id"), true)
+    checkAnswer(limit2Df.groupBy("id").count().select($"id"), limit2Df.select($"id"))
   }
 
   test("listagg") {
@@ -836,7 +829,6 @@ class DataFrameAggregateSuite extends TestData {
         .agg(listagg(df.col("length"), ",")
           .withinGroup(df.col("length").asc))
         .sort($"color"),
-      Seq(Row("blue", "14"), Row("green", "11,77"), Row("orange", "12"), Row("red", "21,24,35")),
-      sort = false)
+      Seq(Row("blue", "14"), Row("green", "11,77"), Row("orange", "12"), Row("red", "21,24,35")))
   }
 }

@@ -126,8 +126,7 @@ public class JavaAsyncJobSuite extends TestBase {
           .getResult();
       checkAnswer(
           getSession().table(tableName),
-          new Row[] {Row.create(1, "one", 1.2), Row.create(2, "two", 2.2)},
-          false);
+          new Row[] {Row.create(1, "one", 1.2), Row.create(2, "two", 2.2)});
     } finally {
       dropTable(tableName);
       dropStage(stageName);
@@ -155,8 +154,7 @@ public class JavaAsyncJobSuite extends TestBase {
           .async()
           .copyInto(tableName, transformation)
           .getResult();
-      checkAnswer(
-          getSession().table(tableName), new Row[] {Row.create(1, 3), Row.create(2, 3)}, false);
+      checkAnswer(getSession().table(tableName), new Row[] {Row.create(1, 3), Row.create(2, 3)});
     } finally {
       dropTable(tableName);
       dropStage(stageName);
@@ -187,7 +185,7 @@ public class JavaAsyncJobSuite extends TestBase {
           .async()
           .copyInto(tableName, transformation, options)
           .getResult();
-      checkAnswer(getSession().table(tableName), new Row[] {Row.create(2, 3)}, false);
+      checkAnswer(getSession().table(tableName), new Row[] {Row.create(2, 3)});
     } finally {
       dropTable(tableName);
       dropStage(stageName);
@@ -219,7 +217,7 @@ public class JavaAsyncJobSuite extends TestBase {
           .async()
           .copyInto(tableName, columns, transformation, options)
           .getResult();
-      checkAnswer(getSession().table(tableName), new Row[] {Row.create(2, 3)}, false);
+      checkAnswer(getSession().table(tableName), new Row[] {Row.create(2, 3)});
     } finally {
       dropTable(tableName);
       dropStage(stageName);
@@ -312,8 +310,7 @@ public class JavaAsyncJobSuite extends TestBase {
       assert result.getMultiJoinedRowsUpdated() == 0;
       checkAnswer(
           getSession().table(tableName),
-          new Row[] {Row.create(3, "a", true), Row.create(2, "b", false)},
-          false);
+          new Row[] {Row.create(3, "a", true), Row.create(2, "b", false)});
     } finally {
       dropTable(tableName);
     }
@@ -336,8 +333,7 @@ public class JavaAsyncJobSuite extends TestBase {
       assert result.getMultiJoinedRowsUpdated() == 0;
       checkAnswer(
           getSession().table(tableName),
-          new Row[] {Row.create(3, "a", true), Row.create(2, "b", false)},
-          false);
+          new Row[] {Row.create(3, "a", true), Row.create(2, "b", false)});
     } finally {
       dropTable(tableName);
     }
@@ -361,8 +357,7 @@ public class JavaAsyncJobSuite extends TestBase {
       assert result.getMultiJoinedRowsUpdated() == 1;
       checkAnswer(
           getSession().table(tableName),
-          new Row[] {Row.create(3, "a", true), Row.create(2, "b", false)},
-          false);
+          new Row[] {Row.create(3, "a", true), Row.create(2, "b", false)});
     } finally {
       dropTable(tableName);
     }
@@ -386,8 +381,7 @@ public class JavaAsyncJobSuite extends TestBase {
       assert result.getMultiJoinedRowsUpdated() == 1;
       checkAnswer(
           getSession().table(tableName),
-          new Row[] {Row.create(3, "a", true), Row.create(2, "b", false)},
-          false);
+          new Row[] {Row.create(3, "a", true), Row.create(2, "b", false)});
     } finally {
       dropTable(tableName);
     }
@@ -467,8 +461,7 @@ public class JavaAsyncJobSuite extends TestBase {
       assert result.getRowsInserted() == 0;
       checkAnswer(
           getSession().table(tableName),
-          new Row[] {Row.create(2, "a", true), Row.create(2, "b", false)},
-          false);
+          new Row[] {Row.create(2, "a", true), Row.create(2, "b", false)});
     } finally {
       dropTable(tableName);
     }
@@ -493,7 +486,7 @@ public class JavaAsyncJobSuite extends TestBase {
       assert result.getRowsUpdated() == 0;
       assert result.getRowsDeleted() == 1;
       assert result.getRowsInserted() == 0;
-      checkAnswer(getSession().table(tableName), new Row[] {Row.create(2, "b", false)}, false);
+      checkAnswer(getSession().table(tableName), new Row[] {Row.create(2, "b", false)});
     } finally {
       dropTable(tableName);
     }
@@ -520,8 +513,9 @@ public class JavaAsyncJobSuite extends TestBase {
       assert result.getRowsInserted() == 1;
       checkAnswer(
           getSession().table(tableName),
-          new Row[] {Row.create(1, "a", true), Row.create(2, "b", false), Row.create(4, "c", true)},
-          true);
+          new Row[] {
+            Row.create(1, "a", true), Row.create(2, "b", false), Row.create(4, "c", true)
+          });
     } finally {
       dropTable(tableName);
     }
@@ -574,12 +568,12 @@ public class JavaAsyncJobSuite extends TestBase {
       Map<String, Object> readConfigs = new HashMap<>();
       readConfigs.put("skip_header", 1);
       DataFrame df2 = getSession().read().schema(schema).options(readConfigs).csv(path);
-      checkAnswer(df2, new Row[] {Row.create(1, "a"), Row.create(2, "b")}, false);
+      checkAnswer(df2, new Row[] {Row.create(1, "a"), Row.create(2, "b")});
 
       // Test overwrite without HEADER
       df.write().mode(SaveMode.Overwrite).option("compression", "none").async().csv(path).getRows();
       DataFrame df4 = getSession().read().schema(schema).csv(path);
-      checkAnswer(df4, new Row[] {Row.create(1, "a"), Row.create(2, "b")}, false);
+      checkAnswer(df4, new Row[] {Row.create(1, "a"), Row.create(2, "b")});
     } finally {
       dropStage(stageName);
     }
@@ -614,9 +608,7 @@ public class JavaAsyncJobSuite extends TestBase {
       // read back data to verify content
       DataFrame df3 = getSession().read().json(path);
       checkAnswer(
-          df3,
-          new Row[] {Row.create("[\n  1,\n  \"a\"\n]"), Row.create("[\n  2,\n  \"b\"\n]")},
-          false);
+          df3, new Row[] {Row.create("[\n  1,\n  \"a\"\n]"), Row.create("[\n  2,\n  \"b\"\n]")});
 
       // Test overwrite
       df2.write()
@@ -627,9 +619,7 @@ public class JavaAsyncJobSuite extends TestBase {
           .getResult();
       DataFrame df4 = getSession().read().json(path);
       checkAnswer(
-          df4,
-          new Row[] {Row.create("[\n  1,\n  \"a\"\n]"), Row.create("[\n  2,\n  \"b\"\n]")},
-          false);
+          df4, new Row[] {Row.create("[\n  1,\n  \"a\"\n]"), Row.create("[\n  2,\n  \"b\"\n]")});
     } finally {
       dropStage(stageName);
     }
@@ -668,8 +658,7 @@ public class JavaAsyncJobSuite extends TestBase {
           new Row[] {
             Row.create("{\n  \"_COL_0\": 1,\n  \"_COL_1\": \"a\"\n}"),
             Row.create("{\n  \"_COL_0\": 2,\n  \"_COL_1\": \"b\"\n}")
-          },
-          false);
+          });
 
       // Test overwrite
       df.write()
@@ -685,8 +674,7 @@ public class JavaAsyncJobSuite extends TestBase {
           new Row[] {
             Row.create("{\n  \"_COL_0\": 1,\n  \"_COL_1\": \"a\"\n}"),
             Row.create("{\n  \"_COL_0\": 2,\n  \"_COL_1\": \"b\"\n}")
-          },
-          false);
+          });
     } finally {
       dropStage(stageName);
     }

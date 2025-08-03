@@ -24,17 +24,13 @@ public abstract class TestFunctions {
     TestUtils.checkResult(scalaRows, scalaList, sort);
   }
 
-  protected void checkAnswer(DataFrame df, Row[] expected, boolean sort) {
-    Row[] result = df.collect();
-    checkAnswer(result, Arrays.asList(expected), sort);
-  }
-
   protected void checkAnswer(DataFrame df, Row[] expected) {
-    checkAnswer(df, expected, true);
+    Row[] result = df.collect();
+    checkAnswer(result, Arrays.asList(expected), true);
   }
 
   protected void checkAnswer(DataFrame df1, DataFrame df2) {
-    checkAnswer(df1, df2.collect(), false);
+    checkAnswer(df1, df2.collect());
   }
 
   protected String randomName() {

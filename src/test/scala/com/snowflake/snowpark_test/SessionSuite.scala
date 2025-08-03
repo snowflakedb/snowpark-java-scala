@@ -141,12 +141,9 @@ class SessionSuite extends SNTestBase {
 
   test("create DataFrame from Seq(None)") {
     import session.implicits._
-    checkAnswer(Seq(None, Some(1)).toDF("int"), Seq(Row(null), Row(1)), sort = false)
+    checkAnswer(Seq(None, Some(1)).toDF("int"), Seq(Row(null), Row(1)))
 
-    checkAnswer(
-      Seq(None, Some(Array(1, 2))).toDF("arr"),
-      Seq(Row(null), Row("[\n  1,\n  2\n]")),
-      sort = false)
+    checkAnswer(Seq(None, Some(Array(1, 2))).toDF("arr"), Seq(Row(null), Row("[\n  1,\n  2\n]")))
   }
 
   test("create dataframe from array") {

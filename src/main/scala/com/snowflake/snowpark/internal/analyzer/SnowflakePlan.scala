@@ -266,8 +266,9 @@ class SnowflakePlanBuilder(session: Session) extends Logging {
       schemaQuery: Option[String],
       isDDLOnTempObject: Boolean): SnowflakePlan = wrapException(child) {
     val selectChild = addResultScanIfNotSelect(child)
+    val lastQuery = selectChild.queries.last
     val queries: Seq[Query] = selectChild.queries.slice(0, selectChild.queries.length - 1) ++
-      multipleSqlGenerator(selectChild.queries.last.sql).map(Query(_, isDDLOnTempObject))
+      multipleSqlGenerator(lastQuery.sql).map(Query(_, isDDLOnTempObject, lastQuery.params))
     val newSchemaQuery = schemaQuery.getOrElse(multipleSqlGenerator(child.schemaQuery).last)
     SnowflakePlan(
       queries,
@@ -284,15 +285,18 @@ class SnowflakePlanBuilder(session: Session) extends Logging {
       right: SnowflakePlan,
       sourcePlan: Option[LogicalPlan]): SnowflakePlan = wrapException(left, right) {
     val selectLeft = addResultScanIfNotSelect(left)
+    val lastQueryLeft = selectLeft.queries.last
     val selectRight = addResultScanIfNotSelect(right)
+    val lastQueryRight = selectRight.queries.last
     val queries: Seq[Query] =
       selectLeft.queries.slice(0, selectLeft.queries.length - 1) ++
         selectRight.queries.slice(0, selectRight.queries.length - 1) :+ Query(
-          sqlGenerator(selectLeft.queries.last.sql, selectRight.queries.last.sql))
+        sqlGenerator(lastQueryLeft.sql, lastQueryRight.sql),
+        false,
+        lastQueryLeft.params ++ lastQueryRight.params)
     val leftSchemaQuery = schemaValueStatement(selectLeft.attributes)
     val rightSchemaQuery = schemaValueStatement(selectRight.attributes)
     val schemaQuery = sqlGenerator(leftSchemaQuery, rightSchemaQuery)
-    val commonColumn = selectLeft.aliasMap.keySet.intersect(selectRight.aliasMap.keySet)
     val supportAsyncMode = selectLeft.supportAsyncMode && selectRight.supportAsyncMode
     SnowflakePlan(
       queries,
@@ -308,10 +312,14 @@ class SnowflakePlanBuilder(session: Session) extends Logging {
       children: Seq[SnowflakePlan],
       sourcePlan: Option[LogicalPlan]): SnowflakePlan = wrapException(children: _*) {
     val selectChildren = children.map(addResultScanIfNotSelect)
+    val params: Seq[Any] = selectChildren.map(_.queries.last.params).flatten
     val queries: Seq[Query] =
       selectChildren
         .map(c => c.queries.slice(0, c.queries.length - 1))
-        .reduce(_ ++ _) :+ Query(sqlGenerator(selectChildren.map(_.queries.last.sql)))
+        .reduce(_ ++ _) :+ Query(
+        sqlGenerator(selectChildren.map(_.queries.last.sql)),
+        false,
+        params)
 
     val schemaQueries = children.map(c => schemaValueStatement(c.attributes))
     val schemaQuery = sqlGenerator(schemaQueries)
@@ -323,8 +331,9 @@ class SnowflakePlanBuilder(session: Session) extends Logging {
   def query(
       sql: String,
       sourcePlan: Option[LogicalPlan],
-      supportAsyncMode: Boolean = true): SnowflakePlan =
-    SnowflakePlan(Seq(Query(sql)), sql, session, sourcePlan, supportAsyncMode)
+      supportAsyncMode: Boolean = true,
+      params: Seq[Any] = Seq.empty): SnowflakePlan =
+    SnowflakePlan(Seq(Query(sql, false, params)), sql, session, sourcePlan, supportAsyncMode)
 
   def largeLocalRelationPlan(
       output: Seq[Attribute],
@@ -527,15 +536,22 @@ class SnowflakePlanBuilder(session: Session) extends Logging {
         "Creating a view from this DataFrame is currently not supported.")
 
     // scalastyle:off caselocale
-    require(
-      child.queries.head.sql.toLowerCase.trim.startsWith("select"),
-      "Only support creating view from SELECT queries")
+    val plan: SnowflakePlan =
+      if (child.queries.head.sql.toLowerCase.trim.startsWith("select")) {
+        child
+      } else if (child.queries.head.sql.toLowerCase.replaceAll("\\s", "").startsWith("(select")) {
+        session.analyzer.resolve(Project.apply(Star(Seq.empty).expressions, child))
+      } else {
+        throw new IllegalArgumentException(
+          "requirement failed: Only support creating view from SELECT queries")
+      }
     // scalastyle:on caselocale
+
     val tempType: TempType = session.getTempType(isTemp, name)
     session.recordTempObjectIfNecessary(TempObjectType.View, name, tempType)
 
     // source plan is not necessary in action
-    build(createOrReplaceViewStatement(name, _, tempType), child, None)
+    build(createOrReplaceViewStatement(name, _, tempType), plan, None)
   }
 
   def createTempTable(name: String, child: SnowflakePlan): SnowflakePlan = {
@@ -761,7 +777,8 @@ class SnowflakePlanBuilder(session: Session) extends Logging {
 private[snowpark] class Query(
     val sql: String,
     val queryIdPlaceHolder: String,
-    val isDDLOnTempObject: Boolean)
+    val isDDLOnTempObject: Boolean,
+    val params: Seq[Any])
     extends Logging {
   logDebug(s"Creating a new Query: $sql ID: $queryIdPlaceHolder")
   override def toString: String = sql
@@ -773,7 +790,7 @@ private[snowpark] class Query(
     placeholders.foreach { case (holder, id) =>
       finalQuery = finalQuery.replaceAll(holder, id)
     }
-    val queryId = conn.runQuery(finalQuery, isDDLOnTempObject, statementParameters)
+    val queryId = conn.runQuery(finalQuery, isDDLOnTempObject, statementParameters, params)
     placeholders += (queryIdPlaceHolder -> queryId)
     queryId
   }
@@ -792,7 +809,8 @@ private[snowpark] class Query(
         finalQuery,
         !returnIterator,
         returnIterator,
-        conn.getStatementParameters(isDDLOnTempObject, statementParameters))
+        conn.getStatementParameters(isDDLOnTempObject, statementParameters),
+        params)
     placeholders += (queryIdPlaceHolder -> result.queryId)
     result
   }
@@ -803,7 +821,7 @@ private[snowpark] class BatchInsertQuery(
     override val queryIdPlaceHolder: String,
     attributes: Seq[Attribute],
     rows: Seq[Row])
-    extends Query(sql, queryIdPlaceHolder, false) {
+    extends Query(sql, queryIdPlaceHolder, false, Seq.empty) {
   override def runQuery(
       conn: ServerConnection,
       placeholders: mutable.HashMap[String, String],
@@ -828,12 +846,11 @@ object Query {
   private def placeHolder(): String =
     s"query_id_place_holder_${Random.alphanumeric.take(10).mkString}"
 
-  def apply(sql: String): Query = {
-    new Query(sql, placeHolder(), false)
-  }
-
-  def apply(sql: String, isDDLOnTempObject: Boolean): Query = {
-    new Query(sql, placeHolder(), isDDLOnTempObject)
+  def apply(
+      sql: String,
+      isDDLOnTempObject: Boolean = false,
+      params: Seq[Any] = Seq.empty): Query = {
+    new Query(sql, placeHolder(), isDDLOnTempObject, params)
   }
 
   def apply(sql: String, attributes: Seq[Attribute], rows: Seq[Row]): Query = {

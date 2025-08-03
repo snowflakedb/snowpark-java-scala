@@ -14,8 +14,8 @@ public class JavaFunctionSuite extends TestBase {
     DataFrame df2 = getSession().sql("select * from values(2) as T(a)");
 
     Row[] expected = {Row.create(1, 2), Row.create(2, 2)};
-    checkAnswer(df1.select(Functions.col("c1"), Functions.col(df2)), expected, false);
-    checkAnswer(df1.select(Functions.col("c1"), Functions.toScalar(df2)), expected, false);
+    checkAnswer(df1.select(Functions.col("c1"), Functions.col(df2)), expected);
+    checkAnswer(df1.select(Functions.col("c1"), Functions.toScalar(df2)), expected);
   }
 
   @Test
@@ -26,7 +26,7 @@ public class JavaFunctionSuite extends TestBase {
                 "select parse_json(column1) as v  from values ('{\"a\": null}'),"
                     + "('{\"a\": \"foo\"}'), (null)");
     Row[] expected = {Row.create("null"), Row.create("\"foo\""), Row.create((Object) null)};
-    checkAnswer(df.select(Functions.sqlExpr("v:a")), expected, false);
+    checkAnswer(df.select(Functions.sqlExpr("v:a")), expected);
   }
 
   @Test
@@ -51,8 +51,7 @@ public class JavaFunctionSuite extends TestBase {
                 "select * from values(1, 10.0, 0),(2, 10.0, 11.0),"
                     + "(2, 20.0, 22.0),(2, 25.0, 0),(2, 30.0, 35.0) as T(k, v1, v2)");
     Row[] expected = {Row.create(1, null), Row.create(2, 0.40367115665231024)};
-    checkAnswer(
-        df.groupBy(df.col("k")).agg(Functions.corr(df.col("v1"), df.col("v2"))), expected, false);
+    checkAnswer(df.groupBy(df.col("k")).agg(Functions.corr(df.col("v1"), df.col("v2"))), expected);
   }
 
   @Test
@@ -87,15 +86,11 @@ public class JavaFunctionSuite extends TestBase {
     Row[] expected = {Row.create(1, 0), Row.create(2, 38.75)};
 
     checkAnswer(
-        df.groupBy(df.col("k")).agg(Functions.covar_pop(df.col("v1"), df.col("v2"))),
-        expected,
-        false);
+        df.groupBy(df.col("k")).agg(Functions.covar_pop(df.col("v1"), df.col("v2"))), expected);
 
     Row[] expected1 = {Row.create(1, null), Row.create(2, 51.666666)};
     checkAnswer(
-        df.groupBy(df.col("k")).agg(Functions.covar_samp(df.col("v1"), df.col("v2"))),
-        expected1,
-        false);
+        df.groupBy(df.col("k")).agg(Functions.covar_samp(df.col("v1"), df.col("v2"))), expected1);
   }
 
   @Test
@@ -120,8 +115,7 @@ public class JavaFunctionSuite extends TestBase {
                 Functions.grouping(df.col("x")),
                 Functions.grouping(df.col("y")),
                 Functions.grouping_id(df.col("x"), df.col("y"))),
-        expected,
-        false);
+        expected);
 
     checkAnswer(
         df.cube("x", "y")
@@ -129,8 +123,7 @@ public class JavaFunctionSuite extends TestBase {
                 Functions.grouping(df.col("x")),
                 Functions.grouping(df.col("y")),
                 Functions.grouping_id(df.col("x"), df.col("y"))),
-        expected,
-        false);
+        expected);
   }
 
   @Test
@@ -145,8 +138,7 @@ public class JavaFunctionSuite extends TestBase {
             Functions.kurtosis(df.col("x")),
             Functions.kurtosis(df.col("y")),
             Functions.kurtosis(df.col("z"))),
-        expected,
-        false);
+        expected);
   }
 
   @Test
@@ -160,10 +152,8 @@ public class JavaFunctionSuite extends TestBase {
     checkAnswer(
         df1.select(
             Functions.max(df1.col("x")), Functions.min(df1.col("y")), Functions.mean(df1.col("z"))),
-        expected1,
-        false);
-    checkAnswer(
-        df1.select(Functions.max("x"), Functions.min("y"), Functions.mean("z")), expected1, false);
+        expected1);
+    checkAnswer(df1.select(Functions.max("x"), Functions.min("y"), Functions.mean("z")), expected1);
 
     // Case 02: Some null values
     DataFrame df2 =
@@ -174,10 +164,8 @@ public class JavaFunctionSuite extends TestBase {
     checkAnswer(
         df2.select(
             Functions.max(df2.col("x")), Functions.min(df2.col("y")), Functions.mean(df2.col("z"))),
-        expected2,
-        false);
-    checkAnswer(
-        df2.select(Functions.max("x"), Functions.min("y"), Functions.mean("z")), expected2, false);
+        expected2);
+    checkAnswer(df2.select(Functions.max("x"), Functions.min("y"), Functions.mean("z")), expected2);
 
     // Case 03: All null values
     DataFrame df3 =
@@ -189,10 +177,8 @@ public class JavaFunctionSuite extends TestBase {
     checkAnswer(
         df3.select(
             Functions.max(df3.col("x")), Functions.min(df3.col("y")), Functions.mean(df3.col("z"))),
-        expected3,
-        false);
-    checkAnswer(
-        df3.select(Functions.max("x"), Functions.min("y"), Functions.mean("z")), expected3, false);
+        expected3);
+    checkAnswer(df3.select(Functions.max("x"), Functions.min("y"), Functions.mean("z")), expected3);
   }
 
   @Test
@@ -233,12 +219,12 @@ public class JavaFunctionSuite extends TestBase {
     DataFrame df = getSession().sql("select * from values(3),(2),(1),(3),(2) as T(a)");
     Row[] expected = {Row.create(3, 6), Row.create(2, 4), Row.create(1, 1)};
 
-    checkAnswer(df.groupBy(df.col("a")).agg(Functions.sum(df.col("a"))), expected, false);
+    checkAnswer(df.groupBy(df.col("a")).agg(Functions.sum(df.col("a"))), expected);
 
-    checkAnswer(df.groupBy(df.col("a")).agg(Functions.sum("a")), expected, false);
+    checkAnswer(df.groupBy(df.col("a")).agg(Functions.sum("a")), expected);
 
     Row[] expected1 = {Row.create(3, 3), Row.create(2, 2), Row.create(1, 1)};
-    checkAnswer(df.groupBy(df.col("a")).agg(Functions.sum_distinct(df.col("a"))), expected1, false);
+    checkAnswer(df.groupBy(df.col("a")).agg(Functions.sum_distinct(df.col("a"))), expected1);
   }
 
   @Test
@@ -255,8 +241,7 @@ public class JavaFunctionSuite extends TestBase {
                 Functions.variance(df.col("y")),
                 Functions.var_pop(df.col("z")),
                 Functions.var_samp(df.col("z"))),
-        expected,
-        false);
+        expected);
   }
 
   @Test
@@ -323,7 +308,7 @@ public class JavaFunctionSuite extends TestBase {
               + "\"version\": 1\n}")
     };
 
-    checkAnswer(df3.select(Functions.approx_percentile_combine(df3.col("b"))), expected, false);
+    checkAnswer(df3.select(Functions.approx_percentile_combine(df3.col("b"))), expected);
   }
 
   @Test
@@ -342,8 +327,7 @@ public class JavaFunctionSuite extends TestBase {
       Row.create(1),
       Row.create(1)
     };
-    checkAnswer(
-        df.select(Functions.coalesce(df.col("a"), df.col("b"), df.col("c"))), expected, false);
+    checkAnswer(df.select(Functions.coalesce(df.col("a"), df.col("b"), df.col("c"))), expected);
   }
 
   @Test
@@ -357,9 +341,7 @@ public class JavaFunctionSuite extends TestBase {
       Row.create(false, false)
     };
     checkAnswer(
-        df.select(Functions.equal_nan(df.col("a")), Functions.is_null(df.col("a"))),
-        expected,
-        false);
+        df.select(Functions.equal_nan(df.col("a")), Functions.is_null(df.col("a"))), expected);
   }
 
   @Test
@@ -372,8 +354,7 @@ public class JavaFunctionSuite extends TestBase {
     };
     checkAnswer(
         df.select(Functions.cume_dist().over(Window.partitionBy(df.col("x")).orderBy(df.col("y")))),
-        expected,
-        false);
+        expected);
   }
 
   @Test
@@ -382,8 +363,7 @@ public class JavaFunctionSuite extends TestBase {
         getSession()
             .sql("select * from values(1,2,1),(1,2,3),(2,1,10),(2,2,1),(2,2,3) as T(x,y,z)");
     Row[] expected = {Row.create(1), Row.create(1), Row.create(2), Row.create(2), Row.create(2)};
-    checkAnswer(
-        df.select(Functions.dense_rank().over(Window.orderBy(df.col("x")))), expected, false);
+    checkAnswer(df.select(Functions.dense_rank().over(Window.orderBy(df.col("x")))), expected);
   }
 
   @Test
@@ -396,8 +376,7 @@ public class JavaFunctionSuite extends TestBase {
         df.select(
             Functions.lag(df.col("z"), 1, Functions.lit(0))
                 .over(Window.partitionBy(df.col("x")).orderBy(df.col("x")))),
-        expected1,
-        false);
+        expected1);
 
     Row[] expected2 = {
       Row.create((Object) null),
@@ -410,14 +389,12 @@ public class JavaFunctionSuite extends TestBase {
         df.select(
             Functions.lag(df.col("z"), 1)
                 .over(Window.partitionBy(df.col("x")).orderBy(df.col("x")))),
-        expected2,
-        false);
+        expected2);
 
     checkAnswer(
         df.select(
             Functions.lag(df.col("z")).over(Window.partitionBy(df.col("x")).orderBy(df.col("x")))),
-        expected2,
-        false);
+        expected2);
   }
 
   @Test
@@ -431,8 +408,7 @@ public class JavaFunctionSuite extends TestBase {
         df.select(
             Functions.ntile(df.col("n"))
                 .over(Window.partitionBy(df.col("x")).orderBy(df.col("y")))),
-        expected,
-        false);
+        expected);
   }
 
   @Test
@@ -440,7 +416,7 @@ public class JavaFunctionSuite extends TestBase {
     DataFrame df =
         getSession().sql("select * from values(1, true, 'a'),(2, false, 'b') as T(num, bool, str)");
     Row[] expected = {Row.create(1.0), Row.create(1.4142135623730951)};
-    checkAnswer(df.select(Functions.sqrt(df.col("num"))), expected, false);
+    checkAnswer(df.select(Functions.sqrt(df.col("num"))), expected);
   }
 
   @Test
@@ -448,7 +424,7 @@ public class JavaFunctionSuite extends TestBase {
     DataFrame df =
         getSession().sql("select * from values(1, 2, 3),(0, -1, 4),(-5, 0, -9) as T(x,y,z)");
     Row[] expected = {Row.create(1), Row.create(0), Row.create(5)};
-    checkAnswer(df.select(Functions.abs(df.col("x"))), expected, false);
+    checkAnswer(df.select(Functions.abs(df.col("x"))), expected);
   }
 
   @Test
@@ -460,8 +436,7 @@ public class JavaFunctionSuite extends TestBase {
       Row.create(1.369438406004566, 0.2013579207903308),
       Row.create(1.2661036727794992, 0.3046926540153975)
     };
-    checkAnswer(
-        df.select(Functions.acos(df.col("a")), Functions.asin(df.col("a"))), expected, false);
+    checkAnswer(df.select(Functions.acos(df.col("a")), Functions.asin(df.col("a"))), expected);
   }
 
   @Test
@@ -473,21 +448,19 @@ public class JavaFunctionSuite extends TestBase {
       Row.create(0.5404195002705842, 0.19739555984988078),
       Row.create(0.6107259643892086, 0.2914567944778671)
     };
-    checkAnswer(
-        df.select(Functions.atan(df.col("b")), Functions.atan(df.col("a"))), expected, false);
+    checkAnswer(df.select(Functions.atan(df.col("b")), Functions.atan(df.col("a"))), expected);
 
     Row[] expected1 = {
       Row.create(1.373400766945016), Row.create(1.2490457723982544), Row.create(1.1659045405098132)
     };
-    checkAnswer(df.select(Functions.atan2(df.col("b"), df.col("a"))), expected1, false);
+    checkAnswer(df.select(Functions.atan2(df.col("b"), df.col("a"))), expected1);
   }
 
   @Test
   public void ceil_floor() {
     DataFrame df = getSession().sql("select * from values(1.111),(2.222),(3.333) as T(a)");
     Row[] expected = {Row.create(2, 1), Row.create(3, 2), Row.create(4, 3)};
-    checkAnswer(
-        df.select(Functions.ceil(df.col("a")), Functions.floor(df.col("a"))), expected, false);
+    checkAnswer(df.select(Functions.ceil(df.col("a")), Functions.floor(df.col("a"))), expected);
   }
 
   @Test
@@ -499,8 +472,7 @@ public class JavaFunctionSuite extends TestBase {
       Row.create(0.9800665778412416, 1.1854652182422676),
       Row.create(0.955336489125606, 1.255169005630943)
     };
-    checkAnswer(
-        df.select(Functions.cos(df.col("a")), Functions.cosh(df.col("b"))), expected, false);
+    checkAnswer(df.select(Functions.cos(df.col("a")), Functions.cosh(df.col("b"))), expected);
   }
 
   @Test
@@ -510,14 +482,14 @@ public class JavaFunctionSuite extends TestBase {
     Row[] expected = {
       Row.create(2.718281828459045), Row.create(1.0), Row.create(0.006737946999085467)
     };
-    checkAnswer(df.select(Functions.exp(df.col("x"))), expected, false);
+    checkAnswer(df.select(Functions.exp(df.col("x"))), expected);
   }
 
   @Test
   public void factorial() {
     DataFrame df = getSession().sql("select * from values(1),(2),(3) as T(a)");
     Row[] expected = {Row.create(1), Row.create(2), Row.create(6)};
-    checkAnswer(df.select(Functions.factorial(df.col("a"))), expected, false);
+    checkAnswer(df.select(Functions.factorial(df.col("a"))), expected);
   }
 
   @Test
@@ -526,12 +498,10 @@ public class JavaFunctionSuite extends TestBase {
         getSession()
             .sql("select * from values(1,2,1),(1,2,3),(2,1,10),(2,2,1),(2,2,3) as T(x,y,z)");
     Row[] expected = {Row.create(2), Row.create(3), Row.create(10), Row.create(2), Row.create(3)};
-    checkAnswer(
-        df.select(Functions.greatest(df.col("x"), df.col("y"), df.col("z"))), expected, false);
+    checkAnswer(df.select(Functions.greatest(df.col("x"), df.col("y"), df.col("z"))), expected);
 
     Row[] expected1 = {Row.create(1), Row.create(1), Row.create(1), Row.create(1), Row.create(2)};
-    checkAnswer(
-        df.select(Functions.least(df.col("x"), df.col("y"), df.col("z"))), expected1, false);
+    checkAnswer(df.select(Functions.least(df.col("x"), df.col("y"), df.col("z"))), expected1);
   }
 
   @Test
@@ -544,8 +514,7 @@ public class JavaFunctionSuite extends TestBase {
         df.select(
             Functions.log(Functions.lit(2), df.col("a")),
             Functions.log(Functions.lit(4), df.col("a"))),
-        expected,
-        false);
+        expected);
   }
 
   @Test
@@ -559,8 +528,7 @@ public class JavaFunctionSuite extends TestBase {
     checkAnswer(
         df.select(
             Functions.percent_rank().over(Window.partitionBy(df.col("x")).orderBy(df.col("y")))),
-        expected,
-        false);
+        expected);
   }
 
   @Test
@@ -571,8 +539,7 @@ public class JavaFunctionSuite extends TestBase {
     Row[] expected = {Row.create(1), Row.create(2), Row.create(2), Row.create(1), Row.create(1)};
     checkAnswer(
         df.select(Functions.rank().over(Window.partitionBy(df.col("x")).orderBy(df.col("y")))),
-        expected,
-        false);
+        expected);
   }
 
   @Test
@@ -584,8 +551,7 @@ public class JavaFunctionSuite extends TestBase {
     checkAnswer(
         df.select(
             Functions.row_number().over(Window.partitionBy(df.col("x")).orderBy(df.col("y")))),
-        expected,
-        false);
+        expected);
   }
 
   @Test
@@ -631,8 +597,7 @@ public class JavaFunctionSuite extends TestBase {
             Functions.pow("a", 0.8),
             Functions.pow(0.4, df.col("b")),
             Functions.pow(0.4, "b")),
-        expected,
-        false);
+        expected);
   }
 
   @Test
@@ -640,9 +605,9 @@ public class JavaFunctionSuite extends TestBase {
     // Case: Scale greater than or equal to zero.
     DataFrame df = getSession().sql("select * from values(1.111),(2.222),(3.333) as T(a)");
     Row[] expected = {Row.create(1.0), Row.create(2.0), Row.create(3.0)};
-    checkAnswer(df.select(Functions.round(df.col("a"))), expected, false);
-    checkAnswer(df.select(Functions.round(df.col("a"), Functions.lit(0))), expected, false);
-    checkAnswer(df.select(Functions.round(df.col("a"), 0)), expected, false);
+    checkAnswer(df.select(Functions.round(df.col("a"))), expected);
+    checkAnswer(df.select(Functions.round(df.col("a"), Functions.lit(0))), expected);
+    checkAnswer(df.select(Functions.round(df.col("a"), 0)), expected);
 
     // Case: Scale less than zero.
     DataFrame df2 = getSession().sql("select * from values(5),(55),(555) as T(a)");
@@ -651,12 +616,10 @@ public class JavaFunctionSuite extends TestBase {
         df2.select(
             Functions.round(df2.col("a"), Functions.lit(-1)),
             Functions.round(df2.col("a"), Functions.lit(-2))),
-        expected2,
-        false);
+        expected2);
     checkAnswer(
         df2.select(Functions.round(df2.col("a"), -1), Functions.round(df2.col("a"), -2)),
-        expected2,
-        false);
+        expected2);
   }
 
   @Test
@@ -667,8 +630,7 @@ public class JavaFunctionSuite extends TestBase {
         df.select(
             Functions.bitshiftleft(df.col("a"), Functions.lit(1)),
             Functions.bitshiftright(df.col("a"), Functions.lit(1))),
-        expected,
-        false);
+        expected);
   }
 
   @Test
@@ -680,8 +642,7 @@ public class JavaFunctionSuite extends TestBase {
       Row.create(0.19866933079506122, 0.20133600254109402),
       Row.create(0.29552020666133955, 0.3045202934471426)
     };
-    checkAnswer(
-        df.select(Functions.sin(df.col("a")), Functions.sinh(df.col("a"))), expected, false);
+    checkAnswer(df.select(Functions.sin(df.col("a")), Functions.sinh(df.col("a"))), expected);
   }
 
   @Test
@@ -693,16 +654,14 @@ public class JavaFunctionSuite extends TestBase {
       Row.create(0.2027100355086725, 0.197375320224904),
       Row.create(0.30933624960962325, 0.2913126124515909)
     };
-    checkAnswer(
-        df.select(Functions.tan(df.col("a")), Functions.tanh(df.col("a"))), expected, false);
+    checkAnswer(df.select(Functions.tan(df.col("a")), Functions.tanh(df.col("a"))), expected);
   }
 
   @Test
   public void negate_not() {
     DataFrame df = getSession().sql("select * from values(1, true),(-2,false) as T(a,b)");
     Row[] expected = {Row.create(-1, false), Row.create(2, true)};
-    checkAnswer(
-        df.select(Functions.negate(df.col("a")), Functions.not(df.col("b"))), expected, false);
+    checkAnswer(df.select(Functions.negate(df.col("a")), Functions.not(df.col("b"))), expected);
   }
 
   @Test
@@ -718,7 +677,7 @@ public class JavaFunctionSuite extends TestBase {
         getSession()
             .sql("select * from values(1, true, 'a'), (2, false, 'b') as T(num, bool, str)");
     Row[] expected = {Row.create(-2), Row.create(-3)};
-    checkAnswer(df.select(Functions.bitnot(df.col("num"))), expected, false);
+    checkAnswer(df.select(Functions.bitnot(df.col("num"))), expected);
   }
 
   @Test
@@ -749,7 +708,7 @@ public class JavaFunctionSuite extends TestBase {
       Row.create(17.188733853924695, 40.10704565915762)
     };
     checkAnswer(
-        df.select(Functions.degrees(df.col("a")), Functions.degrees(df.col("b"))), expected, false);
+        df.select(Functions.degrees(df.col("a")), Functions.degrees(df.col("b"))), expected);
   }
 
   @Test
@@ -758,7 +717,7 @@ public class JavaFunctionSuite extends TestBase {
     Row[] expected = {
       Row.create(0.019390607989657), Row.create(0.03878121597931), Row.create(0.058171823968971005)
     };
-    checkAnswer(df.select(Functions.radians(df.col("a"))), expected, false);
+    checkAnswer(df.select(Functions.radians(df.col("a"))), expected);
   }
 
   @Test
@@ -788,8 +747,7 @@ public class JavaFunctionSuite extends TestBase {
             Functions.md5(df.col("a")),
             Functions.sha1(df.col("a")),
             Functions.sha2(df.col("a"), 224)),
-        expected,
-        false);
+        expected);
   }
 
   @Test
@@ -802,7 +760,7 @@ public class JavaFunctionSuite extends TestBase {
       Row.create(-410379000639015509L),
       Row.create(9028932499781431792L)
     };
-    checkAnswer(df.select(Functions.hash(df.col("a"))), expected, false);
+    checkAnswer(df.select(Functions.hash(df.col("a"))), expected);
   }
 
   @Test
@@ -811,7 +769,7 @@ public class JavaFunctionSuite extends TestBase {
         getSession()
             .sql("select * from values('test1', 'a'),('test2', 'b'),('test3', 'c') as T(a, b)");
     Row[] expected = {Row.create(97), Row.create(98), Row.create(99)};
-    checkAnswer(df.select(Functions.ascii(df.col("b"))), expected, false);
+    checkAnswer(df.select(Functions.ascii(df.col("b"))), expected);
   }
 
   @Test
@@ -821,9 +779,7 @@ public class JavaFunctionSuite extends TestBase {
             .sql("select * from values('test1', 'a'),('test2', 'b'),('test3', 'c') as T(a, b)");
     Row[] expected = {Row.create("test1,a"), Row.create("test2,b"), Row.create("test3,c")};
     checkAnswer(
-        df.select(Functions.concat_ws(Functions.lit(","), df.col("a"), df.col("b"))),
-        expected,
-        false);
+        df.select(Functions.concat_ws(Functions.lit(","), df.col("a"), df.col("b"))), expected);
   }
 
   @Test
@@ -840,8 +796,7 @@ public class JavaFunctionSuite extends TestBase {
             Functions.length(df.col("a")),
             Functions.lower(df.col("a")),
             Functions.upper(df.col("a"))),
-        expected,
-        false);
+        expected);
   }
 
   @Test
@@ -856,8 +811,7 @@ public class JavaFunctionSuite extends TestBase {
         df.select(
             Functions.lpad(df.col("a"), Functions.lit(8), Functions.lit("X")),
             Functions.rpad(df.col("a"), Functions.lit(9), Functions.lit("S"))),
-        expected,
-        false);
+        expected);
   }
 
   @Test
@@ -871,13 +825,11 @@ public class JavaFunctionSuite extends TestBase {
             Functions.ltrim(df.col("a"), Functions.lit(" a")),
             Functions.rtrim(df.col("a"), Functions.lit(" a")),
             Functions.trim(df.col("a"), Functions.lit("a "))),
-        expected,
-        false);
+        expected);
 
     Row[] expected2 = {Row.create("abcba  ", "  abcba"), Row.create("a12321a   ", " a12321a")};
 
-    checkAnswer(
-        df.select(Functions.ltrim(df.col("a")), Functions.rtrim(df.col("a"))), expected2, false);
+    checkAnswer(df.select(Functions.ltrim(df.col("a")), Functions.rtrim(df.col("a"))), expected2);
   }
 
   @Test
@@ -886,14 +838,14 @@ public class JavaFunctionSuite extends TestBase {
         getSession()
             .sql("select * from values('test1', 'a'),('test2', 'b'),('test3', 'c') as T(a, b)");
     Row[] expected = {Row.create("aaa"), Row.create("bbb"), Row.create("ccc")};
-    checkAnswer(df.select(Functions.repeat(df.col("B"), Functions.lit(3))), expected, false);
+    checkAnswer(df.select(Functions.repeat(df.col("B"), Functions.lit(3))), expected);
   }
 
   @Test
   public void soundex() {
     DataFrame df = getSession().sql("select * from values('apple'),('banana'),('peach') as T(a)");
     Row[] expected = {Row.create("a140"), Row.create("b550"), Row.create("p200")};
-    checkAnswer(df.select(Functions.soundex(df.col("a"))), expected, false);
+    checkAnswer(df.select(Functions.soundex(df.col("a"))), expected);
   }
 
   @Test
@@ -913,9 +865,7 @@ public class JavaFunctionSuite extends TestBase {
             .sql("select * from values('test1', 'a'),('test2', 'b'),('test3', 'c') as T(a, b)");
     Row[] expected = {Row.create("est1"), Row.create("est2"), Row.create("est3")};
     checkAnswer(
-        df.select(Functions.substring(df.col("a"), Functions.lit(2), Functions.lit(4))),
-        expected,
-        false);
+        df.select(Functions.substring(df.col("a"), Functions.lit(2), Functions.lit(4))), expected);
   }
 
   @Test
@@ -924,30 +874,28 @@ public class JavaFunctionSuite extends TestBase {
     Row[] expected = {Row.create("XYcYX"), Row.create("X12321X")};
     checkAnswer(
         df.select(Functions.translate(df.col("a"), Functions.lit("ab "), Functions.lit("XY"))),
-        expected,
-        false);
+        expected);
   }
 
   @Test
   public void contains() {
     DataFrame df = getSession().sql("select * from values('apple'),('banana'),('peach') as T(a)");
     Row[] expected = {Row.create(true), Row.create(false), Row.create(false)};
-    checkAnswer(df.select(Functions.contains(df.col("a"), Functions.lit("app"))), expected, false);
+    checkAnswer(df.select(Functions.contains(df.col("a"), Functions.lit("app"))), expected);
   }
 
   @Test
   public void startswith() {
     DataFrame df = getSession().sql("select * from values('apple'),('banana'),('peach') as T(a)");
     Row[] expected = {Row.create(false), Row.create(true), Row.create(false)};
-    checkAnswer(
-        df.select(Functions.startswith(df.col("a"), Functions.lit("ban"))), expected, false);
+    checkAnswer(df.select(Functions.startswith(df.col("a"), Functions.lit("ban"))), expected);
   }
 
   @Test
   public void chr() {
     DataFrame df = getSession().sql("select * from values(84,85),(96,97) as T(a, b)");
     Row[] expected = {Row.create("T", "U"), Row.create("`", "a")};
-    checkAnswer(df.select(Functions.chr(df.col("a")), Functions.chr(df.col("b"))), expected, false);
+    checkAnswer(df.select(Functions.chr(df.col("a")), Functions.chr(df.col("b"))), expected);
   }
 
   @Test
@@ -958,7 +906,7 @@ public class JavaFunctionSuite extends TestBase {
     Row[] expected = {
       Row.create(Date.valueOf("2020-09-01")), Row.create(Date.valueOf("2011-01-01"))
     };
-    checkAnswer(df.select(Functions.add_months(df.col("a"), Functions.lit(1))), expected, false);
+    checkAnswer(df.select(Functions.add_months(df.col("a"), Functions.lit(1))), expected);
   }
 
   @Test
@@ -1019,14 +967,14 @@ public class JavaFunctionSuite extends TestBase {
   public void current_available_roles() {
     DataFrame df = getSession().sql("select * from values(0) as T(a)");
     Row[] expected = getSession().sql("select current_available_roles()").collect();
-    checkAnswer(df.select(Functions.current_available_roles()), expected, false);
+    checkAnswer(df.select(Functions.current_available_roles()), expected);
   }
 
   @Test
   public void current_session() {
     DataFrame df = getSession().sql("select * from values(0) as T(a)");
     Row[] expected = getSession().sql("select current_session()").collect();
-    checkAnswer(df.select(Functions.current_session()), expected, false);
+    checkAnswer(df.select(Functions.current_session()), expected);
   }
 
   @Test
@@ -1043,35 +991,35 @@ public class JavaFunctionSuite extends TestBase {
   public void current_user() {
     DataFrame df = getSession().sql("select * from values(0) as T(a)");
     Row[] expected = getSession().sql("select current_user()").collect();
-    checkAnswer(df.select(Functions.current_user()), expected, false);
+    checkAnswer(df.select(Functions.current_user()), expected);
   }
 
   @Test
   public void current_database() {
     DataFrame df = getSession().sql("select * from values(0) as T(a)");
     Row[] expected = getSession().sql("select current_database()").collect();
-    checkAnswer(df.select(Functions.current_database()), expected, false);
+    checkAnswer(df.select(Functions.current_database()), expected);
   }
 
   @Test
   public void current_schema() {
     DataFrame df = getSession().sql("select * from values(0) as T(a)");
     Row[] expected = getSession().sql("select current_schema()").collect();
-    checkAnswer(df.select(Functions.current_schema()), expected, false);
+    checkAnswer(df.select(Functions.current_schema()), expected);
   }
 
   @Test
   public void current_schemas() {
     DataFrame df = getSession().sql("select * from values(0) as T(a)");
     Row[] expected = getSession().sql("select current_schemas()").collect();
-    checkAnswer(df.select(Functions.current_schemas()), expected, false);
+    checkAnswer(df.select(Functions.current_schemas()), expected);
   }
 
   @Test
   public void current_warehouse() {
     DataFrame df = getSession().sql("select * from values(0) as T(a)");
     Row[] expected = getSession().sql("select current_warehouse()").collect();
-    checkAnswer(df.select(Functions.current_warehouse()), expected, false);
+    checkAnswer(df.select(Functions.current_warehouse()), expected);
   }
 
   @Test
@@ -1097,8 +1045,7 @@ public class JavaFunctionSuite extends TestBase {
                 Functions.lit("America/Los_Angeles"),
                 Functions.lit("America/New_York"),
                 df.col("a"))),
-        expected,
-        false);
+        expected);
 
     DataFrame df2 =
         getSession()
@@ -1113,8 +1060,7 @@ public class JavaFunctionSuite extends TestBase {
         df2.select(
             Functions.convert_timezone(Functions.lit("America/Los_Angeles"), df2.col("a")),
             Functions.convert_timezone(Functions.lit("America/New_York"), df2.col("b"))),
-        expected2,
-        false);
+        expected2);
   }
 
   @Test
@@ -1136,8 +1082,7 @@ public class JavaFunctionSuite extends TestBase {
             Functions.quarter(df.col("a")),
             Functions.weekofyear(df.col("a")),
             Functions.last_day(df.col("a"))),
-        expected,
-        false);
+        expected);
   }
 
   @Test
@@ -1153,8 +1098,7 @@ public class JavaFunctionSuite extends TestBase {
             Functions.hour(df.col("a")),
             Functions.minute(df.col("a")),
             Functions.second(df.col("a"))),
-        expected,
-        false);
+        expected);
   }
 
   @Test
@@ -1163,7 +1107,7 @@ public class JavaFunctionSuite extends TestBase {
         getSession()
             .sql("select * from values('2020-08-01'::Date, 1),('2010-12-01'::Date, 2) as T(a,b)");
     Row[] expected = {Row.create(new Date(120, 7, 7)), Row.create(new Date(110, 11, 3))};
-    checkAnswer(df.select(Functions.next_day(df.col("a"), Functions.lit("FR"))), expected, false);
+    checkAnswer(df.select(Functions.next_day(df.col("a"), Functions.lit("FR"))), expected);
   }
 
   @Test
@@ -1173,7 +1117,7 @@ public class JavaFunctionSuite extends TestBase {
             .sql(
                 "select * from values('2020-08-01'::Date, 'mo'),('2010-12-01'::Date, 'we') as T(a,b)");
     Row[] expected = {Row.create(new Date(120, 6, 27)), Row.create(new Date(110, 10, 24))};
-    checkAnswer(df.select(Functions.previous_day(df.col("a"), df.col("b"))), expected, false);
+    checkAnswer(df.select(Functions.previous_day(df.col("a"), df.col("b"))), expected);
   }
 
   @Test
@@ -1185,26 +1129,24 @@ public class JavaFunctionSuite extends TestBase {
       Row.create(Timestamp.valueOf("2019-08-10 23:25:57.0")),
       Row.create(Timestamp.valueOf("2006-10-22 01:12:37.0"))
     };
-    checkAnswer(df.select(Functions.to_timestamp(df.col("a"))), expected, false);
+    checkAnswer(df.select(Functions.to_timestamp(df.col("a"))), expected);
 
     DataFrame df2 = getSession().sql("select * from values('04/05/2020 01:02:03') as T(a)");
     Row[] expected2 = {Row.create(Timestamp.valueOf("2020-04-05 01:02:03.0"))};
     checkAnswer(
         df2.select(Functions.to_timestamp(df2.col("a"), Functions.lit("mm/dd/yyyy hh24:mi:ss"))),
-        expected2,
-        false);
+        expected2);
   }
 
   @Test
   public void to_date() {
     DataFrame df = getSession().sql("select * from values('2020-05-11') as T(a)");
     Row[] expected = {Row.create(new Date(120, 4, 11))};
-    checkAnswer(df.select(Functions.to_date(df.col("a"))), expected, false);
+    checkAnswer(df.select(Functions.to_date(df.col("a"))), expected);
 
     DataFrame df1 = getSession().sql("select * from values('2020.07.23') as T(a)");
     Row[] expected1 = {Row.create(new Date(120, 6, 23))};
-    checkAnswer(
-        df1.select(Functions.to_date(df.col("a"), Functions.lit("YYYY.MM.DD"))), expected1, false);
+    checkAnswer(df1.select(Functions.to_date(df.col("a"), Functions.lit("YYYY.MM.DD"))), expected1);
   }
 
   @Test
@@ -1223,14 +1165,14 @@ public class JavaFunctionSuite extends TestBase {
             Functions.time_from_parts(Functions.lit(1), Functions.lit(2), Functions.lit(3)))
         .collect()[0]
         .getTime(0)
-        .equals(new Time(3723000));
+        .equals(Time.valueOf("01:02:03"));
 
     assert df.select(
             Functions.time_from_parts(
-                Functions.lit(1), Functions.lit(2), Functions.lit(3), Functions.lit(444444444)))
+                Functions.lit(1), Functions.lit(2), Functions.lit(3), Functions.lit(0)))
         .collect()[0]
         .getTime(0)
-        .equals(new Time(3723444));
+        .equals(Time.valueOf("01:02:03"));
   }
 
   @Test
@@ -1413,7 +1355,7 @@ public class JavaFunctionSuite extends TestBase {
         getSession()
             .sql("select * from values('2020-08-01'::Date, 1),('2010-12-01'::Date, 2) as T(a,b)");
     Row[] expected = {Row.create("Sat"), Row.create("Wed")};
-    checkAnswer(df.select(Functions.dayname(df.col("a"))), expected, false);
+    checkAnswer(df.select(Functions.dayname(df.col("a"))), expected);
   }
 
   @Test
@@ -1422,7 +1364,7 @@ public class JavaFunctionSuite extends TestBase {
         getSession()
             .sql("select * from values('2020-08-01'::Date, 1),('2010-12-01'::Date, 2) as T(a,b)");
     Row[] expected = {Row.create("Aug"), Row.create("Dec")};
-    checkAnswer(df.select(Functions.monthname(df.col("a"))), expected, false);
+    checkAnswer(df.select(Functions.monthname(df.col("a"))), expected);
   }
 
   @Test
@@ -1431,8 +1373,7 @@ public class JavaFunctionSuite extends TestBase {
         getSession()
             .sql("select * from values('2020-08-01'::Date, 1),('2010-12-01'::Date, 2) as T(a,b)");
     Row[] expected = {Row.create(new Date(121, 7, 1)), Row.create(new Date(111, 11, 1))};
-    checkAnswer(
-        df.select(Functions.dateadd("year", Functions.lit(1), df.col("a"))), expected, false);
+    checkAnswer(df.select(Functions.dateadd("year", Functions.lit(1), df.col("a"))), expected);
   }
 
   @Test
@@ -1467,7 +1408,7 @@ public class JavaFunctionSuite extends TestBase {
       Row.create(Timestamp.valueOf("2020-04-01 00:00:00.0")),
       Row.create(Timestamp.valueOf("2020-07-01 00:00:00.0"))
     };
-    checkAnswer(df.select(Functions.date_trunc("quarter", df.col("a"))), expected, false);
+    checkAnswer(df.select(Functions.date_trunc("quarter", df.col("a"))), expected);
   }
 
   @Test
@@ -1476,7 +1417,7 @@ public class JavaFunctionSuite extends TestBase {
         getSession()
             .sql("select * from values('test1', 'a'),('test2', 'b'),('test3', 'c') as T(a, b)");
     Row[] expected = {Row.create("test1a"), Row.create("test2b"), Row.create("test3c")};
-    checkAnswer(df.select(Functions.concat(df.col("a"), df.col("b"))), expected, false);
+    checkAnswer(df.select(Functions.concat(df.col("a"), df.col("b"))), expected);
   }
 
   @Test
@@ -1487,8 +1428,7 @@ public class JavaFunctionSuite extends TestBase {
                 "select array_construct(a,b,c) as arr1, array_construct(d,e,f) as arr2 "
                     + "from values(1,2,3,3,4,5),(6,7,8,9,0,1) as T(a,b,c,d,e,f)");
     Row[] expected = {Row.create(true), Row.create(false)};
-    checkAnswer(
-        df.select(Functions.arrays_overlap(df.col("arr1"), df.col("arr2"))), expected, false);
+    checkAnswer(df.select(Functions.arrays_overlap(df.col("arr1"), df.col("arr2"))), expected);
   }
 
   @Test
@@ -1506,22 +1446,21 @@ public class JavaFunctionSuite extends TestBase {
         df.select(
             Functions.insert(
                 df.col("a"), Functions.lit(2), Functions.lit(3), Functions.lit("abc"))),
-        expected,
-        false);
+        expected);
   }
 
   @Test
   public void left() {
     DataFrame df = getSession().sql("select * from values('apple'),('banana'),('peach') as T(a)");
     Row[] expected = {Row.create("ap"), Row.create("ba"), Row.create("pe")};
-    checkAnswer(df.select(Functions.left(df.col("a"), Functions.lit(2))), expected, false);
+    checkAnswer(df.select(Functions.left(df.col("a"), Functions.lit(2))), expected);
   }
 
   @Test
   public void right() {
     DataFrame df = getSession().sql("select * from values('apple'),('banana'),('peach') as T(a)");
     Row[] expected = {Row.create("le"), Row.create("na"), Row.create("ch")};
-    checkAnswer(df.select(Functions.right(df.col("a"), Functions.lit(2))), expected, false);
+    checkAnswer(df.select(Functions.right(df.col("a"), Functions.lit(2))), expected);
   }
 
   @Test
@@ -1532,12 +1471,10 @@ public class JavaFunctionSuite extends TestBase {
         df.select(
             Functions.regexp_count(
                 df.col("a"), Functions.lit("a"), Functions.lit(2), Functions.lit("c"))),
-        expected,
-        false);
+        expected);
 
     Row[] expected1 = {Row.create(1), Row.create(3), Row.create(1)};
-    checkAnswer(
-        df.select(Functions.regexp_count(df.col("a"), Functions.lit("a"))), expected1, false);
+    checkAnswer(df.select(Functions.regexp_count(df.col("a"), Functions.lit("a"))), expected1);
   }
 
   @Test
@@ -1545,12 +1482,11 @@ public class JavaFunctionSuite extends TestBase {
     DataFrame df = getSession().sql("select * from values('cat'),('dog'),('mouse') as T(a)");
     Column pattern = Functions.lit("^ca|^[m|d]o");
     Row[] expected = {Row.create("t"), Row.create("g"), Row.create("use")};
-    checkAnswer(df.select(Functions.regexp_replace(df.col("a"), pattern)), expected, false);
+    checkAnswer(df.select(Functions.regexp_replace(df.col("a"), pattern)), expected);
 
     Column replacement = Functions.lit("ch");
     Row[] expected1 = {Row.create("cht"), Row.create("chg"), Row.create("chuse")};
-    checkAnswer(
-        df.select(Functions.regexp_replace(df.col("a"), pattern, replacement)), expected1, false);
+    checkAnswer(df.select(Functions.regexp_replace(df.col("a"), pattern, replacement)), expected1);
   }
 
   @Test
@@ -1559,24 +1495,22 @@ public class JavaFunctionSuite extends TestBase {
     Row[] expected = {Row.create("zpple"), Row.create("bznznz"), Row.create("pezch")};
     checkAnswer(
         df.select(Functions.replace(df.col("a"), Functions.lit("a"), Functions.lit("z"))),
-        expected,
-        false);
+        expected);
 
     Row[] expected1 = {Row.create("pple"), Row.create("bnn"), Row.create("pech")};
-    checkAnswer(df.select(Functions.replace(df.col("a"), Functions.lit("a"))), expected1, false);
+    checkAnswer(df.select(Functions.replace(df.col("a"), Functions.lit("a"))), expected1);
   }
 
   @Test
   public void charindex() {
     DataFrame df = getSession().sql("select * from values('apple'),('banana'),('peach') as T(a)");
     Row[] expected = {Row.create(0), Row.create(3), Row.create(0)};
-    checkAnswer(df.select(Functions.charindex(Functions.lit("na"), df.col("a"))), expected, false);
+    checkAnswer(df.select(Functions.charindex(Functions.lit("na"), df.col("a"))), expected);
 
     Row[] expected1 = {Row.create(0), Row.create(5), Row.create(0)};
     checkAnswer(
         df.select(Functions.charindex(Functions.lit("na"), df.col("a"), Functions.lit(4))),
-        expected1,
-        false);
+        expected1);
   }
 
   @Test
@@ -1585,8 +1519,7 @@ public class JavaFunctionSuite extends TestBase {
     Row[] expected = {Row.create("  abcba  ")};
     checkAnswer(
         df.where(Functions.collate(df.col("a"), "en_US-trim").equal_to(Functions.lit("abcba"))),
-        expected,
-        false);
+        expected);
   }
 
   @Test
@@ -1604,8 +1537,7 @@ public class JavaFunctionSuite extends TestBase {
                 "select array_construct(a,b,c) as arr1, array_construct(d,e,f) as arr2 "
                     + "from values(1,2,3,3,4,5),(6,7,8,9,0,1) as T(a,b,c,d,e,f)");
     Row[] expected = {Row.create("[\n  3\n]"), Row.create("[]")};
-    checkAnswer(
-        df.select(Functions.array_intersection(df.col("arr1"), df.col("arr2"))), expected, false);
+    checkAnswer(df.select(Functions.array_intersection(df.col("arr1"), df.col("arr2"))), expected);
   }
 
   @Test
@@ -1616,7 +1548,7 @@ public class JavaFunctionSuite extends TestBase {
                 "select array_construct(a,b,c) as arr1, array_construct(d,e,f) as arr2 "
                     + "from values(1,2,3,3,4,5),(6,7,8,9,0,1) as T(a,b,c,d,e,f)");
     Row[] expected = {Row.create(true), Row.create(true)};
-    checkAnswer(df.select(Functions.is_array(df.col("arr1"))), expected, false);
+    checkAnswer(df.select(Functions.is_array(df.col("arr1"))), expected);
   }
 
   @Test
@@ -1643,8 +1575,7 @@ public class JavaFunctionSuite extends TestBase {
             Functions.is_boolean(df.col("arr1")),
             Functions.is_boolean(df.col("bool1")),
             Functions.is_boolean(df.col("str1"))),
-        expected,
-        false);
+        expected);
   }
 
   @Test
@@ -1671,8 +1602,7 @@ public class JavaFunctionSuite extends TestBase {
             Functions.is_binary(df.col("bin1")),
             Functions.is_binary(df.col("bool1")),
             Functions.is_binary(df.col("str1"))),
-        expected,
-        false);
+        expected);
   }
 
   @Test
@@ -1699,16 +1629,14 @@ public class JavaFunctionSuite extends TestBase {
             Functions.is_char(df.col("str1")),
             Functions.is_char(df.col("bin1")),
             Functions.is_char(df.col("bool1"))),
-        expected,
-        false);
+        expected);
 
     checkAnswer(
         df.select(
             Functions.is_varchar(df.col("str1")),
             Functions.is_varchar(df.col("bin1")),
             Functions.is_varchar(df.col("bool1"))),
-        expected,
-        false);
+        expected);
   }
 
   @Test
@@ -1735,16 +1663,14 @@ public class JavaFunctionSuite extends TestBase {
             Functions.is_date(df.col("date1")),
             Functions.is_date(df.col("time1")),
             Functions.is_date(df.col("bool1"))),
-        expected,
-        false);
+        expected);
 
     checkAnswer(
         df.select(
             Functions.is_date_value(df.col("date1")),
             Functions.is_date_value(df.col("time1")),
             Functions.is_date_value(df.col("bool1"))),
-        expected,
-        false);
+        expected);
   }
 
   @Test
@@ -1771,8 +1697,7 @@ public class JavaFunctionSuite extends TestBase {
             Functions.is_decimal(df.col("decimal1")),
             Functions.is_decimal(df.col("double1")),
             Functions.is_decimal(df.col("num1"))),
-        expected,
-        false);
+        expected);
   }
 
   @Test
@@ -1800,8 +1725,7 @@ public class JavaFunctionSuite extends TestBase {
             Functions.is_double(df.col("double1")),
             Functions.is_double(df.col("num1")),
             Functions.is_double(df.col("bool1"))),
-        expected,
-        false);
+        expected);
 
     checkAnswer(
         df.select(
@@ -1809,8 +1733,7 @@ public class JavaFunctionSuite extends TestBase {
             Functions.is_real(df.col("double1")),
             Functions.is_real(df.col("num1")),
             Functions.is_real(df.col("bool1"))),
-        expected,
-        false);
+        expected);
   }
 
   @Test
@@ -1838,8 +1761,7 @@ public class JavaFunctionSuite extends TestBase {
             Functions.is_integer(df.col("double1")),
             Functions.is_integer(df.col("num1")),
             Functions.is_integer(df.col("bool1"))),
-        expected,
-        false);
+        expected);
   }
 
   @Test
@@ -1849,7 +1771,7 @@ public class JavaFunctionSuite extends TestBase {
             .sql(
                 "select parse_json(column1) as v  from values ('{\"a\": null}'), ('{\"a\": \"foo\"}'), (null)");
     Row[] expected = {Row.create(true), Row.create(false), Row.create((Object) null)};
-    checkAnswer(df.select(Functions.is_null_value(Functions.sqlExpr("v:a"))), expected, false);
+    checkAnswer(df.select(Functions.is_null_value(Functions.sqlExpr("v:a"))), expected);
   }
 
   @Test
@@ -1876,8 +1798,7 @@ public class JavaFunctionSuite extends TestBase {
             Functions.is_object(df.col("obj1")),
             Functions.is_object(df.col("arr1")),
             Functions.is_object(df.col("str1"))),
-        expected,
-        false);
+        expected);
   }
 
   @Test
@@ -1904,8 +1825,7 @@ public class JavaFunctionSuite extends TestBase {
             Functions.is_time(df.col("time1")),
             Functions.is_time(df.col("date1")),
             Functions.is_time(df.col("timestamp_tz1"))),
-        expected,
-        false);
+        expected);
   }
 
   @Test
@@ -1933,8 +1853,7 @@ public class JavaFunctionSuite extends TestBase {
             Functions.is_timestamp_ntz(df.col("timestamp_ntz1")),
             Functions.is_timestamp_ntz(df.col("timestamp_tz1")),
             Functions.is_timestamp_ntz(df.col("timestamp_ltz1"))),
-        expected,
-        false);
+        expected);
 
     Row[] expected1 = {Row.create(false, false, true)};
     checkAnswer(
@@ -1942,8 +1861,7 @@ public class JavaFunctionSuite extends TestBase {
             Functions.is_timestamp_ltz(df.col("timestamp_ntz1")),
             Functions.is_timestamp_ltz(df.col("timestamp_tz1")),
             Functions.is_timestamp_ltz(df.col("timestamp_ltz1"))),
-        expected1,
-        false);
+        expected1);
 
     Row[] expected2 = {Row.create(false, true, false)};
     checkAnswer(
@@ -1951,8 +1869,7 @@ public class JavaFunctionSuite extends TestBase {
             Functions.is_timestamp_tz(df.col("timestamp_ntz1")),
             Functions.is_timestamp_tz(df.col("timestamp_tz1")),
             Functions.is_timestamp_tz(df.col("timestamp_ltz1"))),
-        expected2,
-        false);
+        expected2);
   }
 
   @Test
@@ -1964,7 +1881,7 @@ public class JavaFunctionSuite extends TestBase {
     Row[] expected = {
       Row.create((Object) null), Row.create((Object) null), Row.create((Object) null)
     };
-    checkAnswer(df.select(Functions.check_json(df.col("v"))), expected, false);
+    checkAnswer(df.select(Functions.check_json(df.col("v"))), expected);
   }
 
   @Test
@@ -1980,7 +1897,7 @@ public class JavaFunctionSuite extends TestBase {
       Row.create((Object) null),
       Row.create((Object) null)
     };
-    checkAnswer(df.select(Functions.check_xml(df.col("v"))), expected, false);
+    checkAnswer(df.select(Functions.check_xml(df.col("v"))), expected);
   }
 
   @Test
@@ -1996,8 +1913,7 @@ public class JavaFunctionSuite extends TestBase {
       Row.create((Object) null),
       Row.create((Object) null)
     };
-    checkAnswer(
-        df.select(Functions.json_extract_path_text(df.col("v"), df.col("k"))), expected, false);
+    checkAnswer(df.select(Functions.json_extract_path_text(df.col("v"), df.col("k"))), expected);
   }
 
   @Test
@@ -2011,7 +1927,7 @@ public class JavaFunctionSuite extends TestBase {
       Row.create("{\n  \"a\": \"foo\"\n}"),
       Row.create((Object) null)
     };
-    checkAnswer(df.select(Functions.parse_json(df.col("v"))), expected, false);
+    checkAnswer(df.select(Functions.parse_json(df.col("v"))), expected);
   }
 
   @Test
@@ -2027,7 +1943,7 @@ public class JavaFunctionSuite extends TestBase {
       Row.create((Object) null),
       Row.create((Object) null)
     };
-    checkAnswer(df.select(Functions.parse_xml(df.col("v"))), expected, false);
+    checkAnswer(df.select(Functions.parse_xml(df.col("v"))), expected);
   }
 
   @Test
@@ -2037,7 +1953,7 @@ public class JavaFunctionSuite extends TestBase {
             .sql(
                 "select parse_json(column1) as v  from values ('{\"a\": null}'), ('{\"a\": \"foo\"}'), (null)");
     Row[] expected = {Row.create((Object) null), Row.create("\"foo\""), Row.create((Object) null)};
-    checkAnswer(df.select(Functions.strip_null_value(Functions.sqlExpr("v:a"))), expected, false);
+    checkAnswer(df.select(Functions.strip_null_value(Functions.sqlExpr("v:a"))), expected);
   }
 
   @Test
@@ -2058,9 +1974,7 @@ public class JavaFunctionSuite extends TestBase {
       Row.create("[\n  6,\n  7,\n  8,\n  \"amount\"\n]")
     };
     checkAnswer(
-        df.select(Functions.array_append(df.col("arr1"), Functions.lit("amount"))),
-        expected,
-        false);
+        df.select(Functions.array_append(df.col("arr1"), Functions.lit("amount"))), expected);
   }
 
   @Test
@@ -2074,7 +1988,7 @@ public class JavaFunctionSuite extends TestBase {
       Row.create("[\n  1,\n  2,\n  3,\n  3,\n  4,\n  5\n]"),
       Row.create("[\n  6,\n  7,\n  8,\n  9,\n  0,\n  1\n]")
     };
-    checkAnswer(df.select(Functions.array_cat(df.col("arr1"), df.col("arr2"))), expected, false);
+    checkAnswer(df.select(Functions.array_cat(df.col("arr1"), df.col("arr2"))), expected);
   }
 
   @Test
@@ -2085,7 +1999,7 @@ public class JavaFunctionSuite extends TestBase {
                 "select array_construct(a,b,c) as arr1, array_construct(d,e,f) as arr2 "
                     + "from values(1,null,3,3,null,5),(6,null,8,9,null,1) as T(a,b,c,d,e,f)");
     Row[] expected = {Row.create("[\n  1,\n  3\n]"), Row.create("[\n  6,\n  8\n]")};
-    checkAnswer(df.select(Functions.array_compact(df.col("arr1"))), expected, false);
+    checkAnswer(df.select(Functions.array_compact(df.col("arr1"))), expected);
   }
 
   @Test
@@ -2127,9 +2041,7 @@ public class JavaFunctionSuite extends TestBase {
       Row.create("[\n  1,\n  2,\n  \"e1\",\n  3\n]"), Row.create("[\n  6,\n  \"e2\",\n  7,\n  8\n]")
     };
     checkAnswer(
-        df.select(Functions.array_insert(df.col("arr1"), df.col("d"), df.col("e"))),
-        expected,
-        false);
+        df.select(Functions.array_insert(df.col("arr1"), df.col("d"), df.col("e"))), expected);
   }
 
   @Test
@@ -2140,7 +2052,7 @@ public class JavaFunctionSuite extends TestBase {
                 "select array_construct(a,b,c) as arr1, d, e, f "
                     + "from values(1,2,3,2,'e1','[{a:1}]'),(6,7,8,1,'e2','[{a:1},{b:2}]') as T(a,b,c,d,e,f)");
     Row[] expected = {Row.create(1), Row.create((Object) null)};
-    checkAnswer(df.select(Functions.array_position(df.col("d"), df.col("arr1"))), expected, false);
+    checkAnswer(df.select(Functions.array_position(df.col("d"), df.col("arr1"))), expected);
   }
 
   @Test
@@ -2159,8 +2071,7 @@ public class JavaFunctionSuite extends TestBase {
             Functions.array_prepend(
                 Functions.array_prepend(df.col("arr1"), Functions.lit("amount")),
                 Functions.lit(32.21))),
-        expected,
-        false);
+        expected);
   }
 
   @Test
@@ -2171,7 +2082,7 @@ public class JavaFunctionSuite extends TestBase {
                 "select array_construct(a,b,c) as arr1, d, e, f "
                     + "from values(1,2,3,2,'e1','[{a:1}]'),(6,7,8,1,'e2','[{a:1},{b:2}]') as T(a,b,c,d,e,f)");
     Row[] expected = {Row.create(3), Row.create(3)};
-    checkAnswer(df.select(Functions.array_size(df.col("arr1"))), expected, false);
+    checkAnswer(df.select(Functions.array_size(df.col("arr1"))), expected);
   }
 
   @Test
@@ -2185,9 +2096,7 @@ public class JavaFunctionSuite extends TestBase {
       Row.create("[\n  2\n]"), Row.create("[\n  5\n]"), Row.create("[\n  6,\n  7\n]")
     };
     checkAnswer(
-        df.select(Functions.array_slice(df.col("arr1"), df.col("d"), df.col("e"))),
-        expected,
-        false);
+        df.select(Functions.array_slice(df.col("arr1"), df.col("d"), df.col("e"))), expected);
   }
 
   @Test
@@ -2198,7 +2107,7 @@ public class JavaFunctionSuite extends TestBase {
                 "select array_construct(a,b,c) as arr1, d, e, f "
                     + "from values(1,2,3,1,2,','),(4,5,6,1,-1,', '),(6,7,8,0,2,';') as T(a,b,c,d,e,f)");
     Row[] expected = {Row.create("1,2,3"), Row.create("4, 5, 6"), Row.create("6;7;8")};
-    checkAnswer(df.select(Functions.array_to_string(df.col("arr1"), df.col("f"))), expected, false);
+    checkAnswer(df.select(Functions.array_to_string(df.col("arr1"), df.col("f"))), expected);
   }
 
   @Test
@@ -2209,7 +2118,7 @@ public class JavaFunctionSuite extends TestBase {
                 "select key, to_variant(value) as value from values('age', 21),('zip', "
                     + "94401) as T(key,value)");
     Row[] expected = {Row.create("{\n  \"age\": 21,\n  \"zip\": 94401\n}")};
-    checkAnswer(df.select(Functions.objectagg(df.col("key"), df.col("value"))), expected, false);
+    checkAnswer(df.select(Functions.objectagg(df.col("key"), df.col("value"))), expected);
   }
 
   @Test
@@ -2220,8 +2129,7 @@ public class JavaFunctionSuite extends TestBase {
                 "select key, to_variant(value) as value from values('age', 21),('zip', "
                     + "94401) as T(key,value)");
     Row[] expected = {Row.create("{\n  \"age\": 21\n}"), Row.create("{\n  \"zip\": 94401\n}")};
-    checkAnswer(
-        df.select(Functions.object_construct(df.col("key"), df.col("value"))), expected, false);
+    checkAnswer(df.select(Functions.object_construct(df.col("key"), df.col("value"))), expected);
   }
 
   @Test
@@ -2239,8 +2147,7 @@ public class JavaFunctionSuite extends TestBase {
         df.select(
             Functions.object_delete(
                 df.col("obj"), df.col("k"), Functions.lit("name"), Functions.lit("non-exist-key"))),
-        expected,
-        false);
+        expected);
   }
 
   @Test
@@ -2257,8 +2164,7 @@ public class JavaFunctionSuite extends TestBase {
     };
     checkAnswer(
         df.select(Functions.object_insert(df.col("obj"), Functions.lit("key"), Functions.lit("v"))),
-        expected,
-        false);
+        expected);
 
     Row[] expected1 = {
       Row.create("{\n  \"age\": 0,\n  \"name\": \"Joe\",\n  \"zip\": 21021\n}"),
@@ -2266,8 +2172,7 @@ public class JavaFunctionSuite extends TestBase {
     };
     checkAnswer(
         df.select(Functions.object_insert(df.col("obj"), df.col("k"), df.col("v"), df.col("flag"))),
-        expected1,
-        false);
+        expected1);
   }
 
   @Test
@@ -2286,8 +2191,7 @@ public class JavaFunctionSuite extends TestBase {
         df.select(
             Functions.object_pick(
                 df.col("obj"), df.col("k"), Functions.lit("name"), Functions.lit("non-exist-key"))),
-        expected,
-        false);
+        expected);
   }
 
   @Test
@@ -2298,7 +2202,7 @@ public class JavaFunctionSuite extends TestBase {
                 "select array_construct(a,b,c) as arr1, array_construct(d,e,f) as arr2 "
                     + "from values(1,2,3,3,4,5),(6,7,8,9,0,1) as T(a,b,c,d,e,f)");
     Row[] expected = {Row.create("[\n  1,\n  2,\n  3\n]"), Row.create("[\n  6,\n  7,\n  8\n]")};
-    checkAnswer(df.select(Functions.as_array(df.col("arr1"))), expected, false);
+    checkAnswer(df.select(Functions.as_array(df.col("arr1"))), expected);
   }
 
   @Test
@@ -2325,8 +2229,7 @@ public class JavaFunctionSuite extends TestBase {
             Functions.as_binary(df.col("bin1")),
             Functions.as_binary(df.col("bool1")),
             Functions.as_binary(df.col("str1"))),
-        expected,
-        false);
+        expected);
   }
 
   @Test
@@ -2353,15 +2256,13 @@ public class JavaFunctionSuite extends TestBase {
             Functions.as_char(df.col("str1")),
             Functions.as_char(df.col("bin1")),
             Functions.as_char(df.col("bool1"))),
-        expected,
-        false);
+        expected);
     checkAnswer(
         df.select(
             Functions.as_varchar(df.col("str1")),
             Functions.as_varchar(df.col("bin1")),
             Functions.as_varchar(df.col("bool1"))),
-        expected,
-        false);
+        expected);
   }
 
   @Test
@@ -2596,27 +2497,27 @@ public class JavaFunctionSuite extends TestBase {
       Row.create("[\n  \"1\",\n  \"2\",\n  \"3\",\n  \"4\",\n  \"5\"\n]"),
       Row.create("[\n  \"1\",\n  \"2\",\n  \"3\",\n  \"4\",\n  \"5\"\n]")
     };
-    checkAnswer(df.select(Functions.strtok_to_array(df.col("a"), df.col("b"))), expected, false);
+    checkAnswer(df.select(Functions.strtok_to_array(df.col("a"), df.col("b"))), expected);
 
     Row[] expected1 = {
       Row.create("[\n  \"1,2,3,4,5\"\n]"),
       Row.create("[\n  \"1\",\n  \"2\",\n  \"3\",\n  \"4\",\n  \"5\"\n]")
     };
-    checkAnswer(df.select(Functions.strtok_to_array(df.col("a"))), expected1, false);
+    checkAnswer(df.select(Functions.strtok_to_array(df.col("a"))), expected1);
   }
 
   @Test
   public void to_array() {
     DataFrame df = getSession().sql("select * from values(1),(2),(3) as T(a)");
     Row[] expected = {Row.create("[\n  1\n]"), Row.create("[\n  2\n]"), Row.create("[\n  3\n]")};
-    checkAnswer(df.select(Functions.to_array(df.col("a"))), expected, false);
+    checkAnswer(df.select(Functions.to_array(df.col("a"))), expected);
   }
 
   @Test
   public void to_json() {
     DataFrame df = getSession().sql("select * from values(1),(2),(3) as T(a)");
     Row[] expected = {Row.create("1"), Row.create("2"), Row.create("3")};
-    checkAnswer(df.select(Functions.to_json(df.col("a"))), expected, false);
+    checkAnswer(df.select(Functions.to_json(df.col("a"))), expected);
   }
 
   @Test
@@ -2646,7 +2547,7 @@ public class JavaFunctionSuite extends TestBase {
   public void to_variant() {
     DataFrame df = getSession().sql("select * from values(1),(2),(3) as T(a)");
     Row[] expected = {Row.create("1"), Row.create("2"), Row.create("3")};
-    checkAnswer(df.select(Functions.to_variant(df.col("a"))), expected, false);
+    checkAnswer(df.select(Functions.to_variant(df.col("a"))), expected);
   }
 
   @Test
@@ -2657,7 +2558,7 @@ public class JavaFunctionSuite extends TestBase {
       Row.create("<SnowflakeData type=\"INTEGER\">2</SnowflakeData>"),
       Row.create("<SnowflakeData type=\"INTEGER\">3</SnowflakeData>")
     };
-    checkAnswer(df.select(Functions.to_xml(df.col("a"))), expected, false);
+    checkAnswer(df.select(Functions.to_xml(df.col("a"))), expected);
   }
 
   @Test
@@ -2670,8 +2571,7 @@ public class JavaFunctionSuite extends TestBase {
                     + "0, false) as T(a,b,c,d,e,f,k,v,flag)");
     checkAnswer(
         df.select(Functions.get(df.col("obj"), df.col("k"))),
-        new Row[] {Row.create("21"), Row.create((Object) null)},
-        false);
+        new Row[] {Row.create("21"), Row.create((Object) null)});
   }
 
   @Test
@@ -2684,8 +2584,7 @@ public class JavaFunctionSuite extends TestBase {
                     + "0, false) as T(a,b,c,d,e,f,k,v,flag)");
     checkAnswer(
         df.select(Functions.get_ignore_case(df.col("obj"), Functions.lit("AGE"))),
-        new Row[] {Row.create("21"), Row.create("26")},
-        false);
+        new Row[] {Row.create("21"), Row.create("26")});
   }
 
   @Test
@@ -2701,8 +2600,7 @@ public class JavaFunctionSuite extends TestBase {
         new Row[] {
           Row.create("[\n  \"age\",\n  \"name\",\n  \"zip\"\n]"),
           Row.create("[\n  \"age\",\n  \"name\",\n  \"zip\"\n]")
-        },
-        false);
+        });
   }
 
   @Test
@@ -2715,16 +2613,14 @@ public class JavaFunctionSuite extends TestBase {
                     + "('<t1><t2>foo</t2><t2>bar</t2></t1>','t2','t3',1) as T(a,b,c,d)");
     checkAnswer(
         df.select(Functions.get(Functions.xmlget(df.col("v"), df.col("t2")), Functions.lit("$"))),
-        new Row[] {Row.create("\"bar\""), Row.create((Object) null), Row.create("\"foo\"")},
-        false);
+        new Row[] {Row.create("\"bar\""), Row.create((Object) null), Row.create("\"foo\"")});
 
     checkAnswer(
         df.select(
             Functions.get(
                 Functions.xmlget(df.col("v"), df.col("t3"), Functions.lit("0")),
                 Functions.lit("@"))),
-        new Row[] {Row.create("\"t3\""), Row.create((Object) null), Row.create((Object) null)},
-        false);
+        new Row[] {Row.create("\"t3\""), Row.create((Object) null), Row.create((Object) null)});
   }
 
   @Test
@@ -2741,8 +2637,7 @@ public class JavaFunctionSuite extends TestBase {
           Row.create("\"foo\""),
           Row.create((Object) null),
           Row.create((Object) null)
-        },
-        false);
+        });
   }
 
   @Test
@@ -2759,8 +2654,7 @@ public class JavaFunctionSuite extends TestBase {
             Functions.iff(df.col("a"), df.col("b"), df.col("d"))),
         new Row[] {
           Row.create(true, 2, 4, 2), Row.create(false, 12, 14, 14), Row.create(true, 22, 24, 22)
-        },
-        false);
+        });
   }
 
   @Test
@@ -2819,14 +2713,14 @@ public class JavaFunctionSuite extends TestBase {
   @Test
   public void reverse() {
     DataFrame df = getSession().sql("select * from values('cat') as t(a)");
-    checkAnswer(df.select(Functions.reverse(df.col("a"))), new Row[] {Row.create("tac")}, false);
+    checkAnswer(df.select(Functions.reverse(df.col("a"))), new Row[] {Row.create("tac")});
   }
 
   @Test
   public void isnull() {
     DataFrame df = getSession().sql("select * from values(1.2),(null),(2.3) as T(a)");
     Row[] expected = {Row.create(false), Row.create(true), Row.create(false)};
-    checkAnswer(df.select(Functions.isnull(df.col("a"))), expected, false);
+    checkAnswer(df.select(Functions.isnull(df.col("a"))), expected);
   }
 
   @Test
@@ -2836,43 +2730,40 @@ public class JavaFunctionSuite extends TestBase {
             .sql(
                 "select to_timestamp('2013-05-08 23:39:20.123') as a from values('2013-05-08 23:39:20.123') as t(a)");
     checkAnswer(
-        df.select(Functions.unix_timestamp(df.col("a"))),
-        new Row[] {Row.create(1368056360)},
-        false);
+        df.select(Functions.unix_timestamp(df.col("a"))), new Row[] {Row.create(1368056360)});
   }
 
   @Test
   public void regexp_extract() {
     DataFrame df = getSession().sql("select * from values('A MAN A PLAN A CANAL') as T(a)");
     Row[] expected = {Row.create("MAN")};
-    checkAnswer(
-        df.select(Functions.regexp_extract(df.col("a"), "A\\W+(\\w+)", 1, 1, 1)), expected, false);
+    checkAnswer(df.select(Functions.regexp_extract(df.col("a"), "A\\W+(\\w+)", 1, 1, 1)), expected);
     Row[] expected2 = {Row.create("PLAN")};
     checkAnswer(
-        df.select(Functions.regexp_extract(df.col("a"), "A\\W+(\\w+)", 1, 2, 1)), expected2, false);
+        df.select(Functions.regexp_extract(df.col("a"), "A\\W+(\\w+)", 1, 2, 1)), expected2);
     Row[] expected3 = {Row.create("CANAL")};
     checkAnswer(
-        df.select(Functions.regexp_extract(df.col("a"), "A\\W+(\\w+)", 1, 3, 1)), expected3, false);
+        df.select(Functions.regexp_extract(df.col("a"), "A\\W+(\\w+)", 1, 3, 1)), expected3);
   }
 
   @Test
   public void signum() {
     DataFrame df = getSession().sql("select * from values(1) as T(a)");
-    checkAnswer(df.select(Functions.signum(df.col("a"))), new Row[] {Row.create(1)}, false);
+    checkAnswer(df.select(Functions.signum(df.col("a"))), new Row[] {Row.create(1)});
     DataFrame df1 = getSession().sql("select * from values(-2) as T(a)");
-    checkAnswer(df1.select(Functions.signum(df1.col("a"))), new Row[] {Row.create(-1)}, false);
+    checkAnswer(df1.select(Functions.signum(df1.col("a"))), new Row[] {Row.create(-1)});
     DataFrame df2 = getSession().sql("select * from values(0) as T(a)");
-    checkAnswer(df2.select(Functions.signum(df2.col("a"))), new Row[] {Row.create(0)}, false);
+    checkAnswer(df2.select(Functions.signum(df2.col("a"))), new Row[] {Row.create(0)});
   }
 
   @Test
   public void sign() {
     DataFrame df = getSession().sql("select * from values(1) as T(a)");
-    checkAnswer(df.select(Functions.signum(df.col("a"))), new Row[] {Row.create(1)}, false);
+    checkAnswer(df.select(Functions.signum(df.col("a"))), new Row[] {Row.create(1)});
     DataFrame df1 = getSession().sql("select * from values(-2) as T(a)");
-    checkAnswer(df1.select(Functions.signum(df1.col("a"))), new Row[] {Row.create(-1)}, false);
+    checkAnswer(df1.select(Functions.signum(df1.col("a"))), new Row[] {Row.create(-1)});
     DataFrame df2 = getSession().sql("select * from values(0) as T(a)");
-    checkAnswer(df2.select(Functions.signum(df2.col("a"))), new Row[] {Row.create(0)}, false);
+    checkAnswer(df2.select(Functions.signum(df2.col("a"))), new Row[] {Row.create(0)});
   }
 
   @Test
@@ -2891,8 +2782,7 @@ public class JavaFunctionSuite extends TestBase {
         df.select(
             Functions.substring_index(
                 "It was the best of times,it was the worst of times", "was", 1)),
-        new Row[] {Row.create("It was ")},
-        false);
+        new Row[] {Row.create("It was ")});
   }
 
   @Test
@@ -2900,7 +2790,7 @@ public class JavaFunctionSuite extends TestBase {
     DataFrame df = getSession().sql("select * from values(3),(1),(2) as t(a)");
     Row[] expected = {Row.create(1), Row.create(2), Row.create(3)};
 
-    checkAnswer(df.sort(Functions.asc("a")), expected, false);
+    checkAnswer(df.sort(Functions.asc("a")), expected);
   }
 
   @Test
@@ -2908,7 +2798,7 @@ public class JavaFunctionSuite extends TestBase {
     DataFrame df = getSession().sql("select * from values(2),(1),(3) as t(a)");
     Row[] expected = {Row.create(3), Row.create(2), Row.create(1)};
 
-    checkAnswer(df.sort(Functions.desc("a")), expected, false);
+    checkAnswer(df.sort(Functions.desc("a")), expected);
   }
 
   @Test
@@ -2917,21 +2807,21 @@ public class JavaFunctionSuite extends TestBase {
         getSession().sql("select array_construct(a,b,c) as arr from values(1,2,3) as T(a,b,c)");
     Row[] expected = {Row.create(3)};
 
-    checkAnswer(df.select(Functions.size(Functions.col("arr"))), expected, false);
+    checkAnswer(df.select(Functions.size(Functions.col("arr"))), expected);
   }
 
   @Test
   public void test_expr() {
     DataFrame df = getSession().sql("select * from values(1), (2), (3) as T(a)");
     Row[] expected = {Row.create(3)};
-    checkAnswer(df.filter(Functions.expr("a > 2")), expected, false);
+    checkAnswer(df.filter(Functions.expr("a > 2")), expected);
   }
 
   @Test
   public void test_array() {
     DataFrame df = getSession().sql("select * from values(1,2,3) as T(a,b,c)");
     Row[] expected = {Row.create("[\n  1,\n  2,\n  3\n]")};
-    checkAnswer(df.select(Functions.array(df.col("a"), df.col("b"), df.col("c"))), expected, false);
+    checkAnswer(df.select(Functions.array(df.col("a"), df.col("b"), df.col("c"))), expected);
   }
 
   @Test
@@ -2939,7 +2829,7 @@ public class JavaFunctionSuite extends TestBase {
     DataFrame df = getSession().sql("select * from values ('2023-10-10'), ('2022-05-15') as T(a)");
     Row[] expected = {Row.create("2023/10/10"), Row.create("2022/05/15")};
 
-    checkAnswer(df.select(Functions.date_format(df.col("a"), "YYYY/MM/DD")), expected, false);
+    checkAnswer(df.select(Functions.date_format(df.col("a"), "YYYY/MM/DD")), expected);
   }
 
   @Test
@@ -2955,8 +2845,7 @@ public class JavaFunctionSuite extends TestBase {
         df.select(
             Functions.last(df.col("name"))
                 .over(Window.partitionBy(df.col("grade")).orderBy(df.col("score").desc()))),
-        expected,
-        false);
+        expected);
   }
 
   @Test
@@ -2964,7 +2853,7 @@ public class JavaFunctionSuite extends TestBase {
     DataFrame df = getSession().sql("select * from values (100) as T(a)");
     Row[] expected = {Row.create(2.0)};
 
-    checkAnswer(df.select(Functions.log10(df.col("a"))), expected, false);
+    checkAnswer(df.select(Functions.log10(df.col("a"))), expected);
   }
 
   @Test
@@ -2972,7 +2861,7 @@ public class JavaFunctionSuite extends TestBase {
     DataFrame df = getSession().sql("select * from values (100) as T(a)");
     Row[] expected = {Row.create(2.0)};
 
-    checkAnswer(df.select(Functions.log10("a")), expected, false);
+    checkAnswer(df.select(Functions.log10("a")), expected);
   }
 
   @Test
@@ -2980,7 +2869,7 @@ public class JavaFunctionSuite extends TestBase {
     DataFrame df = getSession().sql("select * from values (0.1) as T(a)");
     Row[] expected = {Row.create(0.09531017980432493)};
 
-    checkAnswer(df.select(Functions.log1p(df.col("a"))), expected, false);
+    checkAnswer(df.select(Functions.log1p(df.col("a"))), expected);
   }
 
   @Test
@@ -2988,21 +2877,21 @@ public class JavaFunctionSuite extends TestBase {
     DataFrame df = getSession().sql("select * from values (0.1) as T(a)");
     Row[] expected = {Row.create(0.09531017980432493)};
 
-    checkAnswer(df.select(Functions.log1p("a")), expected, false);
+    checkAnswer(df.select(Functions.log1p("a")), expected);
   }
 
   @Test
   public void base64() {
     DataFrame df = getSession().sql("select * from values ('test') as T(a)");
     Row[] expected = {Row.create("dGVzdA==")};
-    checkAnswer(df.select(Functions.base64(Functions.col("a"))), expected, false);
+    checkAnswer(df.select(Functions.base64(Functions.col("a"))), expected);
   }
 
   @Test
   public void unbase64() {
     DataFrame df = getSession().sql("select * from values ('dGVzdA==') as T(a)");
     Row[] expected = {Row.create("test")};
-    checkAnswer(df.select(Functions.unbase64(Functions.col("a"))), expected, false);
+    checkAnswer(df.select(Functions.unbase64(Functions.col("a"))), expected);
   }
 
   @Test
@@ -3015,15 +2904,14 @@ public class JavaFunctionSuite extends TestBase {
     Row[] expected = {Row.create(6), Row.create(2)};
     checkAnswer(
         df.select(Functions.locate(Functions.col("a"), Functions.col("b"), 1).as("locate")),
-        expected,
-        false);
+        expected);
   }
 
   @Test
   public void locate() {
     DataFrame df = getSession().sql("select * from values ('abcd') as T(s)");
     Row[] expected = {Row.create(2)};
-    checkAnswer(df.select(Functions.locate("b", Functions.col("s")).as("locate")), expected, false);
+    checkAnswer(df.select(Functions.locate("b", Functions.col("s")).as("locate")), expected);
   }
 
   @Test
@@ -3033,8 +2921,7 @@ public class JavaFunctionSuite extends TestBase {
 
     checkAnswer(
         df.select(Functions.ntile(4).over(Window.partitionBy(df.col("x")).orderBy(df.col("y")))),
-        expected,
-        false);
+        expected);
   }
 
   @Test
@@ -3055,8 +2942,7 @@ public class JavaFunctionSuite extends TestBase {
 
     checkAnswer(
         df.withColumn("randn_with_seed", Functions.randn(123l)).select("randn_with_seed"),
-        expected,
-        false);
+        expected);
   }
 
   @Test
@@ -3067,7 +2953,7 @@ public class JavaFunctionSuite extends TestBase {
     Row[] expected = {
       Row.create(Date.valueOf("2020-08-02")), Row.create(Date.valueOf("2010-12-02"))
     };
-    checkAnswer(df.select(Functions.date_add(df.col("a"), Functions.lit(1))), expected, false);
+    checkAnswer(df.select(Functions.date_add(df.col("a"), Functions.lit(1))), expected);
   }
 
   @Test
@@ -3078,7 +2964,7 @@ public class JavaFunctionSuite extends TestBase {
     Row[] expected = {
       Row.create(Date.valueOf("2020-08-02")), Row.create(Date.valueOf("2010-12-02"))
     };
-    checkAnswer(df.select(Functions.date_add(1, df.col("a"))), expected, false);
+    checkAnswer(df.select(Functions.date_add(1, df.col("a"))), expected);
   }
 
   @Test
@@ -3091,34 +2977,33 @@ public class JavaFunctionSuite extends TestBase {
   public void from_unixtime1() {
     DataFrame df = getSession().sql("select * from values(20231010), (20220515) as t(a)");
     Row[] expected = {Row.create("1970-08-23 03:43:30.000"), Row.create("1970-08-23 00:48:35.000")};
-    checkAnswer(df.select(Functions.from_unixtime(df.col("a"))), expected, false);
+    checkAnswer(df.select(Functions.from_unixtime(df.col("a"))), expected);
   }
 
   @Test
   public void from_unixtime2() {
     DataFrame df = getSession().sql("select * from values(20231010), (456700809) as t(a)");
     Row[] expected = {Row.create("1970/08/23"), Row.create("1984/06/21")};
-    checkAnswer(df.select(Functions.from_unixtime(df.col("a"), "YYYY/MM/DD")), expected, false);
+    checkAnswer(df.select(Functions.from_unixtime(df.col("a"), "YYYY/MM/DD")), expected);
   }
 
   @Test
   public void monotonically_increasing_id() {
     Row[] expected = {Row.create(0), Row.create(1), Row.create(2), Row.create(3), Row.create(4)};
-    checkAnswer(
-        getSession().generator(5, Functions.monotonically_increasing_id()), expected, false);
+    checkAnswer(getSession().generator(5, Functions.monotonically_increasing_id()), expected);
   }
 
   public void shiftLeft() {
     DataFrame df = getSession().sql("select * from values(1),(2),(3) as T(a)");
     Row[] expected = {Row.create(2), Row.create(4), Row.create(6)};
-    checkAnswer(df.select(Functions.shiftleft(Functions.col("a"), 1)), expected, false);
+    checkAnswer(df.select(Functions.shiftleft(Functions.col("a"), 1)), expected);
   }
 
   @Test
   public void shiftRight() {
     DataFrame df = getSession().sql("select * from values(1),(2),(3) as T(a)");
     Row[] expected = {Row.create(0), Row.create(1), Row.create(1)};
-    checkAnswer(df.select(Functions.shiftright(Functions.col("a"), 1)), expected, false);
+    checkAnswer(df.select(Functions.shiftright(Functions.col("a"), 1)), expected);
   }
 
   @Test
@@ -3126,14 +3011,14 @@ public class JavaFunctionSuite extends TestBase {
     DataFrame df = getSession().sql("select * from values(1),(2),(3) as T(a)");
     df.select(Functions.hex(Functions.col("a")).as("hex")).show();
     Row[] expected = {Row.create("31"), Row.create("32"), Row.create("33")};
-    checkAnswer(df.select(Functions.hex(Functions.col("a"))), expected, false);
+    checkAnswer(df.select(Functions.hex(Functions.col("a"))), expected);
   }
 
   @Test
   public void unhex() {
     DataFrame df = getSession().sql("select * from values(31),(32),(33) as T(a)");
     Row[] expected = {Row.create("1"), Row.create("2"), Row.create("3")};
-    checkAnswer(df.select(Functions.unhex(Functions.col("a"))), expected, false);
+    checkAnswer(df.select(Functions.unhex(Functions.col("a"))), expected);
   }
 
   @Test
@@ -3144,7 +3029,7 @@ public class JavaFunctionSuite extends TestBase {
                 "select * from values('2010-07-02'::Date,'2010-08-02'::Date), "
                     + "('2020-08-02'::Date,'2020-12-02'::Date) as t(a,b)");
     Row[] expected = {Row.create(1.000000), Row.create(4.000000)};
-    checkAnswer(df.select(Functions.months_between("b", "a")), expected, false);
+    checkAnswer(df.select(Functions.months_between("b", "a")), expected);
   }
 
   @Test
@@ -3154,36 +3039,34 @@ public class JavaFunctionSuite extends TestBase {
             .sql(
                 "select * from values('It was the best of times, it was the worst of times') as t(a)");
     Row[] expected = {Row.create(4)};
-    checkAnswer(df.select(Functions.instr(df.col("a"), "was")), expected, false);
+    checkAnswer(df.select(Functions.instr(df.col("a"), "was")), expected);
   }
 
   @Test
   public void format_number1() {
     DataFrame df = getSession().sql("select * from values(1),(2),(3) as t(a)");
     Row[] expected = {Row.create("1"), Row.create("2"), Row.create("3")};
-    checkAnswer(
-        df.select(Functions.ltrim(Functions.format_number(df.col("a"), 0))), expected, false);
+    checkAnswer(df.select(Functions.ltrim(Functions.format_number(df.col("a"), 0))), expected);
   }
 
   @Test
   public void format_number2() {
     DataFrame df = getSession().sql("select * from values(1),(2),(3) as t(a)");
     Row[] expected = {Row.create("1.00"), Row.create("2.00"), Row.create("3.00")};
-    checkAnswer(
-        df.select(Functions.ltrim(Functions.format_number(df.col("a"), 2))), expected, false);
+    checkAnswer(df.select(Functions.ltrim(Functions.format_number(df.col("a"), 2))), expected);
   }
 
   @Test
   public void from_utc_timestamp() {
     DataFrame df = getSession().sql("select * from values('2024-04-05 01:02:03') as t(a)");
     Row[] expected = {Row.create(Timestamp.valueOf("2024-04-05 01:02:03.0"))};
-    checkAnswer(df.select(Functions.from_utc_timestamp(df.col("a"))), expected, false);
+    checkAnswer(df.select(Functions.from_utc_timestamp(df.col("a"))), expected);
   }
 
   @Test
   public void to_utc_timestamp() {
     DataFrame df = getSession().sql("select * from values('2024-04-05 01:02:03') as t(a)");
     Row[] expected = {Row.create(Timestamp.valueOf("2024-04-05 01:02:03.0"))};
-    checkAnswer(df.select(Functions.to_utc_timestamp(df.col("a"))), expected, false);
+    checkAnswer(df.select(Functions.to_utc_timestamp(df.col("a"))), expected);
   }
 }

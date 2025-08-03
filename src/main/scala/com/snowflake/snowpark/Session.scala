@@ -991,8 +991,22 @@ class Session private (private[snowpark] val conn: ServerConnection) extends Log
    * @since 0.1.0
    */
   def sql(query: String): DataFrame = {
+    sql(query, Seq.empty)
+  }
+
+  /**
+   * Returns a new DataFrame representing the results of a SQL query.
+   *
+   * You can use this method to execute an arbitrary SQL statement.
+   *
+   * @param query The SQL statement to execute.
+   * @param params for bind variables in SQL statement.
+   * @return A [[DataFrame]]
+   * @since 1.15.0
+   */
+  def sql(query: String, params: Seq[Any]): DataFrame = {
     // PUT and GET command cannot be executed in async mode
-    DataFrame(this, plans.query(query, None, !Utils.isPutOrGetCommand(query)))
+    DataFrame(this, plans.query(query, None, !Utils.isPutOrGetCommand(query), params))
   }
 
   /**

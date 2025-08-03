@@ -243,14 +243,14 @@ public class JavaUDTFSuite extends UDFTestBase {
     String funcName = randomFunctionName();
     getSession().udtf().registerTemporary(funcName, largeUdtf);
     DataFrame df = getSession().tableFunction(new TableFunction(funcName), lit(2));
-    checkAnswer(df, new Row[] {Row.create(2), Row.create(1024)}, false);
+    checkAnswer(df, new Row[] {Row.create(2), Row.create(1024)});
 
     // Register twice
     String funcName2 = randomFunctionName();
     assert !funcName2.equalsIgnoreCase(funcName);
     TableFunction tableFunction = getSession().udtf().registerTemporary(funcName2, largeUdtf);
     DataFrame df2 = getSession().tableFunction(tableFunction, lit(3));
-    checkAnswer(df2, new Row[] {Row.create(3), Row.create(1024)}, false);
+    checkAnswer(df2, new Row[] {Row.create(3), Row.create(1024)});
   }
 
   @Test
@@ -327,9 +327,7 @@ public class JavaUDTFSuite extends UDFTestBase {
             tf, new Column[] {df.col("b")}, new Column[] {df.col("a")}, new Column[] {df.col("b")});
 
     checkAnswer(
-        result1,
-        new Row[] {Row.create("a", null, "{b=2, c=1}"), Row.create("d", null, "{e=1}")},
-        true);
+        result1, new Row[] {Row.create("a", null, "{b=2, c=1}"), Row.create("d", null, "{e=1}")});
 
     DataFrame result2 = df.join(tf, new Column[] {df.col("b")}, new Column[] {}, new Column[] {});
     result2.show();
@@ -339,9 +337,7 @@ public class JavaUDTFSuite extends UDFTestBase {
 
     DataFrame result3 = df.join(tf, map, new Column[] {df.col("a")}, new Column[] {df.col("b")});
     checkAnswer(
-        result3,
-        new Row[] {Row.create("a", null, "{b=2, c=1}"), Row.create("d", null, "{e=1}")},
-        true);
+        result3, new Row[] {Row.create("a", null, "{b=2, c=1}"), Row.create("d", null, "{e=1}")});
 
     DataFrame result4 = df.join(tf, map, new Column[] {}, new Column[] {});
     result4.show();
@@ -349,9 +345,7 @@ public class JavaUDTFSuite extends UDFTestBase {
     DataFrame result5 =
         df.join(tf.call(map), new Column[] {df.col("a")}, new Column[] {df.col("b")});
     checkAnswer(
-        result5,
-        new Row[] {Row.create("a", null, "{b=2, c=1}"), Row.create("d", null, "{e=1}")},
-        true);
+        result5, new Row[] {Row.create("a", null, "{b=2, c=1}"), Row.create("d", null, "{e=1}")});
   }
 }
 

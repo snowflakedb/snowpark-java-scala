@@ -69,6 +69,20 @@ public class Session {
   }
 
   /**
+   * Returns a new {@code DataFrame} representing the results of a SQL query.
+   *
+   * <p>You can use this method to execute an arbitrary SQL statement.
+   *
+   * @param query The SQL statement to execute.
+   * @param params The binding parameters for SQL statement (optional)
+   * @return A {@code DataFrame} object
+   * @since 1.15.0
+   */
+  public DataFrame sql(String query, Object... params) {
+    return new DataFrame(session.sql(query, JavaUtils.objectArrayToSeq(params)));
+  }
+
+  /**
    * Returns a Updatable that points to the specified table.
    *
    * <p>{@code name} can be a fully qualified identifier and must conform to the rules for a

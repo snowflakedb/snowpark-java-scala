@@ -1,72 +1,27 @@
 package com.snowflake.snowpark_test
 
-import com.snowflake.snowpark.{SaveMode, TestData, UpdateResult}
+import com.snowflake.snowpark.{Row, SaveMode, TestData, UpdateResult}
 import com.snowflake.snowpark.functions.{col, lit}
+
+import java.sql.Date
 
 class DataFrameNonStoredProcSuite extends TestData {
 
   private def testDataframeStatPivot(): Unit = {
-    assert(
-      getShowString(monthlySales.stat.crosstab("empid", "month").sort(col("empid")), 10) ==
-        """---------------------------------------------------
-          ||"EMPID"  |"'JAN'"  |"'FEB'"  |"'MAR'"  |"'APR'"  |
-          |---------------------------------------------------
-          ||1        |2        |2        |2        |2        |
-          ||2        |2        |2        |2        |2        |
-          |---------------------------------------------------
-          |""".stripMargin)
-
-    assert(
-      getShowString(monthlySales.stat.crosstab("month", "empid").sort(col("month")), 10) ==
-        """-------------------------------------------------------------------
-          ||"MONTH"  |"CAST(1 AS NUMBER(38,0))"  |"CAST(2 AS NUMBER(38,0))"  |
-          |-------------------------------------------------------------------
-          ||APR      |2                          |2                          |
-          ||FEB      |2                          |2                          |
-          ||JAN      |2                          |2                          |
-          ||MAR      |2                          |2                          |
-          |-------------------------------------------------------------------
-          |""".stripMargin)
-
-    assert(
-      getShowString(date1.stat.crosstab("a", "b").sort(col("a")), 10) ==
-        """----------------------------------------------------------------------
-          ||"A"         |"CAST(1 AS NUMBER(38,0))"  |"CAST(2 AS NUMBER(38,0))"  |
-          |----------------------------------------------------------------------
-          ||2010-12-01  |0                          |1                          |
-          ||2020-08-01  |1                          |0                          |
-          |----------------------------------------------------------------------
-          |""".stripMargin)
-
-    assert(
-      getShowString(date1.stat.crosstab("b", "a").sort(col("b")), 10) ==
-        """-----------------------------------------------------------
-          ||"B"  |"TO_DATE('2020-08-01')"  |"TO_DATE('2010-12-01')"  |
-          |-----------------------------------------------------------
-          ||1    |1                        |0                        |
-          ||2    |0                        |1                        |
-          |-----------------------------------------------------------
-          |""".stripMargin)
-
-    assert(
-      getShowString(string7.stat.crosstab("a", "b").sort(col("a")), 10) ==
-        """----------------------------------------------------------------
-          ||"A"   |"CAST(1 AS NUMBER(38,0))"  |"CAST(2 AS NUMBER(38,0))"  |
-          |----------------------------------------------------------------
-          ||NULL  |0                          |1                          |
-          ||str   |1                          |0                          |
-          |----------------------------------------------------------------
-          |""".stripMargin)
-
-    assert(
-      getShowString(string7.stat.crosstab("b", "a").sort(col("b")), 10) ==
-        """--------------------------
-          ||"B"  |"'str'"  |"NULL"  |
-          |--------------------------
-          ||1    |1        |0       |
-          ||2    |0        |0       |
-          |--------------------------
-          |""".stripMargin)
+    checkAnswer(
+      monthlySales.stat.crosstab("empid", "month").sort(col("empid")),
+      Seq(Row(1, 2, 2, 2, 2), Row(2, 2, 2, 2, 2)))
+    checkAnswer(
+      monthlySales.stat.crosstab("month", "empid").sort(col("month")),
+      Seq(Row("APR", 2, 2), Row("FEB", 2, 2), Row("JAN", 2, 2), Row("MAR", 2, 2)))
+    checkAnswer(
+      date1.stat.crosstab("a", "b").sort(col("a")),
+      Seq(Row(Date.valueOf("2010-12-01"), 0, 1), Row(Date.valueOf("2020-08-01"), 1, 0)))
+    checkAnswer(date1.stat.crosstab("b", "a").sort(col("b")), Seq(Row(1, 0, 1), Row(2, 1, 0)))
+    checkAnswer(
+      string7.stat.crosstab("a", "b").sort(col("a")),
+      Seq(Row(null, 0, 1), Row("str", 1, 0)))
+    checkAnswer(string7.stat.crosstab("b", "a").sort(col("b")), Seq(Row(1, 1, 0), Row(2, 0, 0)))
   }
 
   test("df.stat.pivot") {

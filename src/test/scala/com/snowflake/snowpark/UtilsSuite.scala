@@ -235,6 +235,10 @@ class UtilsSuite extends SNTestBase {
     val name2 = """"DATABASE"."SCHEMA"."STAGE""""
     assert(Utils.normalizeStageLocation(" " + name2).equals(s"@$name2"))
     assert(Utils.normalizeStageLocation("@" + name2 + "  ").equals(s"@$name2"))
+    val name3 = "snow://domain/test_entity/versions/test_version/file.txt"
+    assert(Utils.normalizeStageLocation(name3).equals(name3))
+    val name4 = "/some/file.txt"
+    assert(Utils.normalizeStageLocation(name4).equals(name4))
   }
 
   test("normalizeLocalFile") {
@@ -254,8 +258,8 @@ class UtilsSuite extends SNTestBase {
 
     assert(
       Utils.calculateMD5(file) ==
-        "85bd7b9363853f1815254b1cbc608c22"
-    ) // pragma: allowlist secret
+        "85bd7b9363853f1815254b1cbc608c22"  // pragma: allowlist secret
+    )
   }
 
   test("stage file prefix length") {

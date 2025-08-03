@@ -97,16 +97,14 @@ class UpdatableSuite extends TestData {
     assert(t2.update(Map(col("n") -> lit(0)), t1("a") === t2("n"), t1) == UpdateResult(3, 3))
     checkAnswer(
       t2,
-      Seq(Row(0, "A"), Row(0, "B"), Row(0, "C"), Row(4, "D"), Row(5, "E"), Row(6, "F")),
-      sort = false)
+      Seq(Row(0, "A"), Row(0, "B"), Row(0, "C"), Row(4, "D"), Row(5, "E"), Row(6, "F")))
 
     testData2.write.mode(SaveMode.Overwrite).saveAsTable(tableName)
     upperCaseData.write.mode(SaveMode.Overwrite).saveAsTable(tableName2)
     assert(t2.update(Map("n" -> lit(0)), t1("a") === t2("n"), t1) == UpdateResult(3, 3))
     checkAnswer(
       t2,
-      Seq(Row(0, "A"), Row(0, "B"), Row(0, "C"), Row(4, "D"), Row(5, "E"), Row(6, "F")),
-      sort = false)
+      Seq(Row(0, "A"), Row(0, "B"), Row(0, "C"), Row(4, "D"), Row(5, "E"), Row(6, "F")))
 
     upperCaseData.write.mode(SaveMode.Overwrite).saveAsTable(tableName2)
     import session.implicits._
@@ -123,10 +121,7 @@ class UpdatableSuite extends TestData {
     testData3.write.mode(SaveMode.Overwrite).saveAsTable(tableName2)
     val t2 = session.table(tableName2)
     assert(t1.update(Map(col("a") -> lit(0)), t1("a") === t2("a"), t2) == UpdateResult(4, 0))
-    checkAnswer(
-      t1,
-      Seq(Row(0, 1), Row(0, 2), Row(0, 1), Row(0, 2), Row(3, 1), Row(3, 2)),
-      sort = false)
+    checkAnswer(t1, Seq(Row(0, 1), Row(0, 2), Row(0, 1), Row(0, 2), Row(3, 1), Row(3, 2)))
 
     upperCaseData.write.mode(SaveMode.Overwrite).saveAsTable(tableName3)
     val up = session.table(tableName3)
@@ -158,7 +153,7 @@ class UpdatableSuite extends TestData {
     upperCaseData.write.mode(SaveMode.Overwrite).saveAsTable(tableName2)
     val t2 = session.table(tableName2)
     assert(t2.delete(t1("a") === t2("n"), t1) == DeleteResult(3))
-    checkAnswer(t2, Seq(Row(4, "D"), Row(5, "E"), Row(6, "F")), sort = false)
+    checkAnswer(t2, Seq(Row(4, "D"), Row(5, "E"), Row(6, "F")))
 
     upperCaseData.write.mode(SaveMode.Overwrite).saveAsTable(tableName2)
     import session.implicits._
@@ -173,7 +168,7 @@ class UpdatableSuite extends TestData {
     testData3.write.mode(SaveMode.Overwrite).saveAsTable(tableName2)
     val t2 = session.table(tableName2)
     assert(t1.delete(t1("a") === t2("a"), t2) == DeleteResult(4))
-    checkAnswer(t1, Seq(Row(3, 1), Row(3, 2)), sort = false)
+    checkAnswer(t1, Seq(Row(3, 1), Row(3, 2)))
 
     upperCaseData.write.mode(SaveMode.Overwrite).saveAsTable(tableName3)
     val up = session.table(tableName3)

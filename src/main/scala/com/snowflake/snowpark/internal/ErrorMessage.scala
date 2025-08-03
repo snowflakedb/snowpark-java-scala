@@ -162,7 +162,8 @@ private[snowpark] object ErrorMessage {
     "0425" -> "Unsupported Geometry output format: %s. Please set session parameter GEOMETRY_OUTPUT_FORMAT to GeoJSON.",
     "0426" -> "The given query tag must be a valid JSON string. Ensure it's correctly formatted as JSON.",
     "0427" -> "The query tag of the current session must be a valid JSON string. Current query tag: %s",
-    "0428" -> "Failed to serialize the query tag into a JSON string.")
+    "0428" -> "Failed to serialize the query tag into a JSON string.",
+    "0429" -> "Binding parameter not supported on multi-statement query.")
   // scalastyle:on
 
   /*
@@ -413,6 +414,9 @@ private[snowpark] object ErrorMessage {
 
   def MISC_FAILED_TO_SERIALIZE_QUERY_TAG(): SnowparkClientException =
     createException("0428")
+
+  def BINDING_PARAMETER_MULTI_STATEMENT_NOT_SUPPORTED(): SnowparkClientException =
+    createException("0429")
 
   /**
    * Create Snowpark client Exception.

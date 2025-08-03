@@ -76,7 +76,9 @@ trait SqlSuite extends SNTestBase {
 
     // add spaces to the query
     val putQuery =
-      s" put ${TestUtils.escapePath(path.toString).replace("file:/", "file:///")} @$stageName "
+      s""" put ${TestUtils
+        .escapePath(path.toString)
+        .replace("file:/", "file:///")} @$stageName """
     val put = session.sql(putQuery)
     put.schema.printTreeString()
     // should upload nothing
@@ -104,12 +106,38 @@ trait SqlSuite extends SNTestBase {
       new Directory(new File(outputPath)).deleteRecursively()
     }
   }
+
+  test("Run sql query with bindings") {
+    val df1 = session.sql("select * from values (?),(?),(?)", List(1, 2, 3))
+    checkAnswer(df1, Array[Row](Row(1), Row(2), Row(3)))
+
+    val df2 =
+      session.sql(
+        "select variance(identifier(?)) from values(1,1),(1,2),(2,1),(2,2),(3,1),(3,2) as T(a, b)",
+        Seq("a"))
+    assert(df2.collect()(0).getDecimal(0).toString == "0.800000")
+
+    val df3 = session
+      .sql("select * from values (?),(?),(?) as T(id)", Seq(1, 2, 3))
+      .filter(col("id") < 3)
+    checkAnswer(df3, Array[Row](Row(1), Row(2)))
+
+    val df4 =
+      session.sql("select * from values (?,?),(?,?),(?,?) as T(a, b)", Seq(1, 1, 2, 1, 3, 1))
+    val df5 =
+      session.sql("select * from values (?,?),(?,?),(?,?) as T(a, b)", List(1, 2, 2, 1, 4, 3))
+    val df6 = df4.union(df5).filter(col("a") < 3)
+    checkAnswer(df6, Array[Row](Row(1, 1), Row(2, 1), Row(1, 2)))
+
+    val df7 = df4.join(df5, Seq("a", "b"), "inner")
+    checkAnswer(df7, Array[Row](Row(2, 1)))
+  }
 }
 
 class EagerSqlSuite extends SqlSuite with EagerSession {
   test("Run sql query") {
     val df1 = session.sql("select * from values (1),(2),(3)")
-    assert(df1.collect() sameElements Array[Row](Row(1), Row(2), Row(3)))
+    checkAnswer(df1, Array[Row](Row(1), Row(2), Row(3)))
 
     val df2 =
       session.sql("select variance(a) from values(1,1),(1,2),(2,1),(2,2),(3,1),(3,2) as T(a,b)")
@@ -117,12 +145,12 @@ class EagerSqlSuite extends SqlSuite with EagerSession {
     assert(df2.collect()(0).getDecimal(0).toString == "0.800000")
 
     val df3 = session.sql("select * from values (1),(2),(3) as T(id)").filter(col("id") < 3)
-    assert(df3.collect() sameElements Array[Row](Row(1), Row(2)))
+    checkAnswer(df3, Array[Row](Row(1), Row(2)))
 
     val df4 = session.sql("select * from values (1,1),(2,1),(3,1) as T(a,b)")
     val df5 = session.sql("select * from values (1,2),(2,2),(3,2) as T(a,b)")
     val df6 = df4.union(df5).filter(col("a") < 3)
-    assert(df6.collect() sameElements Array[Row](Row(1, 1), Row(2, 1), Row(1, 2), Row(2, 2)))
+    checkAnswer(df6, Array[Row](Row(1, 1), Row(2, 1), Row(1, 2), Row(2, 2)))
 
     assertThrows[SnowflakeSQLException] {
       session.sql("select * from (1)")
@@ -184,10 +212,11 @@ class EagerSqlSuite extends SqlSuite with EagerSession {
     assertThrows[SnowflakeSQLException](session.sql("SHOW TABLE"))
   }
 }
+
 class LazySqlSuite extends SqlSuite with LazySession {
   test("Run sql query") {
     val df1 = session.sql("select * from values (1),(2),(3)")
-    assert(df1.collect() sameElements Array[Row](Row(1), Row(2), Row(3)))
+    checkAnswer(df1, Array[Row](Row(1), Row(2), Row(3)))
 
     val df2 =
       session.sql("select variance(a) from values(1,1),(1,2),(2,1),(2,2),(3,1),(3,2) as T(a,b)")
@@ -195,12 +224,12 @@ class LazySqlSuite extends SqlSuite with LazySession {
     assert(df2.collect()(0).getDecimal(0).toString == "0.800000")
 
     val df3 = session.sql("select * from values (1),(2),(3) as T(id)").filter(col("id") < 3)
-    assert(df3.collect() sameElements Array[Row](Row(1), Row(2)))
+    checkAnswer(df3, Array[Row](Row(1), Row(2)))
 
     val df4 = session.sql("select * from values (1,1),(2,1),(3,1) as T(a,b)")
     val df5 = session.sql("select * from values (1,2),(2,2),(3,2) as T(a,b)")
     val df6 = df4.union(df5).filter(col("a") < 3)
-    assert(df6.collect() sameElements Array[Row](Row(1, 1), Row(2, 1), Row(1, 2), Row(2, 2)))
+    checkAnswer(df6, Array[Row](Row(1, 1), Row(2, 1), Row(1, 2), Row(2, 2)))
   }
 
   test("create table") {

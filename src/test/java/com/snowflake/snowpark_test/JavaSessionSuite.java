@@ -62,6 +62,17 @@ public class JavaSessionSuite extends TestBase {
   }
 
   @Test
+  public void sql() {
+    checkAnswer(
+        getSession().sql("select * from values(1, 2),(3, 4) as t(a, b)"),
+        new Row[] {Row.create(1, 2), Row.create(3, 4)});
+
+    checkAnswer(
+        getSession().sql("select * from values(?, ?),(?, ?) as t(a, b)", 1, 2, 3, 4),
+        new Row[] {Row.create(1, 2), Row.create(3, 4)});
+  }
+
+  @Test
   public void getSessionStage() {
     assert getSession().getSessionStage().contains("SNOWPARK_TEMP_STAGE");
   }
@@ -72,8 +83,7 @@ public class JavaSessionSuite extends TestBase {
         getSession()
             .flatten(Functions.parse_json(Functions.lit("[\"a\",\"'\"]")))
             .select(Functions.col("value")),
-        new Row[] {Row.create("\"a\""), Row.create("\"'\"")},
-        false);
+        new Row[] {Row.create("\"a\""), Row.create("\"'\"")});
     checkAnswer(
         getSession()
             .flatten(Functions.parse_json(Functions.lit("{\"a\":[1,2]}")), "a", true, true, "ARRAY")

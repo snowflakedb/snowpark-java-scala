@@ -363,12 +363,40 @@ class DataFrameSetOperationsSuite extends TestData {
 
     checkAnswer(df1.union(df2).intersect(df2.union(df3)), df2.collect())
 
-    checkAnswer(
-      df1.union(df2).intersect(df2.union(df3)).union(df3),
-      df2.union(df3).collect(),
-      sort = false)
+    checkAnswer(df1.union(df2).intersect(df2.union(df3)).union(df3), df2.union(df3).collect())
 
     checkAnswer(df1.union(df2).except(df2.union(df3).intersect(df1.union(df2))), df1.collect())
+  }
+
+  test("create view from Union result") {
+    val viewName = randomName()
+    try {
+      val dfSeq1 = session
+        .createDataFrame(
+          Seq(
+            (1, "one|TEST1", true),
+            (2, "hello1", false),
+            (3, "TEST1", false),
+            (4, "abc1", false),
+            (5, null, false)))
+        .toDF("Number", "Word", "flag")
+
+      val viewDF = session
+        .createDataFrame(
+          Seq(
+            (1, "one|TEST2", true),
+            (2, "hello2", false),
+            (3, "TEST2", false),
+            (4, "abc2", false),
+            (5, null, false)))
+        .toDF("Number", "Word", "flag")
+        .union(dfSeq1)
+      viewDF.createOrReplaceView(viewName)
+
+      checkAnswer(viewDF, session.table(viewName))
+    } finally {
+      dropView(viewName)
+    }
   }
 
 }

@@ -2,8 +2,9 @@ package com.snowflake.snowpark
 
 import java.sql.{Date, Time, Timestamp}
 import com.snowflake.snowpark.internal.ErrorMessage
-import com.snowflake.snowpark.types.{Geography, Geometry, Variant}
+import com.snowflake.snowpark.types.{Geography, Geometry, StructType, Variant}
 
+import scala.collection.mutable.ArrayBuffer
 import scala.reflect.ClassTag
 import scala.util.hashing.MurmurHash3
 
@@ -16,19 +17,22 @@ object Row {
    * Returns a [[Row]] based on the given values.
    * @since 0.1.0
    */
-  def apply(values: Any*): Row = new Row(values.toArray)
+  def apply(values: Any*): Row = new Row(values.toArray, None)
 
   /**
    * Return a [[Row]] based on the values in the given Seq.
    * @since 0.1.0
    */
-  def fromSeq(values: Seq[Any]): Row = new Row(values.toArray)
+  def fromSeq(values: Seq[Any]): Row = new Row(values.toArray, None)
 
   /**
    * Return a [[Row]] based on the values in the given Array.
    * @since 0.2.0
    */
-  def fromArray(values: Array[Any]): Row = new Row(values)
+  def fromArray(values: Array[Any]): Row = new Row(values, None)
+
+  private[snowpark] def fromSeqWithSchema(values: Seq[Any], schema: Option[StructType]): Row =
+    new Row(values.toArray, schema)
 
   private[snowpark] def fromMap(map: Map[String, Any]): Row =
     new SnowflakeObject(map)
@@ -36,7 +40,7 @@ object Row {
 
 private[snowpark] class SnowflakeObject private[snowpark] (
     private[snowpark] val map: Map[String, Any])
-    extends Row(map.values.toArray) {
+    extends Row(map.values.toArray, None) {
   override def toString: String = convertValueToString(this)
 }
 
@@ -47,7 +51,7 @@ private[snowpark] class SnowflakeObject private[snowpark] (
  * @groupname utl Utility Functions
  * @since 0.1.0
  */
-class Row protected (values: Array[Any]) extends Serializable {
+class Row protected (values: Array[Any], schema: Option[StructType]) extends Serializable {
 
   /**
    * Converts this [[Row]] to a Seq
@@ -89,7 +93,7 @@ class Row protected (values: Array[Any]) extends Serializable {
    * @since 0.1.0
    * @group utl
    */
-  def copy(): Row = new Row(values)
+  def copy(): Row = new Row(values, schema)
 
   /**
    * Returns a clone of this row object. Alias of [[copy]]
@@ -350,9 +354,14 @@ class Row protected (values: Array[Any]) extends Serializable {
    * @since 1.13.0
    * @group getter
    */
-  def getSeq[T: ClassTag](index: Int): Seq[T] = {
-    val result = getAs[Array[_]](index)
-    result.map(_.asInstanceOf[T])
+  def getSeq[T](index: Int): Seq[T] = {
+    val result = get(index) match {
+      case arr: Array[_] => arr.toSeq // for JDBC older than 3.20.0
+      case arrBuf: ArrayBuffer[_] => arrBuf.toSeq // for JDBC 3.21.0 +
+    }
+    result.map {
+      case x: T => x
+    }
   }
 
   /**
@@ -364,6 +373,48 @@ class Row protected (values: Array[Any]) extends Serializable {
   def getMap[T, U](index: Int): Map[T, U] = {
     getAs[Map[T, U]](index)
   }
+
+  /**
+   * Returns the index of the field with the specified name.
+   *
+   * @param fieldName the name of the field.
+   * @return the index of the specified field.
+   * @throws UnsupportedOperationException if schema information is not available.
+   * @since 1.15.0
+   */
+  def fieldIndex(fieldName: String): Int = {
+    var schema = this.schema.getOrElse(
+      throw new UnsupportedOperationException("Cannot get field index for row without schema"))
+    schema.fieldIndex(fieldName)
+  }
+
+  /**
+   * Returns the value for the specified field name and casts it to the desired type `T`.
+   *
+   * Example:
+   *
+   * {{{
+   *     val schema =
+   *           StructType(Seq(StructField("name", StringType), StructField("value", IntegerType)))
+   *     val data = Seq(Row("Alice", 1))
+   *     val df = session.createDataFrame(data, schema)
+   *     val row = df.collect()(0)
+   *
+   *     row.getAs[String]("name") // Returns "Alice" as a String
+   *     row.getAs[Int]("value") // Returns 1 as an Int
+   * }}}
+   *
+   * @param fieldName the name of the field within the row.
+   * @tparam T the expected type of the value for the specified field name.
+   * @return the value for the specified field name cast to type `T`.
+   * @throws ClassCastException if the value of the field cannot be cast to type `T`.
+   * @throws IllegalArgumentException if the name of the field is not part of the row schema.
+   * @throws UnsupportedOperationException if the schema information is not available.
+   * @group getter
+   * @since 1.15.0
+   */
+  def getAs[T](fieldName: String)(implicit classTag: ClassTag[T]): T =
+    getAs[T](fieldIndex(fieldName))
 
   /**
    * Returns the value at the specified column index and casts it to the desired type `T`.
@@ -399,6 +450,11 @@ class Row protected (values: Array[Any]) extends Serializable {
       case c if c == classOf[Long] => getLong(index).asInstanceOf[T]
       case c if c == classOf[Short] => getShort(index).asInstanceOf[T]
       case c if c == classOf[Variant] => getVariant(index).asInstanceOf[T]
+      case c if c == classOf[Array[Any]] =>
+        get(index) match {
+          case arr: Array[_] => arr.asInstanceOf[T]
+          case arr: ArrayBuffer[Object] => arr.toArray.asInstanceOf[T] // for JDBC 3.21.0 +
+        }
       case _ => get(index).asInstanceOf[T]
     }
   }
