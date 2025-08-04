@@ -296,9 +296,7 @@ class PermanentUDFSuite extends TestData {
       newSession.createDataFrame(Seq((1, 2, 3), (11, 12, 13))).toDF(Seq("a1", "a2", "a3"))
     try {
       session.udf.registerPermanent(funcName, func, stageName)
-      checkAnswer(
-        df.select(callUDF(funcName, df("a1"), df("a2"), df("a3"))),
-        Seq(Row(6), Row(36)))
+      checkAnswer(df.select(callUDF(funcName, df("a1"), df("a2"), df("a3"))), Seq(Row(6), Row(36)))
       checkAnswer(
         newDf.select(callUDF(funcName, newDf("a1"), newDf("a2"), newDf("a3"))),
         Seq(Row(6), Row(36)))

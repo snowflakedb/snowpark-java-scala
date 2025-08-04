@@ -160,8 +160,8 @@ class ServerConnectionSuite extends SNTestBase {
     val params = Seq(1, 2, 3)
 
     val statement = session.conn.connection.prepareStatement(sql)
-    params.zipWithIndex.foreach {
-      case (p, i) => statement.setObject(i + 1, p)
+    params.zipWithIndex.foreach { case (p, i) =>
+      statement.setObject(i + 1, p)
     }
 
     val rs = statement.executeQuery()

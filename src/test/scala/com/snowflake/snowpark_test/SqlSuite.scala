@@ -77,8 +77,8 @@ trait SqlSuite extends SNTestBase {
     // add spaces to the query
     val putQuery =
       s""" put ${TestUtils
-        .escapePath(path.toString)
-        .replace("file:/", "file:///")} @$stageName """
+          .escapePath(path.toString)
+          .replace("file:/", "file:///")} @$stageName """
     val put = session.sql(putQuery)
     put.schema.printTreeString()
     // should upload nothing

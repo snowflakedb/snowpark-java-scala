@@ -8,9 +8,9 @@ lazy val isFipsRelease = {
 lazy val snowparkName = s"snowpark${if(isFipsRelease) "-fips" else ""}"
 lazy val jdbcName = s"snowflake-jdbc${if(isFipsRelease) "-fips" else ""}"
 
-val jacksonVersion = "2.17.2"
-val openTelemetryVersion = "1.41.0"
-val slf4jVersion = "2.0.4"
+val jacksonVersion = "2.18.0"
+val openTelemetryVersion = "1.39.0"
+val slf4jVersion = "2.0.16"
 
 lazy val root = (project in file("."))
   .enablePlugins(BuildInfoPlugin)
@@ -39,20 +39,20 @@ lazy val root = (project in file("."))
       "ignored" // this field is ignored; passwords are supplied by pinentry
     ),
     libraryDependencies ++= Seq(
-      "org.scala-lang" % "scala-library" % scalaVersion.value,
-      "org.scala-lang" % "scala-compiler" % scalaVersion.value,
-      "commons-io" % "commons-io" % "2.16.1",
-      "javax.xml.bind" % "jaxb-api" % "2.3.1",
-      "org.slf4j" % "slf4j-api" % slf4jVersion,
-      "org.slf4j" % "slf4j-simple" % slf4jVersion,
-      "commons-codec" % "commons-codec" % "1.17.0",
-      "io.opentelemetry" % "opentelemetry-api" % openTelemetryVersion,
-      "net.snowflake" % jdbcName % "3.17.0",
-      "com.github.vertical-blank" % "sql-formatter" % "1.0.2",
       "com.fasterxml.jackson.core" % "jackson-databind" % jacksonVersion,
       "com.fasterxml.jackson.core" % "jackson-core" % jacksonVersion,
       "com.fasterxml.jackson.core" % "jackson-annotations" % jacksonVersion,
       "com.fasterxml.jackson.module" %% "jackson-module-scala" % jacksonVersion,
+      "com.github.vertical-blank" % "sql-formatter" % "1.0.2",
+      "commons-codec" % "commons-codec" % "1.15",
+      "commons-io" % "commons-io" % "2.14.0",
+      "io.opentelemetry" % "opentelemetry-api" % openTelemetryVersion,
+      "javax.xml.bind" % "jaxb-api" % "2.3.1",
+      "net.snowflake" % jdbcName % "3.24.2",
+      "org.scala-lang" % "scala-library" % scalaVersion.value,
+      "org.scala-lang" % "scala-compiler" % scalaVersion.value,
+      "org.slf4j" % "slf4j-api" % slf4jVersion,
+      "org.slf4j" % "slf4j-simple" % slf4jVersion,
       // tests
       "io.opentelemetry" % "opentelemetry-sdk" % openTelemetryVersion % Test,
       "io.opentelemetry" % "opentelemetry-exporters-inmemory" % "0.9.1" % Test,

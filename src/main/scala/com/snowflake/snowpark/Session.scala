@@ -999,9 +999,12 @@ class Session private (private[snowpark] val conn: ServerConnection) extends Log
    *
    * You can use this method to execute an arbitrary SQL statement.
    *
-   * @param query The SQL statement to execute.
-   * @param params for bind variables in SQL statement.
-   * @return A [[DataFrame]]
+   * @param query
+   *   The SQL statement to execute.
+   * @param params
+   *   for bind variables in SQL statement.
+   * @return
+   *   A [[DataFrame]]
    * @since 1.15.0
    */
   def sql(query: String, params: Seq[Any]): DataFrame = {

@@ -107,9 +107,12 @@ case class StructType(fields: Array[StructField] = Array()) extends DataType wit
   /**
    * Return the index of the specified field.
    *
-   * @param fieldName the name of the field.
-   * @return the index of the field with the specified name.
-   * @throws IllegalArgumentException if the given field name does not exist in the schema.
+   * @param fieldName
+   *   the name of the field.
+   * @return
+   *   the index of the field with the specified name.
+   * @throws IllegalArgumentException
+   *   if the given field name does not exist in the schema.
    * @since 1.15.0
    */
   def fieldIndex(fieldName: String): Int = {

@@ -258,7 +258,7 @@ class UtilsSuite extends SNTestBase {
 
     assert(
       Utils.calculateMD5(file) ==
-        "85bd7b9363853f1815254b1cbc608c22"  // pragma: allowlist secret
+        "85bd7b9363853f1815254b1cbc608c22" // pragma: allowlist secret
     )
   }
 

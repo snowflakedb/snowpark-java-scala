@@ -359,8 +359,8 @@ class Row protected (values: Array[Any], schema: Option[StructType]) extends Ser
       case arr: Array[_] => arr.toSeq // for JDBC older than 3.20.0
       case arrBuf: ArrayBuffer[_] => arrBuf.toSeq // for JDBC 3.21.0 +
     }
-    result.map {
-      case x: T => x
+    result.map { case x: T =>
+      x
     }
   }
 
@@ -377,9 +377,12 @@ class Row protected (values: Array[Any], schema: Option[StructType]) extends Ser
   /**
    * Returns the index of the field with the specified name.
    *
-   * @param fieldName the name of the field.
-   * @return the index of the specified field.
-   * @throws UnsupportedOperationException if schema information is not available.
+   * @param fieldName
+   *   the name of the field.
+   * @return
+   *   the index of the specified field.
+   * @throws UnsupportedOperationException
+   *   if schema information is not available.
    * @since 1.15.0
    */
   def fieldIndex(fieldName: String): Int = {
@@ -404,12 +407,18 @@ class Row protected (values: Array[Any], schema: Option[StructType]) extends Ser
    *     row.getAs[Int]("value") // Returns 1 as an Int
    * }}}
    *
-   * @param fieldName the name of the field within the row.
-   * @tparam T the expected type of the value for the specified field name.
-   * @return the value for the specified field name cast to type `T`.
-   * @throws ClassCastException if the value of the field cannot be cast to type `T`.
-   * @throws IllegalArgumentException if the name of the field is not part of the row schema.
-   * @throws UnsupportedOperationException if the schema information is not available.
+   * @param fieldName
+   *   the name of the field within the row.
+   * @tparam T
+   *   the expected type of the value for the specified field name.
+   * @return
+   *   the value for the specified field name cast to type `T`.
+   * @throws ClassCastException
+   *   if the value of the field cannot be cast to type `T`.
+   * @throws IllegalArgumentException
+   *   if the name of the field is not part of the row schema.
+   * @throws UnsupportedOperationException
+   *   if the schema information is not available.
    * @group getter
    * @since 1.15.0
    */

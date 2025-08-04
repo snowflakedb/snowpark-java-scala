@@ -112,9 +112,7 @@ trait FunctionSuite extends TestData {
       duplicatedNumbers.groupBy("A").agg(sum(col("A"))),
       Seq(Row(3, 6), Row(2, 4), Row(1, 1)))
 
-    checkAnswer(
-      duplicatedNumbers.groupBy("A").agg(sum("A")),
-      Seq(Row(3, 6), Row(2, 4), Row(1, 1)))
+    checkAnswer(duplicatedNumbers.groupBy("A").agg(sum("A")), Seq(Row(3, 6), Row(2, 4), Row(1, 1)))
 
     checkAnswer(
       duplicatedNumbers.groupBy("A").agg(sum_distinct(col("A"))),
@@ -386,15 +384,20 @@ trait FunctionSuite extends TestData {
         Row(
           "5a105e8b9d40e1329780d62ea2265d8a", // pragma: allowlist secret
           "b444ac06613fc8d63795be9ad0beaf55011936ac", // pragma: allowlist secret
-          "aff3c83c40e2f1ae099a0166e1f27580525a9de6acd995f21717e984"), // pragma: allowlist secret
+          "aff3c83c40e2f1ae099a0166e1f27580525a9de6acd995f21717e984" // pragma: allowlist secret
+        ),
         Row(
           "ad0234829205b9033196ba818f7a872b", // pragma: allowlist secret
           "109f4b3c50d7b0df729d299bc6f8e9ef9066971f", // pragma: allowlist secret
-          "35f757ad7f998eb6dd3dd1cd3b5c6de97348b84a951f13de25355177"), // pragma: allowlist secret
+          "35f757ad7f998eb6dd3dd1cd3b5c6de97348b84a951f13de25355177" // pragma: allowlist secret
+        ),
         Row(
           "8ad8757baa8564dc136c1e07507f4a98", // pragma: allowlist secret
           "3ebfa301dc59196f18593c45e519287a23297589", // pragma: allowlist secret
-          "d2d5c076b2435565f66649edd604dd5987163e8a8240953144ec652f"))) // pragma: allowlist secret
+          "d2d5c076b2435565f66649edd604dd5987163e8a8240953144ec652f" // pragma: allowlist secret
+        )
+      )
+    )
   }
 
   test("hash") {
@@ -955,9 +958,7 @@ trait FunctionSuite extends TestData {
   test("charindex") {
     checkAnswer(string4.select(charindex(lit("na"), col("a"))), Seq(Row(0), Row(3), Row(0)))
 
-    checkAnswer(
-      string4.select(charindex(lit("na"), col("a"), lit(4))),
-      Seq(Row(0), Row(5), Row(0)))
+    checkAnswer(string4.select(charindex(lit("na"), col("a"), lit(4))), Seq(Row(0), Row(5), Row(0)))
   }
 
   test("collate") {
@@ -1735,16 +1736,14 @@ trait FunctionSuite extends TestData {
   test("approx_percentile_accumulate") {
     checkAnswer(
       approxNumbers.select(approx_percentile_accumulate(col("a"))),
-      Seq(
-        Row(
-          "{\n  \"state\": [\n    0.000000000000000e+00,\n    1.000000000000000e+00,\n    " +
-            "1.000000000000000e+00,\n    1.000000000000000e+00,\n    2.000000000000000e+00,\n    " +
-            "1.000000000000000e+00,\n    3.000000000000000e+00,\n    1.000000000000000e+00,\n    " +
-            "4.000000000000000e+00,\n    1.000000000000000e+00,\n    5.000000000000000e+00,\n    " +
-            "1.000000000000000e+00,\n    6.000000000000000e+00,\n    1.000000000000000e+00,\n    " +
-            "7.000000000000000e+00,\n    1.000000000000000e+00,\n    8.000000000000000e+00,\n    " +
-            "1.000000000000000e+00,\n    9.000000000000000e+00,\n    1.000000000000000e+00\n  ],\n  " +
-            "\"type\": \"tdigest\",\n  \"version\": 1\n}")))
+      Seq(Row("{\n  \"state\": [\n    0.000000000000000e+00,\n    1.000000000000000e+00,\n    " +
+        "1.000000000000000e+00,\n    1.000000000000000e+00,\n    2.000000000000000e+00,\n    " +
+        "1.000000000000000e+00,\n    3.000000000000000e+00,\n    1.000000000000000e+00,\n    " +
+        "4.000000000000000e+00,\n    1.000000000000000e+00,\n    5.000000000000000e+00,\n    " +
+        "1.000000000000000e+00,\n    6.000000000000000e+00,\n    1.000000000000000e+00,\n    " +
+        "7.000000000000000e+00,\n    1.000000000000000e+00,\n    8.000000000000000e+00,\n    " +
+        "1.000000000000000e+00,\n    9.000000000000000e+00,\n    1.000000000000000e+00\n  ],\n  " +
+        "\"type\": \"tdigest\",\n  \"version\": 1\n}")))
   }
 
   test("approx_percentile_estimate") {
@@ -1764,20 +1763,19 @@ trait FunctionSuite extends TestData {
     checkAnswer(
       df.select(approx_percentile_combine(col("b"))),
       Seq(
-        Row(
-          "{\n  \"state\": [\n    0.000000000000000e+00,\n    1.000000000000000e+00,\n    " +
-            "1.000000000000000e+00,\n    1.000000000000000e+00,\n    2.000000000000000e+00,\n    " +
-            "1.000000000000000e+00,\n    3.000000000000000e+00,\n    1.000000000000000e+00,\n    " +
-            "3.000000000000000e+00,\n    1.000000000000000e+00,\n    4.000000000000000e+00,\n    " +
-            "1.000000000000000e+00,\n    4.000000000000000e+00,\n    1.000000000000000e+00,\n    " +
-            "5.000000000000000e+00,\n    1.000000000000000e+00,\n    5.000000000000000e+00,\n    " +
-            "1.000000000000000e+00,\n    6.000000000000000e+00,\n    1.000000000000000e+00,\n    " +
-            "6.000000000000000e+00,\n    1.000000000000000e+00,\n    7.000000000000000e+00,\n    " +
-            "1.000000000000000e+00,\n    7.000000000000000e+00,\n    1.000000000000000e+00,\n    " +
-            "8.000000000000000e+00,\n    1.000000000000000e+00,\n    8.000000000000000e+00,\n    " +
-            "1.000000000000000e+00,\n    9.000000000000000e+00,\n    1.000000000000000e+00,\n    " +
-            "9.000000000000000e+00,\n    1.000000000000000e+00\n  ],\n  \"type\": \"tdigest\",\n  " +
-            "\"version\": 1\n}")))
+        Row("{\n  \"state\": [\n    0.000000000000000e+00,\n    1.000000000000000e+00,\n    " +
+          "1.000000000000000e+00,\n    1.000000000000000e+00,\n    2.000000000000000e+00,\n    " +
+          "1.000000000000000e+00,\n    3.000000000000000e+00,\n    1.000000000000000e+00,\n    " +
+          "3.000000000000000e+00,\n    1.000000000000000e+00,\n    4.000000000000000e+00,\n    " +
+          "1.000000000000000e+00,\n    4.000000000000000e+00,\n    1.000000000000000e+00,\n    " +
+          "5.000000000000000e+00,\n    1.000000000000000e+00,\n    5.000000000000000e+00,\n    " +
+          "1.000000000000000e+00,\n    6.000000000000000e+00,\n    1.000000000000000e+00,\n    " +
+          "6.000000000000000e+00,\n    1.000000000000000e+00,\n    7.000000000000000e+00,\n    " +
+          "1.000000000000000e+00,\n    7.000000000000000e+00,\n    1.000000000000000e+00,\n    " +
+          "8.000000000000000e+00,\n    1.000000000000000e+00,\n    8.000000000000000e+00,\n    " +
+          "1.000000000000000e+00,\n    9.000000000000000e+00,\n    1.000000000000000e+00,\n    " +
+          "9.000000000000000e+00,\n    1.000000000000000e+00\n  ],\n  \"type\": \"tdigest\",\n  " +
+          "\"version\": 1\n}")))
   }
 
   test("toScalar(DataFrame) with SELECT") {
@@ -2099,9 +2097,7 @@ trait FunctionSuite extends TestData {
     val input = Seq("2023-10-10", "2022-05-15").toDF("date")
     val expected = Seq("2023/10/10", "2022/05/15").toDF("formatted_date")
 
-    checkAnswer(
-      input.select(date_format(col("date"), "YYYY/MM/DD").as("formatted_date")),
-      expected)
+    checkAnswer(input.select(date_format(col("date"), "YYYY/MM/DD").as("formatted_date")), expected)
   }
 
   test("last function") {
