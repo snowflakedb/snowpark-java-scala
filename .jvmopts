@@ -1,2 +1,0 @@
---add-opens=java.base/java.nio=org.apache.arrow.memory.core,ALL-UNNAMED
---add-exports=java.base/sun.security.util=ALL-UNNAMED
