@@ -5,7 +5,7 @@ on:
       - main
 jobs:
   whitesource:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     if: ${{ github.event.pull_request.user.login == 'sfc-gh-snyk-sca-sa' }}
     steps:
     - name: checkout
@@ -29,4 +29,3 @@ jobs:
         jira_token: ${{ secrets.JIRA_TOKEN }}
         gh_token: ${{ secrets.GITHUB_TOKEN }}
         amend: false # true if you want the commit to be amended with the JIRA number
-

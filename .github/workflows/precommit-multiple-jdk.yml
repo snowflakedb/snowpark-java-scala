@@ -14,16 +14,17 @@ jobs:
       fail-fast: false
     steps:
       - name: Checkout Code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
       - name: Install Java
-        uses: actions/setup-java@v1
+        uses: actions/setup-java@v4
         with:
+          distribution: temurin
           java-version: ${{ matrix.java }}
       - name: Decrypt profile.properties
         run: .github/scripts/decrypt_profile.sh
         env:
           PROFILE_PASSWORD: ${{ secrets.PROFILE_PASSWORD }}
       - name: Run test
-        run: sbt "testOnly com.snowflake.snowpark_test.UDTFSuite com.snowflake.snowpark_test.AlwaysCleanUDFSuite com.snowflake.snowpark_test.StoredProcedureSuite"
+        run: sbt -v +"testOnly com.snowflake.snowpark_test.UDTFSuite com.snowflake.snowpark_test.AlwaysCleanUDFSuite com.snowflake.snowpark_test.StoredProcedureSuite"
         env:
           JAVA_OPTS: "--add-opens=java.base/java.io=ALL-UNNAMED --add-opens=java.base/java.nio=org.apache.arrow.memory.core,ALL-UNNAMED --add-opens=java.base/java.lang=ALL-UNNAMED --add-opens=java.base/java.lang.reflect=ALL-UNNAMED --add-opens=java.base/java.util=ALL-UNNAMED --add-exports=java.base/sun.nio.ch=ALL-UNNAMED --add-exports=jdk.unsupported/sun.misc=ALL-UNNAMED --add-opens=java.base/sun.security.util=ALL-UNNAMED"

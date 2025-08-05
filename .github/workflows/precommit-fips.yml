@@ -12,14 +12,15 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
       - name: Setup JDK
-        uses: actions/setup-java@v1
+        uses: actions/setup-java@v4
         with:
-          java-version: 1.8
+          distribution: temurin
+          java-version: 8
       - name: Decrypt profile.properties
         run: .github/scripts/decrypt_profile.sh
         env:
           PROFILE_PASSWORD: ${{ secrets.PROFILE_PASSWORD }}
       - name: Run test
-        run: sbt "testOnly com.snowflake.snowpark_test.SessionSuite" -J-DFIPS_TEST=true
+        run: sbt -v +"testOnly com.snowflake.snowpark_test.SessionSuite" -J-DFIPS_TEST=true
         env:
           SNOWPARK_FIPS: true

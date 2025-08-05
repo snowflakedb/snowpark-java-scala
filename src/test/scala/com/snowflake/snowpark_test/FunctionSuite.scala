@@ -395,9 +395,7 @@ trait FunctionSuite extends TestData {
           "8ad8757baa8564dc136c1e07507f4a98", // pragma: allowlist secret
           "3ebfa301dc59196f18593c45e519287a23297589", // pragma: allowlist secret
           "d2d5c076b2435565f66649edd604dd5987163e8a8240953144ec652f" // pragma: allowlist secret
-        )
-      )
-    )
+        )))
   }
 
   test("hash") {
