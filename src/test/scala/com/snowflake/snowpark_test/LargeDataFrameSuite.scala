@@ -106,10 +106,9 @@ class LargeDataFrameSuite extends TestData {
 
     val timestamp: Long = 1606179541282L
 
-    val largeData = new ArrayBuffer[Row]()
-    for (i <- 0 to 1024) {
-      largeData.append(
-        Row(
+    var largeData =
+      for (i <- 0 to 1024)
+        yield Row(
           i.toLong,
           "a",
           1.toByte,
@@ -122,11 +121,9 @@ class LargeDataFrameSuite extends TestData {
           true,
           Array(1.toByte, 2.toByte),
           new Timestamp(timestamp - 100),
-          new Date(timestamp - 100)))
-    }
+          new Date(timestamp - 100))
     // Add one null values
-    largeData.append(
-      Row(1025, null, null, null, null, null, null, null, null, null, null, null, null))
+    largeData :+= Row(1025, null, null, null, null, null, null, null, null, null, null, null, null)
 
     val result = session.createDataFrame(largeData, schema)
     // byte, short, int, long are converted to long
@@ -140,11 +137,8 @@ class LargeDataFrameSuite extends TestData {
     val schema = StructType(Seq(StructField("id", LongType), StructField("time", TimeType)))
 
     val rowCount = 550
-    val largeData = new ArrayBuffer[Row]()
-    for (i <- 0 until rowCount) {
-      largeData.append(Row(i.toLong, Time.valueOf("11:12:13")))
-    }
-    largeData.append(Row(rowCount, null))
+    var largeData = for (i <- 0 until rowCount) yield Row(i.toLong, Time.valueOf("11:12:13"))
+    largeData :+= Row(rowCount, null)
 
     val df = session.createDataFrame(largeData, schema)
     assert(
@@ -154,12 +148,9 @@ class LargeDataFrameSuite extends TestData {
           | |--TIME: Time (nullable = true)
           |""".stripMargin)
 
-    val expected = new ArrayBuffer[Row]()
     val snowflakeTime = session.sql("select '11:12:13' :: Time").collect()(0).getTime(0)
-    for (i <- 0 until rowCount) {
-      expected.append(Row(i.toLong, snowflakeTime))
-    }
-    expected.append(Row(rowCount, null))
+    var expected = for (i <- 0 until rowCount) yield Row(i.toLong, snowflakeTime)
+    expected :+= Row(rowCount, null)
     checkAnswer(df.sort(col("id")), expected)
   }
 
@@ -175,18 +166,16 @@ class LargeDataFrameSuite extends TestData {
         StructField("geometry", GeometryType)))
 
     val rowCount = 350
-    val largeData = new ArrayBuffer[Row]()
-    for (i <- 0 until rowCount) {
-      largeData.append(
-        Row(
+    var largeData =
+      for (i <- 0 until rowCount)
+        yield Row(
           i.toLong,
           Array("'", 2),
           Map("'" -> 1),
           new Variant(1),
           Geography.fromGeoJSON("POINT(30 10)"),
-          Geometry.fromGeoJSON("POINT(20 40)")))
-    }
-    largeData.append(Row(rowCount, null, null, null, null, null))
+          Geometry.fromGeoJSON("POINT(20 40)"))
+    largeData :+= Row(rowCount, null, null, null, null, null)
 
     val df = session.createDataFrame(largeData, schema)
     assert(
@@ -200,10 +189,9 @@ class LargeDataFrameSuite extends TestData {
           | |--GEOMETRY: Geometry (nullable = true)
           |""".stripMargin)
 
-    val expected = new ArrayBuffer[Row]()
-    for (i <- 0 until rowCount) {
-      expected.append(
-        Row(
+    var expected =
+      for (i <- 0 until rowCount)
+        yield Row(
           i.toLong,
           "[\n  \"'\",\n  2\n]",
           "{\n  \"'\": 1\n}",
@@ -221,9 +209,8 @@ class LargeDataFrameSuite extends TestData {
             |    4.000000000000000e+01
             |  ],
             |  "type": "Point"
-            |}""".stripMargin)))
-    }
-    expected.append(Row(rowCount, null, null, null, null, null))
+            |}""".stripMargin))
+    expected :+= Row(rowCount, null, null, null, null, null)
     checkAnswer(df.sort(col("id")), expected)
   }
 
@@ -233,19 +220,19 @@ class LargeDataFrameSuite extends TestData {
         StructField("id", LongType),
         StructField("array", ArrayType(null)),
         StructField("map", MapType(null, null))))
-    val largeData = new ArrayBuffer[Row]()
     val rowCount = 350
-    for (i <- 0 until rowCount) {
-      largeData.append(
-        Row(i.toLong, Array(new Variant(1), new Variant("\"'")), Map("a" -> new Variant("\"'"))))
-    }
-    largeData.append(Row(rowCount, null, null))
+    var largeData =
+      for (i <- 0 until rowCount)
+        yield Row(
+          i.toLong,
+          Array(new Variant(1), new Variant("\"'")),
+          Map("a" -> new Variant("\"'")))
+    largeData :+= Row(rowCount, null, null)
     val df = session.createDataFrame(largeData, schema)
-    val expected = new ArrayBuffer[Row]()
-    for (i <- 0 until rowCount) {
-      expected.append(Row(i.toLong, "[\n  1,\n  \"\\\"'\"\n]", "{\n  \"a\": \"\\\"'\"\n}"))
-    }
-    expected.append(Row(rowCount, null, null))
+    var expected =
+      for (i <- 0 until rowCount)
+        yield Row(i.toLong, "[\n  1,\n  \"\\\"'\"\n]", "{\n  \"a\": \"\\\"'\"\n}")
+    expected :+= Row(rowCount, null, null)
     checkAnswer(df.sort(col("id")), expected)
   }
 
@@ -255,32 +242,28 @@ class LargeDataFrameSuite extends TestData {
         StructField("id", LongType),
         StructField("array", ArrayType(null)),
         StructField("map", MapType(null, null))))
-    val largeData = new ArrayBuffer[Row]()
     val rowCount = 350
-    for (i <- 0 until rowCount) {
-      largeData.append(
-        Row(
+    var largeData =
+      for (i <- 0 until rowCount)
+        yield Row(
           i.toLong,
           Array(
             Geography.fromGeoJSON("point(30 10)"),
             Geography.fromGeoJSON("{\"type\":\"Point\",\"coordinates\":[30,10]}")),
           Map(
             "a" -> Geography.fromGeoJSON("point(30 10)"),
-            "b" -> Geography.fromGeoJSON("{\"type\":\"Point\",\"coordinates\":[300,100]}"))))
-    }
-    largeData.append(Row(rowCount, null, null))
+            "b" -> Geography.fromGeoJSON("{\"type\":\"Point\",\"coordinates\":[300,100]}")))
+    largeData :+= Row(rowCount, null, null)
     val df = session.createDataFrame(largeData, schema)
-    val expected = new ArrayBuffer[Row]()
-    for (i <- 0 until rowCount) {
-      expected.append(
-        Row(
+    var expected =
+      for (i <- 0 until rowCount)
+        yield Row(
           i.toLong,
           "[\n  \"point(30 10)\",\n  {\n    \"coordinates\": [\n" +
             "      30,\n      10\n    ],\n    \"type\": \"Point\"\n  }\n]",
           "{\n  \"a\": \"point(30 10)\",\n  \"b\": {\n    \"coordinates\": [\n" +
-            "      300,\n      100\n    ],\n    \"type\": \"Point\"\n  }\n}"))
-    }
-    expected.append(Row(rowCount, null, null))
+            "      300,\n      100\n    ],\n    \"type\": \"Point\"\n  }\n}")
+    expected :+= Row(rowCount, null, null)
     checkAnswer(df.sort(col("id")), expected)
   }
 

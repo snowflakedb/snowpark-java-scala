@@ -23,9 +23,9 @@ lazy val root = (project in file("."))
   .configs(SprocTests)
   .settings(
     name := snowparkName,
-    version := "1.15.0-SNAPSHOT",
-    scalaVersion := sys.props.getOrElse("SCALA_VERSION", default = "2.12.18"),
-    crossScalaVersions := Seq("2.12.18", "2.13.15"),
+    version := "1.18.0-SNAPSHOT",
+    scalaVersion := sys.props.getOrElse("SCALA_VERSION", default = "2.13.16"),
+    crossScalaVersions := Seq("2.12.20", "2.13.16"),
     organization := "com.snowflake",
     javaOptions ++= Seq("-source", "1.8", "-target", "1.8"),
     licenses := Seq("The Apache Software License, Version 2.0" ->

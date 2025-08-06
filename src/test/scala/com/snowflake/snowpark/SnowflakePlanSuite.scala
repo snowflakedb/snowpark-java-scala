@@ -122,10 +122,7 @@ class SnowflakePlanSuite extends SNTestBase {
     assert(session.range(5).select(toScalar(session.range(3))).snowflakePlan.supportAsyncMode)
 
     // negative tests
-    val largeData = new ArrayBuffer[Row]()
-    for (i <- 0 to 1024) {
-      largeData.append(Row(i))
-    }
+    val largeData = for (i <- 0 to 1024) yield Row(i)
     val df2 = session.createDataFrame(largeData, StructType(Seq(StructField("ID", LongType))))
     assert(!df2.snowflakePlan.supportAsyncMode && !df2.clone.snowflakePlan.supportAsyncMode)
     assert(!session.sql(" put file").snowflakePlan.supportAsyncMode)

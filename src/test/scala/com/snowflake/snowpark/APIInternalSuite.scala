@@ -240,8 +240,8 @@ class APIInternalSuite extends TestData {
       Thread.sleep(5000)
       session.cancelAll()
 
-      assert(Await.result(q1, 10 minutes))
-      assert(Await.result(q2, 10 minutes))
+      assert(Await.result(q1, 10.minutes))
+      assert(Await.result(q2, 10.minutes))
       assert(session.generateNewActionID == session.getLastCanceledID + 1)
     } finally {
       session.runQuery(s"drop table if exists $tableName")
@@ -273,7 +273,7 @@ class APIInternalSuite extends TestData {
     Thread.sleep(5000)
     javaSession.cancelAll()
 
-    assert(Await.result(query, 10 minutes))
+    assert(Await.result(query, 10.minutes))
   }
 
   test("test get schema/database works after USE ROLE") {
@@ -569,10 +569,7 @@ class APIInternalSuite extends TestData {
       () => {
         import session.implicits._
         val schema = StructType(Seq(StructField("ID", LongType)))
-        val largeData = new ArrayBuffer[Row]()
-        for (i <- 0 to 1024) {
-          largeData.append(Row(i.toLong))
-        }
+        val largeData = for (i <- 0 to 1024) yield Row(i.toLong)
         // With specific schema
         var df = session.createDataFrame(largeData, schema)
         assert(df.snowflakePlan.queries.size == 3)
@@ -583,10 +580,7 @@ class APIInternalSuite extends TestData {
         checkAnswer(df.sort(col("id")), largeData)
 
         // infer schema
-        val inferData = new ArrayBuffer[Long]()
-        for (i <- 0 to 1024) {
-          inferData.append(i.toLong)
-        }
+        val inferData = for (i <- 0 to 1024) yield i.toLong
         df = inferData.toDF("id2")
         assert(df.snowflakePlan.queries.size == 3)
         assert(df.snowflakePlan.queries(0).sql.trim().startsWith("CREATE  SCOPED TEMPORARY  TABLE"))
@@ -978,10 +972,9 @@ class APIInternalSuite extends TestData {
 
     val timestamp: Long = 1606179541282L
 
-    val largeData = new ArrayBuffer[Row]()
-    for (i <- 0 to 1024) {
-      largeData.append(
-        Row(
+    var largeData =
+      for (i <- 0 to 1024)
+        yield Row(
           i.toLong,
           "a",
           1.toByte,
@@ -994,10 +987,9 @@ class APIInternalSuite extends TestData {
           true,
           Array(1.toByte, 2.toByte),
           new Timestamp(timestamp - 100),
-          new Date(timestamp - 100)))
-    }
-    largeData.append(
-      Row(1025, null, null, null, null, null, null, null, null, null, null, null, null))
+          new Date(timestamp - 100))
+
+    largeData :+= Row(1025, null, null, null, null, null, null, null, null, null, null, null, null)
 
     val df = session.createDataFrame(largeData, schema)
     checkExecuteAndGetQueryId(df)

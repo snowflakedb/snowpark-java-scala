@@ -144,7 +144,7 @@ trait SNTestBase extends AnyFunSuite with BeforeAndAfterAll with SFTestUtils wit
         case _: Exception => true // canceled
       }
     }
-    Await.result(query, 10 minutes)
+    Await.result(query, 10.minutes)
   }
 
   // Only create temp schema for non-java-sp tests, because owner's right SP does not support 'use'

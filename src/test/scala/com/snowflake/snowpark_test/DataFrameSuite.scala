@@ -436,8 +436,9 @@ trait DataFrameSuite extends TestData with BeforeAndAfterEach {
   test("df.stat.approxQuantile", JavaStoredProcExclude) {
     assert(approxNumbers.stat.approxQuantile("a", Array(0.5))(0).get == 4.5)
     assert(
-      approxNumbers.stat.approxQuantile("a", Array(0, 0.1, 0.4, 0.6, 1)).deep ==
-        Array(Some(0.0), Some(0.9), Some(3.6), Some(5.3999999999999995), Some(9.0)).deep)
+      approxNumbers.stat
+        .approxQuantile("a", Array(0, 0.1, 0.4, 0.6, 1))
+        .sameElements(Array(Some(0.0), Some(0.9), Some(3.6), Some(5.3999999999999995), Some(9.0))))
 
     // Probability out of range error and apply on string column error.
     assertThrows[SnowflakeSQLException](approxNumbers.stat.approxQuantile("a", Array(-1d)))
@@ -447,8 +448,8 @@ trait DataFrameSuite extends TestData with BeforeAndAfterEach {
     assert(session.table(tableName).stat.approxQuantile("num", Array(0.5))(0).isEmpty)
 
     val res = double2.stat.approxQuantile(Array("a", "b"), Array(0, 0.1, 0.6))
-    assert(res(0).deep == Array(Some(0.1), Some(0.12000000000000001), Some(0.22)).deep)
-    assert(res(1).deep == Array(Some(0.5), Some(0.52), Some(0.62)).deep)
+    assert(res(0).sameElements(Array(Some(0.1), Some(0.12000000000000001), Some(0.22))))
+    assert(res(1).sameElements(Array(Some(0.5), Some(0.52), Some(0.62))))
 
     // ApproxNumbers2 contains a column called T, which conflicts with tmpColumnName.
     // This test demos that the query still works.

@@ -12,7 +12,7 @@ import com.snowflake.snowpark.internal._
 import com.snowflake.snowpark.types._
 import com.snowflake.snowpark.udtf._
 
-import scala.collection.{Seq, mutable}
+import scala.collection.mutable
 
 @UDFTest
 class UDTFSuite extends TestData {

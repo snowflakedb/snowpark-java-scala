@@ -5,7 +5,7 @@ on:
       - main
 jobs:
   whitesource:
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-latest
     if: ${{ github.event.pull_request.user.login == 'sfc-gh-snyk-sca-sa' }}
     steps:
     - name: checkout

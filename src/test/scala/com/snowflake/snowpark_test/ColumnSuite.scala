@@ -649,10 +649,9 @@ class ColumnSuite extends TestData {
           StructField("date", DateType)))
 
       val timestamp: Long = 1606179541282L
-      val largeData = new ArrayBuffer[Row]()
-      for (i <- 0 to 5) {
-        largeData.append(
-          Row(
+      val largeData =
+        for (i <- 0 to 5)
+          yield Row(
             i.toLong,
             "a",
             1.toByte,
@@ -665,11 +664,10 @@ class ColumnSuite extends TestData {
             true,
             Array(1.toByte, 2.toByte),
             new Timestamp(timestamp - 100),
-            new Date(timestamp - 100)))
-      }
+            new Date(timestamp - 100))
 
       val df = session.createDataFrame(largeData, schema)
-      // scala style checks dosn't support to put all of these expression in one filter()
+      // scala style checks doesn't support to put all of these expression in one filter()
       // So split it as 2 steps.
       val df2 = df.filter(
         col("ID").in(Seq(1, 2)) &&

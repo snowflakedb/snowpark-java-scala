@@ -18,7 +18,9 @@ class JavaScalaAPISuite extends AnyFunSuite {
     "productArity",
     "unapply",
     "tupled",
-    "curried")
+    "curried",
+    "productElementName",
+    "productElementNames")
 
   // used to get list of Scala Seq functions
   class FakeSeq extends Seq[String] {

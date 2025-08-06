@@ -79,53 +79,6 @@ class UDFRegistrationSuite extends SNTestBase with FileUtils {
         ex2.getMessage.contains("does not exist or not authorized."))
   }
 
-  // Dynamic Compile scala code
-  private def generateDynamicClass(
-      packageName: String,
-      className: String,
-      inMemory: Boolean): Class[_] = {
-    // Generate a temp file for the scala code.
-    val classContent =
-      s"package $packageName\n class $className {\n class InnerClass {}\n}\nclass OuterClass {}\n"
-    val tempDir = Files.createTempDirectory(s"snowpark_test_class_gen_").toFile
-    val subDir = tempDir.getAbsolutePath + "/" + packageName
-    new File(subDir).mkdirs()
-    val fileName = subDir + "/" + className + ".scala"
-    val writeStream = new BufferedOutputStream(new FileOutputStream(fileName))
-    writeStream.write(classContent.getBytes())
-    writeStream.close()
-
-    // scalastyle:off println
-    val settings: GenericRunnerSettings =
-      new GenericRunnerSettings(err => println("Interpretor error: " + err))
-    // scalastyle:on println
-    settings.usejavacp.value = true
-    if (inMemory) {
-      settings.outputDirs.setSingleOutput(new VirtualDirectory(s"(memory)", None))
-    } else {
-      settings.Yreplclassbased.value = true
-      val targetDir = Files.createTempDirectory(s"snowpark_test_target_")
-      settings.Yreploutdir.value = targetDir.toFile.getAbsolutePath
-    }
-    val interpreter: IMain = new IMain(settings)
-    interpreter.compileSources(new BatchSourceFile(AbstractFile.getFile(new File(fileName))))
-
-    interpreter.classLoader.loadClass(s"$packageName.$className")
-  }
-
-  // runtime compiler has a bug in SBT
-  ignore("Test for addClassToDependencies(cls)") {
-    val packageName = "com_snowflake_snowpark_test"
-
-    val inMemoryName = s"DynamicCompile${Random.nextInt().abs}"
-    val inMemoryClass = generateDynamicClass(packageName, inMemoryName, true)
-    session.udf.handler.addClassToDependencies(inMemoryClass)
-
-    val onDiskName = s"DynamicCompile${Random.nextInt().abs}"
-    val onDiskClass = generateDynamicClass(packageName, onDiskName, false)
-    session.udf.handler.addClassToDependencies(onDiskClass)
-  }
-
   test("ls file") {
     val stageName = randomName()
     val specialName = s""""$stageName/aa""""

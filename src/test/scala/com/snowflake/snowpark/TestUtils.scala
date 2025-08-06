@@ -102,7 +102,7 @@ object TestUtils extends Logging {
     session.runQuery(s"insert into $name values ${data.map("(" + _.toString + ")").mkString(",")}")
 
   def insertIntoTable(name: String, data: java.util.List[Object], session: Session): Unit =
-    insertIntoTable(name, data.asScala.map(_.toString), session)
+    insertIntoTable(name, data.asScala.map(_.toString).toSeq, session)
 
   def uploadFileToStage(
       stageName: String,
@@ -293,7 +293,7 @@ object TestUtils extends Logging {
   }
 
   def checkResult(result: Array[Row], expected: java.util.List[Row], sort: Boolean): Unit =
-    checkResult(result, expected.asScala, sort)
+    checkResult(result, expected.asScala.toSeq, sort)
 
   def runQueryInSession(session: Session, sql: String): Unit =
     session.runQuery(sql)
