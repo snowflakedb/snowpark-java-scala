@@ -1,7 +1,25 @@
 #!/bin/bash -ex
 
+# verify only one argument is provided
+if [[ $# -ne 1 ]]; then
+    echo "Usage: $0 <SCALA_VERSION>" >&2
+    exit 1
+fi
+
+# validate argument correctness
+case "$1" in
+    "2.12.20"|"2.13.16")
+        # Valid option
+        ;;
+    *)
+        echo "Error: Invalid option. Expected '2.12.20', or '2.13.16'." >&2
+        exit 1
+        ;;
+esac
+
 # format src
-sbt clean +compile
+sbt clean
+sbt "++ $1 compile"
 
 if [ -z "$(git status --porcelain)" ]; then
   echo "Code Format Check: Passed!"
