@@ -492,7 +492,7 @@ class UtilsSuite extends SNTestBase {
   }
 
   test("Utils.version matches sbt build") {
-    assert(Utils.Version == "1.15.0-SNAPSHOT")
+    assert(Utils.Version == "1.17.0-SNAPSHOT")
   }
 
   test("Utils.retrySleepTimeInMS") {

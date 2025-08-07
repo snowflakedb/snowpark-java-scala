@@ -23,7 +23,7 @@ lazy val root = (project in file("."))
   .configs(SprocTests)
   .settings(
     name := snowparkName,
-    version := "1.18.0-SNAPSHOT",
+    version := "1.17.0-SNAPSHOT",
     scalaVersion := sys.props.getOrElse("SCALA_VERSION", default = "2.13.16"),
     crossScalaVersions := Seq("2.12.20", "2.13.16"),
     organization := "com.snowflake",

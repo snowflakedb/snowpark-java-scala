@@ -40,15 +40,14 @@ build_jdbc
 # skip com.snowflake.snowpark.ReplSuite because classpath are not set well for local jdbc jar
 rm -fr ./src/test/scala/com/snowflake/snowpark/ReplSuite.scala
 
-exit_code_decorator "sbt clean compile"
-exit_code_decorator "sbt JavaAPITests:test"
-exit_code_decorator "sbt SprocTests:test"
-exit_code_decorator "sbt NonparallelTests:test"
-exit_code_decorator "sbt UDFTests:test"
-exit_code_decorator "sbt UDTFTests:test"
-exit_code_decorator "sbt OtherTests:test"
+exit_code_decorator "sbt clean +compile"
+exit_code_decorator "sbt +JavaAPITests:test"
+exit_code_decorator "sbt +NonparallelTests:test"
+exit_code_decorator "sbt +UDFTests:test"
+exit_code_decorator "sbt +UDTFTests:test"
+exit_code_decorator "sbt +SprocTests:test"
+exit_code_decorator "sbt +OtherTests:test"
 
 # clean up
 rm -fr snowflake-jdbc
 git checkout -- .
-
