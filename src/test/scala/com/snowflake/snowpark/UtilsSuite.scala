@@ -681,27 +681,53 @@ class UtilsSuite extends SNTestBase {
       "nestedMap" -> Map("insideKey" -> "stringValue", "insideList" -> Seq(1, 2, 3)),
       "nestedList" -> Seq(1, Map("nestedKey" -> "nestedValue"), Array(1, 2, 3)))
     val jsonString = Utils.mapToJson(map)
-    val expected_string = "{" +
-      "\"floatKey\":3.14," +
-      "\"javaMapKey\":{" +
-      "\"one\":\"1\"," +
-      "\"two\":\"2\"," +
-      "\"three\":\"3\"}," +
-      "\"integerKey\":42," +
-      "\"nullKey\":null," +
-      "\"longKey\":1234567890," +
-      "\"byteKey\":123," +
-      "\"seqKey\":[1,2,3]," +
-      "\"nestedMap\":{\"insideKey\":\"stringValue\",\"insideList\":[1,2,3]}," +
-      "\"stringKey\":\"stringValue\"," +
-      "\"doubleKey\":3.1415926," +
-      "\"seqOfStringKey\":[\"1\",\"2\",\"3\"]," +
-      "\"nestedList\":[1,{\"nestedKey\":\"nestedValue\"},[1,2,3]]," +
-      "\"javaListKey\":[\"a\",\"b\"]," +
-      "\"arrayKey\":[1,2,3]," +
-      "\"boolKey\":false," +
-      "\"shortKey\":123}"
+    val expected_string = Utils.ScalaCompatVersion match {
+      case "2.12" =>
+        "{" +
+          "\"floatKey\":3.14," +
+          "\"javaMapKey\":{" +
+          "\"one\":\"1\"," +
+          "\"two\":\"2\"," +
+          "\"three\":\"3\"}," +
+          "\"integerKey\":42," +
+          "\"nullKey\":null," +
+          "\"longKey\":1234567890," +
+          "\"byteKey\":123," +
+          "\"seqKey\":[1,2,3]," +
+          "\"nestedMap\":{\"insideKey\":\"stringValue\",\"insideList\":[1,2,3]}," +
+          "\"stringKey\":\"stringValue\"," +
+          "\"doubleKey\":3.1415926," +
+          "\"seqOfStringKey\":[\"1\",\"2\",\"3\"]," +
+          "\"nestedList\":[1,{\"nestedKey\":\"nestedValue\"},[1,2,3]]," +
+          "\"javaListKey\":[\"a\",\"b\"]," +
+          "\"arrayKey\":[1,2,3]," +
+          "\"boolKey\":false," +
+          "\"shortKey\":123}"
+      case "2.13" =>
+        "{" +
+          "\"floatKey\":3.14," +
+          "\"javaMapKey\":{" +
+          "\"one\":\"1\"," +
+          "\"two\":\"2\"," +
+          "\"three\":\"3\"}," +
+          "\"integerKey\":42," +
+          "\"nullKey\":null," +
+          "\"longKey\":1234567890," +
+          "\"nestedMap\":{\"insideKey\":\"stringValue\",\"insideList\":[1,2,3]}," +
+          "\"stringKey\":\"stringValue\"," +
+          "\"doubleKey\":3.1415926," +
+          "\"seqOfStringKey\":[\"1\",\"2\",\"3\"]," +
+          "\"nestedList\":[1,{\"nestedKey\":\"nestedValue\"},[1,2,3]]," +
+          "\"boolKey\":false," +
+          "\"shortKey\":123," +
+          "\"byteKey\":123," +
+          "\"seqKey\":[1,2,3]," +
+          "\"javaListKey\":[\"a\",\"b\"]," +
+          "\"arrayKey\":[1,2,3]}"
+    }
     val readMap = Utils.jsonToMap(jsonString.getOrElse(""))
+    val expectedMap = Utils.jsonToMap(expected_string)
+    assert(readMap == expectedMap)
     val transformedString = Utils.mapToJson(readMap.getOrElse(Map()))
     assert(jsonString.getOrElse("").equals(expected_string))
     assert(jsonString.equals(transformedString))
