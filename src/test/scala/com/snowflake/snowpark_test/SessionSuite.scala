@@ -27,6 +27,10 @@ class SessionSuite extends SNTestBase {
     session.addDependency(snClassDir)
     session.addDependency(scalaClassDir)
     val result = Set(snClassDir, scalaClassDir).map((new File(_).toURI))
+    // scalastyle:off println
+    println(session.getDependencies)
+    println(result)
+    // scalastyle:on println
     assert(session.getDependencies sameElements result)
   }
 
