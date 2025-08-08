@@ -5,6 +5,11 @@ on:
   pull_request:
     branches: '**'
 
+# Cancel running workflows for previous commits within the same pull request.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
 jobs:
   # Tests whether Snowpark library and test suite compiles successfully, and if code formatting is changed by sbt.
   test-build-and-code-format:

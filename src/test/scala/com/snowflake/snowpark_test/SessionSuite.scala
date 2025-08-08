@@ -20,18 +20,14 @@ class SessionSuite extends SNTestBase {
   }
 
   test("Test for getDependencies") {
-    assert(session.getDependencies sameElements Set.empty)
+    assert(session.getDependencies.equals(Set.empty))
     val snClassDir = classOf[Session].getProtectionDomain.getCodeSource.getLocation.getPath
     val scalaClassDir =
       classOf[scala.Product].getProtectionDomain.getCodeSource.getLocation.getPath
     session.addDependency(snClassDir)
     session.addDependency(scalaClassDir)
     val result = Set(snClassDir, scalaClassDir).map((new File(_).toURI))
-    // scalastyle:off println
-    println(session.getDependencies)
-    println(result)
-    // scalastyle:on println
-    assert(session.getDependencies sameElements result)
+    assert(session.getDependencies.equals(result))
   }
 
   test("Test for create with multiple threads") {
