@@ -2,7 +2,7 @@ package com.snowflake.snowpark_java.types;
 
 import com.fasterxml.jackson.databind.JsonNode;
 
-// internal utils, excluded from doc
+/** @hidden internal utils, excluded from doc */
 public final class InternalUtils {
 
   // prevent to create instance of this Utils class

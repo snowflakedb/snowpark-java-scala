@@ -256,6 +256,10 @@ jobs:
     name: Generate JavaDoc
     needs: [ test-java-apis, test-nonparallel, test-udf-udtf-sproc-with-multiple-jdk, test-fips ]
     runs-on: ubuntu-22.04
+    strategy:
+      matrix:
+        scala: [ 2.12.20, 2.13.16 ]
+      fail-fast: false
     steps:
       - name: Checkout Code
         uses: actions/checkout@v4
@@ -268,5 +272,5 @@ jobs:
         run: .github/scripts/decrypt_profile.sh
         env:
           PROFILE_PASSWORD: ${{ secrets.PROFILE_PASSWORD }}
-      - name: Run JavaDoc Gen Script
-        run: scripts/generateJavaDoc.sh
+      - name: Generate JavaDoc
+        run: sbt "++ ${{ matrix.scala }} genjavadoc:doc"

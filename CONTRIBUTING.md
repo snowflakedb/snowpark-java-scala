@@ -17,7 +17,7 @@ Are you an external contibutor? Follow this guide to make your first pull reques
 3. Run the test suite using the following command
 
     ```bash 
-    mvn -DtagsToExclude=com.snowflake.snowpark.UDFTest -Dgpg.skip scoverage:report
+    sbt +test
     ```
     
 If the tests execute successfully, you can proceed to making your contribution/addition. When you're ready, head to the next section to create a pull request.
@@ -36,15 +36,23 @@ Before opening a pull request on the upstream repo, we recommend running the fol
 Run the following command to execute the test suite and and the formatter.
 
 ```bash
-mvn clean compile
+sbt clean +compile test
 ```
 
-### Generate the Java and Scala docs
+### Generate the Scala docs
+
+Run this command to generate the docs for the Scala APIs (for both 2.12, and 2.13):
+
+```bash
+sbt +doc
+```
+
+### Generate the Java docs
 
 The previous command will generate the Scala documentation. Run this command to generate the docs for the Java API:
 
 ```bash
-scripts/generateJavaDoc.sh
+sbt +genjavadoc:doc
 ```
 
 ### Open your pull request
@@ -58,76 +66,11 @@ After you have run the test suite, formatter, and docs locally open a pull reque
 To compile the latest code and build a jar without running tests, use the command:
 
 ```bash 
-mvn -DskipTests -Dgpg.skip package
+sbt +package
 ```
-
-This target also copies all the dependencies to the folder target/dependency.
-
-### Generate Scala API Docs
-
-Quick test:
-
-```bash
-mvn scala:doc
-```
-
-Apply All Configurations:
-
-```bash
-mvn -DskipTests -Dgpg.skip package
-```
-
-Doc can be found in `snowpark-java-scala/target/site`
-
-### Generate Java API Docs
-
-```bash
-scripts/generateJavaDoc.sh
-```
-
-Doc can be found in `snowpark-java-scala/javaDoc/target/site`
 
 ### Add New Java Test Suite
 
 Snowpark triggers all Java tests from Scala test suite `JavaAPISuite`. 
 So everytime when adding a new Java test suite, please update `JavaAPISuite` to trigger it,
 otherwise, that new Java test suite will be ignored.
-
-### Upload Test Coverage Report to SonarQube
-
-**Note:** This section is only applicable to Snowflake employees.
-
-### Prerequisite
-
-Install sonar-scanner
-
-https://docs.sonarqube.org/latest/analysis/scan/sonarscanner/
-
-### Script
-
-```bash
-# clean repo
-mvn clean verify -DskipTests -Dgpg.skip
-
-# generate report
-mvn -Dgpg.skip -e scoverage:report
-
-# setup version
-version=`git rev-parse HEAD`
-
-snowpark_home= # path to snowpark repo 
-
-sonar-scanner \
-    -Dsonar.host.url=https://sonarqube.int.snowflakecomputing.com \
-    -Dsonar.projectBaseDir=${snowpark_home} \
-    -Dsonar.projectVersion="$version" \
-    -Dsonar.scala.coverage.reportPaths=target/scoverage.xml \
-    -Dsonar.sources=src/main \
-    -Dsonar.binaries=target/scoverage-classes \
-    -Dsonar.java.binaries=target/scoverage-classes \
-    -Dsonar.tests=src/test \
-    -Dsonar.scala.version=2.12 \
-    -Dsonar.projectKey=snowpark \
-    -Dsonar.scm.revision=${version} \
-    -Dsonar.scm.provider=git
-```
