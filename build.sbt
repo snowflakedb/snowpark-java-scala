@@ -90,12 +90,6 @@ lazy val root = (project in file("."))
     startYear := Some(2018),
     licenses := Seq("The Apache Software License, Version 2.0" ->
       url("http://www.apache.org/licenses/LICENSE-2.0.txt")),
-    developers := List(
-      Developer(id = "Snowflake Support Team",
-                name = "Snowflake Computing",
-                email = "snowflake-java@snowflake.net",
-                url = url("http://www.snowflake.com/")),
-    ),
     maintainer := "snowflake-java@snowflake.net",
     scmInfo := Some(ScmInfo(
       browseUrl = url("https://github.com/snowflakedb/snowpark-java-scala/tree/main"),
@@ -104,14 +98,6 @@ lazy val root = (project in file("."))
     scalaVersion := sys.props.getOrElse("SCALA_VERSION", default = "2.13.16"),
     crossScalaVersions := Seq("2.12.20", "2.13.16"),
     javaOptions ++= Seq("-source", "1.8", "-target", "1.8"),
-    // Set up GPG key for release build from environment variable: GPG_HEX_CODE
-    // Build jenkins job must have set it, otherwise, the release build will fail.
-    credentials += Credentials(
-      "GnuPG Key ID",
-      "gpg",
-      Properties.envOrNone("GPG_HEX_CODE").getOrElse("Jenkins_build_not_set_GPG_HEX_CODE"),
-      "ignored" // this field is ignored; passwords are supplied by pinentry
-    ),
     libraryDependencies ++= Seq(
       "com.fasterxml.jackson.core" % "jackson-databind" % jacksonVersion,
       "com.fasterxml.jackson.core" % "jackson-core" % jacksonVersion,
@@ -177,6 +163,7 @@ lazy val root = (project in file("."))
       base.withClassifier(Some("javadoc"))
     },
     addArtifact(Javadoc / packageDoc / artifact, Javadoc / packageDoc),
+
     // Release settings
 
     // Release JAR including compiled test classes
@@ -258,6 +245,17 @@ lazy val root = (project in file("."))
       Artifact(name = snowparkName, `type` = "bundle", extension = "tar.gz", classifier = "bundle"),
       Universal / packageZipTarball),
 
+    credentials += Credentials(Path.userHome / ".ivy2" / ".credentials"),
+    // Set up GPG key for release build from environment variable: GPG_HEX_CODE
+    // Build jenkins job must have set it, otherwise, the release build will fail.
+    credentials += Credentials(
+      "GnuPG Key ID",
+      "gpg",
+      Properties.envOrNone("GPG_HEX_CODE").getOrElse("Jenkins_build_not_set_GPG_HEX_CODE"),
+      "ignored" // this field is ignored; passwords are supplied by pinentry
+    ),
+    resolvers +=
+      "Sonatype OSS Snapshots" at "https://oss.sonatype.org/content/repositories/snapshots",
     // usePgpKeyHex(Properties.envOrElse("GPG_SIGNATURE", "12345")),
     Global / pgpPassphrase := Properties.envOrNone("GPG_KEY_PASSPHRASE").map(_.toCharArray),
     publishMavenStyle := true,
@@ -269,7 +267,16 @@ lazy val root = (project in file("."))
       } else {
         Opts.resolver.sonatypeStaging
       }
-    )
+    ),
+    pomExtra :=
+      <developers>
+        <developer>
+          <name>Snowflake Support Team</name>
+          <email>snowflake-java@snowflake.net</email>
+          <organization>Snowflake Computing</organization>
+          <organizationUrl>https://www.snowflake.com</organizationUrl>
+        </developer>
+      </developers>
   )
 
 // Test Groups

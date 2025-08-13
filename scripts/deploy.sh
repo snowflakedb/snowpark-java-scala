@@ -81,7 +81,7 @@ sbt version
 
 
 if [ "$PUBLISH" = true ]; then
-  echo "[INFO] Signing package and deploying to staging area."
+  echo "[INFO] Publishing snowpark-java-scala @ $github_version_tag."
   sbt +publishSigned
 
 else
