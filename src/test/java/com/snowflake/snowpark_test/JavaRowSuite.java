@@ -94,7 +94,8 @@ public class JavaRowSuite extends TestBase {
             Geography.fromGeoJSON("{\"type\":\"Point\",\"coordinates\":[30,10]}"),
             new BigDecimal(12345),
             Geometry.fromGeoJSON(
-                "{\"coordinates\": [3.000000000000000e+01,1.000000000000000e+01],\"type\": \"Point\"}"));
+                "{\"coordinates\": [3.000000000000000e+01,1.000000000000000e+01],\"type\":"
+                    + " \"Point\"}"));
 
     assert row.size() == 5;
     assert Arrays.equals(row.getBinary(0), binary);
@@ -105,11 +106,13 @@ public class JavaRowSuite extends TestBase {
     assert row.getGeometry(4)
         .equals(
             Geometry.fromGeoJSON(
-                "{\"coordinates\": [3.000000000000000e+01,1.000000000000000e+01],\"type\": \"Point\"}"));
+                "{\"coordinates\": [3.000000000000000e+01,1.000000000000000e+01],\"type\":"
+                    + " \"Point\"}"));
 
     assert row.toString()
         .equals(
-            "Row[Binary(1,2),3,{\"type\":\"Point\",\"coordinates\":[30,10]},12345,{\"coordinates\": [3.000000000000000e+01,1.000000000000000e+01],\"type\": \"Point\"}]");
+            "Row[Binary(1,2),3,{\"type\":\"Point\",\"coordinates\":[30,10]},12345,{\"coordinates\":"
+                + " [3.000000000000000e+01,1.000000000000000e+01],\"type\": \"Point\"}]");
   }
 
   @Test
@@ -146,7 +149,8 @@ public class JavaRowSuite extends TestBase {
             com.snowflake.snowpark.types.Geography.fromGeoJSON(
                 "{\"type\":\"Point\",\"coordinates\":[30,10]}"),
             com.snowflake.snowpark.types.Geometry.fromGeoJSON(
-                "{\"coordinates\": [2.000000000000000e+01,4.000000000000000e+01],\"type\": \"Point\"}"));
+                "{\"coordinates\": [2.000000000000000e+01,4.000000000000000e+01],\"type\":"
+                    + " \"Point\"}"));
 
     assert row.get(0) instanceof Variant;
     assert row.get(1) instanceof Geography;
@@ -374,7 +378,8 @@ public class JavaRowSuite extends TestBase {
           DataFrame df =
               getSession()
                   .sql(
-                      "select {'1':{'a':1,'b':2},'2':{'c':3}} :: MAP(NUMBER, MAP(VARCHAR, NUMBER)) as map");
+                      "select {'1':{'a':1,'b':2},'2':{'c':3}} :: MAP(NUMBER, MAP(VARCHAR, NUMBER))"
+                          + " as map");
 
           StructType schema = df.schema();
           assert schema.get(0).dataType() instanceof MapType;
@@ -401,7 +406,8 @@ public class JavaRowSuite extends TestBase {
           DataFrame df =
               getSession()
                   .sql(
-                      "select {'a': {'b': {'d':10,'c': 'txt'}}} :: OBJECT(a OBJECT(b OBJECT(c VARCHAR, d NUMBER))) as obj1");
+                      "select {'a': {'b': {'d':10,'c': 'txt'}}} :: OBJECT(a OBJECT(b OBJECT(c"
+                          + " VARCHAR, d NUMBER))) as obj1");
           StructType schema = df.schema();
           schema.printTreeString();
           assert schema.get(0).dataType() instanceof StructType;
@@ -492,7 +498,13 @@ public class JavaRowSuite extends TestBase {
     assert row.getAs(7, Geometry.class)
         .equals(
             Geometry.fromGeoJSON(
-                "{\n  \"coordinates\": [\n    2.000000000000000e+01,\n    4.000000000000000e+01\n  ],\n  \"type\": \"Point\"\n}"));
+                "{\n"
+                    + "  \"coordinates\": [\n"
+                    + "    2.000000000000000e+01,\n"
+                    + "    4.000000000000000e+01\n"
+                    + "  ],\n"
+                    + "  \"type\": \"Point\"\n"
+                    + "}"));
     assert row.getAs(8, Integer.class) == Integer.MIN_VALUE;
     assert row.getAs(9, Long.class) == Long.MIN_VALUE;
     assert row.getAs(10, Short.class) == Short.MIN_VALUE;

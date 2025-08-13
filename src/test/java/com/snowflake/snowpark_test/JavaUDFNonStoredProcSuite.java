@@ -386,7 +386,8 @@ public class JavaUDFNonStoredProcSuite extends UDFTestBase {
     DataFrame df =
         getSession()
             .sql(
-                "select * from values(1,2,3,4,5,6,7,8,9,10,11) as t(a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,a11)");
+                "select * from values(1,2,3,4,5,6,7,8,9,10,11) as"
+                    + " t(a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,a11)");
     DataType[] input = {
       DataTypes.IntegerType,
       DataTypes.IntegerType,
@@ -442,7 +443,8 @@ public class JavaUDFNonStoredProcSuite extends UDFTestBase {
     DataFrame df =
         getSession()
             .sql(
-                "select * from values(1,2,3,4,5,6,7,8,9,10,11,12) as t(a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,a11,a12)");
+                "select * from values(1,2,3,4,5,6,7,8,9,10,11,12) as"
+                    + " t(a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,a11,a12)");
     DataType[] input = {
       DataTypes.IntegerType,
       DataTypes.IntegerType,
@@ -501,7 +503,8 @@ public class JavaUDFNonStoredProcSuite extends UDFTestBase {
     DataFrame df =
         getSession()
             .sql(
-                "select * from values(1,2,3,4,5,6,7,8,9,10,11,12,13) as t(a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,a11,a12,a13)");
+                "select * from values(1,2,3,4,5,6,7,8,9,10,11,12,13) as"
+                    + " t(a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,a11,a12,a13)");
     DataType[] input = {
       DataTypes.IntegerType,
       DataTypes.IntegerType,
@@ -563,7 +566,8 @@ public class JavaUDFNonStoredProcSuite extends UDFTestBase {
     DataFrame df =
         getSession()
             .sql(
-                "select * from values(1,2,3,4,5,6,7,8,9,10,11,12,13,14) as t(a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,a11,a12,a13,a14)");
+                "select * from values(1,2,3,4,5,6,7,8,9,10,11,12,13,14) as"
+                    + " t(a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,a11,a12,a13,a14)");
     DataType[] input = {
       DataTypes.IntegerType,
       DataTypes.IntegerType,
@@ -628,7 +632,8 @@ public class JavaUDFNonStoredProcSuite extends UDFTestBase {
     DataFrame df =
         getSession()
             .sql(
-                "select * from values(1,2,3,4,5,6,7,8,9,10,11,12,13,14,15) as t(a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,a11,a12,a13,a14,a15)");
+                "select * from values(1,2,3,4,5,6,7,8,9,10,11,12,13,14,15) as"
+                    + " t(a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,a11,a12,a13,a14,a15)");
     DataType[] input = {
       DataTypes.IntegerType,
       DataTypes.IntegerType,
@@ -696,7 +701,8 @@ public class JavaUDFNonStoredProcSuite extends UDFTestBase {
     DataFrame df =
         getSession()
             .sql(
-                "select * from values(1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16) as t(a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,a11,a12,a13,a14,a15,a16)");
+                "select * from values(1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16) as"
+                    + " t(a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,a11,a12,a13,a14,a15,a16)");
     DataType[] input = {
       DataTypes.IntegerType,
       DataTypes.IntegerType,
@@ -767,7 +773,8 @@ public class JavaUDFNonStoredProcSuite extends UDFTestBase {
     DataFrame df =
         getSession()
             .sql(
-                "select * from values(1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17) as t(a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,a11,a12,a13,a14,a15,a16,a17)");
+                "select * from values(1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17) as"
+                    + " t(a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,a11,a12,a13,a14,a15,a16,a17)");
     DataType[] input = {
       DataTypes.IntegerType,
       DataTypes.IntegerType,
@@ -841,7 +848,8 @@ public class JavaUDFNonStoredProcSuite extends UDFTestBase {
     DataFrame df =
         getSession()
             .sql(
-                "select * from values(1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18) as t(a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,a11,a12,a13,a14,a15,a16,a17,a18)");
+                "select * from values(1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18) as"
+                    + " t(a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,a11,a12,a13,a14,a15,a16,a17,a18)");
     DataType[] input = {
       DataTypes.IntegerType,
       DataTypes.IntegerType,
@@ -918,7 +926,8 @@ public class JavaUDFNonStoredProcSuite extends UDFTestBase {
     DataFrame df =
         getSession()
             .sql(
-                "select * from values(1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19) as t(a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,a11,a12,a13,a14,a15,a16,a17,a18,a19)");
+                "select * from values(1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19) as"
+                    + " t(a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,a11,a12,a13,a14,a15,a16,a17,a18,a19)");
     DataType[] input = {
       DataTypes.IntegerType,
       DataTypes.IntegerType,
@@ -998,7 +1007,8 @@ public class JavaUDFNonStoredProcSuite extends UDFTestBase {
     DataFrame df =
         getSession()
             .sql(
-                "select * from values(1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20) as t(a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,a11,a12,a13,a14,a15,a16,a17,a18,a19,a20)");
+                "select * from values(1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20) as"
+                    + " t(a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,a11,a12,a13,a14,a15,a16,a17,a18,a19,a20)");
     DataType[] input = {
       DataTypes.IntegerType,
       DataTypes.IntegerType,
@@ -1082,7 +1092,8 @@ public class JavaUDFNonStoredProcSuite extends UDFTestBase {
     DataFrame df =
         getSession()
             .sql(
-                "select * from values(1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21) as t(a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,a11,a12,a13,a14,a15,a16,a17,a18,a19,a20,a21)");
+                "select * from values(1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21) as"
+                    + " t(a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,a11,a12,a13,a14,a15,a16,a17,a18,a19,a20,a21)");
     DataType[] input = {
       DataTypes.IntegerType,
       DataTypes.IntegerType,
@@ -1169,7 +1180,8 @@ public class JavaUDFNonStoredProcSuite extends UDFTestBase {
     DataFrame df =
         getSession()
             .sql(
-                "select * from values(1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22) as t(a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,a11,a12,a13,a14,a15,a16,a17,a18,a19,a20,a21,a22)");
+                "select * from values(1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22) as"
+                    + " t(a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,a11,a12,a13,a14,a15,a16,a17,a18,a19,a20,a21,a22)");
     DataType[] input = {
       DataTypes.IntegerType,
       DataTypes.IntegerType,
@@ -1707,7 +1719,8 @@ public class JavaUDFNonStoredProcSuite extends UDFTestBase {
     DataFrame df =
         getSession()
             .sql(
-                "select * from values(1,2,3,4,5,6,7,8,9,10,11) as t(a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,a11)");
+                "select * from values(1,2,3,4,5,6,7,8,9,10,11) as"
+                    + " t(a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,a11)");
     DataType[] input = {
       DataTypes.IntegerType,
       DataTypes.IntegerType,
@@ -1782,7 +1795,8 @@ public class JavaUDFNonStoredProcSuite extends UDFTestBase {
     DataFrame df =
         getSession()
             .sql(
-                "select * from values(1,2,3,4,5,6,7,8,9,10,11,12) as t(a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,a11,a12)");
+                "select * from values(1,2,3,4,5,6,7,8,9,10,11,12) as"
+                    + " t(a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,a11,a12)");
     DataType[] input = {
       DataTypes.IntegerType,
       DataTypes.IntegerType,
@@ -1861,7 +1875,8 @@ public class JavaUDFNonStoredProcSuite extends UDFTestBase {
     DataFrame df =
         getSession()
             .sql(
-                "select * from values(1,2,3,4,5,6,7,8,9,10,11,12,13) as t(a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,a11,a12,a13)");
+                "select * from values(1,2,3,4,5,6,7,8,9,10,11,12,13) as"
+                    + " t(a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,a11,a12,a13)");
     DataType[] input = {
       DataTypes.IntegerType,
       DataTypes.IntegerType,
@@ -1944,7 +1959,8 @@ public class JavaUDFNonStoredProcSuite extends UDFTestBase {
     DataFrame df =
         getSession()
             .sql(
-                "select * from values(1,2,3,4,5,6,7,8,9,10,11,12,13,14) as t(a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,a11,a12,a13,a14)");
+                "select * from values(1,2,3,4,5,6,7,8,9,10,11,12,13,14) as"
+                    + " t(a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,a11,a12,a13,a14)");
     DataType[] input = {
       DataTypes.IntegerType,
       DataTypes.IntegerType,
@@ -2031,7 +2047,8 @@ public class JavaUDFNonStoredProcSuite extends UDFTestBase {
     DataFrame df =
         getSession()
             .sql(
-                "select * from values(1,2,3,4,5,6,7,8,9,10,11,12,13,14,15) as t(a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,a11,a12,a13,a14,a15)");
+                "select * from values(1,2,3,4,5,6,7,8,9,10,11,12,13,14,15) as"
+                    + " t(a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,a11,a12,a13,a14,a15)");
     DataType[] input = {
       DataTypes.IntegerType,
       DataTypes.IntegerType,
@@ -2122,7 +2139,8 @@ public class JavaUDFNonStoredProcSuite extends UDFTestBase {
     DataFrame df =
         getSession()
             .sql(
-                "select * from values(1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16) as t(a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,a11,a12,a13,a14,a15,a16)");
+                "select * from values(1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16) as"
+                    + " t(a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,a11,a12,a13,a14,a15,a16)");
     DataType[] input = {
       DataTypes.IntegerType,
       DataTypes.IntegerType,
@@ -2217,7 +2235,8 @@ public class JavaUDFNonStoredProcSuite extends UDFTestBase {
     DataFrame df =
         getSession()
             .sql(
-                "select * from values(1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17) as t(a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,a11,a12,a13,a14,a15,a16,a17)");
+                "select * from values(1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17) as"
+                    + " t(a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,a11,a12,a13,a14,a15,a16,a17)");
     DataType[] input = {
       DataTypes.IntegerType,
       DataTypes.IntegerType,
@@ -2316,7 +2335,8 @@ public class JavaUDFNonStoredProcSuite extends UDFTestBase {
     DataFrame df =
         getSession()
             .sql(
-                "select * from values(1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18) as t(a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,a11,a12,a13,a14,a15,a16,a17,a18)");
+                "select * from values(1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18) as"
+                    + " t(a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,a11,a12,a13,a14,a15,a16,a17,a18)");
     DataType[] input = {
       DataTypes.IntegerType,
       DataTypes.IntegerType,
@@ -2419,7 +2439,8 @@ public class JavaUDFNonStoredProcSuite extends UDFTestBase {
     DataFrame df =
         getSession()
             .sql(
-                "select * from values(1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19) as t(a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,a11,a12,a13,a14,a15,a16,a17,a18,a19)");
+                "select * from values(1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19) as"
+                    + " t(a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,a11,a12,a13,a14,a15,a16,a17,a18,a19)");
     DataType[] input = {
       DataTypes.IntegerType,
       DataTypes.IntegerType,
@@ -2526,7 +2547,8 @@ public class JavaUDFNonStoredProcSuite extends UDFTestBase {
     DataFrame df =
         getSession()
             .sql(
-                "select * from values(1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20) as t(a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,a11,a12,a13,a14,a15,a16,a17,a18,a19,a20)");
+                "select * from values(1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20) as"
+                    + " t(a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,a11,a12,a13,a14,a15,a16,a17,a18,a19,a20)");
     DataType[] input = {
       DataTypes.IntegerType,
       DataTypes.IntegerType,
@@ -2638,7 +2660,8 @@ public class JavaUDFNonStoredProcSuite extends UDFTestBase {
     DataFrame df =
         getSession()
             .sql(
-                "select * from values(1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21) as t(a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,a11,a12,a13,a14,a15,a16,a17,a18,a19,a20,a21)");
+                "select * from values(1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21) as"
+                    + " t(a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,a11,a12,a13,a14,a15,a16,a17,a18,a19,a20,a21)");
     DataType[] input = {
       DataTypes.IntegerType,
       DataTypes.IntegerType,
@@ -2754,7 +2777,8 @@ public class JavaUDFNonStoredProcSuite extends UDFTestBase {
     DataFrame df =
         getSession()
             .sql(
-                "select * from values(1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22) as t(a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,a11,a12,a13,a14,a15,a16,a17,a18,a19,a20,a21,a22)");
+                "select * from values(1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22) as"
+                    + " t(a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,a11,a12,a13,a14,a15,a16,a17,a18,a19,a20,a21,a22)");
     DataType[] input = {
       DataTypes.IntegerType,
       DataTypes.IntegerType,
@@ -3371,7 +3395,8 @@ public class JavaUDFNonStoredProcSuite extends UDFTestBase {
       DataFrame df =
           getSession()
               .sql(
-                  "select * from values(1,2,3,4,5,6,7,8,9,10) as t(a1,a2,a3,a4,a5,a6,a7,a8,a9,a10)");
+                  "select * from values(1,2,3,4,5,6,7,8,9,10) as"
+                      + " t(a1,a2,a3,a4,a5,a6,a7,a8,a9,a10)");
       DataType[] input = {
         DataTypes.IntegerType,
         DataTypes.IntegerType,
@@ -3454,7 +3479,8 @@ public class JavaUDFNonStoredProcSuite extends UDFTestBase {
       DataFrame df =
           getSession()
               .sql(
-                  "select * from values(1,2,3,4,5,6,7,8,9,10,11) as t(a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,a11)");
+                  "select * from values(1,2,3,4,5,6,7,8,9,10,11) as"
+                      + " t(a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,a11)");
       DataType[] input = {
         DataTypes.IntegerType,
         DataTypes.IntegerType,
@@ -3542,7 +3568,8 @@ public class JavaUDFNonStoredProcSuite extends UDFTestBase {
       DataFrame df =
           getSession()
               .sql(
-                  "select * from values(1,2,3,4,5,6,7,8,9,10,11,12) as t(a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,a11,a12)");
+                  "select * from values(1,2,3,4,5,6,7,8,9,10,11,12) as"
+                      + " t(a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,a11,a12)");
       DataType[] input = {
         DataTypes.IntegerType,
         DataTypes.IntegerType,
@@ -3634,7 +3661,8 @@ public class JavaUDFNonStoredProcSuite extends UDFTestBase {
       DataFrame df =
           getSession()
               .sql(
-                  "select * from values(1,2,3,4,5,6,7,8,9,10,11,12,13) as t(a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,a11,a12,a13)");
+                  "select * from values(1,2,3,4,5,6,7,8,9,10,11,12,13) as"
+                      + " t(a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,a11,a12,a13)");
       DataType[] input = {
         DataTypes.IntegerType,
         DataTypes.IntegerType,
@@ -3730,7 +3758,8 @@ public class JavaUDFNonStoredProcSuite extends UDFTestBase {
       DataFrame df =
           getSession()
               .sql(
-                  "select * from values(1,2,3,4,5,6,7,8,9,10,11,12,13,14) as t(a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,a11,a12,a13,a14)");
+                  "select * from values(1,2,3,4,5,6,7,8,9,10,11,12,13,14) as"
+                      + " t(a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,a11,a12,a13,a14)");
       DataType[] input = {
         DataTypes.IntegerType,
         DataTypes.IntegerType,
@@ -3830,7 +3859,8 @@ public class JavaUDFNonStoredProcSuite extends UDFTestBase {
       DataFrame df =
           getSession()
               .sql(
-                  "select * from values(1,2,3,4,5,6,7,8,9,10,11,12,13,14,15) as t(a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,a11,a12,a13,a14,a15)");
+                  "select * from values(1,2,3,4,5,6,7,8,9,10,11,12,13,14,15) as"
+                      + " t(a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,a11,a12,a13,a14,a15)");
       DataType[] input = {
         DataTypes.IntegerType,
         DataTypes.IntegerType,
@@ -3934,7 +3964,8 @@ public class JavaUDFNonStoredProcSuite extends UDFTestBase {
       DataFrame df =
           getSession()
               .sql(
-                  "select * from values(1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16) as t(a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,a11,a12,a13,a14,a15,a16)");
+                  "select * from values(1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16) as"
+                      + " t(a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,a11,a12,a13,a14,a15,a16)");
       DataType[] input = {
         DataTypes.IntegerType,
         DataTypes.IntegerType,
@@ -4028,7 +4059,8 @@ public class JavaUDFNonStoredProcSuite extends UDFTestBase {
           .sql(
               "drop function if exists "
                   + funcName
-                  + "(INT, INT, INT, INT, INT, INT, INT, INT, INT, INT, INT, INT, INT, INT, INT, INT)")
+                  + "(INT, INT, INT, INT, INT, INT, INT, INT, INT, INT, INT, INT, INT, INT, INT,"
+                  + " INT)")
           .collect();
     }
   }
@@ -4042,7 +4074,8 @@ public class JavaUDFNonStoredProcSuite extends UDFTestBase {
       DataFrame df =
           getSession()
               .sql(
-                  "select * from values(1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17) as t(a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,a11,a12,a13,a14,a15,a16,a17)");
+                  "select * from values(1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17) as"
+                      + " t(a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,a11,a12,a13,a14,a15,a16,a17)");
       DataType[] input = {
         DataTypes.IntegerType,
         DataTypes.IntegerType,
@@ -4140,7 +4173,8 @@ public class JavaUDFNonStoredProcSuite extends UDFTestBase {
           .sql(
               "drop function if exists "
                   + funcName
-                  + "(INT, INT, INT, INT, INT, INT, INT, INT, INT, INT, INT, INT, INT, INT, INT, INT, INT)")
+                  + "(INT, INT, INT, INT, INT, INT, INT, INT, INT, INT, INT, INT, INT, INT, INT,"
+                  + " INT, INT)")
           .collect();
     }
   }
@@ -4154,7 +4188,8 @@ public class JavaUDFNonStoredProcSuite extends UDFTestBase {
       DataFrame df =
           getSession()
               .sql(
-                  "select * from values(1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18) as t(a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,a11,a12,a13,a14,a15,a16,a17,a18)");
+                  "select * from values(1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18) as"
+                      + " t(a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,a11,a12,a13,a14,a15,a16,a17,a18)");
       DataType[] input = {
         DataTypes.IntegerType,
         DataTypes.IntegerType,
@@ -4256,7 +4291,8 @@ public class JavaUDFNonStoredProcSuite extends UDFTestBase {
           .sql(
               "drop function if exists "
                   + funcName
-                  + "(INT, INT, INT, INT, INT, INT, INT, INT, INT, INT, INT, INT, INT, INT, INT, INT, INT, INT)")
+                  + "(INT, INT, INT, INT, INT, INT, INT, INT, INT, INT, INT, INT, INT, INT, INT,"
+                  + " INT, INT, INT)")
           .collect();
     }
   }
@@ -4270,7 +4306,8 @@ public class JavaUDFNonStoredProcSuite extends UDFTestBase {
       DataFrame df =
           getSession()
               .sql(
-                  "select * from values(1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19) as t(a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,a11,a12,a13,a14,a15,a16,a17,a18,a19)");
+                  "select * from values(1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19) as"
+                      + " t(a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,a11,a12,a13,a14,a15,a16,a17,a18,a19)");
       DataType[] input = {
         DataTypes.IntegerType,
         DataTypes.IntegerType,
@@ -4376,7 +4413,8 @@ public class JavaUDFNonStoredProcSuite extends UDFTestBase {
           .sql(
               "drop function if exists "
                   + funcName
-                  + "(INT, INT, INT, INT, INT, INT, INT, INT, INT, INT, INT, INT, INT, INT, INT, INT, INT, INT, INT)")
+                  + "(INT, INT, INT, INT, INT, INT, INT, INT, INT, INT, INT, INT, INT, INT, INT,"
+                  + " INT, INT, INT, INT)")
           .collect();
     }
   }
@@ -4390,7 +4428,8 @@ public class JavaUDFNonStoredProcSuite extends UDFTestBase {
       DataFrame df =
           getSession()
               .sql(
-                  "select * from values(1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20) as t(a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,a11,a12,a13,a14,a15,a16,a17,a18,a19,a20)");
+                  "select * from values(1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20) as"
+                      + " t(a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,a11,a12,a13,a14,a15,a16,a17,a18,a19,a20)");
       DataType[] input = {
         DataTypes.IntegerType,
         DataTypes.IntegerType,
@@ -4501,7 +4540,8 @@ public class JavaUDFNonStoredProcSuite extends UDFTestBase {
           .sql(
               "drop function if exists "
                   + funcName
-                  + "(INT, INT, INT, INT, INT, INT, INT, INT, INT, INT, INT, INT, INT, INT, INT, INT, INT, INT, INT, INT)")
+                  + "(INT, INT, INT, INT, INT, INT, INT, INT, INT, INT, INT, INT, INT, INT, INT,"
+                  + " INT, INT, INT, INT, INT)")
           .collect();
     }
   }
@@ -4515,7 +4555,8 @@ public class JavaUDFNonStoredProcSuite extends UDFTestBase {
       DataFrame df =
           getSession()
               .sql(
-                  "select * from values(1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21) as t(a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,a11,a12,a13,a14,a15,a16,a17,a18,a19,a20,a21)");
+                  "select * from values(1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21) as"
+                      + " t(a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,a11,a12,a13,a14,a15,a16,a17,a18,a19,a20,a21)");
       DataType[] input = {
         DataTypes.IntegerType,
         DataTypes.IntegerType,
@@ -4630,7 +4671,8 @@ public class JavaUDFNonStoredProcSuite extends UDFTestBase {
           .sql(
               "drop function if exists "
                   + funcName
-                  + "(INT, INT, INT, INT, INT, INT, INT, INT, INT, INT, INT, INT, INT, INT, INT, INT, INT, INT, INT, INT, INT)")
+                  + "(INT, INT, INT, INT, INT, INT, INT, INT, INT, INT, INT, INT, INT, INT, INT,"
+                  + " INT, INT, INT, INT, INT, INT)")
           .collect();
     }
   }
@@ -4644,7 +4686,8 @@ public class JavaUDFNonStoredProcSuite extends UDFTestBase {
       DataFrame df =
           getSession()
               .sql(
-                  "select * from values(1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22) as t(a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,a11,a12,a13,a14,a15,a16,a17,a18,a19,a20,a21,a22)");
+                  "select * from values(1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22)"
+                      + " as t(a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,a11,a12,a13,a14,a15,a16,a17,a18,a19,a20,a21,a22)");
       DataType[] input = {
         DataTypes.IntegerType,
         DataTypes.IntegerType,
@@ -4763,7 +4806,8 @@ public class JavaUDFNonStoredProcSuite extends UDFTestBase {
           .sql(
               "drop function if exists "
                   + funcName
-                  + "(INT, INT, INT, INT, INT, INT, INT, INT, INT, INT, INT, INT, INT, INT, INT, INT, INT, INT, INT, INT, INT, INT)")
+                  + "(INT, INT, INT, INT, INT, INT, INT, INT, INT, INT, INT, INT, INT, INT, INT,"
+                  + " INT, INT, INT, INT, INT, INT, INT)")
           .collect();
     }
   }
@@ -5080,7 +5124,8 @@ public class JavaUDFNonStoredProcSuite extends UDFTestBase {
     DataFrame df =
         getSession()
             .sql(
-                "select * from values(1,2,3,4,5,6,7,8,9,10,11) as t(a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,a11)");
+                "select * from values(1,2,3,4,5,6,7,8,9,10,11) as"
+                    + " t(a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,a11)");
     DataType[] input = {
       DataTypes.IntegerType,
       DataTypes.IntegerType,
@@ -5133,7 +5178,8 @@ public class JavaUDFNonStoredProcSuite extends UDFTestBase {
     DataFrame df =
         getSession()
             .sql(
-                "select * from values(1,2,3,4,5,6,7,8,9,10,11,12) as t(a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,a11,a12)");
+                "select * from values(1,2,3,4,5,6,7,8,9,10,11,12) as"
+                    + " t(a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,a11,a12)");
     DataType[] input = {
       DataTypes.IntegerType,
       DataTypes.IntegerType,
@@ -5190,7 +5236,8 @@ public class JavaUDFNonStoredProcSuite extends UDFTestBase {
     DataFrame df =
         getSession()
             .sql(
-                "select * from values(1,2,3,4,5,6,7,8,9,10,11,12,13) as t(a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,a11,a12,a13)");
+                "select * from values(1,2,3,4,5,6,7,8,9,10,11,12,13) as"
+                    + " t(a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,a11,a12,a13)");
     DataType[] input = {
       DataTypes.IntegerType,
       DataTypes.IntegerType,
@@ -5250,7 +5297,8 @@ public class JavaUDFNonStoredProcSuite extends UDFTestBase {
     DataFrame df =
         getSession()
             .sql(
-                "select * from values(1,2,3,4,5,6,7,8,9,10,11,12,13,14) as t(a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,a11,a12,a13,a14)");
+                "select * from values(1,2,3,4,5,6,7,8,9,10,11,12,13,14) as"
+                    + " t(a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,a11,a12,a13,a14)");
     DataType[] input = {
       DataTypes.IntegerType,
       DataTypes.IntegerType,
@@ -5313,7 +5361,8 @@ public class JavaUDFNonStoredProcSuite extends UDFTestBase {
     DataFrame df =
         getSession()
             .sql(
-                "select * from values(1,2,3,4,5,6,7,8,9,10,11,12,13,14,15) as t(a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,a11,a12,a13,a14,a15)");
+                "select * from values(1,2,3,4,5,6,7,8,9,10,11,12,13,14,15) as"
+                    + " t(a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,a11,a12,a13,a14,a15)");
     DataType[] input = {
       DataTypes.IntegerType,
       DataTypes.IntegerType,
@@ -5379,7 +5428,8 @@ public class JavaUDFNonStoredProcSuite extends UDFTestBase {
     DataFrame df =
         getSession()
             .sql(
-                "select * from values(1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16) as t(a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,a11,a12,a13,a14,a15,a16)");
+                "select * from values(1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16) as"
+                    + " t(a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,a11,a12,a13,a14,a15,a16)");
     DataType[] input = {
       DataTypes.IntegerType,
       DataTypes.IntegerType,
@@ -5448,7 +5498,8 @@ public class JavaUDFNonStoredProcSuite extends UDFTestBase {
     DataFrame df =
         getSession()
             .sql(
-                "select * from values(1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17) as t(a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,a11,a12,a13,a14,a15,a16,a17)");
+                "select * from values(1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17) as"
+                    + " t(a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,a11,a12,a13,a14,a15,a16,a17)");
     DataType[] input = {
       DataTypes.IntegerType,
       DataTypes.IntegerType,
@@ -5520,7 +5571,8 @@ public class JavaUDFNonStoredProcSuite extends UDFTestBase {
     DataFrame df =
         getSession()
             .sql(
-                "select * from values(1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18) as t(a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,a11,a12,a13,a14,a15,a16,a17,a18)");
+                "select * from values(1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18) as"
+                    + " t(a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,a11,a12,a13,a14,a15,a16,a17,a18)");
     DataType[] input = {
       DataTypes.IntegerType,
       DataTypes.IntegerType,
@@ -5595,7 +5647,8 @@ public class JavaUDFNonStoredProcSuite extends UDFTestBase {
     DataFrame df =
         getSession()
             .sql(
-                "select * from values(1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19) as t(a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,a11,a12,a13,a14,a15,a16,a17,a18,a19)");
+                "select * from values(1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19) as"
+                    + " t(a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,a11,a12,a13,a14,a15,a16,a17,a18,a19)");
     DataType[] input = {
       DataTypes.IntegerType,
       DataTypes.IntegerType,
@@ -5673,7 +5726,8 @@ public class JavaUDFNonStoredProcSuite extends UDFTestBase {
     DataFrame df =
         getSession()
             .sql(
-                "select * from values(1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20) as t(a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,a11,a12,a13,a14,a15,a16,a17,a18,a19,a20)");
+                "select * from values(1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20) as"
+                    + " t(a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,a11,a12,a13,a14,a15,a16,a17,a18,a19,a20)");
     DataType[] input = {
       DataTypes.IntegerType,
       DataTypes.IntegerType,
@@ -5754,7 +5808,8 @@ public class JavaUDFNonStoredProcSuite extends UDFTestBase {
     DataFrame df =
         getSession()
             .sql(
-                "select * from values(1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21) as t(a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,a11,a12,a13,a14,a15,a16,a17,a18,a19,a20,a21)");
+                "select * from values(1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21) as"
+                    + " t(a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,a11,a12,a13,a14,a15,a16,a17,a18,a19,a20,a21)");
     DataType[] input = {
       DataTypes.IntegerType,
       DataTypes.IntegerType,
@@ -5838,7 +5893,8 @@ public class JavaUDFNonStoredProcSuite extends UDFTestBase {
     DataFrame df =
         getSession()
             .sql(
-                "select * from values(1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22) as t(a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,a11,a12,a13,a14,a15,a16,a17,a18,a19,a20,a21,a22)");
+                "select * from values(1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22) as"
+                    + " t(a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,a11,a12,a13,a14,a15,a16,a17,a18,a19,a20,a21,a22)");
     DataType[] input = {
       DataTypes.IntegerType,
       DataTypes.IntegerType,

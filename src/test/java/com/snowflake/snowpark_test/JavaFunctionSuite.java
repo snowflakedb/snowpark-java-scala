@@ -171,7 +171,8 @@ public class JavaFunctionSuite extends TestBase {
     DataFrame df3 =
         getSession()
             .sql(
-                "select * from values(null,null,null),(null,null,null),(null,null,null) as T(x,y,z)");
+                "select * from values(null,null,null),(null,null,null),(null,null,null) as"
+                    + " T(x,y,z)");
     Row[] expected3 = {Row.create(null, null, null)};
 
     checkAnswer(
@@ -258,14 +259,32 @@ public class JavaFunctionSuite extends TestBase {
         getSession().sql("select * from values(1),(2),(3),(4),(5),(6),(7),(8),(9),(0) as T(a)");
     Row[] expected = {
       Row.create(
-          "{\n  \"state\": [\n    0.000000000000000e+00,\n    1.000000000000000e+00,\n    "
-              + "1.000000000000000e+00,\n    1.000000000000000e+00,\n    2.000000000000000e+00,\n    "
-              + "1.000000000000000e+00,\n    3.000000000000000e+00,\n    1.000000000000000e+00,\n    "
-              + "4.000000000000000e+00,\n    1.000000000000000e+00,\n    5.000000000000000e+00,\n    "
-              + "1.000000000000000e+00,\n    6.000000000000000e+00,\n    1.000000000000000e+00,\n    "
-              + "7.000000000000000e+00,\n    1.000000000000000e+00,\n    8.000000000000000e+00,\n    "
-              + "1.000000000000000e+00,\n    9.000000000000000e+00,\n    1.000000000000000e+00\n  ],\n  "
-              + "\"type\": \"tdigest\",\n  \"version\": 1\n}")
+          "{\n"
+              + "  \"state\": [\n"
+              + "    0.000000000000000e+00,\n"
+              + "    1.000000000000000e+00,\n"
+              + "    1.000000000000000e+00,\n"
+              + "    1.000000000000000e+00,\n"
+              + "    2.000000000000000e+00,\n"
+              + "    1.000000000000000e+00,\n"
+              + "    3.000000000000000e+00,\n"
+              + "    1.000000000000000e+00,\n"
+              + "    4.000000000000000e+00,\n"
+              + "    1.000000000000000e+00,\n"
+              + "    5.000000000000000e+00,\n"
+              + "    1.000000000000000e+00,\n"
+              + "    6.000000000000000e+00,\n"
+              + "    1.000000000000000e+00,\n"
+              + "    7.000000000000000e+00,\n"
+              + "    1.000000000000000e+00,\n"
+              + "    8.000000000000000e+00,\n"
+              + "    1.000000000000000e+00,\n"
+              + "    9.000000000000000e+00,\n"
+              + "    1.000000000000000e+00\n"
+              + "  ],\n"
+              + "  \"type\": \"tdigest\",\n"
+              + "  \"version\": 1\n"
+              + "}")
     };
     checkAnswer(df.select(Functions.approx_percentile_accumulate(df.col("a"))), expected);
   }
@@ -293,19 +312,46 @@ public class JavaFunctionSuite extends TestBase {
     DataFrame df3 = df1.union(df2);
     Row[] expected = {
       Row.create(
-          "{\n  \"state\": [\n    0.000000000000000e+00,\n    1.000000000000000e+00,\n    "
-              + "1.000000000000000e+00,\n    1.000000000000000e+00,\n    2.000000000000000e+00,\n    "
-              + "1.000000000000000e+00,\n    3.000000000000000e+00,\n    1.000000000000000e+00,\n    "
-              + "3.000000000000000e+00,\n    1.000000000000000e+00,\n    4.000000000000000e+00,\n    "
-              + "1.000000000000000e+00,\n    4.000000000000000e+00,\n    1.000000000000000e+00,\n    "
-              + "5.000000000000000e+00,\n    1.000000000000000e+00,\n    5.000000000000000e+00,\n    "
-              + "1.000000000000000e+00,\n    6.000000000000000e+00,\n    1.000000000000000e+00,\n    "
-              + "6.000000000000000e+00,\n    1.000000000000000e+00,\n    7.000000000000000e+00,\n    "
-              + "1.000000000000000e+00,\n    7.000000000000000e+00,\n    1.000000000000000e+00,\n    "
-              + "8.000000000000000e+00,\n    1.000000000000000e+00,\n    8.000000000000000e+00,\n    "
-              + "1.000000000000000e+00,\n    9.000000000000000e+00,\n    1.000000000000000e+00,\n    "
-              + "9.000000000000000e+00,\n    1.000000000000000e+00\n  ],\n  \"type\": \"tdigest\",\n  "
-              + "\"version\": 1\n}")
+          "{\n"
+              + "  \"state\": [\n"
+              + "    0.000000000000000e+00,\n"
+              + "    1.000000000000000e+00,\n"
+              + "    1.000000000000000e+00,\n"
+              + "    1.000000000000000e+00,\n"
+              + "    2.000000000000000e+00,\n"
+              + "    1.000000000000000e+00,\n"
+              + "    3.000000000000000e+00,\n"
+              + "    1.000000000000000e+00,\n"
+              + "    3.000000000000000e+00,\n"
+              + "    1.000000000000000e+00,\n"
+              + "    4.000000000000000e+00,\n"
+              + "    1.000000000000000e+00,\n"
+              + "    4.000000000000000e+00,\n"
+              + "    1.000000000000000e+00,\n"
+              + "    5.000000000000000e+00,\n"
+              + "    1.000000000000000e+00,\n"
+              + "    5.000000000000000e+00,\n"
+              + "    1.000000000000000e+00,\n"
+              + "    6.000000000000000e+00,\n"
+              + "    1.000000000000000e+00,\n"
+              + "    6.000000000000000e+00,\n"
+              + "    1.000000000000000e+00,\n"
+              + "    7.000000000000000e+00,\n"
+              + "    1.000000000000000e+00,\n"
+              + "    7.000000000000000e+00,\n"
+              + "    1.000000000000000e+00,\n"
+              + "    8.000000000000000e+00,\n"
+              + "    1.000000000000000e+00,\n"
+              + "    8.000000000000000e+00,\n"
+              + "    1.000000000000000e+00,\n"
+              + "    9.000000000000000e+00,\n"
+              + "    1.000000000000000e+00,\n"
+              + "    9.000000000000000e+00,\n"
+              + "    1.000000000000000e+00\n"
+              + "  ],\n"
+              + "  \"type\": \"tdigest\",\n"
+              + "  \"version\": 1\n"
+              + "}")
     };
 
     checkAnswer(df3.select(Functions.approx_percentile_combine(df3.col("b"))), expected);
@@ -1115,7 +1161,8 @@ public class JavaFunctionSuite extends TestBase {
     DataFrame df =
         getSession()
             .sql(
-                "select * from values('2020-08-01'::Date, 'mo'),('2010-12-01'::Date, 'we') as T(a,b)");
+                "select * from values('2020-08-01'::Date, 'mo'),('2010-12-01'::Date, 'we') as"
+                    + " T(a,b)");
     Row[] expected = {Row.create(new Date(120, 6, 27)), Row.create(new Date(110, 10, 24))};
     checkAnswer(df.select(Functions.previous_day(df.col("a"), df.col("b"))), expected);
   }
@@ -1180,7 +1227,8 @@ public class JavaFunctionSuite extends TestBase {
     DataFrame df =
         getSession()
             .sql(
-                "select * from values(2020, 10, 28, 13, 35, 47, 1234567, 'America/Los_Angeles') as T(year, month, day, hour, minute, second, nanosecond, timezone)");
+                "select * from values(2020, 10, 28, 13, 35, 47, 1234567, 'America/Los_Angeles') as"
+                    + " T(year, month, day, hour, minute, second, nanosecond, timezone)");
     assert df.select(
             Functions.timestamp_from_parts(
                 df.col("year"),
@@ -1224,7 +1272,8 @@ public class JavaFunctionSuite extends TestBase {
     DataFrame df =
         getSession()
             .sql(
-                "select * from values(2020, 10, 28, 13, 35, 47, 1234567, 'America/Los_Angeles') as T(year, month, day, hour, minute, second, nanosecond, timezone)");
+                "select * from values(2020, 10, 28, 13, 35, 47, 1234567, 'America/Los_Angeles') as"
+                    + " T(year, month, day, hour, minute, second, nanosecond, timezone)");
 
     assert df.select(
             Functions.timestamp_ltz_from_parts(
@@ -1259,7 +1308,8 @@ public class JavaFunctionSuite extends TestBase {
     DataFrame df =
         getSession()
             .sql(
-                "select * from values(2020, 10, 28, 13, 35, 47, 1234567, 'America/Los_Angeles') as T(year, month, day, hour, minute, second, nanosecond, timezone)");
+                "select * from values(2020, 10, 28, 13, 35, 47, 1234567, 'America/Los_Angeles') as"
+                    + " T(year, month, day, hour, minute, second, nanosecond, timezone)");
 
     assert df.select(
             Functions.timestamp_ntz_from_parts(
@@ -1304,7 +1354,8 @@ public class JavaFunctionSuite extends TestBase {
     DataFrame df =
         getSession()
             .sql(
-                "select * from values(2020, 10, 28, 13, 35, 47, 1234567, 'America/Los_Angeles') as T(year, month, day, hour, minute, second, nanosecond, timezone)");
+                "select * from values(2020, 10, 28, 13, 35, 47, 1234567, 'America/Los_Angeles') as"
+                    + " T(year, month, day, hour, minute, second, nanosecond, timezone)");
 
     assert df.select(
             Functions.timestamp_tz_from_parts(
@@ -1558,17 +1609,14 @@ public class JavaFunctionSuite extends TestBase {
             .sql(
                 "select to_variant(to_array('Example')) as arr1,"
                     + " to_variant(to_object(parse_json('{\"Tree\": \"Pine\"}'))) as obj1, "
-                    + " to_variant(to_binary('snow', 'utf-8')) as bin1,"
-                    + " to_variant(true) as bool1,"
-                    + " to_variant('X') as str1, "
-                    + " to_variant(to_date('2017-02-24')) as date1, "
+                    + " to_variant(to_binary('snow', 'utf-8')) as bin1, to_variant(true) as bool1,"
+                    + " to_variant('X') as str1,  to_variant(to_date('2017-02-24')) as date1, "
                     + " to_variant(to_time('20:57:01.123456789+07:00')) as time1, "
                     + " to_variant(to_timestamp_ntz('2017-02-24 12:00:00.456')) as timestamp_ntz1, "
-                    + " to_variant(to_timestamp_ltz('2017-02-24 13:00:00.123 +01:00')) as timestamp_ltz1, "
-                    + " to_variant(to_timestamp_tz('2017-02-24 13:00:00.123 +01:00')) as timestamp_tz1, "
-                    + " to_variant(1.23::decimal(6, 3)) as decimal1, "
-                    + " to_variant(3.21::double) as double1, "
-                    + " to_variant(15) as num1 ");
+                    + " to_variant(to_timestamp_ltz('2017-02-24 13:00:00.123 +01:00')) as"
+                    + " timestamp_ltz1,  to_variant(to_timestamp_tz('2017-02-24 13:00:00.123"
+                    + " +01:00')) as timestamp_tz1,  to_variant(1.23::decimal(6, 3)) as decimal1, "
+                    + " to_variant(3.21::double) as double1,  to_variant(15) as num1 ");
     Row[] expected = {Row.create(false, true, false)};
     checkAnswer(
         df.select(
@@ -1585,17 +1633,14 @@ public class JavaFunctionSuite extends TestBase {
             .sql(
                 "select to_variant(to_array('Example')) as arr1,"
                     + " to_variant(to_object(parse_json('{\"Tree\": \"Pine\"}'))) as obj1, "
-                    + " to_variant(to_binary('snow', 'utf-8')) as bin1,"
-                    + " to_variant(true) as bool1,"
-                    + " to_variant('X') as str1, "
-                    + " to_variant(to_date('2017-02-24')) as date1, "
+                    + " to_variant(to_binary('snow', 'utf-8')) as bin1, to_variant(true) as bool1,"
+                    + " to_variant('X') as str1,  to_variant(to_date('2017-02-24')) as date1, "
                     + " to_variant(to_time('20:57:01.123456789+07:00')) as time1, "
                     + " to_variant(to_timestamp_ntz('2017-02-24 12:00:00.456')) as timestamp_ntz1, "
-                    + " to_variant(to_timestamp_ltz('2017-02-24 13:00:00.123 +01:00')) as timestamp_ltz1, "
-                    + " to_variant(to_timestamp_tz('2017-02-24 13:00:00.123 +01:00')) as timestamp_tz1, "
-                    + " to_variant(1.23::decimal(6, 3)) as decimal1, "
-                    + " to_variant(3.21::double) as double1, "
-                    + " to_variant(15) as num1 ");
+                    + " to_variant(to_timestamp_ltz('2017-02-24 13:00:00.123 +01:00')) as"
+                    + " timestamp_ltz1,  to_variant(to_timestamp_tz('2017-02-24 13:00:00.123"
+                    + " +01:00')) as timestamp_tz1,  to_variant(1.23::decimal(6, 3)) as decimal1, "
+                    + " to_variant(3.21::double) as double1,  to_variant(15) as num1 ");
     Row[] expected = {Row.create(true, false, false)};
     checkAnswer(
         df.select(
@@ -1612,17 +1657,14 @@ public class JavaFunctionSuite extends TestBase {
             .sql(
                 "select to_variant(to_array('Example')) as arr1,"
                     + " to_variant(to_object(parse_json('{\"Tree\": \"Pine\"}'))) as obj1, "
-                    + " to_variant(to_binary('snow', 'utf-8')) as bin1,"
-                    + " to_variant(true) as bool1,"
-                    + " to_variant('X') as str1, "
-                    + " to_variant(to_date('2017-02-24')) as date1, "
+                    + " to_variant(to_binary('snow', 'utf-8')) as bin1, to_variant(true) as bool1,"
+                    + " to_variant('X') as str1,  to_variant(to_date('2017-02-24')) as date1, "
                     + " to_variant(to_time('20:57:01.123456789+07:00')) as time1, "
                     + " to_variant(to_timestamp_ntz('2017-02-24 12:00:00.456')) as timestamp_ntz1, "
-                    + " to_variant(to_timestamp_ltz('2017-02-24 13:00:00.123 +01:00')) as timestamp_ltz1, "
-                    + " to_variant(to_timestamp_tz('2017-02-24 13:00:00.123 +01:00')) as timestamp_tz1, "
-                    + " to_variant(1.23::decimal(6, 3)) as decimal1, "
-                    + " to_variant(3.21::double) as double1, "
-                    + " to_variant(15) as num1 ");
+                    + " to_variant(to_timestamp_ltz('2017-02-24 13:00:00.123 +01:00')) as"
+                    + " timestamp_ltz1,  to_variant(to_timestamp_tz('2017-02-24 13:00:00.123"
+                    + " +01:00')) as timestamp_tz1,  to_variant(1.23::decimal(6, 3)) as decimal1, "
+                    + " to_variant(3.21::double) as double1,  to_variant(15) as num1 ");
     Row[] expected = {Row.create(true, false, false)};
     checkAnswer(
         df.select(
@@ -1646,17 +1688,14 @@ public class JavaFunctionSuite extends TestBase {
             .sql(
                 "select to_variant(to_array('Example')) as arr1,"
                     + " to_variant(to_object(parse_json('{\"Tree\": \"Pine\"}'))) as obj1, "
-                    + " to_variant(to_binary('snow', 'utf-8')) as bin1,"
-                    + " to_variant(true) as bool1,"
-                    + " to_variant('X') as str1, "
-                    + " to_variant(to_date('2017-02-24')) as date1, "
+                    + " to_variant(to_binary('snow', 'utf-8')) as bin1, to_variant(true) as bool1,"
+                    + " to_variant('X') as str1,  to_variant(to_date('2017-02-24')) as date1, "
                     + " to_variant(to_time('20:57:01.123456789+07:00')) as time1, "
                     + " to_variant(to_timestamp_ntz('2017-02-24 12:00:00.456')) as timestamp_ntz1, "
-                    + " to_variant(to_timestamp_ltz('2017-02-24 13:00:00.123 +01:00')) as timestamp_ltz1, "
-                    + " to_variant(to_timestamp_tz('2017-02-24 13:00:00.123 +01:00')) as timestamp_tz1, "
-                    + " to_variant(1.23::decimal(6, 3)) as decimal1, "
-                    + " to_variant(3.21::double) as double1, "
-                    + " to_variant(15) as num1 ");
+                    + " to_variant(to_timestamp_ltz('2017-02-24 13:00:00.123 +01:00')) as"
+                    + " timestamp_ltz1,  to_variant(to_timestamp_tz('2017-02-24 13:00:00.123"
+                    + " +01:00')) as timestamp_tz1,  to_variant(1.23::decimal(6, 3)) as decimal1, "
+                    + " to_variant(3.21::double) as double1,  to_variant(15) as num1 ");
     Row[] expected = {Row.create(true, false, false)};
     checkAnswer(
         df.select(
@@ -1680,17 +1719,14 @@ public class JavaFunctionSuite extends TestBase {
             .sql(
                 "select to_variant(to_array('Example')) as arr1,"
                     + " to_variant(to_object(parse_json('{\"Tree\": \"Pine\"}'))) as obj1, "
-                    + " to_variant(to_binary('snow', 'utf-8')) as bin1,"
-                    + " to_variant(true) as bool1,"
-                    + " to_variant('X') as str1, "
-                    + " to_variant(to_date('2017-02-24')) as date1, "
+                    + " to_variant(to_binary('snow', 'utf-8')) as bin1, to_variant(true) as bool1,"
+                    + " to_variant('X') as str1,  to_variant(to_date('2017-02-24')) as date1, "
                     + " to_variant(to_time('20:57:01.123456789+07:00')) as time1, "
                     + " to_variant(to_timestamp_ntz('2017-02-24 12:00:00.456')) as timestamp_ntz1, "
-                    + " to_variant(to_timestamp_ltz('2017-02-24 13:00:00.123 +01:00')) as timestamp_ltz1, "
-                    + " to_variant(to_timestamp_tz('2017-02-24 13:00:00.123 +01:00')) as timestamp_tz1, "
-                    + " to_variant(1.23::decimal(6, 3)) as decimal1, "
-                    + " to_variant(3.21::double) as double1, "
-                    + " to_variant(15) as num1 ");
+                    + " to_variant(to_timestamp_ltz('2017-02-24 13:00:00.123 +01:00')) as"
+                    + " timestamp_ltz1,  to_variant(to_timestamp_tz('2017-02-24 13:00:00.123"
+                    + " +01:00')) as timestamp_tz1,  to_variant(1.23::decimal(6, 3)) as decimal1, "
+                    + " to_variant(3.21::double) as double1,  to_variant(15) as num1 ");
     Row[] expected = {Row.create(true, false, true)};
     checkAnswer(
         df.select(
@@ -1707,17 +1743,14 @@ public class JavaFunctionSuite extends TestBase {
             .sql(
                 "select to_variant(to_array('Example')) as arr1,"
                     + " to_variant(to_object(parse_json('{\"Tree\": \"Pine\"}'))) as obj1, "
-                    + " to_variant(to_binary('snow', 'utf-8')) as bin1,"
-                    + " to_variant(true) as bool1,"
-                    + " to_variant('X') as str1, "
-                    + " to_variant(to_date('2017-02-24')) as date1, "
+                    + " to_variant(to_binary('snow', 'utf-8')) as bin1, to_variant(true) as bool1,"
+                    + " to_variant('X') as str1,  to_variant(to_date('2017-02-24')) as date1, "
                     + " to_variant(to_time('20:57:01.123456789+07:00')) as time1, "
                     + " to_variant(to_timestamp_ntz('2017-02-24 12:00:00.456')) as timestamp_ntz1, "
-                    + " to_variant(to_timestamp_ltz('2017-02-24 13:00:00.123 +01:00')) as timestamp_ltz1, "
-                    + " to_variant(to_timestamp_tz('2017-02-24 13:00:00.123 +01:00')) as timestamp_tz1, "
-                    + " to_variant(1.23::decimal(6, 3)) as decimal1, "
-                    + " to_variant(3.21::double) as double1, "
-                    + " to_variant(15) as num1 ");
+                    + " to_variant(to_timestamp_ltz('2017-02-24 13:00:00.123 +01:00')) as"
+                    + " timestamp_ltz1,  to_variant(to_timestamp_tz('2017-02-24 13:00:00.123"
+                    + " +01:00')) as timestamp_tz1,  to_variant(1.23::decimal(6, 3)) as decimal1, "
+                    + " to_variant(3.21::double) as double1,  to_variant(15) as num1 ");
     Row[] expected = {Row.create(true, true, true, false)};
     checkAnswer(
         df.select(
@@ -1743,17 +1776,14 @@ public class JavaFunctionSuite extends TestBase {
             .sql(
                 "select to_variant(to_array('Example')) as arr1,"
                     + " to_variant(to_object(parse_json('{\"Tree\": \"Pine\"}'))) as obj1, "
-                    + " to_variant(to_binary('snow', 'utf-8')) as bin1,"
-                    + " to_variant(true) as bool1,"
-                    + " to_variant('X') as str1, "
-                    + " to_variant(to_date('2017-02-24')) as date1, "
+                    + " to_variant(to_binary('snow', 'utf-8')) as bin1, to_variant(true) as bool1,"
+                    + " to_variant('X') as str1,  to_variant(to_date('2017-02-24')) as date1, "
                     + " to_variant(to_time('20:57:01.123456789+07:00')) as time1, "
                     + " to_variant(to_timestamp_ntz('2017-02-24 12:00:00.456')) as timestamp_ntz1, "
-                    + " to_variant(to_timestamp_ltz('2017-02-24 13:00:00.123 +01:00')) as timestamp_ltz1, "
-                    + " to_variant(to_timestamp_tz('2017-02-24 13:00:00.123 +01:00')) as timestamp_tz1, "
-                    + " to_variant(1.23::decimal(6, 3)) as decimal1, "
-                    + " to_variant(3.21::double) as double1, "
-                    + " to_variant(15) as num1 ");
+                    + " to_variant(to_timestamp_ltz('2017-02-24 13:00:00.123 +01:00')) as"
+                    + " timestamp_ltz1,  to_variant(to_timestamp_tz('2017-02-24 13:00:00.123"
+                    + " +01:00')) as timestamp_tz1,  to_variant(1.23::decimal(6, 3)) as decimal1, "
+                    + " to_variant(3.21::double) as double1,  to_variant(15) as num1 ");
     Row[] expected = {Row.create(false, false, true, false)};
     checkAnswer(
         df.select(
@@ -1769,7 +1799,8 @@ public class JavaFunctionSuite extends TestBase {
     DataFrame df =
         getSession()
             .sql(
-                "select parse_json(column1) as v  from values ('{\"a\": null}'), ('{\"a\": \"foo\"}'), (null)");
+                "select parse_json(column1) as v  from values ('{\"a\": null}'), ('{\"a\":"
+                    + " \"foo\"}'), (null)");
     Row[] expected = {Row.create(true), Row.create(false), Row.create((Object) null)};
     checkAnswer(df.select(Functions.is_null_value(Functions.sqlExpr("v:a"))), expected);
   }
@@ -1781,17 +1812,14 @@ public class JavaFunctionSuite extends TestBase {
             .sql(
                 "select to_variant(to_array('Example')) as arr1,"
                     + " to_variant(to_object(parse_json('{\"Tree\": \"Pine\"}'))) as obj1, "
-                    + " to_variant(to_binary('snow', 'utf-8')) as bin1,"
-                    + " to_variant(true) as bool1,"
-                    + " to_variant('X') as str1, "
-                    + " to_variant(to_date('2017-02-24')) as date1, "
+                    + " to_variant(to_binary('snow', 'utf-8')) as bin1, to_variant(true) as bool1,"
+                    + " to_variant('X') as str1,  to_variant(to_date('2017-02-24')) as date1, "
                     + " to_variant(to_time('20:57:01.123456789+07:00')) as time1, "
                     + " to_variant(to_timestamp_ntz('2017-02-24 12:00:00.456')) as timestamp_ntz1, "
-                    + " to_variant(to_timestamp_ltz('2017-02-24 13:00:00.123 +01:00')) as timestamp_ltz1, "
-                    + " to_variant(to_timestamp_tz('2017-02-24 13:00:00.123 +01:00')) as timestamp_tz1, "
-                    + " to_variant(1.23::decimal(6, 3)) as decimal1, "
-                    + " to_variant(3.21::double) as double1, "
-                    + " to_variant(15) as num1 ");
+                    + " to_variant(to_timestamp_ltz('2017-02-24 13:00:00.123 +01:00')) as"
+                    + " timestamp_ltz1,  to_variant(to_timestamp_tz('2017-02-24 13:00:00.123"
+                    + " +01:00')) as timestamp_tz1,  to_variant(1.23::decimal(6, 3)) as decimal1, "
+                    + " to_variant(3.21::double) as double1,  to_variant(15) as num1 ");
     Row[] expected = {Row.create(true, false, false)};
     checkAnswer(
         df.select(
@@ -1808,17 +1836,14 @@ public class JavaFunctionSuite extends TestBase {
             .sql(
                 "select to_variant(to_array('Example')) as arr1,"
                     + " to_variant(to_object(parse_json('{\"Tree\": \"Pine\"}'))) as obj1, "
-                    + " to_variant(to_binary('snow', 'utf-8')) as bin1,"
-                    + " to_variant(true) as bool1,"
-                    + " to_variant('X') as str1, "
-                    + " to_variant(to_date('2017-02-24')) as date1, "
+                    + " to_variant(to_binary('snow', 'utf-8')) as bin1, to_variant(true) as bool1,"
+                    + " to_variant('X') as str1,  to_variant(to_date('2017-02-24')) as date1, "
                     + " to_variant(to_time('20:57:01.123456789+07:00')) as time1, "
                     + " to_variant(to_timestamp_ntz('2017-02-24 12:00:00.456')) as timestamp_ntz1, "
-                    + " to_variant(to_timestamp_ltz('2017-02-24 13:00:00.123 +01:00')) as timestamp_ltz1, "
-                    + " to_variant(to_timestamp_tz('2017-02-24 13:00:00.123 +01:00')) as timestamp_tz1, "
-                    + " to_variant(1.23::decimal(6, 3)) as decimal1, "
-                    + " to_variant(3.21::double) as double1, "
-                    + " to_variant(15) as num1 ");
+                    + " to_variant(to_timestamp_ltz('2017-02-24 13:00:00.123 +01:00')) as"
+                    + " timestamp_ltz1,  to_variant(to_timestamp_tz('2017-02-24 13:00:00.123"
+                    + " +01:00')) as timestamp_tz1,  to_variant(1.23::decimal(6, 3)) as decimal1, "
+                    + " to_variant(3.21::double) as double1,  to_variant(15) as num1 ");
     Row[] expected = {Row.create(true, false, false)};
     checkAnswer(
         df.select(
@@ -1835,17 +1860,14 @@ public class JavaFunctionSuite extends TestBase {
             .sql(
                 "select to_variant(to_array('Example')) as arr1,"
                     + " to_variant(to_object(parse_json('{\"Tree\": \"Pine\"}'))) as obj1, "
-                    + " to_variant(to_binary('snow', 'utf-8')) as bin1,"
-                    + " to_variant(true) as bool1,"
-                    + " to_variant('X') as str1, "
-                    + " to_variant(to_date('2017-02-24')) as date1, "
+                    + " to_variant(to_binary('snow', 'utf-8')) as bin1, to_variant(true) as bool1,"
+                    + " to_variant('X') as str1,  to_variant(to_date('2017-02-24')) as date1, "
                     + " to_variant(to_time('20:57:01.123456789+07:00')) as time1, "
                     + " to_variant(to_timestamp_ntz('2017-02-24 12:00:00.456')) as timestamp_ntz1, "
-                    + " to_variant(to_timestamp_ltz('2017-02-24 13:00:00.123 +01:00')) as timestamp_ltz1, "
-                    + " to_variant(to_timestamp_tz('2017-02-24 13:00:00.123 +01:00')) as timestamp_tz1, "
-                    + " to_variant(1.23::decimal(6, 3)) as decimal1, "
-                    + " to_variant(3.21::double) as double1, "
-                    + " to_variant(15) as num1 ");
+                    + " to_variant(to_timestamp_ltz('2017-02-24 13:00:00.123 +01:00')) as"
+                    + " timestamp_ltz1,  to_variant(to_timestamp_tz('2017-02-24 13:00:00.123"
+                    + " +01:00')) as timestamp_tz1,  to_variant(1.23::decimal(6, 3)) as decimal1, "
+                    + " to_variant(3.21::double) as double1,  to_variant(15) as num1 ");
 
     Row[] expected = {Row.create(true, false, false)};
     checkAnswer(
@@ -1877,7 +1899,8 @@ public class JavaFunctionSuite extends TestBase {
     DataFrame df =
         getSession()
             .sql(
-                "select parse_json(column1) as v  from values ('{\"a\": null}'), ('{\"a\": \"foo\"}'), (null)");
+                "select parse_json(column1) as v  from values ('{\"a\": null}'), ('{\"a\":"
+                    + " \"foo\"}'), (null)");
     Row[] expected = {
       Row.create((Object) null), Row.create((Object) null), Row.create((Object) null)
     };
@@ -1921,7 +1944,8 @@ public class JavaFunctionSuite extends TestBase {
     DataFrame df =
         getSession()
             .sql(
-                "select parse_json(column1) as v  from values ('{\"a\": null}'), ('{\"a\": \"foo\"}'), (null)");
+                "select parse_json(column1) as v  from values ('{\"a\": null}'), ('{\"a\":"
+                    + " \"foo\"}'), (null)");
     Row[] expected = {
       Row.create("{\n  \"a\": null\n}"),
       Row.create("{\n  \"a\": \"foo\"\n}"),
@@ -1951,7 +1975,8 @@ public class JavaFunctionSuite extends TestBase {
     DataFrame df =
         getSession()
             .sql(
-                "select parse_json(column1) as v  from values ('{\"a\": null}'), ('{\"a\": \"foo\"}'), (null)");
+                "select parse_json(column1) as v  from values ('{\"a\": null}'), ('{\"a\":"
+                    + " \"foo\"}'), (null)");
     Row[] expected = {Row.create((Object) null), Row.create("\"foo\""), Row.create((Object) null)};
     checkAnswer(df.select(Functions.strip_null_value(Functions.sqlExpr("v:a"))), expected);
   }
@@ -2035,8 +2060,9 @@ public class JavaFunctionSuite extends TestBase {
     DataFrame df =
         getSession()
             .sql(
-                "select array_construct(a,b,c) as arr1, d, e, f "
-                    + "from values(1,2,3,2,'e1','[{a:1}]'),(6,7,8,1,'e2','[{a:1},{b:2}]') as T(a,b,c,d,e,f)");
+                "select array_construct(a,b,c) as arr1, d, e, f from"
+                    + " values(1,2,3,2,'e1','[{a:1}]'),(6,7,8,1,'e2','[{a:1},{b:2}]') as"
+                    + " T(a,b,c,d,e,f)");
     Row[] expected = {
       Row.create("[\n  1,\n  2,\n  \"e1\",\n  3\n]"), Row.create("[\n  6,\n  \"e2\",\n  7,\n  8\n]")
     };
@@ -2049,8 +2075,9 @@ public class JavaFunctionSuite extends TestBase {
     DataFrame df =
         getSession()
             .sql(
-                "select array_construct(a,b,c) as arr1, d, e, f "
-                    + "from values(1,2,3,2,'e1','[{a:1}]'),(6,7,8,1,'e2','[{a:1},{b:2}]') as T(a,b,c,d,e,f)");
+                "select array_construct(a,b,c) as arr1, d, e, f from"
+                    + " values(1,2,3,2,'e1','[{a:1}]'),(6,7,8,1,'e2','[{a:1},{b:2}]') as"
+                    + " T(a,b,c,d,e,f)");
     Row[] expected = {Row.create(1), Row.create((Object) null)};
     checkAnswer(df.select(Functions.array_position(df.col("d"), df.col("arr1"))), expected);
   }
@@ -2079,8 +2106,9 @@ public class JavaFunctionSuite extends TestBase {
     DataFrame df =
         getSession()
             .sql(
-                "select array_construct(a,b,c) as arr1, d, e, f "
-                    + "from values(1,2,3,2,'e1','[{a:1}]'),(6,7,8,1,'e2','[{a:1},{b:2}]') as T(a,b,c,d,e,f)");
+                "select array_construct(a,b,c) as arr1, d, e, f from"
+                    + " values(1,2,3,2,'e1','[{a:1}]'),(6,7,8,1,'e2','[{a:1},{b:2}]') as"
+                    + " T(a,b,c,d,e,f)");
     Row[] expected = {Row.create(3), Row.create(3)};
     checkAnswer(df.select(Functions.array_size(df.col("arr1"))), expected);
   }
@@ -2090,8 +2118,8 @@ public class JavaFunctionSuite extends TestBase {
     DataFrame df =
         getSession()
             .sql(
-                "select array_construct(a,b,c) as arr1, d, e, f "
-                    + "from values(1,2,3,1,2,','),(4,5,6,1,-1,', '),(6,7,8,0,2,';') as T(a,b,c,d,e,f)");
+                "select array_construct(a,b,c) as arr1, d, e, f from"
+                    + " values(1,2,3,1,2,','),(4,5,6,1,-1,', '),(6,7,8,0,2,';') as T(a,b,c,d,e,f)");
     Row[] expected = {
       Row.create("[\n  2\n]"), Row.create("[\n  5\n]"), Row.create("[\n  6,\n  7\n]")
     };
@@ -2104,8 +2132,8 @@ public class JavaFunctionSuite extends TestBase {
     DataFrame df =
         getSession()
             .sql(
-                "select array_construct(a,b,c) as arr1, d, e, f "
-                    + "from values(1,2,3,1,2,','),(4,5,6,1,-1,', '),(6,7,8,0,2,';') as T(a,b,c,d,e,f)");
+                "select array_construct(a,b,c) as arr1, d, e, f from"
+                    + " values(1,2,3,1,2,','),(4,5,6,1,-1,', '),(6,7,8,0,2,';') as T(a,b,c,d,e,f)");
     Row[] expected = {Row.create("1,2,3"), Row.create("4, 5, 6"), Row.create("6;7;8")};
     checkAnswer(df.select(Functions.array_to_string(df.col("arr1"), df.col("f"))), expected);
   }
@@ -2137,9 +2165,9 @@ public class JavaFunctionSuite extends TestBase {
     DataFrame df =
         getSession()
             .sql(
-                "select object_construct(a,b,c,d,e,f) as obj, k, v, flag from values('age', 21, 'zip', "
-                    + "21021, 'name', 'Joe', 'age', 0, true),('age', 26, 'zip', 94021, 'name', 'Jay', 'key', "
-                    + "0, false) as T(a,b,c,d,e,f,k,v,flag)");
+                "select object_construct(a,b,c,d,e,f) as obj, k, v, flag from values('age', 21,"
+                    + " 'zip', 21021, 'name', 'Joe', 'age', 0, true),('age', 26, 'zip', 94021,"
+                    + " 'name', 'Jay', 'key', 0, false) as T(a,b,c,d,e,f,k,v,flag)");
     Row[] expected = {
       Row.create("{\n  \"zip\": 21021\n}"), Row.create("{\n  \"age\": 26,\n  \"zip\": 94021\n}")
     };
@@ -2155,9 +2183,9 @@ public class JavaFunctionSuite extends TestBase {
     DataFrame df =
         getSession()
             .sql(
-                "select object_construct(a,b,c,d,e,f) as obj, k, v, flag from values('age', 21, 'zip', "
-                    + "21021, 'name', 'Joe', 'age', 0, true),('age', 26, 'zip', 94021, 'name', 'Jay', 'key', "
-                    + "0, false) as T(a,b,c,d,e,f,k,v,flag)");
+                "select object_construct(a,b,c,d,e,f) as obj, k, v, flag from values('age', 21,"
+                    + " 'zip', 21021, 'name', 'Joe', 'age', 0, true),('age', 26, 'zip', 94021,"
+                    + " 'name', 'Jay', 'key', 0, false) as T(a,b,c,d,e,f,k,v,flag)");
     Row[] expected = {
       Row.create("{\n  \"age\": 21,\n  \"key\": \"v\",\n  \"name\": \"Joe\",\n  \"zip\": 21021\n}"),
       Row.create("{\n  \"age\": 26,\n  \"key\": \"v\",\n  \"name\": \"Jay\",\n  \"zip\": 94021\n}")
@@ -2180,9 +2208,9 @@ public class JavaFunctionSuite extends TestBase {
     DataFrame df =
         getSession()
             .sql(
-                "select object_construct(a,b,c,d,e,f) as obj, k, v, flag from values('age', 21, 'zip', "
-                    + "21021, 'name', 'Joe', 'age', 0, true),('age', 26, 'zip', 94021, 'name', 'Jay', 'key', "
-                    + "0, false) as T(a,b,c,d,e,f,k,v,flag)");
+                "select object_construct(a,b,c,d,e,f) as obj, k, v, flag from values('age', 21,"
+                    + " 'zip', 21021, 'name', 'Joe', 'age', 0, true),('age', 26, 'zip', 94021,"
+                    + " 'name', 'Jay', 'key', 0, false) as T(a,b,c,d,e,f,k,v,flag)");
     Row[] expected = {
       Row.create("{\n  \"age\": 21,\n  \"name\": \"Joe\"\n}"),
       Row.create("{\n  \"name\": \"Jay\"\n}")
@@ -2212,17 +2240,14 @@ public class JavaFunctionSuite extends TestBase {
             .sql(
                 "select to_variant(to_array('Example')) as arr1,"
                     + " to_variant(to_object(parse_json('{\"Tree\": \"Pine\"}'))) as obj1, "
-                    + " to_variant(to_binary('snow', 'utf-8')) as bin1,"
-                    + " to_variant(true) as bool1,"
-                    + " to_variant('X') as str1, "
-                    + " to_variant(to_date('2017-02-24')) as date1, "
+                    + " to_variant(to_binary('snow', 'utf-8')) as bin1, to_variant(true) as bool1,"
+                    + " to_variant('X') as str1,  to_variant(to_date('2017-02-24')) as date1, "
                     + " to_variant(to_time('20:57:01.123456789+07:00')) as time1, "
                     + " to_variant(to_timestamp_ntz('2017-02-24 12:00:00.456')) as timestamp_ntz1, "
-                    + " to_variant(to_timestamp_ltz('2017-02-24 13:00:00.123 +01:00')) as timestamp_ltz1, "
-                    + " to_variant(to_timestamp_tz('2017-02-24 13:00:00.123 +01:00')) as timestamp_tz1, "
-                    + " to_variant(1.23::decimal(6, 3)) as decimal1, "
-                    + " to_variant(3.21::double) as double1, "
-                    + " to_variant(15) as num1 ");
+                    + " to_variant(to_timestamp_ltz('2017-02-24 13:00:00.123 +01:00')) as"
+                    + " timestamp_ltz1,  to_variant(to_timestamp_tz('2017-02-24 13:00:00.123"
+                    + " +01:00')) as timestamp_tz1,  to_variant(1.23::decimal(6, 3)) as decimal1, "
+                    + " to_variant(3.21::double) as double1,  to_variant(15) as num1 ");
     Row[] expected = {Row.create(new byte[] {115, 110, 111, 119}, null, null)};
     checkAnswer(
         df.select(
@@ -2239,17 +2264,14 @@ public class JavaFunctionSuite extends TestBase {
             .sql(
                 "select to_variant(to_array('Example')) as arr1,"
                     + " to_variant(to_object(parse_json('{\"Tree\": \"Pine\"}'))) as obj1, "
-                    + " to_variant(to_binary('snow', 'utf-8')) as bin1,"
-                    + " to_variant(true) as bool1,"
-                    + " to_variant('X') as str1, "
-                    + " to_variant(to_date('2017-02-24')) as date1, "
+                    + " to_variant(to_binary('snow', 'utf-8')) as bin1, to_variant(true) as bool1,"
+                    + " to_variant('X') as str1,  to_variant(to_date('2017-02-24')) as date1, "
                     + " to_variant(to_time('20:57:01.123456789+07:00')) as time1, "
                     + " to_variant(to_timestamp_ntz('2017-02-24 12:00:00.456')) as timestamp_ntz1, "
-                    + " to_variant(to_timestamp_ltz('2017-02-24 13:00:00.123 +01:00')) as timestamp_ltz1, "
-                    + " to_variant(to_timestamp_tz('2017-02-24 13:00:00.123 +01:00')) as timestamp_tz1, "
-                    + " to_variant(1.23::decimal(6, 3)) as decimal1, "
-                    + " to_variant(3.21::double) as double1, "
-                    + " to_variant(15) as num1 ");
+                    + " to_variant(to_timestamp_ltz('2017-02-24 13:00:00.123 +01:00')) as"
+                    + " timestamp_ltz1,  to_variant(to_timestamp_tz('2017-02-24 13:00:00.123"
+                    + " +01:00')) as timestamp_tz1,  to_variant(1.23::decimal(6, 3)) as decimal1, "
+                    + " to_variant(3.21::double) as double1,  to_variant(15) as num1 ");
     Row[] expected = {Row.create("X", null, null)};
     checkAnswer(
         df.select(
@@ -2272,17 +2294,14 @@ public class JavaFunctionSuite extends TestBase {
             .sql(
                 "select to_variant(to_array('Example')) as arr1,"
                     + " to_variant(to_object(parse_json('{\"Tree\": \"Pine\"}'))) as obj1, "
-                    + " to_variant(to_binary('snow', 'utf-8')) as bin1,"
-                    + " to_variant(true) as bool1,"
-                    + " to_variant('X') as str1, "
-                    + " to_variant(to_date('2017-02-24')) as date1, "
+                    + " to_variant(to_binary('snow', 'utf-8')) as bin1, to_variant(true) as bool1,"
+                    + " to_variant('X') as str1,  to_variant(to_date('2017-02-24')) as date1, "
                     + " to_variant(to_time('20:57:01.123456789+07:00')) as time1, "
                     + " to_variant(to_timestamp_ntz('2017-02-24 12:00:00.456')) as timestamp_ntz1, "
-                    + " to_variant(to_timestamp_ltz('2017-02-24 13:00:00.123 +01:00')) as timestamp_ltz1, "
-                    + " to_variant(to_timestamp_tz('2017-02-24 13:00:00.123 +01:00')) as timestamp_tz1, "
-                    + " to_variant(1.23::decimal(6, 3)) as decimal1, "
-                    + " to_variant(3.21::double) as double1, "
-                    + " to_variant(15) as num1 ");
+                    + " to_variant(to_timestamp_ltz('2017-02-24 13:00:00.123 +01:00')) as"
+                    + " timestamp_ltz1,  to_variant(to_timestamp_tz('2017-02-24 13:00:00.123"
+                    + " +01:00')) as timestamp_tz1,  to_variant(1.23::decimal(6, 3)) as decimal1, "
+                    + " to_variant(3.21::double) as double1,  to_variant(15) as num1 ");
     Row[] expected = {Row.create(new Date(117, 1, 24), null, null)};
     checkAnswer(
         df.select(
@@ -2299,17 +2318,14 @@ public class JavaFunctionSuite extends TestBase {
             .sql(
                 "select to_variant(to_array('Example')) as arr1,"
                     + " to_variant(to_object(parse_json('{\"Tree\": \"Pine\"}'))) as obj1, "
-                    + " to_variant(to_binary('snow', 'utf-8')) as bin1,"
-                    + " to_variant(true) as bool1,"
-                    + " to_variant('X') as str1, "
-                    + " to_variant(to_date('2017-02-24')) as date1, "
+                    + " to_variant(to_binary('snow', 'utf-8')) as bin1, to_variant(true) as bool1,"
+                    + " to_variant('X') as str1,  to_variant(to_date('2017-02-24')) as date1, "
                     + " to_variant(to_time('20:57:01.123456789+07:00')) as time1, "
                     + " to_variant(to_timestamp_ntz('2017-02-24 12:00:00.456')) as timestamp_ntz1, "
-                    + " to_variant(to_timestamp_ltz('2017-02-24 13:00:00.123 +01:00')) as timestamp_ltz1, "
-                    + " to_variant(to_timestamp_tz('2017-02-24 13:00:00.123 +01:00')) as timestamp_tz1, "
-                    + " to_variant(1.23::decimal(6, 3)) as decimal1, "
-                    + " to_variant(3.21::double) as double1, "
-                    + " to_variant(15) as num1 ");
+                    + " to_variant(to_timestamp_ltz('2017-02-24 13:00:00.123 +01:00')) as"
+                    + " timestamp_ltz1,  to_variant(to_timestamp_tz('2017-02-24 13:00:00.123"
+                    + " +01:00')) as timestamp_tz1,  to_variant(1.23::decimal(6, 3)) as decimal1, "
+                    + " to_variant(3.21::double) as double1,  to_variant(15) as num1 ");
 
     assert df.select(Functions.as_decimal(df.col("decimal1"))).collect()[0].getLong(0) == 1;
     assert df.select(Functions.as_decimal(df.col("decimal1"), 6)).collect()[0].getLong(0) == 1;
@@ -2335,17 +2351,14 @@ public class JavaFunctionSuite extends TestBase {
             .sql(
                 "select to_variant(to_array('Example')) as arr1,"
                     + " to_variant(to_object(parse_json('{\"Tree\": \"Pine\"}'))) as obj1, "
-                    + " to_variant(to_binary('snow', 'utf-8')) as bin1,"
-                    + " to_variant(true) as bool1,"
-                    + " to_variant('X') as str1, "
-                    + " to_variant(to_date('2017-02-24')) as date1, "
+                    + " to_variant(to_binary('snow', 'utf-8')) as bin1, to_variant(true) as bool1,"
+                    + " to_variant('X') as str1,  to_variant(to_date('2017-02-24')) as date1, "
                     + " to_variant(to_time('20:57:01.123456789+07:00')) as time1, "
                     + " to_variant(to_timestamp_ntz('2017-02-24 12:00:00.456')) as timestamp_ntz1, "
-                    + " to_variant(to_timestamp_ltz('2017-02-24 13:00:00.123 +01:00')) as timestamp_ltz1, "
-                    + " to_variant(to_timestamp_tz('2017-02-24 13:00:00.123 +01:00')) as timestamp_tz1, "
-                    + " to_variant(1.23::decimal(6, 3)) as decimal1, "
-                    + " to_variant(3.21::double) as double1, "
-                    + " to_variant(15) as num1 ");
+                    + " to_variant(to_timestamp_ltz('2017-02-24 13:00:00.123 +01:00')) as"
+                    + " timestamp_ltz1,  to_variant(to_timestamp_tz('2017-02-24 13:00:00.123"
+                    + " +01:00')) as timestamp_tz1,  to_variant(1.23::decimal(6, 3)) as decimal1, "
+                    + " to_variant(3.21::double) as double1,  to_variant(15) as num1 ");
     Row[] expected = {Row.create(1.23, 3.21, 15.0, null)};
     checkAnswer(
         df.select(
@@ -2371,17 +2384,14 @@ public class JavaFunctionSuite extends TestBase {
             .sql(
                 "select to_variant(to_array('Example')) as arr1,"
                     + " to_variant(to_object(parse_json('{\"Tree\": \"Pine\"}'))) as obj1, "
-                    + " to_variant(to_binary('snow', 'utf-8')) as bin1,"
-                    + " to_variant(true) as bool1,"
-                    + " to_variant('X') as str1, "
-                    + " to_variant(to_date('2017-02-24')) as date1, "
+                    + " to_variant(to_binary('snow', 'utf-8')) as bin1, to_variant(true) as bool1,"
+                    + " to_variant('X') as str1,  to_variant(to_date('2017-02-24')) as date1, "
                     + " to_variant(to_time('20:57:01.123456789+07:00')) as time1, "
                     + " to_variant(to_timestamp_ntz('2017-02-24 12:00:00.456')) as timestamp_ntz1, "
-                    + " to_variant(to_timestamp_ltz('2017-02-24 13:00:00.123 +01:00')) as timestamp_ltz1, "
-                    + " to_variant(to_timestamp_tz('2017-02-24 13:00:00.123 +01:00')) as timestamp_tz1, "
-                    + " to_variant(1.23::decimal(6, 3)) as decimal1, "
-                    + " to_variant(3.21::double) as double1, "
-                    + " to_variant(15) as num1 ");
+                    + " to_variant(to_timestamp_ltz('2017-02-24 13:00:00.123 +01:00')) as"
+                    + " timestamp_ltz1,  to_variant(to_timestamp_tz('2017-02-24 13:00:00.123"
+                    + " +01:00')) as timestamp_tz1,  to_variant(1.23::decimal(6, 3)) as decimal1, "
+                    + " to_variant(3.21::double) as double1,  to_variant(15) as num1 ");
     Row[] expected = {Row.create(1, null, 15, null)};
     checkAnswer(
         df.select(
@@ -2399,17 +2409,14 @@ public class JavaFunctionSuite extends TestBase {
             .sql(
                 "select to_variant(to_array('Example')) as arr1,"
                     + " to_variant(to_object(parse_json('{\"Tree\": \"Pine\"}'))) as obj1, "
-                    + " to_variant(to_binary('snow', 'utf-8')) as bin1,"
-                    + " to_variant(true) as bool1,"
-                    + " to_variant('X') as str1, "
-                    + " to_variant(to_date('2017-02-24')) as date1, "
+                    + " to_variant(to_binary('snow', 'utf-8')) as bin1, to_variant(true) as bool1,"
+                    + " to_variant('X') as str1,  to_variant(to_date('2017-02-24')) as date1, "
                     + " to_variant(to_time('20:57:01.123456789+07:00')) as time1, "
                     + " to_variant(to_timestamp_ntz('2017-02-24 12:00:00.456')) as timestamp_ntz1, "
-                    + " to_variant(to_timestamp_ltz('2017-02-24 13:00:00.123 +01:00')) as timestamp_ltz1, "
-                    + " to_variant(to_timestamp_tz('2017-02-24 13:00:00.123 +01:00')) as timestamp_tz1, "
-                    + " to_variant(1.23::decimal(6, 3)) as decimal1, "
-                    + " to_variant(3.21::double) as double1, "
-                    + " to_variant(15) as num1 ");
+                    + " to_variant(to_timestamp_ltz('2017-02-24 13:00:00.123 +01:00')) as"
+                    + " timestamp_ltz1,  to_variant(to_timestamp_tz('2017-02-24 13:00:00.123"
+                    + " +01:00')) as timestamp_tz1,  to_variant(1.23::decimal(6, 3)) as decimal1, "
+                    + " to_variant(3.21::double) as double1,  to_variant(15) as num1 ");
     Row[] expected = {Row.create("{\n  \"Tree\": \"Pine\"\n}", null, null)};
     checkAnswer(
         df.select(
@@ -2426,17 +2433,14 @@ public class JavaFunctionSuite extends TestBase {
             .sql(
                 "select to_variant(to_array('Example')) as arr1,"
                     + " to_variant(to_object(parse_json('{\"Tree\": \"Pine\"}'))) as obj1, "
-                    + " to_variant(to_binary('snow', 'utf-8')) as bin1,"
-                    + " to_variant(true) as bool1,"
-                    + " to_variant('X') as str1, "
-                    + " to_variant(to_date('2017-02-24')) as date1, "
+                    + " to_variant(to_binary('snow', 'utf-8')) as bin1, to_variant(true) as bool1,"
+                    + " to_variant('X') as str1,  to_variant(to_date('2017-02-24')) as date1, "
                     + " to_variant(to_time('20:57:01.123456789+07:00')) as time1, "
                     + " to_variant(to_timestamp_ntz('2017-02-24 12:00:00.456')) as timestamp_ntz1, "
-                    + " to_variant(to_timestamp_ltz('2017-02-24 13:00:00.123 +01:00')) as timestamp_ltz1, "
-                    + " to_variant(to_timestamp_tz('2017-02-24 13:00:00.123 +01:00')) as timestamp_tz1, "
-                    + " to_variant(1.23::decimal(6, 3)) as decimal1, "
-                    + " to_variant(3.21::double) as double1, "
-                    + " to_variant(15) as num1 ");
+                    + " to_variant(to_timestamp_ltz('2017-02-24 13:00:00.123 +01:00')) as"
+                    + " timestamp_ltz1,  to_variant(to_timestamp_tz('2017-02-24 13:00:00.123"
+                    + " +01:00')) as timestamp_tz1,  to_variant(1.23::decimal(6, 3)) as decimal1, "
+                    + " to_variant(3.21::double) as double1,  to_variant(15) as num1 ");
     Row[] expected = {Row.create(Time.valueOf("20:57:01"), null, null)};
     checkAnswer(
         df.select(
@@ -2453,17 +2457,14 @@ public class JavaFunctionSuite extends TestBase {
             .sql(
                 "select to_variant(to_array('Example')) as arr1,"
                     + " to_variant(to_object(parse_json('{\"Tree\": \"Pine\"}'))) as obj1, "
-                    + " to_variant(to_binary('snow', 'utf-8')) as bin1,"
-                    + " to_variant(true) as bool1,"
-                    + " to_variant('X') as str1, "
-                    + " to_variant(to_date('2017-02-24')) as date1, "
+                    + " to_variant(to_binary('snow', 'utf-8')) as bin1, to_variant(true) as bool1,"
+                    + " to_variant('X') as str1,  to_variant(to_date('2017-02-24')) as date1, "
                     + " to_variant(to_time('20:57:01.123456789+07:00')) as time1, "
                     + " to_variant(to_timestamp_ntz('2017-02-24 12:00:00.456')) as timestamp_ntz1, "
-                    + " to_variant(to_timestamp_ltz('2017-02-24 13:00:00.123 +01:00')) as timestamp_ltz1, "
-                    + " to_variant(to_timestamp_tz('2017-02-24 13:00:00.123 +01:00')) as timestamp_tz1, "
-                    + " to_variant(1.23::decimal(6, 3)) as decimal1, "
-                    + " to_variant(3.21::double) as double1, "
-                    + " to_variant(15) as num1 ");
+                    + " to_variant(to_timestamp_ltz('2017-02-24 13:00:00.123 +01:00')) as"
+                    + " timestamp_ltz1,  to_variant(to_timestamp_tz('2017-02-24 13:00:00.123"
+                    + " +01:00')) as timestamp_tz1,  to_variant(1.23::decimal(6, 3)) as decimal1, "
+                    + " to_variant(3.21::double) as double1,  to_variant(15) as num1 ");
     Row[] expected = {Row.create(Timestamp.valueOf("2017-02-24 12:00:00.456"), null, null)};
     checkAnswer(
         df.select(
@@ -2527,17 +2528,14 @@ public class JavaFunctionSuite extends TestBase {
             .sql(
                 "select to_variant(to_array('Example')) as arr1,"
                     + " to_variant(to_object(parse_json('{\"Tree\": \"Pine\"}'))) as obj1, "
-                    + " to_variant(to_binary('snow', 'utf-8')) as bin1,"
-                    + " to_variant(true) as bool1,"
-                    + " to_variant('X') as str1, "
-                    + " to_variant(to_date('2017-02-24')) as date1, "
+                    + " to_variant(to_binary('snow', 'utf-8')) as bin1, to_variant(true) as bool1,"
+                    + " to_variant('X') as str1,  to_variant(to_date('2017-02-24')) as date1, "
                     + " to_variant(to_time('20:57:01.123456789+07:00')) as time1, "
                     + " to_variant(to_timestamp_ntz('2017-02-24 12:00:00.456')) as timestamp_ntz1, "
-                    + " to_variant(to_timestamp_ltz('2017-02-24 13:00:00.123 +01:00')) as timestamp_ltz1, "
-                    + " to_variant(to_timestamp_tz('2017-02-24 13:00:00.123 +01:00')) as timestamp_tz1, "
-                    + " to_variant(1.23::decimal(6, 3)) as decimal1, "
-                    + " to_variant(3.21::double) as double1, "
-                    + " to_variant(15) as num1 ");
+                    + " to_variant(to_timestamp_ltz('2017-02-24 13:00:00.123 +01:00')) as"
+                    + " timestamp_ltz1,  to_variant(to_timestamp_tz('2017-02-24 13:00:00.123"
+                    + " +01:00')) as timestamp_tz1,  to_variant(1.23::decimal(6, 3)) as decimal1, "
+                    + " to_variant(3.21::double) as double1,  to_variant(15) as num1 ");
     checkAnswer(
         df.select(Functions.to_object(df.col("obj1"))),
         new Row[] {Row.create("{\n  \"Tree\": \"Pine\"\n}")});
@@ -2566,9 +2564,9 @@ public class JavaFunctionSuite extends TestBase {
     DataFrame df =
         getSession()
             .sql(
-                "select object_construct(a,b,c,d,e,f) as obj, k, v, flag from values('age', 21, 'zip', "
-                    + "21021, 'name', 'Joe', 'age', 0, true),('age', 26, 'zip', 94021, 'name', 'Jay', 'key', "
-                    + "0, false) as T(a,b,c,d,e,f,k,v,flag)");
+                "select object_construct(a,b,c,d,e,f) as obj, k, v, flag from values('age', 21,"
+                    + " 'zip', 21021, 'name', 'Joe', 'age', 0, true),('age', 26, 'zip', 94021,"
+                    + " 'name', 'Jay', 'key', 0, false) as T(a,b,c,d,e,f,k,v,flag)");
     checkAnswer(
         df.select(Functions.get(df.col("obj"), df.col("k"))),
         new Row[] {Row.create("21"), Row.create((Object) null)});
@@ -2579,9 +2577,9 @@ public class JavaFunctionSuite extends TestBase {
     DataFrame df =
         getSession()
             .sql(
-                "select object_construct(a,b,c,d,e,f) as obj, k, v, flag from values('age', 21, 'zip', "
-                    + "21021, 'name', 'Joe', 'age', 0, true),('age', 26, 'zip', 94021, 'name', 'Jay', 'key', "
-                    + "0, false) as T(a,b,c,d,e,f,k,v,flag)");
+                "select object_construct(a,b,c,d,e,f) as obj, k, v, flag from values('age', 21,"
+                    + " 'zip', 21021, 'name', 'Joe', 'age', 0, true),('age', 26, 'zip', 94021,"
+                    + " 'name', 'Jay', 'key', 0, false) as T(a,b,c,d,e,f,k,v,flag)");
     checkAnswer(
         df.select(Functions.get_ignore_case(df.col("obj"), Functions.lit("AGE"))),
         new Row[] {Row.create("21"), Row.create("26")});
@@ -2592,9 +2590,9 @@ public class JavaFunctionSuite extends TestBase {
     DataFrame df =
         getSession()
             .sql(
-                "select object_construct(a,b,c,d,e,f) as obj, k, v, flag from values('age', 21, 'zip', "
-                    + "21021, 'name', 'Joe', 'age', 0, true),('age', 26, 'zip', 94021, 'name', 'Jay', 'key', "
-                    + "0, false) as T(a,b,c,d,e,f,k,v,flag)");
+                "select object_construct(a,b,c,d,e,f) as obj, k, v, flag from values('age', 21,"
+                    + " 'zip', 21021, 'name', 'Joe', 'age', 0, true),('age', 26, 'zip', 94021,"
+                    + " 'name', 'Jay', 'key', 0, false) as T(a,b,c,d,e,f,k,v,flag)");
     checkAnswer(
         df.select(Functions.object_keys(df.col("obj"))),
         new Row[] {
@@ -2645,7 +2643,8 @@ public class JavaFunctionSuite extends TestBase {
     DataFrame df =
         getSession()
             .sql(
-                "select * from values(true, 2, 2, 4), (false, 12, 12, 14), (true, 22, 23, 24) as t(a, b, c, d)");
+                "select * from values(true, 2, 2, 4), (false, 12, 12, 14), (true, 22, 23, 24) as"
+                    + " t(a, b, c, d)");
     checkAnswer(
         df.select(
             df.col("a"),
@@ -2728,7 +2727,8 @@ public class JavaFunctionSuite extends TestBase {
     DataFrame df =
         getSession()
             .sql(
-                "select to_timestamp('2013-05-08 23:39:20.123') as a from values('2013-05-08 23:39:20.123') as t(a)");
+                "select to_timestamp('2013-05-08 23:39:20.123') as a from values('2013-05-08"
+                    + " 23:39:20.123') as t(a)");
     checkAnswer(
         df.select(Functions.unix_timestamp(df.col("a"))), new Row[] {Row.create(1368056360)});
   }
@@ -2777,7 +2777,8 @@ public class JavaFunctionSuite extends TestBase {
     DataFrame df =
         getSession()
             .sql(
-                "select * from values ('It was the best of times,it was the worst of times') as T(a)");
+                "select * from values ('It was the best of times,it was the worst of times') as"
+                    + " T(a)");
     checkAnswer(
         df.select(
             Functions.substring_index(
@@ -3037,7 +3038,8 @@ public class JavaFunctionSuite extends TestBase {
     DataFrame df =
         getSession()
             .sql(
-                "select * from values('It was the best of times, it was the worst of times') as t(a)");
+                "select * from values('It was the best of times, it was the worst of times') as"
+                    + " t(a)");
     Row[] expected = {Row.create(4)};
     checkAnswer(df.select(Functions.instr(df.col("a"), "was")), expected);
   }

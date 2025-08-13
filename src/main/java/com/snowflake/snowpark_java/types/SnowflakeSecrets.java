@@ -1,6 +1,8 @@
 package com.snowflake.snowpark_java.types;
 
-/** @hidden Custom Snowflake class that provides access to snowflake secrets. */
+/**
+ * @hidden Custom Snowflake class that provides access to snowflake secrets.
+ */
 public class SnowflakeSecrets {
 
   /** Create a new instance of SnowflakeSecrets. */
@@ -36,6 +38,7 @@ public class SnowflakeSecrets {
   public CloudProviderToken getCloudProviderToken(String secretName) {
     throw new UnsupportedOperationException();
   }
+
   /**
    * Get the secret generic string of the secret. On success, it returns a valid token string.
    *

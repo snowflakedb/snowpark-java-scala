@@ -17,8 +17,7 @@ public abstract class JavaUDXOpenTelemetryEnabled extends UDFTestBase {
     InMemorySpanExporter testExporter = InMemorySpanExporter.create();
     GlobalOpenTelemetry.resetForTest();
     Resource resource =
-        Resource.getDefault()
-            .toBuilder()
+        Resource.getDefault().toBuilder()
             .put("service.name", "test-server")
             .put("service.version", "0.1.0")
             .build();

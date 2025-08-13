@@ -333,7 +333,8 @@ public class JavaDataTypesSuite {
     assert type1
         .toString()
         .equals(
-            "StructType[StructField(C1, Byte, Nullable = true), StructField(C2, Float, Nullable = true)]");
+            "StructType[StructField(C1, Byte, Nullable = true), StructField(C2, Float, Nullable ="
+                + " true)]");
 
     StructType type4 = type1.add(new StructField("c3", DataTypes.ShortType));
     assert !type1.equals(type4);

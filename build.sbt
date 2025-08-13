@@ -1,24 +1,28 @@
 import scala.util.Properties
-import java.net.URI
 import java.time.Year
 
 lazy val isFipsRelease = {
-  val result = sys.env.get("SNOWPARK_FIPS").getOrElse("false").toBoolean
+  val result = sys.env.getOrElse("SNOWPARK_FIPS", "false").toBoolean
+  // scalastyle:off println
   println(s"FIPS Build: $result")
+  // scalastyle:on println
   result
 }
-lazy val snowparkName = s"snowpark${if(isFipsRelease) "-fips" else ""}"
-lazy val jdbcName = s"snowflake-jdbc${if(isFipsRelease) "-fips" else ""}"
+lazy val snowparkName = s"snowpark${if (isFipsRelease) "-fips" else ""}"
+lazy val jdbcName = s"snowflake-jdbc${if (isFipsRelease) "-fips" else ""}"
 lazy val snowparkVersion = "1.17.0-SNAPSHOT"
 
 lazy val Javadoc = config("genjavadoc") extend Compile
 
 lazy val javadocSettings = inConfig(Javadoc)(Defaults.configSettings) ++ Seq(
-  addCompilerPlugin("com.typesafe.genjavadoc" %% "genjavadoc-plugin" % "0.19" cross CrossVersion.full),
+  addCompilerPlugin(
+    "com.typesafe.genjavadoc" %% "genjavadoc-plugin" % "0.19" cross CrossVersion.full),
   scalacOptions += s"-P:genjavadoc:out=${target.value}/javaDoc",
-  Compile / packageDoc := (Javadoc / packageDoc).value,
-  Javadoc / apiURL := Some(url("https://docs.snowflake.com/developer-guide/snowpark/reference/java/index.html")),
-  Javadoc / sources := (Compile / sources).value.filter(s => (s.getName.endsWith(".java") && !(s.getParent.contains("internal") || s.getParent.contains("Internal")))),
+  Javadoc / apiURL := Some(
+    url("https://docs.snowflake.com/developer-guide/snowpark/reference/java/index.html")),
+  Javadoc / sources := (Compile / sources).value.filter(
+    s => s.getName.endsWith(".java") &&
+        !(s.getParent.contains("internal") || s.getParent.contains("Internal"))),
   Javadoc / javacOptions := Seq(
     "--allow-script-in-comments",
     "-windowtitle", s"Snowpark Java API Reference $snowparkVersion",
@@ -57,12 +61,13 @@ lazy val javadocSettings = inConfig(Javadoc)(Defaults.configSettings) ++ Seq(
     "" + mod.name + "_" + sv.binary + "-" + mod.revision + "-javadoc.jar"),
 )
 
+val jdbcVersion = "3.24.2"
 val jacksonVersion = "2.18.0"
 val openTelemetryVersion = "1.39.0"
 val slf4jVersion = "2.0.16"
 
 lazy val root = (project in file("."))
-  .enablePlugins(BuildInfoPlugin)
+  .enablePlugins(BuildInfoPlugin, UniversalPlugin)
   .configs(Javadoc).settings(javadocSettings: _*)
   .configs(CodeVerificationTests)
   .configs(JavaAPITests)
@@ -78,14 +83,21 @@ lazy val root = (project in file("."))
     name := snowparkName,
     version := snowparkVersion,
     description := "Snowflake's DataFrame API",
+    // scalastyle:off
     apiURL := Some(url("https://docs.snowflake.com/developer-guide/snowpark/reference/scala/com/snowflake/snowpark/index.html")),
+    // scalastyle:on
     startYear := Some(2018),
     licenses := Seq("The Apache Software License, Version 2.0" ->
       url("http://www.apache.org/licenses/LICENSE-2.0.txt")),
     developers := List(
-      Developer(id="Snowflake Support Team", name="Snowflake Computing", email="snowflake-java@snowflake.net", url=url("http://www.snowflake.com/")),
+      Developer(id = "Snowflake Support Team",
+                name = "Snowflake Computing",
+                email = "snowflake-java@snowflake.net",
+                url = url("http://www.snowflake.com/")),
     ),
-    scmInfo := Some(ScmInfo(browseUrl=url("https://github.com/snowflakedb/snowpark-java-scala/tree/main"), connection="scm:git:git://github.com/snowflakedb/snowpark-java-scala")),
+    scmInfo := Some(ScmInfo(
+      browseUrl = url("https://github.com/snowflakedb/snowpark-java-scala/tree/main"),
+      connection = "scm:git:git://github.com/snowflakedb/snowpark-java-scala")),
     homepage := Some(url("https://github.com/snowflakedb/snowpark-java-scala")),
     scalaVersion := sys.props.getOrElse("SCALA_VERSION", default = "2.13.16"),
     crossScalaVersions := Seq("2.12.20", "2.13.16"),
@@ -108,7 +120,7 @@ lazy val root = (project in file("."))
       "commons-io" % "commons-io" % "2.14.0",
       "io.opentelemetry" % "opentelemetry-api" % openTelemetryVersion,
       "javax.xml.bind" % "jaxb-api" % "2.3.1",
-      "net.snowflake" % jdbcName % "3.24.2",
+      "net.snowflake" % jdbcName % jdbcVersion,
       "org.scala-lang" % "scala-library" % scalaVersion.value,
       "org.scala-lang" % "scala-compiler" % scalaVersion.value,
       "org.slf4j" % "slf4j-api" % slf4jVersion,
@@ -148,13 +160,83 @@ lazy val root = (project in file("."))
     buildInfoKeys := Seq[BuildInfoKey](name, version, scalaVersion, sbtVersion),
     buildInfoPackage := "com.snowflake.snowpark.internal",
     // doc settings
-    Compile / doc / scalacOptions ++= Seq("-skip-packages", "com.snowflake.snowpark_java::com.snowflake.snowpark.internal"),
+    Compile / doc / scalacOptions ++= Seq(
+      "-doc-title", "Snowpark Scala API Reference",
+      "-doc-version", snowparkVersion,
+      "-doc-footer", s"© ${Year.now.getValue} Snowflake Inc. All Rights Reserved",
+      "-skip-packages", "com.snowflake.snowpark_java::com.snowflake.snowpark.internal",
+    ),
+    Compile / packageDoc / artifact := {
+      val base = (Compile / packageDoc / artifact).value
+      base.withClassifier(Some("scaladoc"))
+    },
+    Javadoc / packageDoc / artifact := {
+      val base = (Javadoc / packageDoc / artifact).value
+      base.withClassifier(Some("javadoc"))
+    },
+    addArtifact(Javadoc / packageDoc / artifact, Javadoc / packageDoc),
     // Release settings
+    // Release JAR including compiled test classes
+    Test / packageBin / publishArtifact := true,
+    // Fat JAR settings
+    assembly / assemblyJarName :=
+      s"${snowparkName}_${
+        scalaVersion.value.split("\\.").take(2).mkString(".")
+      }-$snowparkVersion-with-dependencies.jar",
+    assembly / assemblyMergeStrategy := {
+      case PathList("META-INF", xs @ _*) => MergeStrategy.discard
+      case _ => MergeStrategy.preferProject
+    },
+    assembly / assemblyOption ~= { _.withCacheOutput(false) },
+    assemblyPackageScala / assembleArtifact := false, // exclude scala libraries
+    assembly / assemblyExcludedJars := { // exclude snowflake jdbc from the fat jar
+      val cp = (assembly / fullClasspath).value
+      cp filter { _.data.getName == s"$jdbcName-$jdbcVersion.jar" }
+    },
+    // Release fat JAR including all dependencies except those excluded above
+    assembly / artifact := {
+      val base = (Compile / packageBin / artifact).value
+      base.withClassifier(Some("with-dependencies"))
+    },
+    addArtifact(assembly / artifact, assembly),
+
+    // Test fat JAR settings (include test classes and dependencies)
+    inConfig(Test)(baseAssemblySettings),
+    Test / assembly / assemblyJarName := {
+      val scalaBin = scalaVersion.value.split("\\.").take(2).mkString(".")
+      s"${snowparkName}_${scalaBin}-${snowparkVersion}-tests-with-dependencies.jar"
+    },
+    Test / assembly / assemblyMergeStrategy := {
+      case PathList("META-INF", xs @ _*) => MergeStrategy.discard
+      case _ => MergeStrategy.preferProject
+    },
+    Test / assembly / assemblyOption ~= { _.withCacheOutput(false) },
+    Test / assemblyPackageScala / assembleArtifact := false, // exclude scala libraries
+    Test / assembly / assemblyExcludedJars := { // exclude snowflake jdbc from the fat jar
+      val cp = (Test / assembly / fullClasspath).value
+      cp filter { _.data.getName == s"$jdbcName-$jdbcVersion.jar" }
+    },
+    Test / assembly / fullClasspath ++= (Test / fullClasspath).value,
+    // Publish the fat test JAR alongside normal artifacts
+    Test / assembly / artifact := {
+      val base = (Test / packageBin / artifact).value
+      base.withClassifier(Some("tests-with-dependencies"))
+    },
+    addArtifact(Test / assembly / artifact, Test / assembly),
+
+    // Also publish a test-sources JAR
+    Test / packageSrc / publishArtifact := true,
+    Test / packageSrc / artifact :=
+      (Compile / packageSrc / artifact).value.withClassifier(Some("tests-sources")),
+    addArtifact(Test / packageSrc / artifact, Test / packageSrc),
+
+//    addArtifact(artifact in (Universal, packageBin), Universal / packageBin), // zip archive
+//    addArtifact(
+//      artifact in (Universal, packageZipTarball), Universal / packageZipTarball), // tar.gz archive
     // usePgpKeyHex(Properties.envOrElse("GPG_SIGNATURE", "12345")),
     Global / pgpPassphrase := Properties.envOrNone("GPG_KEY_PASSPHRASE").map(_.toCharArray),
     publishMavenStyle := true,
-    // todo: support Scala 2.13.0
-//    releaseCrossBuild := true,
+    releaseCrossBuild := true,
     releasePublishArtifactsAction := PgpKeys.publishSigned.value,
     publishTo := Some(
       if (isSnapshot.value) {

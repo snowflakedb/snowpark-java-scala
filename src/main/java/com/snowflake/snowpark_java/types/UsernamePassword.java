@@ -1,6 +1,8 @@
 package com.snowflake.snowpark_java.types;
 
-/** @hidden Custom Snowflake class that provides access to username and password secret object. */
+/**
+ * @hidden Custom Snowflake class that provides access to username and password secret object.
+ */
 public class UsernamePassword {
   private final String username;
   private final String password;
