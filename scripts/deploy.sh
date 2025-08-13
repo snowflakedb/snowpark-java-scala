@@ -79,9 +79,10 @@ fi
 which sbt
 sbt version
 
-
+echo "[INFO] Checking out snowpark-java-scala @ tag: $github_version_tag."
+git checkout tags/$github_version_tag
 if [ "$PUBLISH" = true ]; then
-  echo "[INFO] Publishing snowpark-java-scala @ $github_version_tag."
+  echo "[INFO] Publishing snowpark-java-scala @ tag: $github_version_tag."
   sbt +publishSigned
 
 else
