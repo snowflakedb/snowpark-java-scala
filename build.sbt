@@ -1,5 +1,6 @@
 import scala.util.Properties
 import java.time.Year
+import NativePackagerHelper._
 
 lazy val isFipsRelease = {
   val result = sys.env.getOrElse("SNOWPARK_FIPS", "false").toBoolean
@@ -95,6 +96,7 @@ lazy val root = (project in file("."))
                 email = "snowflake-java@snowflake.net",
                 url = url("http://www.snowflake.com/")),
     ),
+    maintainer := "snowflake-java@snowflake.net",
     scmInfo := Some(ScmInfo(
       browseUrl = url("https://github.com/snowflakedb/snowpark-java-scala/tree/main"),
       connection = "scm:git:git://github.com/snowflakedb/snowpark-java-scala")),
@@ -176,8 +178,15 @@ lazy val root = (project in file("."))
     },
     addArtifact(Javadoc / packageDoc / artifact, Javadoc / packageDoc),
     // Release settings
+
     // Release JAR including compiled test classes
     Test / packageBin / publishArtifact := true,
+    // Also publish a test-sources JAR
+    Test / packageSrc / publishArtifact := true,
+    Test / packageSrc / artifact :=
+      (Compile / packageSrc / artifact).value.withClassifier(Some("tests-sources")),
+    addArtifact(Test / packageSrc / artifact, Test / packageSrc),
+
     // Fat JAR settings
     assembly / assemblyJarName :=
       s"${snowparkName}_${
@@ -224,15 +233,31 @@ lazy val root = (project in file("."))
     },
     addArtifact(Test / assembly / artifact, Test / assembly),
 
-    // Also publish a test-sources JAR
-    Test / packageSrc / publishArtifact := true,
-    Test / packageSrc / artifact :=
-      (Compile / packageSrc / artifact).value.withClassifier(Some("tests-sources")),
-    addArtifact(Test / packageSrc / artifact, Test / packageSrc),
+    // Define snowpark client bundles
+    Universal / mappings ++= Seq(
+      (Compile / packageBin).value -> s"$snowparkName-$snowparkVersion.jar",
+      assembly.value -> s"$snowparkName-$snowparkVersion-with-dependencies.jar",
+      file("preview-tarball/preload.scala") -> "preload.scala",
+      file("preview-tarball/run.sh") -> "run.sh",
+    ),
+    Universal / mappings ++= (Compile / dependencyClasspath).value.map { f =>
+      file(f.data.getPath) -> s"lib/${f.data.getName}"
+    },
+    Universal / mappings ++= contentOf((Compile / doc).value).map { case (f, s) =>
+      f -> s"doc/scala/$s"
+    },
+    Universal / mappings ++= contentOf((Javadoc / doc).value).map { case (f, s) =>
+      f -> s"doc/java/$s"
+    },
+    // Publish zip archive
+    addArtifact(
+      Artifact(name = snowparkName, `type` = "bundle", extension = "zip", classifier = "bundle"),
+      Universal / packageBin),
+    // Publish zip tarball archive
+    addArtifact(
+      Artifact(name = snowparkName, `type` = "bundle", extension = "tar.gz", classifier = "bundle"),
+      Universal / packageZipTarball),
 
-//    addArtifact(artifact in (Universal, packageBin), Universal / packageBin), // zip archive
-//    addArtifact(
-//      artifact in (Universal, packageZipTarball), Universal / packageZipTarball), // tar.gz archive
     // usePgpKeyHex(Properties.envOrElse("GPG_SIGNATURE", "12345")),
     Global / pgpPassphrase := Properties.envOrNone("GPG_KEY_PASSPHRASE").map(_.toCharArray),
     publishMavenStyle := true,
