@@ -6,8 +6,8 @@
 #
 
 if [ -z "$GPG_KEY_ID" ]; then
-  echo "[ERROR] Key Id not specified!"
-  exit 1
+  export GPG_KEY_ID="Snowflake Computing"
+  echo "[WARN] GPG key ID not specified, using default: $GPG_KEY_ID."
 fi
 
 if [ -z "$GPG_KEY_PASSPHRASE" ]; then
@@ -20,12 +20,12 @@ if [ -z "$GPG_PRIVATE_KEY" ]; then
   exit 1
 fi
 
-if [ -z "$SONATYPE_USER" ]; then
+if [ -z "$sonatype_user" ]; then
   echo "[ERROR] Jenkins sonatype user is not specified!"
   exit 1
 fi
 
-if [ -z "$SONATYPE_PASSWORD" ]; then
+if [ -z "$sonatype_password" ]; then
   echo "[ERROR] Jenkins sonatype pwd is not specified!"
   exit 1
 fi
@@ -40,23 +40,17 @@ if [ -z "$github_version_tag" ]; then
   exit 1
 fi
 
-# SBT will build FIPS version of Snowpark automatically if the environment variable exists.
-if [ -v SNOWPARK_FIPS ]: then
-  echo "[INFO] Publishing Snowpark FIPS Build."
-else
-  echo "[INFO] Publishing Snowpark non-FIPS Build."
-fi
-
 mkdir -p ~/.ivy2
 
 STR=$'realm=Sonatype Nexus Repository Manager
 host=oss.sonatype.org
-user='$SONATYPE_USER$'
-password='$SONATYPE_PASSWORD$''
+user='$sonatype_user'
+password='$sonatype_password''
 
 echo "$STR" > ~/.ivy2/.credentials
 
 # import private key first
+echo "[INFO] Importing PGP key."
 if [ ! -z "$GPG_PRIVATE_KEY" ] && [ -f "$GPG_PRIVATE_KEY" ]; then
   # First check if already imported private key
   if ! gpg --list-secret-key | grep "$GPG_KEY_ID"; then
@@ -81,16 +75,37 @@ sbt version
 
 echo "[INFO] Checking out snowpark-java-scala @ tag: $github_version_tag."
 git checkout tags/$github_version_tag
+
 if [ "$PUBLISH" = true ]; then
-  echo "[INFO] Publishing snowpark-java-scala @ tag: $github_version_tag."
+  if [ -v SNOWPARK_FIPS ]; then
+    echo "[INFO] Publishing snowpark-fips @ tag: $github_version_tag."
+  else
+    echo "[INFO] Publishing snowpark @ tag: $github_version_tag."
+  fi
   sbt +publishSigned
+  echo "[INFO] SUCCESS - Released Snowpark Java-Scala v$github_version_tag to Maven."
 
 else
   #release to s3
-  echo "[INFO] Releasing to S3."
+  echo "[INFO] Publishing signed artifacts to local ivy2 repository."
   rm -rf ~/.ivy2/local/
   sbt +publishLocalSigned
 
-  aws s3 cp ~/.ivy2/local s3://sfc-eng-jenkins/repository/snowparkclient/$github_version_tag/ --recursive
-  aws s3 cp ~/.ivy2/local s3://sfc-eng-data/client/snowparkclient/releases/$github_version_tag/ --recursive
+  # SBT will build FIPS version of Snowpark automatically if the environment variable exists.
+  if [ -v SNOWPARK_FIPS ]; then
+    S3_JENKINS_URL="s3://sfc-eng-jenkins/repository/snowparkclient-fips"
+    S3_DATA_URL="s3://sfc-eng-data/client/snowparkclient-fips/releases"
+    echo "[INFO] Releasing snowpark-fips to:"
+  else
+    S3_JENKINS_URL="s3://sfc-eng-jenkins/repository/snowparkclient"
+    S3_DATA_URL="s3://sfc-eng-data/client/snowparkclient/releases"
+    echo "[INFO] Releasing snowpark to:"
+  fi
+  echo "[INFO]   - $S3_JENKINS_URL/$github_version_tag/"
+  echo "[INFO]   - $S3_DATA_URL/$github_version_tag/"
+
+  aws s3 cp ~/.ivy2/local $S3_JENKINS_URL/$github_version_tag/ --recursive
+  aws s3 cp ~/.ivy2/local $S3_DATA_URL/$github_version_tag/ --recursive
+
+  echo "[INFO] SUCCESS - Released Snowpark Java-Scala v$github_version_tag to S3."
 fi
