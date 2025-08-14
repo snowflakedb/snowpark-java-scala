@@ -222,8 +222,11 @@ lazy val root = (project in file("."))
 
     // Define snowpark client bundles
     Universal / mappings ++= Seq(
-      (Compile / packageBin).value -> s"$snowparkName-$snowparkVersion.jar",
-      assembly.value -> s"$snowparkName-$snowparkVersion-with-dependencies.jar",
+      (Compile / packageBin).value -> s"${snowparkName}_${
+        scalaVersion.value.split("\\.").take(2).mkString(".")}-$snowparkVersion.jar",
+      assembly.value -> s"${snowparkName}_${
+        scalaVersion.value.split("\\.").take(2).mkString(".")
+      }-$snowparkVersion-with-dependencies.jar",
       file("preview-tarball/preload.scala") -> "preload.scala",
       file("preview-tarball/run.sh") -> "run.sh",
     ),

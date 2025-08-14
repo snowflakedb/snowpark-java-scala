@@ -60,14 +60,6 @@ class UDXRegistrationHandler(session: Session) extends Logging {
         case _ =>
       }
     }
-    for (jar <- UDFClassPath.scalaJarSeq) {
-      jar.location match {
-        case Some(path) =>
-          session.addDependency(path)
-          logInfo(s"Automatically added $path to session dependencies.")
-        case _ =>
-      }
-    }
   }
 
   // If version is supported by server, create udf with server packages

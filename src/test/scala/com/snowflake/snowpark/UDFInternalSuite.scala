@@ -185,6 +185,9 @@ class UDFInternalSuite extends TestData {
 
 @UDFPackageTest
 class PackageUDFSuite extends UDFSuite {
+  // todo: remove once server-side support for snowpark_2.13 is added to Java UDFs
+  assume(Utils.ScalaCompatVersion == "2.12")
+
   override def beforeAll: Unit = {
     super.beforeAll()
     val snClassDir = UDFClassPath.getPathForClass(classOf[Session]).get
@@ -203,6 +206,9 @@ class PackageUDFSuite extends UDFSuite {
 
 @UDFPackageTest
 class PackageUDTFSuite extends UDTFSuite {
+  // todo: remove once server-side support for snowpark_2.13 is added to Java UDTFs
+  assume(Utils.ScalaCompatVersion == "2.12")
+
   override def beforeAll: Unit = {
     super.beforeAll()
     val snClassDir = UDFClassPath.getPathForClass(classOf[Session]).get

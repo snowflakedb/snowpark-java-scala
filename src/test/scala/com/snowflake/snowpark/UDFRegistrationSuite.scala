@@ -20,6 +20,9 @@ class UDFRegistrationSuite extends SNTestBase with FileUtils {
   override def beforeAll(): Unit = {
     super.beforeAll()
     session.runQuery(s"create or replace temporary stage $tempStage")
+    if (!isStoredProc(session)) {
+      TestUtils.addDepsToClassPath(session)
+    }
   }
 
   test("Test that jar files are uploaded to stage correctly") {

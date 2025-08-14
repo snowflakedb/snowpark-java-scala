@@ -34,7 +34,9 @@ import org.scalatest.funsuite.AnyFunSuite
 import java.security.Provider
 import scala.collection.JavaConverters._
 import scala.collection.mutable.ArrayBuffer
+import scala.reflect.api.Universe
 import scala.reflect.io.Directory
+import scala.tools.nsc.Global
 import scala.util.Random
 
 object TestUtils extends Logging {
@@ -148,7 +150,10 @@ object TestUtils extends Logging {
       classOf[org.scalatest.compatible.Assertion],
       classOf[org.scalactic.TripleEquals], // scalactic jar
       classOf[io.opentelemetry.exporters.inmemory.InMemorySpanExporter],
-      classOf[io.opentelemetry.sdk.trace.export.SpanExporter])
+      classOf[io.opentelemetry.sdk.trace.export.SpanExporter],
+      classOf[scala.Product],
+      classOf[scala.reflect.api.Universe],
+      classOf[scala.tools.nsc.Global])
       .flatMap(UDFClassPath.getPathForClass(_))
       .foreach(path => {
         val file = new File(path)
