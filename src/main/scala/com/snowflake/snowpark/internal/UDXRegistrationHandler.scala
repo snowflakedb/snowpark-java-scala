@@ -25,7 +25,6 @@ import scala.concurrent.duration.{FiniteDuration, SECONDS}
 import scala.concurrent.{Await, Future, TimeoutException}
 import scala.reflect.internal.util.AbstractFileClassLoader
 import scala.reflect.io.{AbstractFile, VirtualDirectory}
-import scala.tools.nsc.io.File
 import scala.util.Random
 
 import UDXRegistrationHandler._
@@ -323,11 +322,8 @@ class UDXRegistrationHandler(session: Session) extends Logging {
       funcBytesMap: Map[String, Array[Byte]],
       // if stageLocation is none, this udf will be temporary udf
       stageLocation: Option[String]): (Seq[String], String) = {
-    if (Utils.ScalaCompatVersion == "2.13") {
-      session.addDependency(
-        System.getProperty("java.class.path")
-          .split(File.pathSeparator)
-          .find(_.contains("scala-library")).get)
+    if (Utils.ScalaCompatVersion == "2.13" && Utils.ScalaLibraryJarPath.nonEmpty) {
+      session.addDependency(Utils.ScalaLibraryJarPath)
     }
     val actionID = session.generateNewActionID
     implicit val executionContext = session.getExecutionContext
