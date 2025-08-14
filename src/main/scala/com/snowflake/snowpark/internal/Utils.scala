@@ -31,10 +31,6 @@ object Utils extends Logging {
   // because it fails to read the property file in some environment such as
   // VSCode worksheet.
   val ScalaCompatVersion: String = BuildInfo.scalaVersion.split("\\.").take(2).mkString(".")
-  val ScalaLibraryJarPath: String = Utils.escapePath(
-    UDFClassPath
-      .getPathForClass(classOf[scala.Product])
-      .getOrElse(""))
 
   // Minimum GS version for us to identify as Snowpark client
   val MinimumGSVersionForSnowparkClientType: String = "5.20.0"

@@ -60,6 +60,14 @@ class UDXRegistrationHandler(session: Session) extends Logging {
         case _ =>
       }
     }
+    for (jar <- UDFClassPath.scalaJarSeq) {
+      jar.location match {
+        case Some(path) =>
+          session.addDependency(path)
+          logInfo(s"Automatically added $path to session dependencies.")
+        case _ =>
+      }
+    }
   }
 
   // If version is supported by server, create udf with server packages
@@ -322,9 +330,6 @@ class UDXRegistrationHandler(session: Session) extends Logging {
       funcBytesMap: Map[String, Array[Byte]],
       // if stageLocation is none, this udf will be temporary udf
       stageLocation: Option[String]): (Seq[String], String) = {
-    if (Utils.ScalaCompatVersion == "2.13" && Utils.ScalaLibraryJarPath.nonEmpty) {
-      session.addDependency(Utils.ScalaLibraryJarPath)
-    }
     val actionID = session.generateNewActionID
     implicit val executionContext = session.getExecutionContext
 
