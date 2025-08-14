@@ -251,9 +251,9 @@ jobs:
         env:
           SNOWPARK_FIPS: true
 
-  # Generate the Javadoc for Snowpark Java APIs.
-  gen-java-doc:
-    name: Generate JavaDoc
+  # Test publishing to local ivy2 repository (includes generating docs, fat jars, and bundles)
+  publish-ivy2:
+    name: Publish Locally (ivy2)
     needs: [ test-java-apis, test-nonparallel, test-udf-udtf-sproc-with-multiple-jdk, test-fips ]
     runs-on: ubuntu-22.04
     strategy:
@@ -272,5 +272,29 @@ jobs:
         run: .github/scripts/decrypt_profile.sh
         env:
           PROFILE_PASSWORD: ${{ secrets.PROFILE_PASSWORD }}
-      - name: Generate JavaDoc
-        run: sbt "++ ${{ matrix.scala }} genjavadoc:doc"
+      - name: Publish Locally
+        run: sbt "++ ${{ matrix.scala }} publishLocal"
+
+  # Test publishing to local maven repository (includes generating docs, fat jars, and bundles)
+  publish-maven:
+    name: Publish Locally (maven)
+    needs: [ test-java-apis, test-nonparallel, test-udf-udtf-sproc-with-multiple-jdk, test-fips ]
+    runs-on: ubuntu-22.04
+    strategy:
+      matrix:
+        scala: [ 2.12.20, 2.13.16 ]
+      fail-fast: false
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+      - name: Install Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 8
+      - name: Decrypt profile.properties
+        run: .github/scripts/decrypt_profile.sh
+        env:
+          PROFILE_PASSWORD: ${{ secrets.PROFILE_PASSWORD }}
+      - name: Publish Locally
+        run: sbt "++ ${{ matrix.scala }} publishM2"
