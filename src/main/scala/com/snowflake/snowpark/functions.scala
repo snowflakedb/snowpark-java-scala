@@ -1413,37 +1413,39 @@ object functions {
    *   val df = session.createDataFrame(
    *                  Seq(("many-many-words", "-"), ("hello--hello", "--"))).toDF("V", "D")
    *   df.select(split(col("V"), col("D"))).show()
+   *   -------------------------
+   *   |"SPLIT(""V"", ""D"")"  |
+   *   -------------------------
+   *   |[                      |
+   *   |  "many",              |
+   *   |  "many",              |
+   *   |  "words"              |
+   *   |]                      |
+   *   |[                      |
+   *   |  "hello",             |
+   *   |  "hello"              |
+   *   |]                      |
+   *   -------------------------
    * }}}
-   * ------------------------- \|"SPLIT(""V"", ""D"")" | -------------------------
-   * | [        |
-   * |:---------|
-   * | "many",  |
-   * | "many",  |
-   * | "words"  |
-   * | ]        |
-   * | [        |
-   * | "hello", |
-   * | "hello"  |
-   * | ]        |
-   * -------------------------
    *
    * Example 2:
    * {{{
    *   val df = session.createDataFrame(Seq("many-many-words", "hello-hi-hello")).toDF("V")
    *   df.select(split(col("V"), lit("-"))).show()
+   *   -------------------------
+   *   |"SPLIT(""V"", ""D"")"  |
+   *   -------------------------
+   *   |[                      |
+   *   |  "many",              |
+   *   |  "many",              |
+   *   |  "words"              |
+   *   |]                      |
+   *   |[                      |
+   *   |  "hello",             |
+   *   |  "hello"              |
+   *   |]                      |
+   *   -------------------------
    * }}}
-   * ------------------------- \|"SPLIT(""V"", ""D"")" | -------------------------
-   * | [        |
-   * |:---------|
-   * | "many",  |
-   * | "many",  |
-   * | "words"  |
-   * | ]        |
-   * | [        |
-   * | "hello", |
-   * | "hello"  |
-   * | ]        |
-   * -------------------------
    *
    * @group str_func
    * @since 0.1.0
@@ -3417,10 +3419,15 @@ object functions {
    * Wrapper for Snowflake built-in reverse function. Gets the reversed string. Reverses the order
    * of characters in a string, or of bytes in a binary value. The returned value is the same length
    * as the input, but with the characters/bytes in reverse order. If subject is NULL, the result is
-   * also NULL. Example: SELECT REVERSE('Hello, world!');
+   * also NULL. Example:
+   * {{{
+   * SELECT REVERSE('Hello, world!');
+   * +--------------------------+
    * | REVERSE('HELLO, WORLD!') |
-   * |:-------------------------|
+   * |--------------------------|
    * | !dlrow ,olleH            |
+   * +--------------------------+
+   * }}}
    *
    * @since 1.14.0
    * @param c
@@ -3447,14 +3454,18 @@ object functions {
 
   /**
    * Returns the current Unix timestamp (in seconds) as a long. Extracts a specified date or time
-   * portion from a date, time, or timestamp. how: EXTRACT , HOUR / MINUTE / SECOND , YEAR* / DAY* /
-   * WEEK* / MONTH / QUARTER Construction - DATE_PART( <date_or_time_part> , <date_or_time_expr> )
-   * SELECT TO_TIMESTAMP('2013-05-08T23:39:20.123-07:00') AS "TIME_STAMP1", DATE_PART(EPOCH_SECOND,
-   * "TIME_STAMP1") AS "EXTRACTED EPOCH SECOND";
-   * | TIME_STAMP1                                        | EXTRACTED EPOCH SECOND |
-   * |:---------------------------------------------------|:-----------------------|
-   * | -------------------------+------------------------ |                        |
-   * | 2013-05-08 23:39:20.123                            | 1368056360             |
+   * portion from a date, time, or timestamp. how:
+   * {{{
+   * EXTRACT , HOUR / MINUTE / SECOND , YEAR* / DAY* / WEEK* / MONTH / QUARTER
+   * Construction - DATE_PART( <date_or_time_part> , <date_or_time_expr> )
+   * SELECT TO_TIMESTAMP('2013-05-08T23:39:20.123-07:00') AS "TIME_STAMP1",
+   *  DATE_PART(EPOCH_SECOND, "TIME_STAMP1") AS "EXTRACTED EPOCH SECOND";
+   * +-------------------------+------------------------+
+   * | TIME_STAMP1             | EXTRACTED EPOCH SECOND |
+   * |-------------------------+------------------------|
+   * | 2013-05-08 23:39:20.123 |             1368056360 |
+   * +-------------------------+------------------------+
+   * }}}
    * @since 1.14.0
    * @note
    *   All calls of `unix_timestamp` within the same query return the same value
@@ -3464,17 +3475,29 @@ object functions {
   }
 
   /**
-   * Signature - snowflake.snowpark.functions.regexp_extract (value: Union[Column, str], regexp:
-   * Union[Column, str], idx: int) Column Extract a specific group matched by a regex, from the
-   * specified string column. If the regex did not match, or the specified group did not match, an
-   * empty string is returned. <pr>Example: from snowflake.snowpark.functions import regexp_extract
-   * df = session.createDataFrame([["id_20_30", 10], ["id_40_50", 30]], ["id", "age"])
-   * df.select(regexp_extract("id", r"(\d+)", 1).alias("RES")).show() </pr> <pr> --------- \|"RES"
-   * \| ---------
-   * | 20 |
-   * |:---|
-   * | 40 |
-   * --------- </pr> Note: non-greedy tokens such as are not supported
+   * Signature -
+   * {{{
+   * snowflake.snowpark.functions.regexp_extract
+   * (value: Union[Column, str], regexp: Union[Column, str], idx: int)
+   *   Column
+   * }}}
+   * Extract a specific group matched by a regex, from the specified string column. If the regex did
+   * not match, or the specified group did not match, an empty string is returned. <pr> Example:
+   * {{{
+   *  from snowflake.snowpark.functions import regexp_extract
+   *  df = session.createDataFrame([["id_20_30", 10], ["id_40_50", 30]],
+   *   ["id", "age"])
+   *  df.select(regexp_extract("id", r"(\d+)", 1).alias("RES")).show()
+   * </pr>
+   * <pr>
+   *      ---------
+   *      |"RES"  |
+   *      ---------
+   *      |20     |
+   *      |40     |
+   *      ---------
+   * }}}
+   * </pr> Note: non-greedy tokens such as are not supported
    * @since 1.14.0
    * @return
    *   Column object.
@@ -3505,11 +3528,17 @@ object functions {
    *   - 1 if it is positive.
    *   - 0 if it is 0.
    *
-   * Args: col: The column to evaluate its sign <pr> Example:: >>> df =
-   * session.create_dataframe([(-2, 2, 0)], ["a", "b", "c"]) >>>
-   * df.select(sign("a").alias("a_sign"), sign("b").alias("b_sign"),
-   * sign("c").alias("c_sign")).show() ---------------------------------- \|"A_SIGN" |"B_SIGN"
-   * \|"C_SIGN" | ---------------------------------- \|-1 |1 |0 | ----------------------------------
+   * Args: col: The column to evaluate its sign <pr> Example::
+   * {{{
+   *     >>> df = session.create_dataframe([(-2, 2, 0)], ["a", "b", "c"])
+   *     >>> df.select(sign("a").alias("a_sign"), sign("b").alias("b_sign"),
+   * sign("c").alias("c_sign")).show()
+   *     ----------------------------------
+   *     |"A_SIGN"  |"B_SIGN"  |"C_SIGN"  |
+   *     ----------------------------------
+   *     |-1        |1         |0         |
+   *     ----------------------------------
+   * }}}
    * </pr>
    * @since 1.14.0
    * @param e
@@ -3528,11 +3557,17 @@ object functions {
    *   - 1 if it is positive.
    *   - 0 if it is 0.
    *
-   * Args: col: The column to evaluate its sign <pr> Example:: >>> df =
-   * session.create_dataframe([(-2, 2, 0)], ["a", "b", "c"]) >>>
-   * df.select(sign("a").alias("a_sign"), sign("b").alias("b_sign"),
-   * sign("c").alias("c_sign")).show() ---------------------------------- \|"A_SIGN" |"B_SIGN"
-   * \|"C_SIGN" | ---------------------------------- \|-1 |1 |0 | ----------------------------------
+   * Args: col: The column to evaluate its sign <pr> Example:: >>>
+   * {{{
+   *     >>> df = session.create_dataframe([(-2, 2, 0)], ["a", "b", "c"])
+   *     >>> df.select(sign("a").alias("a_sign"), sign("b").alias("b_sign"),
+   * sign("c").alias("c_sign")).show()
+   *     ----------------------------------
+   *     |"A_SIGN"  |"B_SIGN"  |"C_SIGN"  |
+   *     ----------------------------------
+   *     |-1        |1         |0         |
+   *     ----------------------------------
+   * }}}
    * </pr>
    * @since 1.14.0
    * @param e
@@ -3588,16 +3623,21 @@ object functions {
 
   /**
    * Returns the input values, pivoted into an ARRAY. If the input is empty, an empty ARRAY is
-   * returned. <pr> Example:: >>> df = session.create_dataframe([[1], [2], [3], [1]], schema=["a"])
-   * >>> df.select(array_agg("a", True).alias("result")).show() ------------ \|"RESULT" |
-   * ------------
-   * | [  |
-   * |:---|
-   * | 1, |
-   * | 2, |
-   * | 3  |
-   * | ]  |
-   * ------------ </pr>
+   * returned. <pr> Example::
+   * {{{
+   *     >>> df = session.create_dataframe([[1], [2], [3], [1]], schema=["a"])
+   *     >>> df.select(array_agg("a", True).alias("result")).show()
+   *     ------------
+   *     |"RESULT"  |
+   *     ------------
+   *     |[         |
+   *     |  1,      |
+   *     |  2,      |
+   *     |  3       |
+   *     |]         |
+   *     ------------
+   * }}}
+   * </pr>
    * @since 1.14.0
    * @param c
    *   Column to be collect.
@@ -3610,15 +3650,20 @@ object functions {
    * Returns the input values, pivoted into an ARRAY. If the input is empty, an empty ARRAY is
    * returned.
    *
-   * Example:: >>> df = session.create_dataframe([[1], [2], [3], [1]], schema=["a"]) >>>
-   * df.select(array_agg("a", True).alias("result")).show() ------------ \|"RESULT" | ------------
-   * | [  |
-   * |:---|
-   * | 1, |
-   * | 2, |
-   * | 3  |
-   * | ]  |
-   * ------------
+   * Example::
+   * {{{
+   *     >>> df = session.create_dataframe([[1], [2], [3], [1]], schema=["a"])
+   *     >>> df.select(array_agg("a", True).alias("result")).show()
+   *     ------------
+   *     |"RESULT"  |
+   *     ------------
+   *     |[         |
+   *     |  1,      |
+   *     |  2,      |
+   *     |  3       |
+   *     |]         |
+   *     ------------
+   * }}}
    * @since 1.14.0
    * @param s
    *   Column name to be collected.
@@ -3628,13 +3673,16 @@ object functions {
   def collect_list(s: String): Column = array_agg(col(s))
 
   /**
-   * Returns the date that is `days` days after `start` Usage - DATE_ADD( date_or_time_part, value,
-   * date_or_time_expr ) Example:: SELECT TO_DATE('2013-05-08') AS v1, DATE_ADD(year, 2,
-   * TO_DATE('2013-05-08')) AS v;
-   * | V1                        | V          |
-   * |:--------------------------|:-----------|
-   * | ------------+------------ |            |
-   * | 2013-05-08                | 2015-05-08 |
+   * Returns the date that is `days` days after `start`. Usage -
+   * {{{DATE_ADD( date_or_time_part, value, date_or_time_expr )}}} Example::
+   * {{{
+   * SELECT TO_DATE('2013-05-08') AS v1, DATE_ADD(year, 2, TO_DATE('2013-05-08')) AS v;
+   * +------------+------------+
+   * | V1         | V          |
+   * |------------+------------|
+   * | 2013-05-08 | 2015-05-08 |
+   * +------------+------------+
+   * }}}
    *
    * @since 1.15.0
    * @param start
@@ -3647,14 +3695,16 @@ object functions {
   def date_add(days: Int, start: Column): Column = dateadd("day", lit(days), start)
 
   /**
-   * Returns the date that is `days` days after `start` Usage - DATE_ADD( date_or_time_part, value,
-   * date_or_time_expr ) Example:: SELECT TO_DATE('2013-05-08') AS v1, DATE_ADD(year, 2,
-   * TO_DATE('2013-05-08')) AS v;
-   * | V1                        | V          |
-   * |:--------------------------|:-----------|
-   * | ------------+------------ |            |
-   * | 2013-05-08                | 2015-05-08 |
-   *
+   * Returns the date that is `days` days after `start`. Usage:
+   * {{{DATE_ADD( date_or_time_part, value, date_or_time_expr )}}} Example::
+   * {{{
+   *  SELECT TO_DATE('2013-05-08') AS v1, DATE_ADD(year, 2, TO_DATE('2013-05-08')) AS v;
+   *  +------------+------------+
+   *  | V1         | V          |
+   *  |------------+------------|
+   *  | 2013-05-08 | 2015-05-08 |
+   *  +------------+------------+
+   * }}}
    * @since 1.15.0
    * @param start
    *   A date, timestamp or string. If a string, the data must be in a format that can be cast to a
@@ -3670,15 +3720,20 @@ object functions {
    * Aggregate function: returns a set of objects with duplicate elements eliminated. Returns the
    * input values, pivoted into an ARRAY. If the input is empty, an empty ARRAY is returned.
    *
-   * Example:: >>> df = session.create_dataframe([[1], [2], [3], [1]], schema=["a"]) >>>
-   * df.select(array_agg("a", True).alias("result")).show() ------------ \|"RESULT" | ------------
-   * | [  |
-   * |:---|
-   * | 1, |
-   * | 2, |
-   * | 3  |
-   * | ]  |
-   * ------------
+   * Example::
+   * {{{
+   *  >>> df = session.create_dataframe([[1], [2], [3], [1]], schema=["a"])
+   *  >>> df.select(array_agg("a", True).alias("result")).show()
+   *  ------------
+   *  |"RESULT"  |
+   *  ------------
+   *  |[         |
+   *  |  1,      |
+   *  |  2,      |
+   *  |  3       |
+   *  |]         |
+   *  ------------
+   * }}}
    * @since 1.15.0
    * @param e
    *   The column to collect the list values
@@ -3691,15 +3746,20 @@ object functions {
    * Aggregate function: returns a set of objects with duplicate elements eliminated. Returns the
    * input values, pivoted into an ARRAY. If the input is empty, an empty ARRAY is returned.
    *
-   * Example:: >>> df = session.create_dataframe([[1], [2], [3], [1]], schema=["a"]) >>>
-   * df.select(array_agg("a", True).alias("result")).show() ------------ \|"RESULT" | ------------
-   * | [  |
-   * |:---|
-   * | 1, |
-   * | 2, |
-   * | 3  |
-   * | ]  |
+   * Example::
+   * {{{
+   * >>> df = session.create_dataframe([[1], [2], [3], [1]], schema=["a"])
+   * >>> df.select(array_agg("a", True).alias("result")).show()
    * ------------
+   * |"RESULT"  |
+   * ------------
+   * |[         |
+   * |  1,      |
+   * |  2,      |
+   * |  3       |
+   * |]         |
+   * ------------
+   * }}}
    * @since 1.15.0
    * @param e
    *   The column to collect the list values
@@ -3784,14 +3844,20 @@ object functions {
 
   /**
    * Locate the position of the first occurrence of substr column in the given string. Returns null
-   * if either of the arguments are null. For example SELECT id, string1, REGEXP_SUBSTR(string1,
-   * 'nevermore\\d') AS substring, REGEXP_INSTR( string1, 'nevermore\\d') AS position FROM demo1
-   * ORDER BY id;
-   * | ID                                                                 | STRING1                             | SUBSTRING  | POSITION |
-   * |:-------------------------------------------------------------------|:------------------------------------|:-----------|:---------|
-   * | ----+-------------------------------------+------------+---------- |                                     |            |          |
-   * | 1                                                                  | nevermore1, nevermore2, nevermore3. | nevermore1 | 1        |
-   *
+   * if either of the arguments are null. For example
+   * {{{
+   * SELECT id,
+   *        string1,
+   *         REGEXP_SUBSTR(string1, 'nevermore\\d') AS substring,
+   *        REGEXP_INSTR( string1, 'nevermore\\d') AS position
+   *    FROM demo1
+   *    ORDER BY id;
+   * +----+-------------------------------------+------------+----------+
+   *  | ID | STRING1                             | SUBSTRING  | POSITION |
+   *  |----+-------------------------------------+------------+----------|
+   *  |  1 | nevermore1, nevermore2, nevermore3. | nevermore1 |        1 |
+   *  +----+-------------------------------------+------------+----------+
+   * }}}
    * @since 1.15.0
    * @note
    *   The position is not zero based, but 1 based index. Returns 0 if substr could not be found in
@@ -3802,11 +3868,16 @@ object functions {
   /**
    * Given a timestamp like '2017-07-14 02:40:00.0', interprets it as a time in UTC, and renders
    * that time as a timestamp in the given time zone. For example, 'GMT+1' would yield '2017-07-14
-   * 03:40:00.0'. ALTER SESSION SET TIMEZONE = 'America/Los_Angeles'; SELECT
-   * TO_TIMESTAMP_TZ('2024-04-05 01:02:03');
+   * 03:40:00.0'.
+   * {{{
+   * ALTER SESSION SET TIMEZONE = 'America/Los_Angeles';
+   * SELECT TO_TIMESTAMP_TZ('2024-04-05 01:02:03');
+   * +----------------------------------------+
    * | TO_TIMESTAMP_TZ('2024-04-05 01:02:03') |
-   * |:---------------------------------------|
+   * |----------------------------------------|
    * | 2024-04-05 01:02:03.000 -0700          |
+   * +----------------------------------------+
+   * }}}
    *
    * @since 1.15.0
    * @param ts

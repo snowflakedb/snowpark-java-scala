@@ -1,8 +1,10 @@
 #!/bin/bash -ex
 #
-# Push Snowpark Java/Scala to the public maven repository
-# This script needs to be executed by snowflake jenkins job
-# If the FIPS
+# Push Snowpark Java/Scala to the public maven repository.
+# This script needs to be executed by snowflake jenkins job.
+# If the SNOWPARK_FIPS environment variable exists when running
+# the script, the fips build of the snowpark client will be
+# published instead of the regular build.
 #
 
 if [ -z "$GPG_KEY_ID" ]; then

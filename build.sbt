@@ -95,7 +95,7 @@ lazy val root = (project in file("."))
       browseUrl = url("https://github.com/snowflakedb/snowpark-java-scala/tree/main"),
       connection = "scm:git:git://github.com/snowflakedb/snowpark-java-scala")),
     homepage := Some(url("https://github.com/snowflakedb/snowpark-java-scala")),
-    scalaVersion := sys.props.getOrElse("SCALA_VERSION", default = "2.13.16"),
+    scalaVersion := sys.props.getOrElse("SCALA_VERSION", default = "2.12.20"),
     crossScalaVersions := Seq("2.12.20", "2.13.16"),
     javaOptions ++= Seq("-source", "1.8", "-target", "1.8"),
     libraryDependencies ++= Seq(

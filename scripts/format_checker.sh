@@ -45,6 +45,6 @@ if [ -z "$(git status --porcelain)" ]; then
   echo "Scala Test Code Format Check: Passed!"
 else
   echo "Scala Test Code Format Check: Failed!"
-  echo "Run 'sbt +test:scalafmt' to reformat"
+  echo "Run 'sbt +test:javafmt' to reformat"
   exit 1
 fi

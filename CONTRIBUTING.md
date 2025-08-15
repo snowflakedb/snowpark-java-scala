@@ -36,7 +36,7 @@ Before opening a pull request on the upstream repo, we recommend running the fol
 Run the following command to execute the test suite and and the formatter.
 
 ```bash
-sbt clean +compile test
+sbt clean +compile +test
 ```
 
 ### Generate the Scala docs
