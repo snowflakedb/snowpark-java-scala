@@ -124,7 +124,12 @@ jobs:
         env:
           PROFILE_PASSWORD: ${{ secrets.PROFILE_PASSWORD }}
       - name: Run tests
-        run: sbt "++ ${{ matrix.scala }} UDFTests:testOnly * -- -l com.snowflake.snowpark.UDFPackageTest"
+        run: |
+          if [ "${{ matrix.scala }}" == "2.12.20" ]; then
+            sbt UDFTests:test
+          else
+            sbt "++ ${{ matrix.scala }} UDFTests:testOnly * -- -l com.snowflake.snowpark.UDFPackageTest"
+          fi
 
   # All UDTF associated test suites.
   test-udtfs:
@@ -148,7 +153,12 @@ jobs:
         env:
           PROFILE_PASSWORD: ${{ secrets.PROFILE_PASSWORD }}
       - name: Run tests
-        run: sbt "++ ${{ matrix.scala }} UDTFTests:testOnly * -- -l com.snowflake.snowpark.UDFPackageTest"
+        run: |
+          if [ "${{ matrix.scala }}" == "2.12.20" ]; then
+            sbt UDTFTests:test
+          else
+            sbt "++ ${{ matrix.scala }} UDTFTests:testOnly * -- -l com.snowflake.snowpark.UDFPackageTest"
+          fi
 
   # All Stored Procedure associated test suites.
   test-sprocs:
