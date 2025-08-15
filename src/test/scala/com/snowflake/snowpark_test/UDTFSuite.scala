@@ -2092,7 +2092,7 @@ class UDTFSuite extends TestData {
         StructType(StructField("FREQUENCIES", StringType))
 
       override def endPartition(): Iterable[Row] = {
-        Seq(Row(freq.toString()))
+        Seq(Row(freq.toString().replace("Hash", "")))
       }
     }
     val df = Seq(("a", "b"), ("a", "c"), ("a", "b"), ("d", "e")).toDF("a", "b")

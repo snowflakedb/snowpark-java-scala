@@ -124,7 +124,7 @@ jobs:
         env:
           PROFILE_PASSWORD: ${{ secrets.PROFILE_PASSWORD }}
       - name: Run tests
-        run: sbt "++ ${{ matrix.scala }} UDFTests:test"
+        run: sbt "++ ${{ matrix.scala }} UDFTests:testOnly * -- -l com.snowflake.snowpark.UDFPackageTest"
 
   # All UDTF associated test suites.
   test-udtfs:
@@ -148,7 +148,7 @@ jobs:
         env:
           PROFILE_PASSWORD: ${{ secrets.PROFILE_PASSWORD }}
       - name: Run tests
-        run: sbt "++ ${{ matrix.scala }} UDTFTests:test"
+        run: sbt "++ ${{ matrix.scala }} UDTFTests:testOnly * -- -l com.snowflake.snowpark.UDFPackageTest"
 
   # All Stored Procedure associated test suites.
   test-sprocs:
