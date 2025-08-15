@@ -5,8 +5,8 @@ import com.snowflake.snowpark.internal.Utils
 private[snowpark] trait MultiChildrenNode extends LogicalPlan {
   override def updateChildren(func: LogicalPlan => LogicalPlan): LogicalPlan = {
     val newChildren: Seq[LogicalPlan] = children.map(func)
-    val updated = !newChildren.zip(children).forall {
-      case (plan, plan1) => plan == plan1
+    val updated = !newChildren.zip(children).forall { case (plan, plan1) =>
+      plan == plan1
     }
     if (updated) updateChildren(newChildren) else this
   }
@@ -14,8 +14,8 @@ private[snowpark] trait MultiChildrenNode extends LogicalPlan {
   protected def updateChildren(newChildren: Seq[LogicalPlan]): MultiChildrenNode
 
   override lazy val dfAliasMap: Map[String, Seq[Attribute]] =
-    children.foldLeft(Map.empty[String, Seq[Attribute]]) {
-      case (map, child) => Utils.addToDataframeAliasMap(map, child)
+    children.foldLeft(Map.empty[String, Seq[Attribute]]) { case (map, child) =>
+      Utils.addToDataframeAliasMap(map, child)
     }
 
   override protected def analyze: LogicalPlan =

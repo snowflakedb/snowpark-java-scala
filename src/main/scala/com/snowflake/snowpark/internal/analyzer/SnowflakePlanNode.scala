@@ -163,12 +163,15 @@ private[snowpark] trait UnaryNode extends LogicalPlan {
 }
 
 /**
- * Plan Node to sample some rows from a DataFrame.
- * Either a fraction or a row number needs to be specified.
+ * Plan Node to sample some rows from a DataFrame. Either a fraction or a row number needs to be
+ * specified.
  *
- * @param probabilityFraction the sampling fraction(0.0 - 1.0)
- * @param rowCount            the sampling row count
- * @param child               the LogicalPlan
+ * @param probabilityFraction
+ *   the sampling fraction(0.0 - 1.0)
+ * @param rowCount
+ *   the sampling row count
+ * @param child
+ *   the LogicalPlan
  */
 private[snowpark] case class SnowflakeSampleNode(
     probabilityFraction: Option[Double],
@@ -176,7 +179,7 @@ private[snowpark] case class SnowflakeSampleNode(
     child: LogicalPlan)
     extends UnaryNode {
   if ((probabilityFraction.isEmpty && rowCount.isEmpty) ||
-      (probabilityFraction.isDefined && rowCount.isDefined)) {
+    (probabilityFraction.isDefined && rowCount.isDefined)) {
     throw ErrorMessage.PLAN_SAMPLING_NEED_ONE_PARAMETER()
   }
 
@@ -308,10 +311,7 @@ private[snowpark] case class CopyIntoLocation(
 private[snowpark] trait ViewType
 private[snowpark] case object LocalTempView extends ViewType
 private[snowpark] case object PersistedView extends ViewType
-private[snowpark] case class CreateViewCommand(
-    name: String,
-    child: LogicalPlan,
-    viewType: ViewType)
+private[snowpark] case class CreateViewCommand(name: String, child: LogicalPlan, viewType: ViewType)
     extends UnaryNode {
   override protected def createFromAnalyzedChild: LogicalPlan => LogicalPlan =
     CreateViewCommand(name, _, viewType)

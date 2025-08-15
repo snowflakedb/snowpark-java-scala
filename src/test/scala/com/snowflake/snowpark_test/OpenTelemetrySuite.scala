@@ -480,12 +480,7 @@ class OpenTelemetrySuite extends OpenTelemetryEnabled {
   def checkSpan(className: String, funcName: String, methodChain: String): Unit = {
     val stack = Thread.currentThread().getStackTrace
     val file = stack(2) // this file
-    checkSpan(
-      className,
-      funcName,
-      "OpenTelemetrySuite.scala",
-      file.getLineNumber - 1,
-      methodChain)
+    checkSpan(className, funcName, "OpenTelemetrySuite.scala", file.getLineNumber - 1, methodChain)
   }
 
   def checkSpan(className: String, funcName: String): Unit = {

@@ -144,8 +144,8 @@ object JavaUtils {
       col: Column,
       fractions: java.util.Map[_, _],
       func: DataFrameStatFunctions): DataFrame = {
-    val scalaMap = fractions.asScala.map {
-      case (key, value) => key -> value.asInstanceOf[Double]
+    val scalaMap = fractions.asScala.map { case (key, value) =>
+      key -> value.asInstanceOf[Double]
     }.toMap
     func.sampleBy(col, scalaMap)
   }
@@ -154,8 +154,8 @@ object JavaUtils {
       col: String,
       fractions: java.util.Map[_, _],
       func: DataFrameStatFunctions): DataFrame = {
-    val scalaMap = fractions.asScala.map {
-      case (key, value) => key -> value.asInstanceOf[Double]
+    val scalaMap = fractions.asScala.map { case (key, value) =>
+      key -> value.asInstanceOf[Double]
     }.toMap
     func.sampleBy(col, scalaMap)
   }
@@ -254,9 +254,8 @@ object JavaUtils {
       result
     }
 
-  def javaVariantMapToStringMap(
-      v: java.util.Map[String, com.snowflake.snowpark_java.types.Variant])
-    : java.util.Map[String, String] =
+  def javaVariantMapToStringMap(v: java.util.Map[String, com.snowflake.snowpark_java.types.Variant])
+      : java.util.Map[String, String] =
     if (v == null) null
     else {
       val result = new java.util.HashMap[String, String]()
@@ -275,8 +274,7 @@ object JavaUtils {
     if (v == null) null
     else JavaConverters.mapAsScalaMap(v).map(e => (e._1, stringToVariant(e._2)))
 
-  def stringMapToVariantJavaMap(
-      v: java.util.Map[String, String]): java.util.Map[String, Variant] =
+  def stringMapToVariantJavaMap(v: java.util.Map[String, String]): java.util.Map[String, Variant] =
     if (v == null) null
     else {
       val result = new java.util.HashMap[String, Variant]()
@@ -285,7 +283,7 @@ object JavaUtils {
     }
 
   def stringMapToJavaVariantMap(v: java.util.Map[String, String])
-    : java.util.Map[String, com.snowflake.snowpark_java.types.Variant] =
+      : java.util.Map[String, com.snowflake.snowpark_java.types.Variant] =
     if (v == null) null
     else {
       val result = new java.util.HashMap[String, com.snowflake.snowpark_java.types.Variant]()
@@ -319,7 +317,7 @@ object JavaUtils {
   def stringArrayToStringSeq(arr: Array[String]): Seq[String] = arr
 
   def objectListToAnySeq(input: java.util.List[java.util.List[Object]]): Seq[Seq[Any]] =
-    input.asScala.map(list => list.asScala)
+    input.asScala.map(list => list.asScala.toSeq).toSeq
 
   def registerUDF(
       udfRegistration: UDFRegistration,
@@ -366,12 +364,18 @@ object JavaUtils {
       case (key, value) => key -> value
     }.toMap
 
-  def scalaMapToJavaWithVariantConversion(map: Map[_, _]): java.util.Map[Object, Object] =
-    map.map {
+  def scalaMapToJavaWithVariantConversion(map: Map[_, _]): java.util.Map[Object, Object] = {
+    val result = new java.util.HashMap[Object, Object]()
+    map.foreach {
       case (key, value: com.snowflake.snowpark.types.Variant) =>
-        key.asInstanceOf[Object] -> InternalUtils.createVariant(value)
-      case (key, value) => key.asInstanceOf[Object] -> value.asInstanceOf[Object]
-    }.asJava
+        result.put(
+          key.asInstanceOf[Object],
+          InternalUtils.createVariant(value).asInstanceOf[Object])
+      case (key, value) =>
+        result.put(key.asInstanceOf[Object], value.asInstanceOf[Object])
+    }
+    result
+  }
 
   def serialize(obj: Any): Array[Byte] = {
     val bos = new ByteArrayOutputStream()

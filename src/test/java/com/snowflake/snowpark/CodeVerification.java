@@ -8,8 +8,7 @@ import org.scalatest.TagAnnotation;
 
 /**
  * These tests only verify if the new pre-commit code meets the requirement of this code repository.
- * They are not functionality tests. Example usages: pom.xml, fips.xml, and java_doc.xml should be
- * updated together
+ * They are not functionality tests.
  */
 @TagAnnotation
 @Retention(RetentionPolicy.RUNTIME)

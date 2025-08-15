@@ -29,9 +29,8 @@ object ClassUtils extends Logging {
   }
 
   /**
-   * Check if two classes have same function names.
-   * It is not perfect since it can only check function
-   * names but not args.
+   * Check if two classes have same function names. It is not perfect since it can only check
+   * function names but not args.
    */
   def containsSameFunctionNames[A: TypeTag, B: TypeTag](
       class1: Class[A],
@@ -64,7 +63,7 @@ object ClassUtils extends Logging {
         list2Cache.remove(name)
       } else {
         logError(s"${class1.getName} misses function $name")
-    })
+      })
     !missed && list2Cache.isEmpty
   }
 }

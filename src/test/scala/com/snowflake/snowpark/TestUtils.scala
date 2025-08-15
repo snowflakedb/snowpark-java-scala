@@ -29,11 +29,14 @@ import net.snowflake.client.jdbc.{
   SnowflakeConnectString,
   SnowflakeConnectionV1
 }
+import org.scalatest.funsuite.AnyFunSuite
 
 import java.security.Provider
 import scala.collection.JavaConverters._
 import scala.collection.mutable.ArrayBuffer
+import scala.reflect.api.Universe
 import scala.reflect.io.Directory
+import scala.tools.nsc.Global
 import scala.util.Random
 
 object TestUtils extends Logging {
@@ -98,11 +101,10 @@ object TestUtils extends Logging {
     session.runQuery(s"drop table if exists $name")
 
   def insertIntoTable(name: String, data: Seq[Any], session: Session): Unit =
-    session.runQuery(
-      s"insert into $name values ${data.map("(" + _.toString + ")").mkString(",")}")
+    session.runQuery(s"insert into $name values ${data.map("(" + _.toString + ")").mkString(",")}")
 
   def insertIntoTable(name: String, data: java.util.List[Object], session: Session): Unit =
-    insertIntoTable(name, data.asScala.map(_.toString), session)
+    insertIntoTable(name, data.asScala.map(_.toString).toSeq, session)
 
   def uploadFileToStage(
       stageName: String,
@@ -144,9 +146,14 @@ object TestUtils extends Logging {
 
     List(
       classOf[BeforeAndAfterAll], // scala test jar
+      classOf[AnyFunSuite],
+      classOf[org.scalatest.compatible.Assertion],
       classOf[org.scalactic.TripleEquals], // scalactic jar
       classOf[io.opentelemetry.exporters.inmemory.InMemorySpanExporter],
-      classOf[io.opentelemetry.sdk.trace.export.SpanExporter])
+      classOf[io.opentelemetry.sdk.trace.export.SpanExporter],
+      classOf[scala.Product],
+      classOf[scala.reflect.api.Universe],
+      classOf[scala.tools.nsc.Global])
       .flatMap(UDFClassPath.getPathForClass(_))
       .foreach(path => {
         val file = new File(path)
@@ -156,9 +163,7 @@ object TestUtils extends Logging {
       })
   }
 
-  def addDepsToClassPathJava(
-      sess: com.snowflake.snowpark_java.Session,
-      stageName: String): Unit = {
+  def addDepsToClassPathJava(sess: com.snowflake.snowpark_java.Session, stageName: String): Unit = {
     val stage: String =
       if (stageName != null) stageName
       else {
@@ -177,7 +182,10 @@ object TestUtils extends Logging {
       classOf[BeforeAndAfterAll], // scala test jar
       classOf[org.scalactic.TripleEquals], // scalactic jar
       classOf[io.opentelemetry.exporters.inmemory.InMemorySpanExporter],
-      classOf[io.opentelemetry.sdk.trace.export.SpanExporter])
+      classOf[io.opentelemetry.sdk.trace.export.SpanExporter],
+      classOf[scala.Product],
+      classOf[scala.reflect.api.Universe],
+      classOf[scala.tools.nsc.Global])
       .flatMap(UDFClassPath.getPathForClass(_))
       .foreach(path => {
         val file = new File(path)
@@ -200,22 +208,21 @@ object TestUtils extends Logging {
     val columnCount = resultMeta.getColumnCount
 
     assert(columnCount == expectedSchema.size)
-    (0 until columnCount).foreach(
-      index => {
-        assert(
-          quoteNameWithoutUpperCasing(resultMeta.getColumnLabel(index + 1)) == expectedSchema(
-            index).columnIdentifier.quotedName)
-        assert(
-          (resultMeta.isNullable(index + 1) != ResultSetMetaData.columnNoNulls) == expectedSchema(
-            index).nullable)
-        assert(
-          ServerConnection.getDataType(
-            resultMeta.getColumnType(index + 1),
-            resultMeta.getColumnTypeName(index + 1),
-            resultMeta.getPrecision(index + 1),
-            resultMeta.getScale(index + 1),
-            resultMeta.isSigned(index + 1)) == expectedSchema(index).dataType)
-      })
+    (0 until columnCount).foreach(index => {
+      assert(
+        quoteNameWithoutUpperCasing(resultMeta.getColumnLabel(index + 1)) == expectedSchema(
+          index).columnIdentifier.quotedName)
+      assert(
+        (resultMeta.isNullable(index + 1) != ResultSetMetaData.columnNoNulls) == expectedSchema(
+          index).nullable)
+      assert(
+        ServerConnection.getDataType(
+          resultMeta.getColumnType(index + 1),
+          resultMeta.getColumnTypeName(index + 1),
+          resultMeta.getPrecision(index + 1),
+          resultMeta.getScale(index + 1),
+          resultMeta.isSigned(index + 1)) == expectedSchema(index).dataType)
+    })
     statement.close()
   }
 
@@ -294,7 +301,7 @@ object TestUtils extends Logging {
   }
 
   def checkResult(result: Array[Row], expected: java.util.List[Row], sort: Boolean): Unit =
-    checkResult(result, expected.asScala, sort)
+    checkResult(result, expected.asScala.toSeq, sort)
 
   def runQueryInSession(session: Session, sql: String): Unit =
     session.runQuery(sql)
@@ -365,8 +372,8 @@ object TestUtils extends Logging {
   }
 
   private[snowpark] def createJDBCConnection(propertyFile: String): SnowflakeConnectionV1 = {
-    val options = loadConfFromFile(propertyFile).map {
-      case (key, value) => key.toLowerCase(Locale.ENGLISH) -> value
+    val options = loadConfFromFile(propertyFile).map { case (key, value) =>
+      key.toLowerCase(Locale.ENGLISH) -> value
     }
 
     val connURL = ServerConnection.connectionString(options)

@@ -74,9 +74,9 @@ class SnowflakePlan(
     }
     val supportAsyncMode = subqueryPlans.forall(_.supportAsyncMode)
     SnowflakePlan(
-      preQueries :+ queries.last,
+      preQueries.toSeq :+ queries.last,
       newSchemaQuery,
-      newPostActions,
+      newPostActions.toSeq,
       session,
       sourcePlan,
       supportAsyncMode)
@@ -291,9 +291,9 @@ class SnowflakePlanBuilder(session: Session) extends Logging {
     val queries: Seq[Query] =
       selectLeft.queries.slice(0, selectLeft.queries.length - 1) ++
         selectRight.queries.slice(0, selectRight.queries.length - 1) :+ Query(
-        sqlGenerator(lastQueryLeft.sql, lastQueryRight.sql),
-        false,
-        lastQueryLeft.params ++ lastQueryRight.params)
+          sqlGenerator(lastQueryLeft.sql, lastQueryRight.sql),
+          false,
+          lastQueryLeft.params ++ lastQueryRight.params)
     val leftSchemaQuery = schemaValueStatement(selectLeft.attributes)
     val rightSchemaQuery = schemaValueStatement(selectRight.attributes)
     val schemaQuery = sqlGenerator(leftSchemaQuery, rightSchemaQuery)
@@ -344,10 +344,8 @@ class SnowflakePlanBuilder(session: Session) extends Logging {
       Attribute(spAtt.name, spAtt.dataType, spAtt.nullable)
     }
     val tempType: TempType = session.getTempType(isTemp = true, isNameGenerated = true)
-    val crtStmt = createTableStatement(
-      tempTableName,
-      attributeToSchemaString(attributes),
-      tempType = tempType)
+    val crtStmt =
+      createTableStatement(tempTableName, attributeToSchemaString(attributes), tempType = tempType)
     // In the post action we dropped this temp table. Still adding this to the deletion list to
     // be safe in deletion. We rely on 15 digits alphabetic-numeric random string in naming temp
     // objects on not shadowing user's permanent objects.
@@ -471,10 +469,8 @@ class SnowflakePlanBuilder(session: Session) extends Logging {
   def saveAsTable(tableName: String, mode: SaveMode, child: SnowflakePlan): SnowflakePlan =
     mode match {
       case SaveMode.Append =>
-        val createTable = createTableStatement(
-          tableName,
-          attributeToSchemaString(child.attributes),
-          error = false)
+        val createTable =
+          createTableStatement(tableName, attributeToSchemaString(child.attributes), error = false)
         val createTableAndInsert = if (session.tableExists(tableName)) {
           Seq(Query(insertIntoStatement(tableName, child.queries.last.sql)))
         } else {
@@ -497,13 +493,11 @@ class SnowflakePlanBuilder(session: Session) extends Logging {
         build(createTableAsSelectStatement(tableName, _), child, None)
     }
 
-  def copyIntoLocation(
-      stagedFileWriter: StagedFileWriter,
-      child: SnowflakePlan): SnowflakePlan = {
+  def copyIntoLocation(stagedFileWriter: StagedFileWriter, child: SnowflakePlan): SnowflakePlan = {
     val selectChild = addResultScanIfNotSelect(child)
     val copy = stagedFileWriter.getCopyIntoLocationQuery(selectChild.queries.last.sql)
-    val newQueries = selectChild.queries.slice(0, selectChild.queries.length - 1) ++ Seq(
-      Query(copy))
+    val newQueries =
+      selectChild.queries.slice(0, selectChild.queries.length - 1) ++ Seq(Query(copy))
     SnowflakePlan(
       newQueries,
       copy,
@@ -590,11 +584,11 @@ class SnowflakePlanBuilder(session: Session) extends Logging {
       fullyQualifiedSchema: String,
       schema: Seq[Attribute]): SnowflakePlan = {
     val (copyOptions, formatTypeOptions) = options
-      .filter {
-        case (k, _) => !k.equals("PATTERN")
+      .filter { case (k, _) =>
+        !k.equals("PATTERN")
       }
-      .partition {
-        case (k, _) => CopyOptionForCopyIntoTable.contains(k)
+      .partition { case (k, _) =>
+        CopyOptionForCopyIntoTable.contains(k)
       }
     val pattern = options.get("PATTERN")
     // track usage of pattern, will refactor this function in future
@@ -631,12 +625,11 @@ class SnowflakePlanBuilder(session: Session) extends Logging {
         None,
         supportAsyncMode = true)
     } else { // otherwise, use COPY
-      val tempTableName = fullyQualifiedSchema + "." + randomNameForTempObject(
-        TempObjectType.Table)
+      val tempTableName = fullyQualifiedSchema + "." + randomNameForTempObject(TempObjectType.Table)
 
       val tempTableSchema =
-        schema.zipWithIndex.map {
-          case (att, index) => Attribute(s""""COL$index"""", att.dataType, att.nullable)
+        schema.zipWithIndex.map { case (att, index) =>
+          Attribute(s""""COL$index"""", att.dataType, att.nullable)
         }
       val tempType: TempType = session.getTempType(isTemp = true, isNameGenerated = true)
       val queries: Seq[Query] = Seq(
@@ -656,9 +649,15 @@ class SnowflakePlanBuilder(session: Session) extends Logging {
             pattern,
             Seq.empty,
             Seq.empty)),
-        Query(projectStatement(tempTableSchema.zip(schema).map {
-          case (newAtt, inputAtt) => s"${newAtt.name} AS ${inputAtt.name}"
-        }, tempTableName))) // rename col1 to $1
+        Query(
+          projectStatement(
+            tempTableSchema.zip(schema).map { case (newAtt, inputAtt) =>
+              s"${newAtt.name} AS ${inputAtt.name}"
+            },
+            tempTableName
+          )
+        )
+      ) // rename col1 to $1
       // In the post action we dropped this temp table. Still adding this to the deletion list to
       // be safe in deletion. We rely on 15 digits alphabetic-numeric random string in naming temp
       // objects on not shadowing user's permanent objects.
@@ -684,11 +683,11 @@ class SnowflakePlanBuilder(session: Session) extends Logging {
       transformations: Seq[String],
       userSchema: Option[StructType]): SnowflakePlan = {
     val (copyOptions, formatTypeOptions) = options
-      .filter {
-        case (k, _) => !k.equals("PATTERN")
+      .filter { case (k, _) =>
+        !k.equals("PATTERN")
       }
-      .partition {
-        case (k, _) => CopyOptionForCopyIntoTable.contains(k)
+      .partition { case (k, _) =>
+        CopyOptionForCopyIntoTable.contains(k)
       }
     val pattern = options.get("PATTERN")
     // track usage of pattern, will refactor this function in future
@@ -753,8 +752,8 @@ class SnowflakePlanBuilder(session: Session) extends Logging {
       case _ if plan.queries.last.sql.trim.toLowerCase.startsWith("select") => plan
       // scalastyle:on
       case _ =>
-        val newQueries = plan.queries :+ Query(
-          resultScanStatement(plan.queries.last.queryIdPlaceHolder))
+        val newQueries =
+          plan.queries :+ Query(resultScanStatement(plan.queries.last.queryIdPlaceHolder))
         // Query with result_scan cannot be executed in async mode
         SnowflakePlan(
           newQueries,
@@ -768,14 +767,12 @@ class SnowflakePlanBuilder(session: Session) extends Logging {
 }
 
 /**
- * Assign a place holder for all queries. replace this place holder by real
- * uuid if necessary.
- * for example, a query list
- * 1. show tables , "query_id_place_holder_XXXX"
- * 2. select * from table(result_scan('query_id_place_holder_XXXX')) , "query_id_place_holder_YYYY"
- * when executing
- * 1, execute query 1, and get read uuid, such as 1234567
- * 2, replace uuid_place_holder_XXXXX by 1234567 in query 2, and execute it
+ * Assign a place holder for all queries. replace this place holder by real uuid if necessary. for
+ * example, a query list
+ *   1. show tables , "query_id_place_holder_XXXX" 2. select * from
+ *      table(result_scan('query_id_place_holder_XXXX')) , "query_id_place_holder_YYYY" when
+ *      executing 1, execute query 1, and get read uuid, such as 1234567 2, replace
+ *      uuid_place_holder_XXXXX by 1234567 in query 2, and execute it
  */
 private[snowpark] class Query(
     val sql: String,
@@ -790,8 +787,8 @@ private[snowpark] class Query(
       placeholders: mutable.HashMap[String, String],
       statementParameters: Map[String, Any] = Map.empty): String = {
     var finalQuery = sql
-    placeholders.foreach {
-      case (holder, id) => finalQuery = finalQuery.replaceAll(holder, id)
+    placeholders.foreach { case (holder, id) =>
+      finalQuery = finalQuery.replaceAll(holder, id)
     }
     val queryId = conn.runQuery(finalQuery, isDDLOnTempObject, statementParameters, params)
     placeholders += (queryIdPlaceHolder -> queryId)
@@ -804,8 +801,8 @@ private[snowpark] class Query(
       returnIterator: Boolean,
       statementParameters: Map[String, Any] = Map.empty): QueryResult = {
     var finalQuery = sql
-    placeholders.foreach {
-      case (holder, id) => finalQuery = finalQuery.replaceAll(holder, id)
+    placeholders.foreach { case (holder, id) =>
+      finalQuery = finalQuery.replaceAll(holder, id)
     }
     val result =
       conn.runQueryGetResult(

@@ -44,9 +44,8 @@ class SnowflakePlanSuite extends SNTestBase {
       s"create or replace temporary table $tableName1 as select * from " +
         "values(1::INT, 'a'::STRING),(2::INT, 'b'::STRING) as T(A,B)",
       s"select * from $tableName1").map(Query(_))
-    val attrs = Seq(
-      Attribute("A", IntegerType, nullable = true),
-      Attribute("B", StringType, nullable = true))
+    val attrs =
+      Seq(Attribute("A", IntegerType, nullable = true), Attribute("B", StringType, nullable = true))
 
     val plan =
       new SnowflakePlan(
@@ -98,13 +97,14 @@ class SnowflakePlanSuite extends SNTestBase {
   }
 
   test("empty schema query") {
-    assertThrows[SnowflakeSQLException](new SnowflakePlan(
-      Seq.empty,
-      "",
-      Seq.empty,
-      session,
-      None,
-      supportAsyncMode = true).attributes)
+    assertThrows[SnowflakeSQLException](
+      new SnowflakePlan(
+        Seq.empty,
+        "",
+        Seq.empty,
+        session,
+        None,
+        supportAsyncMode = true).attributes)
   }
 
   test("test SnowflakePlan.supportAsyncMode()") {
@@ -122,10 +122,7 @@ class SnowflakePlanSuite extends SNTestBase {
     assert(session.range(5).select(toScalar(session.range(3))).snowflakePlan.supportAsyncMode)
 
     // negative tests
-    val largeData = new ArrayBuffer[Row]()
-    for (i <- 0 to 1024) {
-      largeData.append(Row(i))
-    }
+    val largeData = for (i <- 0 to 1024) yield Row(i)
     val df2 = session.createDataFrame(largeData, StructType(Seq(StructField("ID", LongType))))
     assert(!df2.snowflakePlan.supportAsyncMode && !df2.clone.snowflakePlan.supportAsyncMode)
     assert(!session.sql(" put file").snowflakePlan.supportAsyncMode)

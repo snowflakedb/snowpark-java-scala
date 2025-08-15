@@ -155,8 +155,8 @@ class Row protected (values: Array[Any], schema: Option[StructType]) extends Ser
   def getBoolean(index: Int): Boolean = getAnyValAs[Boolean](index)
 
   /**
-   * Returns the value of the column at the given index as a Byte value.
-   * Casts Short, Int, Long number to Byte if possible.
+   * Returns the value of the column at the given index as a Byte value. Casts Short, Int, Long
+   * number to Byte if possible.
    * @since 0.1.0
    * @group getter
    */
@@ -170,8 +170,8 @@ class Row protected (values: Array[Any], schema: Option[StructType]) extends Ser
   }
 
   /**
-   * Returns the value of the column at the given index as a Short value.
-   * Casts Byte, Int, Long number to Short if possible.
+   * Returns the value of the column at the given index as a Short value. Casts Byte, Int, Long
+   * number to Short if possible.
    * @since 0.1.0
    * @group getter
    */
@@ -185,8 +185,8 @@ class Row protected (values: Array[Any], schema: Option[StructType]) extends Ser
   }
 
   /**
-   * Returns the value of the column at the given index as a Int value.
-   * Casts Byte, Short, Long number to Int if possible.
+   * Returns the value of the column at the given index as a Int value. Casts Byte, Short, Long
+   * number to Int if possible.
    * @since 0.1.0
    * @group getter
    */
@@ -200,8 +200,8 @@ class Row protected (values: Array[Any], schema: Option[StructType]) extends Ser
   }
 
   /**
-   * Returns the value of the column at the given index as a Long value.
-   * Casts Byte, Short, Int number to Long if possible.
+   * Returns the value of the column at the given index as a Long value. Casts Byte, Short, Int
+   * number to Long if possible.
    * @since 0.1.0
    * @group getter
    */
@@ -215,8 +215,8 @@ class Row protected (values: Array[Any], schema: Option[StructType]) extends Ser
   }
 
   /**
-   * Returns the value of the column at the given index as a Float value.
-   * Casts Byte, Short, Int, Long and Double number to Float if possible.
+   * Returns the value of the column at the given index as a Float value. Casts Byte, Short, Int,
+   * Long and Double number to Float if possible.
    * @since 0.1.0
    * @group getter
    */
@@ -232,8 +232,8 @@ class Row protected (values: Array[Any], schema: Option[StructType]) extends Ser
   }
 
   /**
-   * Returns the value of the column at the given index as a Double value.
-   * Casts Byte, Short, Int, Long, Float number to Double.
+   * Returns the value of the column at the given index as a Double value. Casts Byte, Short, Int,
+   * Long, Float number to Double.
    * @since 0.1.0
    * @group getter
    */
@@ -249,8 +249,8 @@ class Row protected (values: Array[Any], schema: Option[StructType]) extends Ser
   }
 
   /**
-   * Returns the value of the column at the given index as a String value.
-   * Returns geography data as string, if geography data of GeoJSON, WKT or EWKT is found.
+   * Returns the value of the column at the given index as a String value. Returns geography data as
+   * string, if geography data of GeoJSON, WKT or EWKT is found.
    * @since 0.1.0
    * @group getter
    */
@@ -359,8 +359,8 @@ class Row protected (values: Array[Any], schema: Option[StructType]) extends Ser
       case arr: Array[_] => arr.toSeq // for JDBC older than 3.20.0
       case arrBuf: ArrayBuffer[_] => arrBuf.toSeq // for JDBC 3.21.0 +
     }
-    result.map {
-      case x: T => x
+    result.map { case x: T =>
+      x
     }
   }
 
@@ -377,9 +377,12 @@ class Row protected (values: Array[Any], schema: Option[StructType]) extends Ser
   /**
    * Returns the index of the field with the specified name.
    *
-   * @param fieldName the name of the field.
-   * @return the index of the specified field.
-   * @throws UnsupportedOperationException if schema information is not available.
+   * @param fieldName
+   *   the name of the field.
+   * @return
+   *   the index of the specified field.
+   * @throws UnsupportedOperationException
+   *   if schema information is not available.
    * @since 1.15.0
    */
   def fieldIndex(fieldName: String): Int = {
@@ -404,12 +407,18 @@ class Row protected (values: Array[Any], schema: Option[StructType]) extends Ser
    *     row.getAs[Int]("value") // Returns 1 as an Int
    * }}}
    *
-   * @param fieldName the name of the field within the row.
-   * @tparam T the expected type of the value for the specified field name.
-   * @return the value for the specified field name cast to type `T`.
-   * @throws ClassCastException if the value of the field cannot be cast to type `T`.
-   * @throws IllegalArgumentException if the name of the field is not part of the row schema.
-   * @throws UnsupportedOperationException if the schema information is not available.
+   * @param fieldName
+   *   the name of the field within the row.
+   * @tparam T
+   *   the expected type of the value for the specified field name.
+   * @return
+   *   the value for the specified field name cast to type `T`.
+   * @throws ClassCastException
+   *   if the value of the field cannot be cast to type `T`.
+   * @throws IllegalArgumentException
+   *   if the name of the field is not part of the row schema.
+   * @throws UnsupportedOperationException
+   *   if the schema information is not available.
    * @group getter
    * @since 1.15.0
    */
@@ -427,11 +436,16 @@ class Row protected (values: Array[Any], schema: Option[StructType]) extends Ser
    *   row.getAs[Double](2) // Returns 95.5 as a Double
    * }}}
    *
-   * @param index the zero-based column index within the row.
-   * @tparam T the expected type of the value at the specified column index.
-   * @return the value at the specified column index cast to type `T`.
-   * @throws ClassCastException if the value at the given index cannot be cast to type `T`.
-   * @throws ArrayIndexOutOfBoundsException if the column index is out of bounds.
+   * @param index
+   *   the zero-based column index within the row.
+   * @tparam T
+   *   the expected type of the value at the specified column index.
+   * @return
+   *   the value at the specified column index cast to type `T`.
+   * @throws ClassCastException
+   *   if the value at the given index cannot be cast to type `T`.
+   * @throws ArrayIndexOutOfBoundsException
+   *   if the column index is out of bounds.
    * @group getter
    * @since 1.15.0
    */
@@ -459,8 +473,8 @@ class Row protected (values: Array[Any], schema: Option[StructType]) extends Ser
       case null => "null"
       case map: Map[_, _] =>
         map
-          .map {
-            case (key, value) => s"${convertValueToString(key)}:${convertValueToString(value)}"
+          .map { case (key, value) =>
+            s"${convertValueToString(key)}:${convertValueToString(value)}"
           }
           .mkString("Map(", ",", ")")
       case binary: Array[Byte] => s"Binary(${binary.mkString(",")})"
@@ -469,9 +483,8 @@ class Row protected (values: Array[Any], schema: Option[StructType]) extends Ser
         arr.map(convertValueToString).mkString("Array(", ",", ")")
       case obj: SnowflakeObject =>
         obj.map
-          .map {
-            case (key, value) =>
-              s"$key:${convertValueToString(value)}"
+          .map { case (key, value) =>
+            s"$key:${convertValueToString(value)}"
           }
           .mkString("Object(", ",", ")")
       case other => other.toString

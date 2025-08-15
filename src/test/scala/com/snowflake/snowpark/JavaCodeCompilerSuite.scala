@@ -1,9 +1,9 @@
 package com.snowflake.snowpark
 
 import com.snowflake.snowpark.internal.{InMemoryClassObject, JavaCodeCompiler, UDFClassPath}
-import org.scalatest.FunSuite
+import org.scalatest.funsuite.AnyFunSuite
 
-class JavaCodeCompilerSuite extends FunSuite {
+class JavaCodeCompilerSuite extends AnyFunSuite {
 
   test("Compile a class that requires scala in classpath") {
     val className = "HelloWorld"

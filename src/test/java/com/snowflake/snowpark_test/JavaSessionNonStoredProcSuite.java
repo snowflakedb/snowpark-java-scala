@@ -105,8 +105,8 @@ public class JavaSessionNonStoredProcSuite extends TestBase {
     assert exception
         .getMessage()
         .equals(
-            "Error Code: 0426, Error message: "
-                + "The given query tag must be a valid JSON string. Ensure it's correctly formatted as JSON.");
+            "Error Code: 0426, Error message: The given query tag must be a valid JSON string."
+                + " Ensure it's correctly formatted as JSON.");
   }
 
   @Test
@@ -120,8 +120,8 @@ public class JavaSessionNonStoredProcSuite extends TestBase {
     assert exception
         .getMessage()
         .equals(
-            "Error Code: 0427, Error message: "
-                + "The query tag of the current session must be a valid JSON string. Current query tag: tag1");
+            "Error Code: 0427, Error message: The query tag of the current session must be a valid"
+                + " JSON string. Current query tag: tag1");
   }
 
   @Test

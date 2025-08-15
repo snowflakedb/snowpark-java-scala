@@ -10,24 +10,25 @@ import com.snowflake.snowpark.types.StructType
  *
  * To use this object:
  *
- *  1. Access an instance of a DataFrameReader by calling the [[Session.read]] method.
- *  1. Specify any
- *     [[https://docs.snowflake.com/en/sql-reference/sql/create-file-format.html#format-type-options-formattypeoptions format-specific options]]
- *     and
- *     [[https://docs.snowflake.com/en/sql-reference/sql/copy-into-table.html#copy-options-copyoptions copy options]]
- *     by calling the [[option]] or [[options]] method. These methods return a DataFrameReader that
- *     is configured with these options. (Note that although specifying copy options can make error
- *     handling more robust during the reading process, it may have an effect on performance.)
- *  1. Specify the schema of the data that you plan to load by constructing a [[types.StructType]]
- *     object and passing it to the [[schema]] method. This method returns a DataFrameReader that
- *     is configured to read data that uses the specified schema.
- *  1. Specify the format of the data by calling the method named after the format (e.g. [[csv]],
- *     [[json]], etc.). These methods return a [[DataFrame]] that is configured to load data in the
- *     specified format.
- *  1. Call a [[DataFrame]] method that performs an action.
- *     - For example, to load the data from the file, call [[DataFrame.collect]].
- *     - As another example, to save the data from the file to a table, call [[CopyableDataFrame.copyInto(tableName:String)*]].
- *       This uses the COPY INTO `<table_name>` command.
+ *   1. Access an instance of a DataFrameReader by calling the [[Session.read]] method.
+ *   1. Specify any
+ *      [[https://docs.snowflake.com/en/sql-reference/sql/create-file-format.html#format-type-options-formattypeoptions format-specific options]]
+ *      and
+ *      [[https://docs.snowflake.com/en/sql-reference/sql/copy-into-table.html#copy-options-copyoptions copy options]]
+ *      by calling the [[option]] or [[options]] method. These methods return a DataFrameReader that
+ *      is configured with these options. (Note that although specifying copy options can make error
+ *      handling more robust during the reading process, it may have an effect on performance.)
+ *   1. Specify the schema of the data that you plan to load by constructing a [[types.StructType]]
+ *      object and passing it to the [[schema]] method. This method returns a DataFrameReader that
+ *      is configured to read data that uses the specified schema.
+ *   1. Specify the format of the data by calling the method named after the format (e.g. [[csv]],
+ *      [[json]], etc.). These methods return a [[DataFrame]] that is configured to load data in the
+ *      specified format.
+ *   1. Call a [[DataFrame]] method that performs an action.
+ *      - For example, to load the data from the file, call [[DataFrame.collect]].
+ *      - As another example, to save the data from the file to a table, call
+ *        [[CopyableDataFrame.copyInto(tableName:String)*]]. This uses the COPY INTO `<table_name>`
+ *        command.
  *
  * The following examples demonstrate how to use a DataFrameReader.
  *
@@ -72,7 +73,8 @@ import com.snowflake.snowpark.types.StructType
  * `<table_name>` command, you can use a `copyInto()` method e.g.
  * [[CopyableDataFrame.copyInto(tableName:String)*]].
  *
- * '''Example 4:''' Loading data from a JSON file in a stage to a table by using COPY INTO `<table_name>`.
+ * '''Example 4:''' Loading data from a JSON file in a stage to a table by using COPY INTO
+ * `<table_name>`.
  * {{{
  *   val filePath = "@mystage1"
  *   // Create a DataFrame that is configured to load data from the JSON file.
@@ -82,7 +84,8 @@ import com.snowflake.snowpark.types.StructType
  *   jsonDF.copyInto("T1")
  * }}}
  *
- * @param session Snowflake [[Session]]
+ * @param session
+ *   Snowflake [[Session]]
  * @since 0.1.0
  */
 // scalastyle:on
@@ -96,12 +99,14 @@ class DataFrameReader(session: Session) {
    * For the {@code name} argument, you can specify an unqualified name (if the table is in the
    * current database and schema) or a fully qualified name (`db.schema.name`).
    *
-   * Note that the data is not loaded in the DataFrame until you call a method that performs
-   * an action (e.g. [[DataFrame.collect]], [[DataFrame.count]], etc.).
+   * Note that the data is not loaded in the DataFrame until you call a method that performs an
+   * action (e.g. [[DataFrame.collect]], [[DataFrame.count]], etc.).
    *
    * @since 0.1.0
-   * @param name Name of the table to use.
-   * @return A [[DataFrame]]
+   * @param name
+   *   Name of the table to use.
+   * @return
+   *   A [[DataFrame]]
    */
   def table(name: String): DataFrame = session.table(name)
 
@@ -112,8 +117,10 @@ class DataFrameReader(session: Session) {
    * To define the schema for the data that you want to read, use a [[types.StructType]] object.
    *
    * @since 0.1.0
-   * @param schema Schema configuration for the data to be read.
-   * @return A [[DataFrameReader]]
+   * @param schema
+   *   Schema configuration for the data to be read.
+   * @return
+   *   A [[DataFrameReader]]
    */
   def schema(schema: StructType): DataFrameReader = {
     stagedFileReader.userSchema(schema)
@@ -125,8 +132,8 @@ class DataFrameReader(session: Session) {
    *
    * This method only supports reading data from files in Snowflake stages.
    *
-   * Note that the data is not loaded in the DataFrame until you call a method that performs
-   * an action (e.g. [[DataFrame.collect]], [[DataFrame.count]], etc.).
+   * Note that the data is not loaded in the DataFrame until you call a method that performs an
+   * action (e.g. [[DataFrame.collect]], [[DataFrame.count]], etc.).
    *
    * For example:
    * {{{
@@ -137,8 +144,8 @@ class DataFrameReader(session: Session) {
    *   val results = df.collect()
    * }}}
    *
-   * If you want to use the `COPY INTO <table_name>` command to load data from staged files to
-   * a specified table, call the `copyInto()` method (e.g.
+   * If you want to use the `COPY INTO <table_name>` command to load data from staged files to a
+   * specified table, call the `copyInto()` method (e.g.
    * [[CopyableDataFrame.copyInto(tableName:String)*]]).
    *
    * For example: The following example loads the CSV files in the stage location specified by
@@ -149,19 +156,17 @@ class DataFrameReader(session: Session) {
    * }}}
    *
    * @since 0.1.0
-   * @param path The path to the CSV file (including the stage name).
-   * @return A [[CopyableDataFrame]]
+   * @param path
+   *   The path to the CSV file (including the stage name).
+   * @return
+   *   A [[CopyableDataFrame]]
    */
   def csv(path: String): CopyableDataFrame = {
     stagedFileReader
       .path(path)
       .format("csv")
       .databaseSchema(session.getFullyQualifiedCurrentSchema)
-    new CopyableDataFrame(
-      session,
-      stagedFileReader.createSnowflakePlan(),
-      Seq(),
-      stagedFileReader)
+    new CopyableDataFrame(session, stagedFileReader.createSnowflakePlan(), Seq(), stagedFileReader)
   }
 
   /**
@@ -169,8 +174,8 @@ class DataFrameReader(session: Session) {
    *
    * This method only supports reading data from files in Snowflake stages.
    *
-   * Note that the data is not loaded in the DataFrame until you call a method that performs
-   * an action (e.g. [[DataFrame.collect]], [[DataFrame.count]], etc.).
+   * Note that the data is not loaded in the DataFrame until you call a method that performs an
+   * action (e.g. [[DataFrame.collect]], [[DataFrame.count]], etc.).
    *
    * For example:
    * {{{
@@ -180,8 +185,8 @@ class DataFrameReader(session: Session) {
    *   val results = df.collect()
    * }}}
    *
-   * If you want to use the `COPY INTO <table_name>` command to load data from staged files to
-   * a specified table, call the `copyInto()` method (e.g.
+   * If you want to use the `COPY INTO <table_name>` command to load data from staged files to a
+   * specified table, call the `copyInto()` method (e.g.
    * [[CopyableDataFrame.copyInto(tableName:String)*]]).
    *
    * For example: The following example loads the JSON files in the stage location specified by
@@ -192,8 +197,10 @@ class DataFrameReader(session: Session) {
    * }}}
    *
    * @since 0.1.0
-   * @param path The path to the JSON file (including the stage name).
-   * @return A [[CopyableDataFrame]]
+   * @param path
+   *   The path to the JSON file (including the stage name).
+   * @return
+   *   A [[CopyableDataFrame]]
    */
   def json(path: String): CopyableDataFrame = readSemiStructuredFile(path, "JSON")
 
@@ -202,16 +209,16 @@ class DataFrameReader(session: Session) {
    *
    * This method only supports reading data from files in Snowflake stages.
    *
-   * Note that the data is not loaded in the DataFrame until you call a method that performs
-   * an action (e.g. [[DataFrame.collect]], [[DataFrame.count]], etc.).
+   * Note that the data is not loaded in the DataFrame until you call a method that performs an
+   * action (e.g. [[DataFrame.collect]], [[DataFrame.count]], etc.).
    *
    * For example:
    * {{{
    *   session.read.avro(path).where(col("\$1:num") > 1)
    * }}}
    *
-   * If you want to use the `COPY INTO <table_name>` command to load data from staged files to
-   * a specified table, call the `copyInto()` method (e.g.
+   * If you want to use the `COPY INTO <table_name>` command to load data from staged files to a
+   * specified table, call the `copyInto()` method (e.g.
    * [[CopyableDataFrame.copyInto(tableName:String)*]]).
    *
    * For example: The following example loads the Avro files in the stage location specified by
@@ -222,8 +229,10 @@ class DataFrameReader(session: Session) {
    * }}}
    *
    * @since 0.1.0
-   * @param path The path to the Avro file (including the stage name).
-   * @return A [[CopyableDataFrame]]
+   * @param path
+   *   The path to the Avro file (including the stage name).
+   * @return
+   *   A [[CopyableDataFrame]]
    */
   def avro(path: String): CopyableDataFrame = readSemiStructuredFile(path, "AVRO")
 
@@ -232,8 +241,8 @@ class DataFrameReader(session: Session) {
    *
    * This method only supports reading data from files in Snowflake stages.
    *
-   * Note that the data is not loaded in the DataFrame until you call a method that performs
-   * an action (e.g. [[DataFrame.collect]], [[DataFrame.count]], etc.).
+   * Note that the data is not loaded in the DataFrame until you call a method that performs an
+   * action (e.g. [[DataFrame.collect]], [[DataFrame.count]], etc.).
    *
    * For example:
    * {{{
@@ -243,8 +252,8 @@ class DataFrameReader(session: Session) {
    *   val results = df.collect()
    * }}}
    *
-   * If you want to use the `COPY INTO <table_name>` command to load data from staged files to
-   * a specified table, call the `copyInto()` method (e.g.
+   * If you want to use the `COPY INTO <table_name>` command to load data from staged files to a
+   * specified table, call the `copyInto()` method (e.g.
    * [[CopyableDataFrame.copyInto(tableName:String)*]]).
    *
    * For example: The following example loads the Parquet files in the stage location specified by
@@ -255,8 +264,10 @@ class DataFrameReader(session: Session) {
    * }}}
    *
    * @since 0.1.0
-   * @param path The path to the Parquet file (including the stage name).
-   * @return A [[CopyableDataFrame]]
+   * @param path
+   *   The path to the Parquet file (including the stage name).
+   * @return
+   *   A [[CopyableDataFrame]]
    */
   def parquet(path: String): CopyableDataFrame = readSemiStructuredFile(path, "PARQUET")
 
@@ -265,8 +276,8 @@ class DataFrameReader(session: Session) {
    *
    * This method only supports reading data from files in Snowflake stages.
    *
-   * Note that the data is not loaded in the DataFrame until you call a method that performs
-   * an action (e.g. [[DataFrame.collect]], [[DataFrame.count]], etc.).
+   * Note that the data is not loaded in the DataFrame until you call a method that performs an
+   * action (e.g. [[DataFrame.collect]], [[DataFrame.count]], etc.).
    *
    * For example:
    * {{{
@@ -276,8 +287,8 @@ class DataFrameReader(session: Session) {
    *   val results = df.collect()
    * }}}
    *
-   * If you want to use the `COPY INTO <table_name>` command to load data from staged files to
-   * a specified table, call the `copyInto()` method (e.g.
+   * If you want to use the `COPY INTO <table_name>` command to load data from staged files to a
+   * specified table, call the `copyInto()` method (e.g.
    * [[CopyableDataFrame.copyInto(tableName:String)*]]).
    *
    * For example: The following example loads the ORC files in the stage location specified by
@@ -288,8 +299,10 @@ class DataFrameReader(session: Session) {
    * }}}
    *
    * @since 0.1.0
-   * @param path The path to the ORC file (including the stage name).
-   * @return A [[CopyableDataFrame]]
+   * @param path
+   *   The path to the ORC file (including the stage name).
+   * @return
+   *   A [[CopyableDataFrame]]
    */
   def orc(path: String): CopyableDataFrame = readSemiStructuredFile(path, "ORC")
 
@@ -298,8 +311,8 @@ class DataFrameReader(session: Session) {
    *
    * This method only supports reading data from files in Snowflake stages.
    *
-   * Note that the data is not loaded in the DataFrame until you call a method that performs
-   * an action (e.g. [[DataFrame.collect]], [[DataFrame.count]], etc.).
+   * Note that the data is not loaded in the DataFrame until you call a method that performs an
+   * action (e.g. [[DataFrame.collect]], [[DataFrame.count]], etc.).
    *
    * For example:
    * {{{
@@ -309,8 +322,8 @@ class DataFrameReader(session: Session) {
    *   val results = df.collect()
    * }}}
    *
-   * If you want to use the `COPY INTO <table_name>` command to load data from staged files to
-   * a specified table, call the `copyInto()` method (e.g.
+   * If you want to use the `COPY INTO <table_name>` command to load data from staged files to a
+   * specified table, call the `copyInto()` method (e.g.
    * [[CopyableDataFrame.copyInto(tableName:String)*]]).
    *
    * For example: The following example loads the XML files in the stage location specified by
@@ -321,8 +334,10 @@ class DataFrameReader(session: Session) {
    * }}}
    *
    * @since 0.1.0
-   * @param path The path to the XML file (including the stage name).
-   * @return A [[CopyableDataFrame]]
+   * @param path
+   *   The path to the XML file (including the stage name).
+   * @return
+   *   A [[CopyableDataFrame]]
    */
   def xml(path: String): CopyableDataFrame = readSemiStructuredFile(path, "XML")
 
@@ -353,8 +368,8 @@ class DataFrameReader(session: Session) {
    *   val results = df.collect()
    * }}}
    *
-   * '''Example 3:''' Loading the first two columns of a colon-delimited CSV file in which the
-   * first line is the header:
+   * '''Example 3:''' Loading the first two columns of a colon-delimited CSV file in which the first
+   * line is the header:
    * {{{
    *   import com.snowflake.snowpark.types._
    *   // Define the schema for the data in the CSV files.
@@ -381,9 +396,12 @@ class DataFrameReader(session: Session) {
    * }}}
    *
    * @since 0.1.0
-   * @param key Name of the option (e.g. {@code compression}, {@code skip_header}, etc.).
-   * @param value Value of the option.
-   * @return A [[DataFrameReader]]
+   * @param key
+   *   Name of the option (e.g. {@code compression} , {@code skip_header} , etc.).
+   * @param value
+   *   Value of the option.
+   * @return
+   *   A [[DataFrameReader]]
    */
   // scalastyle:on
   def option(key: String, value: Any): DataFrameReader = {
@@ -416,9 +434,11 @@ class DataFrameReader(session: Session) {
    * }}}
    *
    * @since 0.1.0
-   * @param configs Map of the names of options (e.g. {@code compression}, {@code skip_header},
-   *   etc.) and their corresponding values.
-   * @return A [[DataFrameReader]]
+   * @param configs
+   *   Map of the names of options (e.g. {@code compression} , {@code skip_header} , etc.) and their
+   *   corresponding values.
+   * @return
+   *   A [[DataFrameReader]]
    */
   // scalastyle:on
   def options(configs: Map[String, Any]): DataFrameReader = {
@@ -431,10 +451,6 @@ class DataFrameReader(session: Session) {
       .path(path)
       .format(format)
       .databaseSchema(session.getFullyQualifiedCurrentSchema)
-    new CopyableDataFrame(
-      session,
-      stagedFileReader.createSnowflakePlan(),
-      Seq(),
-      stagedFileReader)
+    new CopyableDataFrame(session, stagedFileReader.createSnowflakePlan(), Seq(), stagedFileReader)
   }
 }

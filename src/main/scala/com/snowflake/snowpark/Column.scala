@@ -48,15 +48,14 @@ case class Column private[snowpark] (private[snowpark] val expr: Expression) ext
   }
 
   /**
-   * Returns a conditional expression that you can pass to the filter or where method to
-   * perform the equivalent of a WHERE ... IN query with a specified list of values.
+   * Returns a conditional expression that you can pass to the filter or where method to perform the
+   * equivalent of a WHERE ... IN query with a specified list of values.
    *
-   * The expression evaluates to true if the value in the column is one of the values in
-   * a specified sequence.
+   * The expression evaluates to true if the value in the column is one of the values in a specified
+   * sequence.
    *
-   * For example, the following code returns a DataFrame that contains the rows where
-   * the column "a" contains the value 1, 2, or 3. This is equivalent to
-   * SELECT * FROM table WHERE a IN (1, 2, 3).
+   * For example, the following code returns a DataFrame that contains the rows where the column "a"
+   * contains the value 1, 2, or 3. This is equivalent to SELECT * FROM table WHERE a IN (1, 2, 3).
    * {{{
    *    df.filter(df("a").in(Seq(1, 2, 3)))
    * }}}
@@ -104,15 +103,15 @@ case class Column private[snowpark] (private[snowpark] val expr: Expression) ext
   }
 
   /**
-   * Returns a conditional expression that you can pass to the filter or where method to
-   * perform a WHERE ... IN query with a specified subquery.
+   * Returns a conditional expression that you can pass to the filter or where method to perform a
+   * WHERE ... IN query with a specified subquery.
    *
-   * The expression evaluates to true if the value in the column is one of the values in
-   * the column of the same name in a specified DataFrame.
+   * The expression evaluates to true if the value in the column is one of the values in the column
+   * of the same name in a specified DataFrame.
    *
-   * For example, the following code returns a DataFrame that contains the rows where
-   * the column "a" of `df2` contains one of the values from column "a" in `df1`.
-   * This is equivalent to SELECT * FROM table2 WHERE a IN (SELECT a FROM table1).
+   * For example, the following code returns a DataFrame that contains the rows where the column "a"
+   * of `df2` contains one of the values from column "a" in `df1`. This is equivalent to SELECT *
+   * FROM table2 WHERE a IN (SELECT a FROM table1).
    * {{{
    *    val df1 = session.table(table1)
    *    val df2 = session.table(table2)
@@ -138,16 +137,16 @@ case class Column private[snowpark] (private[snowpark] val expr: Expression) ext
    *   - If the column is an OBJECT value, this function extracts the VARIANT value of the element
    *     with the specified name from the OBJECT value.
    *
-   *     - If the element is not found, the method returns NULL.
+   *   - If the element is not found, the method returns NULL.
    *
-   *     - You must not specify an empty string for the element name.
+   *   - You must not specify an empty string for the element name.
    *
    *   - If the column is a VARIANT value, this function first checks if the VARIANT value contains
    *     an OBJECT value.
    *
-   *     - If the VARIANT value does not contain an OBJECT value, the method returns NULL.
+   *   - If the VARIANT value does not contain an OBJECT value, the method returns NULL.
    *
-   *     - Otherwise, the method works as described above.
+   *   - Otherwise, the method works as described above.
    *
    * For example:
    * {{{
@@ -155,7 +154,8 @@ case class Column private[snowpark] (private[snowpark] val expr: Expression) ext
    *   df.select(col("src")("salesperson")("emails")(0))
    * }}}
    *
-   * @param field field name of the subfield to be extracted. You cannot specify a path.
+   * @param field
+   *   field name of the subfield to be extracted. You cannot specify a path.
    * @group op
    * @since 0.2.0
    */
@@ -176,15 +176,15 @@ case class Column private[snowpark] (private[snowpark] val expr: Expression) ext
    *   - If the column is an ARRAY value, this function extracts the VARIANT value of the array
    *     element at the specified index.
    *
-   *     - If the index points outside of the array boundaries or if an element does not exist at
-   *       the specified index (e.g. if the array is sparsely populated), the method returns NULL.
+   *   - If the index points outside of the array boundaries or if an element does not exist at the
+   *     specified index (e.g. if the array is sparsely populated), the method returns NULL.
    *
    *   - If the column is a VARIANT value, this function first checks if the VARIANT value contains
    *     an ARRAY value.
    *
-   *     - If the VARIANT value does not contain an ARRAY value, the method returns NULL.
+   *   - If the VARIANT value does not contain an ARRAY value, the method returns NULL.
    *
-   *     - Otherwise, the method works as described above.
+   *   - Otherwise, the method works as described above.
    *
    * For example:
    * {{{
@@ -192,7 +192,8 @@ case class Column private[snowpark] (private[snowpark] val expr: Expression) ext
    *   df.select(col("src")(1)(0)("name")(0))
    * }}}
    *
-   * @param idx index of the subfield to be extracted
+   * @param idx
+   *   index of the subfield to be extracted
    * @group op
    * @since 0.2.0
    */
@@ -258,9 +259,8 @@ case class Column private[snowpark] (private[snowpark] val expr: Expression) ext
   def unary_! : Column = withExpr(Not(expr))
 
   /**
-   * Equal to. Alias for [[equal_to]].
-   * Use this instead of `==` to perform an equality check in an expression.
-   * For example:
+   * Equal to. Alias for [[equal_to]]. Use this instead of `==` to perform an equality check in an
+   * expression. For example:
    * {{{
    *   lhs.filter(col("a") === 10).join(rhs, rhs("id") === lhs("id"))
    * }}}
@@ -640,12 +640,11 @@ case class Column private[snowpark] (private[snowpark] val expr: Expression) ext
   def regexp(pattern: Column): Column = withExpr(RegExp(this.expr, pattern.expr))
 
   /**
-   * Returns a Column expression that adds a WITHIN GROUP clause
-   * to sort the rows by the specified columns.
+   * Returns a Column expression that adds a WITHIN GROUP clause to sort the rows by the specified
+   * columns.
    *
-   * This method is supported on Column expressions returned by some
-   * of the aggregate functions, including [[functions.array_agg]],
-   * LISTAGG(), PERCENTILE_CONT(), and PERCENTILE_DISC().
+   * This method is supported on Column expressions returned by some of the aggregate functions,
+   * including [[functions.array_agg]], LISTAGG(), PERCENTILE_CONT(), and PERCENTILE_DISC().
    *
    * For example:
    * {{{
@@ -664,9 +663,8 @@ case class Column private[snowpark] (private[snowpark] val expr: Expression) ext
    *     )
    * }}}
    *
-   * For details, see the Snowflake documentation for the aggregate function
-   * that you are using (e.g.
-   * [[https://docs.snowflake.com/en/sql-reference/functions/array_agg.html ARRAY_AGG]]).
+   * For details, see the Snowflake documentation for the aggregate function that you are using
+   * (e.g. [[https://docs.snowflake.com/en/sql-reference/functions/array_agg.html ARRAY_AGG]]).
    *
    * @group op
    * @since 0.6.0
@@ -675,12 +673,11 @@ case class Column private[snowpark] (private[snowpark] val expr: Expression) ext
     withinGroup(first +: remaining)
 
   /**
-   * Returns a Column expression that adds a WITHIN GROUP clause
-   * to sort the rows by the specified sequence of columns.
+   * Returns a Column expression that adds a WITHIN GROUP clause to sort the rows by the specified
+   * sequence of columns.
    *
-   * This method is supported on Column expressions returned by some
-   * of the aggregate functions, including [[functions.array_agg]],
-   * LISTAGG(), PERCENTILE_CONT(), and PERCENTILE_DISC().
+   * This method is supported on Column expressions returned by some of the aggregate functions,
+   * including [[functions.array_agg]], LISTAGG(), PERCENTILE_CONT(), and PERCENTILE_DISC().
    *
    * For example:
    * {{{
@@ -699,9 +696,8 @@ case class Column private[snowpark] (private[snowpark] val expr: Expression) ext
    *     )
    * }}}
    *
-   * For details, see the Snowflake documentation for the aggregate function
-   * that you are using (e.g.
-   * [[https://docs.snowflake.com/en/sql-reference/functions/array_agg.html ARRAY_AGG]]).
+   * For details, see the Snowflake documentation for the aggregate function that you are using
+   * (e.g. [[https://docs.snowflake.com/en/sql-reference/functions/array_agg.html ARRAY_AGG]]).
    *
    * @group op
    * @since 0.6.0
@@ -743,8 +739,7 @@ private[snowpark] object Column {
 }
 
 /**
- * Represents a
- * [[https://docs.snowflake.com/en/sql-reference/functions/case.html CASE]] expression.
+ * Represents a [[https://docs.snowflake.com/en/sql-reference/functions/case.html CASE]] expression.
  *
  * To construct this object for a CASE expression, call the
  * [[com.snowflake.snowpark.functions.when functions.when]]. specifying a condition and the

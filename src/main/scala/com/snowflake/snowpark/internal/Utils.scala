@@ -23,16 +23,14 @@ import scala.collection.mutable.ArrayBuffer
 import scala.util.Random
 
 object Utils extends Logging {
-  val Version: String = "1.17.0-SNAPSHOT"
+  val Version: String = BuildInfo.version
   // Package name of snowpark on server side
   val SnowparkPackageName = "com.snowflake:snowpark"
   val PackageNameDelimiter = ":"
   // Define the compat scala version instead of reading from property file
   // because it fails to read the property file in some environment such as
   // VSCode worksheet.
-  val ScalaCompatVersion: String = "2.12"
-  // Minimum minor version. We require version to be greater than 2.12.9
-  val ScalaMinimumMinorVersion: String = "2.12.9"
+  val ScalaCompatVersion: String = BuildInfo.scalaVersion.split("\\.").take(2).mkString(".")
 
   // Minimum GS version for us to identify as Snowpark client
   val MinimumGSVersionForSnowparkClientType: String = "5.20.0"
@@ -91,11 +89,11 @@ object Utils extends Logging {
     val stackDepth = 3 // TODO: Configurable ?
     Thread.currentThread.getStackTrace().foreach { ste: StackTraceElement =>
       if (ste != null && ste.getMethodName != null
-          && !ste.getMethodName.contains("getStackTrace")) {
+        && !ste.getMethodName.contains("getStackTrace")) {
         if (internalCode) {
           if (ste.getClassName.startsWith("net.snowflake.client.")
-              || ste.getClassName.startsWith("com.snowflake.snowpark.")
-              || ste.getClassName.startsWith("scala.")) {
+            || ste.getClassName.startsWith("com.snowflake.snowpark.")
+            || ste.getClassName.startsWith("scala.")) {
             lastInternalLine = ste.getClassName + "." + ste.getMethodName
 
           } else {
@@ -177,7 +175,8 @@ object Utils extends Logging {
     val buffer = new Array[Byte](8192)
     val md5 = MessageDigest.getInstance("MD5")
     val dis = new DigestInputStream(new FileInputStream(file), md5)
-    try { while (dis.read(buffer) != -1) {} } finally { dis.close() }
+    try { while (dis.read(buffer) != -1) {} }
+    finally { dis.close() }
     md5.digest.map("%02x".format(_)).mkString
   }
 
@@ -224,11 +223,12 @@ object Utils extends Logging {
 
   /**
    * Parses a stage file location into stageName, path and fileName
-   * @param stageLocation a string that represent a file on a stage
-   * @return stageName, path and fileName
+   * @param stageLocation
+   *   a string that represent a file on a stage
+   * @return
+   *   stageName, path and fileName
    */
-  private[snowpark] def parseStageFileLocation(
-      stageLocation: String): (String, String, String) = {
+  private[snowpark] def parseStageFileLocation(stageLocation: String): (String, String, String) = {
     val normalized = normalizeStageLocation(stageLocation)
     if (stageLocation.endsWith("/")) {
       throw ErrorMessage.MISC_INVALID_STAGE_LOCATION(
@@ -262,27 +262,9 @@ object Utils extends Logging {
 
   // Refactored as a wrapper for testing purpose
   private[snowpark] def checkScalaVersionCompatibility(): Unit = {
-    checkScalaVersionCompatibility(ScalaVersion)
-  }
-
-  private[snowpark] def checkScalaVersionCompatibility(inputScalaVersion: String): Unit = {
-    // Check that version starts with 2.12 and is greater than 2.12.9
-    if (!inputScalaVersion.startsWith(ScalaCompatVersion) ||
-        compareVersion(inputScalaVersion, ScalaMinimumMinorVersion) < 0) {
-      throw ErrorMessage.MISC_SCALA_VERSION_NOT_SUPPORTED(
-        inputScalaVersion,
-        ScalaCompatVersion,
-        ScalaMinimumMinorVersion)
+    if (!ScalaVersion.startsWith(ScalaCompatVersion)) {
+      throw ErrorMessage.MISC_SCALA_VERSION_NOT_SUPPORTED(ScalaVersion, ScalaCompatVersion)
     }
-  }
-
-  // Compare two version strings. Un-specified version digits will be assumed as '0'.
-  private[snowpark] def compareVersion(version1: String, version2: String): Int = {
-    version1
-      .split("\\.")
-      .zipAll(version2.split("\\."), "0", "0")
-      .find { case (a, b) => a != b }
-      .fold(0) { case (a, b) => a.toInt - b.toInt }
   }
 
   // Valid name can be:
@@ -354,7 +336,8 @@ object Utils extends Logging {
   }
 
   private[snowpark] def escapePath(path: String): String =
-    if (isWindows) { path.replace("\\", "\\\\") } else { path }
+    if (isWindows) { path.replace("\\", "\\\\") }
+    else { path }
 
   private val RETRY_SLEEP_TIME_UNIT_IN_MS: Int = 1500
   private val MAX_SLEEP_TIME_IN_MS: Int = 60 * 1000
@@ -438,12 +421,11 @@ object Utils extends Logging {
   private[snowpark] def getDisplayColumnNames(
       attrs: Seq[Attribute],
       renamedColumns: Map[String, String]): Seq[Attribute] = {
-    attrs.map(
-      att =>
-        renamedColumns
-          .get(att.name)
-          .map(newName => Attribute(newName, att.dataType, att.nullable, att.exprId))
-          .getOrElse(att))
+    attrs.map(att =>
+      renamedColumns
+        .get(att.name)
+        .map(newName => Attribute(newName, att.dataType, att.nullable, att.exprId))
+        .getOrElse(att))
   }
 
   private[snowpark] def getTableFunctionExpression(col: Column): TableFunctionExpression = {
@@ -506,8 +488,8 @@ object Utils extends Logging {
         input.toString
       case map: Map[String, _] =>
         map
-          .map {
-            case (key, value) => s"${scalaToJson(key)}:${scalaToJson(value)}"
+          .map { case (key, value) =>
+            s"${scalaToJson(key)}:${scalaToJson(value)}"
           }
           .mkString("{", ",", "}")
       case seq: Seq[_] => seq.map(scalaToJson).mkString("[", ",", "]")

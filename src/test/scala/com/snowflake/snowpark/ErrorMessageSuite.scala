@@ -6,9 +6,9 @@ import com.snowflake.snowpark.internal.ParameterUtils.{
   MIN_REQUEST_TIMEOUT_IN_SECONDS,
   SnowparkRequestTimeoutInSeconds
 }
-import org.scalatest.FunSuite
+import org.scalatest.funsuite.AnyFunSuite
 
-class ErrorMessageSuite extends FunSuite {
+class ErrorMessageSuite extends AnyFunSuite {
 
   test("INTERNAL_TEST_MESSAGE") {
     val ex = ErrorMessage.INTERNAL_TEST_MESSAGE("my message: '%d $'")
@@ -361,9 +361,10 @@ class ErrorMessageSuite extends FunSuite {
     val ex = ErrorMessage.UDF_CANNOT_FIND_JAVA_COMPILER()
     assert(ex.telemetryMessage.equals(ErrorMessage.getMessage("0205")))
     assert(
-      ex.message.startsWith("Error Code: 0205, Error message: " +
-        "Cannot find the JDK. For your development environment, set the JAVA_HOME environment " +
-        "variable to the directory where you installed a supported version of the JDK."))
+      ex.message.startsWith(
+        "Error Code: 0205, Error message: " +
+          "Cannot find the JDK. For your development environment, set the JAVA_HOME environment " +
+          "variable to the directory where you installed a supported version of the JDK."))
   }
 
   test("UDF_ERROR_IN_COMPILING_CODE") {
@@ -409,10 +410,11 @@ class ErrorMessageSuite extends FunSuite {
     val ex = ErrorMessage.UDF_CANNOT_INFER_MULTIPLE_PROCESS(3)
     assert(ex.telemetryMessage.equals(ErrorMessage.getMessage("0210")))
     assert(
-      ex.message.startsWith("Error Code: 0210, Error message: " +
-        "Cannot determine the input types because the process() method has multiple signatures" +
-        " with 3 arguments. In your JavaUDTF class, implement the inputSchema() method to" +
-        " describe the input types."))
+      ex.message.startsWith(
+        "Error Code: 0210, Error message: " +
+          "Cannot determine the input types because the process() method has multiple signatures" +
+          " with 3 arguments. In your JavaUDTF class, implement the inputSchema() method to" +
+          " describe the input types."))
   }
 
   test("UDF_INCORRECT_SPROC_ARGS_NUMBER") {
@@ -427,9 +429,10 @@ class ErrorMessageSuite extends FunSuite {
     val ex = ErrorMessage.UDF_CANNOT_ACCEPT_MANY_DF_COLS()
     assert(ex.telemetryMessage.equals(ErrorMessage.getMessage("0212")))
     assert(
-      ex.message.startsWith("Error Code: 0212, Error message: " +
-        "Session.tableFunction does not support columns from more than one dataframe as input." +
-        " Join these dataframes before using the function"))
+      ex.message.startsWith(
+        "Error Code: 0212, Error message: " +
+          "Session.tableFunction does not support columns from more than one dataframe as input." +
+          " Join these dataframes before using the function"))
   }
 
   test("UDF_UNEXPECTED_COLUMN_ORDER") {
@@ -547,10 +550,11 @@ class ErrorMessageSuite extends FunSuite {
     val ex = ErrorMessage.PLAN_COPY_DONT_SUPPORT_SKIP_LOADED_FILES("false")
     assert(ex.telemetryMessage.equals(ErrorMessage.getMessage("0311")))
     assert(
-      ex.message.startsWith("Error Code: 0311, Error message: " +
-        "The COPY option 'FORCE = false' is not supported by the Snowpark library. " +
-        "The Snowflake library loads all files, even if the files have been loaded previously " +
-        "and have not changed since they were loaded."))
+      ex.message.startsWith(
+        "Error Code: 0311, Error message: " +
+          "The COPY option 'FORCE = false' is not supported by the Snowpark library. " +
+          "The Snowflake library loads all files, even if the files have been loaded previously " +
+          "and have not changed since they were loaded."))
   }
 
   test("PLAN_CANNOT_CREATE_LITERAL") {
@@ -610,11 +614,12 @@ class ErrorMessageSuite extends FunSuite {
     val ex = ErrorMessage.PLAN_QUERY_IS_STILL_RUNNING("qid_123", "RUNNING", 100)
     assert(ex.telemetryMessage.equals(ErrorMessage.getMessage("0318")))
     assert(
-      ex.message.startsWith("Error Code: 0318, Error message: " +
-        "The query with the ID qid_123 is still running and has the current status RUNNING." +
-        " The function call has been running for 100 seconds, which exceeds the maximum number" +
-        " of seconds to wait for the results. Use the `maxWaitTimeInSeconds` argument" +
-        " to increase the number of seconds to wait."))
+      ex.message.startsWith(
+        "Error Code: 0318, Error message: " +
+          "The query with the ID qid_123 is still running and has the current status RUNNING." +
+          " The function call has been running for 100 seconds, which exceeds the maximum number" +
+          " of seconds to wait for the results. Use the `maxWaitTimeInSeconds` argument" +
+          " to increase the number of seconds to wait."))
   }
 
   test("PLAN_CANNOT_SUPPORT_TYPE_FOR_ASYNC_JOB") {
@@ -735,13 +740,11 @@ class ErrorMessageSuite extends FunSuite {
   }
 
   test("MISC_SCALA_VERSION_NOT_SUPPORTED") {
-    val ex = ErrorMessage.MISC_SCALA_VERSION_NOT_SUPPORTED("2.12.6", "2.12", "2.12.9")
+    val ex = ErrorMessage.MISC_SCALA_VERSION_NOT_SUPPORTED("2.12.6", "2.12")
     assert(ex.telemetryMessage.equals(ErrorMessage.getMessage("0411")))
     assert(
-      ex.message.startsWith(
-        "Error Code: 0411, Error message: " +
-          "Scala version 2.12.6 detected. Snowpark only supports Scala version 2.12 with " +
-          "the minor version 2.12.9 and higher."))
+      ex.message.startsWith("Error Code: 0411, Error message: " +
+        "Scala version 2.12.6 detected. Snowpark only supports Scala version 2.12"))
   }
 
   test("MISC_INVALID_OBJECT_NAME") {

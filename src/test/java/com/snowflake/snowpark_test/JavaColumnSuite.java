@@ -16,7 +16,8 @@ public class JavaColumnSuite extends TestBase {
     DataFrame data =
         getSession()
             .sql(
-                "select parse_json(column1) as v from values ('{\"a\": null}'), ('{\"a\": \"foo\"}'), (null)");
+                "select parse_json(column1) as v from values ('{\"a\": null}'), ('{\"a\":"
+                    + " \"foo\"}'), (null)");
 
     Row[] expected = {Row.create("null"), Row.create("\"foo\""), Row.create((Object) null)};
     checkAnswer(data.select(data.col("v").subField("a")), expected);
@@ -27,8 +28,9 @@ public class JavaColumnSuite extends TestBase {
     DataFrame data =
         getSession()
             .sql(
-                "select array_construct(a,b,c) as arr1, d, e, f from values(1,2,3,2,'e1','[{a:1}]'),"
-                    + "(6,7,8,1,'e2','[{a:1},{b:2}]') as T(a,b,c,d,e,f)");
+                "select array_construct(a,b,c) as arr1, d, e, f from"
+                    + " values(1,2,3,2,'e1','[{a:1}]'),(6,7,8,1,'e2','[{a:1},{b:2}]') as"
+                    + " T(a,b,c,d,e,f)");
 
     Row[] expected = {Row.create("1"), Row.create("6")};
     checkAnswer(data.select(data.col("arr1").subField(0)), expected);
@@ -287,7 +289,8 @@ public class JavaColumnSuite extends TestBase {
     DataFrame df =
         getSession()
             .sql(
-                "select * from values(1, 'a', 1, 1), (2, 'b', 2, 2), (3, 'b', 33, 33) as T(a,b,c,d)");
+                "select * from values(1, 'a', 1, 1), (2, 'b', 2, 2), (3, 'b', 33, 33) as"
+                    + " T(a,b,c,d)");
     DataFrame df1 =
         df.filter(
             Functions.in(
@@ -306,7 +309,8 @@ public class JavaColumnSuite extends TestBase {
     DataFrame df =
         getSession()
             .sql(
-                "select * from values(1, 'a', 1, 1), (2, 'b', 2, 2), (3, 'b', 33, 33) as T(a,b,c,d)");
+                "select * from values(1, 'a', 1, 1), (2, 'b', 2, 2), (3, 'b', 33, 33) as"
+                    + " T(a,b,c,d)");
     Row[] expected = {Row.create(2, "b", 2, 2), Row.create(3, "b", 33, 33)};
     checkAnswer(df.filter(df.col("a").in(2, 3)), expected);
 

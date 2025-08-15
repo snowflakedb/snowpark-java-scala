@@ -3,9 +3,8 @@ package com.snowflake.snowpark
 import com.snowflake.snowpark.internal.UdfColumnSchema
 
 /**
- * The reference to a Stored Procedure which can be created by
- * `Session.sproc.register` methods, and used in `Session.storedProcedure`
- * method.
+ * The reference to a Stored Procedure which can be created by `Session.sproc.register` methods, and
+ * used in `Session.storedProcedure` method.
  *
  * For example:
  * {{{

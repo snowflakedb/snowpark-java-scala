@@ -26,4 +26,3 @@ jobs:
         jira_token: ${{ secrets.JIRA_TOKEN }}
       env:
         GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-

@@ -12,12 +12,12 @@ class Simplifier(session: Session) {
       WithColumnPolicy(session),
       DropColumnPolicy(session),
       ProjectPlusFilterPolicy)
-  val default: PartialFunction[LogicalPlan, LogicalPlan] = {
-    case p => p.updateChildren(simplify)
+  val default: PartialFunction[LogicalPlan, LogicalPlan] = { case p =>
+    p.updateChildren(simplify)
   }
   val policy: PartialFunction[LogicalPlan, LogicalPlan] =
-    policies.foldRight(default) {
-      case (prev, curr) => prev.rule orElse curr
+    policies.foldRight(default) { case (prev, curr) =>
+      prev.rule orElse curr
     }
   def simplify(plan: LogicalPlan): LogicalPlan = {
     var changed = true
@@ -108,13 +108,12 @@ object SortPlusLimitPolicy extends SimplificationPolicy {
 }
 
 case class DropColumnPolicy(session: Session) extends SimplificationPolicy {
-  override val rule: PartialFunction[LogicalPlan, LogicalPlan] = {
-    case plan: DropColumns =>
-      val (cols, leaf) = process(plan)
-      if (cols.isEmpty) {
-        throw ErrorMessage.DF_CANNOT_DROP_ALL_COLUMNS()
-      }
-      Project(cols, leaf)
+  override val rule: PartialFunction[LogicalPlan, LogicalPlan] = { case plan: DropColumns =>
+    val (cols, leaf) = process(plan)
+    if (cols.isEmpty) {
+      throw ErrorMessage.DF_CANNOT_DROP_ALL_COLUMNS()
+    }
+    Project(cols, leaf)
   }
   // return remaining columns and leaf node
   private def process(plan: DropColumns): (Seq[NamedExpression], LogicalPlan) = {
@@ -132,14 +131,13 @@ case class DropColumnPolicy(session: Session) extends SimplificationPolicy {
 }
 
 case class WithColumnPolicy(session: Session) extends SimplificationPolicy {
-  override val rule: PartialFunction[LogicalPlan, LogicalPlan] = {
-    case plan: WithColumns =>
-      val (leaf, _, newCols) = process(plan)
-      if (newCols.isEmpty) {
-        leaf
-      } else {
-        Project(UnresolvedAttribute("*") +: newCols, leaf)
-      }
+  override val rule: PartialFunction[LogicalPlan, LogicalPlan] = { case plan: WithColumns =>
+    val (leaf, _, newCols) = process(plan)
+    if (newCols.isEmpty) {
+      leaf
+    } else {
+      Project(UnresolvedAttribute("*") +: newCols, leaf)
+    }
   }
 
   /*

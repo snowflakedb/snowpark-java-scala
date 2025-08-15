@@ -41,6 +41,7 @@ public class JavaSProcNonStoredProcSuite extends UDFTestBase {
       getSession().sql("drop procedure " + spName + "()").show();
     }
   }
+
   //  This script generates the tests below
   //  (1 to 21).foreach { x =>
   //    val data = (1 to x).map(i => s"$i").mkString(",")

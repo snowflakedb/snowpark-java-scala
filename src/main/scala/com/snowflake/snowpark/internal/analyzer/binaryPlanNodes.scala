@@ -53,8 +53,7 @@ private[snowpark] case class Except(left: LogicalPlan, right: LogicalPlan) exten
     Except
 }
 
-private[snowpark] case class Intersect(left: LogicalPlan, right: LogicalPlan)
-    extends SetOperation {
+private[snowpark] case class Intersect(left: LogicalPlan, right: LogicalPlan) extends SetOperation {
   override def sql: String = "INTERSECT"
 
   override protected def createFromAnalyzedChildren: (LogicalPlan, LogicalPlan) => LogicalPlan =
@@ -73,8 +72,7 @@ private[snowpark] case class Union(left: LogicalPlan, right: LogicalPlan) extend
     Union
 }
 
-private[snowpark] case class UnionAll(left: LogicalPlan, right: LogicalPlan)
-    extends SetOperation {
+private[snowpark] case class UnionAll(left: LogicalPlan, right: LogicalPlan) extends SetOperation {
   override def sql: String = "UNION ALL"
 
   override protected def createFromAnalyzedChildren: (LogicalPlan, LogicalPlan) => LogicalPlan =

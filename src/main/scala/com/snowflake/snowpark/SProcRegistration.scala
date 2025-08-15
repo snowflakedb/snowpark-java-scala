@@ -26,9 +26,9 @@ import com.snowflake.snowpark.internal.ScalaFunctions._
  *   session.storedProcedure(name, 123)
  * }}}
  *
- * It requires a user stage when registering a permanent SProc. Snowpark will upload all
- * JAR files for the SProc and any dependencies. It is also required to specify Owner or
- * Caller modes via the parameter 'isCallerMode'.
+ * It requires a user stage when registering a permanent SProc. Snowpark will upload all JAR files
+ * for the SProc and any dependencies. It is also required to specify Owner or Caller modes via the
+ * parameter 'isCallerMode'.
  * {{{
  *   val name = "sproc"
  *   val stageName = "<a user stage name>"
@@ -40,10 +40,10 @@ import com.snowflake.snowpark.internal.ScalaFunctions._
  *   session.storedProcedure(name, 123)
  * }}}
  *
- * This object also provides a convenient methods to execute SProc lambda functions directly
- * with current session on the client side. The functions are designed for debugging and
- * development only. Since the local and Snowflake server environments are different, the outputs
- * of executing a SP function with these test function and on Snowflake server may be different too.
+ * This object also provides a convenient methods to execute SProc lambda functions directly with
+ * current session on the client side. The functions are designed for debugging and development
+ * only. Since the local and Snowflake server environments are different, the outputs of executing a
+ * SP function with these test function and on Snowflake server may be different too.
  * {{{
  *   // a client side Scala lambda
  *   val func = (session: Session, num: Int) => s"num: $num"
@@ -85,7 +85,8 @@ class SProcRegistration(session: Session) {
   /**
    * Registers a Scala closure of 0 arguments as a permanent Stored Procedure.
    *
-   * @tparam RT Return type of the UDF.
+   * @tparam RT
+   *   Return type of the UDF.
    */
   def registerPermanent[RT: TypeTag](
       name: String,
@@ -99,7 +100,8 @@ class SProcRegistration(session: Session) {
   /**
    * Registers a Scala closure of 1 arguments as a permanent Stored Procedure.
    *
-   * @tparam RT Return type of the UDF.
+   * @tparam RT
+   *   Return type of the UDF.
    */
   def registerPermanent[RT: TypeTag, A1: TypeTag](
       name: String,
@@ -113,7 +115,8 @@ class SProcRegistration(session: Session) {
   /**
    * Registers a Scala closure of 2 arguments as a permanent Stored Procedure.
    *
-   * @tparam RT Return type of the UDF.
+   * @tparam RT
+   *   Return type of the UDF.
    */
   def registerPermanent[RT: TypeTag, A1: TypeTag, A2: TypeTag](
       name: String,
@@ -127,7 +130,8 @@ class SProcRegistration(session: Session) {
   /**
    * Registers a Scala closure of 3 arguments as a permanent Stored Procedure.
    *
-   * @tparam RT Return type of the UDF.
+   * @tparam RT
+   *   Return type of the UDF.
    */
   def registerPermanent[RT: TypeTag, A1: TypeTag, A2: TypeTag, A3: TypeTag](
       name: String,
@@ -141,7 +145,8 @@ class SProcRegistration(session: Session) {
   /**
    * Registers a Scala closure of 4 arguments as a permanent Stored Procedure.
    *
-   * @tparam RT Return type of the UDF.
+   * @tparam RT
+   *   Return type of the UDF.
    */
   def registerPermanent[RT: TypeTag, A1: TypeTag, A2: TypeTag, A3: TypeTag, A4: TypeTag](
       name: String,
@@ -155,7 +160,8 @@ class SProcRegistration(session: Session) {
   /**
    * Registers a Scala closure of 5 arguments as a permanent Stored Procedure.
    *
-   * @tparam RT Return type of the UDF.
+   * @tparam RT
+   *   Return type of the UDF.
    */
   def registerPermanent[
       RT: TypeTag,
@@ -175,7 +181,8 @@ class SProcRegistration(session: Session) {
   /**
    * Registers a Scala closure of 6 arguments as a permanent Stored Procedure.
    *
-   * @tparam RT Return type of the UDF.
+   * @tparam RT
+   *   Return type of the UDF.
    */
   def registerPermanent[
       RT: TypeTag,
@@ -196,7 +203,8 @@ class SProcRegistration(session: Session) {
   /**
    * Registers a Scala closure of 7 arguments as a permanent Stored Procedure.
    *
-   * @tparam RT Return type of the UDF.
+   * @tparam RT
+   *   Return type of the UDF.
    */
   def registerPermanent[
       RT: TypeTag,
@@ -218,7 +226,8 @@ class SProcRegistration(session: Session) {
   /**
    * Registers a Scala closure of 8 arguments as a permanent Stored Procedure.
    *
-   * @tparam RT Return type of the UDF.
+   * @tparam RT
+   *   Return type of the UDF.
    */
   def registerPermanent[
       RT: TypeTag,
@@ -241,7 +250,8 @@ class SProcRegistration(session: Session) {
   /**
    * Registers a Scala closure of 9 arguments as a permanent Stored Procedure.
    *
-   * @tparam RT Return type of the UDF.
+   * @tparam RT
+   *   Return type of the UDF.
    */
   def registerPermanent[
       RT: TypeTag,
@@ -265,7 +275,8 @@ class SProcRegistration(session: Session) {
   /**
    * Registers a Scala closure of 10 arguments as a permanent Stored Procedure.
    *
-   * @tparam RT Return type of the UDF.
+   * @tparam RT
+   *   Return type of the UDF.
    */
   def registerPermanent[
       RT: TypeTag,
@@ -290,7 +301,8 @@ class SProcRegistration(session: Session) {
   /**
    * Registers a Scala closure of 11 arguments as a permanent Stored Procedure.
    *
-   * @tparam RT Return type of the UDF.
+   * @tparam RT
+   *   Return type of the UDF.
    */
   def registerPermanent[
       RT: TypeTag,
@@ -316,7 +328,8 @@ class SProcRegistration(session: Session) {
   /**
    * Registers a Scala closure of 12 arguments as a permanent Stored Procedure.
    *
-   * @tparam RT Return type of the UDF.
+   * @tparam RT
+   *   Return type of the UDF.
    */
   def registerPermanent[
       RT: TypeTag,
@@ -343,7 +356,8 @@ class SProcRegistration(session: Session) {
   /**
    * Registers a Scala closure of 13 arguments as a permanent Stored Procedure.
    *
-   * @tparam RT Return type of the UDF.
+   * @tparam RT
+   *   Return type of the UDF.
    */
   def registerPermanent[
       RT: TypeTag,
@@ -371,7 +385,8 @@ class SProcRegistration(session: Session) {
   /**
    * Registers a Scala closure of 14 arguments as a permanent Stored Procedure.
    *
-   * @tparam RT Return type of the UDF.
+   * @tparam RT
+   *   Return type of the UDF.
    */
   def registerPermanent[
       RT: TypeTag,
@@ -400,7 +415,8 @@ class SProcRegistration(session: Session) {
   /**
    * Registers a Scala closure of 15 arguments as a permanent Stored Procedure.
    *
-   * @tparam RT Return type of the UDF.
+   * @tparam RT
+   *   Return type of the UDF.
    */
   def registerPermanent[
       RT: TypeTag,
@@ -420,24 +436,7 @@ class SProcRegistration(session: Session) {
       A14: TypeTag,
       A15: TypeTag](
       name: String,
-      sp: Function16[
-        Session,
-        A1,
-        A2,
-        A3,
-        A4,
-        A5,
-        A6,
-        A7,
-        A8,
-        A9,
-        A10,
-        A11,
-        A12,
-        A13,
-        A14,
-        A15,
-        RT],
+      sp: Function16[Session, A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15, RT],
       stageLocation: String,
       isCallerMode: Boolean): StoredProcedure =
     sproc("registerPermanent", execName = name, execFilePath = stageLocation) {
@@ -447,7 +446,8 @@ class SProcRegistration(session: Session) {
   /**
    * Registers a Scala closure of 16 arguments as a permanent Stored Procedure.
    *
-   * @tparam RT Return type of the UDF.
+   * @tparam RT
+   *   Return type of the UDF.
    */
   def registerPermanent[
       RT: TypeTag,
@@ -496,7 +496,8 @@ class SProcRegistration(session: Session) {
   /**
    * Registers a Scala closure of 17 arguments as a permanent Stored Procedure.
    *
-   * @tparam RT Return type of the UDF.
+   * @tparam RT
+   *   Return type of the UDF.
    */
   def registerPermanent[
       RT: TypeTag,
@@ -547,7 +548,8 @@ class SProcRegistration(session: Session) {
   /**
    * Registers a Scala closure of 18 arguments as a permanent Stored Procedure.
    *
-   * @tparam RT Return type of the UDF.
+   * @tparam RT
+   *   Return type of the UDF.
    */
   def registerPermanent[
       RT: TypeTag,
@@ -600,7 +602,8 @@ class SProcRegistration(session: Session) {
   /**
    * Registers a Scala closure of 19 arguments as a permanent Stored Procedure.
    *
-   * @tparam RT Return type of the UDF.
+   * @tparam RT
+   *   Return type of the UDF.
    */
   def registerPermanent[
       RT: TypeTag,
@@ -655,7 +658,8 @@ class SProcRegistration(session: Session) {
   /**
    * Registers a Scala closure of 20 arguments as a permanent Stored Procedure.
    *
-   * @tparam RT Return type of the UDF.
+   * @tparam RT
+   *   Return type of the UDF.
    */
   def registerPermanent[
       RT: TypeTag,
@@ -712,7 +716,8 @@ class SProcRegistration(session: Session) {
   /**
    * Registers a Scala closure of 21 arguments as a permanent Stored Procedure.
    *
-   * @tparam RT Return type of the UDF.
+   * @tparam RT
+   *   Return type of the UDF.
    */
   def registerPermanent[
       RT: TypeTag,
@@ -789,10 +794,11 @@ class SProcRegistration(session: Session) {
   // scalastyle:on line.size.limit
 
   /**
-   * Registers a Scala closure of 0 arguments as a temporary Stored Procedure that is
-   * scoped to this session.
+   * Registers a Scala closure of 0 arguments as a temporary Stored Procedure that is scoped to this
+   * session.
    *
-   * @tparam RT Return type of the UDF.
+   * @tparam RT
+   *   Return type of the UDF.
    */
   def registerTemporary[RT: TypeTag](sp: Function1[Session, RT]): StoredProcedure =
     sproc("registerTemporary") {
@@ -800,22 +806,23 @@ class SProcRegistration(session: Session) {
     }
 
   /**
-   * Registers a Scala closure of 1 arguments as a temporary Stored Procedure that is
-   * scoped to this session.
+   * Registers a Scala closure of 1 arguments as a temporary Stored Procedure that is scoped to this
+   * session.
    *
-   * @tparam RT Return type of the UDF.
+   * @tparam RT
+   *   Return type of the UDF.
    */
-  def registerTemporary[RT: TypeTag, A1: TypeTag](
-      sp: Function2[Session, A1, RT]): StoredProcedure =
+  def registerTemporary[RT: TypeTag, A1: TypeTag](sp: Function2[Session, A1, RT]): StoredProcedure =
     sproc("registerTemporary") {
       register(None, _toSP(sp))
     }
 
   /**
-   * Registers a Scala closure of 2 arguments as a temporary Stored Procedure that is
-   * scoped to this session.
+   * Registers a Scala closure of 2 arguments as a temporary Stored Procedure that is scoped to this
+   * session.
    *
-   * @tparam RT Return type of the UDF.
+   * @tparam RT
+   *   Return type of the UDF.
    */
   def registerTemporary[RT: TypeTag, A1: TypeTag, A2: TypeTag](
       sp: Function3[Session, A1, A2, RT]): StoredProcedure =
@@ -824,10 +831,11 @@ class SProcRegistration(session: Session) {
     }
 
   /**
-   * Registers a Scala closure of 3 arguments as a temporary Stored Procedure that is
-   * scoped to this session.
+   * Registers a Scala closure of 3 arguments as a temporary Stored Procedure that is scoped to this
+   * session.
    *
-   * @tparam RT Return type of the UDF.
+   * @tparam RT
+   *   Return type of the UDF.
    */
   def registerTemporary[RT: TypeTag, A1: TypeTag, A2: TypeTag, A3: TypeTag](
       sp: Function4[Session, A1, A2, A3, RT]): StoredProcedure =
@@ -836,10 +844,11 @@ class SProcRegistration(session: Session) {
     }
 
   /**
-   * Registers a Scala closure of 4 arguments as a temporary Stored Procedure that is
-   * scoped to this session.
+   * Registers a Scala closure of 4 arguments as a temporary Stored Procedure that is scoped to this
+   * session.
    *
-   * @tparam RT Return type of the UDF.
+   * @tparam RT
+   *   Return type of the UDF.
    */
   def registerTemporary[RT: TypeTag, A1: TypeTag, A2: TypeTag, A3: TypeTag, A4: TypeTag](
       sp: Function5[Session, A1, A2, A3, A4, RT]): StoredProcedure =
@@ -848,10 +857,11 @@ class SProcRegistration(session: Session) {
     }
 
   /**
-   * Registers a Scala closure of 5 arguments as a temporary Stored Procedure that is
-   * scoped to this session.
+   * Registers a Scala closure of 5 arguments as a temporary Stored Procedure that is scoped to this
+   * session.
    *
-   * @tparam RT Return type of the UDF.
+   * @tparam RT
+   *   Return type of the UDF.
    */
   def registerTemporary[
       RT: TypeTag,
@@ -865,10 +875,11 @@ class SProcRegistration(session: Session) {
     }
 
   /**
-   * Registers a Scala closure of 6 arguments as a temporary Stored Procedure that is
-   * scoped to this session.
+   * Registers a Scala closure of 6 arguments as a temporary Stored Procedure that is scoped to this
+   * session.
    *
-   * @tparam RT Return type of the UDF.
+   * @tparam RT
+   *   Return type of the UDF.
    */
   def registerTemporary[
       RT: TypeTag,
@@ -883,10 +894,11 @@ class SProcRegistration(session: Session) {
     }
 
   /**
-   * Registers a Scala closure of 7 arguments as a temporary Stored Procedure that is
-   * scoped to this session.
+   * Registers a Scala closure of 7 arguments as a temporary Stored Procedure that is scoped to this
+   * session.
    *
-   * @tparam RT Return type of the UDF.
+   * @tparam RT
+   *   Return type of the UDF.
    */
   def registerTemporary[
       RT: TypeTag,
@@ -902,10 +914,11 @@ class SProcRegistration(session: Session) {
     }
 
   /**
-   * Registers a Scala closure of 8 arguments as a temporary Stored Procedure that is
-   * scoped to this session.
+   * Registers a Scala closure of 8 arguments as a temporary Stored Procedure that is scoped to this
+   * session.
    *
-   * @tparam RT Return type of the UDF.
+   * @tparam RT
+   *   Return type of the UDF.
    */
   def registerTemporary[
       RT: TypeTag,
@@ -922,10 +935,11 @@ class SProcRegistration(session: Session) {
     }
 
   /**
-   * Registers a Scala closure of 9 arguments as a temporary Stored Procedure that is
-   * scoped to this session.
+   * Registers a Scala closure of 9 arguments as a temporary Stored Procedure that is scoped to this
+   * session.
    *
-   * @tparam RT Return type of the UDF.
+   * @tparam RT
+   *   Return type of the UDF.
    */
   def registerTemporary[
       RT: TypeTag,
@@ -944,10 +958,11 @@ class SProcRegistration(session: Session) {
     }
 
   /**
-   * Registers a Scala closure of 10 arguments as a temporary Stored Procedure that is
-   * scoped to this session.
+   * Registers a Scala closure of 10 arguments as a temporary Stored Procedure that is scoped to
+   * this session.
    *
-   * @tparam RT Return type of the UDF.
+   * @tparam RT
+   *   Return type of the UDF.
    */
   def registerTemporary[
       RT: TypeTag,
@@ -967,10 +982,11 @@ class SProcRegistration(session: Session) {
     }
 
   /**
-   * Registers a Scala closure of 11 arguments as a temporary Stored Procedure that is
-   * scoped to this session.
+   * Registers a Scala closure of 11 arguments as a temporary Stored Procedure that is scoped to
+   * this session.
    *
-   * @tparam RT Return type of the UDF.
+   * @tparam RT
+   *   Return type of the UDF.
    */
   def registerTemporary[
       RT: TypeTag,
@@ -984,17 +1000,18 @@ class SProcRegistration(session: Session) {
       A8: TypeTag,
       A9: TypeTag,
       A10: TypeTag,
-      A11: TypeTag](sp: Function12[Session, A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, RT])
-    : StoredProcedure =
+      A11: TypeTag](
+      sp: Function12[Session, A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, RT]): StoredProcedure =
     sproc("registerTemporary") {
       register(None, _toSP(sp))
     }
 
   /**
-   * Registers a Scala closure of 12 arguments as a temporary Stored Procedure that is
-   * scoped to this session.
+   * Registers a Scala closure of 12 arguments as a temporary Stored Procedure that is scoped to
+   * this session.
    *
-   * @tparam RT Return type of the UDF.
+   * @tparam RT
+   *   Return type of the UDF.
    */
   def registerTemporary[
       RT: TypeTag,
@@ -1009,18 +1026,18 @@ class SProcRegistration(session: Session) {
       A9: TypeTag,
       A10: TypeTag,
       A11: TypeTag,
-      A12: TypeTag](
-      sp: Function13[Session, A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, RT])
-    : StoredProcedure =
+      A12: TypeTag](sp: Function13[Session, A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, RT])
+      : StoredProcedure =
     sproc("registerTemporary") {
       register(None, _toSP(sp))
     }
 
   /**
-   * Registers a Scala closure of 13 arguments as a temporary Stored Procedure that is
-   * scoped to this session.
+   * Registers a Scala closure of 13 arguments as a temporary Stored Procedure that is scoped to
+   * this session.
    *
-   * @tparam RT Return type of the UDF.
+   * @tparam RT
+   *   Return type of the UDF.
    */
   def registerTemporary[
       RT: TypeTag,
@@ -1038,16 +1055,17 @@ class SProcRegistration(session: Session) {
       A12: TypeTag,
       A13: TypeTag](
       sp: Function14[Session, A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, RT])
-    : StoredProcedure =
+      : StoredProcedure =
     sproc("registerTemporary") {
       register(None, _toSP(sp))
     }
 
   /**
-   * Registers a Scala closure of 14 arguments as a temporary Stored Procedure that is
-   * scoped to this session.
+   * Registers a Scala closure of 14 arguments as a temporary Stored Procedure that is scoped to
+   * this session.
    *
-   * @tparam RT Return type of the UDF.
+   * @tparam RT
+   *   Return type of the UDF.
    */
   def registerTemporary[
       RT: TypeTag,
@@ -1066,16 +1084,17 @@ class SProcRegistration(session: Session) {
       A13: TypeTag,
       A14: TypeTag](
       sp: Function15[Session, A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, RT])
-    : StoredProcedure =
+      : StoredProcedure =
     sproc("registerTemporary") {
       register(None, _toSP(sp))
     }
 
   /**
-   * Registers a Scala closure of 15 arguments as a temporary Stored Procedure that is
-   * scoped to this session.
+   * Registers a Scala closure of 15 arguments as a temporary Stored Procedure that is scoped to
+   * this session.
    *
-   * @tparam RT Return type of the UDF.
+   * @tparam RT
+   *   Return type of the UDF.
    */
   def registerTemporary[
       RT: TypeTag,
@@ -1094,33 +1113,18 @@ class SProcRegistration(session: Session) {
       A13: TypeTag,
       A14: TypeTag,
       A15: TypeTag](
-      sp: Function16[
-        Session,
-        A1,
-        A2,
-        A3,
-        A4,
-        A5,
-        A6,
-        A7,
-        A8,
-        A9,
-        A10,
-        A11,
-        A12,
-        A13,
-        A14,
-        A15,
-        RT]): StoredProcedure =
+      sp: Function16[Session, A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15, RT])
+      : StoredProcedure =
     sproc("registerTemporary") {
       register(None, _toSP(sp))
     }
 
   /**
-   * Registers a Scala closure of 16 arguments as a temporary Stored Procedure that is
-   * scoped to this session.
+   * Registers a Scala closure of 16 arguments as a temporary Stored Procedure that is scoped to
+   * this session.
    *
-   * @tparam RT Return type of the UDF.
+   * @tparam RT
+   *   Return type of the UDF.
    */
   def registerTemporary[
       RT: TypeTag,
@@ -1164,10 +1168,11 @@ class SProcRegistration(session: Session) {
     }
 
   /**
-   * Registers a Scala closure of 17 arguments as a temporary Stored Procedure that is
-   * scoped to this session.
+   * Registers a Scala closure of 17 arguments as a temporary Stored Procedure that is scoped to
+   * this session.
    *
-   * @tparam RT Return type of the UDF.
+   * @tparam RT
+   *   Return type of the UDF.
    */
   def registerTemporary[
       RT: TypeTag,
@@ -1213,10 +1218,11 @@ class SProcRegistration(session: Session) {
     }
 
   /**
-   * Registers a Scala closure of 18 arguments as a temporary Stored Procedure that is
-   * scoped to this session.
+   * Registers a Scala closure of 18 arguments as a temporary Stored Procedure that is scoped to
+   * this session.
    *
-   * @tparam RT Return type of the UDF.
+   * @tparam RT
+   *   Return type of the UDF.
    */
   def registerTemporary[
       RT: TypeTag,
@@ -1264,10 +1270,11 @@ class SProcRegistration(session: Session) {
     }
 
   /**
-   * Registers a Scala closure of 19 arguments as a temporary Stored Procedure that is
-   * scoped to this session.
+   * Registers a Scala closure of 19 arguments as a temporary Stored Procedure that is scoped to
+   * this session.
    *
-   * @tparam RT Return type of the UDF.
+   * @tparam RT
+   *   Return type of the UDF.
    */
   def registerTemporary[
       RT: TypeTag,
@@ -1317,10 +1324,11 @@ class SProcRegistration(session: Session) {
     }
 
   /**
-   * Registers a Scala closure of 20 arguments as a temporary Stored Procedure that is
-   * scoped to this session.
+   * Registers a Scala closure of 20 arguments as a temporary Stored Procedure that is scoped to
+   * this session.
    *
-   * @tparam RT Return type of the UDF.
+   * @tparam RT
+   *   Return type of the UDF.
    */
   def registerTemporary[
       RT: TypeTag,
@@ -1372,10 +1380,11 @@ class SProcRegistration(session: Session) {
     }
 
   /**
-   * Registers a Scala closure of 21 arguments as a temporary Stored Procedure that is
-   * scoped to this session.
+   * Registers a Scala closure of 21 arguments as a temporary Stored Procedure that is scoped to
+   * this session.
    *
-   * @tparam RT Return type of the UDF.
+   * @tparam RT
+   *   Return type of the UDF.
    */
   def registerTemporary[
       RT: TypeTag,
@@ -1449,10 +1458,11 @@ class SProcRegistration(session: Session) {
   // scalastyle:on line.size.limit
 
   /**
-   * Registers a Scala closure of 0 arguments as a temporary Stored Procedure that is
-   * scoped to this session.
+   * Registers a Scala closure of 0 arguments as a temporary Stored Procedure that is scoped to this
+   * session.
    *
-   * @tparam RT Return type of the UDF.
+   * @tparam RT
+   *   Return type of the UDF.
    */
   def registerTemporary[RT: TypeTag](name: String, sp: Function1[Session, RT]): StoredProcedure =
     sproc("registerTemporary", execName = name) {
@@ -1460,10 +1470,11 @@ class SProcRegistration(session: Session) {
     }
 
   /**
-   * Registers a Scala closure of 1 arguments as a temporary Stored Procedure that is
-   * scoped to this session.
+   * Registers a Scala closure of 1 arguments as a temporary Stored Procedure that is scoped to this
+   * session.
    *
-   * @tparam RT Return type of the UDF.
+   * @tparam RT
+   *   Return type of the UDF.
    */
   def registerTemporary[RT: TypeTag, A1: TypeTag](
       name: String,
@@ -1473,10 +1484,11 @@ class SProcRegistration(session: Session) {
     }
 
   /**
-   * Registers a Scala closure of 2 arguments as a temporary Stored Procedure that is
-   * scoped to this session.
+   * Registers a Scala closure of 2 arguments as a temporary Stored Procedure that is scoped to this
+   * session.
    *
-   * @tparam RT Return type of the UDF.
+   * @tparam RT
+   *   Return type of the UDF.
    */
   def registerTemporary[RT: TypeTag, A1: TypeTag, A2: TypeTag](
       name: String,
@@ -1486,10 +1498,11 @@ class SProcRegistration(session: Session) {
     }
 
   /**
-   * Registers a Scala closure of 3 arguments as a temporary Stored Procedure that is
-   * scoped to this session.
+   * Registers a Scala closure of 3 arguments as a temporary Stored Procedure that is scoped to this
+   * session.
    *
-   * @tparam RT Return type of the UDF.
+   * @tparam RT
+   *   Return type of the UDF.
    */
   def registerTemporary[RT: TypeTag, A1: TypeTag, A2: TypeTag, A3: TypeTag](
       name: String,
@@ -1499,10 +1512,11 @@ class SProcRegistration(session: Session) {
     }
 
   /**
-   * Registers a Scala closure of 4 arguments as a temporary Stored Procedure that is
-   * scoped to this session.
+   * Registers a Scala closure of 4 arguments as a temporary Stored Procedure that is scoped to this
+   * session.
    *
-   * @tparam RT Return type of the UDF.
+   * @tparam RT
+   *   Return type of the UDF.
    */
   def registerTemporary[RT: TypeTag, A1: TypeTag, A2: TypeTag, A3: TypeTag, A4: TypeTag](
       name: String,
@@ -1512,10 +1526,11 @@ class SProcRegistration(session: Session) {
     }
 
   /**
-   * Registers a Scala closure of 5 arguments as a temporary Stored Procedure that is
-   * scoped to this session.
+   * Registers a Scala closure of 5 arguments as a temporary Stored Procedure that is scoped to this
+   * session.
    *
-   * @tparam RT Return type of the UDF.
+   * @tparam RT
+   *   Return type of the UDF.
    */
   def registerTemporary[
       RT: TypeTag,
@@ -1523,18 +1538,17 @@ class SProcRegistration(session: Session) {
       A2: TypeTag,
       A3: TypeTag,
       A4: TypeTag,
-      A5: TypeTag](
-      name: String,
-      sp: Function6[Session, A1, A2, A3, A4, A5, RT]): StoredProcedure =
+      A5: TypeTag](name: String, sp: Function6[Session, A1, A2, A3, A4, A5, RT]): StoredProcedure =
     sproc("registerTemporary", execName = name) {
       register(Some(name), _toSP(sp))
     }
 
   /**
-   * Registers a Scala closure of 6 arguments as a temporary Stored Procedure that is
-   * scoped to this session.
+   * Registers a Scala closure of 6 arguments as a temporary Stored Procedure that is scoped to this
+   * session.
    *
-   * @tparam RT Return type of the UDF.
+   * @tparam RT
+   *   Return type of the UDF.
    */
   def registerTemporary[
       RT: TypeTag,
@@ -1551,10 +1565,11 @@ class SProcRegistration(session: Session) {
     }
 
   /**
-   * Registers a Scala closure of 7 arguments as a temporary Stored Procedure that is
-   * scoped to this session.
+   * Registers a Scala closure of 7 arguments as a temporary Stored Procedure that is scoped to this
+   * session.
    *
-   * @tparam RT Return type of the UDF.
+   * @tparam RT
+   *   Return type of the UDF.
    */
   def registerTemporary[
       RT: TypeTag,
@@ -1572,10 +1587,11 @@ class SProcRegistration(session: Session) {
     }
 
   /**
-   * Registers a Scala closure of 8 arguments as a temporary Stored Procedure that is
-   * scoped to this session.
+   * Registers a Scala closure of 8 arguments as a temporary Stored Procedure that is scoped to this
+   * session.
    *
-   * @tparam RT Return type of the UDF.
+   * @tparam RT
+   *   Return type of the UDF.
    */
   def registerTemporary[
       RT: TypeTag,
@@ -1594,10 +1610,11 @@ class SProcRegistration(session: Session) {
     }
 
   /**
-   * Registers a Scala closure of 9 arguments as a temporary Stored Procedure that is
-   * scoped to this session.
+   * Registers a Scala closure of 9 arguments as a temporary Stored Procedure that is scoped to this
+   * session.
    *
-   * @tparam RT Return type of the UDF.
+   * @tparam RT
+   *   Return type of the UDF.
    */
   def registerTemporary[
       RT: TypeTag,
@@ -1617,10 +1634,11 @@ class SProcRegistration(session: Session) {
     }
 
   /**
-   * Registers a Scala closure of 10 arguments as a temporary Stored Procedure that is
-   * scoped to this session.
+   * Registers a Scala closure of 10 arguments as a temporary Stored Procedure that is scoped to
+   * this session.
    *
-   * @tparam RT Return type of the UDF.
+   * @tparam RT
+   *   Return type of the UDF.
    */
   def registerTemporary[
       RT: TypeTag,
@@ -1641,10 +1659,11 @@ class SProcRegistration(session: Session) {
     }
 
   /**
-   * Registers a Scala closure of 11 arguments as a temporary Stored Procedure that is
-   * scoped to this session.
+   * Registers a Scala closure of 11 arguments as a temporary Stored Procedure that is scoped to
+   * this session.
    *
-   * @tparam RT Return type of the UDF.
+   * @tparam RT
+   *   Return type of the UDF.
    */
   def registerTemporary[
       RT: TypeTag,
@@ -1660,17 +1679,17 @@ class SProcRegistration(session: Session) {
       A10: TypeTag,
       A11: TypeTag](
       name: String,
-      sp: Function12[Session, A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, RT])
-    : StoredProcedure =
+      sp: Function12[Session, A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, RT]): StoredProcedure =
     sproc("registerTemporary", execName = name) {
       register(Some(name), _toSP(sp))
     }
 
   /**
-   * Registers a Scala closure of 12 arguments as a temporary Stored Procedure that is
-   * scoped to this session.
+   * Registers a Scala closure of 12 arguments as a temporary Stored Procedure that is scoped to
+   * this session.
    *
-   * @tparam RT Return type of the UDF.
+   * @tparam RT
+   *   Return type of the UDF.
    */
   def registerTemporary[
       RT: TypeTag,
@@ -1688,16 +1707,17 @@ class SProcRegistration(session: Session) {
       A12: TypeTag](
       name: String,
       sp: Function13[Session, A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, RT])
-    : StoredProcedure =
+      : StoredProcedure =
     sproc("registerTemporary", execName = name) {
       register(Some(name), _toSP(sp))
     }
 
   /**
-   * Registers a Scala closure of 13 arguments as a temporary Stored Procedure that is
-   * scoped to this session.
+   * Registers a Scala closure of 13 arguments as a temporary Stored Procedure that is scoped to
+   * this session.
    *
-   * @tparam RT Return type of the UDF.
+   * @tparam RT
+   *   Return type of the UDF.
    */
   def registerTemporary[
       RT: TypeTag,
@@ -1716,16 +1736,17 @@ class SProcRegistration(session: Session) {
       A13: TypeTag](
       name: String,
       sp: Function14[Session, A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, RT])
-    : StoredProcedure =
+      : StoredProcedure =
     sproc("registerTemporary", execName = name) {
       register(Some(name), _toSP(sp))
     }
 
   /**
-   * Registers a Scala closure of 14 arguments as a temporary Stored Procedure that is
-   * scoped to this session.
+   * Registers a Scala closure of 14 arguments as a temporary Stored Procedure that is scoped to
+   * this session.
    *
-   * @tparam RT Return type of the UDF.
+   * @tparam RT
+   *   Return type of the UDF.
    */
   def registerTemporary[
       RT: TypeTag,
@@ -1745,16 +1766,17 @@ class SProcRegistration(session: Session) {
       A14: TypeTag](
       name: String,
       sp: Function15[Session, A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, RT])
-    : StoredProcedure =
+      : StoredProcedure =
     sproc("registerTemporary", execName = name) {
       register(Some(name), _toSP(sp))
     }
 
   /**
-   * Registers a Scala closure of 15 arguments as a temporary Stored Procedure that is
-   * scoped to this session.
+   * Registers a Scala closure of 15 arguments as a temporary Stored Procedure that is scoped to
+   * this session.
    *
-   * @tparam RT Return type of the UDF.
+   * @tparam RT
+   *   Return type of the UDF.
    */
   def registerTemporary[
       RT: TypeTag,
@@ -1774,33 +1796,18 @@ class SProcRegistration(session: Session) {
       A14: TypeTag,
       A15: TypeTag](
       name: String,
-      sp: Function16[
-        Session,
-        A1,
-        A2,
-        A3,
-        A4,
-        A5,
-        A6,
-        A7,
-        A8,
-        A9,
-        A10,
-        A11,
-        A12,
-        A13,
-        A14,
-        A15,
-        RT]): StoredProcedure =
+      sp: Function16[Session, A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15, RT])
+      : StoredProcedure =
     sproc("registerTemporary", execName = name) {
       register(Some(name), _toSP(sp))
     }
 
   /**
-   * Registers a Scala closure of 16 arguments as a temporary Stored Procedure that is
-   * scoped to this session.
+   * Registers a Scala closure of 16 arguments as a temporary Stored Procedure that is scoped to
+   * this session.
    *
-   * @tparam RT Return type of the UDF.
+   * @tparam RT
+   *   Return type of the UDF.
    */
   def registerTemporary[
       RT: TypeTag,
@@ -1845,10 +1852,11 @@ class SProcRegistration(session: Session) {
     }
 
   /**
-   * Registers a Scala closure of 17 arguments as a temporary Stored Procedure that is
-   * scoped to this session.
+   * Registers a Scala closure of 17 arguments as a temporary Stored Procedure that is scoped to
+   * this session.
    *
-   * @tparam RT Return type of the UDF.
+   * @tparam RT
+   *   Return type of the UDF.
    */
   def registerTemporary[
       RT: TypeTag,
@@ -1895,10 +1903,11 @@ class SProcRegistration(session: Session) {
     }
 
   /**
-   * Registers a Scala closure of 18 arguments as a temporary Stored Procedure that is
-   * scoped to this session.
+   * Registers a Scala closure of 18 arguments as a temporary Stored Procedure that is scoped to
+   * this session.
    *
-   * @tparam RT Return type of the UDF.
+   * @tparam RT
+   *   Return type of the UDF.
    */
   def registerTemporary[
       RT: TypeTag,
@@ -1947,10 +1956,11 @@ class SProcRegistration(session: Session) {
     }
 
   /**
-   * Registers a Scala closure of 19 arguments as a temporary Stored Procedure that is
-   * scoped to this session.
+   * Registers a Scala closure of 19 arguments as a temporary Stored Procedure that is scoped to
+   * this session.
    *
-   * @tparam RT Return type of the UDF.
+   * @tparam RT
+   *   Return type of the UDF.
    */
   def registerTemporary[
       RT: TypeTag,
@@ -2001,10 +2011,11 @@ class SProcRegistration(session: Session) {
     }
 
   /**
-   * Registers a Scala closure of 20 arguments as a temporary Stored Procedure that is
-   * scoped to this session.
+   * Registers a Scala closure of 20 arguments as a temporary Stored Procedure that is scoped to
+   * this session.
    *
-   * @tparam RT Return type of the UDF.
+   * @tparam RT
+   *   Return type of the UDF.
    */
   def registerTemporary[
       RT: TypeTag,
@@ -2057,10 +2068,11 @@ class SProcRegistration(session: Session) {
     }
 
   /**
-   * Registers a Scala closure of 21 arguments as a temporary Stored Procedure that is
-   * scoped to this session.
+   * Registers a Scala closure of 21 arguments as a temporary Stored Procedure that is scoped to
+   * this session.
    *
-   * @tparam RT Return type of the UDF.
+   * @tparam RT
+   *   Return type of the UDF.
    */
   def registerTemporary[
       RT: TypeTag,
@@ -2122,14 +2134,13 @@ class SProcRegistration(session: Session) {
     handler.registerSP(name, sp, stageLocation, isCallerMode)
 
   /**
-   * Executes a Stored Procedure lambda function of 0 arguments
-   * with current Snowpark session in the local environment.
-   * This is a test function and used for debugging and development only.
-   * Since the local and Snowflake server environments are different,
-   * the outputs of executing a SP function with this test function and
-   * on Snowflake server may be different too.
+   * Executes a Stored Procedure lambda function of 0 arguments with current Snowpark session in the
+   * local environment. This is a test function and used for debugging and development only. Since
+   * the local and Snowflake server environments are different, the outputs of executing a SP
+   * function with this test function and on Snowflake server may be different too.
    *
-   * @tparam RT Return type of the UDF.
+   * @tparam RT
+   *   Return type of the UDF.
    */
   @PublicPreview
   def runLocally[RT: TypeTag](sp: Function1[Session, RT]): RT = {
@@ -2137,14 +2148,13 @@ class SProcRegistration(session: Session) {
   }
 
   /**
-   * Executes a Stored Procedure lambda function of 1 arguments
-   * with current Snowpark session in the local environment.
-   * This is a test function and used for debugging and development only.
-   * Since the local and Snowflake server environments are different,
-   * the outputs of executing a SP function with this test function and
-   * on Snowflake server may be different too.
+   * Executes a Stored Procedure lambda function of 1 arguments with current Snowpark session in the
+   * local environment. This is a test function and used for debugging and development only. Since
+   * the local and Snowflake server environments are different, the outputs of executing a SP
+   * function with this test function and on Snowflake server may be different too.
    *
-   * @tparam RT Return type of the UDF.
+   * @tparam RT
+   *   Return type of the UDF.
    */
   @PublicPreview
   def runLocally[RT: TypeTag, A1: TypeTag](sp: Function2[Session, A1, RT], a1: A1): RT = {
@@ -2152,14 +2162,13 @@ class SProcRegistration(session: Session) {
   }
 
   /**
-   * Executes a Stored Procedure lambda function of 2 arguments
-   * with current Snowpark session in the local environment.
-   * This is a test function and used for debugging and development only.
-   * Since the local and Snowflake server environments are different,
-   * the outputs of executing a SP function with this test function and
-   * on Snowflake server may be different too.
+   * Executes a Stored Procedure lambda function of 2 arguments with current Snowpark session in the
+   * local environment. This is a test function and used for debugging and development only. Since
+   * the local and Snowflake server environments are different, the outputs of executing a SP
+   * function with this test function and on Snowflake server may be different too.
    *
-   * @tparam RT Return type of the UDF.
+   * @tparam RT
+   *   Return type of the UDF.
    */
   @PublicPreview
   def runLocally[RT: TypeTag, A1: TypeTag, A2: TypeTag](
@@ -2170,14 +2179,13 @@ class SProcRegistration(session: Session) {
   }
 
   /**
-   * Executes a Stored Procedure lambda function of 3 arguments
-   * with current Snowpark session in the local environment.
-   * This is a test function and used for debugging and development only.
-   * Since the local and Snowflake server environments are different,
-   * the outputs of executing a SP function with this test function and
-   * on Snowflake server may be different too.
+   * Executes a Stored Procedure lambda function of 3 arguments with current Snowpark session in the
+   * local environment. This is a test function and used for debugging and development only. Since
+   * the local and Snowflake server environments are different, the outputs of executing a SP
+   * function with this test function and on Snowflake server may be different too.
    *
-   * @tparam RT Return type of the UDF.
+   * @tparam RT
+   *   Return type of the UDF.
    */
   @PublicPreview
   def runLocally[RT: TypeTag, A1: TypeTag, A2: TypeTag, A3: TypeTag](
@@ -2189,14 +2197,13 @@ class SProcRegistration(session: Session) {
   }
 
   /**
-   * Executes a Stored Procedure lambda function of 4 arguments
-   * with current Snowpark session in the local environment.
-   * This is a test function and used for debugging and development only.
-   * Since the local and Snowflake server environments are different,
-   * the outputs of executing a SP function with this test function and
-   * on Snowflake server may be different too.
+   * Executes a Stored Procedure lambda function of 4 arguments with current Snowpark session in the
+   * local environment. This is a test function and used for debugging and development only. Since
+   * the local and Snowflake server environments are different, the outputs of executing a SP
+   * function with this test function and on Snowflake server may be different too.
    *
-   * @tparam RT Return type of the UDF.
+   * @tparam RT
+   *   Return type of the UDF.
    */
   @PublicPreview
   def runLocally[RT: TypeTag, A1: TypeTag, A2: TypeTag, A3: TypeTag, A4: TypeTag](
@@ -2209,14 +2216,13 @@ class SProcRegistration(session: Session) {
   }
 
   /**
-   * Executes a Stored Procedure lambda function of 5 arguments
-   * with current Snowpark session in the local environment.
-   * This is a test function and used for debugging and development only.
-   * Since the local and Snowflake server environments are different,
-   * the outputs of executing a SP function with this test function and
-   * on Snowflake server may be different too.
+   * Executes a Stored Procedure lambda function of 5 arguments with current Snowpark session in the
+   * local environment. This is a test function and used for debugging and development only. Since
+   * the local and Snowflake server environments are different, the outputs of executing a SP
+   * function with this test function and on Snowflake server may be different too.
    *
-   * @tparam RT Return type of the UDF.
+   * @tparam RT
+   *   Return type of the UDF.
    */
   @PublicPreview
   def runLocally[RT: TypeTag, A1: TypeTag, A2: TypeTag, A3: TypeTag, A4: TypeTag, A5: TypeTag](
@@ -2230,14 +2236,13 @@ class SProcRegistration(session: Session) {
   }
 
   /**
-   * Executes a Stored Procedure lambda function of 6 arguments
-   * with current Snowpark session in the local environment.
-   * This is a test function and used for debugging and development only.
-   * Since the local and Snowflake server environments are different,
-   * the outputs of executing a SP function with this test function and
-   * on Snowflake server may be different too.
+   * Executes a Stored Procedure lambda function of 6 arguments with current Snowpark session in the
+   * local environment. This is a test function and used for debugging and development only. Since
+   * the local and Snowflake server environments are different, the outputs of executing a SP
+   * function with this test function and on Snowflake server may be different too.
    *
-   * @tparam RT Return type of the UDF.
+   * @tparam RT
+   *   Return type of the UDF.
    */
   @PublicPreview
   def runLocally[
@@ -2259,14 +2264,13 @@ class SProcRegistration(session: Session) {
   }
 
   /**
-   * Executes a Stored Procedure lambda function of 7 arguments
-   * with current Snowpark session in the local environment.
-   * This is a test function and used for debugging and development only.
-   * Since the local and Snowflake server environments are different,
-   * the outputs of executing a SP function with this test function and
-   * on Snowflake server may be different too.
+   * Executes a Stored Procedure lambda function of 7 arguments with current Snowpark session in the
+   * local environment. This is a test function and used for debugging and development only. Since
+   * the local and Snowflake server environments are different, the outputs of executing a SP
+   * function with this test function and on Snowflake server may be different too.
    *
-   * @tparam RT Return type of the UDF.
+   * @tparam RT
+   *   Return type of the UDF.
    */
   @PublicPreview
   def runLocally[
@@ -2290,14 +2294,13 @@ class SProcRegistration(session: Session) {
   }
 
   /**
-   * Executes a Stored Procedure lambda function of 8 arguments
-   * with current Snowpark session in the local environment.
-   * This is a test function and used for debugging and development only.
-   * Since the local and Snowflake server environments are different,
-   * the outputs of executing a SP function with this test function and
-   * on Snowflake server may be different too.
+   * Executes a Stored Procedure lambda function of 8 arguments with current Snowpark session in the
+   * local environment. This is a test function and used for debugging and development only. Since
+   * the local and Snowflake server environments are different, the outputs of executing a SP
+   * function with this test function and on Snowflake server may be different too.
    *
-   * @tparam RT Return type of the UDF.
+   * @tparam RT
+   *   Return type of the UDF.
    */
   @PublicPreview
   def runLocally[
@@ -2323,14 +2326,13 @@ class SProcRegistration(session: Session) {
   }
 
   /**
-   * Executes a Stored Procedure lambda function of 9 arguments
-   * with current Snowpark session in the local environment.
-   * This is a test function and used for debugging and development only.
-   * Since the local and Snowflake server environments are different,
-   * the outputs of executing a SP function with this test function and
-   * on Snowflake server may be different too.
+   * Executes a Stored Procedure lambda function of 9 arguments with current Snowpark session in the
+   * local environment. This is a test function and used for debugging and development only. Since
+   * the local and Snowflake server environments are different, the outputs of executing a SP
+   * function with this test function and on Snowflake server may be different too.
    *
-   * @tparam RT Return type of the UDF.
+   * @tparam RT
+   *   Return type of the UDF.
    */
   @PublicPreview
   def runLocally[
@@ -2358,14 +2360,13 @@ class SProcRegistration(session: Session) {
   }
 
   /**
-   * Executes a Stored Procedure lambda function of 10 arguments
-   * with current Snowpark session in the local environment.
-   * This is a test function and used for debugging and development only.
-   * Since the local and Snowflake server environments are different,
-   * the outputs of executing a SP function with this test function and
-   * on Snowflake server may be different too.
+   * Executes a Stored Procedure lambda function of 10 arguments with current Snowpark session in
+   * the local environment. This is a test function and used for debugging and development only.
+   * Since the local and Snowflake server environments are different, the outputs of executing a SP
+   * function with this test function and on Snowflake server may be different too.
    *
-   * @tparam RT Return type of the UDF.
+   * @tparam RT
+   *   Return type of the UDF.
    */
   @PublicPreview
   def runLocally[
@@ -2395,14 +2396,13 @@ class SProcRegistration(session: Session) {
   }
 
   /**
-   * Executes a Stored Procedure lambda function of 11 arguments
-   * with current Snowpark session in the local environment.
-   * This is a test function and used for debugging and development only.
-   * Since the local and Snowflake server environments are different,
-   * the outputs of executing a SP function with this test function and
-   * on Snowflake server may be different too.
+   * Executes a Stored Procedure lambda function of 11 arguments with current Snowpark session in
+   * the local environment. This is a test function and used for debugging and development only.
+   * Since the local and Snowflake server environments are different, the outputs of executing a SP
+   * function with this test function and on Snowflake server may be different too.
    *
-   * @tparam RT Return type of the UDF.
+   * @tparam RT
+   *   Return type of the UDF.
    */
   @PublicPreview
   def runLocally[
@@ -2434,14 +2434,13 @@ class SProcRegistration(session: Session) {
   }
 
   /**
-   * Executes a Stored Procedure lambda function of 12 arguments
-   * with current Snowpark session in the local environment.
-   * This is a test function and used for debugging and development only.
-   * Since the local and Snowflake server environments are different,
-   * the outputs of executing a SP function with this test function and
-   * on Snowflake server may be different too.
+   * Executes a Stored Procedure lambda function of 12 arguments with current Snowpark session in
+   * the local environment. This is a test function and used for debugging and development only.
+   * Since the local and Snowflake server environments are different, the outputs of executing a SP
+   * function with this test function and on Snowflake server may be different too.
    *
-   * @tparam RT Return type of the UDF.
+   * @tparam RT
+   *   Return type of the UDF.
    */
   @PublicPreview
   def runLocally[
@@ -2475,14 +2474,13 @@ class SProcRegistration(session: Session) {
   }
 
   /**
-   * Executes a Stored Procedure lambda function of 13 arguments
-   * with current Snowpark session in the local environment.
-   * This is a test function and used for debugging and development only.
-   * Since the local and Snowflake server environments are different,
-   * the outputs of executing a SP function with this test function and
-   * on Snowflake server may be different too.
+   * Executes a Stored Procedure lambda function of 13 arguments with current Snowpark session in
+   * the local environment. This is a test function and used for debugging and development only.
+   * Since the local and Snowflake server environments are different, the outputs of executing a SP
+   * function with this test function and on Snowflake server may be different too.
    *
-   * @tparam RT Return type of the UDF.
+   * @tparam RT
+   *   Return type of the UDF.
    */
   @PublicPreview
   def runLocally[
@@ -2518,14 +2516,13 @@ class SProcRegistration(session: Session) {
   }
 
   /**
-   * Executes a Stored Procedure lambda function of 14 arguments
-   * with current Snowpark session in the local environment.
-   * This is a test function and used for debugging and development only.
-   * Since the local and Snowflake server environments are different,
-   * the outputs of executing a SP function with this test function and
-   * on Snowflake server may be different too.
+   * Executes a Stored Procedure lambda function of 14 arguments with current Snowpark session in
+   * the local environment. This is a test function and used for debugging and development only.
+   * Since the local and Snowflake server environments are different, the outputs of executing a SP
+   * function with this test function and on Snowflake server may be different too.
    *
-   * @tparam RT Return type of the UDF.
+   * @tparam RT
+   *   Return type of the UDF.
    */
   @PublicPreview
   def runLocally[
@@ -2563,14 +2560,13 @@ class SProcRegistration(session: Session) {
   }
 
   /**
-   * Executes a Stored Procedure lambda function of 15 arguments
-   * with current Snowpark session in the local environment.
-   * This is a test function and used for debugging and development only.
-   * Since the local and Snowflake server environments are different,
-   * the outputs of executing a SP function with this test function and
-   * on Snowflake server may be different too.
+   * Executes a Stored Procedure lambda function of 15 arguments with current Snowpark session in
+   * the local environment. This is a test function and used for debugging and development only.
+   * Since the local and Snowflake server environments are different, the outputs of executing a SP
+   * function with this test function and on Snowflake server may be different too.
    *
-   * @tparam RT Return type of the UDF.
+   * @tparam RT
+   *   Return type of the UDF.
    */
   @PublicPreview
   def runLocally[
@@ -2590,24 +2586,7 @@ class SProcRegistration(session: Session) {
       A13: TypeTag,
       A14: TypeTag,
       A15: TypeTag](
-      sp: Function16[
-        Session,
-        A1,
-        A2,
-        A3,
-        A4,
-        A5,
-        A6,
-        A7,
-        A8,
-        A9,
-        A10,
-        A11,
-        A12,
-        A13,
-        A14,
-        A15,
-        RT],
+      sp: Function16[Session, A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15, RT],
       a1: A1,
       a2: A2,
       a3: A3,
@@ -2627,14 +2606,13 @@ class SProcRegistration(session: Session) {
   }
 
   /**
-   * Executes a Stored Procedure lambda function of 16 arguments
-   * with current Snowpark session in the local environment.
-   * This is a test function and used for debugging and development only.
-   * Since the local and Snowflake server environments are different,
-   * the outputs of executing a SP function with this test function and
-   * on Snowflake server may be different too.
+   * Executes a Stored Procedure lambda function of 16 arguments with current Snowpark session in
+   * the local environment. This is a test function and used for debugging and development only.
+   * Since the local and Snowflake server environments are different, the outputs of executing a SP
+   * function with this test function and on Snowflake server may be different too.
    *
-   * @tparam RT Return type of the UDF.
+   * @tparam RT
+   *   Return type of the UDF.
    */
   @PublicPreview
   def runLocally[
@@ -2694,14 +2672,13 @@ class SProcRegistration(session: Session) {
   }
 
   /**
-   * Executes a Stored Procedure lambda function of 17 arguments
-   * with current Snowpark session in the local environment.
-   * This is a test function and used for debugging and development only.
-   * Since the local and Snowflake server environments are different,
-   * the outputs of executing a SP function with this test function and
-   * on Snowflake server may be different too.
+   * Executes a Stored Procedure lambda function of 17 arguments with current Snowpark session in
+   * the local environment. This is a test function and used for debugging and development only.
+   * Since the local and Snowflake server environments are different, the outputs of executing a SP
+   * function with this test function and on Snowflake server may be different too.
    *
-   * @tparam RT Return type of the UDF.
+   * @tparam RT
+   *   Return type of the UDF.
    */
   @PublicPreview
   def runLocally[
@@ -2782,14 +2759,13 @@ class SProcRegistration(session: Session) {
   }
 
   /**
-   * Executes a Stored Procedure lambda function of 18 arguments
-   * with current Snowpark session in the local environment.
-   * This is a test function and used for debugging and development only.
-   * Since the local and Snowflake server environments are different,
-   * the outputs of executing a SP function with this test function and
-   * on Snowflake server may be different too.
+   * Executes a Stored Procedure lambda function of 18 arguments with current Snowpark session in
+   * the local environment. This is a test function and used for debugging and development only.
+   * Since the local and Snowflake server environments are different, the outputs of executing a SP
+   * function with this test function and on Snowflake server may be different too.
    *
-   * @tparam RT Return type of the UDF.
+   * @tparam RT
+   *   Return type of the UDF.
    */
   @PublicPreview
   def runLocally[
@@ -2874,14 +2850,13 @@ class SProcRegistration(session: Session) {
   }
 
   /**
-   * Executes a Stored Procedure lambda function of 19 arguments
-   * with current Snowpark session in the local environment.
-   * This is a test function and used for debugging and development only.
-   * Since the local and Snowflake server environments are different,
-   * the outputs of executing a SP function with this test function and
-   * on Snowflake server may be different too.
+   * Executes a Stored Procedure lambda function of 19 arguments with current Snowpark session in
+   * the local environment. This is a test function and used for debugging and development only.
+   * Since the local and Snowflake server environments are different, the outputs of executing a SP
+   * function with this test function and on Snowflake server may be different too.
    *
-   * @tparam RT Return type of the UDF.
+   * @tparam RT
+   *   Return type of the UDF.
    */
   @PublicPreview
   def runLocally[
@@ -2970,14 +2945,13 @@ class SProcRegistration(session: Session) {
   }
 
   /**
-   * Executes a Stored Procedure lambda function of 20 arguments
-   * with current Snowpark session in the local environment.
-   * This is a test function and used for debugging and development only.
-   * Since the local and Snowflake server environments are different,
-   * the outputs of executing a SP function with this test function and
-   * on Snowflake server may be different too.
+   * Executes a Stored Procedure lambda function of 20 arguments with current Snowpark session in
+   * the local environment. This is a test function and used for debugging and development only.
+   * Since the local and Snowflake server environments are different, the outputs of executing a SP
+   * function with this test function and on Snowflake server may be different too.
    *
-   * @tparam RT Return type of the UDF.
+   * @tparam RT
+   *   Return type of the UDF.
    */
   @PublicPreview
   def runLocally[
@@ -3070,14 +3044,13 @@ class SProcRegistration(session: Session) {
   }
 
   /**
-   * Executes a Stored Procedure lambda function of 21 arguments
-   * with current Snowpark session in the local environment.
-   * This is a test function and used for debugging and development only.
-   * Since the local and Snowflake server environments are different,
-   * the outputs of executing a SP function with this test function and
-   * on Snowflake server may be different too.
+   * Executes a Stored Procedure lambda function of 21 arguments with current Snowpark session in
+   * the local environment. This is a test function and used for debugging and development only.
+   * Since the local and Snowflake server environments are different, the outputs of executing a SP
+   * function with this test function and on Snowflake server may be different too.
    *
-   * @tparam RT Return type of the UDF.
+   * @tparam RT
+   *   Return type of the UDF.
    */
   @PublicPreview
   def runLocally[

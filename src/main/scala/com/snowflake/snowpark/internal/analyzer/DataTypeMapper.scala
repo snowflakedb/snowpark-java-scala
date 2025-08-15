@@ -69,12 +69,12 @@ object DataTypeMapper {
           case (v: JBigDecimal, t: DecimalType) => v + s" :: ${number(t.precision, t.scale)}"
           case (v: Int, DateType) =>
             s"DATE '${SnowflakeDateTimeFormat
-              .fromSqlFormat(Utils.DateInputFormat)
-              .format(new Date(v * MILLIS_PER_DAY), TimeZone.getTimeZone("GMT"))}'"
+                .fromSqlFormat(Utils.DateInputFormat)
+                .format(new Date(v * MILLIS_PER_DAY), TimeZone.getTimeZone("GMT"))}'"
           case (v: Long, TimestampType) =>
             s"TIMESTAMP '${SnowflakeDateTimeFormat
-              .fromSqlFormat(Utils.TimestampInputFormat)
-              .format(new Timestamp(v / MICROS_PER_MILLIS), TimeZone.getDefault, 3)}'"
+                .fromSqlFormat(Utils.TimestampInputFormat)
+                .format(new Timestamp(v / MICROS_PER_MILLIS), TimeZone.getDefault, 3)}'"
           case (v: Array[Byte], BinaryType) =>
             s"'${DatatypeConverter.printHexBinary(v)}' :: binary"
           case _ =>

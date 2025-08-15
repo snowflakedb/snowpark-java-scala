@@ -3,7 +3,6 @@ package com.snowflake.snowpark_test
 import com.snowflake.snowpark.functions._
 import com.snowflake.snowpark._
 import net.snowflake.client.jdbc.SnowflakeSQLException
-import org.scalatest.Matchers.the
 
 import java.sql.ResultSet
 
@@ -218,9 +217,7 @@ class DataFrameAggregateSuite extends TestData {
     // below 3 ways to call median() must return the same result.
     val medianResult = Seq(Row("a", 2.0, 22.0), Row("b", 4.0, 44.0))
     checkAnswer(df1.groupBy("key").median(col("value1"), col("value2")), medianResult)
-    checkAnswer(
-      df1.groupBy("key").agg(median(col("value1")), median(col("value2"))),
-      medianResult)
+    checkAnswer(df1.groupBy("key").agg(median(col("value1")), median(col("value2"))), medianResult)
   }
 
   test("builtin functions") {
@@ -301,14 +298,11 @@ class DataFrameAggregateSuite extends TestData {
   // Used temporary VIEW which is not supported by owner's mode stored proc yet
   test("Window functions inside aggregate functions", JavaStoredProcExcludeOwner) {
     def checkWindowError(df: => DataFrame): Unit = {
-      the[SnowflakeSQLException] thrownBy {
-        df.collect()
-      }
+      assertThrows[SnowflakeSQLException](df.collect())
     }
     checkWindowError(testData2.select(min(avg($"b").over(Window.partitionBy($"a")))))
     checkWindowError(testData2.agg(sum($"b"), max(rank().over(Window.orderBy($"a")))))
-    checkWindowError(
-      testData2.groupBy($"a").agg(sum($"b"), max(rank().over(Window.orderBy($"b")))))
+    checkWindowError(testData2.groupBy($"a").agg(sum($"b"), max(rank().over(Window.orderBy($"b")))))
     checkWindowError(
       testData2
         .groupBy($"a")
@@ -384,9 +378,7 @@ class DataFrameAggregateSuite extends TestData {
   test("SN - groupBy") {
     checkAnswer(testData2.groupBy("a").agg(sum($"b")), Seq(Row(1, 3), Row(2, 3), Row(3, 3)))
     checkAnswer(testData2.groupBy("a").agg(sum($"b").as("totB")).agg(sum($"totB")), Seq(Row(9)))
-    checkAnswer(
-      testData2.groupBy("a").agg(count($"*")),
-      Row(1, 2) :: Row(2, 2) :: Row(3, 2) :: Nil)
+    checkAnswer(testData2.groupBy("a").agg(count($"*")), Row(1, 2) :: Row(2, 2) :: Row(3, 2) :: Nil)
     checkAnswer(
       testData2.groupBy("a").agg(Map($"*" -> "count")),
       Row(1, 2) :: Row(2, 2) :: Row(3, 2) :: Nil)

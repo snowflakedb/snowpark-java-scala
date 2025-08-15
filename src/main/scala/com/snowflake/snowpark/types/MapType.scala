@@ -1,8 +1,7 @@
 package com.snowflake.snowpark.types
 
 /**
- * Map data type.
- * This maps to OBJECT data type in Snowflake.
+ * Map data type. This maps to OBJECT data type in Snowflake.
  * @since 0.1.0
  */
 case class MapType(keyType: DataType, valueType: DataType) extends DataType {

@@ -11,16 +11,17 @@ object Geography {
   /**
    * Creates a Geography class from a GeoJSON string
    *
-   * @param g GeoJSON string
-   * @return a Geography class
+   * @param g
+   *   GeoJSON string
+   * @return
+   *   a Geography class
    * @since 0.2.0
    */
   def fromGeoJSON(g: String): Geography = new Geography(g)
 }
 
 /**
- * Scala representation of Snowflake Geography data.
- * Only support GeoJSON format.
+ * Scala representation of Snowflake Geography data. Only support GeoJSON format.
  *
  * @since 0.2.0
  */
@@ -30,7 +31,8 @@ class Geography private (private val stringData: String) {
   /**
    * Returns whether the Geography object equals to the input object.
    *
-   * @return GeoJSON string
+   * @return
+   *   GeoJSON string
    * @since 0.2.0
    */
   override def equals(obj: Any): Boolean = {
@@ -43,7 +45,8 @@ class Geography private (private val stringData: String) {
   /**
    * Returns the hashCode of the stored GeoJSON string.
    *
-   * @return hash code
+   * @return
+   *   hash code
    * @since 0.2.0
    */
   override def hashCode(): Int = stringData.hashCode
@@ -55,7 +58,8 @@ class Geography private (private val stringData: String) {
   /**
    * Returns the underling string data for GeoJSON.
    *
-   * @return GeoJSON string
+   * @return
+   *   GeoJSON string
    * @since 0.2.0
    */
   def asGeoJSON(): String = stringData
@@ -63,7 +67,8 @@ class Geography private (private val stringData: String) {
   /**
    * Returns the underling string data for GeoJSON.
    *
-   * @return GeoJSON string
+   * @return
+   *   GeoJSON string
    * @since 0.2.0
    */
   def getString: String = stringData
@@ -71,7 +76,8 @@ class Geography private (private val stringData: String) {
   /**
    * Returns the underling string data for GeoJSON.
    *
-   * @return GeoJSON string
+   * @return
+   *   GeoJSON string
    * @since 0.2.0
    */
   override def toString: String = stringData

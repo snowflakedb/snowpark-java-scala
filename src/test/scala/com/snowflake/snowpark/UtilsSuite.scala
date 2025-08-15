@@ -76,27 +76,6 @@ class UtilsSuite extends SNTestBase {
     assert(Logging.maskSecrets(null) == null)
   }
 
-  test("version check") {
-    // valid versions
-    Utils.checkScalaVersionCompatibility("2.12.9")
-    Utils.checkScalaVersionCompatibility("2.12.10")
-
-    // invalid versions
-    assertThrows[SnowparkClientException](Utils.checkScalaVersionCompatibility("2.12.8"))
-    assertThrows[SnowparkClientException](Utils.checkScalaVersionCompatibility("2.11.10"))
-    assertThrows[SnowparkClientException](Utils.checkScalaVersionCompatibility("2.13.1"))
-  }
-
-  test("version compare check") {
-    assert(Utils.compareVersion("5.19.0", "5.20.0") < 0)
-    assert(Utils.compareVersion("5.20.0", "5.20.0") == 0)
-    assert(Utils.compareVersion("5.20.0", "5.20") == 0)
-    assert(Utils.compareVersion("5.20", "5.20.0") == 0)
-    assert(Utils.compareVersion("5", "5.20.0") < 0)
-    assert(Utils.compareVersion("5.20.0", "5.19.19") > 0)
-    assert(Utils.compareVersion("5.10.0", "5.9.29") > 0)
-  }
-
   test("normalize name") {
 
     assert(quoteName("\"_AF0*9A_\"") == "\"_AF0*9A_\"")
@@ -128,8 +107,7 @@ class UtilsSuite extends SNTestBase {
     assert(TypeToSchemaConverter.inferSchema[Date]().head.dataType == DateType)
     assert(TypeToSchemaConverter.inferSchema[Timestamp]().head.dataType == TimestampType)
     assert(TypeToSchemaConverter.inferSchema[Time]().head.dataType == TimeType)
-    assert(
-      TypeToSchemaConverter.inferSchema[Array[Int]]().head.dataType == ArrayType(IntegerType))
+    assert(TypeToSchemaConverter.inferSchema[Array[Int]]().head.dataType == ArrayType(IntegerType))
     assert(
       TypeToSchemaConverter.inferSchema[Map[String, Boolean]]().head.dataType == MapType(
         StringType,
@@ -280,7 +258,8 @@ class UtilsSuite extends SNTestBase {
 
     assert(
       Utils.calculateMD5(file) ==
-        "85bd7b9363853f1815254b1cbc608c22") // pragma: allowlist secret
+        "85bd7b9363853f1815254b1cbc608c22" // pragma: allowlist secret
+    )
   }
 
   test("stage file prefix length") {
@@ -430,8 +409,7 @@ class UtilsSuite extends SNTestBase {
     assert(Utils.getUDFUploadPrefix("schema.view").equals("schemaview_1055679790"))
     assert(Utils.getUDFUploadPrefix(""""SCHEMA"."VIEW"""").equals("SCHEMAVIEW_1919772726"))
     assert(Utils.getUDFUploadPrefix("db.schema.table").equals("dbschematable_848839503"))
-    assert(
-      Utils.getUDFUploadPrefix(""""db"."schema"."table"""").equals("dbschematable_964272755"))
+    assert(Utils.getUDFUploadPrefix(""""db"."schema"."table"""").equals("dbschematable_964272755"))
 
     validIdentifiers.foreach { name =>
       // println(s"test: $name")
@@ -513,8 +491,8 @@ class UtilsSuite extends SNTestBase {
     }
   }
 
-  test("Utils.version matches pom version") {
-    assert(TestUtils.getVersionProperty("version").get == Utils.Version)
+  test("Utils.version matches sbt build") {
+    assert(Utils.Version == "1.17.0-SNAPSHOT")
   }
 
   test("Utils.retrySleepTimeInMS") {
@@ -654,8 +632,7 @@ class UtilsSuite extends SNTestBase {
     val ex = intercept[Exception] {
       JavaUtils.readFileAsByteArray("not_exist_file")
     }
-    assert(
-      ex.getMessage.equals("JavaUtils.readFileAsByteArray() cannot find file: not_exist_file"))
+    assert(ex.getMessage.equals("JavaUtils.readFileAsByteArray() cannot find file: not_exist_file"))
   }
 
   test("invalid private key") {
@@ -693,7 +670,7 @@ class UtilsSuite extends SNTestBase {
       "longKey" -> 1234567890L,
       "byteKey" -> 123.toByte,
       "doubleKey" -> 3.1415926,
-      "floatKey" -> 3.14F,
+      "floatKey" -> 3.14f,
       "boolKey" -> false,
       "javaListKey" -> new util.ArrayList[String](util.Arrays.asList("a", "b")),
       "javaMapKey" -> javaHashMap,
@@ -704,27 +681,53 @@ class UtilsSuite extends SNTestBase {
       "nestedMap" -> Map("insideKey" -> "stringValue", "insideList" -> Seq(1, 2, 3)),
       "nestedList" -> Seq(1, Map("nestedKey" -> "nestedValue"), Array(1, 2, 3)))
     val jsonString = Utils.mapToJson(map)
-    val expected_string = "{" +
-      "\"floatKey\":3.14," +
-      "\"javaMapKey\":{" +
-      "\"one\":\"1\"," +
-      "\"two\":\"2\"," +
-      "\"three\":\"3\"}," +
-      "\"integerKey\":42," +
-      "\"nullKey\":null," +
-      "\"longKey\":1234567890," +
-      "\"byteKey\":123," +
-      "\"seqKey\":[1,2,3]," +
-      "\"nestedMap\":{\"insideKey\":\"stringValue\",\"insideList\":[1,2,3]}," +
-      "\"stringKey\":\"stringValue\"," +
-      "\"doubleKey\":3.1415926," +
-      "\"seqOfStringKey\":[\"1\",\"2\",\"3\"]," +
-      "\"nestedList\":[1,{\"nestedKey\":\"nestedValue\"},[1,2,3]]," +
-      "\"javaListKey\":[\"a\",\"b\"]," +
-      "\"arrayKey\":[1,2,3]," +
-      "\"boolKey\":false," +
-      "\"shortKey\":123}"
+    val expected_string = Utils.ScalaCompatVersion match {
+      case "2.12" =>
+        "{" +
+          "\"floatKey\":3.14," +
+          "\"javaMapKey\":{" +
+          "\"one\":\"1\"," +
+          "\"two\":\"2\"," +
+          "\"three\":\"3\"}," +
+          "\"integerKey\":42," +
+          "\"nullKey\":null," +
+          "\"longKey\":1234567890," +
+          "\"byteKey\":123," +
+          "\"seqKey\":[1,2,3]," +
+          "\"nestedMap\":{\"insideKey\":\"stringValue\",\"insideList\":[1,2,3]}," +
+          "\"stringKey\":\"stringValue\"," +
+          "\"doubleKey\":3.1415926," +
+          "\"seqOfStringKey\":[\"1\",\"2\",\"3\"]," +
+          "\"nestedList\":[1,{\"nestedKey\":\"nestedValue\"},[1,2,3]]," +
+          "\"javaListKey\":[\"a\",\"b\"]," +
+          "\"arrayKey\":[1,2,3]," +
+          "\"boolKey\":false," +
+          "\"shortKey\":123}"
+      case "2.13" =>
+        "{" +
+          "\"floatKey\":3.14," +
+          "\"javaMapKey\":{" +
+          "\"one\":\"1\"," +
+          "\"two\":\"2\"," +
+          "\"three\":\"3\"}," +
+          "\"integerKey\":42," +
+          "\"nullKey\":null," +
+          "\"longKey\":1234567890," +
+          "\"nestedMap\":{\"insideKey\":\"stringValue\",\"insideList\":[1,2,3]}," +
+          "\"stringKey\":\"stringValue\"," +
+          "\"doubleKey\":3.1415926," +
+          "\"seqOfStringKey\":[\"1\",\"2\",\"3\"]," +
+          "\"nestedList\":[1,{\"nestedKey\":\"nestedValue\"},[1,2,3]]," +
+          "\"boolKey\":false," +
+          "\"shortKey\":123," +
+          "\"byteKey\":123," +
+          "\"seqKey\":[1,2,3]," +
+          "\"javaListKey\":[\"a\",\"b\"]," +
+          "\"arrayKey\":[1,2,3]}"
+    }
     val readMap = Utils.jsonToMap(jsonString.getOrElse(""))
+    val expectedMap = Utils.jsonToMap(expected_string)
+    assert(readMap == expectedMap)
     val transformedString = Utils.mapToJson(readMap.getOrElse(Map()))
     assert(jsonString.getOrElse("").equals(expected_string))
     assert(jsonString.equals(transformedString))

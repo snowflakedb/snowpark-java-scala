@@ -4,12 +4,11 @@ import com.snowflake.snowpark.internal._
 import com.snowflake.snowpark.internal.analyzer._
 
 /**
- * DataFrame for loading data from files in a stage to a table.
- * Objects of this type are returned by the [[DataFrameReader]] methods that load data from files
- * (e.g. [[DataFrameReader.csv csv]]).
+ * DataFrame for loading data from files in a stage to a table. Objects of this type are returned by
+ * the [[DataFrameReader]] methods that load data from files (e.g. [[DataFrameReader.csv csv]]).
  *
- * To save the data from the staged files to a table, call the `copyInto()` methods.
- * This method uses the COPY INTO `<table_name>` command to copy the data to a specified table.
+ * To save the data from the staged files to a table, call the `copyInto()` methods. This method
+ * uses the COPY INTO `<table_name>` command to copy the data to a specified table.
  *
  * @groupname actions Actions
  * @groupname basic Basic DataFrame Functions
@@ -24,21 +23,22 @@ class CopyableDataFrame private[snowpark] (
     extends DataFrame(session, plan, methodChain) {
 
   /**
-   * Executes a `COPY INTO <table_name>` command to
-   * load data from files in a stage into a specified table.
+   * Executes a `COPY INTO <table_name>` command to load data from files in a stage into a specified
+   * table.
    *
-   * copyInto is an action method (like the [[collect]] method),
-   * so calling the method executes the SQL statement to copy the data.
+   * copyInto is an action method (like the [[collect]] method), so calling the method executes the
+   * SQL statement to copy the data.
    *
-   * For example, the following code loads data from
-   * the path specified by `myFileStage` to the table `T`:
+   * For example, the following code loads data from the path specified by `myFileStage` to the
+   * table `T`:
    * {{{
    *   val df = session.read.schema(userSchema).csv(myFileStage)
    *   df.copyInto("T")
    * }}}
    *
    * @group actions
-   * @param tableName Name of the table where the data should be saved.
+   * @param tableName
+   *   Name of the table where the data should be saved.
    * @since 0.9.0
    */
   def copyInto(tableName: String): Unit = action("copyInto") {
@@ -47,18 +47,18 @@ class CopyableDataFrame private[snowpark] (
 
   // scalastyle:off line.size.limit
   /**
-   * Executes a `COPY INTO <table_name>` command with the specified transformations to
-   * load data from files in a stage into a specified table.
+   * Executes a `COPY INTO <table_name>` command with the specified transformations to load data
+   * from files in a stage into a specified table.
    *
-   * copyInto is an action method (like the [[collect]] method),
-   * so calling the method executes the SQL statement to copy the data.
+   * copyInto is an action method (like the [[collect]] method), so calling the method executes the
+   * SQL statement to copy the data.
    *
-   * When copying the data into the table, you can apply transformations to
-   * the data from the files to:
-   *  - Rename the columns
-   *  - Change the order of the columns
-   *  - Omit or insert columns
-   *  - Cast the value in a column to a specific type
+   * When copying the data into the table, you can apply transformations to the data from the files
+   * to:
+   *   - Rename the columns
+   *   - Change the order of the columns
+   *   - Omit or insert columns
+   *   - Cast the value in a column to a specific type
    *
    * You can use the same techniques described in
    * [[https://docs.snowflake.com/en/user-guide/data-load-transform.html Transforming Data During Load]]
@@ -66,10 +66,10 @@ class CopyableDataFrame private[snowpark] (
    * [[https://docs.snowflake.com/en/sql-reference/sql/copy-into-table.html#transformation-parameters SELECT statement parameters]]
    * in the `COPY INTO <table_name>` command.
    *
-   * For example, the following code loads data from the path specified
-   * by `myFileStage` to the table `T`. The example transforms the data
-   * from the file by inserting the value of the first column into the first column of table `T`
-   * and inserting the length of that value into the second column of table `T`.
+   * For example, the following code loads data from the path specified by `myFileStage` to the
+   * table `T`. The example transforms the data from the file by inserting the value of the first
+   * column into the first column of table `T` and inserting the length of that value into the
+   * second column of table `T`.
    * {{{
    *   import com.snowflake.snowpark.functions._
    *   val df = session.read.schema(userSchema).csv(myFileStage)
@@ -78,9 +78,11 @@ class CopyableDataFrame private[snowpark] (
    * }}}
    *
    * @group actions
-   * @param tableName Name of the table where the data should be saved.
-   * @param transformations Seq of [[Column]] expressions that specify the transformations to apply
-   *        (similar to [[https://docs.snowflake.com/en/sql-reference/sql/copy-into-table.html#transformation-parameters transformation parameters]]).
+   * @param tableName
+   *   Name of the table where the data should be saved.
+   * @param transformations
+   *   Seq of [[Column]] expressions that specify the transformations to apply (similar to
+   *   [[https://docs.snowflake.com/en/sql-reference/sql/copy-into-table.html#transformation-parameters transformation parameters]]).
    * @since 0.9.0
    */
   // scalastyle:on line.size.limit
@@ -93,19 +95,21 @@ class CopyableDataFrame private[snowpark] (
    * Executes a `COPY INTO <table_name>` command with the specified transformations and options to
    * load data from files in a stage into a specified table.
    *
-   * copyInto is an action method (like the [[collect]] method),
-   * so calling the method executes the SQL statement to copy the data.
+   * copyInto is an action method (like the [[collect]] method), so calling the method executes the
+   * SQL statement to copy the data.
    *
-   * In addition, you can specify [[https://docs.snowflake.com/en/sql-reference/sql/copy-into-table.html#format-type-options-formattypeoptions format type options]]
-   * or [[https://docs.snowflake.com/en/sql-reference/sql/copy-into-table.html#label-copy-into-table-copyoptions copy options]]
+   * In addition, you can specify
+   * [[https://docs.snowflake.com/en/sql-reference/sql/copy-into-table.html#format-type-options-formattypeoptions format type options]]
+   * or
+   * [[https://docs.snowflake.com/en/sql-reference/sql/copy-into-table.html#label-copy-into-table-copyoptions copy options]]
    * that determine how the copy operation should be performed.
    *
-   * When copying the data into the table, you can apply transformations to
-   * the data from the files to:
-   *  - Rename the columns
-   *  - Change the order of the columns
-   *  - Omit or insert columns
-   *  - Cast the value in a column to a specific type
+   * When copying the data into the table, you can apply transformations to the data from the files
+   * to:
+   *   - Rename the columns
+   *   - Change the order of the columns
+   *   - Omit or insert columns
+   *   - Cast the value in a column to a specific type
    *
    * You can use the same techniques described in
    * [[https://docs.snowflake.com/en/user-guide/data-load-transform.html Transforming Data During Load]]
@@ -113,12 +117,11 @@ class CopyableDataFrame private[snowpark] (
    * [[https://docs.snowflake.com/en/sql-reference/sql/copy-into-table.html#transformation-parameters SELECT statement parameters]]
    * in the `COPY INTO <table_name>` command.
    *
-   * For example, the following code loads data from the path specified
-   * by `myFileStage` to the table `T`. The example transforms the data
-   * from the file by inserting the value of the first column into the first column of table `T`
-   * and inserting the length of that value into the second column of table `T`.
-   * The example also uses a {@code Map} to set the {@code FORCE} and {@code skip_header} options
-   * for the copy operation.
+   * For example, the following code loads data from the path specified by `myFileStage` to the
+   * table `T`. The example transforms the data from the file by inserting the value of the first
+   * column into the first column of table `T` and inserting the length of that value into the
+   * second column of table `T`. The example also uses a {@code Map} to set the {@code FORCE} and
+   * {@code skip_header} options for the copy operation.
    * {{{
    *   import com.snowflake.snowpark.functions._
    *   val df = session.read.schema(userSchema).option("skip_header", 1).csv(myFileStage)
@@ -128,13 +131,16 @@ class CopyableDataFrame private[snowpark] (
    * }}}
    *
    * @group actions
-   * @param tableName Name of the table where the data should be saved.
-   * @param transformations Seq of [[Column]] expressions that specify the transformations to apply
-   *        (similar to [[https://docs.snowflake.com/en/sql-reference/sql/copy-into-table.html#transformation-parameters transformation parameters]]).
-   * @param options Map of the names of options (e.g. { @code compression}, { @code skip_header},
-   *        etc.) and their corresponding values.NOTE: By default, the {@code CopyableDataFrame} object
-   *        uses the options set in the [[DataFrameReader]] used to create that object. You can use
-   *        this {@code options} parameter to override the default options or set additional options.
+   * @param tableName
+   *   Name of the table where the data should be saved.
+   * @param transformations
+   *   Seq of [[Column]] expressions that specify the transformations to apply (similar to
+   *   [[https://docs.snowflake.com/en/sql-reference/sql/copy-into-table.html#transformation-parameters transformation parameters]]).
+   * @param options
+   *   Map of the names of options (e.g. {@code compression} , {@code skip_header} , etc.) and their
+   *   corresponding values.NOTE: By default, the {@code CopyableDataFrame} object uses the options
+   *   set in the [[DataFrameReader]] used to create that object. You can use this {@code options}
+   *   parameter to override the default options or set additional options.
    * @since 0.9.0
    */
   // scalastyle:on line.size.limit
@@ -148,19 +154,21 @@ class CopyableDataFrame private[snowpark] (
    * Executes a `COPY INTO <table_name>` command with the specified transformations and options to
    * load data from files in a stage into a specified table.
    *
-   * copyInto is an action method (like the [[collect]] method),
-   * so calling the method executes the SQL statement to copy the data.
+   * copyInto is an action method (like the [[collect]] method), so calling the method executes the
+   * SQL statement to copy the data.
    *
-   * In addition, you can specify [[https://docs.snowflake.com/en/sql-reference/sql/copy-into-table.html#format-type-options-formattypeoptions format type options]]
-   * or [[https://docs.snowflake.com/en/sql-reference/sql/copy-into-table.html#label-copy-into-table-copyoptions copy options]]
+   * In addition, you can specify
+   * [[https://docs.snowflake.com/en/sql-reference/sql/copy-into-table.html#format-type-options-formattypeoptions format type options]]
+   * or
+   * [[https://docs.snowflake.com/en/sql-reference/sql/copy-into-table.html#label-copy-into-table-copyoptions copy options]]
    * that determine how the copy operation should be performed.
    *
-   * When copying the data into the table, you can apply transformations to
-   * the data from the files to:
-   *  - Rename the columns
-   *  - Change the order of the columns
-   *  - Omit or insert columns
-   *  - Cast the value in a column to a specific type
+   * When copying the data into the table, you can apply transformations to the data from the files
+   * to:
+   *   - Rename the columns
+   *   - Change the order of the columns
+   *   - Omit or insert columns
+   *   - Cast the value in a column to a specific type
    *
    * You can use the same techniques described in
    * [[https://docs.snowflake.com/en/user-guide/data-load-transform.html Transforming Data During Load]]
@@ -171,13 +179,12 @@ class CopyableDataFrame private[snowpark] (
    * You can specify a subset of the table columns to copy into. The number of provided column names
    * must match the number of transformations.
    *
-   * For example, suppose the target table `T` has 3 columns:  "ID", "A" and "A_LEN".
-   * "ID" is an `AUTOINCREMENT` column, which should be exceluded from this copy into action.
-   * The following code loads data from the path specified by `myFileStage` to the table `T`.
-   * The example transforms the data from the file by inserting the value of the first column
-   * into the column `A` and inserting the length of that value into the column `A_LEN`.
-   * The example also uses a {@code Map} to set the {@code FORCE} and {@code skip_header} options
-   * for the copy operation.
+   * For example, suppose the target table `T` has 3 columns: "ID", "A" and "A_LEN". "ID" is an
+   * `AUTOINCREMENT` column, which should be exceluded from this copy into action. The following
+   * code loads data from the path specified by `myFileStage` to the table `T`. The example
+   * transforms the data from the file by inserting the value of the first column into the column
+   * `A` and inserting the length of that value into the column `A_LEN`. The example also uses a
+   * {@code Map} to set the {@code FORCE} and {@code skip_header} options for the copy operation.
    * {{{
    *   import com.snowflake.snowpark.functions._
    *   val df = session.read.schema(userSchema).option("skip_header", 1).csv(myFileStage)
@@ -188,14 +195,18 @@ class CopyableDataFrame private[snowpark] (
    * }}}
    *
    * @group actions
-   * @param tableName Name of the table where the data should be saved.
-   * @param targetColumnNames Name of the columns in the table where the data should be saved.
-   * @param transformations Seq of [[Column]] expressions that specify the transformations to apply
-   *        (similar to [[https://docs.snowflake.com/en/sql-reference/sql/copy-into-table.html#transformation-parameters transformation parameters]]).
-   * @param options Map of the names of options (e.g. { @code compression}, { @code skip_header},
-   *        etc.) and their corresponding values.NOTE: By default, the {@code CopyableDataFrame} object
-   *        uses the options set in the [[DataFrameReader]] used to create that object. You can use
-   *        this {@code options} parameter to override the default options or set additional options.
+   * @param tableName
+   *   Name of the table where the data should be saved.
+   * @param targetColumnNames
+   *   Name of the columns in the table where the data should be saved.
+   * @param transformations
+   *   Seq of [[Column]] expressions that specify the transformations to apply (similar to
+   *   [[https://docs.snowflake.com/en/sql-reference/sql/copy-into-table.html#transformation-parameters transformation parameters]]).
+   * @param options
+   *   Map of the names of options (e.g. {@code compression} , {@code skip_header} , etc.) and their
+   *   corresponding values.NOTE: By default, the {@code CopyableDataFrame} object uses the options
+   *   set in the [[DataFrameReader]] used to create that object. You can use this {@code options}
+   *   parameter to override the default options or set additional options.
    * @since 0.11.0
    */
   // scalastyle:on line.size.limit
@@ -214,7 +225,7 @@ class CopyableDataFrame private[snowpark] (
       transformations: Seq[Column] = Seq.empty,
       options: Map[String, Any] = Map.empty): DataFrame = {
     if (targetColumnNames.nonEmpty && transformations.nonEmpty &&
-        targetColumnNames.size != transformations.size) {
+      targetColumnNames.size != transformations.size) {
       // If columnNames and transformations are provided, the size of them must match.
       throw ErrorMessage.PLAN_COPY_INVALID_COLUMN_NAME_SIZE(
         targetColumnNames.size,
@@ -234,7 +245,8 @@ class CopyableDataFrame private[snowpark] (
   /**
    * Returns a clone of this CopyableDataFrame.
    *
-   * @return A [[CopyableDataFrame]]
+   * @return
+   *   A [[CopyableDataFrame]]
    * @since 0.10.0
    * @group basic
    */
@@ -243,8 +255,8 @@ class CopyableDataFrame private[snowpark] (
   }
 
   /**
-   * Returns a [[CopyableDataFrameAsyncActor]] object that can be used to execute
-   * CopyableDataFrame actions asynchronously.
+   * Returns a [[CopyableDataFrameAsyncActor]] object that can be used to execute CopyableDataFrame
+   * actions asynchronously.
    *
    * Example:
    * {{{
@@ -256,7 +268,8 @@ class CopyableDataFrame private[snowpark] (
    * }}}
    *
    * @since 0.11.0
-   * @return A [[CopyableDataFrameAsyncActor]] object
+   * @return
+   *   A [[CopyableDataFrameAsyncActor]] object
    */
   override def async: CopyableDataFrameAsyncActor = new CopyableDataFrameAsyncActor(this)
 
@@ -276,9 +289,11 @@ class CopyableDataFrameAsyncActor private[snowpark] (cdf: CopyableDataFrame)
   /**
    * Executes `CopyableDataFrame.copyInto` asynchronously.
    *
-   * @param tableName Name of the table where the data should be saved.
-   * @return A [[TypedAsyncJob]] object that you can use to check the status of the action
-   *         and get the results.
+   * @param tableName
+   *   Name of the table where the data should be saved.
+   * @return
+   *   A [[TypedAsyncJob]] object that you can use to check the status of the action and get the
+   *   results.
    * @since 0.11.0
    */
   def copyInto(tableName: String): TypedAsyncJob[Unit] = action("copyInto") {
@@ -290,11 +305,14 @@ class CopyableDataFrameAsyncActor private[snowpark] (cdf: CopyableDataFrame)
   /**
    * Executes `CopyableDataFrame.copyInto` asynchronously.
    *
-   * @param tableName Name of the table where the data should be saved.
-   * @param transformations Seq of [[Column]] expressions that specify the transformations to apply
-   *        (similar to [[https://docs.snowflake.com/en/sql-reference/sql/copy-into-table.html#transformation-parameters transformation parameters]]).
-   * @return A [[TypedAsyncJob]] object that you can use to check the status of the action
-   *         and get the results.
+   * @param tableName
+   *   Name of the table where the data should be saved.
+   * @param transformations
+   *   Seq of [[Column]] expressions that specify the transformations to apply (similar to
+   *   [[https://docs.snowflake.com/en/sql-reference/sql/copy-into-table.html#transformation-parameters transformation parameters]]).
+   * @return
+   *   A [[TypedAsyncJob]] object that you can use to check the status of the action and get the
+   *   results.
    * @since 0.11.0
    */
   // scalastyle:on line.size.limit
@@ -308,15 +326,19 @@ class CopyableDataFrameAsyncActor private[snowpark] (cdf: CopyableDataFrame)
   /**
    * Executes `CopyableDataFrame.copyInto` asynchronously.
    *
-   * @param tableName Name of the table where the data should be saved.
-   * @param transformations Seq of [[Column]] expressions that specify the transformations to apply
-   *        (similar to [[https://docs.snowflake.com/en/sql-reference/sql/copy-into-table.html#transformation-parameters transformation parameters]]).
-   * @param options Map of the names of options (e.g. { @code compression}, { @code skip_header},
-   *        etc.) and their corresponding values.NOTE: By default, the {@code CopyableDataFrame} object
-   *        uses the options set in the [[DataFrameReader]] used to create that object. You can use
-   *        this {@code options} parameter to override the default options or set additional options.
-   * @return A [[TypedAsyncJob]] object that you can use to check the status of the action
-   *         and get the results.
+   * @param tableName
+   *   Name of the table where the data should be saved.
+   * @param transformations
+   *   Seq of [[Column]] expressions that specify the transformations to apply (similar to
+   *   [[https://docs.snowflake.com/en/sql-reference/sql/copy-into-table.html#transformation-parameters transformation parameters]]).
+   * @param options
+   *   Map of the names of options (e.g. {@code compression} , {@code skip_header} , etc.) and their
+   *   corresponding values.NOTE: By default, the {@code CopyableDataFrame} object uses the options
+   *   set in the [[DataFrameReader]] used to create that object. You can use this {@code options}
+   *   parameter to override the default options or set additional options.
+   * @return
+   *   A [[TypedAsyncJob]] object that you can use to check the status of the action and get the
+   *   results.
    * @since 0.11.0
    */
   // scalastyle:on line.size.limit
@@ -332,16 +354,21 @@ class CopyableDataFrameAsyncActor private[snowpark] (cdf: CopyableDataFrame)
   /**
    * Executes `CopyableDataFrame.copyInto` asynchronously.
    *
-   * @param tableName Name of the table where the data should be saved.
-   * @param targetColumnNames Name of the columns in the table where the data should be saved.
-   * @param transformations Seq of [[Column]] expressions that specify the transformations to apply
-   *        (similar to [[https://docs.snowflake.com/en/sql-reference/sql/copy-into-table.html#transformation-parameters transformation parameters]]).
-   * @param options Map of the names of options (e.g. { @code compression}, { @code skip_header},
-   *        etc.) and their corresponding values.NOTE: By default, the {@code CopyableDataFrame} object
-   *        uses the options set in the [[DataFrameReader]] used to create that object. You can use
-   *        this {@code options} parameter to override the default options or set additional options.
-   * @return A [[TypedAsyncJob]] object that you can use to check the status of the action
-   *         and get the results.
+   * @param tableName
+   *   Name of the table where the data should be saved.
+   * @param targetColumnNames
+   *   Name of the columns in the table where the data should be saved.
+   * @param transformations
+   *   Seq of [[Column]] expressions that specify the transformations to apply (similar to
+   *   [[https://docs.snowflake.com/en/sql-reference/sql/copy-into-table.html#transformation-parameters transformation parameters]]).
+   * @param options
+   *   Map of the names of options (e.g. {@code compression} , {@code skip_header} , etc.) and their
+   *   corresponding values.NOTE: By default, the {@code CopyableDataFrame} object uses the options
+   *   set in the [[DataFrameReader]] used to create that object. You can use this {@code options}
+   *   parameter to override the default options or set additional options.
+   * @return
+   *   A [[TypedAsyncJob]] object that you can use to check the status of the action and get the
+   *   results.
    * @since 0.11.0
    */
   // scalastyle:on line.size.limit
@@ -355,9 +382,7 @@ class CopyableDataFrameAsyncActor private[snowpark] (cdf: CopyableDataFrame)
   }
 
   @inline override protected def action[T](funcName: String)(func: => T): T = {
-    OpenTelemetry.action(
-      "CopyableDataFrameAsyncActor",
-      funcName,
-      cdf.methodChainString + ".async")(func)
+    OpenTelemetry.action("CopyableDataFrameAsyncActor", funcName, cdf.methodChainString + ".async")(
+      func)
   }
 }

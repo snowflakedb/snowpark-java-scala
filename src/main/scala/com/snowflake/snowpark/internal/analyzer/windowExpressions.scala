@@ -5,8 +5,7 @@ private[snowpark] trait SpecialFrameBoundary extends Expression {
   override val children: Seq[Expression] = Seq.empty
 
   // do not use this function, override analyze function directly
-  override protected def createAnalyzedExpression(
-      analyzedChildren: Seq[Expression]): Expression = {
+  override protected def createAnalyzedExpression(analyzedChildren: Seq[Expression]): Expression = {
     throw new UnsupportedOperationException
   }
 
@@ -64,9 +63,7 @@ private[snowpark] case class WindowExpression(
   override def children: Seq[Expression] = Seq(windowFunction, windowSpec)
 
   override protected def createAnalyzedExpression(analyzedChildren: Seq[Expression]): Expression =
-    WindowExpression(
-      analyzedChildren.head,
-      analyzedChildren(1).asInstanceOf[WindowSpecDefinition])
+    WindowExpression(analyzedChildren.head, analyzedChildren(1).asInstanceOf[WindowSpecDefinition])
 }
 
 private[snowpark] case class WindowSpecDefinition(
@@ -78,8 +75,7 @@ private[snowpark] case class WindowSpecDefinition(
     partitionSpec ++ orderSpec :+ frameSpecification
 
   // do not use this function, override analyze function directly
-  override protected def createAnalyzedExpression(
-      analyzedChildren: Seq[Expression]): Expression = {
+  override protected def createAnalyzedExpression(analyzedChildren: Seq[Expression]): Expression = {
     throw new UnsupportedOperationException
   }
 
@@ -88,8 +84,8 @@ private[snowpark] case class WindowSpecDefinition(
     val analyzedOrderSpec = orderSpec.map(_.analyze(func))
     val analyzedFrameSpecification = frameSpecification.analyze(func)
     if (analyzedOrderSpec == orderSpec &&
-        analyzedPartitionSpec == partitionSpec &&
-        analyzedFrameSpecification == frameSpecification) {
+      analyzedPartitionSpec == partitionSpec &&
+      analyzedFrameSpecification == frameSpecification) {
       func(this)
     } else {
       func(

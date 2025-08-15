@@ -1,8 +1,16 @@
 #!/bin/bash -ex
+#
+# Push Snowpark Java/Scala to the public maven repository.
+# This script needs to be executed by snowflake jenkins job.
+# If the SNOWPARK_FIPS environment variable exists when running
+# the script, the fips build of the snowpark client will be
+# published instead of the regular build.
+#
 
-export GPG_KEY_ID="Snowflake Computing"
-export SONATYPE_USER="$sonatype_user"
-export SONATYPE_PWD="$sonatype_password"
+if [ -z "$GPG_KEY_ID" ]; then
+  export GPG_KEY_ID="Snowflake Computing"
+  echo "[WARN] GPG key ID not specified, using default: $GPG_KEY_ID."
+fi
 
 if [ -z "$GPG_KEY_PASSPHRASE" ]; then
   echo "[ERROR] GPG passphrase is not specified for $GPG_KEY_ID!"
@@ -14,103 +22,92 @@ if [ -z "$GPG_PRIVATE_KEY" ]; then
   exit 1
 fi
 
+if [ -z "$sonatype_user" ]; then
+  echo "[ERROR] Jenkins sonatype user is not specified!"
+  exit 1
+fi
+
+if [ -z "$sonatype_password" ]; then
+  echo "[ERROR] Jenkins sonatype pwd is not specified!"
+  exit 1
+fi
+
 if [ -z "$PUBLISH" ]; then
   echo "[ERROR] 'PUBLISH' is not specified!"
   exit 1
 fi
 
-echo "[INFO] Import PGP Key"
-if ! gpg --list-secret-key | grep "$GPG_KEY_ID"; then
-  gpg --allow-secret-key-import --import "$GPG_PRIVATE_KEY"
+if [ -z "$github_version_tag" ]; then
+  echo "[ERROR] 'github_version_tag' is not specified!"
+  exit 1
 fi
 
-THIS_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+mkdir -p ~/.ivy2
 
-MVN_OSSRH_DEPLOY_SETTINGS_XML="$THIS_DIR/mvn_settings_ossrh_deploy.xml"
-OSSRH_DEPLOY_SETTINGS_XML="$THIS_DIR/settings_ossrh_deploy.xml"
-MVN_REPOSITORY_ID=ossrh
+STR=$'realm=Sonatype Nexus Repository Manager
+host=oss.sonatype.org
+user='$sonatype_user'
+password='$sonatype_password''
 
-# For uploading to Maven
-cat > $MVN_OSSRH_DEPLOY_SETTINGS_XML << MVNSETTINGS.XML
-<?xml version="1.0" encoding="UTF-8"?>
-<settings xmlns="http://maven.apache.org/SETTINGS/1.0.0"
-     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-     xsi:schemaLocation="http://maven.apache.org/SETTINGS/1.0.0 http://maven.apache.org/xsd/settings-1.0.0.xsd">
-  <servers>
-      <server>
-        <id>$MVN_REPOSITORY_ID</id>
-        <username>$SONATYPE_USER</username>
-        <password>$SONATYPE_PWD</password>
-       </server>
-  </servers>
-</settings>
-MVNSETTINGS.XML
+echo "$STR" > ~/.ivy2/.credentials
 
-# re-enable if want to release to maven repo
-# mvn --settings $OSSRH_DEPLOY_SETTINGS_XML -DskipTests clean deploy
+# import private key first
+echo "[INFO] Importing PGP key."
+if [ ! -z "$GPG_PRIVATE_KEY" ] && [ -f "$GPG_PRIVATE_KEY" ]; then
+  # First check if already imported private key
+  if ! gpg --list-secret-key | grep "$GPG_KEY_ID"; then
+    gpg --allow-secret-key-import --import "$GPG_PRIVATE_KEY"
+  fi
+fi
 
-MVN_OPTIONS+=(
-  "--settings" "$MVN_OSSRH_DEPLOY_SETTINGS_XML"
-  "--batch-mode"
-)
+which sbt
+if [ $? -ne 0 ]
+then
+   pushd ..
+   echo "[INFO] sbt is not installed, downloading latest sbt for test and build."
+   curl -L -o sbt-1.11.4.zip https://github.com/sbt/sbt/releases/download/v1.11.4/sbt-1.11.4.zip
+   unzip sbt-1.11.4.zip
+   PATH=$PWD/sbt/bin:$PATH
+   popd
+else
+   echo "[INFO] Using system installed sbt."
+fi
+which sbt
+sbt version
 
-# For uploading to local and generate asc files
-cat > $OSSRH_DEPLOY_SETTINGS_XML << SETTINGS.XML
-<?xml version="1.0" encoding="UTF-8"?>
-<settings xmlns="http://maven.apache.org/SETTINGS/1.0.0"
-     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-     xsi:schemaLocation="http://maven.apache.org/SETTINGS/1.0.0 http://maven.apache.org/xsd/settings-1.0.0.xsd">
-  <servers>
-    <server>
-      <id>ossrh</id>
-      <username>$SONATYPE_USER</username>
-      <password>$SONATYPE_PWD</password>
-    </server>
-  </servers>
-  <profiles>
-      <profile>
-        <id>ossrh</id>
-        <activation>
-          <activeByDefault>true</activeByDefault>
-        </activation>
-        <properties>
-          <gpg.executable>gpg2</gpg.executable>
-          <gpg.keyname>$GPG_KEY_ID</gpg.keyname>
-          <gpg.passphrase>$GPG_KEY_PASSPHRASE</gpg.passphrase>
-        </properties>
-      </profile>
-    </profiles>
-</settings>
-SETTINGS.XML
+echo "[INFO] Checking out snowpark-java-scala @ tag: $github_version_tag."
+git checkout tags/$github_version_tag
 
 if [ "$PUBLISH" = true ]; then
-  echo "[Info] Sign package and deploy to staging area"
-  mvn deploy ${MVN_OPTIONS[@]} -Dossrh-deploy -DskipTests
+  if [ -v SNOWPARK_FIPS ]; then
+    echo "[INFO] Publishing snowpark-fips @ tag: $github_version_tag."
+  else
+    echo "[INFO] Publishing snowpark @ tag: $github_version_tag."
+  fi
+  sbt +publishSigned
+  echo "[INFO] SUCCESS - Released Snowpark Java-Scala v$github_version_tag to Maven."
 
 else
-  # generate java doc before release
-  scripts/generateJavaDoc.sh
-
   #release to s3
-  echo "[Info] Release to S3"
-  mvn --settings $OSSRH_DEPLOY_SETTINGS_XML -DskipTests clean package
+  echo "[INFO] Publishing signed artifacts to local ivy2 repository."
+  rm -rf ~/.ivy2/local/
+  sbt +publishLocalSigned
 
-  cd target
-  aws s3 cp . s3://sfc-eng-jenkins/repository/snowparkclient/$github_version_tag/ --recursive --exclude "*" --include "*.asc"
-  aws s3 cp . s3://sfc-eng-jenkins/repository/snowparkclient/$github_version_tag/ --recursive --exclude "*" --include "*.md5"
-  aws s3 cp . s3://sfc-eng-jenkins/repository/snowparkclient/$github_version_tag/ --recursive --exclude "*" --include "*.sha256"
-  aws s3 cp . s3://sfc-eng-jenkins/repository/snowparkclient/$github_version_tag/ --recursive --exclude "*" --include "*.zip"
-  aws s3 cp . s3://sfc-eng-jenkins/repository/snowparkclient/$github_version_tag/ --recursive --exclude "*" --include "*.tar.gz"
-  aws s3 cp . s3://sfc-eng-jenkins/repository/snowparkclient/$github_version_tag/ --recursive --exclude "*" --include "snowpark-*.jar"
-  aws s3 cp . s3://sfc-eng-jenkins/repository/snowparkclient/$github_version_tag/ --recursive --exclude "*" --include "fat-snowpark-*.jar"
-  aws s3 cp . s3://sfc-eng-jenkins/repository/snowparkclient/$github_version_tag/ --recursive --exclude "*" --include "fat-test-snowpark-*.jar"
-  
-  aws s3 cp . s3://sfc-eng-data/client/snowparkclient/releases/$github_version_tag/ --recursive --exclude "*" --include "*.asc"
-  aws s3 cp . s3://sfc-eng-data/client/snowparkclient/releases/$github_version_tag/ --recursive --exclude "*" --include "*.md5"
-  aws s3 cp . s3://sfc-eng-data/client/snowparkclient/releases/$github_version_tag/ --recursive --exclude "*" --include "*.sha256"
-  aws s3 cp . s3://sfc-eng-data/client/snowparkclient/releases/$github_version_tag/ --recursive --exclude "*" --include "*.zip"
-  aws s3 cp . s3://sfc-eng-data/client/snowparkclient/releases/$github_version_tag/ --recursive --exclude "*" --include "*.tar.gz"
-  aws s3 cp . s3://sfc-eng-data/client/snowparkclient/releases/$github_version_tag/ --recursive --exclude "*" --include "snowpark-*.jar"
-  aws s3 cp . s3://sfc-eng-data/client/snowparkclient/releases/$github_version_tag/ --recursive --exclude "*" --include "fat-snowpark-*.jar"
-  aws s3 cp . s3://sfc-eng-data/client/snowparkclient/releases/$github_version_tag/ --recursive --exclude "*" --include "fat-test-snowpark-*.jar"
+  # SBT will build FIPS version of Snowpark automatically if the environment variable exists.
+  if [ -v SNOWPARK_FIPS ]; then
+    S3_JENKINS_URL="s3://sfc-eng-jenkins/repository/snowparkclient-fips"
+    S3_DATA_URL="s3://sfc-eng-data/client/snowparkclient-fips/releases"
+    echo "[INFO] Releasing snowpark-fips to:"
+  else
+    S3_JENKINS_URL="s3://sfc-eng-jenkins/repository/snowparkclient"
+    S3_DATA_URL="s3://sfc-eng-data/client/snowparkclient/releases"
+    echo "[INFO] Releasing snowpark to:"
+  fi
+  echo "[INFO]   - $S3_JENKINS_URL/$github_version_tag/"
+  echo "[INFO]   - $S3_DATA_URL/$github_version_tag/"
+
+  aws s3 cp ~/.ivy2/local $S3_JENKINS_URL/$github_version_tag/ --recursive
+  aws s3 cp ~/.ivy2/local $S3_DATA_URL/$github_version_tag/ --recursive
+
+  echo "[INFO] SUCCESS - Released Snowpark Java-Scala v$github_version_tag to S3."
 fi

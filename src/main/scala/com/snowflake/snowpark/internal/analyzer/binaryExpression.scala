@@ -43,8 +43,7 @@ case class LessThan(left: Expression, right: Expression) extends BinaryArithmeti
   override protected val createAnalyzedBinary: (Expression, Expression) => Expression = LessThan
 }
 
-case class LessThanOrEqual(left: Expression, right: Expression)
-    extends BinaryArithmeticExpression {
+case class LessThanOrEqual(left: Expression, right: Expression) extends BinaryArithmeticExpression {
   override def sqlOperator: String = "<="
 
   override protected val createAnalyzedBinary: (Expression, Expression) => Expression =

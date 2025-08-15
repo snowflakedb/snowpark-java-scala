@@ -47,8 +47,7 @@ class DataFrameNonStoredProcSuite extends TestData {
         testData2.write.mode(SaveMode.Overwrite).saveAsTable(tableName)
         val updatable = session.table(tableName)
         testData2.write.mode(SaveMode.Overwrite).saveAsTable(tableName)
-        assert(
-          updatable.update(Map(col("a") -> lit(1), col("b") -> lit(0))) == UpdateResult(6, 0))
+        assert(updatable.update(Map(col("a") -> lit(1), col("b") -> lit(0))) == UpdateResult(6, 0))
       }
     } finally {
       dropTable(tableName)

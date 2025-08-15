@@ -21,8 +21,8 @@ class ResultAttributesSuite extends SNTestBase {
       createTable(
         tableName,
         types.zipWithIndex
-          .map {
-            case (tpe, index) => s"col_$index $tpe"
+          .map { case (tpe, index) =>
+            s"col_$index $tpe"
           }
           .mkString(","))
       attribute = getTableAttributes(tableName)
@@ -102,9 +102,9 @@ class ResultAttributesSuite extends SNTestBase {
     val variants = Seq("array")
     val attribute = getAttributesWithTypes(tableName, variants)
     assert(attribute.length == variants.length)
-    variants.indices.foreach(
-      index =>
-        assert(attribute(index).dataType ==
+    variants.indices.foreach(index =>
+      assert(
+        attribute(index).dataType ==
           ArrayType(StringType)))
   }
 }

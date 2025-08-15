@@ -110,8 +110,7 @@ class FileOperationSuite extends SNTestBase {
     assert(secondResult(0).sourceCompression.equals("NONE"))
     assert(secondResult(0).targetCompression.equals("GZIP"))
     assert(secondResult(0).status.equals("SKIPPED") || secondResult(0).status.equals("UPLOADED"))
-    assert(
-      secondResult(0).encryption.equals("") || secondResult(0).encryption.equals("ENCRYPTED"))
+    assert(secondResult(0).encryption.equals("") || secondResult(0).encryption.equals("ENCRYPTED"))
     assert(
       secondResult(0).message.isEmpty ||
         secondResult(0).message
@@ -259,12 +258,11 @@ class FileOperationSuite extends SNTestBase {
       assert(results(0).sizeBytes == 30L)
       assert(results(1).sizeBytes == 30L)
       assert(results(2).sizeBytes == 10L)
-      results.foreach(
-        r =>
-          assert(
-            r.status.equals("DOWNLOADED") &&
-              r.encryption.equals("DECRYPTED") &&
-              r.message.equals("")))
+      results.foreach(r =>
+        assert(
+          r.status.equals("DOWNLOADED") &&
+            r.encryption.equals("DECRYPTED") &&
+            r.message.equals("")))
 
       // Check downloaded files
       assert(fileExists(s"$targetDirectoryPath/${getFileName(path1)}.gz"))
@@ -296,12 +294,11 @@ class FileOperationSuite extends SNTestBase {
       assert(results(1).fileName.equals(s"$stagePrefix/${getFileName(path2)}.gz"))
       assert(results(0).sizeBytes == 30L)
       assert(results(1).sizeBytes == 30L)
-      results.foreach(
-        r =>
-          assert(
-            r.status.equals("DOWNLOADED") &&
-              r.encryption.equals("DECRYPTED") &&
-              r.message.equals("")))
+      results.foreach(r =>
+        assert(
+          r.status.equals("DOWNLOADED") &&
+            r.encryption.equals("DECRYPTED") &&
+            r.message.equals("")))
 
       // Check downloaded files
       assert(fileExists(getFileName(path1) + ".gz"))
@@ -477,8 +474,7 @@ class FileOperationSuite extends SNTestBase {
   test("Negative test uploadStream and downloadStream") {
 
     // Test no file name
-    assertThrows[SnowparkClientException](
-      testStreamRoundTrip(s"$tempStage", s"$tempStage", false))
+    assertThrows[SnowparkClientException](testStreamRoundTrip(s"$tempStage", s"$tempStage", false))
 
     // Test no file name
     assertThrows[SnowparkClientException](

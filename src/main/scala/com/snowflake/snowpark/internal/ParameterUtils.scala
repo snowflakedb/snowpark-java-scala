@@ -56,14 +56,13 @@ private[snowpark] object ParameterUtils extends Logging {
     // Set JDBC memory to 10G by default, it can be override by user config
     config.put(client_memory_limit, "10240")
 
-    options.foreach {
-      case (key, value) =>
-        if (forwardNameSet.contains(key)) {
-          // directly forward to JDBC
-          config.put(key, value)
-        } else if (key == PrivateKey) { // parse private key
-          config.put(PrivateKey, parsePrivateKey(value))
-        }
+    options.foreach { case (key, value) =>
+      if (forwardNameSet.contains(key)) {
+        // directly forward to JDBC
+        config.put(key, value)
+      } else if (key == PrivateKey) { // parse private key
+        config.put(PrivateKey, parsePrivateKey(value))
+      }
     }
     /*
      * Add this config so that the JDBC connector validates the user-provided

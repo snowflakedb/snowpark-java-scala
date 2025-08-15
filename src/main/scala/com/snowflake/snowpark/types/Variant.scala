@@ -11,6 +11,7 @@ import Variant._
 import org.apache.commons.codec.binary.{Base64, Hex}
 
 import java.io.{IOException, UncheckedIOException}
+import java.util.function.Consumer
 import scala.util.hashing.MurmurHash3
 
 private[snowpark] object Variant {
@@ -156,8 +157,8 @@ class Variant private[snowpark] (
   def this(bool: Boolean) = this(JsonNodeFactory.instance.booleanNode(bool), VariantTypes.Boolean)
 
   /**
-   * Creates a Variant from String value. By default string is parsed as Json.
-   * If the parsing failed, the string is stored as text.
+   * Creates a Variant from String value. By default string is parsed as Json. If the parsing
+   * failed, the string is stored as text.
    *
    * @since 0.2.0
    */
@@ -216,18 +217,20 @@ class Variant private[snowpark] (
    * @since 0.6.0
    */
   def this(seq: Seq[Any]) =
-    this({
-      val arr = MAPPER.createArrayNode()
-      seq.foreach(obj => arr.add(objectToJsonNode(obj)))
-      arr
-    }, VariantTypes.String)
+    this(
+      {
+        val arr = MAPPER.createArrayNode()
+        seq.foreach(obj => arr.add(objectToJsonNode(obj)))
+        arr
+      },
+      VariantTypes.String)
 
   /**
    * Creates a Variant from Java List
    *
    * @since 0.2.0
    */
-  def this(list: JavaList[Object]) = this(list.asScala)
+  def this(list: JavaList[Object]) = this(list.asScala.toSeq)
 
   /**
    * Creates a Variant from array
@@ -246,7 +249,11 @@ class Variant private[snowpark] (
       {
         def mapToNode(map: JavaMap[Object, Object]): ObjectNode = {
           val result = MAPPER.createObjectNode()
-          map.keySet().forEach(key => result.set(key.toString, objectToJsonNode(map.get(key))))
+          map.keySet.forEach(new Consumer[Object] {
+            override def accept(key: Object): Unit = {
+              result.set(key.toString, objectToJsonNode(map.get(key)))
+            }
+          })
           result
         }
         obj match {
@@ -257,8 +264,8 @@ class Variant private[snowpark] (
             arr
           case map: JavaMap[Object, Object] => mapToNode(map)
           case map: Map[_, _] =>
-            mapToNode(map.map {
-              case (key, value) => key.asInstanceOf[Object] -> value.asInstanceOf[Object]
+            mapToNode(map.map { case (key, value) =>
+              key.asInstanceOf[Object] -> value.asInstanceOf[Object]
             }.asJava)
           case _ => MAPPER.valueToTree(obj.asInstanceOf[Object])
         }
@@ -383,8 +390,8 @@ class Variant private[snowpark] (
 
   /**
    * Return the variant value as a JsonNode. This function allows to read the JSON object directly
-   * as JsonNode from variant column rather parsing it as String
-   * Example - to get the first value from array for key "a"
+   * as JsonNode from variant column rather parsing it as String Example - to get the first value
+   * from array for key "a"
    * {{{
    *   val sv = new Variant("{\"a\": [1, 2], \"b\": 3, \"c\": \"xyz\"}")
    *   println(sv.asJsonNode().get("a").get(0))
@@ -412,8 +419,9 @@ class Variant private[snowpark] (
         } catch {
           case _: Exception =>
             throw new UncheckedIOException(
-              new IOException(s"Failed to convert ${value.asText()} to Binary. " +
-                "Only Hex string is supported."))
+              new IOException(
+                s"Failed to convert ${value.asText()} to Binary. " +
+                  "Only Hex string is supported."))
         }
     }
   }

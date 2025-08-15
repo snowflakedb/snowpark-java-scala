@@ -18,10 +18,7 @@ class AsyncJobSuite extends TestData with BeforeAndAfterEach {
   val tableName1: String = randomName()
   val tableName2: String = randomName()
   private val userSchema: StructType = StructType(
-    Seq(
-      StructField("a", IntegerType),
-      StructField("b", StringType),
-      StructField("c", DoubleType)))
+    Seq(StructField("a", IntegerType), StructField("b", StringType), StructField("c", DoubleType)))
 
   // session to verify permanent udf
   lazy private val newSession = Session.builder.configFile(defaultProfile).create
@@ -751,9 +748,7 @@ class AsyncJobSuite extends TestData with BeforeAndAfterEach {
   // modify it to run it in async mode
   test("async: write CSV files: save mode and file format options") {
     createTable(tableName, "c1 int, c2 double, c3 string")
-    runQuery(
-      s"insert into $tableName values (1,1.1,'one'),(2,2.2,'two'),(null,null,null)",
-      session)
+    runQuery(s"insert into $tableName values (1,1.1,'one'),(2,2.2,'two'),(null,null,null)", session)
     val schema = StructType(
       Seq(
         StructField("c1", IntegerType),
@@ -775,13 +770,7 @@ class AsyncJobSuite extends TestData with BeforeAndAfterEach {
     assert(ex.getMessage.contains("Files already existing at the unload destination"))
 
     // Test overwrite mode
-    runCSvTestAsync(
-      df,
-      path,
-      Map.empty,
-      Array(Row(3, 32, 46)),
-      ".csv.gz",
-      Some(SaveMode.Overwrite))
+    runCSvTestAsync(df, path, Map.empty, Array(Row(3, 32, 46)), ".csv.gz", Some(SaveMode.Overwrite))
     checkAnswer(
       session.read.schema(schema).csv(path),
       Seq(Row(1, 1.1, "one"), Row(2, 2.2, "two"), Row(null, null, null)))
@@ -883,10 +872,7 @@ class AsyncJobSuite extends TestData with BeforeAndAfterEach {
     runJsonTestAsync(
       df4,
       path,
-      Map(
-        "FORMAT_NAME" -> formatName,
-        "FILE_EXTENSION" -> "myjson.json",
-        "COMPRESSION" -> "NONE"),
+      Map("FORMAT_NAME" -> formatName, "FILE_EXTENSION" -> "myjson.json", "COMPRESSION" -> "NONE"),
       Array(Row(2, 4, 4)),
       ".myjson.json",
       Some(SaveMode.Overwrite))

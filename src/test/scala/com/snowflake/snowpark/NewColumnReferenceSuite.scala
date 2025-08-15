@@ -232,7 +232,7 @@ class NewColumnReferenceSuite extends SNTestBase {
 
   // internal renamed columns tests
   test("internal renamed columns") {
-    val tableExp = internal.analyzer.TableFunction("dummy", Seq.empty)
+    val tableExp = internal.analyzer.TableFunctionEx("dummy", Seq.empty)
     val att = internal.analyzer.Attribute("a", IntegerType)
     // Project
     val p1 = Project(Seq(Alias(Attribute("c", IntegerType), "d", isInternal = true)), project1)
@@ -293,9 +293,8 @@ class NewColumnReferenceSuite extends SNTestBase {
     val data: Seq[(LogicalPlan, LogicalPlan)] =
       (0 to 2).flatMap(i => (i + 1 to 3).map(j => (plans(i), plans(j))))
 
-    data.foreach {
-      case (left, right) =>
-        verifyNode(children => func(children.head, children(1)), Seq(left, right))
+    data.foreach { case (left, right) =>
+      verifyNode(children => func(children.head, children(1)), Seq(left, right))
     }
   }
   private def verifyUnaryNode(func: LogicalPlan => LogicalPlan): Unit = {

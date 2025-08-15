@@ -3,7 +3,6 @@ package com.snowflake.snowpark_test
 import com.snowflake.snowpark.functions._
 import com.snowflake.snowpark.{DataFrame, Row, TestData, Window}
 import net.snowflake.client.jdbc.SnowflakeSQLException
-import org.scalatest.Matchers.the
 
 import scala.reflect.ClassTag
 
@@ -54,44 +53,41 @@ class WindowSpecSuite extends TestData {
   }
 
   test("Window functions inside WHERE and HAVING clauses") {
-    def checkAnalysisError[T: ClassTag](df: => DataFrame): Unit = {
-      the[T] thrownBy {
+    def checkAnalysisError(df: => DataFrame): Unit = {
+      assertThrows[SnowflakeSQLException] {
         df.collect()
       }
     }
 
-    checkAnalysisError[SnowflakeSQLException](
-      testData2.select("a").where(rank().over(Window.orderBy($"b")) === 1))
-    checkAnalysisError[SnowflakeSQLException](
-      testData2.where($"b" === 2 && rank().over(Window.orderBy($"b")) === 1))
-    checkAnalysisError[SnowflakeSQLException](
+    checkAnalysisError(testData2.select("a").where(rank().over(Window.orderBy($"b")) === 1))
+    checkAnalysisError(testData2.where($"b" === 2 && rank().over(Window.orderBy($"b")) === 1))
+    checkAnalysisError(
       testData2
         .groupBy($"a")
         .agg(avg($"b").as("avgb"))
         .where($"a" > $"avgb" && rank().over(Window.orderBy($"a")) === 1))
-    checkAnalysisError[SnowflakeSQLException](
+    checkAnalysisError(
       testData2
         .groupBy($"a")
         .agg(max($"b").as("maxb"), sum($"b").as("sumb"))
         .where(rank().over(Window.orderBy($"a")) === 1))
-    checkAnalysisError[SnowflakeSQLException](
+    checkAnalysisError(
       testData2
         .groupBy($"a")
         .agg(max($"b").as("maxb"), sum($"b").as("sumb"))
         .where($"sumb" === 5 && rank().over(Window.orderBy($"a")) === 1))
 
     testData2.createOrReplaceTempView("testData2")
-    checkAnalysisError[SnowflakeSQLException](
-      session.sql("SELECT a FROM testData2 WHERE RANK() OVER(ORDER BY b) = 1"))
-    checkAnalysisError[SnowflakeSQLException](
+    checkAnalysisError(session.sql("SELECT a FROM testData2 WHERE RANK() OVER(ORDER BY b) = 1"))
+    checkAnalysisError(
       session.sql("SELECT * FROM testData2 WHERE b = 2 AND RANK() OVER(ORDER BY b) = 1"))
-    checkAnalysisError[SnowflakeSQLException](
+    checkAnalysisError(
       session.sql(
         "SELECT * FROM testData2 GROUP BY a HAVING a > AVG(b) AND RANK() OVER(ORDER BY a) = 1"))
-    checkAnalysisError[SnowflakeSQLException](
+    checkAnalysisError(
       session.sql(
         "SELECT a, MAX(b), SUM(b) FROM testData2 GROUP BY a HAVING RANK() OVER(ORDER BY a) = 1"))
-    checkAnalysisError[SnowflakeSQLException](session.sql(s"""SELECT a, MAX(b)
+    checkAnalysisError(session.sql(s"""SELECT a, MAX(b)
                      |FROM testData2
                      |GROUP BY a
                      |HAVING SUM(b) = 5 AND RANK() OVER(ORDER BY a) = 1

@@ -1,23 +1,310 @@
-name: precommit test
+name: Merge Gate Tests
 on:
   push:
     branches: [ main ]
   pull_request:
     branches: '**'
 
+# Cancel running workflows for previous commits within the same pull request.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
 jobs:
-  build:
-    runs-on: ubuntu-latest
+  # Tests whether Snowpark library and test suite compiles successfully, and if code formatting is changed by sbt.
+  test-build-and-code-format:
+    name: Build Test and Code Format Check - Scala ${{ matrix.scala }}
+    runs-on: ubuntu-22.04
+    strategy:
+      matrix:
+        scala: [ 2.12.20, 2.13.16 ]
+      fail-fast: false
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Setup JDK
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 8
+      - name: Build and Check Format
+        run: scripts/format_checker.sh ${{ matrix.scala }}
+
+  # Ensures Snowpark Scala and Java clients share the same APIs.
+  test-code-verification:
+    name: Code Verification Tests - Scala ${{ matrix.scala }}
+    needs: test-build-and-code-format
+    runs-on: ubuntu-22.04
+    strategy:
+      matrix:
+        scala: [ 2.12.20, 2.13.16 ]
+      fail-fast: false
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Setup JDK
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 8
+      - name: Decrypt profile.properties
+        run: .github/scripts/decrypt_profile.sh
+        env:
+          PROFILE_PASSWORD: ${{ secrets.PROFILE_PASSWORD }}
+      - name: Run tests
+        run: sbt "++ ${{ matrix.scala }} CodeVerificationTests:test"
+
+  # Test all core Snowpark Java APIs.
+  test-java-apis:
+    name: Java API Tests - Scala ${{ matrix.scala }}
+    needs: test-code-verification
+    runs-on: ubuntu-22.04
+    strategy:
+      matrix:
+        scala: [ 2.12.20, 2.13.16 ]
+      fail-fast: false
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Setup JDK
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 8
+      - name: Decrypt profile.properties
+        run: .github/scripts/decrypt_profile.sh
+        env:
+          PROFILE_PASSWORD: ${{ secrets.PROFILE_PASSWORD }}
+      - name: Run tests
+        run: sbt "++ ${{ matrix.scala }} JavaAPITests:test"
+
+  # Tests that must be run synchronously.
+  test-nonparallel:
+    name: Non-parallel Tests - Scala ${{ matrix.scala }}
+    needs: test-code-verification
+    runs-on: ubuntu-22.04
+    strategy:
+      matrix:
+        scala: [ 2.12.20, 2.13.16 ]
+      fail-fast: false
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Setup JDK
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 8
+      - name: Decrypt profile.properties
+        run: .github/scripts/decrypt_profile.sh
+        env:
+          PROFILE_PASSWORD: ${{ secrets.PROFILE_PASSWORD }}
+      - name: Run tests
+        run: sbt "++ ${{ matrix.scala }} NonparallelTests:test"
+
+  # All UDF associated test suites.
+  test-udfs:
+    name: UDF Tests - Scala ${{ matrix.scala }}
+    needs: test-code-verification
+    runs-on: ubuntu-22.04
+    strategy:
+      matrix:
+        scala: [ 2.12.20, 2.13.16 ]
+      fail-fast: false
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Setup JDK
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 8
+      - name: Decrypt profile.properties
+        run: .github/scripts/decrypt_profile.sh
+        env:
+          PROFILE_PASSWORD: ${{ secrets.PROFILE_PASSWORD }}
+      - name: Run tests
+        run: |
+          if [ "${{ matrix.scala }}" == "2.12.20" ]; then
+            sbt UDFTests:test
+          else
+            sbt "++ ${{ matrix.scala }} UDFTests:testOnly * -- -l com.snowflake.snowpark.UDFPackageTest"
+          fi
+
+  # All UDTF associated test suites.
+  test-udtfs:
+    name: UDTF Tests - Scala ${{ matrix.scala }}
+    needs: test-code-verification
+    runs-on: ubuntu-22.04
+    strategy:
+      matrix:
+        scala: [ 2.12.20, 2.13.16 ]
+      fail-fast: false
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Setup JDK
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 8
+      - name: Decrypt profile.properties
+        run: .github/scripts/decrypt_profile.sh
+        env:
+          PROFILE_PASSWORD: ${{ secrets.PROFILE_PASSWORD }}
+      - name: Run tests
+        run: |
+          if [ "${{ matrix.scala }}" == "2.12.20" ]; then
+            sbt UDTFTests:test
+          else
+            sbt "++ ${{ matrix.scala }} UDTFTests:testOnly * -- -l com.snowflake.snowpark.UDFPackageTest"
+          fi
+
+  # All Stored Procedure associated test suites.
+  test-sprocs:
+    name: Sproc Tests - Scala ${{ matrix.scala }}
+    needs: test-code-verification
+    runs-on: ubuntu-22.04
+    strategy:
+      matrix:
+        scala: [ 2.12.20, 2.13.16 ]
+      fail-fast: false
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Setup JDK
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 8
+      - name: Decrypt profile.properties
+        run: .github/scripts/decrypt_profile.sh
+        env:
+          PROFILE_PASSWORD: ${{ secrets.PROFILE_PASSWORD }}
+      - name: Run tests
+        run: sbt "++ ${{ matrix.scala }} SprocTests:test"
+
+  # Run UDTFSuite, AlwaysCleanUDFSuite, and StoredProcedureSuite with multiple JDKs.
+  test-udf-udtf-sproc-with-multiple-jdk:
+    name: UDF, UDTF, and Sproc Tests - Scala ${{ matrix.scala }}, Java ${{ matrix.java }}
+    needs: [ test-udfs, test-udtfs, test-sprocs ]
+    runs-on: ubuntu-22.04
+    strategy:
+      matrix:
+        java: [ 11, 17 ]
+        scala: [ 2.12.20, 2.13.16 ]
+      fail-fast: false
     steps:
       - name: Checkout Code
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
       - name: Install Java
-        uses: actions/setup-java@v1
+        uses: actions/setup-java@v4
         with:
-          java-version: 1.8
+          distribution: temurin
+          java-version: ${{ matrix.java }}
       - name: Decrypt profile.properties
         run: .github/scripts/decrypt_profile.sh
         env:
           PROFILE_PASSWORD: ${{ secrets.PROFILE_PASSWORD }}
       - name: Run test
-        run: mvn -Dgpg.skip -DtagsToExclude=UnstableTest,com.snowflake.snowpark.PerfTest,com.snowflake.snowpark.JavaAPITest,com.snowflake.snowpark.UDFTest,com.snowflake.snowpark.UDFPackageTest,com.snowflake.snowpark.CodeVerification test
+        run: sbt "++ ${{ matrix.scala }} testOnly com.snowflake.snowpark_test.UDTFSuite com.snowflake.snowpark_test.AlwaysCleanUDFSuite com.snowflake.snowpark_test.StoredProcedureSuite"
+        env:
+          JAVA_OPTS: "--add-opens=java.base/java.io=ALL-UNNAMED --add-opens=java.base/java.nio=org.apache.arrow.memory.core,ALL-UNNAMED --add-opens=java.base/java.lang=ALL-UNNAMED --add-opens=java.base/java.lang.reflect=ALL-UNNAMED --add-opens=java.base/java.util=ALL-UNNAMED --add-exports=java.base/sun.nio.ch=ALL-UNNAMED --add-exports=jdk.unsupported/sun.misc=ALL-UNNAMED --add-opens=java.base/sun.security.util=ALL-UNNAMED"
+
+  # Run all other remaining tests.
+  test-other:
+    name: Other Tests - Scala ${{ matrix.scala }}
+    needs: test-code-verification
+    runs-on: ubuntu-22.04
+    strategy:
+      matrix:
+        scala: [ 2.12.20, 2.13.16 ]
+      fail-fast: false
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Setup JDK
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 8
+      - name: Decrypt profile.properties
+        run: .github/scripts/decrypt_profile.sh
+        env:
+          PROFILE_PASSWORD: ${{ secrets.PROFILE_PASSWORD }}
+      - name: Run tests
+        run: sbt "++ ${{ matrix.scala }} OtherTests:test"
+
+  # Test SessionSuite with Snowpark FIPS build.
+  test-fips:
+    name: Test FIPS Build - Scala ${{ matrix.scala }}
+    needs: test-other
+    runs-on: ubuntu-22.04
+    strategy:
+      matrix:
+        scala: [ 2.12.20, 2.13.16 ]
+      fail-fast: false
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Setup JDK
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 8
+      - name: Decrypt profile.properties
+        run: .github/scripts/decrypt_profile.sh
+        env:
+          PROFILE_PASSWORD: ${{ secrets.PROFILE_PASSWORD }}
+      - name: Run tests
+        run: sbt -J-DFIPS_TEST=true "++ ${{ matrix.scala }} testOnly com.snowflake.snowpark_test.SessionSuite"
+        env:
+          SNOWPARK_FIPS: true
+
+  # Test publishing to local ivy2 repository (includes generating docs, fat jars, and bundles)
+  publish-ivy2:
+    name: Publish Locally (ivy2)
+    needs: [ test-java-apis, test-nonparallel, test-udf-udtf-sproc-with-multiple-jdk, test-fips ]
+    runs-on: ubuntu-22.04
+    strategy:
+      matrix:
+        scala: [ 2.12.20, 2.13.16 ]
+      fail-fast: false
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+      - name: Install Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 11
+      - name: Decrypt profile.properties
+        run: .github/scripts/decrypt_profile.sh
+        env:
+          PROFILE_PASSWORD: ${{ secrets.PROFILE_PASSWORD }}
+      - name: Publish Locally
+        run: sbt "++ ${{ matrix.scala }} publishLocal"
+
+  # Test publishing to local maven repository (includes generating docs, fat jars, and bundles)
+  publish-maven:
+    name: Publish Locally (maven)
+    needs: [ test-java-apis, test-nonparallel, test-udf-udtf-sproc-with-multiple-jdk, test-fips ]
+    runs-on: ubuntu-22.04
+    strategy:
+      matrix:
+        scala: [ 2.12.20, 2.13.16 ]
+      fail-fast: false
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+      - name: Install Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 11
+      - name: Decrypt profile.properties
+        run: .github/scripts/decrypt_profile.sh
+        env:
+          PROFILE_PASSWORD: ${{ secrets.PROFILE_PASSWORD }}
+      - name: Publish Locally
+        run: sbt "++ ${{ matrix.scala }} publishM2"

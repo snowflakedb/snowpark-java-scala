@@ -77,7 +77,7 @@ class UDXRegistrationHandler(session: Session) extends Logging {
       case e: SnowflakeSQLException =>
         val msg = e.getMessage
         if (msg.contains("NoClassDefFoundError: com/snowflake/snowpark/") ||
-            msg.contains("error: package com.snowflake.snowpark.internal does not exist")) {
+          msg.contains("error: package com.snowflake.snowpark.internal does not exist")) {
           logInfo("Snowpark jar is missing in imports, Retrying after uploading the jar")
           addSnowparkJarToDeps()
           func
@@ -115,8 +115,8 @@ class UDXRegistrationHandler(session: Session) extends Logging {
     // Clean up closure
     cleanupClosure(sp.sp)
     // Generate SP inline java code
-    val inputArgs = sp.inputTypes.zipWithIndex.map {
-      case (schema, i) => UdfColumn(schema, s"arg$i")
+    val inputArgs = sp.inputTypes.zipWithIndex.map { case (schema, i) =>
+      UdfColumn(schema, s"arg$i")
     }
     val (code, funcBytesMap) = generateJavaSPCode(sp.sp, sp.returnType, inputArgs)
     val needCleanupFiles = Utils.createConcurrentSet[String]()
@@ -244,11 +244,10 @@ class UDXRegistrationHandler(session: Session) extends Logging {
   private def getUDFColumns(structType: JavaStructType): Seq[UdfColumn] =
     (0 until structType.size())
       .map(structType.get)
-      .map(
-        field =>
-          UdfColumn(
-            UdfColumnSchema(JavaDataTypeUtils.javaTypeToScalaType(field.dataType)),
-            field.name))
+      .map(field =>
+        UdfColumn(
+          UdfColumnSchema(JavaDataTypeUtils.javaTypeToScalaType(field.dataType)),
+          field.name))
 
   // Clean uploaded jar files if necessary
   private def withUploadFailureCleanup[T](
@@ -312,7 +311,7 @@ class UDXRegistrationHandler(session: Session) extends Logging {
           logWarning(
             "The UDF being registered may not work correctly since it is defined in a class that" +
               " extends App. Please use main() method instead of extending scala.App ")
-      })
+        })
   }
 
   // upload dependency jars and return import_jars and target_jar on stage
@@ -391,7 +390,7 @@ class UDXRegistrationHandler(session: Session) extends Logging {
       if (actionID <= session.getLastCanceledID) {
         throw ErrorMessage.MISC_QUERY_IS_CANCELLED()
       }
-      allUrls
+      allUrls.toSeq
     }
     (allImports, targetJarStageLocation)
   }
@@ -696,8 +695,10 @@ class UDXRegistrationHandler(session: Session) extends Logging {
     val arguments = getFunctionCallArguments(inputArgs, isScalaSP)
     val code = if (isScalaSP) {
       val callLambda =
-        convertScalaReturnValue(returnValue, s"""funcImpl.apply(${("session" +: arguments)
-          .mkString(",")})""")
+        convertScalaReturnValue(
+          returnValue,
+          s"""funcImpl.apply(${("session" +: arguments)
+              .mkString(",")})""")
       s"""
          |import com.snowflake.snowpark.internal.JavaUtils;
          |import com.snowflake.snowpark.types.Geography;
@@ -721,8 +722,10 @@ class UDXRegistrationHandler(session: Session) extends Logging {
          |""".stripMargin
     } else {
       val callLambda =
-        convertReturnValue(returnValue, s"""funcImpl.call(${("session" +: arguments)
-          .mkString(",")})""")
+        convertReturnValue(
+          returnValue,
+          s"""funcImpl.call(${("session" +: arguments)
+              .mkString(",")})""")
       s"""
          |import com.snowflake.snowpark.internal.JavaUtils;
          |import com.snowflake.snowpark_java.types.Geography;
@@ -846,7 +849,7 @@ class UDXRegistrationHandler(session: Session) extends Logging {
         case VariantType if isScalaUDF => s"JavaUtils.stringToVariant(${arg.name})"
         case VariantType => s"JavaUtils.stringToJavaVariant(${arg.name})"
         case _ => arg.name
-    })
+      })
   }
 
   // Apply converter to return value to convert from Scala Type to Java Type
@@ -931,16 +934,13 @@ class UDXRegistrationHandler(session: Session) extends Logging {
     val sqlFunctionArgs = inputArgs
       .map(_.name)
       .zip(inputSqlTypes)
-      .map {
-        case (a, t) => s"$a $t"
+      .map { case (a, t) =>
+        s"$a $t"
       }
       .mkString(",")
     val tempType: TempType = if (isTemporary) TempType.Temporary else TempType.Permanent
     val dropFunctionIdentifier = s"$spName(${inputSqlTypes.mkString(",")})"
-    session.recordTempObjectIfNecessary(
-      TempObjectType.Procedure,
-      dropFunctionIdentifier,
-      tempType)
+    session.recordTempObjectIfNecessary(TempObjectType.Procedure, dropFunctionIdentifier, tempType)
     val packageSql = if (session.packageNames.nonEmpty) {
       s"packages=(${session.packageNames.map(p => s"'$p'").toSet.mkString(",")})"
     } else ""
@@ -1073,17 +1073,21 @@ class UDXRegistrationHandler(session: Session) extends Logging {
   }
 
   /**
-   * This method uses the Piped{Input/Output}Stream classes to create an
-   * in-memory jar file and write to a snowflake stage in parallel in two threads.
-   * This design is not the most-efficient since the implementation of
-   * PipedInputStream puts the thread to sleep for 1 sec if it is waiting to read/write data.
-   * But this is still faster than writing stream to a temp file.
+   * This method uses the Piped{Input/Output}Stream classes to create an in-memory jar file and
+   * write to a snowflake stage in parallel in two threads. This design is not the most-efficient
+   * since the implementation of PipedInputStream puts the thread to sleep for 1 sec if it is
+   * waiting to read/write data. But this is still faster than writing stream to a temp file.
    *
-   * @param classDirs class directories that are copied to the jar
-   * @param stageName Name of stage
-   * @param destPrefix Destination prefix
-   * @param jarFileName Name of the jar file
-   * @param funcBytesMap func bytes map (entry format: fileName -> funcBytes)
+   * @param classDirs
+   *   class directories that are copied to the jar
+   * @param stageName
+   *   Name of stage
+   * @param destPrefix
+   *   Destination prefix
+   * @param jarFileName
+   *   Name of the jar file
+   * @param funcBytesMap
+   *   func bytes map (entry format: fileName -> funcBytes)
    * @since 0.1.0
    */
   private[snowpark] def createAndUploadJarToStage(
@@ -1095,12 +1099,7 @@ class UDXRegistrationHandler(session: Session) extends Logging {
     Utils.withRetry(
       session.maxFileUploadRetryCount,
       s"Uploading UDF jar: $destPrefix $jarFileName $stageName $classDirs") {
-      createAndUploadJarToStageInternal(
-        classDirs,
-        stageName,
-        destPrefix,
-        jarFileName,
-        funcBytesMap)
+      createAndUploadJarToStageInternal(classDirs, stageName, destPrefix, jarFileName, funcBytesMap)
     }
 
   private def createAndUploadJarToStageInternal(

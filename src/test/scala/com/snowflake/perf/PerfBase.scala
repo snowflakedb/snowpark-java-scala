@@ -54,9 +54,7 @@ trait PerfBase extends SNTestBase {
       snowhouseSession.read
         .schema(fileSchema)
         .csv(s"@$tmpStageName")
-        .copyInto(
-          perfTestResultTable,
-          Seq(lit("scala"), current_timestamp(), col("$1"), col("$2")))
+        .copyInto(perfTestResultTable, Seq(lit("scala"), current_timestamp(), col("$1"), col("$2")))
 
       Files.delete(Paths.get(resultFileName))
       snowhouseSession.close()

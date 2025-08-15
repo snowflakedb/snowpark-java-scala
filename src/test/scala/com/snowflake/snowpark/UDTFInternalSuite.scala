@@ -8,6 +8,13 @@ class UDTFInternalSuite extends SNTestBase {
 
   val udtfHandler = session.udtf.handler
 
+  override def beforeAll: Unit = {
+    super.beforeAll
+    if (!isStoredProc(session)) {
+      TestUtils.addDepsToClassPath(session)
+    }
+  }
+
   test("Unit test for UDTF0") {
     class TestUDTF0 extends UDTF0 {
       override def process(): Iterable[Row] = throw new Exception("test")

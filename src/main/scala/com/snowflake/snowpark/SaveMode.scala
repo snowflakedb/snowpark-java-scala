@@ -1,9 +1,8 @@
 package com.snowflake.snowpark
 
 /**
- * SaveMode configures the behavior when data is written from
- * a DataFrame to a data source using a [[DataFrameWriter]]
- * instance.
+ * SaveMode configures the behavior when data is written from a DataFrame to a data source using a
+ * [[DataFrameWriter]] instance.
  * @since 0.1.0
  */
 object SaveMode {
@@ -24,22 +23,22 @@ object SaveMode {
   object Append extends SaveMode
 
   /**
-   * In the Overwrite mode, existing data is overwritten with the new data. If
-   * the datasource is a table, then the existing data in the table is replaced.
+   * In the Overwrite mode, existing data is overwritten with the new data. If the datasource is a
+   * table, then the existing data in the table is replaced.
    * @since 0.1.0
    */
   object Overwrite extends SaveMode
 
   /**
-   * In the ErrorIfExists mode, an error is thrown if the data being written
-   * already exists in the data source.
+   * In the ErrorIfExists mode, an error is thrown if the data being written already exists in the
+   * data source.
    * @since 0.1.0
    */
   object ErrorIfExists extends SaveMode
 
   /**
-   * In the Ignore mode, if the data already exists, the write operation is
-   * not expected to update existing data.
+   * In the Ignore mode, if the data already exists, the write operation is not expected to update
+   * existing data.
    * @since 0.1.0
    */
   object Ignore extends SaveMode

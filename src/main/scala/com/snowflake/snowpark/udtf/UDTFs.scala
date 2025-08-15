@@ -13,16 +13,13 @@ import scala.reflect.runtime.universe.TypeTag
 sealed trait UDTF extends java.io.Serializable {
 
   /**
-   * A StructType that describes the data types of the fields in the rows returned by
-   * the process() and endPartition() methods.
+   * A StructType that describes the data types of the fields in the rows returned by the process()
+   * and endPartition() methods.
    *
-   * For example, if a UDTF returns rows that contain a StringType and IntegerType field,
-   * the outputSchema() method should construct and return the following StructType
-   * object:
-   * {{
-   *   override def outputSchema(): StructType =
-   *     StructType(StructField("word", StringType), StructField("count", IntegerType))
-   * }}
+   * For example, if a UDTF returns rows that contain a StringType and IntegerType field, the
+   * outputSchema() method should construct and return the following StructType object: {{ override
+   * def outputSchema(): StructType = StructType(StructField("word", StringType),
+   * StructField("count", IntegerType)) }}
    *
    * Since: 1.2.0
    */
@@ -30,8 +27,8 @@ sealed trait UDTF extends java.io.Serializable {
 
   /**
    * This method can be used to generate output rows that are based on any state information
-   * aggregated in process(). This method is invoked once for each partition, after all rows
-   * in that partition have been passed to process().
+   * aggregated in process(). This method is invoked once for each partition, after all rows in that
+   * partition have been passed to process().
    *
    * The rows returned in this method must match the StructType defined in [[outputSchema]]
    *
@@ -50,8 +47,8 @@ sealed trait UDTF extends java.io.Serializable {
 abstract class UDTF0 extends UDTF {
 
   /**
-   * This method is invoked once for each row in the input partition.
-   * The arguments passed to the registered UDTF are passed to process().
+   * This method is invoked once for each row in the input partition. The arguments passed to the
+   * registered UDTF are passed to process().
    *
    * The rows returned in this method must match the StructType defined in [[outputSchema]]
    *
@@ -110,8 +107,8 @@ abstract class UDTF0 extends UDTF {
 abstract class UDTF1[A0: TypeTag] extends UDTF {
 
   /**
-   * This method is invoked once for each row in the input partition.
-   * The arguments passed to the registered UDTF are passed to process().
+   * This method is invoked once for each row in the input partition. The arguments passed to the
+   * registered UDTF are passed to process().
    *
    * The rows returned in this method must match the StructType defined in [[outputSchema]]
    *
@@ -131,8 +128,8 @@ abstract class UDTF1[A0: TypeTag] extends UDTF {
 abstract class UDTF2[A0: TypeTag, A1: TypeTag] extends UDTF {
 
   /**
-   * This method is invoked once for each row in the input partition.
-   * The arguments passed to the registered UDTF are passed to process().
+   * This method is invoked once for each row in the input partition. The arguments passed to the
+   * registered UDTF are passed to process().
    *
    * The rows returned in this method must match the StructType defined in [[outputSchema]]
    *
@@ -152,8 +149,8 @@ abstract class UDTF2[A0: TypeTag, A1: TypeTag] extends UDTF {
 abstract class UDTF3[A0: TypeTag, A1: TypeTag, A2: TypeTag] extends UDTF {
 
   /**
-   * This method is invoked once for each row in the input partition.
-   * The arguments passed to the registered UDTF are passed to process().
+   * This method is invoked once for each row in the input partition. The arguments passed to the
+   * registered UDTF are passed to process().
    *
    * The rows returned in this method must match the StructType defined in [[outputSchema]]
    *
@@ -176,8 +173,8 @@ abstract class UDTF3[A0: TypeTag, A1: TypeTag, A2: TypeTag] extends UDTF {
 abstract class UDTF4[A0: TypeTag, A1: TypeTag, A2: TypeTag, A3: TypeTag] extends UDTF {
 
   /**
-   * This method is invoked once for each row in the input partition.
-   * The arguments passed to the registered UDTF are passed to process().
+   * This method is invoked once for each row in the input partition. The arguments passed to the
+   * registered UDTF are passed to process().
    *
    * The rows returned in this method must match the StructType defined in [[outputSchema]]
    *
@@ -198,12 +195,11 @@ abstract class UDTF4[A0: TypeTag, A1: TypeTag, A2: TypeTag, A3: TypeTag] extends
  *
  * @since 1.2.0
  */
-abstract class UDTF5[A0: TypeTag, A1: TypeTag, A2: TypeTag, A3: TypeTag, A4: TypeTag]
-    extends UDTF {
+abstract class UDTF5[A0: TypeTag, A1: TypeTag, A2: TypeTag, A3: TypeTag, A4: TypeTag] extends UDTF {
 
   /**
-   * This method is invoked once for each row in the input partition.
-   * The arguments passed to the registered UDTF are passed to process().
+   * This method is invoked once for each row in the input partition. The arguments passed to the
+   * registered UDTF are passed to process().
    *
    * The rows returned in this method must match the StructType defined in [[outputSchema]]
    *
@@ -229,8 +225,8 @@ abstract class UDTF6[A0: TypeTag, A1: TypeTag, A2: TypeTag, A3: TypeTag, A4: Typ
     extends UDTF {
 
   /**
-   * This method is invoked once for each row in the input partition.
-   * The arguments passed to the registered UDTF are passed to process().
+   * This method is invoked once for each row in the input partition. The arguments passed to the
+   * registered UDTF are passed to process().
    *
    * The rows returned in this method must match the StructType defined in [[outputSchema]]
    *
@@ -254,12 +250,18 @@ abstract class UDTF6[A0: TypeTag, A1: TypeTag, A2: TypeTag, A3: TypeTag, A4: Typ
  * @since 1.2.0
  */
 abstract class UDTF7[
-    A0: TypeTag, A1: TypeTag, A2: TypeTag, A3: TypeTag, A4: TypeTag, A5: TypeTag, A6: TypeTag]
+    A0: TypeTag,
+    A1: TypeTag,
+    A2: TypeTag,
+    A3: TypeTag,
+    A4: TypeTag,
+    A5: TypeTag,
+    A6: TypeTag]
     extends UDTF {
 
   /**
-   * This method is invoked once for each row in the input partition.
-   * The arguments passed to the registered UDTF are passed to process().
+   * This method is invoked once for each row in the input partition. The arguments passed to the
+   * registered UDTF are passed to process().
    *
    * The rows returned in this method must match the StructType defined in [[outputSchema]]
    *
@@ -295,15 +297,15 @@ abstract class UDTF8[
     extends UDTF {
 
   /**
-   * This method is invoked once for each row in the input partition.
-   * The arguments passed to the registered UDTF are passed to process().
+   * This method is invoked once for each row in the input partition. The arguments passed to the
+   * registered UDTF are passed to process().
    *
    * The rows returned in this method must match the StructType defined in [[outputSchema]]
    *
    * Since: 1.2.0
    */
   def process(arg0: A0, arg1: A1, arg2: A2, arg3: A3, arg4: A4, arg5: A5, arg6: A6, arg7: A7)
-    : Iterable[Row]
+      : Iterable[Row]
 
   override private[snowpark] def inputColumns: Seq[UdfColumn] =
     Seq(
@@ -335,8 +337,8 @@ abstract class UDTF9[
     extends UDTF {
 
   /**
-   * This method is invoked once for each row in the input partition.
-   * The arguments passed to the registered UDTF are passed to process().
+   * This method is invoked once for each row in the input partition. The arguments passed to the
+   * registered UDTF are passed to process().
    *
    * The rows returned in this method must match the StructType defined in [[outputSchema]]
    *
@@ -385,8 +387,8 @@ abstract class UDTF10[
     extends UDTF {
 
   /**
-   * This method is invoked once for each row in the input partition.
-   * The arguments passed to the registered UDTF are passed to process().
+   * This method is invoked once for each row in the input partition. The arguments passed to the
+   * registered UDTF are passed to process().
    *
    * The rows returned in this method must match the StructType defined in [[outputSchema]]
    *
@@ -438,8 +440,8 @@ abstract class UDTF11[
     extends UDTF {
 
   /**
-   * This method is invoked once for each row in the input partition.
-   * The arguments passed to the registered UDTF are passed to process().
+   * This method is invoked once for each row in the input partition. The arguments passed to the
+   * registered UDTF are passed to process().
    *
    * The rows returned in this method must match the StructType defined in [[outputSchema]]
    *
@@ -496,8 +498,8 @@ abstract class UDTF12[
     extends UDTF {
 
   /**
-   * This method is invoked once for each row in the input partition.
-   * The arguments passed to the registered UDTF are passed to process().
+   * This method is invoked once for each row in the input partition. The arguments passed to the
+   * registered UDTF are passed to process().
    *
    * The rows returned in this method must match the StructType defined in [[outputSchema]]
    *
@@ -557,8 +559,8 @@ abstract class UDTF13[
     extends UDTF {
 
   /**
-   * This method is invoked once for each row in the input partition.
-   * The arguments passed to the registered UDTF are passed to process().
+   * This method is invoked once for each row in the input partition. The arguments passed to the
+   * registered UDTF are passed to process().
    *
    * The rows returned in this method must match the StructType defined in [[outputSchema]]
    *
@@ -621,8 +623,8 @@ abstract class UDTF14[
     extends UDTF {
 
   /**
-   * This method is invoked once for each row in the input partition.
-   * The arguments passed to the registered UDTF are passed to process().
+   * This method is invoked once for each row in the input partition. The arguments passed to the
+   * registered UDTF are passed to process().
    *
    * The rows returned in this method must match the StructType defined in [[outputSchema]]
    *
@@ -688,8 +690,8 @@ abstract class UDTF15[
     extends UDTF {
 
   /**
-   * This method is invoked once for each row in the input partition.
-   * The arguments passed to the registered UDTF are passed to process().
+   * This method is invoked once for each row in the input partition. The arguments passed to the
+   * registered UDTF are passed to process().
    *
    * The rows returned in this method must match the StructType defined in [[outputSchema]]
    *
@@ -758,8 +760,8 @@ abstract class UDTF16[
     extends UDTF {
 
   /**
-   * This method is invoked once for each row in the input partition.
-   * The arguments passed to the registered UDTF are passed to process().
+   * This method is invoked once for each row in the input partition. The arguments passed to the
+   * registered UDTF are passed to process().
    *
    * The rows returned in this method must match the StructType defined in [[outputSchema]]
    *
@@ -831,8 +833,8 @@ abstract class UDTF17[
     extends UDTF {
 
   /**
-   * This method is invoked once for each row in the input partition.
-   * The arguments passed to the registered UDTF are passed to process().
+   * This method is invoked once for each row in the input partition. The arguments passed to the
+   * registered UDTF are passed to process().
    *
    * The rows returned in this method must match the StructType defined in [[outputSchema]]
    *
@@ -907,8 +909,8 @@ abstract class UDTF18[
     extends UDTF {
 
   /**
-   * This method is invoked once for each row in the input partition.
-   * The arguments passed to the registered UDTF are passed to process().
+   * This method is invoked once for each row in the input partition. The arguments passed to the
+   * registered UDTF are passed to process().
    *
    * The rows returned in this method must match the StructType defined in [[outputSchema]]
    *
@@ -986,8 +988,8 @@ abstract class UDTF19[
     extends UDTF {
 
   /**
-   * This method is invoked once for each row in the input partition.
-   * The arguments passed to the registered UDTF are passed to process().
+   * This method is invoked once for each row in the input partition. The arguments passed to the
+   * registered UDTF are passed to process().
    *
    * The rows returned in this method must match the StructType defined in [[outputSchema]]
    *
@@ -1068,8 +1070,8 @@ abstract class UDTF20[
     extends UDTF {
 
   /**
-   * This method is invoked once for each row in the input partition.
-   * The arguments passed to the registered UDTF are passed to process().
+   * This method is invoked once for each row in the input partition. The arguments passed to the
+   * registered UDTF are passed to process().
    *
    * The rows returned in this method must match the StructType defined in [[outputSchema]]
    *
@@ -1153,8 +1155,8 @@ abstract class UDTF21[
     extends UDTF {
 
   /**
-   * This method is invoked once for each row in the input partition.
-   * The arguments passed to the registered UDTF are passed to process().
+   * This method is invoked once for each row in the input partition. The arguments passed to the
+   * registered UDTF are passed to process().
    *
    * The rows returned in this method must match the StructType defined in [[outputSchema]]
    *
@@ -1241,8 +1243,8 @@ abstract class UDTF22[
     extends UDTF {
 
   /**
-   * This method is invoked once for each row in the input partition.
-   * The arguments passed to the registered UDTF are passed to process().
+   * This method is invoked once for each row in the input partition. The arguments passed to the
+   * registered UDTF are passed to process().
    *
    * The rows returned in this method must match the StructType defined in [[outputSchema]]
    *

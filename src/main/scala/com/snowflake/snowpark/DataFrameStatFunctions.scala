@@ -41,11 +41,14 @@ final class DataFrameStatFunctions private[snowpark] (df: DataFrame) extends Log
    *   res: 0.9999999999999991
    * }}}
    *
-   * @param col1 The name of the first numeric column to use.
-   * @param col2 The name of the second numeric column to use.
+   * @param col1
+   *   The name of the first numeric column to use.
+   * @param col2
+   *   The name of the second numeric column to use.
    * @since 0.2.0
-   * @return The correlation of the two numeric columns.
-   *         If there is not enough data to generate the correlation, the method returns None.
+   * @return
+   *   The correlation of the two numeric columns. If there is not enough data to generate the
+   *   correlation, the method returns None.
    */
   def corr(col1: String, col2: String): Option[Double] = action("corr") {
     val res = df.select(corr_func(Col(col1), Col(col2))).limit(1).collect().head
@@ -67,11 +70,14 @@ final class DataFrameStatFunctions private[snowpark] (df: DataFrame) extends Log
    *   res: 0.010000000000000037
    * }}}
    *
-   * @param col1 The name of the first numeric column to use.
-   * @param col2 The name of the second numeric column to use.
+   * @param col1
+   *   The name of the first numeric column to use.
+   * @param col2
+   *   The name of the second numeric column to use.
    * @since 0.2.0
-   * @return The sample covariance of the two numeric columns,
-   *         If there is not enough data to generate the covariance, the method returns None.
+   * @return
+   *   The sample covariance of the two numeric columns, If there is not enough data to generate the
+   *   covariance, the method returns None.
    */
   def cov(col1: String, col2: String): Option[Double] = action("cov") {
     val res = df.select(covar_samp(Col(col1), Col(col2))).limit(1).collect().head
@@ -96,11 +102,14 @@ final class DataFrameStatFunctions private[snowpark] (df: DataFrame) extends Log
    *   res: Array(Some(-0.5), Some(0.5), Some(3.5), Some(5.5), Some(9.5))
    * }}}
    *
-   * @param col The name of the numeric column.
-   * @param percentile An array of double values greater than or equal to 0.0 and less than 1.0.
+   * @param col
+   *   The name of the numeric column.
+   * @param percentile
+   *   An array of double values greater than or equal to 0.0 and less than 1.0.
    * @since 0.2.0
-   * @return An array of approximate percentile values,
-   *         If there is not enough data to calculate the quantile, the method returns None.
+   * @return
+   *   An array of approximate percentile values, If there is not enough data to calculate the
+   *   quantile, the method returns None.
    */
   def approxQuantile(col: String, percentile: Array[Double]): Array[Option[Double]] =
     action("approxQuantile") {
@@ -122,8 +131,7 @@ final class DataFrameStatFunctions private[snowpark] (df: DataFrame) extends Log
   /**
    * For an array of numeric columns and an array of desired quantiles, returns a matrix of
    * approximate values for each column at each of the desired quantiles. For example,
-   * `result(0)(1)` contains the approximate value for column `cols(0)` at quantile
-   * `percentile(1)`.
+   * `result(0)(1)` contains the approximate value for column `cols(0)` at quantile `percentile(1)`.
    *
    * This function uses the t-Digest algorithm.
    *
@@ -140,46 +148,47 @@ final class DataFrameStatFunctions private[snowpark] (df: DataFrame) extends Log
    *              Array(Some(0.45), Some(0.55), Some(0.6499999999999999)))
    * }}}
    *
-   * @param cols An array of column names.
-   * @param percentile An array of double values greater than or equal to 0.0 and less than 1.0.
+   * @param cols
+   *   An array of column names.
+   * @param percentile
+   *   An array of double values greater than or equal to 0.0 and less than 1.0.
    * @since 0.2.0
-   * @return A matrix with the dimensions `(cols.size * percentile.size)` containing the
-   *         approximate percentile values. If there is not enough data to calculate the quantile,
-   *         the method returns None.
+   * @return
+   *   A matrix with the dimensions `(cols.size * percentile.size)` containing the approximate
+   *   percentile values. If there is not enough data to calculate the quantile, the method returns
+   *   None.
    */
-  def approxQuantile(
-      cols: Array[String],
-      percentile: Array[Double]): Array[Array[Option[Double]]] = action("approxQuantile") {
-    if (cols.isEmpty || percentile.isEmpty) {
-      return Array[Array[Option[Double]]]()
-    }
-    // Apply approx_percentile_accumulate function to each input column, them rename the generated
-    // temporary column as t1, t2 ...
-    val tempColumns = cols.zipWithIndex.map {
-      case (c, i) =>
+  def approxQuantile(cols: Array[String], percentile: Array[Double]): Array[Array[Option[Double]]] =
+    action("approxQuantile") {
+      if (cols.isEmpty || percentile.isEmpty) {
+        return Array[Array[Option[Double]]]()
+      }
+      // Apply approx_percentile_accumulate function to each input column, them rename the generated
+      // temporary column as t1, t2 ...
+      val tempColumns = cols.zipWithIndex.map { case (c, i) =>
         approx_percentile_accumulate(Col(c)).as(tempColumnName + i)
+      }
+
+      // Apply approx_percentile_estimate to all (percentile, temp column) pairs:
+      // (p1, t1), (p2, t1) ... (p_percentile.size, t_col.size)
+      val outputColumns = Array
+        .range(0, cols.length)
+        .map { i =>
+          percentile.map(p => approx_percentile_estimate(Col(tempColumnName + i), p))
+        }
+        .flatMap(_.toList)
+      val res = df.select(tempColumns).select(outputColumns).limit(1).collect().head
+
+      // First map Any to Option[Double], then convert Array to matrix
+      res.toSeq
+        .map {
+          case d: Double => Some(d)
+          case _ => None
+        }
+        .toArray
+        .grouped(percentile.length)
+        .toArray
     }
-
-    // Apply approx_percentile_estimate to all (percentile, temp column) pairs:
-    // (p1, t1), (p2, t1) ... (p_percentile.size, t_col.size)
-    val outputColumns = Array
-      .range(0, cols.length)
-      .map { i =>
-        percentile.map(p => approx_percentile_estimate(Col(tempColumnName + i), p))
-      }
-      .flatMap(_.toList)
-    val res = df.select(tempColumns).select(outputColumns).limit(1).collect().head
-
-    // First map Any to Option[Double], then convert Array to matrix
-    res.toSeq
-      .map {
-        case d: Double => Some(d)
-        case _ => None
-      }
-      .toArray
-      .grouped(percentile.length)
-      .toArray
-  }
 
   /**
    * Computes a pair-wise frequency table (a ''contingency table'') for the specified columns. The
@@ -187,11 +196,11 @@ final class DataFrameStatFunctions private[snowpark] (df: DataFrame) extends Log
    *
    * In the returned contingency table:
    *
-   *  - The first column of each row contains the distinct values of {@code col1}.
-   *  - The name of the first column is the name of {@code col1}.
-   *  - The rest of the column names are the distinct values of {@code col2}.
-   *  - The counts are returned as Longs.
-   *  - For pairs that have no occurrences, the contingency table contains 0 as the count.
+   *   - The first column of each row contains the distinct values of {@code col1} .
+   *   - The name of the first column is the name of {@code col1} .
+   *   - The rest of the column names are the distinct values of {@code col2} .
+   *   - The counts are returned as Longs.
+   *   - For pairs that have no occurrences, the contingency table contains 0 as the count.
    *
    * Note: The number of distinct values in {@code col2} should not exceed 1000.
    *
@@ -214,10 +223,13 @@ final class DataFrameStatFunctions private[snowpark] (df: DataFrame) extends Log
    *   ---------------------------------------------------------------------------------------------
    * }}}
    *
-   * @param col1 The name of the first column to use.
-   * @param col2 The name of the second column to use.
+   * @param col1
+   *   The name of the first column to use.
+   * @param col2
+   *   The name of the second column to use.
    * @since 0.2.0
-   * @return A DataFrame containing the contingency table.
+   * @return
+   *   A DataFrame containing the contingency table.
    */
   def crosstab(col1: String, col2: String): DataFrame = action("crosstab") {
     // Limit the distinct values of col2 to maxColumnsPerTable.
@@ -256,12 +268,16 @@ final class DataFrameStatFunctions private[snowpark] (df: DataFrame) extends Log
    *   ------------------
    * }}}
    *
-   * @param col An expression for the column that defines the strata.
-   * @param fractions A Map that specifies the fraction to use for the sample for each stratum.
-   *                  If a stratum is not specified in the Map, the method uses 0 as the fraction.
-   * @tparam T The type of the stratum.
+   * @param col
+   *   An expression for the column that defines the strata.
+   * @param fractions
+   *   A Map that specifies the fraction to use for the sample for each stratum. If a stratum is not
+   *   specified in the Map, the method uses 0 as the fraction.
+   * @tparam T
+   *   The type of the stratum.
    * @since 0.2.0
-   * @return A new DataFrame that contains the stratified sample.
+   * @return
+   *   A new DataFrame that contains the stratified sample.
    */
   def sampleBy[T](col: Column, fractions: Map[T, Double]): DataFrame =
     transformation("sampleBy") {
@@ -298,12 +314,16 @@ final class DataFrameStatFunctions private[snowpark] (df: DataFrame) extends Log
    *   ------------------
    * }}}
    *
-   * @param col The name of the column that defines the strata.
-   * @param fractions A Map that specifies the fraction to use for the sample for each stratum.
-   *                  If a stratum is not specified in the Map, the method uses 0 as the fraction.
-   * @tparam T The type of the stratum.
+   * @param col
+   *   The name of the column that defines the strata.
+   * @param fractions
+   *   A Map that specifies the fraction to use for the sample for each stratum. If a stratum is not
+   *   specified in the Map, the method uses 0 as the fraction.
+   * @tparam T
+   *   The type of the stratum.
    * @since 0.2.0
-   * @return A new DataFrame that contains the stratified sample.
+   * @return
+   *   A new DataFrame that contains the stratified sample.
    */
   def sampleBy[T](col: String, fractions: Map[T, Double]): DataFrame =
     transformation("sampleBy") {

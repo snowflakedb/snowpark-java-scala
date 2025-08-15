@@ -7,50 +7,43 @@ private[snowpark] abstract class IntegralType extends NumericType
 private[snowpark] abstract class FractionalType extends NumericType
 
 /**
- * Byte data type.
- * Mapped to TINYINT Snowflake date type.
+ * Byte data type. Mapped to TINYINT Snowflake date type.
  * @since 0.1.0
  */
 object ByteType extends IntegralType
 
 /**
- * Short integer data type.
- * Mapped to SMALLINT Snowflake date type.
+ * Short integer data type. Mapped to SMALLINT Snowflake date type.
  * @since 0.1.0
  */
 object ShortType extends IntegralType
 
 /**
- * Integer data type.
- * Mapped to INT Snowflake date type.
+ * Integer data type. Mapped to INT Snowflake date type.
  * @since 0.1.0
  */
 object IntegerType extends IntegralType
 
 /**
- * Long integer data type.
- * Mapped to BIGINT Snowflake date type.
+ * Long integer data type. Mapped to BIGINT Snowflake date type.
  * @since 0.1.0
  */
 object LongType extends IntegralType
 
 /**
- * Float data type.
- * Mapped to FLOAT Snowflake date type.
+ * Float data type. Mapped to FLOAT Snowflake date type.
  * @since 0.1.0
  */
 object FloatType extends FractionalType
 
 /**
- * Double data type.
- * Mapped to DOUBLE Snowflake date type.
+ * Double data type. Mapped to DOUBLE Snowflake date type.
  * @since 0.1.0
  */
 object DoubleType extends FractionalType
 
 /**
- * Decimal data type.
- * Mapped to NUMBER Snowflake date type.
+ * Decimal data type. Mapped to NUMBER Snowflake date type.
  * @since 0.1.0
  */
 case class DecimalType(precision: Int, scale: Int) extends FractionalType {

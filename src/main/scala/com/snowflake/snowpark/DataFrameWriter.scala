@@ -18,20 +18,20 @@ import scala.collection.mutable
  * Provides methods for writing data from a DataFrame to supported output destinations.
  *
  * You can write data to the following locations:
- *  - A Snowflake table
- *  - A file on a stage
+ *   - A Snowflake table
+ *   - A file on a stage
  *
  * =Saving Data to a Table=
  * To use this object to write into a table:
  *
- *  1. Access an instance of a DataFrameWriter by calling the [[DataFrame.write]] method.
- *  1. Specify the save mode to use (overwrite or append) by calling the
- *     [[mode(saveMode:com\.snowflake\.snowpark\.SaveMode* mode]] method. This
- *     method returns a DataFrameWriter that is configured to save data using the specified mode.
- *     The default [[SaveMode]] is [[SaveMode.Append]].
- *  1. (Optional) If you need to set some options for the save operation (e.g. columnOrder),
- *     call the [[options]] or [[option]] method.
- *  1. Call a `saveAs*` method to save the data to the specified destination.
+ *   1. Access an instance of a DataFrameWriter by calling the [[DataFrame.write]] method.
+ *   1. Specify the save mode to use (overwrite or append) by calling the
+ *      [[mode(saveMode:com\.snowflake\.snowpark\.SaveMode* mode]] method. This method returns a
+ *      DataFrameWriter that is configured to save data using the specified mode. The default
+ *      [[SaveMode]] is [[SaveMode.Append]].
+ *   1. (Optional) If you need to set some options for the save operation (e.g. columnOrder), call
+ *      the [[options]] or [[option]] method.
+ *   1. Call a `saveAs*` method to save the data to the specified destination.
  *
  * For example:
  *
@@ -42,17 +42,17 @@ import scala.collection.mutable
  * =Saving Data to a File on a Stage=
  * To save data to a file on a stage:
  *
- *  1. Access an instance of a DataFrameWriter by calling the [[DataFrame.write]] method.
- *  1. Specify the save mode to use (Overwrite or ErrorIfExists) by calling the
- *     [[mode(saveMode:com\.snowflake\.snowpark\.SaveMode* mode]] method. This
- *     method returns a DataFrameWriter that is configured to save data using the specified mode.
- *     The default [[SaveMode]] is [[SaveMode.ErrorIfExists]] for this case.
- *  1. (Optional) If you need to set some options for the save operation
- *     (e.g. file format options), call the [[options]] or [[option]] method.
- *  1. Call the method named after a file format to save the data in the specified format:
- *     - To save the data in CSV format, call the [[csv]] method.
- *     - To save the data in JSON format, call the [[json]] method.
- *     - To save the data in PARQUET format, call the [[parquet]] method.
+ *   1. Access an instance of a DataFrameWriter by calling the [[DataFrame.write]] method.
+ *   1. Specify the save mode to use (Overwrite or ErrorIfExists) by calling the
+ *      [[mode(saveMode:com\.snowflake\.snowpark\.SaveMode* mode]] method. This method returns a
+ *      DataFrameWriter that is configured to save data using the specified mode. The default
+ *      [[SaveMode]] is [[SaveMode.ErrorIfExists]] for this case.
+ *   1. (Optional) If you need to set some options for the save operation (e.g. file format
+ *      options), call the [[options]] or [[option]] method.
+ *   1. Call the method named after a file format to save the data in the specified format:
+ *      - To save the data in CSV format, call the [[csv]] method.
+ *      - To save the data in JSON format, call the [[json]] method.
+ *      - To save the data in PARQUET format, call the [[parquet]] method.
  *
  * For example:
  *
@@ -66,7 +66,8 @@ import scala.collection.mutable
  *   val result = df.write.option("compression", "none").csv("@myStage/prefix")
  * }}}
  *
- * @param dataFrame Input [[DataFrame]]
+ * @param dataFrame
+ *   Input [[DataFrame]]
  * @since 0.1.0
  */
 class DataFrameWriter(private[snowpark] val dataFrame: DataFrame) {
@@ -74,9 +75,7 @@ class DataFrameWriter(private[snowpark] val dataFrame: DataFrame) {
 
   private val COLUMN_ORDER = "COLUMNORDER"
   private val writeOptions = mutable.Map[String, Any]()
-  private[snowpark] def getCopyIntoLocationPlan(
-      path: String,
-      formatType: String): SnowflakePlan = {
+  private[snowpark] def getCopyIntoLocationPlan(path: String, formatType: String): SnowflakePlan = {
     dataFrame.session.conn.telemetry.reportActionSaveAsFile(formatType)
     // The default mode for saving as a file is ErrorIfExists
     val writeFileMode = saveMode.getOrElse(SaveMode.ErrorIfExists)
@@ -102,8 +101,10 @@ class DataFrameWriter(private[snowpark] val dataFrame: DataFrame) {
    * }}}
    *
    * @since 1.5.0
-   * @param path The path (including the stage name) to the CSV file.
-   * @return A [[WriteFileResult]]
+   * @param path
+   *   The path (including the stage name) to the CSV file.
+   * @return
+   *   A [[WriteFileResult]]
    */
   def csv(path: String): WriteFileResult = action("csv") {
     val plan = getCopyIntoLocationPlan(path, "CSV")
@@ -116,25 +117,25 @@ class DataFrameWriter(private[snowpark] val dataFrame: DataFrame) {
    * Saves the contents of the DataFrame to a JSON file on a stage.
    *
    * NOTE: You can call this method only on a DataFrame that contains a column of the type Variant,
-   *       Array, or Map. If the DataFrame does not contain a column of one of these types,
-   *       you must call the `to_variant`, `array_construct`, or `object_construct`
-   *       to return a DataFrame that contains a column of one of these types.
+   * Array, or Map. If the DataFrame does not contain a column of one of these types, you must call
+   * the `to_variant`, `array_construct`, or `object_construct` to return a DataFrame that contains
+   * a column of one of these types.
    *
    * '''Example 1:''' Write a DataFrame with one variant to a JSON file.
    * {{{
    *   val result = session.sql("select to_variant('a')").write.json("@myStage/prefix")
    * }}}
    *
-   * '''Example 2:''' Transform a DataFrame with some columns with array_construct() and write
-   * to a JSON file without compression.
+   * '''Example 2:''' Transform a DataFrame with some columns with array_construct() and write to a
+   * JSON file without compression.
    * {{{
    *   val df = Seq((1, 1.1, "a"), (2, 2.2, "b")).toDF("a", "b", "c")
    *   val df2 = df.select(array_construct(df.schema.names.map(df(_)): _*))
    *   val result = df2.write.option("compression", "none").json("@myStage/prefix")
    * }}}
    *
-   * '''Example 3:''' Transform a DataFrame with some columns with object_construct() and write
-   * to a JSON file without compression.
+   * '''Example 3:''' Transform a DataFrame with some columns with object_construct() and write to a
+   * JSON file without compression.
    * {{{
    *   val df = Seq((1, 1.1, "a"), (2, 2.2, "b")).toDF("a", "b", "c")
    *   val df2 = df.select(object_construct(df.schema.names.map(x => Seq(lit(x), df(x))).flatten: _*))
@@ -142,8 +143,10 @@ class DataFrameWriter(private[snowpark] val dataFrame: DataFrame) {
    * }}}
    *
    * @since 1.5.0
-   * @param path The path (including the stage name) to the JSON file.
-   * @return A [[WriteFileResult]]
+   * @param path
+   *   The path (including the stage name) to the JSON file.
+   * @return
+   *   A [[WriteFileResult]]
    */
   // scalastyle:on
   def json(path: String): WriteFileResult = action("json") {
@@ -166,8 +169,10 @@ class DataFrameWriter(private[snowpark] val dataFrame: DataFrame) {
    * }}}
    *
    * @since 1.5.0
-   * @param path The path (including the stage name) to the Parquet file.
-   * @return A [[WriteFileResult]]
+   * @param path
+   *   The path (including the stage name) to the Parquet file.
+   * @return
+   *   A [[WriteFileResult]]
    */
   def parquet(path: String): WriteFileResult = action("parquet") {
     val plan = getCopyIntoLocationPlan(path, "PARQUET")
@@ -182,21 +187,22 @@ class DataFrameWriter(private[snowpark] val dataFrame: DataFrame) {
    * =Sets the specified option for saving data to a table=
    *
    * Use this method to configure options:
-   *  - columnOrder: save data into a table with table's column name order if saveMode is Append and target table exists.
+   *   - columnOrder: save data into a table with table's column name order if saveMode is Append
+   *     and target table exists.
    *
    * =Sets the specified option for saving data to a file on a stage=
    *
    * Use this method to configure options:
-   *  - [[https://docs.snowflake.com/en/sql-reference/sql/copy-into-location.html#format-type-options-formattypeoptions format-specific options]]
-   *  - [[https://docs.snowflake.com/en/sql-reference/sql/copy-into-location.html#copy-options-copyoptions copy options]]
-   *  - [[https://docs.snowflake.com/en/sql-reference/sql/copy-into-location.html#optional-parameters PARTITION BY or HEADER]]
+   *   - [[https://docs.snowflake.com/en/sql-reference/sql/copy-into-location.html#format-type-options-formattypeoptions format-specific options]]
+   *   - [[https://docs.snowflake.com/en/sql-reference/sql/copy-into-location.html#copy-options-copyoptions copy options]]
+   *   - [[https://docs.snowflake.com/en/sql-reference/sql/copy-into-location.html#optional-parameters PARTITION BY or HEADER]]
    *
    * Note that you cannot use the `option` and `options` methods to set the following options:
-   *  - The `TYPE` format type option.
-   *  - The `OVERWRITE` copy option. To set this option, use the
-   *    [[mode(saveMode:com\.snowflake\.snowpark\.SaveMode* mode]] method instead.
-   *    - To set `OVERWRITE` to `TRUE`, use `SaveMode.Overwrite`.
-   *    - To set `OVERWRITE` to `FALSE`, use `SaveMode.ErrorIfExists`.
+   *   - The `TYPE` format type option.
+   *   - The `OVERWRITE` copy option. To set this option, use the
+   *     [[mode(saveMode:com\.snowflake\.snowpark\.SaveMode* mode]] method instead.
+   *     - To set `OVERWRITE` to `TRUE`, use `SaveMode.Overwrite`.
+   *     - To set `OVERWRITE` to `FALSE`, use `SaveMode.ErrorIfExists`.
    *
    * '''Example 1:''' Write a DataFrame to a CSV file.
    * {{{
@@ -209,9 +215,12 @@ class DataFrameWriter(private[snowpark] val dataFrame: DataFrame) {
    * }}}
    *
    * @since 1.4.0
-   * @param key Name of the option.
-   * @param value Value of the option.
-   * @return A [[DataFrameWriter]]
+   * @param key
+   *   Name of the option.
+   * @param value
+   *   Value of the option.
+   * @return
+   *   A [[DataFrameWriter]]
    */
   // scalastyle:on
   def option(key: String, value: Any): DataFrameWriter = {
@@ -226,21 +235,22 @@ class DataFrameWriter(private[snowpark] val dataFrame: DataFrame) {
    * =Sets the specified options for saving Data to a Table=
    *
    * Use this method to configure options:
-   *  - columnOrder: save data into a table with table's column name order if saveMode is Append and target table exists.
+   *   - columnOrder: save data into a table with table's column name order if saveMode is Append
+   *     and target table exists.
    *
    * =Sets the specified options for saving data to a file on a stage=
    *
    * Use this method to configure options:
-   *  - [[https://docs.snowflake.com/en/sql-reference/sql/copy-into-location.html#format-type-options-formattypeoptions format-specific options]]
-   *  - [[https://docs.snowflake.com/en/sql-reference/sql/copy-into-location.html#copy-options-copyoptions copy options]]
-   *  - [[https://docs.snowflake.com/en/sql-reference/sql/copy-into-location.html#optional-parameters PARTITION BY or HEADER]]
+   *   - [[https://docs.snowflake.com/en/sql-reference/sql/copy-into-location.html#format-type-options-formattypeoptions format-specific options]]
+   *   - [[https://docs.snowflake.com/en/sql-reference/sql/copy-into-location.html#copy-options-copyoptions copy options]]
+   *   - [[https://docs.snowflake.com/en/sql-reference/sql/copy-into-location.html#optional-parameters PARTITION BY or HEADER]]
    *
    * Note that you cannot use the `option` and `options` methods to set the following options:
-   *  - The `TYPE` format type option.
-   *  - The `OVERWRITE` copy option. To set this option, use the
-   *    [[mode(saveMode:com\.snowflake\.snowpark\.SaveMode* mode]] method instead.
-   *    - To set `OVERWRITE` to `TRUE`, use `SaveMode.Overwrite`.
-   *    - To set `OVERWRITE` to `FALSE`, use `SaveMode.ErrorIfExists`.
+   *   - The `TYPE` format type option.
+   *   - The `OVERWRITE` copy option. To set this option, use the
+   *     [[mode(saveMode:com\.snowflake\.snowpark\.SaveMode* mode]] method instead.
+   *     - To set `OVERWRITE` to `TRUE`, use `SaveMode.Overwrite`.
+   *     - To set `OVERWRITE` to `FALSE`, use `SaveMode.ErrorIfExists`.
    *
    * '''Example 1:''' Write a DataFrame to a CSV file.
    * {{{
@@ -253,9 +263,10 @@ class DataFrameWriter(private[snowpark] val dataFrame: DataFrame) {
    * }}}
    *
    * @since 1.5.0
-   * @param configs Map of the names of options (e.g. {@code compression},
-   *   etc.) and their corresponding values.
-   * @return A [[DataFrameWriter]]
+   * @param configs
+   *   Map of the names of options (e.g. {@code compression} , etc.) and their corresponding values.
+   * @return
+   *   A [[DataFrameWriter]]
    */
   def options(configs: Map[String, Any]): DataFrameWriter = {
     configs.foreach(e => option(e._1, e._2))
@@ -270,7 +281,8 @@ class DataFrameWriter(private[snowpark] val dataFrame: DataFrame) {
    * {{{
    *   df.write.saveAsTable("db1.public_schema.table1")
    * }}}
-   * @param tableName Name of the table where the data should be saved.
+   * @param tableName
+   *   Name of the table where the data should be saved.
    * @since 0.1.0
    */
   def saveAsTable(tableName: String): Unit = action("saveAsTable") {
@@ -319,9 +331,9 @@ class DataFrameWriter(private[snowpark] val dataFrame: DataFrame) {
    *   df.write.saveAsTable(Seq("db_name", "schema_name", "table_name"))
    * }}}
    *
-   * @param multipartIdentifier A sequence of strings that specify the database name, schema name,
-   *                            and table name (e.g.
-   *                            {@code Seq("database_name", "schema_name", "table_name")}).
+   * @param multipartIdentifier
+   *   A sequence of strings that specify the database name, schema name, and table name (e.g.
+   *   {@code Seq("database_name", "schema_name", "table_name")} ).
    * @since 0.5.0
    */
   def saveAsTable(multipartIdentifier: Seq[String]): Unit = action("saveAsTable") {
@@ -341,8 +353,8 @@ class DataFrameWriter(private[snowpark] val dataFrame: DataFrame) {
    *   df.write.saveAsTable(list)
    * }}}
    *
-   * @param multipartIdentifier A list of strings that specify the database name, schema name,
-   *                            and table name.
+   * @param multipartIdentifier
+   *   A list of strings that specify the database name, schema name, and table name.
    * @since 0.5.0
    */
   def saveAsTable(multipartIdentifier: java.util.List[String]): Unit = action("saveAsTable") {
@@ -353,8 +365,8 @@ class DataFrameWriter(private[snowpark] val dataFrame: DataFrame) {
   /**
    * Returns a new DataFrameWriter with the specified save mode configuration.
    *
-   * @param saveMode One of the following strings: `"APPEND"`, `"OVERWRITE"`, `"ERRORIFEXISTS"`, or
-   *   `"IGNORE"`
+   * @param saveMode
+   *   One of the following strings: `"APPEND"`, `"OVERWRITE"`, `"ERRORIFEXISTS"`, or `"IGNORE"`
    * @since 0.1.0
    */
   def mode(saveMode: String): DataFrameWriter = mode(SaveMode(saveMode))
@@ -362,7 +374,8 @@ class DataFrameWriter(private[snowpark] val dataFrame: DataFrame) {
   /**
    * Returns a new DataFrameWriter with the specified save mode configuration.
    *
-   * @param saveMode One of the following save modes: [[SaveMode.Append]], [[SaveMode.Overwrite]],
+   * @param saveMode
+   *   One of the following save modes: [[SaveMode.Append]], [[SaveMode.Overwrite]],
    *   [[SaveMode.ErrorIfExists]], [[SaveMode.Ignore]]
    * @since 0.1.0
    */
@@ -372,8 +385,8 @@ class DataFrameWriter(private[snowpark] val dataFrame: DataFrame) {
   }
 
   /**
-   * Returns a [[DataFrameWriterAsyncActor]] object that can be used to execute
-   * DataFrameWriter actions asynchronously.
+   * Returns a [[DataFrameWriterAsyncActor]] object that can be used to execute DataFrameWriter
+   * actions asynchronously.
    *
    * Example:
    * {{{
@@ -385,16 +398,15 @@ class DataFrameWriter(private[snowpark] val dataFrame: DataFrame) {
    * }}}
    *
    * @since 0.11.0
-   * @return A [[DataFrameWriterAsyncActor]] object
+   * @return
+   *   A [[DataFrameWriterAsyncActor]] object
    */
   def async: DataFrameWriterAsyncActor = new DataFrameWriterAsyncActor(this)
 
   @inline protected def action[T](funcName: String)(func: => T): T = {
     val isScala: Boolean = dataFrame.session.conn.isScalaAPI
-    OpenTelemetry.action(
-      "DataFrameWriter",
-      funcName,
-      this.dataFrame.methodChainString + ".writer")(func)
+    OpenTelemetry.action("DataFrameWriter", funcName, this.dataFrame.methodChainString + ".writer")(
+      func)
   }
 
 }
@@ -409,9 +421,11 @@ class DataFrameWriterAsyncActor private[snowpark] (writer: DataFrameWriter) {
   /**
    * Executes `DataFrameWriter.saveAsTable` asynchronously.
    *
-   * @param tableName Name of the table where the data should be saved.
-   * @return A [[TypedAsyncJob]] object that you can use to check the status of the action
-   *         and get the results.
+   * @param tableName
+   *   Name of the table where the data should be saved.
+   * @return
+   *   A [[TypedAsyncJob]] object that you can use to check the status of the action and get the
+   *   results.
    * @since 0.11.0
    */
   def saveAsTable(tableName: String): TypedAsyncJob[Unit] = action("saveAsTable") {
@@ -422,11 +436,12 @@ class DataFrameWriterAsyncActor private[snowpark] (writer: DataFrameWriter) {
   /**
    * Executes `DataFrameWriter.saveAsTable` asynchronously.
    *
-   * @param multipartIdentifier A sequence of strings that specify the database name, schema name,
-   *                            and table name (e.g.
-   *                            {@code Seq("database_name", "schema_name", "table_name")}).
-   * @return A [[TypedAsyncJob]] object that you can use to check the status of the action
-   *         and get the results.
+   * @param multipartIdentifier
+   *   A sequence of strings that specify the database name, schema name, and table name (e.g.
+   *   {@code Seq("database_name", "schema_name", "table_name")} ).
+   * @return
+   *   A [[TypedAsyncJob]] object that you can use to check the status of the action and get the
+   *   results.
    * @since 0.11.0
    */
   def saveAsTable(multipartIdentifier: Seq[String]): TypedAsyncJob[Unit] = action("saveAsTable") {
@@ -437,10 +452,11 @@ class DataFrameWriterAsyncActor private[snowpark] (writer: DataFrameWriter) {
   /**
    * Executes `DataFrameWriter.saveAsTable` asynchronously.
    *
-   * @param multipartIdentifier A list of strings that specify the database name, schema name,
-   *                            and table name.
-   * @return A [[TypedAsyncJob]] object that you can use to check the status of the action
-   *         and get the results.
+   * @param multipartIdentifier
+   *   A list of strings that specify the database name, schema name, and table name.
+   * @return
+   *   A [[TypedAsyncJob]] object that you can use to check the status of the action and get the
+   *   results.
    * @since 0.11.0
    */
   def saveAsTable(multipartIdentifier: java.util.List[String]): TypedAsyncJob[Unit] =
@@ -452,9 +468,11 @@ class DataFrameWriterAsyncActor private[snowpark] (writer: DataFrameWriter) {
   /**
    * Executes `DataFrameWriter.csv` asynchronously.
    *
-   * @param path The path (including the stage name) to the CSV file.
-   * @return A [[TypedAsyncJob]] object that you can use to check the status of the action
-   *         and get the results.
+   * @param path
+   *   The path (including the stage name) to the CSV file.
+   * @return
+   *   A [[TypedAsyncJob]] object that you can use to check the status of the action and get the
+   *   results.
    * @since 1.5.0
    */
   def csv(path: String): TypedAsyncJob[WriteFileResult] = action("csv") {
@@ -465,9 +483,11 @@ class DataFrameWriterAsyncActor private[snowpark] (writer: DataFrameWriter) {
   /**
    * Executes `DataFrameWriter.json` asynchronously.
    *
-   * @param path The path (including the stage name) to the JSON file.
-   * @return A [[TypedAsyncJob]] object that you can use to check the status of the action
-   *         and get the results.
+   * @param path
+   *   The path (including the stage name) to the JSON file.
+   * @return
+   *   A [[TypedAsyncJob]] object that you can use to check the status of the action and get the
+   *   results.
    * @since 1.5.0
    */
   def json(path: String): TypedAsyncJob[WriteFileResult] = action("json") {
@@ -478,9 +498,11 @@ class DataFrameWriterAsyncActor private[snowpark] (writer: DataFrameWriter) {
   /**
    * Executes `DataFrameWriter.parquet` asynchronously.
    *
-   * @param path The path (including the stage name) to the PARQUET file.
-   * @return A [[TypedAsyncJob]] object that you can use to check the status of the action
-   *         and get the results.
+   * @param path
+   *   The path (including the stage name) to the PARQUET file.
+   * @return
+   *   A [[TypedAsyncJob]] object that you can use to check the status of the action and get the
+   *   results.
    * @since 1.5.0
    */
   def parquet(path: String): TypedAsyncJob[WriteFileResult] = action { "parquet" } {
@@ -501,16 +523,18 @@ class DataFrameWriterAsyncActor private[snowpark] (writer: DataFrameWriter) {
  *
  * To write the data, the DataFrameWriter effectively executes the `COPY INTO <location>` command.
  * WriteFileResult encapsulates the output returned by the command:
- *  - `rows` represents the rows of output from the command.
- *  - `schema` defines the schema for these rows.
+ *   - `rows` represents the rows of output from the command.
+ *   - `schema` defines the schema for these rows.
  *
- * For example, if the DETAILED_OUTPUT option is TRUE, each row contains a `file_name`,
- * `file_size`, and `row_count` field. `schema` defines the names and types of these fields.
- * If the DETAILED_OUTPUT option is not specified (meaning that the option is FALSE),
- * each row contains a `rows_unloaded`, `input_bytes`, and `output_bytes` field.
+ * For example, if the DETAILED_OUTPUT option is TRUE, each row contains a `file_name`, `file_size`,
+ * and `row_count` field. `schema` defines the names and types of these fields. If the
+ * DETAILED_OUTPUT option is not specified (meaning that the option is FALSE), each row contains a
+ * `rows_unloaded`, `input_bytes`, and `output_bytes` field.
  *
- * @param rows The output rows produced by the `COPY INTO <location>` command.
- * @param schema The names and types of the fields in the output rows.
+ * @param rows
+ *   The output rows produced by the `COPY INTO <location>` command.
+ * @param schema
+ *   The names and types of the fields in the output rows.
  * @since 1.5.0
  */
 case class WriteFileResult(rows: Array[Row], schema: StructType)

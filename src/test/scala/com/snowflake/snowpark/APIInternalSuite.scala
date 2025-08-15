@@ -29,10 +29,7 @@ import scala.util.Random
 
 class APIInternalSuite extends TestData {
   private val userSchema: StructType = StructType(
-    Seq(
-      StructField("a", IntegerType),
-      StructField("b", StringType),
-      StructField("c", DoubleType)))
+    Seq(StructField("a", IntegerType), StructField("b", StringType), StructField("c", DoubleType)))
 
   val tmpStageName: String = randomStageName()
 
@@ -243,8 +240,8 @@ class APIInternalSuite extends TestData {
       Thread.sleep(5000)
       session.cancelAll()
 
-      assert(Await.result(q1, 10 minutes))
-      assert(Await.result(q2, 10 minutes))
+      assert(Await.result(q1, 10.minutes))
+      assert(Await.result(q2, 10.minutes))
       assert(session.generateNewActionID == session.getLastCanceledID + 1)
     } finally {
       session.runQuery(s"drop table if exists $tableName")
@@ -263,12 +260,12 @@ class APIInternalSuite extends TestData {
 
     val query = testCanceled {
       df.select(
-          df.col("a")
-            .plus(df.col("b"))
-            .plus(df.col("c"))
-            .plus(df.col("d"))
-            .plus(df.col("e"))
-            .as("result"))
+        df.col("a")
+          .plus(df.col("b"))
+          .plus(df.col("c"))
+          .plus(df.col("d"))
+          .plus(df.col("e"))
+          .as("result"))
         .filter(df.col("result").gt(com.snowflake.snowpark_java.Functions.lit(0)))
         .count()
     }
@@ -276,7 +273,7 @@ class APIInternalSuite extends TestData {
     Thread.sleep(5000)
     javaSession.cancelAll()
 
-    assert(Await.result(query, 10 minutes))
+    assert(Await.result(query, 10.minutes))
   }
 
   test("test get schema/database works after USE ROLE") {
@@ -410,14 +407,23 @@ class APIInternalSuite extends TestData {
       // scalastyle:on
       val df = session.sql(query)
       // scalastyle:off
-      assert(
-        df.showString(10) ==
+      val expectedOutput = Utils.ScalaCompatVersion match {
+        case "2.12" =>
           """--------------------------------------------------------------------------------------------------------------------------------------------------
             ||"OBJECT1"  |"NUM1"  |"STR1"  |"MAP1"     |"MAP2"     |"OBJECT2"                     |"ARR1"   |"ARR2"         |"MAP1"                           |
             |--------------------------------------------------------------------------------------------------------------------------------------------------
             ||NULL       |1       |abc     |{b:2,a:1}  |{2:b,1:a}  |Object(a:1,b:Array(1,2,3,4))  |[1,2,3]  |[1.1,2.2,3.3]  |{a1:Object(b:2),a2:Object(b:3)}  |
             |--------------------------------------------------------------------------------------------------------------------------------------------------
-            |""".stripMargin)
+            |""".stripMargin
+        case "2.13" =>
+          """--------------------------------------------------------------------------------------------------------------------------------------------------
+            ||"OBJECT1"  |"NUM1"  |"STR1"  |"MAP1"     |"MAP2"     |"OBJECT2"                     |"ARR1"   |"ARR2"         |"MAP1"                           |
+            |--------------------------------------------------------------------------------------------------------------------------------------------------
+            ||NULL       |1       |abc     |{a:1,b:2}  |{1:a,2:b}  |Object(a:1,b:Array(1,2,3,4))  |[1,2,3]  |[1.1,2.2,3.3]  |{a1:Object(b:2),a2:Object(b:3)}  |
+            |--------------------------------------------------------------------------------------------------------------------------------------------------
+            |""".stripMargin
+      }
+      assert(df.showString(10) == expectedOutput)
       // scalastyle:on
     }
   }
@@ -464,8 +470,8 @@ class APIInternalSuite extends TestData {
 
       val df = session.sql(query)
       // scalastyle:off
-      assert(
-        df.showString(10) ==
+      val expectedOutput = Utils.ScalaCompatVersion match {
+        case "2.12" =>
           """---------------------------------------------------------------------------------------------------------
             ||"MAP1"     |"MAP2"     |"MAP3"                 |"MAP4"                 |"MAP5"             |"MAP0"     |
             |---------------------------------------------------------------------------------------------------------
@@ -474,7 +480,19 @@ class APIInternalSuite extends TestData {
             ||           |           |                       |                       |                   |  "b": 2   |
             ||           |           |                       |                       |                   |}          |
             |---------------------------------------------------------------------------------------------------------
-            |""".stripMargin)
+            |""".stripMargin
+        case "2.13" =>
+          """---------------------------------------------------------------------------------------------------------
+            ||"MAP1"     |"MAP2"     |"MAP3"                 |"MAP4"                 |"MAP5"             |"MAP0"     |
+            |---------------------------------------------------------------------------------------------------------
+            ||{a:1,b:2}  |{1:a,2:b}  |{1:[1,2,3],2:[4,5,6]}  |{1:{a:1,b:2},2:{c:3}}  |[{a:1,b:2},{c:3}]  |{          |
+            ||           |           |                       |                       |                   |  "a": 1,  |
+            ||           |           |                       |                       |                   |  "b": 2   |
+            ||           |           |                       |                       |                   |}          |
+            |---------------------------------------------------------------------------------------------------------
+            |""".stripMargin
+      }
+      assert(df.showString(10) == expectedOutput)
       // scalastyle:on
     }
   }
@@ -568,36 +586,33 @@ class APIInternalSuite extends TestData {
   }
 
   test("createDataFrame for large values: check plan") {
-    testWithAlteredSessionParameter(() => {
-      import session.implicits._
-      val schema = StructType(Seq(StructField("ID", LongType)))
-      val largeData = new ArrayBuffer[Row]()
-      for (i <- 0 to 1024) {
-        largeData.append(Row(i.toLong))
-      }
-      // With specific schema
-      var df = session.createDataFrame(largeData, schema)
-      assert(df.snowflakePlan.queries.size == 3)
-      assert(df.snowflakePlan.queries(0).sql.trim().startsWith("CREATE  SCOPED TEMPORARY  TABLE"))
-      assert(df.snowflakePlan.queries(1).sql.trim().startsWith("INSERT  INTO"))
-      assert(df.snowflakePlan.queries(2).sql.trim().startsWith("SELECT"))
-      assert(df.snowflakePlan.postActions.size == 1)
-      checkAnswer(df.sort(col("id")), largeData)
+    testWithAlteredSessionParameter(
+      () => {
+        import session.implicits._
+        val schema = StructType(Seq(StructField("ID", LongType)))
+        val largeData = for (i <- 0 to 1024) yield Row(i.toLong)
+        // With specific schema
+        var df = session.createDataFrame(largeData, schema)
+        assert(df.snowflakePlan.queries.size == 3)
+        assert(df.snowflakePlan.queries(0).sql.trim().startsWith("CREATE  SCOPED TEMPORARY  TABLE"))
+        assert(df.snowflakePlan.queries(1).sql.trim().startsWith("INSERT  INTO"))
+        assert(df.snowflakePlan.queries(2).sql.trim().startsWith("SELECT"))
+        assert(df.snowflakePlan.postActions.size == 1)
+        checkAnswer(df.sort(col("id")), largeData)
 
-      // infer schema
-      val inferData = new ArrayBuffer[Long]()
-      for (i <- 0 to 1024) {
-        inferData.append(i.toLong)
-      }
-      df = inferData.toDF("id2")
-      assert(df.snowflakePlan.queries.size == 3)
-      assert(df.snowflakePlan.queries(0).sql.trim().startsWith("CREATE  SCOPED TEMPORARY  TABLE"))
-      assert(df.snowflakePlan.queries(1).sql.trim().startsWith("INSERT  INTO"))
-      assert(df.snowflakePlan.queries(2).sql.trim().startsWith("SELECT"))
-      assert(df.snowflakePlan.postActions.size == 1)
-      checkAnswer(df.sort(col("id2")), largeData)
+        // infer schema
+        val inferData = for (i <- 0 to 1024) yield i.toLong
+        df = inferData.toDF("id2")
+        assert(df.snowflakePlan.queries.size == 3)
+        assert(df.snowflakePlan.queries(0).sql.trim().startsWith("CREATE  SCOPED TEMPORARY  TABLE"))
+        assert(df.snowflakePlan.queries(1).sql.trim().startsWith("INSERT  INTO"))
+        assert(df.snowflakePlan.queries(2).sql.trim().startsWith("SELECT"))
+        assert(df.snowflakePlan.postActions.size == 1)
+        checkAnswer(df.sort(col("id2")), largeData)
 
-    }, ParameterUtils.SnowparkUseScopedTempObjects, "true")
+      },
+      ParameterUtils.SnowparkUseScopedTempObjects,
+      "true")
   }
 
   // functions
@@ -653,9 +668,8 @@ class APIInternalSuite extends TestData {
       s"create temporary table $tableName2 (A int, B string)",
       s"insert into $tableName2 values(1, 'a'), (2, 'b'), (3, 'c')",
       s"select * from $tableName2").map(Query(_))
-    val attrs2 = Seq(
-      Attribute("A", IntegerType, nullable = true),
-      Attribute("B", StringType, nullable = true))
+    val attrs2 =
+      Seq(Attribute("A", IntegerType, nullable = true), Attribute("B", StringType, nullable = true))
     val postActions2 = Seq(Query(s"drop table if exists $tableName2"))
     val plan2 =
       new SnowflakePlan(
@@ -979,26 +993,24 @@ class APIInternalSuite extends TestData {
 
     val timestamp: Long = 1606179541282L
 
-    val largeData = new ArrayBuffer[Row]()
-    for (i <- 0 to 1024) {
-      largeData.append(
-        Row(
+    var largeData =
+      for (i <- 0 to 1024)
+        yield Row(
           i.toLong,
           "a",
           1.toByte,
           2.toShort,
           3,
           4L,
-          1.1F,
-          1.2D,
+          1.1f,
+          1.2d,
           new java.math.BigDecimal(1.2),
           true,
           Array(1.toByte, 2.toByte),
           new Timestamp(timestamp - 100),
-          new Date(timestamp - 100)))
-    }
-    largeData.append(
-      Row(1025, null, null, null, null, null, null, null, null, null, null, null, null))
+          new Date(timestamp - 100))
+
+    largeData :+= Row(1025, null, null, null, null, null, null, null, null, null, null, null, null)
 
     val df = session.createDataFrame(largeData, schema)
     checkExecuteAndGetQueryId(df)
@@ -1071,7 +1083,7 @@ class APIInternalSuite extends TestData {
     assert(
       plan1.summarize ==
         "Union(Filter(Project(Project(SnowflakeValues())))" +
-          ",Project(Project(Project(SnowflakeValues()))))")
+        ",Project(Project(Project(SnowflakeValues()))))")
   }
 
   test("DataFrame toDF should not generate useless project") {

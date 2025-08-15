@@ -31,4 +31,3 @@ class SPTestsReporter extends Reporter {
   def getReport(): HashMap[String, String] = testReport
   def getExceptions(): HashMap[String, Throwable] = testExceptions
 }
-

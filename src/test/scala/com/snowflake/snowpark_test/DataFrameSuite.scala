@@ -436,8 +436,9 @@ trait DataFrameSuite extends TestData with BeforeAndAfterEach {
   test("df.stat.approxQuantile", JavaStoredProcExclude) {
     assert(approxNumbers.stat.approxQuantile("a", Array(0.5))(0).get == 4.5)
     assert(
-      approxNumbers.stat.approxQuantile("a", Array(0, 0.1, 0.4, 0.6, 1)).deep ==
-        Array(Some(0.0), Some(0.9), Some(3.6), Some(5.3999999999999995), Some(9.0)).deep)
+      approxNumbers.stat
+        .approxQuantile("a", Array(0, 0.1, 0.4, 0.6, 1))
+        .sameElements(Array(Some(0.0), Some(0.9), Some(3.6), Some(5.3999999999999995), Some(9.0))))
 
     // Probability out of range error and apply on string column error.
     assertThrows[SnowflakeSQLException](approxNumbers.stat.approxQuantile("a", Array(-1d)))
@@ -447,8 +448,8 @@ trait DataFrameSuite extends TestData with BeforeAndAfterEach {
     assert(session.table(tableName).stat.approxQuantile("num", Array(0.5))(0).isEmpty)
 
     val res = double2.stat.approxQuantile(Array("a", "b"), Array(0, 0.1, 0.6))
-    assert(res(0).deep == Array(Some(0.1), Some(0.12000000000000001), Some(0.22)).deep)
-    assert(res(1).deep == Array(Some(0.5), Some(0.52), Some(0.62)).deep)
+    assert(res(0).sameElements(Array(Some(0.1), Some(0.12000000000000001), Some(0.22))))
+    assert(res(1).sameElements(Array(Some(0.5), Some(0.52), Some(0.62))))
 
     // ApproxNumbers2 contains a column called T, which conflicts with tmpColumnName.
     // This test demos that the query still works.
@@ -1191,7 +1192,7 @@ trait DataFrameSuite extends TestData with BeforeAndAfterEach {
         2.toShort,
         3,
         4L,
-        1.1F,
+        1.1f,
         1.2,
         BigDecimal(1.2),
         true,
@@ -1442,15 +1443,12 @@ trait DataFrameSuite extends TestData with BeforeAndAfterEach {
   test("primitive array") {
     checkAnswer(
       session
-        .createDataFrame(
-          Seq(Row(Array(1))),
-          StructType(Seq(StructField("arr", ArrayType(null))))),
+        .createDataFrame(Seq(Row(Array(1))), StructType(Seq(StructField("arr", ArrayType(null))))),
       Seq(Row("[\n  1\n]")))
   }
 
   test("time, date and timestamp test") {
-    assert(
-      session.sql("select '00:00:00' :: Time").collect()(0).getTime(0).toString == "00:00:00")
+    assert(session.sql("select '00:00:00' :: Time").collect()(0).getTime(0).toString == "00:00:00")
     assert(
       session
         .sql("select '1970-1-1 00:00:00' :: Timestamp")
@@ -1942,10 +1940,11 @@ trait DataFrameSuite extends TestData with BeforeAndAfterEach {
     val ex1 = intercept[SnowparkClientException] {
       df.rename("c", lit("c"))
     }
-    assert(ex1.errorCode.equals("0120") &&
-      ex1.message.contains(
-        "Unable to rename the column Column[Literal(c,Some(String))] as \"C\"" +
-          " because this DataFrame doesn't have a column named Column[Literal(c,Some(String))]."))
+    assert(
+      ex1.errorCode.equals("0120") &&
+        ex1.message.contains(
+          "Unable to rename the column Column[Literal(c,Some(String))] as \"C\"" +
+            " because this DataFrame doesn't have a column named Column[Literal(c,Some(String))]."))
 
     // rename un-exist column
     val ex2 = intercept[SnowparkClientException] {

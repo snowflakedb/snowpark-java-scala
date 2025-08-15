@@ -64,10 +64,7 @@ class ServerConnectionSuite extends SNTestBase {
     }
     assert(ex1.errorCode.equals("0317") && ex1.getMessage.contains("show tables"))
 
-    val largeData = new ArrayBuffer[Row]()
-    for (i <- 0 to 1024) {
-      largeData.append(Row(i))
-    }
+    val largeData = for (i <- 0 to 1024) yield Row(i)
     val df2 = session.createDataFrame(largeData, StructType(Seq(StructField("ID", LongType))))
     val ex2 = intercept[SnowparkClientException] {
       session.conn.executeAsync(df2.snowflakePlan)
@@ -133,8 +130,7 @@ class ServerConnectionSuite extends SNTestBase {
       session.conn.getAsyncResult(asyncJob.getQueryId(), Int.MaxValue, Some(plan))._1
     }
     assert(ex2.getMessage.contains("Numeric value 'not_a_number' is not recognized"))
-    assert(
-      ex2.getMessage.contains("Uncaught Execution of multiple statements failed on statement"))
+    assert(ex2.getMessage.contains("Uncaught Execution of multiple statements failed on statement"))
   }
 
   test("ServerConnection.getStatementParameters()") {
@@ -161,8 +157,8 @@ class ServerConnectionSuite extends SNTestBase {
     val params = Seq(1, 2, 3)
 
     val statement = session.conn.connection.prepareStatement(sql)
-    params.zipWithIndex.foreach {
-      case (p, i) => statement.setObject(i + 1, p)
+    params.zipWithIndex.foreach { case (p, i) =>
+      statement.setObject(i + 1, p)
     }
 
     val rs = statement.executeQuery()

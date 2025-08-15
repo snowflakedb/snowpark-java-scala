@@ -2,12 +2,7 @@ package com.snowflake.snowpark
 
 import com.snowflake.snowpark.internal.analyzer._
 import com.snowflake.snowpark.internal.ScalaFunctions._
-import com.snowflake.snowpark.internal.{
-  ErrorMessage,
-  OpenTelemetry,
-  UDXRegistrationHandler,
-  Utils
-}
+import com.snowflake.snowpark.internal.{ErrorMessage, OpenTelemetry, UDXRegistrationHandler, Utils}
 import com.snowflake.snowpark.types.TimestampType
 import com.snowflake.snowpark.types._
 import scala.reflect.runtime.universe.TypeTag
@@ -15,12 +10,12 @@ import scala.util.Random
 
 /**
  * Provides utility functions that generate [[Column]] expressions that you can pass to
- * [[DataFrame]] transformation methods. These functions generate references to columns,
- * literals, and SQL expressions (e.g. "c + 1").
+ * [[DataFrame]] transformation methods. These functions generate references to columns, literals,
+ * and SQL expressions (e.g. "c + 1").
  *
  * This object also provides functions that correspond to Snowflake
- * [[https://docs.snowflake.com/en/sql-reference-functions.html system-defined functions]]
- * (built-in functions), including functions for aggregation and window functions.
+ * [[https://docs.snowflake.com/en/sql-reference-functions.html system-defined functions]] (built-in
+ * functions), including functions for aggregation and window functions.
  *
  * The following examples demonstrate the use of some of these functions:
  *
@@ -47,8 +42,8 @@ import scala.util.Random
  *   df.select(sqlExpr("c + 1"))
  * }}}
  *
- * For functions that accept scala types, e.g. callUdf, callBuiltin, lit(),
- * the mapping from scala types to Snowflake types is as follows:
+ * For functions that accept scala types, e.g. callUdf, callBuiltin, lit(), the mapping from scala
+ * types to Snowflake types is as follows:
  * {{{
  *   String => String
  *   Byte => TinyInt
@@ -101,9 +96,8 @@ object functions {
   def column(colName: String): Column = Column(colName)
 
   /**
-   * Generate a [[Column]] representing the result of the input DataFrame.
-   * The parameter `df` should have one column and must produce one row.
-   * Is an alias of [[toScalar]].
+   * Generate a [[Column]] representing the result of the input DataFrame. The parameter `df` should
+   * have one column and must produce one row. Is an alias of [[toScalar]].
    *
    * For Example:
    * {{{
@@ -120,8 +114,8 @@ object functions {
   def col(df: DataFrame): Column = toScalar(df)
 
   /**
-   * Generate a [[Column]] representing the result of the input DataFrame.
-   * The parameter `df` should have one column and must produce one row.
+   * Generate a [[Column]] representing the result of the input DataFrame. The parameter `df` should
+   * have one column and must produce one row.
    *
    * For Example:
    * {{{
@@ -176,8 +170,8 @@ object functions {
   def sqlExpr(sqlText: String): Column = Column.expr(sqlText)
 
   /**
-   * Uses HyperLogLog to return an approximation of the distinct cardinality of the input
-   * (i.e. returns an approximation of `COUNT(DISTINCT col)`).
+   * Uses HyperLogLog to return an approximation of the distinct cardinality of the input (i.e.
+   * returns an approximation of `COUNT(DISTINCT col)`).
    *
    * @group agg_func
    * @since 0.1.0
@@ -185,8 +179,8 @@ object functions {
   def approx_count_distinct(e: Column): Column = builtin("approx_count_distinct")(e)
 
   /**
-   * Returns the average of non-NULL records. If all records inside a group are NULL,
-   * the function returns NULL.
+   * Returns the average of non-NULL records. If all records inside a group are NULL, the function
+   * returns NULL.
    *
    * @group agg_func
    * @since 0.1.0
@@ -204,8 +198,8 @@ object functions {
   }
 
   /**
-   * Returns either the number of non-NULL records for the specified columns,
-   * or the total number of records.
+   * Returns either the number of non-NULL records for the specified columns, or the total number of
+   * records.
    *
    * @group agg_func
    * @since 0.1.0
@@ -217,8 +211,8 @@ object functions {
   }
 
   /**
-   * Returns either the number of non-NULL distinct records for the specified columns,
-   * or the total number of the distinct records. An alias of count_distinct.
+   * Returns either the number of non-NULL distinct records for the specified columns, or the total
+   * number of the distinct records. An alias of count_distinct.
    *
    * @group agg_func
    * @since 1.13.0
@@ -227,8 +221,8 @@ object functions {
     count_distinct(col(colName), colNames.map(Column.apply): _*)
 
   /**
-   * Returns either the number of non-NULL distinct records for the specified columns,
-   * or the total number of the distinct records. An alias of count_distinct.
+   * Returns either the number of non-NULL distinct records for the specified columns, or the total
+   * number of the distinct records. An alias of count_distinct.
    *
    * @group agg_func
    * @since 1.13.0
@@ -237,8 +231,8 @@ object functions {
     count_distinct(expr, exprs: _*)
 
   /**
-   * Returns either the number of non-NULL distinct records for the specified columns,
-   * or the total number of the distinct records.
+   * Returns either the number of non-NULL distinct records for the specified columns, or the total
+   * number of the distinct records.
    *
    * @group agg_func
    * @since 0.1.0
@@ -283,8 +277,8 @@ object functions {
   def grouping_id(cols: Column*): Column = builtin("grouping_id")(cols: _*)
 
   /**
-   * Returns the population excess kurtosis of non-NULL records.
-   * If all records inside a group are NULL, the function returns NULL.
+   * Returns the population excess kurtosis of non-NULL records. If all records inside a group are
+   * NULL, the function returns NULL.
    *
    * @group agg_func
    * @since 0.1.0
@@ -292,8 +286,8 @@ object functions {
   def kurtosis(e: Column): Column = builtin("kurtosis")(e)
 
   /**
-   * Returns the maximum value for the records in a group. NULL values are ignored unless all
-   * the records are NULL, in which case a NULL value is returned.
+   * Returns the maximum value for the records in a group. NULL values are ignored unless all the
+   * records are NULL, in which case a NULL value is returned.
    *
    * Example:
    * {{{
@@ -307,16 +301,18 @@ object functions {
    *   ----------------
    * }}}
    *
-   * @param colName The name of the column
-   * @return The maximum value of the given column
+   * @param colName
+   *   The name of the column
+   * @return
+   *   The maximum value of the given column
    * @group agg_func
    * @since 1.13.0
    */
   def max(colName: String): Column = max(col(colName))
 
   /**
-   * Returns the maximum value for the records in a group. NULL values are ignored unless all
-   * the records are NULL, in which case a NULL value is returned.
+   * Returns the maximum value for the records in a group. NULL values are ignored unless all the
+   * records are NULL, in which case a NULL value is returned.
    *
    * @group agg_func
    * @since 0.1.0
@@ -332,8 +328,8 @@ object functions {
   def any_value(e: Column): Column = builtin("any_value")(e)
 
   /**
-   * Returns the average of non-NULL records. If all records inside a group are NULL,
-   * the function returns NULL. Alias of avg.
+   * Returns the average of non-NULL records. If all records inside a group are NULL, the function
+   * returns NULL. Alias of avg.
    *
    * Example:
    * {{{
@@ -347,16 +343,18 @@ object functions {
    *   ----------------
    * }}}
    *
-   * @param colName The name of the column
-   * @return The average value of the given column
+   * @param colName
+   *   The name of the column
+   * @return
+   *   The average value of the given column
    * @group agg_func
    * @since 1.13.0
    */
   def mean(colName: String): Column = mean(col(colName))
 
   /**
-   * Returns the average of non-NULL records. If all records inside a group are NULL,
-   * the function returns NULL. Alias of avg
+   * Returns the average of non-NULL records. If all records inside a group are NULL, the function
+   * returns NULL. Alias of avg
    *
    * @group agg_func
    * @since 0.1.0
@@ -364,8 +362,8 @@ object functions {
   def mean(e: Column): Column = avg(e)
 
   /**
-   * Returns the median value for the records in a group. NULL values are ignored unless all
-   * the records are NULL, in which case a NULL value is returned.
+   * Returns the median value for the records in a group. NULL values are ignored unless all the
+   * records are NULL, in which case a NULL value is returned.
    *
    * @group agg_func
    * @since 0.5.0
@@ -375,8 +373,8 @@ object functions {
   }
 
   /**
-   * Returns the minimum value for the records in a group. NULL values are ignored unless all
-   * the records are NULL, in which case a NULL value is returned.
+   * Returns the minimum value for the records in a group. NULL values are ignored unless all the
+   * records are NULL, in which case a NULL value is returned.
    *
    * Example:
    * {{{
@@ -390,16 +388,18 @@ object functions {
    *   ----------------
    * }}}
    *
-   * @param colName The name of the column
-   * @return The minimum value of the given column
+   * @param colName
+   *   The name of the column
+   * @return
+   *   The minimum value of the given column
    * @group agg_func
    * @since 1.13.0
    */
   def min(colName: String): Column = min(col(colName))
 
   /**
-   * Returns the minimum value for the records in a group. NULL values are ignored unless all
-   * the records are NULL, in which case a NULL value is returned.
+   * Returns the minimum value for the records in a group. NULL values are ignored unless all the
+   * records are NULL, in which case a NULL value is returned.
    *
    * @group agg_func
    * @since 0.1.0
@@ -407,8 +407,8 @@ object functions {
   def min(e: Column): Column = builtin("min")(e)
 
   /**
-   * Returns the sample skewness of non-NULL records. If all records inside a group are NULL,
-   * the function returns NULL.
+   * Returns the sample skewness of non-NULL records. If all records inside a group are NULL, the
+   * function returns NULL.
    *
    * @group agg_func
    * @since 0.1.0
@@ -416,8 +416,8 @@ object functions {
   def skew(e: Column): Column = builtin("skew")(e)
 
   /**
-   * Returns the sample standard deviation (square root of sample variance) of non-NULL values.
-   * If all records inside a group are NULL, returns NULL.
+   * Returns the sample standard deviation (square root of sample variance) of non-NULL values. If
+   * all records inside a group are NULL, returns NULL.
    *
    * @group agg_func
    * @since 0.1.0
@@ -425,8 +425,8 @@ object functions {
   def stddev(e: Column): Column = builtin("stddev")(e)
 
   /**
-   * Returns the sample standard deviation (square root of sample variance) of non-NULL values.
-   * If all records inside a group are NULL, returns NULL. Alias of stddev
+   * Returns the sample standard deviation (square root of sample variance) of non-NULL values. If
+   * all records inside a group are NULL, returns NULL. Alias of stddev
    *
    * @group agg_func
    * @since 0.1.0
@@ -434,8 +434,8 @@ object functions {
   def stddev_samp(e: Column): Column = builtin("stddev_samp")(e)
 
   /**
-   * Returns the population standard deviation (square root of variance) of non-NULL values.
-   * If all records inside a group are NULL, returns NULL.
+   * Returns the population standard deviation (square root of variance) of non-NULL values. If all
+   * records inside a group are NULL, returns NULL.
    *
    * @group agg_func
    * @since 0.1.0
@@ -443,8 +443,8 @@ object functions {
   def stddev_pop(e: Column): Column = builtin("stddev_pop")(e)
 
   /**
-   * Returns the sum of non-NULL records in a group. If all records inside a group are NULL,
-   * the function returns NULL.
+   * Returns the sum of non-NULL records in a group. If all records inside a group are NULL, the
+   * function returns NULL.
    *
    * @group agg_func
    * @since 0.1.0
@@ -452,20 +452,22 @@ object functions {
   def sum(e: Column): Column = builtin("sum")(e)
 
   /**
-   * Returns the sum of non-NULL records in a group. If all records inside a group are NULL,
-   * the function returns NULL.
+   * Returns the sum of non-NULL records in a group. If all records inside a group are NULL, the
+   * function returns NULL.
    *
    * @group agg_func
    * @since 1.12.0
-   * @param colName The input column name
-   * @return The result column
+   * @param colName
+   *   The input column name
+   * @return
+   *   The result column
    */
   def sum(colName: String): Column = sum(col(colName))
 
   /**
    * Returns the sum of non-NULL distinct records in a group. You can use the DISTINCT keyword to
-   * compute the sum of unique non-null values. If all records inside a group are NULL,
-   * the function returns NULL.
+   * compute the sum of unique non-null values. If all records inside a group are NULL, the function
+   * returns NULL.
    *
    * @group agg_func
    * @since 0.1.0
@@ -473,8 +475,8 @@ object functions {
   def sum_distinct(e: Column): Column = internalBuiltinFunction(true, "sum", e)
 
   /**
-   * Returns the sample variance of non-NULL records in a group.
-   * If all records inside a group are NULL, a NULL is returned.
+   * Returns the sample variance of non-NULL records in a group. If all records inside a group are
+   * NULL, a NULL is returned.
    *
    * @group agg_func
    * @since 0.1.0
@@ -482,9 +484,8 @@ object functions {
   def variance(e: Column): Column = builtin("variance")(e)
 
   /**
-   * Returns the sample variance of non-NULL records in a group.
-   * If all records inside a group are NULL, a NULL is returned.
-   * Alias of var_samp
+   * Returns the sample variance of non-NULL records in a group. If all records inside a group are
+   * NULL, a NULL is returned. Alias of var_samp
    *
    * @group agg_func
    * @since 0.1.0
@@ -492,8 +493,8 @@ object functions {
   def var_samp(e: Column): Column = variance(e)
 
   /**
-   * Returns the population variance of non-NULL records in a group.
-   * If all records inside a group are NULL, a NULL is returned.
+   * Returns the population variance of non-NULL records in a group. If all records inside a group
+   * are NULL, a NULL is returned.
    *
    * @group agg_func
    * @since 0.1.0
@@ -501,8 +502,8 @@ object functions {
   def var_pop(e: Column): Column = builtin("var_pop")(e)
 
   /**
-   * Returns an approximated value for the desired percentile.
-   * This function uses the t-Digest algorithm.
+   * Returns an approximated value for the desired percentile. This function uses the t-Digest
+   * algorithm.
    *
    * @group agg_func
    * @since 0.2.0
@@ -513,8 +514,7 @@ object functions {
 
   /**
    * Returns the internal representation of the t-Digest state (as a JSON object) at the end of
-   * aggregation.
-   * This function uses the t-Digest algorithm.
+   * aggregation. This function uses the t-Digest algorithm.
    *
    * @group agg_func
    * @since 0.2.0
@@ -538,10 +538,10 @@ object functions {
   /**
    * Combines (merges) percentile input states into a single output state.
    *
-   * This allows scenarios where APPROX_PERCENTILE_ACCUMULATE is run over horizontal partitions
-   * of the same table, producing an algorithm state for each table partition. These states can
-   * later be combined using APPROX_PERCENTILE_COMBINE, producing the same output state as a
-   * single run of APPROX_PERCENTILE_ACCUMULATE over the entire table.
+   * This allows scenarios where APPROX_PERCENTILE_ACCUMULATE is run over horizontal partitions of
+   * the same table, producing an algorithm state for each table partition. These states can later
+   * be combined using APPROX_PERCENTILE_COMBINE, producing the same output state as a single run of
+   * APPROX_PERCENTILE_ACCUMULATE over the entire table.
    *
    * @group agg_func
    * @since 0.2.0
@@ -551,8 +551,8 @@ object functions {
   }
 
   /**
-   * Finds the cumulative distribution of a value with regard to other values
-   * within the same window partition.
+   * Finds the cumulative distribution of a value with regard to other values within the same window
+   * partition.
    *
    * @group win_func
    * @since 0.1.0
@@ -560,9 +560,9 @@ object functions {
   def cume_dist(): Column = builtin("cume_dist")()
 
   /**
-   * Returns the rank of a value within a group of values, without gaps in the ranks.
-   * The rank value starts at 1 and continues up sequentially.
-   * If two values are the same, they will have the same rank.
+   * Returns the rank of a value within a group of values, without gaps in the ranks. The rank value
+   * starts at 1 and continues up sequentially. If two values are the same, they will have the same
+   * rank.
    *
    * @group win_func
    * @since 0.1.0
@@ -570,8 +570,8 @@ object functions {
   def dense_rank(): Column = builtin("dense_rank")()
 
   /**
-   * Accesses data in a previous row in the same result set without having to
-   * join the table to itself.
+   * Accesses data in a previous row in the same result set without having to join the table to
+   * itself.
    *
    * @group win_func
    * @since 0.1.0
@@ -580,8 +580,8 @@ object functions {
     builtin("lag")(e, Literal(offset), defaultValue)
 
   /**
-   * Accesses data in a previous row in the same result set without having to
-   * join the table to itself.
+   * Accesses data in a previous row in the same result set without having to join the table to
+   * itself.
    *
    * @group win_func
    * @since 0.1.0
@@ -589,8 +589,8 @@ object functions {
   def lag(e: Column, offset: Int): Column = lag(e, offset, lit(null))
 
   /**
-   * Accesses data in a previous row in the same result set without having to
-   * join the table to itself.
+   * Accesses data in a previous row in the same result set without having to join the table to
+   * itself.
    *
    * @group win_func
    * @since 0.1.0
@@ -598,8 +598,8 @@ object functions {
   def lag(e: Column): Column = lag(e, 1)
 
   /**
-   * Accesses data in a subsequent row in the same result set without having to join the
-   * table to itself.
+   * Accesses data in a subsequent row in the same result set without having to join the table to
+   * itself.
    *
    * @group win_func
    * @since 0.1.0
@@ -608,8 +608,8 @@ object functions {
     builtin("lead")(e, Literal(offset), defaultValue)
 
   /**
-   * Accesses data in a subsequent row in the same result set without having to join the
-   * table to itself.
+   * Accesses data in a subsequent row in the same result set without having to join the table to
+   * itself.
    *
    * @group win_func
    * @since 0.1.0
@@ -617,8 +617,8 @@ object functions {
   def lead(e: Column, offset: Int): Column = lead(e, offset, lit(null))
 
   /**
-   * Accesses data in a subsequent row in the same result set without having to join the
-   * table to itself.
+   * Accesses data in a subsequent row in the same result set without having to join the table to
+   * itself.
    *
    * @group win_func
    * @since 0.1.0
@@ -626,8 +626,8 @@ object functions {
   def lead(e: Column): Column = lead(e, 1)
 
   /**
-   * Divides an ordered data set equally into the number of buckets specified by n.
-   * Buckets are sequentially numbered 1 through n.
+   * Divides an ordered data set equally into the number of buckets specified by n. Buckets are
+   * sequentially numbered 1 through n.
    *
    * @group win_func
    * @since 0.1.0
@@ -644,8 +644,8 @@ object functions {
   def percent_rank(): Column = builtin("percent_rank")()
 
   /**
-   * Returns the rank of a value within an ordered group of values.
-   * The rank value starts at 1 and continues up.
+   * Returns the rank of a value within an ordered group of values. The rank value starts at 1 and
+   * continues up.
    *
    * @group win_func
    * @since 0.1.0
@@ -653,8 +653,8 @@ object functions {
   def rank(): Column = builtin("rank")()
 
   /**
-   * Returns a unique row number for each row within a window partition.
-   * The row number starts at 1 and continues up sequentially.
+   * Returns a unique row number for each row within a window partition. The row number starts at 1
+   * and continues up sequentially.
    *
    * @group win_func
    * @since 0.1.0
@@ -662,8 +662,8 @@ object functions {
   def row_number(): Column = builtin("row_number")()
 
   /**
-   * Returns the first non-NULL expression among its arguments,
-   * or NULL if all its arguments are NULL.
+   * Returns the first non-NULL expression among its arguments, or NULL if all its arguments are
+   * NULL.
    *
    * @group con_func
    * @since 0.1.0
@@ -737,8 +737,8 @@ object functions {
   }
 
   /**
-   * Performs division like the division operator (/),
-   * but returns 0 when the divisor is 0 (rather than reporting an error).
+   * Performs division like the division operator (/), but returns 0 when the divisor is 0 (rather
+   * than reporting an error).
    *
    * @group num_func
    * @since 0.1.0
@@ -763,8 +763,8 @@ object functions {
   def abs(e: Column): Column = builtin("abs")(e)
 
   /**
-   * Computes the inverse cosine (arc cosine) of its input; the result is a number in the
-   * interval [-pi, pi].
+   * Computes the inverse cosine (arc cosine) of its input; the result is a number in the interval
+   * [-pi, pi].
    *
    * @group num_func
    * @since 0.1.0
@@ -772,8 +772,8 @@ object functions {
   def acos(e: Column): Column = builtin("acos")(e)
 
   /**
-   * Computes the inverse sine (arc sine) of its argument; the result is a number in the
-   * interval [-pi, pi].
+   * Computes the inverse sine (arc sine) of its argument; the result is a number in the interval
+   * [-pi, pi].
    *
    * @group num_func
    * @since 0.1.0
@@ -781,8 +781,8 @@ object functions {
   def asin(e: Column): Column = builtin("asin")(e)
 
   /**
-   * Computes the inverse tangent (arc tangent) of its argument; the result is a number in
-   * the interval [-pi, pi].
+   * Computes the inverse tangent (arc tangent) of its argument; the result is a number in the
+   * interval [-pi, pi].
    *
    * @group num_func
    * @since 0.1.0
@@ -830,8 +830,8 @@ object functions {
   def exp(e: Column): Column = builtin("exp")(e)
 
   /**
-   * Computes the factorial of its input. The input argument must be an integer
-   * expression in the range of 0 to 33.
+   * Computes the factorial of its input. The input argument must be an integer expression in the
+   * range of 0 to 33.
    *
    * @group num_func
    * @since 0.1.0
@@ -856,8 +856,8 @@ object functions {
   def greatest(exprs: Column*): Column = builtin("greatest")(exprs: _*)
 
   /**
-   * Returns the smallest value from a list of expressions. LEAST supports all data types,
-   * including VARIANT.
+   * Returns the smallest value from a list of expressions. LEAST supports all data types, including
+   * VARIANT.
    *
    * @group con_func
    * @since 0.1.0
@@ -899,9 +899,12 @@ object functions {
    *   ----------------------------------------------
    * }}}
    *
-   * @param l The numeric column representing the base.
-   * @param r The name of the numeric column representing the exponent.
-   * @return A column containing the result of raising `l` to the power of `r`.
+   * @param l
+   *   The numeric column representing the base.
+   * @param r
+   *   The name of the numeric column representing the exponent.
+   * @return
+   *   A column containing the result of raising `l` to the power of `r`.
    * @group num_func
    * @since 1.15.0
    */
@@ -926,9 +929,12 @@ object functions {
    *   ----------------------------------------------
    * }}}
    *
-   * @param l The name of the numeric column representing the base.
-   * @param r The numeric column representing the exponent.
-   * @return A column containing the result of raising `l` to the power of `r`.
+   * @param l
+   *   The name of the numeric column representing the base.
+   * @param r
+   *   The numeric column representing the exponent.
+   * @return
+   *   A column containing the result of raising `l` to the power of `r`.
    * @group num_func
    * @since 1.15.0
    */
@@ -953,9 +959,12 @@ object functions {
    *   ----------------------------------------------
    * }}}
    *
-   * @param l The name of the numeric column representing the base.
-   * @param r The name of the numeric column representing the exponent.
-   * @return A column containing the result of raising `l` to the power of `r`.
+   * @param l
+   *   The name of the numeric column representing the base.
+   * @param r
+   *   The name of the numeric column representing the exponent.
+   * @return
+   *   A column containing the result of raising `l` to the power of `r`.
    * @group num_func
    * @since 1.15.0
    */
@@ -979,9 +988,12 @@ object functions {
    *   ----------------------------------
    * }}}
    *
-   * @param l The numeric column representing the base.
-   * @param r The value of the exponent.
-   * @return A column containing the result of raising `l` to the power of `r`.
+   * @param l
+   *   The numeric column representing the base.
+   * @param r
+   *   The value of the exponent.
+   * @return
+   *   A column containing the result of raising `l` to the power of `r`.
    * @group num_func
    * @since 1.15.0
    */
@@ -1005,9 +1017,12 @@ object functions {
    *   ----------------------------------
    * }}}
    *
-   * @param l The name of the numeric column representing the base.
-   * @param r The value of the exponent.
-   * @return A column containing the result of raising `l` to the power of `r`.
+   * @param l
+   *   The name of the numeric column representing the base.
+   * @param r
+   *   The value of the exponent.
+   * @return
+   *   A column containing the result of raising `l` to the power of `r`.
    * @group num_func
    * @since 1.15.0
    */
@@ -1032,9 +1047,12 @@ object functions {
    *   --------------------------------------------
    * }}}
    *
-   * @param l The value of the base.
-   * @param r The numeric column representing the exponent.
-   * @return A column containing the result of raising `l` to the power of `r`.
+   * @param l
+   *   The value of the base.
+   * @param r
+   *   The numeric column representing the exponent.
+   * @return
+   *   A column containing the result of raising `l` to the power of `r`.
    * @group num_func
    * @since 1.15.0
    */
@@ -1058,17 +1076,20 @@ object functions {
    *   --------------------------------------------
    * }}}
    *
-   * @param l The value of the base.
-   * @param r The name of the numeric column representing the exponent.
-   * @return A column containing the result of raising `l` to the power of `r`.
+   * @param l
+   *   The value of the base.
+   * @param r
+   *   The name of the numeric column representing the exponent.
+   * @return
+   *   A column containing the result of raising `l` to the power of `r`.
    * @group num_func
    * @since 1.15.0
    */
   def pow(l: Double, r: String): Column = pow(l, col(r))
 
   /**
-   * Rounds the numeric values of the given column `e` to the `scale` decimal places using the
-   * half away from zero rounding mode.
+   * Rounds the numeric values of the given column `e` to the `scale` decimal places using the half
+   * away from zero rounding mode.
    *
    * Example:
    * {{{
@@ -1087,17 +1108,20 @@ object functions {
    *   -----------
    * }}}
    *
-   * @param e The column of numeric values to round.
-   * @param scale A column representing the number of decimal places to which `e` should be rounded.
-   * @return A new column containing the rounded numeric values.
+   * @param e
+   *   The column of numeric values to round.
+   * @param scale
+   *   A column representing the number of decimal places to which `e` should be rounded.
+   * @return
+   *   A new column containing the rounded numeric values.
    * @group num_func
    * @since 0.1.0
    */
   def round(e: Column, scale: Column): Column = builtin("round")(e, scale)
 
   /**
-   * Rounds the numeric values of the given column `e` to 0 decimal places using the
-   * half away from zero rounding mode.
+   * Rounds the numeric values of the given column `e` to 0 decimal places using the half away from
+   * zero rounding mode.
    *
    * Example:
    * {{{
@@ -1115,16 +1139,18 @@ object functions {
    *   -----------
    * }}}
    *
-   * @param e The column of numeric values to round.
-   * @return A new column containing the rounded numeric values.
+   * @param e
+   *   The column of numeric values to round.
+   * @return
+   *   A new column containing the rounded numeric values.
    * @group num_func
    * @since 0.1.0
    */
   def round(e: Column): Column = round(e, lit(0))
 
   /**
-   * Rounds the numeric values of the given column `e` to the `scale` decimal places using the
-   * half away from zero rounding mode.
+   * Rounds the numeric values of the given column `e` to the `scale` decimal places using the half
+   * away from zero rounding mode.
    *
    * Example:
    * {{{
@@ -1143,9 +1169,12 @@ object functions {
    *   -----------
    * }}}
    *
-   * @param e The column of numeric values to round.
-   * @param scale The number of decimal places to which `e` should be rounded.
-   * @return A new column containing the rounded numeric values.
+   * @param e
+   *   The column of numeric values to round.
+   * @param scale
+   *   The number of decimal places to which `e` should be rounded.
+   * @return
+   *   A new column containing the rounded numeric values.
    * @group num_func
    * @since 1.14.0
    */
@@ -1236,8 +1265,8 @@ object functions {
   def sha1(e: Column): Column = builtin("sha1")(e)
 
   /**
-   * Returns a hex-encoded string containing the N-bit SHA-2 message digest,
-   * where N is the specified output digest size.
+   * Returns a hex-encoded string containing the N-bit SHA-2 message digest, where N is the
+   * specified output digest size.
    *
    * @group str_func
    * @since 0.1.0
@@ -1258,8 +1287,8 @@ object functions {
   def hash(cols: Column*): Column = builtin("hash")(cols: _*)
 
   /**
-   * Returns the ASCII code for the first character of a string. If the string is empty,
-   * a value of 0 is returned.
+   * Returns the ASCII code for the first character of a string. If the string is empty, a value of
+   * 0 is returned.
    *
    * @group str_func
    * @since 0.1.0
@@ -1267,8 +1296,8 @@ object functions {
   def ascii(e: Column): Column = builtin("ascii")(e)
 
   /**
-   * Concatenates two or more strings, or concatenates two or more binary values.
-   * If any of the values is null, the result is also null.
+   * Concatenates two or more strings, or concatenates two or more binary values. If any of the
+   * values is null, the result is also null.
    *
    * @group str_func
    * @since 0.1.0
@@ -1279,8 +1308,8 @@ object functions {
   }
 
   /**
-   * Returns the input string with the first letter of each word in uppercase
-   * and the subsequent letters in lowercase.
+   * Returns the input string with the first letter of each word in uppercase and the subsequent
+   * letters in lowercase.
    *
    * @group str_func
    * @since 0.1.0
@@ -1288,9 +1317,9 @@ object functions {
   def initcap(e: Column): Column = builtin("initcap")(e)
 
   /**
-   * Returns the length of an input string or binary value. For strings,
-   * the length is the number of characters, and UTF-8 characters are counted as a
-   * single character. For binary, the length is the number of bytes.
+   * Returns the length of an input string or binary value. For strings, the length is the number of
+   * characters, and UTF-8 characters are counted as a single character. For binary, the length is
+   * the number of bytes.
    *
    * @group str_func
    * @since 0.1.0
@@ -1306,8 +1335,8 @@ object functions {
   def lower(e: Column): Column = builtin("lower")(e)
 
   /**
-   * Left-pads a string with characters from another string, or left-pads a
-   * binary value with bytes from another binary value.
+   * Left-pads a string with characters from another string, or left-pads a binary value with bytes
+   * from another binary value.
    *
    * @group str_func
    * @since 0.1.0
@@ -1332,8 +1361,8 @@ object functions {
   def ltrim(e: Column): Column = builtin("ltrim")(e)
 
   /**
-   * Right-pads a string with characters from another string, or right-pads a
-   * binary value with bytes from another binary value.
+   * Right-pads a string with characters from another string, or right-pads a binary value with
+   * bytes from another binary value.
    *
    * @group str_func
    * @since 0.1.0
@@ -1376,15 +1405,14 @@ object functions {
   def soundex(e: Column): Column = builtin("soundex")(e)
 
   /**
-   * Splits a given string with a given separator and returns the result in an array of strings.
-   * To specify a string separator, use the lit() function.
+   * Splits a given string with a given separator and returns the result in an array of strings. To
+   * specify a string separator, use the lit() function.
    *
    * Example 1:
    * {{{
    *   val df = session.createDataFrame(
    *                  Seq(("many-many-words", "-"), ("hello--hello", "--"))).toDF("V", "D")
    *   df.select(split(col("V"), col("D"))).show()
-   * }}}
    *   -------------------------
    *   |"SPLIT(""V"", ""D"")"  |
    *   -------------------------
@@ -1398,12 +1426,12 @@ object functions {
    *   |  "hello"              |
    *   |]                      |
    *   -------------------------
+   * }}}
    *
    * Example 2:
    * {{{
    *   val df = session.createDataFrame(Seq("many-many-words", "hello-hi-hello")).toDF("V")
    *   df.select(split(col("V"), lit("-"))).show()
-   * }}}
    *   -------------------------
    *   |"SPLIT(""V"", ""D"")"  |
    *   -------------------------
@@ -1417,6 +1445,7 @@ object functions {
    *   |  "hello"              |
    *   |]                      |
    *   -------------------------
+   * }}}
    *
    * @group str_func
    * @since 0.1.0
@@ -1424,8 +1453,8 @@ object functions {
   def split(str: Column, pattern: Column): Column = builtin("split")(str, pattern)
 
   /**
-   * Returns the portion of the string or binary value str,
-   * starting from the character/byte specified by pos, with limited length.
+   * Returns the portion of the string or binary value str, starting from the character/byte
+   * specified by pos, with limited length.
    *
    * @group str_func
    * @since 0.1.0
@@ -1477,8 +1506,8 @@ object functions {
     builtin("startswith")(col, str)
 
   /**
-   * Converts a Unicode code point (including 7-bit ASCII) into the character
-   * that matches the input Unicode.
+   * Converts a Unicode code point (including 7-bit ASCII) into the character that matches the input
+   * Unicode.
    *
    * @group str_func
    * @since 0.1.0
@@ -1487,8 +1516,8 @@ object functions {
     builtin("char")(col)
 
   /**
-   * Adds or subtracts a specified number of months to a date or timestamp,
-   * preserving the end-of-month information.
+   * Adds or subtracts a specified number of months to a date or timestamp, preserving the
+   * end-of-month information.
    *
    * @group date_func
    * @since 0.1.0
@@ -1561,8 +1590,8 @@ object functions {
   def current_available_roles(): Column = builtin("current_available_roles")()
 
   /**
-   * Returns a unique system identifier for the Snowflake session corresponding
-   * to the present connection.
+   * Returns a unique system identifier for the Snowflake session corresponding to the present
+   * connection.
    *
    * @group cont_func
    * @since 0.1.0
@@ -1723,8 +1752,8 @@ object functions {
   def hour(e: Column): Column = builtin("hour")(e)
 
   /**
-   * Returns the last day of the specified date part for a date or timestamp.
-   * Commonly used to return the last day of the month for a date or timestamp.
+   * Returns the last day of the specified date part for a date or timestamp. Commonly used to
+   * return the last day of the month for a date or timestamp.
    *
    * @group date_func
    * @since 0.1.0
@@ -1807,8 +1836,8 @@ object functions {
   def to_date(e: Column, fmt: Column): Column = builtin("to_date")(e, fmt)
 
   /**
-   * Creates a date from individual numeric components that represent the year,
-   * month, and day of the month.
+   * Creates a date from individual numeric components that represent the year, month, and day of
+   * the month.
    *
    * @group date_func
    * @since 0.1.0
@@ -1835,9 +1864,8 @@ object functions {
     builtin("time_from_parts")(hour, minute, second)
 
   /**
-   * Creates a timestamp from individual numeric components.
-   * If no time zone is in effect, the function can be used to create a timestamp
-   * from a date expression and a time expression.
+   * Creates a timestamp from individual numeric components. If no time zone is in effect, the
+   * function can be used to create a timestamp from a date expression and a time expression.
    *
    * @group date_func
    * @since 0.1.0
@@ -1852,9 +1880,8 @@ object functions {
     builtin("timestamp_from_parts")(year, month, day, hour, minute, second)
 
   /**
-   * Creates a timestamp from individual numeric components.
-   * If no time zone is in effect, the function can be used to create a timestamp
-   * from a date expression and a time expression.
+   * Creates a timestamp from individual numeric components. If no time zone is in effect, the
+   * function can be used to create a timestamp from a date expression and a time expression.
    *
    * @group date_func
    * @since 0.1.0
@@ -1870,9 +1897,8 @@ object functions {
     builtin("timestamp_from_parts")(year, month, day, hour, minute, second, nanosecond)
 
   /**
-   * Creates a timestamp from individual numeric components.
-   * If no time zone is in effect, the function can be used to create a timestamp
-   * from a date expression and a time expression.
+   * Creates a timestamp from individual numeric components. If no time zone is in effect, the
+   * function can be used to create a timestamp from a date expression and a time expression.
    *
    * @group date_func
    * @since 0.1.0
@@ -1881,9 +1907,8 @@ object functions {
     builtin("timestamp_from_parts")(dateExpr, timeExpr)
 
   /**
-   * Creates a timestamp from individual numeric components.
-   * If no time zone is in effect, the function can be used to create a timestamp
-   * from a date expression and a time expression.
+   * Creates a timestamp from individual numeric components. If no time zone is in effect, the
+   * function can be used to create a timestamp from a date expression and a time expression.
    *
    * @group date_func
    * @since 0.1.0
@@ -1898,9 +1923,8 @@ object functions {
     builtin("timestamp_ltz_from_parts")(year, month, day, hour, minute, second)
 
   /**
-   * Creates a timestamp from individual numeric components.
-   * If no time zone is in effect, the function can be used to create a timestamp
-   * from a date expression and a time expression.
+   * Creates a timestamp from individual numeric components. If no time zone is in effect, the
+   * function can be used to create a timestamp from a date expression and a time expression.
    *
    * @group date_func
    * @since 0.1.0
@@ -1916,9 +1940,8 @@ object functions {
     builtin("timestamp_ltz_from_parts")(year, month, day, hour, minute, second, nanosecond)
 
   /**
-   * Creates a timestamp from individual numeric components.
-   * If no time zone is in effect, the function can be used to create a timestamp
-   * from a date expression and a time expression.
+   * Creates a timestamp from individual numeric components. If no time zone is in effect, the
+   * function can be used to create a timestamp from a date expression and a time expression.
    *
    * @group date_func
    * @since 0.1.0
@@ -1933,9 +1956,8 @@ object functions {
     builtin("timestamp_ntz_from_parts")(year, month, day, hour, minute, second)
 
   /**
-   * Creates a timestamp from individual numeric components.
-   * If no time zone is in effect, the function can be used to create a timestamp
-   * from a date expression and a time expression.
+   * Creates a timestamp from individual numeric components. If no time zone is in effect, the
+   * function can be used to create a timestamp from a date expression and a time expression.
    *
    * @group date_func
    * @since 0.1.0
@@ -1951,9 +1973,8 @@ object functions {
     builtin("timestamp_ntz_from_parts")(year, month, day, hour, minute, second, nanosecond)
 
   /**
-   * Creates a timestamp from individual numeric components.
-   * If no time zone is in effect, the function can be used to create a timestamp
-   * from a date expression and a time expression.
+   * Creates a timestamp from individual numeric components. If no time zone is in effect, the
+   * function can be used to create a timestamp from a date expression and a time expression.
    *
    * @group date_func
    * @since 0.1.0
@@ -1962,9 +1983,8 @@ object functions {
     builtin("timestamp_ntz_from_parts")(dateExpr, timeExpr)
 
   /**
-   * Creates a timestamp from individual numeric components.
-   * If no time zone is in effect, the function can be used to create a timestamp
-   * from a date expression and a time expression.
+   * Creates a timestamp from individual numeric components. If no time zone is in effect, the
+   * function can be used to create a timestamp from a date expression and a time expression.
    *
    * @group date_func
    * @since 0.1.0
@@ -1979,9 +1999,8 @@ object functions {
     builtin("timestamp_tz_from_parts")(year, month, day, hour, minute, second)
 
   /**
-   * Creates a timestamp from individual numeric components.
-   * If no time zone is in effect, the function can be used to create a timestamp
-   * from a date expression and a time expression.
+   * Creates a timestamp from individual numeric components. If no time zone is in effect, the
+   * function can be used to create a timestamp from a date expression and a time expression.
    *
    * @group date_func
    * @since 0.1.0
@@ -1997,9 +2016,8 @@ object functions {
     builtin("timestamp_tz_from_parts")(year, month, day, hour, minute, second, nanosecond)
 
   /**
-   * Creates a timestamp from individual numeric components.
-   * If no time zone is in effect, the function can be used to create a timestamp
-   * from a date expression and a time expression.
+   * Creates a timestamp from individual numeric components. If no time zone is in effect, the
+   * function can be used to create a timestamp from a date expression and a time expression.
    *
    * @group date_func
    * @since 0.1.0
@@ -2013,19 +2031,10 @@ object functions {
       second: Column,
       nanosecond: Column,
       timeZone: Column): Column =
-    builtin("timestamp_tz_from_parts")(
-      year,
-      month,
-      day,
-      hour,
-      minute,
-      second,
-      nanosecond,
-      timeZone)
+    builtin("timestamp_tz_from_parts")(year, month, day, hour, minute, second, nanosecond, timeZone)
 
   /**
-   * Extracts the three-letter day-of-week name from the specified date or
-   * timestamp.
+   * Extracts the three-letter day-of-week name from the specified date or timestamp.
    *
    * @group date_func
    * @since 0.1.0
@@ -2061,7 +2070,8 @@ object functions {
 
   // scalastyle:off
   /**
-   * Calculates the difference between two date, time, or timestamp columns based on the date or time part requested.
+   * Calculates the difference between two date, time, or timestamp columns based on the date or
+   * time part requested.
    *
    * Supported date and time parts are listed
    * [[https://docs.snowflake.com/en/sql-reference/functions-date-time.html#label-supported-date-time-parts here]]
@@ -2079,9 +2089,8 @@ object functions {
     builtin("datediff")(part, col1, col2)
 
   /**
-   * Rounds the input expression down to the nearest (or equal) integer closer to zero,
-   * or to the nearest equal or smaller value with the specified number of
-   * places after the decimal point.
+   * Rounds the input expression down to the nearest (or equal) integer closer to zero, or to the
+   * nearest equal or smaller value with the specified number of places after the decimal point.
    *
    * @group num_func
    * @since 0.1.0
@@ -2101,8 +2110,8 @@ object functions {
   }
 
   /**
-   * Concatenates one or more strings, or concatenates one or more binary values.
-   * If any of the values is null, the result is also null.
+   * Concatenates one or more strings, or concatenates one or more binary values. If any of the
+   * values is null, the result is also null.
    *
    * @group str_func
    * @since 0.1.0
@@ -2110,9 +2119,9 @@ object functions {
   def concat(exprs: Column*): Column = builtin("concat")(exprs: _*)
 
   /**
-   * Compares whether two arrays have at least one element in common.
-   * Returns TRUE if there is at least one element in common; otherwise returns FALSE.
-   * The function is NULL-safe, meaning it treats NULLs as known values for comparing equality.
+   * Compares whether two arrays have at least one element in common. Returns TRUE if there is at
+   * least one element in common; otherwise returns FALSE. The function is NULL-safe, meaning it
+   * treats NULLs as known values for comparing equality.
    *
    * @group semi_func
    * @since 0.1.0
@@ -2131,8 +2140,8 @@ object functions {
     builtin("endswith")(expr, str)
 
   /**
-   * Replaces a substring of the specified length, starting at the specified position,
-   * with a new string or binary value.
+   * Replaces a substring of the specified length, starting at the specified position, with a new
+   * string or binary value.
    *
    * @group str_func
    * @since 0.1.0
@@ -2172,11 +2181,7 @@ object functions {
    * @since 0.1.0
    */
   // scalastyle:on
-  def regexp_count(
-      strExpr: Column,
-      pattern: Column,
-      position: Column,
-      parameters: Column): Column =
+  def regexp_count(strExpr: Column, pattern: Column, position: Column, parameters: Column): Column =
     builtin("regexp_count")(strExpr, pattern, position, parameters)
 
   // scalastyle:off
@@ -2197,8 +2202,8 @@ object functions {
     builtin("regexp_count")(strExpr, pattern)
 
   /**
-   * Returns the subject with the specified pattern (or all occurrences of the pattern) removed.
-   * If no matches are found, returns the original subject.
+   * Returns the subject with the specified pattern (or all occurrences of the pattern) removed. If
+   * no matches are found, returns the original subject.
    *
    * @group str_func
    * @since 1.9.0
@@ -2207,9 +2212,8 @@ object functions {
     builtin("regexp_replace")(strExpr, pattern)
 
   /**
-   * Returns the subject with the specified pattern (or all occurrences of the pattern)
-   * replaced by a replacement string. If no matches are found,
-   * returns the original subject.
+   * Returns the subject with the specified pattern (or all occurrences of the pattern) replaced by
+   * a replacement string. If no matches are found, returns the original subject.
    *
    * @group str_func
    * @since 1.9.0
@@ -2218,8 +2222,7 @@ object functions {
     builtin("regexp_replace")(strExpr, pattern, replacement)
 
   /**
-   * Removes all occurrences of a specified strExpr,
-   * and optionally replaces them with replacement.
+   * Removes all occurrences of a specified strExpr, and optionally replaces them with replacement.
    *
    * @group str_func
    * @since 0.1.0
@@ -2228,8 +2231,7 @@ object functions {
     builtin("replace")(strExpr, pattern, replacement)
 
   /**
-   * Removes all occurrences of a specified strExpr,
-   * and optionally replaces them with replacement.
+   * Removes all occurrences of a specified strExpr, and optionally replaces them with replacement.
    *
    * @group str_func
    * @since 0.1.0
@@ -2238,8 +2240,8 @@ object functions {
     builtin("replace")(strExpr, pattern)
 
   /**
-   * Searches for targetExpr in sourceExpr and, if successful,
-   * returns the position (1-based) of the targetExpr in sourceExpr.
+   * Searches for targetExpr in sourceExpr and, if successful, returns the position (1-based) of the
+   * targetExpr in sourceExpr.
    *
    * @group str_func
    * @since 0.1.0
@@ -2248,8 +2250,8 @@ object functions {
     builtin("charindex")(targetExpr, sourceExpr)
 
   /**
-   * Searches for targetExpr in sourceExpr and, if successful,
-   * returns the position (1-based) of the targetExpr in sourceExpr.
+   * Searches for targetExpr in sourceExpr and, if successful, returns the position (1-based) of the
+   * targetExpr in sourceExpr.
    *
    * @group str_func
    * @since 0.1.0
@@ -2259,8 +2261,8 @@ object functions {
 
   // scalastyle:off
   /**
-   * Returns a copy of expr, but with the specified collationSpec property
-   * instead of the original collation specification property.
+   * Returns a copy of expr, but with the specified collationSpec property instead of the original
+   * collation specification property.
    *
    * Collation Specification is specified
    * [[https://docs.snowflake.com/en/sql-reference/collation.html#label-collation-specification here]]
@@ -2434,8 +2436,8 @@ object functions {
   }
 
   /**
-   * Returns true if the specified VARIANT column contains a TIMESTAMP value to be interpreted
-   * using the local time zone.
+   * Returns true if the specified VARIANT column contains a TIMESTAMP value to be interpreted using
+   * the local time zone.
    *
    * @group semi_func
    * @since 0.1.0
@@ -2465,11 +2467,9 @@ object functions {
   }
 
   /**
-   * Checks the validity of a JSON document.
-   * If the input string is a valid JSON document or a NULL (i.e. no error would occur when
-   * parsing the input string), the function returns NULL.
-   * In case of a JSON parsing error, the function returns a string that contains the error
-   * message.
+   * Checks the validity of a JSON document. If the input string is a valid JSON document or a NULL
+   * (i.e. no error would occur when parsing the input string), the function returns NULL. In case
+   * of a JSON parsing error, the function returns a string that contains the error message.
    *
    * @group semi_func
    * @since 0.2.0
@@ -2479,10 +2479,9 @@ object functions {
   }
 
   /**
-   * Checks the validity of an XML document.
-   * If the input string is a valid XML document or a NULL (i.e. no error would occur when parsing
-   * the input string), the function returns NULL.
-   * In case of an XML parsing error, the output string contains the error message.
+   * Checks the validity of an XML document. If the input string is a valid XML document or a NULL
+   * (i.e. no error would occur when parsing the input string), the function returns NULL. In case
+   * of an XML parsing error, the output string contains the error message.
    *
    * @group semi_func
    * @since 0.2.0
@@ -2495,8 +2494,10 @@ object functions {
    * Parses a JSON string and returns the value of an element at a specified path in the resulting
    * JSON document.
    *
-   * @param col Column containing the JSON string that should be parsed.
-   * @param path Column containing the path to the element that should be extracted.
+   * @param col
+   *   Column containing the JSON string that should be parsed.
+   * @param path
+   *   Column containing the path to the element that should be extracted.
    * @group semi_func
    * @since 0.2.0
    */
@@ -2527,8 +2528,8 @@ object functions {
   }
 
   /**
-   * Converts a JSON "null" value in the specified column to a SQL NULL value.
-   * All other VARIANT values in the column are returned unchanged.
+   * Converts a JSON "null" value in the specified column to a SQL NULL value. All other VARIANT
+   * values in the column are returned unchanged.
    *
    * @group semi_func
    * @since 0.2.0
@@ -2538,8 +2539,8 @@ object functions {
   }
 
   /**
-   * Returns the input values, pivoted into an ARRAY.
-   * If the input is empty, an empty ARRAY is returned.
+   * Returns the input values, pivoted into an ARRAY. If the input is empty, an empty ARRAY is
+   * returned.
    *
    * @group semi_func
    * @since 0.2.0
@@ -2549,13 +2550,14 @@ object functions {
   }
 
   /**
-   * Returns an ARRAY containing all elements from the source ARRAYas well as the new element.
-   * The new element is located at end of the ARRAY.
+   * Returns an ARRAY containing all elements from the source ARRAYas well as the new element. The
+   * new element is located at end of the ARRAY.
    *
-   * @param array The column containing the source ARRAY.
-   * @param element The column containing the element to be appended. The element may be of almost
-   *                any data type. The data type does not need to match the data type(s) of the
-   *                existing elements in the ARRAY.
+   * @param array
+   *   The column containing the source ARRAY.
+   * @param element
+   *   The column containing the element to be appended. The element may be of almost any data type.
+   *   The data type does not need to match the data type(s) of the existing elements in the ARRAY.
    * @group semi_func
    * @since 0.2.0
    */
@@ -2566,8 +2568,10 @@ object functions {
   /**
    * Returns the concatenation of two ARRAYs.
    *
-   * @param array1 Column containing the source ARRAY.
-   * @param array2 Column containing the ARRAY to be appended to {@code array1}.
+   * @param array1
+   *   Column containing the source ARRAY.
+   * @param array2
+   *   Column containing the ARRAY to be appended to {@code array1} .
    * @group semi_func
    * @since 0.2.0
    */
@@ -2576,8 +2580,8 @@ object functions {
   }
 
   /**
-   * Returns a compacted ARRAY with missing and null values removed,
-   * effectively converting sparse arrays into dense arrays.
+   * Returns a compacted ARRAY with missing and null values removed, effectively converting sparse
+   * arrays into dense arrays.
    *
    * @group semi_func
    * @since 0.2.0
@@ -2589,8 +2593,9 @@ object functions {
   /**
    * Returns an ARRAY constructed from zero, one, or more inputs.
    *
-   * @param cols Columns containing the values (or expressions that evaluate to values). The
-   *             values do not all need to be of the same data type.
+   * @param cols
+   *   Columns containing the values (or expressions that evaluate to values). The values do not all
+   *   need to be of the same data type.
    * @group semi_func
    * @since 0.2.0
    */
@@ -2599,11 +2604,12 @@ object functions {
   }
 
   /**
-   * Returns an ARRAY constructed from zero, one, or more inputs;
-   * the constructed ARRAY omits any NULL input values.
+   * Returns an ARRAY constructed from zero, one, or more inputs; the constructed ARRAY omits any
+   * NULL input values.
    *
-   * @param cols Columns containing the values (or expressions that evaluate to values). The
-   *             values do not all need to be of the same data type.
+   * @param cols
+   *   Columns containing the values (or expressions that evaluate to values). The values do not all
+   *   need to be of the same data type.
    * @group semi_func
    * @since 0.2.0
    */
@@ -2614,8 +2620,10 @@ object functions {
   /**
    * Returns {@code true} if the specified VARIANT is found in the specified ARRAY.
    *
-   * @param variant Column containing the VARIANT to find.
-   * @param array Column containing the ARRAY to search.
+   * @param variant
+   *   Column containing the VARIANT to find.
+   * @param array
+   *   Column containing the ARRAY to search.
    * @group semi_func
    * @since 0.2.0
    */
@@ -2626,17 +2634,18 @@ object functions {
   /**
    * Returns an ARRAY containing all elements from the source ARRAY as well as the new element.
    *
-   * @param array Column containing the source ARRAY.
-   * @param pos Column containing a (zero-based) position in the source ARRAY.
-   *            The new element is inserted at this position. The original element from this
-   *            position (if any) and all subsequent elements (if any) are shifted by one position
-   *            to the right in the resulting array (i.e. inserting at position 0 has the same
-   *            effect as using [[array_prepend]]).
-   *            A negative position is interpreted as an index from the back of the array (e.g.
-   *            {@code -1} results in insertion before the last element in the array).
-   * @param element Column containing the element to be inserted. The new element is located at
-   *                position {@code pos}. The relative order of the other elements from the source
-   *                array is preserved.
+   * @param array
+   *   Column containing the source ARRAY.
+   * @param pos
+   *   Column containing a (zero-based) position in the source ARRAY. The new element is inserted at
+   *   this position. The original element from this position (if any) and all subsequent elements
+   *   (if any) are shifted by one position to the right in the resulting array (i.e. inserting at
+   *   position 0 has the same effect as using [[array_prepend]]). A negative position is
+   *   interpreted as an index from the back of the array (e.g. {@code -1} results in insertion
+   *   before the last element in the array).
+   * @param element
+   *   Column containing the element to be inserted. The new element is located at position
+   *   {@code pos} . The relative order of the other elements from the source array is preserved.
    * @group semi_func
    * @since 0.2.0
    */
@@ -2647,9 +2656,11 @@ object functions {
   /**
    * Returns the index of the first occurrence of an element in an ARRAY.
    *
-   * @param variant Column containing the VARIANT value that you want to find. The function
-   *                searches for the first occurrence of this value in the array.
-   * @param array Column containing the ARRAY to be searched.
+   * @param variant
+   *   Column containing the VARIANT value that you want to find. The function searches for the
+   *   first occurrence of this value in the array.
+   * @param array
+   *   Column containing the ARRAY to be searched.
    * @group semi_func
    * @since 0.2.0
    */
@@ -2658,11 +2669,13 @@ object functions {
   }
 
   /**
-   * Returns an ARRAY containing the new element as well as all elements from the source ARRAY.
-   * The new element is positioned at the beginning of the ARRAY.
+   * Returns an ARRAY containing the new element as well as all elements from the source ARRAY. The
+   * new element is positioned at the beginning of the ARRAY.
    *
-   * @param array Column containing the source ARRAY.
-   * @param element Column containing the element to be prepended.
+   * @param array
+   *   Column containing the source ARRAY.
+   * @param element
+   *   Column containing the element to be prepended.
    * @group semi_func
    * @since 0.2.0
    */
@@ -2686,12 +2699,15 @@ object functions {
   /**
    * Returns an ARRAY constructed from a specified subset of elements of the input ARRAY.
    *
-   * @param array Column containing the source ARRAY.
-   * @param from Column containing a position in the source ARRAY. The position of the first
-   *                    element is {@code 0}. Elements from positions less than this parameter are
-   *                    not included in the resulting ARRAY.
-   * @param to Column containing a position in the source ARRAY. Elements from positions equal to
-   *                  or greater than this parameter are not included in the resulting array.
+   * @param array
+   *   Column containing the source ARRAY.
+   * @param from
+   *   Column containing a position in the source ARRAY. The position of the first element is
+   *   {@code 0} . Elements from positions less than this parameter are not included in the
+   *   resulting ARRAY.
+   * @param to
+   *   Column containing a position in the source ARRAY. Elements from positions equal to or greater
+   *   than this parameter are not included in the resulting array.
    * @group semi_func
    * @since 0.2.0
    */
@@ -2701,12 +2717,14 @@ object functions {
 
   /**
    * Returns an input ARRAY converted to a string by casting all values to strings (using
-   * TO_VARCHAR) and concatenating them (using the string from the second argument to separate
-   * the elements).
+   * TO_VARCHAR) and concatenating them (using the string from the second argument to separate the
+   * elements).
    *
-   * @param array Column containing the ARRAY of elements to convert to a string.
-   * @param separator Column containing the string to put between each element (e.g. a space,
-   *                  comma, or other human-readable separator).
+   * @param array
+   *   Column containing the ARRAY of elements to convert to a string.
+   * @param separator
+   *   Column containing the string to put between each element (e.g. a space, comma, or other
+   *   human-readable separator).
    * @group semi_func
    * @since 0.2.0
    */
@@ -2715,8 +2733,8 @@ object functions {
   }
 
   /**
-   * Returns one OBJECT per group. For each (key, value) input pair, where key must be a VARCHAR
-   * and value must be a VARIANT, the resulting OBJECT contains a key:value field.
+   * Returns one OBJECT per group. For each (key, value) input pair, where key must be a VARCHAR and
+   * value must be a VARIANT, the resulting OBJECT contains a key:value field.
    *
    * @group semi_func
    * @since 0.2.0
@@ -2748,8 +2766,8 @@ object functions {
   }
 
   /**
-   * Returns an object consisting of the input object with a new key-value pair inserted.
-   * The input key must not exist in the object.
+   * Returns an object consisting of the input object with a new key-value pair inserted. The input
+   * key must not exist in the object.
    *
    * @group semi_func
    * @since 0.2.0
@@ -2772,8 +2790,8 @@ object functions {
   /**
    * Returns a new OBJECT containing some of the key-value pairs from an existing object.
    *
-   * To identify the key-value pairs to include in the new object, pass in the keys as arguments,
-   * or pass in an array containing the keys.
+   * To identify the key-value pairs to include in the new object, pass in the keys as arguments, or
+   * pass in an array containing the keys.
    *
    * If a specified key is not present in the input object, the key is ignored.
    *
@@ -2846,8 +2864,8 @@ object functions {
   }
 
   /**
-   * Casts a VARIANT value to a fixed-point decimal (does not match floating-point values),
-   * with precision.
+   * Casts a VARIANT value to a fixed-point decimal (does not match floating-point values), with
+   * precision.
    *
    * @group semi_func
    * @since 0.2.0
@@ -2857,8 +2875,8 @@ object functions {
   }
 
   /**
-   * Casts a VARIANT value to a fixed-point decimal (does not match floating-point values),
-   * with precision and scale.
+   * Casts a VARIANT value to a fixed-point decimal (does not match floating-point values), with
+   * precision and scale.
    *
    * @group semi_func
    * @since 0.2.0
@@ -2878,8 +2896,8 @@ object functions {
   }
 
   /**
-   * Casts a VARIANT value to a fixed-point decimal (does not match floating-point values),
-   * with precision.
+   * Casts a VARIANT value to a fixed-point decimal (does not match floating-point values), with
+   * precision.
    *
    * @group semi_func
    * @since 0.2.0
@@ -2889,8 +2907,8 @@ object functions {
   }
 
   /**
-   * Casts a VARIANT value to a fixed-point decimal (does not match floating-point values),
-   * with precision and scale.
+   * Casts a VARIANT value to a fixed-point decimal (does not match floating-point values), with
+   * precision and scale.
    *
    * @group semi_func
    * @since 0.2.0
@@ -3006,9 +3024,9 @@ object functions {
   /**
    * Converts the input expression into an array:
    *
-   * If the input is an ARRAY, or VARIANT containing an array value, the result is unchanged.
-   * For NULL or a JSON null input, returns NULL.
-   * For any other value, the result is a single-element array containing this value.
+   * If the input is an ARRAY, or VARIANT containing an array value, the result is unchanged. For
+   * NULL or a JSON null input, returns NULL. For any other value, the result is a single-element
+   * array containing this value.
    *
    * @group semi_func
    * @since 0.2.0
@@ -3018,8 +3036,8 @@ object functions {
   }
 
   /**
-   * Converts any VARIANT value to a string containing the JSON representation of the value.
-   * If the input is NULL, the result is also NULL.
+   * Converts any VARIANT value to a string containing the JSON representation of the value. If the
+   * input is NULL, the result is also NULL.
    *
    * @group semi_func
    * @since 0.2.0
@@ -3031,9 +3049,9 @@ object functions {
   /**
    * Converts the input value to an object:
    *
-   * For a variant value containing an object, returns this object (in a value of type OBJECT).
-   * For a variant value containing JSON null or for NULL input, returns NULL.
-   * For all other input values, reports an error.
+   * For a variant value containing an object, returns this object (in a value of type OBJECT). For
+   * a variant value containing JSON null or for NULL input, returns NULL. For all other input
+   * values, reports an error.
    *
    * @group semi_func
    * @since 0.2.0
@@ -3053,8 +3071,8 @@ object functions {
   }
 
   /**
-   * Converts any VARIANT value to a string containing the XML representation of the value.
-   * If the input is NULL, the result is also NULL.
+   * Converts any VARIANT value to a string containing the XML representation of the value. If the
+   * input is NULL, the result is also NULL.
    *
    * @group semi_func
    * @since 0.2.0
@@ -3074,8 +3092,8 @@ object functions {
   }
 
   /**
-   * Extracts a field value from an object; returns NULL if either of the arguments is NULL.
-   * This function is similar to GET but applies case-insensitive matching to field names.
+   * Extracts a field value from an object; returns NULL if either of the arguments is NULL. This
+   * function is similar to GET but applies case-insensitive matching to field names.
    *
    * @group semi_func
    * @since 0.2.0
@@ -3095,8 +3113,8 @@ object functions {
   }
 
   /**
-   * Extracts an XML element object (often referred to as simply a tag) from a content of outer
-   * XML element object by the name of the tag and its instance number (counting from 0).
+   * Extracts an XML element object (often referred to as simply a tag) from a content of outer XML
+   * element object by the name of the tag and its instance number (counting from 0).
    *
    * @group semi_func
    * @since 0.2.0
@@ -3127,13 +3145,10 @@ object functions {
   }
 
   /**
-   * Works like a cascading if-then-else statement.
-   * A series of conditions are evaluated in sequence.
-   * When a condition evaluates to TRUE, the evaluation stops and the associated
-   * result (after THEN) is returned. If none of the conditions evaluate to TRUE,
-   * then the result after the optional OTHERWISE is returned, if present;
-   * otherwise NULL is returned.
-   * For Example:
+   * Works like a cascading if-then-else statement. A series of conditions are evaluated in
+   * sequence. When a condition evaluates to TRUE, the evaluation stops and the associated result
+   * (after THEN) is returned. If none of the conditions evaluate to TRUE, then the result after the
+   * optional OTHERWISE is returned, if present; otherwise NULL is returned. For Example:
    * {{{
    *     import functions._
    *     df.select(
@@ -3152,56 +3167,56 @@ object functions {
   /**
    * Returns one of two specified expressions, depending on a condition.
    *
-   * This is equivalent to an `if-then-else` expression.
-   * If `condition` evaluates to TRUE, the function returns `expr1`.
-   * Otherwise, the function returns `expr2`.
+   * This is equivalent to an `if-then-else` expression. If `condition` evaluates to TRUE, the
+   * function returns `expr1`. Otherwise, the function returns `expr2`.
    *
    * @group con_func
-   * @param condition The condition to evaluate.
-   * @param expr1     The expression to return if the condition evaluates to TRUE.
-   * @param expr2     The expression to return if the condition is not TRUE
-   *                  (i.e. if it is FALSE or NULL).
+   * @param condition
+   *   The condition to evaluate.
+   * @param expr1
+   *   The expression to return if the condition evaluates to TRUE.
+   * @param expr2
+   *   The expression to return if the condition is not TRUE (i.e. if it is FALSE or NULL).
    * @since 0.9.0
    */
   def iff(condition: Column, expr1: Column, expr2: Column): Column =
     builtin("iff")(condition, expr1, expr2)
 
   /**
-   * Returns a conditional expression that you can pass to the filter or where method to
-   * perform the equivalent of a WHERE ... IN query that matches rows containing a sequence of
-   * values.
+   * Returns a conditional expression that you can pass to the filter or where method to perform the
+   * equivalent of a WHERE ... IN query that matches rows containing a sequence of values.
    *
-   * The expression evaluates to true if the values in a row matches the values in one of
-   * the specified sequences.
+   * The expression evaluates to true if the values in a row matches the values in one of the
+   * specified sequences.
    *
-   * For example, the following code returns a DataFrame that contains the rows in which
-   * the columns `c1` and `c2` contain the values:
-   * - `1` and `"a"`, or
-   * - `2` and `"b"`
-   * This is equivalent to `SELECT * FROM table WHERE (c1, c2) IN ((1, 'a'), (2, 'b'))`.
-   * {{{
+   * For example, the following code returns a DataFrame that contains the rows in which the columns
+   * `c1` and `c2` contain the values:
+   *   - `1` and `"a"`, or
+   *   - `2` and `"b"` This is equivalent to `SELECT * FROM table WHERE (c1, c2) IN ((1, 'a'), (2,
+   *     'b'))`.
+   *     {{{
    *   val df2 = df.filter(functions.in(Seq(df("c1"), df("c2")), Seq(Seq(1, "a"), Seq(2, "b"))))
-   * }}}
+   *     }}}
    * @group con_func
-   * @param columns A sequence of the columns to compare for the IN operation.
-   * @param values  A sequence containing the sequences of values to compare for the IN operation.
+   * @param columns
+   *   A sequence of the columns to compare for the IN operation.
+   * @param values
+   *   A sequence containing the sequences of values to compare for the IN operation.
    * @since 0.10.0
    */
   def in(columns: Seq[Column], values: Seq[Seq[Any]]): Column =
     Column(MultipleExpression(columns.map(_.expr))).in(values)
 
   /**
-   * Returns a conditional expression that you can pass to the filter or where method to
-   * perform the equivalent of a WHERE ... IN query with the subquery represented by
-   * the specified DataFrame.
+   * Returns a conditional expression that you can pass to the filter or where method to perform the
+   * equivalent of a WHERE ... IN query with the subquery represented by the specified DataFrame.
    *
-   * The expression evaluates to true if the value in the column is one of the values in
-   * the column of the same name in a specified DataFrame.
+   * The expression evaluates to true if the value in the column is one of the values in the column
+   * of the same name in a specified DataFrame.
    *
-   * For example, the following code returns a DataFrame that contains the rows where
-   * the values of the columns `c1` and `c2` in `df2` match the values of the columns
-   * `a` and `b` in `df1`. This is equivalent to
-   * SELECT * FROM table2 WHERE (c1, c2) IN (SELECT a, b FROM table1).
+   * For example, the following code returns a DataFrame that contains the rows where the values of
+   * the columns `c1` and `c2` in `df2` match the values of the columns `a` and `b` in `df1`. This
+   * is equivalent to SELECT * FROM table2 WHERE (c1, c2) IN (SELECT a, b FROM table1).
    * {{{
    *    val df1 = session.sql("select a, b from table1").
    *    val df2 = session.table(table2)
@@ -3209,8 +3224,10 @@ object functions {
    * }}}
    *
    * @group con_func
-   * @param columns A sequence of the columns to compare for the IN operation.
-   * @param df      The DataFrame used as the values for the IN operation
+   * @param columns
+   *   A sequence of the columns to compare for the IN operation.
+   * @param df
+   *   The DataFrame used as the values for the IN operation
    * @since 0.10.0
    */
   def in(columns: Seq[Column], df: DataFrame): Column = {
@@ -3218,9 +3235,9 @@ object functions {
   }
 
   /**
-   * Generates a sequence of monotonically increasing integers, with wrap-around.
-   * Wrap-around occurs after the largest representable integer of the integer width
-   * 1 byte. the sequence continues at 0 after wrap-around.
+   * Generates a sequence of monotonically increasing integers, with wrap-around. Wrap-around occurs
+   * after the largest representable integer of the integer width 1 byte. the sequence continues at
+   * 0 after wrap-around.
    *
    * @since 0.11.0
    * @group gen_func
@@ -3228,13 +3245,12 @@ object functions {
   def seq1(): Column = seq1(true)
 
   /**
-   * Generates a sequence of monotonically increasing integers, with wrap-around.
-   * Wrap-around occurs after the largest representable integer of the integer width
-   * 1 byte.
+   * Generates a sequence of monotonically increasing integers, with wrap-around. Wrap-around occurs
+   * after the largest representable integer of the integer width 1 byte.
    *
-   * @param startsFromZero if true, the sequence continues at 0 after wrap-around,
-   *                       otherwise, continues at the smallest representable number
-   *                       based on the given integer width.
+   * @param startsFromZero
+   *   if true, the sequence continues at 0 after wrap-around, otherwise, continues at the smallest
+   *   representable number based on the given integer width.
    * @since 0.11.0
    * @group gen_func
    */
@@ -3242,9 +3258,9 @@ object functions {
     builtin("seq1")(if (startsFromZero) 0 else 1)
 
   /**
-   * Generates a sequence of monotonically increasing integers, with wrap-around.
-   * Wrap-around occurs after the largest representable integer of the integer width
-   * 2 byte. the sequence continues at 0 after wrap-around.
+   * Generates a sequence of monotonically increasing integers, with wrap-around. Wrap-around occurs
+   * after the largest representable integer of the integer width 2 byte. the sequence continues at
+   * 0 after wrap-around.
    *
    * @since 0.11.0
    * @group gen_func
@@ -3252,13 +3268,12 @@ object functions {
   def seq2(): Column = seq2(true)
 
   /**
-   * Generates a sequence of monotonically increasing integers, with wrap-around.
-   * Wrap-around occurs after the largest representable integer of the integer width
-   * 2 byte.
+   * Generates a sequence of monotonically increasing integers, with wrap-around. Wrap-around occurs
+   * after the largest representable integer of the integer width 2 byte.
    *
-   * @param startsFromZero if true, the sequence continues at 0 after wrap-around,
-   *                       otherwise, continues at the smallest representable number
-   *                       based on the given integer width.
+   * @param startsFromZero
+   *   if true, the sequence continues at 0 after wrap-around, otherwise, continues at the smallest
+   *   representable number based on the given integer width.
    * @since 0.11.0
    * @group gen_func
    */
@@ -3266,9 +3281,9 @@ object functions {
     builtin("seq2")(if (startsFromZero) 0 else 1)
 
   /**
-   * Generates a sequence of monotonically increasing integers, with wrap-around.
-   * Wrap-around occurs after the largest representable integer of the integer width
-   * 4 byte. the sequence continues at 0 after wrap-around.
+   * Generates a sequence of monotonically increasing integers, with wrap-around. Wrap-around occurs
+   * after the largest representable integer of the integer width 4 byte. the sequence continues at
+   * 0 after wrap-around.
    *
    * @since 0.11.0
    * @group gen_func
@@ -3276,13 +3291,12 @@ object functions {
   def seq4(): Column = seq4(true)
 
   /**
-   * Generates a sequence of monotonically increasing integers, with wrap-around.
-   * Wrap-around occurs after the largest representable integer of the integer width
-   * 4 byte.
+   * Generates a sequence of monotonically increasing integers, with wrap-around. Wrap-around occurs
+   * after the largest representable integer of the integer width 4 byte.
    *
-   * @param startsFromZero if true, the sequence continues at 0 after wrap-around,
-   *                       otherwise, continues at the smallest representable number
-   *                       based on the given integer width.
+   * @param startsFromZero
+   *   if true, the sequence continues at 0 after wrap-around, otherwise, continues at the smallest
+   *   representable number based on the given integer width.
    * @since 0.11.0
    * @group gen_func
    */
@@ -3290,9 +3304,9 @@ object functions {
     builtin("seq4")(if (startsFromZero) 0 else 1)
 
   /**
-   * Generates a sequence of monotonically increasing integers, with wrap-around.
-   * Wrap-around occurs after the largest representable integer of the integer width
-   * 8 byte. the sequence continues at 0 after wrap-around.
+   * Generates a sequence of monotonically increasing integers, with wrap-around. Wrap-around occurs
+   * after the largest representable integer of the integer width 8 byte. the sequence continues at
+   * 0 after wrap-around.
    *
    * @since 0.11.0
    * @group gen_func
@@ -3300,13 +3314,12 @@ object functions {
   def seq8(): Column = seq8(true)
 
   /**
-   * Generates a sequence of monotonically increasing integers, with wrap-around.
-   * Wrap-around occurs after the largest representable integer of the integer width
-   * 8 byte.
+   * Generates a sequence of monotonically increasing integers, with wrap-around. Wrap-around occurs
+   * after the largest representable integer of the integer width 8 byte.
    *
-   * @param startsFromZero if true, the sequence continues at 0 after wrap-around,
-   *                       otherwise, continues at the smallest representable number
-   *                       based on the given integer width.
+   * @param startsFromZero
+   *   if true, the sequence continues at 0 after wrap-around, otherwise, continues at the smallest
+   *   representable number based on the given integer width.
    * @since 0.11.0
    * @group gen_func
    */
@@ -3323,10 +3336,13 @@ object functions {
    *   session.generator(10, seq4(), uniform(lit(1), lit(5), random())).show()
    * }}}
    *
-   * @param min The lower bound
-   * @param max The upper bound
-   * @param gen The generator expression for the function. for more information, see
-   *            [[https://docs.snowflake.com/en/sql-reference/functions-data-generation.html#label-rand-dist-functions]]
+   * @param min
+   *   The lower bound
+   * @param max
+   *   The upper bound
+   * @param gen
+   *   The generator expression for the function. for more information, see
+   *   [[https://docs.snowflake.com/en/sql-reference/functions-data-generation.html#label-rand-dist-functions]]
    * @since 0.11.0
    * @group gen_func
    */
@@ -3345,11 +3361,13 @@ object functions {
    *   df.select(listagg(df.col("col2"), ",", false))
    * }}}
    *
-   * @param col The expression (typically a Column) that determines the values
-   *            to be put into the list. The expression should evaluate to a
-   *            string, or to a data type that can be cast to string.
-   * @param delimiter A string delimiter.
-   * @param isDistinct Whether the input expression is distinct.
+   * @param col
+   *   The expression (typically a Column) that determines the values to be put into the list. The
+   *   expression should evaluate to a string, or to a data type that can be cast to string.
+   * @param delimiter
+   *   A string delimiter.
+   * @param isDistinct
+   *   Whether the input expression is distinct.
    * @since 0.12.0
    * @group agg_func
    */
@@ -3367,10 +3385,11 @@ object functions {
    *   df.select(listagg(df.col("col2"), ",", false))
    * }}}
    *
-   * @param col The expression (typically a Column) that determines the values
-   *            to be put into the list. The expression should evaluate to a
-   *            string, or to a data type that can be cast to string.
-   * @param delimiter A string delimiter.
+   * @param col
+   *   The expression (typically a Column) that determines the values to be put into the list. The
+   *   expression should evaluate to a string, or to a data type that can be cast to string.
+   * @param delimiter
+   *   A string delimiter.
    * @since 0.12.0
    * @group agg_func
    */
@@ -3388,54 +3407,55 @@ object functions {
    *   df.select(listagg(df.col("col2"), ",", false))
    * }}}
    *
-   * @param col The expression (typically a Column) that determines the values
-   *            to be put into the list. The expression should evaluate to a
-   *            string, or to a data type that can be cast to string.
+   * @param col
+   *   The expression (typically a Column) that determines the values to be put into the list. The
+   *   expression should evaluate to a string, or to a data type that can be cast to string.
    * @since 0.12.0
    * @group agg_func
    */
   def listagg(col: Column): Column = listagg(col, "", isDistinct = false)
 
   /**
-
-   * Wrapper for Snowflake built-in reverse function. Gets the reversed string.
-   * Reverses the order of characters in a string, or of bytes in a binary value.
-   * The returned value is the same length as the input, but with the characters/bytes
-   *  in reverse order. If subject is NULL, the result is also NULL.
-   * Example: SELECT REVERSE('Hello, world!');
-   *+--------------------------+
-   *| REVERSE('HELLO, WORLD!') |
-   *|--------------------------|
-   *| !dlrow ,olleH            |
-   *+--------------------------+
-
+   * Wrapper for Snowflake built-in reverse function. Gets the reversed string. Reverses the order
+   * of characters in a string, or of bytes in a binary value. The returned value is the same length
+   * as the input, but with the characters/bytes in reverse order. If subject is NULL, the result is
+   * also NULL. Example:
+   * {{{
+   * SELECT REVERSE('Hello, world!');
+   * +--------------------------+
+   * | REVERSE('HELLO, WORLD!') |
+   * |--------------------------|
+   * | !dlrow ,olleH            |
+   * +--------------------------+
+   * }}}
+   *
    * @since 1.14.0
-   * @param c Column to be reverse.
-   * @return Column object.
+   * @param c
+   *   Column to be reverse.
+   * @return
+   *   Column object.
    */
   def reverse(c: Column): Column =
     builtin("reverse")(c)
 
   /**
-   * Wrapper for Snowflake built-in isnull function. Gets a boolean
-   * depending if value is NULL or not.
-   * Return true if the value in the column is null.
-   *Example::
-   * >>> from snowflake.snowpark.functions import is_null
-   * >>> df = session.create_dataframe([1.2, float("nan"), None, 1.0],
-   *  schema=["a"])
-   * >>> df.select(is_null("a").as_("a")).collect()
+   * Wrapper for Snowflake built-in isnull function. Gets a boolean depending if value is NULL or
+   * not. Return true if the value in the column is null. Example:: >>> from
+   * snowflake.snowpark.functions import is_null >>> df = session.create_dataframe([1.2,
+   * float("nan"), None, 1.0], schema=["a"]) >>> df.select(is_null("a").as_("a")).collect()
    * [Row(A=False), Row(A=False), Row(A=True), Row(A=False)]
    * @since 1.14.0
-   * @param c Column to qnalize if it is null value.
-   * @return Column object.
+   * @param c
+   *   Column to qnalize if it is null value.
+   * @return
+   *   Column object.
    */
   def isnull(c: Column): Column = is_null(c)
 
   /**
-   * Returns the current Unix timestamp (in seconds) as a long.
-   * Extracts a specified date or time portion from a date, time, or timestamp.
-   * how:
+   * Returns the current Unix timestamp (in seconds) as a long. Extracts a specified date or time
+   * portion from a date, time, or timestamp. how:
+   * {{{
    * EXTRACT , HOUR / MINUTE / SECOND , YEAR* / DAY* / WEEK* / MONTH / QUARTER
    * Construction - DATE_PART( <date_or_time_part> , <date_or_time_expr> )
    * SELECT TO_TIMESTAMP('2013-05-08T23:39:20.123-07:00') AS "TIME_STAMP1",
@@ -3445,39 +3465,42 @@ object functions {
    * |-------------------------+------------------------|
    * | 2013-05-08 23:39:20.123 |             1368056360 |
    * +-------------------------+------------------------+
+   * }}}
    * @since 1.14.0
-   * @note All calls of `unix_timestamp` within the same query return the same value
+   * @note
+   *   All calls of `unix_timestamp` within the same query return the same value
    */
   def unix_timestamp(c: Column): Column = {
     builtin("date_part")("epoch_second", c)
   }
 
   /**
-
-
-   * Signature - snowflake.snowpark.functions.regexp_extract
+   * Signature -
+   * {{{
+   * snowflake.snowpark.functions.regexp_extract
    * (value: Union[Column, str], regexp: Union[Column, str], idx: int)
    *   Column
-   * Extract a specific group matched by a regex, from the specified string
-   * column. If the regex did not match, or the specified group did not match,
-   * an empty string is returned.
-   * <pr>Example:
-   * from snowflake.snowpark.functions import regexp_extract
-   * df = session.createDataFrame([["id_20_30", 10], ["id_40_50", 30]],
-   *  ["id", "age"])
-   * df.select(regexp_extract("id", r"(\d+)", 1).alias("RES")).show()
-   *</pr>
-   *<pr>
-   *     ---------
-   *     |"RES"  |
-   *     ---------
-   *     |20     |
-   *     |40     |
-   *     ---------
-   *</pr>
-   * Note: non-greedy tokens such as  are not supported
+   * }}}
+   * Extract a specific group matched by a regex, from the specified string column. If the regex did
+   * not match, or the specified group did not match, an empty string is returned. <pr> Example:
+   * {{{
+   *  from snowflake.snowpark.functions import regexp_extract
+   *  df = session.createDataFrame([["id_20_30", 10], ["id_40_50", 30]],
+   *   ["id", "age"])
+   *  df.select(regexp_extract("id", r"(\d+)", 1).alias("RES")).show()
+   * </pr>
+   * <pr>
+   *      ---------
+   *      |"RES"  |
+   *      ---------
+   *      |20     |
+   *      |40     |
+   *      ---------
+   * }}}
+   * </pr> Note: non-greedy tokens such as are not supported
    * @since 1.14.0
-   * @return Column object.
+   * @return
+   *   Column object.
    */
   def regexp_extract(
       colName: Column,
@@ -3499,16 +3522,14 @@ object functions {
   }
 
   /**
-   *    Returns the sign of its argument as mentioned :
+   * Returns the sign of its argument as mentioned :
    *
-   *     - -1 if the argument is negative.
-   *     - 1 if it is positive.
-   *     - 0 if it is 0.
+   *   - -1 if the argument is negative.
+   *   - 1 if it is positive.
+   *   - 0 if it is 0.
    *
-   * Args:
-   *     col: The column to evaluate its sign
-   *<pr>
-   * Example::
+   * Args: col: The column to evaluate its sign <pr> Example::
+   * {{{
    *     >>> df = session.create_dataframe([(-2, 2, 0)], ["a", "b", "c"])
    *     >>> df.select(sign("a").alias("a_sign"), sign("b").alias("b_sign"),
    * sign("c").alias("c_sign")).show()
@@ -3517,26 +3538,27 @@ object functions {
    *     ----------------------------------
    *     |-1        |1         |0         |
    *     ----------------------------------
+   * }}}
    * </pr>
    * @since 1.14.0
-   * @param e Column to calculate the sign.
-   * @return Column object.
+   * @param e
+   *   Column to calculate the sign.
+   * @return
+   *   Column object.
    */
   def sign(colName: Column): Column = {
     builtin("SIGN")(colName)
   }
 
   /**
-   *    Returns the sign of its argument:
+   * Returns the sign of its argument:
    *
-   *     - -1 if the argument is negative.
-   *     - 1 if it is positive.
-   *     - 0 if it is 0.
+   *   - -1 if the argument is negative.
+   *   - 1 if it is positive.
+   *   - 0 if it is 0.
    *
-   * Args:
-   *     col: The column to evaluate its sign
-   *<pr>
-   * Example::
+   * Args: col: The column to evaluate its sign <pr> Example:: >>>
+   * {{{
    *     >>> df = session.create_dataframe([(-2, 2, 0)], ["a", "b", "c"])
    *     >>> df.select(sign("a").alias("a_sign"), sign("b").alias("b_sign"),
    * sign("c").alias("c_sign")).show()
@@ -3545,38 +3567,38 @@ object functions {
    *     ----------------------------------
    *     |-1        |1         |0         |
    *     ----------------------------------
+   * }}}
    * </pr>
    * @since 1.14.0
-   * @param e Column to calculate the sign.
-   * @return Column object.
+   * @param e
+   *   Column to calculate the sign.
+   * @return
+   *   Column object.
    */
   def signum(colName: Column): Column = {
     builtin("SIGN")(colName)
   }
 
   /**
-   * Returns the sign of the given column. Returns either 1 for positive,
-   *  0 for 0 or
-   * NaN, -1 for negative and null for null.
-   * NOTE: if string values are provided snowflake will attempts to cast.
-   *  If it casts correctly, returns the calculation,
-   *  if not an error will be thrown
+   * Returns the sign of the given column. Returns either 1 for positive, 0 for 0 or NaN, -1 for
+   * negative and null for null. NOTE: if string values are provided snowflake will attempts to
+   * cast. If it casts correctly, returns the calculation, if not an error will be thrown
    * @since 1.14.0
-   * @param columnName Name of the column to calculate the sign.
-   * @return Column object.
+   * @param columnName
+   *   Name of the column to calculate the sign.
+   * @return
+   *   Column object.
    */
   def signum(columnName: String): Column = {
     signum(col(columnName))
   }
 
   /**
-   * Returns the substring from string str before count occurrences
-   * of the delimiter delim. If count is positive,
-   * everything the left of the final delimiter (counting from left)
-   *  is returned. If count is negative, every to the right of the
-   * final delimiter (counting from the right) is returned.
-   * substring_index performs a case-sensitive match when searching for delim.
-   *   @since 1.14.0
+   * Returns the substring from string str before count occurrences of the delimiter delim. If count
+   * is positive, everything the left of the final delimiter (counting from left) is returned. If
+   * count is negative, every to the right of the final delimiter (counting from the right) is
+   * returned. substring_index performs a case-sensitive match when searching for delim.
+   * @since 1.14.0
    */
   def substring_index(str: String, delim: String, count: Int): Column = {
     when(
@@ -3600,11 +3622,9 @@ object functions {
   }
 
   /**
-   *
-   * Returns the input values, pivoted into an ARRAY. If the input is empty, an empty
-   * ARRAY is returned.
-   *<pr>
-   * Example::
+   * Returns the input values, pivoted into an ARRAY. If the input is empty, an empty ARRAY is
+   * returned. <pr> Example::
+   * {{{
    *     >>> df = session.create_dataframe([[1], [2], [3], [1]], schema=["a"])
    *     >>> df.select(array_agg("a", True).alias("result")).show()
    *     ------------
@@ -3616,19 +3636,22 @@ object functions {
    *     |  3       |
    *     |]         |
    *     ------------
+   * }}}
    * </pr>
    * @since 1.14.0
-   * @param c Column to be collect.
-   * @return The array.
+   * @param c
+   *   Column to be collect.
+   * @return
+   *   The array.
    */
   def collect_list(c: Column): Column = array_agg(c)
 
   /**
-   *
-   * Returns the input values, pivoted into an ARRAY. If the input is empty, an empty
-   * ARRAY is returned.
+   * Returns the input values, pivoted into an ARRAY. If the input is empty, an empty ARRAY is
+   * returned.
    *
    * Example::
+   * {{{
    *     >>> df = session.create_dataframe([[1], [2], [3], [1]], schema=["a"])
    *     >>> df.select(array_agg("a", True).alias("result")).show()
    *     ------------
@@ -3640,56 +3663,65 @@ object functions {
    *     |  3       |
    *     |]         |
    *     ------------
+   * }}}
    * @since 1.14.0
-   * @param s Column name to be collected.
-   * @return The array.
+   * @param s
+   *   Column name to be collected.
+   * @return
+   *   The array.
    */
   def collect_list(s: String): Column = array_agg(col(s))
 
   /**
-   *
-   *  Returns the date that is `days` days after `start`
-   *  Usage - DATE_ADD( date_or_time_part, value, date_or_time_expr )
-   * Example::
-   *     SELECT TO_DATE('2013-05-08') AS v1, DATE_ADD(year, 2, TO_DATE('2013-05-08')) AS v;
+   * Returns the date that is `days` days after `start`. Usage -
+   * {{{DATE_ADD( date_or_time_part, value, date_or_time_expr )}}} Example::
+   * {{{
+   * SELECT TO_DATE('2013-05-08') AS v1, DATE_ADD(year, 2, TO_DATE('2013-05-08')) AS v;
    * +------------+------------+
    * | V1         | V          |
    * |------------+------------|
    * | 2013-05-08 | 2015-05-08 |
    * +------------+------------+
+   * }}}
    *
    * @since 1.15.0
-   * @param start Column name
-   * @param days Int            .
-   * @return Column.
+   * @param start
+   *   Column name
+   * @param days
+   *   Int .
+   * @return
+   *   Column.
    */
   def date_add(days: Int, start: Column): Column = dateadd("day", lit(days), start)
 
   /**
-   * Returns the date that is `days` days after `start`
-   *   Usage - DATE_ADD( date_or_time_part, value, date_or_time_expr )
-   *  Example::
-   *      SELECT TO_DATE('2013-05-08') AS v1, DATE_ADD(year, 2, TO_DATE('2013-05-08')) AS v;
+   * Returns the date that is `days` days after `start`. Usage:
+   * {{{DATE_ADD( date_or_time_part, value, date_or_time_expr )}}} Example::
+   * {{{
+   *  SELECT TO_DATE('2013-05-08') AS v1, DATE_ADD(year, 2, TO_DATE('2013-05-08')) AS v;
    *  +------------+------------+
    *  | V1         | V          |
    *  |------------+------------|
    *  | 2013-05-08 | 2015-05-08 |
    *  +------------+------------+
-   *
+   * }}}
    * @since 1.15.0
-   * @param start A date, timestamp or string. If a string, the data must be in a format that
-   *              can be cast to a date, such as `yyyy-MM-dd` or `yyyy-MM-dd HH:mm:ss.SSSS`
-   * @param days  The number of days to add to `start`, can be negative to subtract days
-   * @return A date, or null if `start` was a string that could not be cast to a date
+   * @param start
+   *   A date, timestamp or string. If a string, the data must be in a format that can be cast to a
+   *   date, such as `yyyy-MM-dd` or `yyyy-MM-dd HH:mm:ss.SSSS`
+   * @param days
+   *   The number of days to add to `start`, can be negative to subtract days
+   * @return
+   *   A date, or null if `start` was a string that could not be cast to a date
    */
   def date_add(start: Column, days: Column): Column = dateadd("day", days, start)
 
   /**
-   * Aggregate function: returns a set of objects with duplicate elements eliminated.
-   *  Returns the input values, pivoted into an ARRAY. If the input is empty, an empty
-   *  ARRAY is returned.
+   * Aggregate function: returns a set of objects with duplicate elements eliminated. Returns the
+   * input values, pivoted into an ARRAY. If the input is empty, an empty ARRAY is returned.
    *
-   *  Example::
+   * Example::
+   * {{{
    *  >>> df = session.create_dataframe([[1], [2], [3], [1]], schema=["a"])
    *  >>> df.select(array_agg("a", True).alias("result")).show()
    *  ------------
@@ -3701,18 +3733,21 @@ object functions {
    *  |  3       |
    *  |]         |
    *  ------------
+   * }}}
    * @since 1.15.0
-   * @param e The column to collect the list values
-   * @return A list with unique values
+   * @param e
+   *   The column to collect the list values
+   * @return
+   *   A list with unique values
    */
   def collect_set(e: Column): Column = sqlExpr(s"array_agg(distinct ${e.getName.get})")
 
   /**
-   * Aggregate function: returns a set of objects with duplicate elements eliminated.
-   * Returns the input values, pivoted into an ARRAY. If the input is empty, an empty
-   * ARRAY is returned.
+   * Aggregate function: returns a set of objects with duplicate elements eliminated. Returns the
+   * input values, pivoted into an ARRAY. If the input is empty, an empty ARRAY is returned.
    *
    * Example::
+   * {{{
    * >>> df = session.create_dataframe([[1], [2], [3], [1]], schema=["a"])
    * >>> df.select(array_agg("a", True).alias("result")).show()
    * ------------
@@ -3724,55 +3759,59 @@ object functions {
    * |  3       |
    * |]         |
    * ------------
+   * }}}
    * @since 1.15.0
-   * @param e The column to collect the list values
-   * @return A list with unique values
+   * @param e
+   *   The column to collect the list values
+   * @return
+   *   A list with unique values
    */
   def collect_set(e: String): Column = sqlExpr(s"array_agg(distinct ${e})")
 
   /**
    * Converts the number of seconds from unix epoch (1970-01-01 00:00:00 UTC) to a string
-   * representing the timestamp of that moment in the current system time zone in the
-   * yyyy-MM-dd HH:mm:ss format.
+   * representing the timestamp of that moment in the current system time zone in the yyyy-MM-dd
+   * HH:mm:ss format.
    * @since 1.15.0
-   * @param ut A number of a type that is castable to a long, such as string or integer. Can be
-   *           negative for timestamps before the unix epoch
-   * @return A string, or null if the input was a string that could not be cast to a long
+   * @param ut
+   *   A number of a type that is castable to a long, such as string or integer. Can be negative for
+   *   timestamps before the unix epoch
+   * @return
+   *   A string, or null if the input was a string that could not be cast to a long
    */
   def from_unixtime(ut: Column): Column =
     ut.cast(LongType).cast(TimestampType).cast(StringType)
 
   /**
    * Converts the number of seconds from unix epoch (1970-01-01 00:00:00 UTC) to a string
-   * representing the timestamp of that moment in the current system time zone in the given
-   * format.
+   * representing the timestamp of that moment in the current system time zone in the given format.
    * @since 1.15.0
-   * @param ut A number of a type that is castable to a long, such as string or integer. Can be
-   *           negative for timestamps before the unix epoch
-   * @param f  A date time pattern that the input will be formatted to
-   * @return A string, or null if `ut` was a string that could not be cast to a long or `f` was
-   *         an invalid date time pattern
+   * @param ut
+   *   A number of a type that is castable to a long, such as string or integer. Can be negative for
+   *   timestamps before the unix epoch
+   * @param f
+   *   A date time pattern that the input will be formatted to
+   * @return
+   *   A string, or null if `ut` was a string that could not be cast to a long or `f` was an invalid
+   *   date time pattern
    */
   def from_unixtime(ut: Column, f: String): Column =
     date_format(ut.cast(LongType).cast(TimestampType), f)
 
   /**
-   * A column expression that generates monotonically increasing 64-bit integers.
-   * Returns a sequence of monotonically increasing integers, with wrap-around
-   * which happens after largest representable integer of integer width 8 byte.
+   * A column expression that generates monotonically increasing 64-bit integers. Returns a sequence
+   * of monotonically increasing integers, with wrap-around which happens after largest
+   * representable integer of integer width 8 byte.
    *
-   * Args:
-   * sign: When 0, the sequence continues at 0 after wrap-around. When 1, the sequence
+   * Args: sign: When 0, the sequence continues at 0 after wrap-around. When 1, the sequence
    * continues at smallest representable 8 byte integer. Defaults to 0.
    *
    * See Also:
-   *         - :meth:`Session.generator`, which can be used to generate in tandem with `seq8` to
-   *           generate sequences.
+   *   - :meth:`Session.generator`, which can be used to generate in tandem with `seq8` to generate
+   *     sequences.
    *
-   * Example::
-   * >>> df = session.generator(seq8(0), rowcount=3)
-   * >>> df.collect()
-   * [Row(SEQ8(0)=0), Row(SEQ8(0)=1), Row(SEQ8(0)=2)]
+   * Example:: >>> df = session.generator(seq8(0), rowcount=3) >>> df.collect() [Row(SEQ8(0)=0),
+   * Row(SEQ8(0)=1), Row(SEQ8(0)=2)]
    * @since 1.15.0
    */
   def monotonically_increasing_id(): Column = builtin("seq8")()
@@ -3790,21 +3829,23 @@ object functions {
    * months_between("2017-06-01", "2017-06-16 12:00:00")  // returns -0.5
    * }}}
    * @since 1.15.0
-   * @param end  Column name. If a string, the data must be in a format that can
-   *              be cast to a timestamp, such as yyyy-MM-dd
-   *              or yyyy-MM-dd HH:mm:ss.SSSS
-   * @param start  Column name . If a string, the data must be in a format that can
-   *              cast to a timestamp, such as yyyy-MM-dd or yyyy-MM-dd HH:mm:ss.SSSS
-   * @return A double, or null if either end or start were strings that could not be cast to a
-   *         timestamp. Negative if end is before start
+   * @param end
+   *   Column name. If a string, the data must be in a format that can be cast to a timestamp, such
+   *   as yyyy-MM-dd or yyyy-MM-dd HH:mm:ss.SSSS
+   * @param start
+   *   Column name . If a string, the data must be in a format that can cast to a timestamp, such as
+   *   yyyy-MM-dd or yyyy-MM-dd HH:mm:ss.SSSS
+   * @return
+   *   A double, or null if either end or start were strings that could not be cast to a timestamp.
+   *   Negative if end is before start
    */
   def months_between(end: String, start: String): Column =
     builtin("MONTHS_BETWEEN")(col(end), col(start))
 
   /**
-   * Locate the position of the first occurrence of substr column in the given string.
-   * Returns null if either of the arguments are null.
-   * For example
+   * Locate the position of the first occurrence of substr column in the given string. Returns null
+   * if either of the arguments are null. For example
+   * {{{
    * SELECT id,
    *        string1,
    *         REGEXP_SUBSTR(string1, 'nevermore\\d') AS substring,
@@ -3816,69 +3857,77 @@ object functions {
    *  |----+-------------------------------------+------------+----------|
    *  |  1 | nevermore1, nevermore2, nevermore3. | nevermore1 |        1 |
    *  +----+-------------------------------------+------------+----------+
-   *
+   * }}}
    * @since 1.15.0
-   * @note The position is not zero based, but 1 based index. Returns 0 if substr
-   * could not be found in str.
+   * @note
+   *   The position is not zero based, but 1 based index. Returns 0 if substr could not be found in
+   *   str.
    */
   def instr(str: Column, substring: String): Column = builtin("REGEXP_INSTR")(str, substring)
 
   /**
    * Given a timestamp like '2017-07-14 02:40:00.0', interprets it as a time in UTC, and renders
-   * that time as a timestamp in the given time zone. For example, 'GMT+1' would yield
-   * '2017-07-14 03:40:00.0'.
+   * that time as a timestamp in the given time zone. For example, 'GMT+1' would yield '2017-07-14
+   * 03:40:00.0'.
+   * {{{
    * ALTER SESSION SET TIMEZONE = 'America/Los_Angeles';
-   *  SELECT TO_TIMESTAMP_TZ('2024-04-05 01:02:03');
-   *   +----------------------------------------+
-   *  | TO_TIMESTAMP_TZ('2024-04-05 01:02:03') |
-   *  |----------------------------------------|
-   *  | 2024-04-05 01:02:03.000 -0700          |
-   *  +----------------------------------------+
+   * SELECT TO_TIMESTAMP_TZ('2024-04-05 01:02:03');
+   * +----------------------------------------+
+   * | TO_TIMESTAMP_TZ('2024-04-05 01:02:03') |
+   * |----------------------------------------|
+   * | 2024-04-05 01:02:03.000 -0700          |
+   * +----------------------------------------+
+   * }}}
    *
    * @since 1.15.0
-   * @param ts A date, timestamp or string. If a string, the data must be in a format that can be
-   *           cast to a timestamp, such as `yyyy-MM-dd` or `yyyy-MM-dd HH:mm:ss.SSSS`
-   *           A string detailing the time zone ID that the input should be adjusted to. It should
-   *           be in the format of either region-based zone IDs or zone offsets. Region IDs must
-   *           have the form 'area/city', such as 'America/Los_Angeles'. Zone offsets must be in
-   *           the format '(+|-)HH:mm', for example '-08:00' or '+01:00'. Also 'UTC' and 'Z' are
-   *           supported as aliases of '+00:00'. Other short names are not recommended to use
-   *           because they can be ambiguous.
-   * @return A timestamp, or null if `ts` was a string that could not be cast to a timestamp or
-   *         `tz` was an invalid value
+   * @param ts
+   *   A date, timestamp or string. If a string, the data must be in a format that can be cast to a
+   *   timestamp, such as `yyyy-MM-dd` or `yyyy-MM-dd HH:mm:ss.SSSS` A string detailing the time
+   *   zone ID that the input should be adjusted to. It should be in the format of either
+   *   region-based zone IDs or zone offsets. Region IDs must have the form 'area/city', such as
+   *   'America/Los_Angeles'. Zone offsets must be in the format '(+|-)HH:mm', for example '-08:00'
+   *   or '+01:00'. Also 'UTC' and 'Z' are supported as aliases of '+00:00'. Other short names are
+   *   not recommended to use because they can be ambiguous.
+   * @return
+   *   A timestamp, or null if `ts` was a string that could not be cast to a timestamp or `tz` was
+   *   an invalid value
    */
   def from_utc_timestamp(ts: Column): Column =
     builtin("TO_TIMESTAMP_TZ")(ts)
 
   /**
-   * Given a timestamp like '2017-07-14 02:40:00.0', interprets it as a time in the given time
-   * zone, and renders that time as a timestamp in UTC. For example, 'GMT+1' would yield
-   * '2017-07-14 01:40:00.0'.
+   * Given a timestamp like '2017-07-14 02:40:00.0', interprets it as a time in the given time zone,
+   * and renders that time as a timestamp in UTC. For example, 'GMT+1' would yield '2017-07-14
+   * 01:40:00.0'.
    * @since 1.15.0
-   * @param ts A date, timestamp or string. If a string, the data must be in a format that can be
-   *           cast to a timestamp, such as `yyyy-MM-dd` or `yyyy-MM-dd HH:mm:ss.SSSS`
-   *           A string detailing the time zone ID that the input should be adjusted to. It should
-   *           be in the format of either region-based zone IDs or zone offsets. Region IDs must
-   *           have the form 'area/city', such as 'America/Los_Angeles'. Zone offsets must be in
-   *           the format '(+|-)HH:mm', for example '-08:00' or '+01:00'. Also 'UTC' and 'Z' are
-   *           supported as aliases of '+00:00'. Other short names are not recommended to use
-   *           because they can be ambiguous.
-   * @return A timestamp, or null if `ts` was a string that could not be cast to a timestamp or
-   *         `tz` was an invalid value
+   * @param ts
+   *   A date, timestamp or string. If a string, the data must be in a format that can be cast to a
+   *   timestamp, such as `yyyy-MM-dd` or `yyyy-MM-dd HH:mm:ss.SSSS` A string detailing the time
+   *   zone ID that the input should be adjusted to. It should be in the format of either
+   *   region-based zone IDs or zone offsets. Region IDs must have the form 'area/city', such as
+   *   'America/Los_Angeles'. Zone offsets must be in the format '(+|-)HH:mm', for example '-08:00'
+   *   or '+01:00'. Also 'UTC' and 'Z' are supported as aliases of '+00:00'. Other short names are
+   *   not recommended to use because they can be ambiguous.
+   * @return
+   *   A timestamp, or null if `ts` was a string that could not be cast to a timestamp or `tz` was
+   *   an invalid value
    */
   def to_utc_timestamp(ts: Column): Column = builtin("TO_TIMESTAMP_TZ")(ts)
 
   /**
-   * Formats numeric column x to a format like '#,###,###.##', rounded to d decimal places
-   * with HALF_EVEN round mode, and returns the result as a string column.
+   * Formats numeric column x to a format like '#,###,###.##', rounded to d decimal places with
+   * HALF_EVEN round mode, and returns the result as a string column.
    * @since 1.15.0
-   * If d is 0, the result has no decimal point or fractional part.
-   * If d is less than 0, the result will be null.
+   *   If d is 0, the result has no decimal point or fractional part. If d is less than 0, the
+   *   result will be null.
    *
-   * @param x numeric column to be transformed
-   * @param d Amount of decimal for the number format
+   * @param x
+   *   numeric column to be transformed
+   * @param d
+   *   Amount of decimal for the number format
    *
-   * @return Number casted to the specific string format
+   * @return
+   *   Number casted to the specific string format
    */
   def format_number(x: Column, d: Int): Column = {
     if (d < 0) {
@@ -3909,8 +3958,7 @@ object functions {
   def desc(colName: String): Column = col(colName).desc
 
   /**
-   * Returns a Column expression with values sorted in ascending order.
-   * Example:
+   * Returns a Column expression with values sorted in ascending order. Example:
    * {{{
    *   val df = session.createDataFrame(Seq(3, 2, 1)).toDF("id")
    *   df.sort(asc("id")).show()
@@ -3924,8 +3972,10 @@ object functions {
    * --------
    * }}}
    * @since 1.14.0
-   * @param colName Column name.
-   * @return Column object ordered in an ascending manner.
+   * @param colName
+   *   Column name.
+   * @return
+   *   Column object ordered in an ascending manner.
    */
   def asc(colName: String): Column = col(colName).asc
 
@@ -3948,8 +3998,10 @@ object functions {
    * }}}
    *
    * @since 1.14.0
-   * @param c Column to get the size.
-   * @return Size of array column.
+   * @param c
+   *   Column to get the size.
+   * @return
+   *   Size of array column.
    */
   def size(c: Column): Column = array_size(c)
 
@@ -3971,8 +4023,10 @@ object functions {
    * }}}
    *
    * @since 1.14.0
-   * @param s SQL Expression as text.
-   * @return Converted SQL Expression.
+   * @param s
+   *   SQL Expression as text.
+   * @return
+   *   Converted SQL Expression.
    */
   def expr(s: String): Column = sqlExpr(s)
 
@@ -3999,14 +4053,15 @@ object functions {
    * }}}
    *
    * @since 1.14.0
-   * @param c Columns to build the array.
-   * @return The array.
+   * @param c
+   *   Columns to build the array.
+   * @return
+   *   The array.
    */
   def array(c: Column*): Column = array_construct(c: _*)
 
   /**
-   * Converts an input expression into the corresponding date in the specified date format.
-   * Example:
+   * Converts an input expression into the corresponding date in the specified date format. Example:
    * {{{
    *  val df = Seq("2023-10-10", "2022-05-15", null.asInstanceOf[String]).toDF("date")
    *  df.select(date_format(col("date"), "YYYY/MM/DD").as("formatted_date")).show()
@@ -4022,16 +4077,18 @@ object functions {
    * }}}
    *
    * @since 1.14.0
-   * @param c Column to format to date.
-   * @param s Date format.
-   * @return Column object.
+   * @param c
+   *   Column to format to date.
+   * @param s
+   *   Date format.
+   * @return
+   *   Column object.
    */
   def date_format(c: Column, s: String): Column =
     builtin("to_varchar")(c.cast(TimestampType), s.replace("mm", "mi"))
 
   /**
-   * Returns the last value of the column in a group.
-   * Example
+   * Returns the last value of the column in a group. Example
    * {{{
    *  val df = session.createDataFrame(Seq((5, "a", 10),
    *                                       (5, "b", 20),
@@ -4051,15 +4108,16 @@ object functions {
    * }}}
    *
    * @since 1.14.0
-   * @param c Column to obtain last value.
-   * @return Column object.
+   * @param c
+   *   Column to obtain last value.
+   * @return
+   *   Column object.
    */
   def last(c: Column): Column =
     builtin("LAST_VALUE")(c)
 
   /**
-   * Computes the logarithm of the given value in base 10.
-   * Example
+   * Computes the logarithm of the given value in base 10. Example
    * {{{
    *  val df = session.createDataFrame(Seq(100)).toDF("a")
    *  df.select(log10(col("a"))).show()
@@ -4072,14 +4130,15 @@ object functions {
    * }}}
    *
    * @since 1.14.0
-   * @param c Column to apply logarithm operation
-   * @return log10 of the given column
+   * @param c
+   *   Column to apply logarithm operation
+   * @return
+   *   log10 of the given column
    */
   def log10(c: Column): Column = builtin("LOG")(10, c)
 
   /**
-   * Computes the logarithm of the given column in base 10.
-   * Example
+   * Computes the logarithm of the given column in base 10. Example
    * {{{
    *  val df = session.createDataFrame(Seq(100)).toDF("a")
    *  df.select(log10("a"))).show()
@@ -4092,14 +4151,15 @@ object functions {
    * }}}
    *
    * @since 1.14.0
-   * @param columnName ColumnName in String to apply logarithm operation
-   * @return log10 of the given column
+   * @param columnName
+   *   ColumnName in String to apply logarithm operation
+   * @return
+   *   log10 of the given column
    */
   def log10(columnName: String): Column = builtin("LOG")(10, col(columnName))
 
   /**
-   * Computes the natural logarithm of the given value plus one.
-   *Example
+   * Computes the natural logarithm of the given value plus one. Example
    * {{{
    *  val df = session.createDataFrame(Seq(0.1)).toDF("a")
    *  df.select(log1p(col("a")).as("log1p")).show()
@@ -4112,14 +4172,15 @@ object functions {
    * }}}
    *
    * @since 1.14.0
-   * @param c Column to apply logarithm operation
-   * @return the natural logarithm of the given value plus one.
+   * @param c
+   *   Column to apply logarithm operation
+   * @return
+   *   the natural logarithm of the given value plus one.
    */
   def log1p(c: Column): Column = callBuiltin("ln", lit(1) + c)
 
   /**
-   * Computes the natural logarithm of the given value plus one.
-   *Example
+   * Computes the natural logarithm of the given value plus one. Example
    * {{{
    *  val df = session.createDataFrame(Seq(0.1)).toDF("a")
    *  df.select(log1p("a").as("log1p")).show()
@@ -4132,15 +4193,16 @@ object functions {
    * }}}
    *
    * @since 1.14.0
-   * @param columnName ColumnName in String to apply logarithm operation
-   * @return the natural logarithm of the given value plus one.
+   * @param columnName
+   *   ColumnName in String to apply logarithm operation
+   * @return
+   *   the natural logarithm of the given value plus one.
    */
   def log1p(columnName: String): Column = callBuiltin("ln", lit(1) + col(columnName))
 
   /**
-   * Computes the BASE64 encoding of a column and returns it as a string column.
-   * This is the reverse of unbase64.
-   *Example
+   * Computes the BASE64 encoding of a column and returns it as a string column. This is the reverse
+   * of unbase64. Example
    * {{{
    *  val df = session.createDataFrame(Seq("test")).toDF("a")
    *  df.select(base64(col("a")).as("base64")).show()
@@ -4153,14 +4215,15 @@ object functions {
    * }}}
    *
    * @since 1.14.0
-   * @param columnName ColumnName to apply base64 operation
-   * @return base64 encoded value of the given input column.
+   * @param columnName
+   *   ColumnName to apply base64 operation
+   * @return
+   *   base64 encoded value of the given input column.
    */
   def base64(col: Column): Column = callBuiltin("BASE64_ENCODE", col)
 
   /**
-   * Decodes a BASE64 encoded string column and returns it as a column.
-   *Example
+   * Decodes a BASE64 encoded string column and returns it as a column. Example
    * {{{
    *  val df = session.createDataFrame(Seq("dGVzdA==")).toDF("a")
    *  df.select(unbase64(col("a")).as("unbase64")).show()
@@ -4173,20 +4236,20 @@ object functions {
    * }}}
    *
    * @since 1.14.0
-   * @param columnName ColumnName to apply unbase64 operation
-   * @return the decoded value of the given encoded value.
+   * @param columnName
+   *   ColumnName to apply unbase64 operation
+   * @return
+   *   the decoded value of the given encoded value.
    */
   def unbase64(col: Column): Column = callBuiltin("BASE64_DECODE_STRING", col)
 
   /**
-
-   *
    * Locate the position of the first occurrence of substr in a string column, after position pos.
    *
-   * @note The position is not zero based, but 1 based index. returns 0 if substr
-   * could not be found in str. This function is just leverages the SF POSITION builtin
-   *Example
-   * {{{
+   * @note
+   *   The position is not zero based, but 1 based index. returns 0 if substr could not be found in
+   *   str. This function is just leverages the SF POSITION builtin Example
+   *   {{{
    *  val df = session.createDataFrame(Seq(("b", "abcd"))).toDF("a", "b")
    *  df.select(locate(col("a"), col("b"), 1).as("locate")).show()
    * ------------
@@ -4195,12 +4258,16 @@ object functions {
    * |2         |
    * ------------
    *
-   * }}}
+   *   }}}
    * @since 1.14.0
-   * @param substr string to search
-   * @param str value where string will be searched
-   * @param pos index for starting the search
-   * @return returns the position of the first occurrence.
+   * @param substr
+   *   string to search
+   * @param str
+   *   value where string will be searched
+   * @param pos
+   *   index for starting the search
+   * @return
+   *   returns the position of the first occurrence.
    */
   def locate(substr: Column, str: Column, pos: Int): Column =
     if (pos == 0) lit(0) else callBuiltin("POSITION", substr, str, pos)
@@ -4208,10 +4275,10 @@ object functions {
   /**
    * Locate the position of the first occurrence of substr in a string column, after position pos.
    *
-   * @note The position is not zero based, but 1 based index. returns 0 if substr
-   * could not be found in str. This function is just leverages the SF POSITION builtin
-   * Example
-   * {{{
+   * @note
+   *   The position is not zero based, but 1 based index. returns 0 if substr could not be found in
+   *   str. This function is just leverages the SF POSITION builtin Example
+   *   {{{
    *  val df = session.createDataFrame(Seq("java scala python")).toDF("a")
    *  df.select(locate("scala", col("a")).as("locate")).show()
    * ------------
@@ -4220,12 +4287,16 @@ object functions {
    * |6         |
    * ------------
    *
-   * }}}
+   *   }}}
    * @since 1.14.0
-   * @param substr string to search
-   * @param str value where string will be searched
-   * @param pos index for starting the search. default to 1.
-   * @return Returns the position of the first occurrence
+   * @param substr
+   *   string to search
+   * @param str
+   *   value where string will be searched
+   * @param pos
+   *   index for starting the search. default to 1.
+   * @return
+   *   Returns the position of the first occurrence
    */
   def locate(substr: String, str: Column, pos: Int = 1): Column =
     if (pos == 0) lit(0) else callBuiltin("POSITION", lit(substr), str, lit(pos))
@@ -4235,8 +4306,7 @@ object functions {
    * partition. For example, if `n` is 4, the first quarter of the rows will get value 1, the second
    * quarter will get 2, the third quarter will get 3, and the last quarter will get 4.
    *
-   * This is equivalent to the NTILE function in SQL.
-   * Example
+   * This is equivalent to the NTILE function in SQL. Example
    * {{{
    *   val df = Seq((5, 15), (5, 15), (5, 15), (5, 20)).toDF("grade", "score")
    *   val window = Window.partitionBy(col("grade")).orderBy(col("score"))
@@ -4252,17 +4322,17 @@ object functions {
    * }}}
    *
    * @since 1.14.0
-   * @param n number of groups
-   * @return returns the ntile group id (from 1 to n inclusive) in an ordered window partition.
+   * @param n
+   *   number of groups
+   * @return
+   *   returns the ntile group id (from 1 to n inclusive) in an ordered window partition.
    */
   def ntile(n: Int): Column = callBuiltin("ntile", lit(n))
 
   /**
-   * Generate a column with independent and identically distributed (i.i.d.) samples
-   * from the standard normal distribution.
-   * Return a call to the Snowflake RANDOM function.
-   * NOTE: Snowflake returns integers of 17-19 digits.
-   * Example
+   * Generate a column with independent and identically distributed (i.i.d.) samples from the
+   * standard normal distribution. Return a call to the Snowflake RANDOM function. NOTE: Snowflake
+   * returns integers of 17-19 digits. Example
    * {{{
    *   val df = session.createDataFrame(Seq((1), (2), (3))).toDF("a")
    *   df.withColumn("randn", randn()).select("randn").show()
@@ -4276,17 +4346,16 @@ object functions {
    * }}}
    *
    * @since 1.14.0
-   * @return Random number.
+   * @return
+   *   Random number.
    */
   def randn(): Column =
     builtin("RANDOM")()
 
   /**
-   * Generate a column with independent and identically distributed (i.i.d.) samples
-   * from the standard normal distribution.
-   * Calls to the Snowflake RANDOM function.
-   * NOTE: Snowflake returns integers of 17-19 digits.
-   * Example
+   * Generate a column with independent and identically distributed (i.i.d.) samples from the
+   * standard normal distribution. Calls to the Snowflake RANDOM function. NOTE: Snowflake returns
+   * integers of 17-19 digits. Example
    * {{{
    *   val df = session.createDataFrame(Seq((1), (2), (3))).toDF("a")
    *   df.withColumn("randn_with_seed", randn(123L)).select("randn_with_seed").show()
@@ -4300,16 +4369,17 @@ object functions {
    * }}}
    *
    * @since 1.14.0
-   * @param seed Seed to use in the random function.
-   * @return Random number.
+   * @param seed
+   *   Seed to use in the random function.
+   * @return
+   *   Random number.
    */
   def randn(seed: Long): Column =
     builtin("RANDOM")(seed)
 
   /**
-   * Shift the given value numBits left. If the given value is a long value,
-   * this function will return a long value else it will return an integer value.
-   * Example
+   * Shift the given value numBits left. If the given value is a long value, this function will
+   * return a long value else it will return an integer value. Example
    * {{{
    *   val df = session.createDataFrame(Seq((1), (2), (3))).toDF("a")
    *   df.select(shiftleft(col("A"), 1).as("shiftleft")).show()
@@ -4323,17 +4393,19 @@ object functions {
    * }}}
    *
    * @since 1.14.0
-   * @param c Column to modify.
-   * @param numBits Number of bits to shift.
-   * @return Column object.
+   * @param c
+   *   Column to modify.
+   * @param numBits
+   *   Number of bits to shift.
+   * @return
+   *   Column object.
    */
   def shiftleft(c: Column, numBits: Int): Column =
     bitshiftleft(c, lit(numBits))
 
   /**
-   * Shift the given value numBits right. If the given value is a long value,
-   * it will return a long value else it will return an integer value.
-   * Example
+   * Shift the given value numBits right. If the given value is a long value, it will return a long
+   * value else it will return an integer value. Example
    * {{{
    *   val df = session.createDataFrame(Seq((1), (2), (3))).toDF("a")
    *   df.select(shiftright(col("A"), 1).as("shiftright")).show()
@@ -4347,16 +4419,18 @@ object functions {
    * }}}
    *
    * @since 1.14.0
-   * @param c Column to modify.
-   * @param numBits Number of bits to shift.
-   * @return Column object.
+   * @param c
+   *   Column to modify.
+   * @param numBits
+   *   Number of bits to shift.
+   * @return
+   *   Column object.
    */
   def shiftright(c: Column, numBits: Int): Column =
     bitshiftright(c, lit(numBits))
 
   /**
-   * Computes hex value of the given column.
-   * Example
+   * Computes hex value of the given column. Example
    * {{{
    *   val df = session.createDataFrame(Seq((1), (2), (3))).toDF("a")
    *   df.withColumn("hex_col", hex(col("A"))).select("hex_col").show()
@@ -4370,16 +4444,17 @@ object functions {
    * }}}
    *
    * @since 1.14.0
-   * @param c Column to encode.
-   * @return Encoded string.
+   * @param c
+   *   Column to encode.
+   * @return
+   *   Encoded string.
    */
   def hex(c: Column): Column =
     builtin("HEX_ENCODE")(c)
 
   /**
-   * Inverse of hex. Interprets each pair of characters as a hexadecimal number
-   * and converts to the byte representation of number.
-   * Example
+   * Inverse of hex. Interprets each pair of characters as a hexadecimal number and converts to the
+   * byte representation of number. Example
    * {{{
    *   val df = session.createDataFrame(Seq((31), (32), (33))).toDF("a")
    *   df.withColumn("unhex_col", unhex(col("A"))).select("unhex_col").show()
@@ -4392,22 +4467,23 @@ object functions {
    * ---------------
    * }}}
    *
-   * @param c Column to encode.
+   * @param c
+   *   Column to encode.
    * @since 1.14.0
-   * @return Encoded string.
+   * @return
+   *   Encoded string.
    */
   def unhex(c: Column): Column =
     builtin("HEX_DECODE_STRING")(c)
 
   /**
-
-   * Invokes a built-in snowflake function with the specified name and arguments.
-   * Arguments can be of two types
+   * Invokes a built-in snowflake function with the specified name and arguments. Arguments can be
+   * of two types
    *
-   * a. [[Column]], or
+   *   a. [[Column]], or
    *
-   * b. Basic types such as Int, Long, Double, Decimal etc. which are converted to
-   * Snowpark literals.
+   * b. Basic types such as Int, Long, Double, Decimal etc. which are converted to Snowpark
+   * literals.
    *
    * @group client_func
    * @since 0.1.0
@@ -4456,7 +4532,8 @@ object functions {
 
   /**
    * Registers a Scala closure of 0 argument as a Snowflake Java UDF and returns the UDF.
-   * @tparam RT return type of UDF.
+   * @tparam RT
+   *   return type of UDF.
    * @group udf_func
    * @since 0.1.0
    */
@@ -4466,7 +4543,8 @@ object functions {
 
   /**
    * Registers a Scala closure of 1 argument as a Snowflake Java UDF and returns the UDF.
-   * @tparam RT return type of UDF.
+   * @tparam RT
+   *   return type of UDF.
    * @group udf_func
    * @since 0.1.0
    */
@@ -4476,18 +4554,20 @@ object functions {
 
   /**
    * Registers a Scala closure of 2 arguments as a Snowflake Java UDF and returns the UDF.
-   * @tparam RT return type of UDF.
+   * @tparam RT
+   *   return type of UDF.
    * @group udf_func
    * @since 0.1.0
    */
-  def udf[RT: TypeTag, A1: TypeTag, A2: TypeTag](
-      func: Function2[A1, A2, RT]): UserDefinedFunction = udf("udf") {
-    registerUdf(_toUdf(func))
-  }
+  def udf[RT: TypeTag, A1: TypeTag, A2: TypeTag](func: Function2[A1, A2, RT]): UserDefinedFunction =
+    udf("udf") {
+      registerUdf(_toUdf(func))
+    }
 
   /**
    * Registers a Scala closure of 3 arguments as a Snowflake Java UDF and returns the UDF.
-   * @tparam RT return type of UDF.
+   * @tparam RT
+   *   return type of UDF.
    * @group udf_func
    * @since 0.1.0
    */
@@ -4498,7 +4578,8 @@ object functions {
 
   /**
    * Registers a Scala closure of 4 arguments as a Snowflake Java UDF and returns the UDF.
-   * @tparam RT return type of UDF.
+   * @tparam RT
+   *   return type of UDF.
    * @group udf_func
    * @since 0.1.0
    */
@@ -4509,7 +4590,8 @@ object functions {
 
   /**
    * Registers a Scala closure of 5 arguments as a Snowflake Java UDF and returns the UDF.
-   * @tparam RT return type of UDF.
+   * @tparam RT
+   *   return type of UDF.
    * @group udf_func
    * @since 0.1.0
    */
@@ -4520,7 +4602,8 @@ object functions {
 
   /**
    * Registers a Scala closure of 6 arguments as a Snowflake Java UDF and returns the UDF.
-   * @tparam RT return type of UDF.
+   * @tparam RT
+   *   return type of UDF.
    * @group udf_func
    * @since 0.1.0
    */
@@ -4538,7 +4621,8 @@ object functions {
 
   /**
    * Registers a Scala closure of 7 arguments as a Snowflake Java UDF and returns the UDF.
-   * @tparam RT return type of UDF.
+   * @tparam RT
+   *   return type of UDF.
    * @group udf_func
    * @since 0.1.0
    */
@@ -4557,7 +4641,8 @@ object functions {
 
   /**
    * Registers a Scala closure of 8 arguments as a Snowflake Java UDF and returns the UDF.
-   * @tparam RT return type of UDF.
+   * @tparam RT
+   *   return type of UDF.
    * @group udf_func
    * @since 0.1.0
    */
@@ -4577,7 +4662,8 @@ object functions {
 
   /**
    * Registers a Scala closure of 9 arguments as a Snowflake Java UDF and returns the UDF.
-   * @tparam RT return type of UDF.
+   * @tparam RT
+   *   return type of UDF.
    * @group udf_func
    * @since 0.1.0
    */
@@ -4598,7 +4684,8 @@ object functions {
 
   /**
    * Registers a Scala closure of 10 arguments as a Snowflake Java UDF and returns the UDF.
-   * @tparam RT return type of UDF.
+   * @tparam RT
+   *   return type of UDF.
    * @group udf_func
    * @since 0.1.0
    */
@@ -4621,7 +4708,8 @@ object functions {
 
   /**
    * Registers a Scala closure of 11 arguments as a Snowflake Java UDF and returns the UDF.
-   * @tparam RT return type of UDF.
+   * @tparam RT
+   *   return type of UDF.
    * @group udf_func
    * @since 0.12.0
    */
@@ -4645,7 +4733,8 @@ object functions {
 
   /**
    * Registers a Scala closure of 12 arguments as a Snowflake Java UDF and returns the UDF.
-   * @tparam RT return type of UDF.
+   * @tparam RT
+   *   return type of UDF.
    * @group udf_func
    * @since 0.12.0
    */
@@ -4663,13 +4752,15 @@ object functions {
       A10: TypeTag,
       A11: TypeTag,
       A12: TypeTag](func: Function12[A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, RT])
-    : UserDefinedFunction = udf("udf") {
-    registerUdf(_toUdf(func))
-  }
+      : UserDefinedFunction =
+    udf("udf") {
+      registerUdf(_toUdf(func))
+    }
 
   /**
    * Registers a Scala closure of 13 arguments as a Snowflake Java UDF and returns the UDF.
-   * @tparam RT return type of UDF.
+   * @tparam RT
+   *   return type of UDF.
    * @group udf_func
    * @since 0.12.0
    */
@@ -4688,13 +4779,14 @@ object functions {
       A11: TypeTag,
       A12: TypeTag,
       A13: TypeTag](func: Function13[A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, RT])
-    : UserDefinedFunction = udf("udf") {
+      : UserDefinedFunction = udf("udf") {
     registerUdf(_toUdf(func))
   }
 
   /**
    * Registers a Scala closure of 14 arguments as a Snowflake Java UDF and returns the UDF.
-   * @tparam RT return type of UDF.
+   * @tparam RT
+   *   return type of UDF.
    * @group udf_func
    * @since 0.12.0
    */
@@ -4715,13 +4807,14 @@ object functions {
       A13: TypeTag,
       A14: TypeTag](
       func: Function14[A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, RT])
-    : UserDefinedFunction = udf("udf") {
+      : UserDefinedFunction = udf("udf") {
     registerUdf(_toUdf(func))
   }
 
   /**
    * Registers a Scala closure of 15 arguments as a Snowflake Java UDF and returns the UDF.
-   * @tparam RT return type of UDF.
+   * @tparam RT
+   *   return type of UDF.
    * @group udf_func
    * @since 0.12.0
    */
@@ -4743,13 +4836,14 @@ object functions {
       A14: TypeTag,
       A15: TypeTag](
       func: Function15[A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15, RT])
-    : UserDefinedFunction = udf("udf") {
+      : UserDefinedFunction = udf("udf") {
     registerUdf(_toUdf(func))
   }
 
   /**
    * Registers a Scala closure of 16 arguments as a Snowflake Java UDF and returns the UDF.
-   * @tparam RT return type of UDF.
+   * @tparam RT
+   *   return type of UDF.
    * @group udf_func
    * @since 0.12.0
    */
@@ -4772,13 +4866,14 @@ object functions {
       A15: TypeTag,
       A16: TypeTag](
       func: Function16[A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15, A16, RT])
-    : UserDefinedFunction = udf("udf") {
+      : UserDefinedFunction = udf("udf") {
     registerUdf(_toUdf(func))
   }
 
   /**
    * Registers a Scala closure of 17 arguments as a Snowflake Java UDF and returns the UDF.
-   * @tparam RT return type of UDF.
+   * @tparam RT
+   *   return type of UDF.
    * @group udf_func
    * @since 0.12.0
    */
@@ -4825,7 +4920,8 @@ object functions {
 
   /**
    * Registers a Scala closure of 18 arguments as a Snowflake Java UDF and returns the UDF.
-   * @tparam RT return type of UDF.
+   * @tparam RT
+   *   return type of UDF.
    * @group udf_func
    * @since 0.12.0
    */
@@ -4874,7 +4970,8 @@ object functions {
 
   /**
    * Registers a Scala closure of 19 arguments as a Snowflake Java UDF and returns the UDF.
-   * @tparam RT return type of UDF.
+   * @tparam RT
+   *   return type of UDF.
    * @group udf_func
    * @since 0.12.0
    */
@@ -4925,7 +5022,8 @@ object functions {
 
   /**
    * Registers a Scala closure of 20 arguments as a Snowflake Java UDF and returns the UDF.
-   * @tparam RT return type of UDF.
+   * @tparam RT
+   *   return type of UDF.
    * @group udf_func
    * @since 0.12.0
    */
@@ -4978,7 +5076,8 @@ object functions {
 
   /**
    * Registers a Scala closure of 21 arguments as a Snowflake Java UDF and returns the UDF.
-   * @tparam RT return type of UDF.
+   * @tparam RT
+   *   return type of UDF.
    * @group udf_func
    * @since 0.12.0
    */
@@ -5033,7 +5132,8 @@ object functions {
 
   /**
    * Registers a Scala closure of 22 arguments as a Snowflake Java UDF and returns the UDF.
-   * @tparam RT return type of UDF.
+   * @tparam RT
+   *   return type of UDF.
    * @group udf_func
    * @since 0.12.0
    */
@@ -5089,8 +5189,8 @@ object functions {
   }
 
   /**
-   * Function object to invoke a Snowflake builtin. Use this to invoke
-   * any builtins not explicitly listed in this object.
+   * Function object to invoke a Snowflake builtin. Use this to invoke any builtins not explicitly
+   * listed in this object.
    *
    * Example
    * {{{
@@ -5117,8 +5217,7 @@ object functions {
     Column(FunctionExpression(name, exprs, isDistinct))
   }
 
-  @inline protected def udf(funcName: String)(
-      func: => UserDefinedFunction): UserDefinedFunction = {
+  @inline protected def udf(funcName: String)(func: => UserDefinedFunction): UserDefinedFunction = {
     OpenTelemetry.udx(
       "functions",
       funcName,

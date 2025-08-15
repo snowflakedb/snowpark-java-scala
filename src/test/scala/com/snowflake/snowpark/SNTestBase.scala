@@ -8,14 +8,15 @@ import com.snowflake.snowpark.internal.{ParameterUtils, ServerConnection, UDFCla
 import com.snowflake.snowpark.types._
 import com.snowflake.snowpark_test.TestFiles
 import org.mockito.Mockito.{doReturn, spy, when}
-import org.scalatest.{BeforeAndAfterAll, FunSuite}
+import org.scalatest.BeforeAndAfterAll
+import org.scalatest.funsuite.AnyFunSuite
 
 import scala.collection.mutable.ArrayBuffer
 import scala.concurrent.{Await, Future}
 import scala.concurrent.duration._
 import scala.concurrent.ExecutionContext.Implicits.global
 
-trait SNTestBase extends FunSuite with BeforeAndAfterAll with SFTestUtils with SnowTestFiles {
+trait SNTestBase extends AnyFunSuite with BeforeAndAfterAll with SFTestUtils with SnowTestFiles {
 
   protected val defaultProfile: String = TestUtils.defaultProfile
 
@@ -119,8 +120,8 @@ trait SNTestBase extends FunSuite with BeforeAndAfterAll with SFTestUtils with S
     // scalastyle:off
     Session
       .loadConfFromFile(defaultProfile)
-      .map {
-        case (key, value) => key.toLowerCase -> value
+      .map { case (key, value) =>
+        key.toLowerCase -> value
       }
       .get(key.toLowerCase)
     // scalastyle:on
@@ -143,7 +144,7 @@ trait SNTestBase extends FunSuite with BeforeAndAfterAll with SFTestUtils with S
         case _: Exception => true // canceled
       }
     }
-    Await.result(query, 10 minutes)
+    Await.result(query, 10.minutes)
   }
 
   // Only create temp schema for non-java-sp tests, because owner's right SP does not support 'use'
@@ -284,14 +285,13 @@ trait SNTestBase extends FunSuite with BeforeAndAfterAll with SFTestUtils with S
       skipPreprod: Boolean = false)(thunk: => Unit): Unit = {
     if (!(skipPreprod && isPreprodAccount)) {
       try {
-        params.foreach {
-          case (paramName, value) =>
-            runQuery(s"alter session set $paramName = $value", currentSession)
+        params.foreach { case (paramName, value) =>
+          runQuery(s"alter session set $paramName = $value", currentSession)
         }
         thunk
       } finally {
-        params.foreach {
-          case (paramName, _) => runQuery(s"alter session unset $paramName", currentSession)
+        params.foreach { case (paramName, _) =>
+          runQuery(s"alter session unset $paramName", currentSession)
         }
       }
     }

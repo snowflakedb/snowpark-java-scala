@@ -18,3 +18,5 @@ javaDoc/
 .DS_Store
 snowpark-fips.iml
 snowpark-java.iml
+.bsp/
+project/target/

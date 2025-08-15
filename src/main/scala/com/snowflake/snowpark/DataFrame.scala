@@ -2,7 +2,6 @@ package com.snowflake.snowpark
 
 import scala.reflect.ClassTag
 import scala.util.{DynamicVariable, Random}
-import com.snowflake.snowpark.internal.analyzer.{TableFunction => TF}
 import com.snowflake.snowpark.internal.{ErrorMessage, Logging, OpenTelemetry, Utils}
 import com.snowflake.snowpark.internal.analyzer._
 import com.snowflake.snowpark.types._
@@ -42,8 +41,7 @@ private[snowpark] object DataFrame extends Logging {
   // in case of recursion, only record the outer function in the method chain.
   val methodChainCache = new DynamicVariable[Seq[String]](Seq.empty[String])
 
-  def buildMethodChain(current: Seq[String], newMethod: String)(
-      thunk: => DataFrame): DataFrame = {
+  def buildMethodChain(current: Seq[String], newMethod: String)(thunk: => DataFrame): DataFrame = {
     methodChainCache.withValue(
       if (methodChainCache.value.isEmpty) current :+ newMethod else methodChainCache.value) {
       thunk
@@ -55,9 +53,9 @@ private[snowpark] object DataFrame extends Logging {
  * Represents a lazily-evaluated relational dataset that contains a collection of [[Row]] objects
  * with columns defined by a schema (column name and type).
  *
- * A DataFrame is considered lazy because it encapsulates the computation or query
- * required to produce a relational dataset. The computation is not performed until
- * you call a method that performs an action (e.g. [[collect]]).
+ * A DataFrame is considered lazy because it encapsulates the computation or query required to
+ * produce a relational dataset. The computation is not performed until you call a method that
+ * performs an action (e.g. [[collect]]).
  *
  * '''Creating a DataFrame'''
  *
@@ -86,26 +84,24 @@ private[snowpark] object DataFrame extends Logging {
  *   val dfMergedData = dfCatalog.join(dfPrices, dfCatalog("itemId") === dfPrices("ID"))
  * }}}
  *
- *
  * '''Performing operations on a DataFrame'''
  *
  * Broadly, the operations on DataFrame can be divided into two types:
  *
- *  - '''Transformations''' produce a new DataFrame from one or more existing DataFrames.
- *    Note that tranformations are lazy and don't cause the DataFrame to be evaluated.
- *    If the API does not provide a method to express the SQL that you want to use, you can use
- *    [[functions.sqlExpr]] as a workaround.
+ *   - '''Transformations''' produce a new DataFrame from one or more existing DataFrames. Note that
+ *     tranformations are lazy and don't cause the DataFrame to be evaluated. If the API does not
+ *     provide a method to express the SQL that you want to use, you can use [[functions.sqlExpr]]
+ *     as a workaround.
  *
- *  - '''Actions''' cause the DataFrame to be evaluated. When you call a method that performs an
- *    action, Snowpark sends the SQL query for the DataFrame to the server for evaluation.
+ *   - '''Actions''' cause the DataFrame to be evaluated. When you call a method that performs an
+ *     action, Snowpark sends the SQL query for the DataFrame to the server for evaluation.
  *
  * '''Transforming a DataFrame'''
  *
  * The following examples demonstrate how you can transform a DataFrame.
  *
- * Example 5. Using the
- * [[select(first:com\.snowflake\.snowpark\.Column* select]] method to select the columns that
- * should be in the DataFrame (similar to adding a `SELECT` clause).
+ * Example 5. Using the [[select(first:com\.snowflake\.snowpark\.Column* select]] method to select
+ * the columns that should be in the DataFrame (similar to adding a `SELECT` clause).
  *
  * {{{
  *   // Return a new DataFrame containing the ID and amount columns of the prices table. This is
@@ -143,18 +139,18 @@ private[snowpark] object DataFrame extends Logging {
  *   val dfSortedPrices = dfPrices.sort(col("ID"))
  * }}}
  *
- * Example 9. Using the [[groupBy(first:com\.snowflake\.snowpark\.Column* groupBy]] method to
- * return a [[RelationalGroupedDataFrame]] that you can use to group and aggregate results (similar
- * to adding a `GROUP BY` clause).
+ * Example 9. Using the [[groupBy(first:com\.snowflake\.snowpark\.Column* groupBy]] method to return
+ * a [[RelationalGroupedDataFrame]] that you can use to group and aggregate results (similar to
+ * adding a `GROUP BY` clause).
  *
  * [[RelationalGroupedDataFrame]] provides methods for aggregating results, including:
  *
- *  - [[RelationalGroupedDataFrame.avg(cols* avg]] (equivalent to AVG(column))
- *  - [[RelationalGroupedDataFrame.count count]] (equivalent to COUNT())
- *  - [[RelationalGroupedDataFrame.max(cols* max]] (equivalent to MAX(column))
- *  - [[RelationalGroupedDataFrame.median(cols* median]] (equivalent to MEDIAN(column))
- *  - [[RelationalGroupedDataFrame.min(cols* min]] (equivalent to MIN(column))
- *  - [[RelationalGroupedDataFrame.sum(cols* sum]] (equivalent to SUM(column))
+ *   - [[RelationalGroupedDataFrame.avg(cols* avg]] (equivalent to AVG(column))
+ *   - [[RelationalGroupedDataFrame.count count]] (equivalent to COUNT())
+ *   - [[RelationalGroupedDataFrame.max(cols* max]] (equivalent to MAX(column))
+ *   - [[RelationalGroupedDataFrame.median(cols* median]] (equivalent to MEDIAN(column))
+ *   - [[RelationalGroupedDataFrame.min(cols* min]] (equivalent to MIN(column))
+ *   - [[RelationalGroupedDataFrame.sum(cols* sum]] (equivalent to SUM(column))
  *
  * {{{
  *   // Return a new DataFrame for the prices table that computes the sum of the prices by
@@ -213,7 +209,8 @@ class DataFrame private[snowpark] (
    *
    * @group basic
    * @since 0.4.0
-   * @return A [[DataFrame]]
+   * @return
+   *   A [[DataFrame]]
    */
   override def clone: DataFrame = transformation("clone") {
     DataFrame(session, snowflakePlan.clone)
@@ -227,7 +224,8 @@ class DataFrame private[snowpark] (
    *
    * @group basic
    * @since 0.1.0
-   * @return [[com.snowflake.snowpark.types.StructType]]
+   * @return
+   *   [[com.snowflake.snowpark.types.StructType]]
    */
   lazy val schema: StructType = {
     val attrs: Seq[Attribute] = if (session.conn.hideInternalAlias) {
@@ -241,12 +239,13 @@ class DataFrame private[snowpark] (
   /**
    * Caches the content of this DataFrame to create a new cached DataFrame.
    *
-   * All subsequent operations on the returned cached DataFrame are performed on the cached data
-   * and have no effect on the original DataFrame.
+   * All subsequent operations on the returned cached DataFrame are performed on the cached data and
+   * have no effect on the original DataFrame.
    *
    * @since 0.4.0
    * @group actions
-   * @return A [[HasCachedResult]]
+   * @return
+   *   A [[HasCachedResult]]
    */
   def cacheResult(): HasCachedResult = action("cacheResult") {
     val tempTableName = randomNameForTempObject(TempObjectType.Table)
@@ -259,8 +258,8 @@ class DataFrame private[snowpark] (
   }
 
   /**
-   * Prints the list of queries that will be executed to evaluate this DataFrame.
-   * Prints the query execution plan if only one SELECT/DML/DDL statement will be executed.
+   * Prints the list of queries that will be executed to evaluate this DataFrame. Prints the query
+   * execution plan if only one SELECT/DML/DDL statement will be executed.
    *
    * For more information about the query execution plan, see the
    * [[https://docs.snowflake.com/en/sql-reference/sql/explain.html EXPLAIN]] command.
@@ -279,8 +278,8 @@ class DataFrame private[snowpark] (
       .map(_.sql)
       .map(SqlFormatter.format)
       .zipWithIndex
-      .map {
-        case (str, i) => s"${i}.\n${str}"
+      .map { case (str, i) =>
+        s"${i}.\n${str}"
       }
       .mkString("\n---\n")
 
@@ -321,9 +320,9 @@ class DataFrame private[snowpark] (
    *     -------------
    * }}}
    *
-   * if you imported [[Session.implicits <session_var>.implicits._]],
-   * you can use the following syntax to create the DataFrame from a `Seq` and
-   * call `toDF` to assign column names to the returned DataFrame:
+   * if you imported [[Session.implicits <session_var>.implicits._]], you can use the following
+   * syntax to create the DataFrame from a `Seq` and call `toDF` to assign column names to the
+   * returned DataFrame:
    *
    * {{{
    *     import mysession.implicits_
@@ -335,17 +334,20 @@ class DataFrame private[snowpark] (
    *
    * @group basic
    * @since 0.1.0
-   * @param first The name of the first column.
-   * @param remaining A list of the rest of the column names.
-   * @return A [[DataFrame]]
+   * @param first
+   *   The name of the first column.
+   * @param remaining
+   *   A list of the rest of the column names.
+   * @return
+   *   A [[DataFrame]]
    */
   def toDF(first: String, remaining: String*): DataFrame = transformation("toDF") {
     toDF(first +: remaining)
   }
 
   /**
-   * Creates a new DataFrame containing the data in the current DataFrame but in
-   * columns with the specified names.
+   * Creates a new DataFrame containing the data in the current DataFrame but in columns with the
+   * specified names.
    *
    * You can use this method to assign column names when constructing a DataFrame. For example:
    *
@@ -380,8 +382,10 @@ class DataFrame private[snowpark] (
    *
    * @group basic
    * @since 0.2.0
-   * @param colNames A list of column names.
-   * @return A [[DataFrame]]
+   * @param colNames
+   *   A list of column names.
+   * @return
+   *   A [[DataFrame]]
    */
   def toDF(colNames: Seq[String]): DataFrame = transformation("toDF") {
     require(
@@ -391,14 +395,14 @@ class DataFrame private[snowpark] (
         s"${output.map(_.name).mkString(", ")} \n" +
         s"New column names (${colNames.length}): ${colNames.mkString(", ")}")
 
-    val matched = output.zip(colNames).forall {
-      case (attribute, name) => attribute.name == quoteName(name)
+    val matched = output.zip(colNames).forall { case (attribute, name) =>
+      attribute.name == quoteName(name)
     }
     if (matched) {
       this
     } else {
-      val newCols = output.zip(colNames).map {
-        case (attr, name) => Column(attr).as(name)
+      val newCols = output.zip(colNames).map { case (attr, name) =>
+        Column(attr).as(name)
       }
       select(newCols)
     }
@@ -441,8 +445,10 @@ class DataFrame private[snowpark] (
    *
    * @group basic
    * @since 0.7.0
-   * @param colNames An array of column names.
-   * @return A [[DataFrame]]
+   * @param colNames
+   *   An array of column names.
+   * @return
+   *   A [[DataFrame]]
    */
   def toDF(colNames: Array[String]): DataFrame = transformation("toDF") {
     toDF(colNames.toSeq)
@@ -459,9 +465,12 @@ class DataFrame private[snowpark] (
    *
    * @group transform
    * @since 0.1.0
-   * @param first The first Column expression for sorting the DataFrame.
-   * @param remaining Additional Column expressions for sorting the DataFrame.
-   * @return A [[DataFrame]]
+   * @param first
+   *   The first Column expression for sorting the DataFrame.
+   * @param remaining
+   *   Additional Column expressions for sorting the DataFrame.
+   * @return
+   *   A [[DataFrame]]
    */
   def sort(first: Column, remaining: Column*): DataFrame = transformation("sort") {
     sort(first +: remaining)
@@ -477,17 +486,22 @@ class DataFrame private[snowpark] (
    *
    * @group transform
    * @since 0.2.0
-   * @param sortExprs A list of Column expressions for sorting the DataFrame.
-   * @return A [[DataFrame]]
+   * @param sortExprs
+   *   A list of Column expressions for sorting the DataFrame.
+   * @return
+   *   A [[DataFrame]]
    */
   def sort(sortExprs: Seq[Column]): DataFrame = transformation("sort") {
     if (sortExprs.nonEmpty) {
-      withPlan(Sort(sortExprs.map { col =>
-        col.expr match {
-          case expr: SortOrder => expr
-          case expr: Expression => SortOrder(expr, Ascending)
-        }
-      }, plan))
+      withPlan(
+        Sort(
+          sortExprs.map { col =>
+            col.expr match {
+              case expr: SortOrder => expr
+              case expr: Expression => SortOrder(expr, Ascending)
+            }
+          },
+          plan))
     } else {
       throw ErrorMessage.DF_SORT_NEED_AT_LEAST_ONE_EXPR()
     }
@@ -504,19 +518,23 @@ class DataFrame private[snowpark] (
    *
    * @group transform
    * @since 0.7.0
-   * @param sortExprs An array of Column expressions for sorting the DataFrame.
-   * @return A [[DataFrame]]
+   * @param sortExprs
+   *   An array of Column expressions for sorting the DataFrame.
+   * @return
+   *   A [[DataFrame]]
    */
   def sort(sortExprs: Array[Column]): DataFrame = sort(sortExprs.toSeq)
 
   /**
-   * Returns a reference to a column in the DataFrame.
-   * This method is identical to [[col DataFrame.col]].
+   * Returns a reference to a column in the DataFrame. This method is identical to
+   * [[col DataFrame.col]].
    *
    * @group transform
    * @since 0.1.0
-   * @param colName The name of the column.
-   * @return A [[Column]]
+   * @param colName
+   *   The name of the column.
+   * @return
+   *   A [[Column]]
    */
   def apply(colName: String): Column = col(colName)
 
@@ -525,8 +543,10 @@ class DataFrame private[snowpark] (
    *
    * @group transform
    * @since 0.1.0
-   * @param colName The name of the column.
-   * @return A [[Column]]
+   * @param colName
+   *   The name of the column.
+   * @return
+   *   A [[Column]]
    */
   def col(colName: String): Column = colName match {
     case "*" => Column(Star(snowflakePlan.output))
@@ -545,8 +565,10 @@ class DataFrame private[snowpark] (
    *
    * @group basic
    * @since 1.10.0
-   * @param alias The alias name of the dataframe
-   * @return a [[DataFrame]]
+   * @param alias
+   *   The alias name of the dataframe
+   * @return
+   *   a [[DataFrame]]
    */
   def alias(alias: String): DataFrame = transformation("alias") {
     withPlan(DataframeAlias(alias, plan, output))
@@ -566,18 +588,20 @@ class DataFrame private[snowpark] (
    *
    * @group transform
    * @since 0.1.0
-   * @param first The expression for the first column to return.
-   * @param remaining A list of expressions for the additional columns to return.
-   * @return A [[DataFrame]]
+   * @param first
+   *   The expression for the first column to return.
+   * @param remaining
+   *   A list of expressions for the additional columns to return.
+   * @return
+   *   A [[DataFrame]]
    */
   def select(first: Column, remaining: Column*): DataFrame = transformation("select") {
     select(first +: remaining)
   }
 
   /**
-   * Returns a new DataFrame with the specified Column expressions as output
-   * (similar to SELECT in SQL). Only the Columns specified as arguments will be present in
-   * the resulting DataFrame.
+   * Returns a new DataFrame with the specified Column expressions as output (similar to SELECT in
+   * SQL). Only the Columns specified as arguments will be present in the resulting DataFrame.
    *
    * You can use any Column expression.
    *
@@ -588,8 +612,10 @@ class DataFrame private[snowpark] (
    *
    * @group transform
    * @since 0.2.0
-   * @param columns A list of expressions for the columns to return.
-   * @return A [[DataFrame]]
+   * @param columns
+   *   A list of expressions for the columns to return.
+   * @return
+   *   A [[DataFrame]]
    */
   def select[T: ClassTag](columns: Seq[Column]): DataFrame = transformation("select") {
     require(
@@ -639,14 +665,14 @@ class DataFrame private[snowpark] (
       val resultColumnNames = resultSchema.map(_.name).toSet
 
       // filter out in-existent columns
-      val filteredRenamedColumns = renamedColumns.filter {
-        case (newName, _) => resultColumnNames.contains(newName)
+      val filteredRenamedColumns = renamedColumns.filter { case (newName, _) =>
+        resultColumnNames.contains(newName)
       }
 
       // columns has been de-duplicated
       val dedupColumns = filteredRenamedColumns
-        .groupBy {
-          case (_, oldName) => oldName
+        .groupBy { case (_, oldName) =>
+          oldName
         }
         .filter {
           // size == 1 means de-duplicated,
@@ -656,12 +682,12 @@ class DataFrame private[snowpark] (
         .keys
         .toSet
 
-      val toBeRenamed = filteredRenamedColumns.filter {
-        case (_, oldName) => dedupColumns.contains(oldName)
+      val toBeRenamed = filteredRenamedColumns.filter { case (_, oldName) =>
+        dedupColumns.contains(oldName)
       }
 
-      val newRenamedMap = filteredRenamedColumns.filter {
-        case (_, oldName) => !dedupColumns.contains(oldName)
+      val newRenamedMap = filteredRenamedColumns.filter { case (_, oldName) =>
+        !dedupColumns.contains(oldName)
       }
 
       val newProjectList = resultSchema.map(att => {
@@ -694,8 +720,10 @@ class DataFrame private[snowpark] (
    *
    * @group transform
    * @since 0.7.0
-   * @param columns An array of expressions for the columns to return.
-   * @return A [[DataFrame]]
+   * @param columns
+   *   An array of expressions for the columns to return.
+   * @return
+   *   A [[DataFrame]]
    */
   def select(columns: Array[Column]): DataFrame = transformation("select") {
     select(columns.toSeq)
@@ -712,17 +740,19 @@ class DataFrame private[snowpark] (
    *
    * @group transform
    * @since 0.1.0
-   * @param first The name of the first column to return.
-   * @param remaining A list of the names of the additional columns to return.
-   * @return A [[DataFrame]]
+   * @param first
+   *   The name of the first column to return.
+   * @param remaining
+   *   A list of the names of the additional columns to return.
+   * @return
+   *   A [[DataFrame]]
    */
   def select(first: String, remaining: String*): DataFrame = transformation("select") {
     select(first +: remaining)
   }
 
   /**
-   * Returns a new DataFrame with a subset of named columns
-   * (similar to SELECT in SQL).
+   * Returns a new DataFrame with a subset of named columns (similar to SELECT in SQL).
    *
    * For example:
    * {{{
@@ -731,8 +761,10 @@ class DataFrame private[snowpark] (
    *
    * @group transform
    * @since 0.2.0
-   * @param columns A list of the names of columns to return.
-   * @return A [[DataFrame]]
+   * @param columns
+   *   A list of the names of columns to return.
+   * @return
+   *   A [[DataFrame]]
    */
   def select(columns: Seq[String]): DataFrame = transformation("select") {
     select(columns.map(Column(_)))
@@ -749,8 +781,10 @@ class DataFrame private[snowpark] (
    *
    * @group transform
    * @since 0.7.0
-   * @param columns An array of the names of columns to return.
-   * @return A [[DataFrame]]
+   * @param columns
+   *   An array of the names of columns to return.
+   * @return
+   *   A [[DataFrame]]
    */
   def select(columns: Array[String]): DataFrame = transformation("select") {
     select(columns.toSeq)
@@ -765,17 +799,19 @@ class DataFrame private[snowpark] (
    * Throws [[SnowparkClientException]] if the resulting DataFrame contains no output columns.
    * @group transform
    * @since 0.1.0
-   * @param first The name of the first column to exclude.
-   * @param remaining A list of the names of additional columns to exclude.
-   * @return A [[DataFrame]]
+   * @param first
+   *   The name of the first column to exclude.
+   * @param remaining
+   *   A list of the names of additional columns to exclude.
+   * @return
+   *   A [[DataFrame]]
    */
   def drop(first: String, remaining: String*): DataFrame = transformation("drop") {
     drop(first +: remaining)
   }
 
   /**
-   * Returns a new DataFrame that excludes the columns with the specified
-   * names from the output.
+   * Returns a new DataFrame that excludes the columns with the specified names from the output.
    *
    * This is functionally equivalent to calling [[select(columns:Seq* select]] and passing in all
    * columns except the ones to exclude.
@@ -784,8 +820,10 @@ class DataFrame private[snowpark] (
    *
    * @group transform
    * @since 0.2.0
-   * @param colNames A list of the names of columns to exclude.
-   * @return A [[DataFrame]]
+   * @param colNames
+   *   A list of the names of columns to exclude.
+   * @return
+   *   A [[DataFrame]]
    */
   def drop(colNames: Seq[String]): DataFrame = transformation("drop") {
     val dropColumns: Seq[Column] = colNames.map(name => functions.col(name))
@@ -795,56 +833,61 @@ class DataFrame private[snowpark] (
   /**
    * Returns a new DataFrame that excludes the columns with the specified names from the output.
    *
-   * This is functionally equivalent to calling [[select(columns:Array[String* select]] and
-   * passing in all columns except the ones to exclude.
+   * This is functionally equivalent to calling [[select(columns:Array[String* select]] and passing
+   * in all columns except the ones to exclude.
    *
    * Throws [[SnowparkClientException]] if the resulting DataFrame contains no output columns.
    *
    * @group transform
    * @since 0.7.0
-   * @param colNames An array of the names of columns to exclude.
-   * @return A [[DataFrame]]
+   * @param colNames
+   *   An array of the names of columns to exclude.
+   * @return
+   *   A [[DataFrame]]
    */
   def drop(colNames: Array[String]): DataFrame = transformation("drop") {
     drop(colNames.toSeq)
   }
 
   /**
-   * Returns a new DataFrame that excludes the columns specified by the expressions from the
-   * output.
+   * Returns a new DataFrame that excludes the columns specified by the expressions from the output.
    *
-   * This is functionally equivalent to calling [[select(first:String* select]] and passing in
-   * all columns except the ones to exclude.
+   * This is functionally equivalent to calling [[select(first:String* select]] and passing in all
+   * columns except the ones to exclude.
    *
    * This method throws a [[SnowparkClientException]] if:
-   *  - A specified column does not have a name, or
-   *  - The resulting DataFrame has no output columns.
+   *   - A specified column does not have a name, or
+   *   - The resulting DataFrame has no output columns.
    *
    * @group transform
    * @since 0.1.0
-   * @param first The expression for the first column to exclude.
-   * @param remaining A list of expressions for additional columns to exclude.
-   * @return A [[DataFrame]]
+   * @param first
+   *   The expression for the first column to exclude.
+   * @param remaining
+   *   A list of expressions for additional columns to exclude.
+   * @return
+   *   A [[DataFrame]]
    */
   def drop(first: Column, remaining: Column*): DataFrame = transformation("drop") {
     drop(first +: remaining)
   }
 
   /**
-   * Returns a new DataFrame that excludes the specified column
-   * expressions from the output.
+   * Returns a new DataFrame that excludes the specified column expressions from the output.
    *
    * This is functionally equivalent to calling [[select(columns:Seq* select]] and passing in all
    * columns except the ones to exclude.
    *
    * This method throws a [[SnowparkClientException]] if:
-   *  - A specified column does not have a name, or
-   *  - The resulting DataFrame has no output columns.
+   *   - A specified column does not have a name, or
+   *   - The resulting DataFrame has no output columns.
    *
    * @group transform
    * @since 0.2.0
-   * @param cols  A list of the names of the columns to exclude.
-   * @return A [[DataFrame]]
+   * @param cols
+   *   A list of the names of the columns to exclude.
+   * @return
+   *   A [[DataFrame]]
    */
   def drop[T: ClassTag](cols: Seq[Column]): DataFrame = transformation("drop") {
     val dropColumns: Seq[NamedExpression] = cols.map {
@@ -859,17 +902,19 @@ class DataFrame private[snowpark] (
   /**
    * Returns a new DataFrame that excludes the specified column expressions from the output.
    *
-   * This is functionally equivalent to calling [[select(columns:Array[String* select]] and
-   * passing in all columns except the ones to exclude.
+   * This is functionally equivalent to calling [[select(columns:Array[String* select]] and passing
+   * in all columns except the ones to exclude.
    *
    * This method throws a [[SnowparkClientException]] if:
-   *  - A specified column does not have a name, or
-   *  - The resulting DataFrame has no output columns.
+   *   - A specified column does not have a name, or
+   *   - The resulting DataFrame has no output columns.
    *
    * @group transform
    * @since 0.7.0
-   * @param cols  An array of the names of the columns to exclude.
-   * @return A [[DataFrame]]
+   * @param cols
+   *   An array of the names of the columns to exclude.
+   * @return
+   *   A [[DataFrame]]
    */
   def drop(cols: Array[Column]): DataFrame = transformation("drop") {
     drop(cols.toSeq)
@@ -886,16 +931,18 @@ class DataFrame private[snowpark] (
    *
    * @group transform
    * @since 0.1.0
-   * @param condition Filter condition defined as an expression on columns.
-   * @return A filtered [[DataFrame]]
+   * @param condition
+   *   Filter condition defined as an expression on columns.
+   * @return
+   *   A filtered [[DataFrame]]
    */
   def filter(condition: Column): DataFrame = transformation("filter") {
     withPlan(Filter(condition.expr, plan))
   }
 
   /**
-   * Filters rows based on the specified conditional expression (similar to WHERE in SQL).
-   * This is equivalent to calling [[filter]].
+   * Filters rows based on the specified conditional expression (similar to WHERE in SQL). This is
+   * equivalent to calling [[filter]].
    *
    * For example:
    *
@@ -907,21 +954,23 @@ class DataFrame private[snowpark] (
    *
    * @group transform
    * @since 0.1.0
-   * @param condition Filter condition defined as an expression on columns.
-   * @return A filtered [[DataFrame]]
+   * @param condition
+   *   Filter condition defined as an expression on columns.
+   * @return
+   *   A filtered [[DataFrame]]
    */
   def where(condition: Column): DataFrame = transformation("where") {
     filter(condition)
   }
 
   /**
-   * Aggregate the data in the DataFrame. Use this method if you don't need to
-   * group the data (`groupBy`).
+   * Aggregate the data in the DataFrame. Use this method if you don't need to group the data
+   * (`groupBy`).
    *
-   * For the input, pass in a Map that specifies the column names and aggregation functions.
-   * For each pair in the Map:
-   *  - Set the key to the name of the column to aggregate.
-   *  - Set the value to the name of the aggregation function to use on that column.
+   * For the input, pass in a Map that specifies the column names and aggregation functions. For
+   * each pair in the Map:
+   *   - Set the key to the name of the column to aggregate.
+   *   - Set the value to the name of the aggregation function to use on that column.
    *
    * The following example calculates the maximum value of the `num_sales` column and the average
    * value of the `price` column:
@@ -936,21 +985,23 @@ class DataFrame private[snowpark] (
    *
    * @group transform
    * @since 0.1.0
-   * @param expr A map of column names and aggregate functions.
-   * @return A [[DataFrame]]
+   * @param expr
+   *   A map of column names and aggregate functions.
+   * @return
+   *   A [[DataFrame]]
    */
   def agg(expr: (String, String), exprs: (String, String)*): DataFrame = transformation("agg") {
     agg(expr +: exprs)
   }
 
   /**
-   * Aggregate the data in the DataFrame. Use this method if you don't need
-   * to group the data (`groupBy`).
+   * Aggregate the data in the DataFrame. Use this method if you don't need to group the data
+   * (`groupBy`).
    *
-   * For the input, pass in a Map that specifies the column names and aggregation functions.
-   * For each pair in the Map:
-   *  - Set the key to the name of the column to aggregate.
-   *  - Set the value to the name of the aggregation function to use on that column.
+   * For the input, pass in a Map that specifies the column names and aggregation functions. For
+   * each pair in the Map:
+   *   - Set the key to the name of the column to aggregate.
+   *   - Set the value to the name of the aggregation function to use on that column.
    *
    * The following example calculates the maximum value of the `num_sales` column and the average
    * value of the `price` column:
@@ -965,22 +1016,24 @@ class DataFrame private[snowpark] (
    *
    * @group transform
    * @since 0.2.0
-   * @param exprs A map of column names and aggregate functions.
-   * @return A [[DataFrame]]
+   * @param exprs
+   *   A map of column names and aggregate functions.
+   * @return
+   *   A [[DataFrame]]
    */
   def agg(exprs: Seq[(String, String)]): DataFrame = transformation("agg") {
-    groupBy().agg(exprs.map({ case (c, a) => (col(c), a) }))
+    groupBy().agg(exprs.map({ case (c, a) => (col(c), a) }).toSeq)
   }
 
   /**
    * Aggregate the data in the DataFrame. Use this method if you don't need to group the data
    * (`groupBy`).
    *
-   * For the input value, pass in expressions that apply aggregation functions to columns
-   * (functions that are defined in the [[functions]] object).
+   * For the input value, pass in expressions that apply aggregation functions to columns (functions
+   * that are defined in the [[functions]] object).
    *
-   * The following example calculates the maximum value of the `num_sales` column and the mean
-   * value of the `price` column:
+   * The following example calculates the maximum value of the `num_sales` column and the mean value
+   * of the `price` column:
    *
    * For example:
    *
@@ -992,22 +1045,24 @@ class DataFrame private[snowpark] (
    *
    * @group transform
    * @since 0.1.0
-   * @param expr A list of expressions on columns.
-   * @return A [[DataFrame]]
+   * @param expr
+   *   A list of expressions on columns.
+   * @return
+   *   A [[DataFrame]]
    */
   def agg(expr: Column, exprs: Column*): DataFrame = transformation("agg") {
     agg(expr +: exprs)
   }
 
   /**
-   * Aggregate the data in the DataFrame. Use this method if you don't need
-   * to group the data (`groupBy`).
+   * Aggregate the data in the DataFrame. Use this method if you don't need to group the data
+   * (`groupBy`).
    *
-   * For the input value, pass in expressions that apply aggregation functions to columns
-   * (functions that are defined in the [[functions]] object).
+   * For the input value, pass in expressions that apply aggregation functions to columns (functions
+   * that are defined in the [[functions]] object).
    *
-   * The following example calculates the maximum value of the `num_sales` column and the mean
-   * value of the `price` column:
+   * The following example calculates the maximum value of the `num_sales` column and the mean value
+   * of the `price` column:
    * {{{
    *   import com.snowflake.snowpark.functions._
    *
@@ -1016,22 +1071,24 @@ class DataFrame private[snowpark] (
    *
    * @group transform
    * @since 0.2.0
-   * @param exprs A list of expressions on columns.
-   * @return A [[DataFrame]]
+   * @param exprs
+   *   A list of expressions on columns.
+   * @return
+   *   A [[DataFrame]]
    */
   def agg[T: ClassTag](exprs: Seq[Column]): DataFrame = transformation("agg") {
-    groupBy().agg(exprs)
+    groupBy().agg(exprs.toSeq)
   }
 
   /**
-   * Aggregate the data in the DataFrame. Use this method if you don't need
-   * to group the data (`groupBy`).
+   * Aggregate the data in the DataFrame. Use this method if you don't need to group the data
+   * (`groupBy`).
    *
-   * For the input value, pass in expressions that apply aggregation functions to columns
-   * (functions that are defined in the [[functions]] object).
+   * For the input value, pass in expressions that apply aggregation functions to columns (functions
+   * that are defined in the [[functions]] object).
    *
-   * The following example calculates the maximum value of the `num_sales` column and the mean
-   * value of the `price` column:
+   * The following example calculates the maximum value of the `num_sales` column and the mean value
+   * of the `price` column:
    *
    * For example:
    *
@@ -1043,13 +1100,16 @@ class DataFrame private[snowpark] (
    *
    * @group transform
    * @since 0.7.0
-   * @param exprs An array of expressions on columns.
-   * @return A [[DataFrame]]
+   * @param exprs
+   *   An array of expressions on columns.
+   * @return
+   *   A [[DataFrame]]
    */
   def agg(exprs: Array[Column]): DataFrame = transformation("agg") {
     agg(exprs.toSeq)
   }
 
+  // scalastyle:off line.size.limit
   /**
    * Performs an SQL
    * [[https://docs.snowflake.com/en/sql-reference/constructs/group-by-rollup.html GROUP BY ROLLUP]]
@@ -1057,13 +1117,18 @@ class DataFrame private[snowpark] (
    *
    * @group transform
    * @since 0.1.0
-   * @param first The expression for the first column.
-   * @param remaining A list of expressions for additional columns.
-   * @return A [[RelationalGroupedDataFrame]]
+   * @param first
+   *   The expression for the first column.
+   * @param remaining
+   *   A list of expressions for additional columns.
+   * @return
+   *   A [[RelationalGroupedDataFrame]]
    */
+  // scalastyle:on line.size.limit
   def rollup(first: Column, remaining: Column*): RelationalGroupedDataFrame =
     rollup(first +: remaining)
 
+  // scalastyle:off line.size.limit
   /**
    * Performs an SQL
    * [[https://docs.snowflake.com/en/sql-reference/constructs/group-by-rollup.html GROUP BY ROLLUP]]
@@ -1071,12 +1136,16 @@ class DataFrame private[snowpark] (
    *
    * @group transform
    * @since 0.2.0
-   * @param cols A list of expressions on columns.
-   * @return A [[RelationalGroupedDataFrame]]
+   * @param cols
+   *   A list of expressions on columns.
+   * @return
+   *   A [[RelationalGroupedDataFrame]]
    */
+  // scalastyle:on line.size.limit
   def rollup[T: ClassTag](cols: Seq[Column]): RelationalGroupedDataFrame =
-    RelationalGroupedDataFrame(this, cols.map(_.expr), RelationalGroupedDataFrame.RollupType)
+    RelationalGroupedDataFrame(this, cols.map(_.expr).toSeq, RelationalGroupedDataFrame.RollupType)
 
+  // scalastyle:off line.size.limit
   /**
    * Performs an SQL
    * [[https://docs.snowflake.com/en/sql-reference/constructs/group-by-rollup.html GROUP BY ROLLUP]]
@@ -1084,11 +1153,15 @@ class DataFrame private[snowpark] (
    *
    * @group transform
    * @since 0.7.0
-   * @param cols An array of expressions on columns.
-   * @return A [[RelationalGroupedDataFrame]]
+   * @param cols
+   *   An array of expressions on columns.
+   * @return
+   *   A [[RelationalGroupedDataFrame]]
    */
+  // scalastyle:on line.size.limit
   def rollup(cols: Array[Column]): RelationalGroupedDataFrame = rollup(cols.toSeq)
 
+  // scalastyle:off line.size.limit
   /**
    * Performs an SQL
    * [[https://docs.snowflake.com/en/sql-reference/constructs/group-by-rollup.html GROUP BY ROLLUP]]
@@ -1096,13 +1169,18 @@ class DataFrame private[snowpark] (
    *
    * @group transform
    * @since 0.1.0
-   * @param first The name of the first column.
-   * @param remaining A list of the names of additional columns.
-   * @return A [[RelationalGroupedDataFrame]]
+   * @param first
+   *   The name of the first column.
+   * @param remaining
+   *   A list of the names of additional columns.
+   * @return
+   *   A [[RelationalGroupedDataFrame]]
    */
+  // scalastyle:on line.size.limit
   def rollup(first: String, remaining: String*): RelationalGroupedDataFrame =
     rollup(first +: remaining)
 
+  // scalastyle:off line.size.limit
   /**
    * Performs an SQL
    * [[https://docs.snowflake.com/en/sql-reference/constructs/group-by-rollup.html GROUP BY ROLLUP]]
@@ -1110,12 +1188,16 @@ class DataFrame private[snowpark] (
    *
    * @group transform
    * @since 0.2.0
-   * @param cols A list of column names.
-   * @return A [[RelationalGroupedDataFrame]]
+   * @param cols
+   *   A list of column names.
+   * @return
+   *   A [[RelationalGroupedDataFrame]]
    */
+  // scalastyle:on line.size.limit
   def rollup(cols: Seq[String]): RelationalGroupedDataFrame =
-    RelationalGroupedDataFrame(this, cols.map(resolve), RelationalGroupedDataFrame.RollupType)
+    RelationalGroupedDataFrame(this, cols.map(resolve).toSeq, RelationalGroupedDataFrame.RollupType)
 
+  // scalastyle:off line.size.limit
   /**
    * Performs an SQL
    * [[https://docs.snowflake.com/en/sql-reference/constructs/group-by-rollup.html GROUP BY ROLLUP]]
@@ -1123,9 +1205,12 @@ class DataFrame private[snowpark] (
    *
    * @group transform
    * @since 0.7.0
-   * @param cols An array of column names.
-   * @return A [[RelationalGroupedDataFrame]]
+   * @param cols
+   *   An array of column names.
+   * @return
+   *   A [[RelationalGroupedDataFrame]]
    */
+  // scalastyle:on line.size.limit
   def rollup(cols: Array[String]): RelationalGroupedDataFrame = rollup(cols.toSeq)
 
   /**
@@ -1136,9 +1221,12 @@ class DataFrame private[snowpark] (
    *
    * @group transform
    * @since 0.1.0
-   * @param first The expression for the first column to group by.
-   * @param remaining A list of expressions for additional columns to group by.
-   * @return A [[RelationalGroupedDataFrame]]
+   * @param first
+   *   The expression for the first column to group by.
+   * @param remaining
+   *   A list of expressions for additional columns to group by.
+   * @return
+   *   A [[RelationalGroupedDataFrame]]
    */
   def groupBy(first: Column, remaining: Column*): RelationalGroupedDataFrame =
     groupBy(first +: remaining)
@@ -1149,36 +1237,39 @@ class DataFrame private[snowpark] (
    *
    * @group transform
    * @since 0.1.0
-   * @return A [[RelationalGroupedDataFrame]]
+   * @return
+   *   A [[RelationalGroupedDataFrame]]
    */
   def groupBy(): RelationalGroupedDataFrame = groupBy(Seq.empty[Column])
 
   /**
-   * Groups rows by the columns specified by expressions
-   * (similar to GROUP BY in SQL).
+   * Groups rows by the columns specified by expressions (similar to GROUP BY in SQL).
    *
    * This method returns a [[RelationalGroupedDataFrame]] that you can use to perform aggregations
    * on each group of data.
    *
    * @group transform
    * @since 0.2.0
-   * @param cols A list of expressions on columns.
-   * @return A [[RelationalGroupedDataFrame]]
+   * @param cols
+   *   A list of expressions on columns.
+   * @return
+   *   A [[RelationalGroupedDataFrame]]
    */
   def groupBy[T: ClassTag](cols: Seq[Column]): RelationalGroupedDataFrame =
-    RelationalGroupedDataFrame(this, cols.map(_.expr), RelationalGroupedDataFrame.GroupByType)
+    RelationalGroupedDataFrame(this, cols.map(_.expr).toSeq, RelationalGroupedDataFrame.GroupByType)
 
   /**
-   * Groups rows by the columns specified by expressions
-   * (similar to GROUP BY in SQL).
+   * Groups rows by the columns specified by expressions (similar to GROUP BY in SQL).
    *
    * This method returns a [[RelationalGroupedDataFrame]] that you can use to perform aggregations
    * on each group of data.
    *
    * @group transform
    * @since 0.7.0
-   * @param cols An array of expressions on columns.
-   * @return A [[RelationalGroupedDataFrame]]
+   * @param cols
+   *   An array of expressions on columns.
+   * @return
+   *   A [[RelationalGroupedDataFrame]]
    */
   def groupBy(cols: Array[Column]): RelationalGroupedDataFrame = groupBy(cols.toSeq)
 
@@ -1190,9 +1281,12 @@ class DataFrame private[snowpark] (
    *
    * @group transform
    * @since 0.1.0
-   * @param first The name of the first column to group by.
-   * @param remaining A list of the names of additional columns to group by.
-   * @return A [[RelationalGroupedDataFrame]]
+   * @param first
+   *   The name of the first column to group by.
+   * @param remaining
+   *   A list of the names of additional columns to group by.
+   * @return
+   *   A [[RelationalGroupedDataFrame]]
    */
   def groupBy(first: String, remaining: String*): RelationalGroupedDataFrame =
     groupBy(first +: remaining)
@@ -1205,11 +1299,16 @@ class DataFrame private[snowpark] (
    *
    * @group transform
    * @since 0.2.0
-   * @param cols A list of the names of columns to group by.
-   * @return A [[RelationalGroupedDataFrame]]
+   * @param cols
+   *   A list of the names of columns to group by.
+   * @return
+   *   A [[RelationalGroupedDataFrame]]
    */
   def groupBy(cols: Seq[String]): RelationalGroupedDataFrame =
-    RelationalGroupedDataFrame(this, cols.map(resolve), RelationalGroupedDataFrame.GroupByType)
+    RelationalGroupedDataFrame(
+      this,
+      cols.map(resolve).toSeq,
+      RelationalGroupedDataFrame.GroupByType)
 
   /**
    * Groups rows by the columns specified by name (similar to GROUP BY in SQL).
@@ -1219,8 +1318,10 @@ class DataFrame private[snowpark] (
    *
    * @group transform
    * @since 0.7.0
-   * @param cols An array of the names of columns to group by.
-   * @return A [[RelationalGroupedDataFrame]]
+   * @param cols
+   *   An array of the names of columns to group by.
+   * @return
+   *   A [[RelationalGroupedDataFrame]]
    */
   def groupBy(cols: Array[String]): RelationalGroupedDataFrame = groupBy(cols.toSeq)
 
@@ -1230,23 +1331,23 @@ class DataFrame private[snowpark] (
    * [[https://docs.snowflake.com/en/sql-reference/constructs/group-by-rollup.html GROUP BY GROUPING SETS]]
    * on the DataFrame.
    *
-   * GROUP BY GROUPING SETS is an extension of the GROUP BY clause
-   * that allows computing multiple GROUP BY clauses in a single statement.
-   * The group set is a set of dimension columns.
+   * GROUP BY GROUPING SETS is an extension of the GROUP BY clause that allows computing multiple
+   * GROUP BY clauses in a single statement. The group set is a set of dimension columns.
    *
-   * GROUP BY GROUPING SETS is equivalent to the UNION of two or
-   * more GROUP BY operations in the same result set:
+   * GROUP BY GROUPING SETS is equivalent to the UNION of two or more GROUP BY operations in the
+   * same result set:
    *
-   * `df.groupByGroupingSets(GroupingSets(Set(col("a"))))` is equivalent to
-   * `df.groupBy("a")`
+   * `df.groupByGroupingSets(GroupingSets(Set(col("a"))))` is equivalent to `df.groupBy("a")`
    *
    * and
    *
    * `df.groupByGroupingSets(GroupingSets(Set(col("a")), Set(col("b"))))` is equivalent to
    * `df.groupBy("a")` union `df.groupBy("b")`
    *
-   * @param first A [[GroupingSets]] object.
-   * @param remaining A list of additional [[GroupingSets]] objects.
+   * @param first
+   *   A [[GroupingSets]] object.
+   * @param remaining
+   *   A list of additional [[GroupingSets]] objects.
    * @since 0.4.0
    */
   // scalastyle:on line.size.limit
@@ -1261,29 +1362,28 @@ class DataFrame private[snowpark] (
    * [[https://docs.snowflake.com/en/sql-reference/constructs/group-by-rollup.html GROUP BY GROUPING SETS]]
    * on the DataFrame.
    *
-   * GROUP BY GROUPING SETS is an extension of the GROUP BY clause
-   * that allows computing multiple group-by clauses in a single statement.
-   * The group set is a set of dimension columns.
+   * GROUP BY GROUPING SETS is an extension of the GROUP BY clause that allows computing multiple
+   * group-by clauses in a single statement. The group set is a set of dimension columns.
    *
-   * GROUP BY GROUPING SETS is equivalent to the UNION of two or
-   * more GROUP BY operations in the same result set:
+   * GROUP BY GROUPING SETS is equivalent to the UNION of two or more GROUP BY operations in the
+   * same result set:
    *
-   * `df.groupByGroupingSets(GroupingSets(Set(col("a"))))` is equivalent to
-   * `df.groupBy("a")`
+   * `df.groupByGroupingSets(GroupingSets(Set(col("a"))))` is equivalent to `df.groupBy("a")`
    *
    * and
    *
    * `df.groupByGroupingSets(GroupingSets(Set(col("a")), Set(col("b"))))` is equivalent to
    * `df.groupBy("a")` union `df.groupBy("b")`
    *
-   * @param groupingSets A list of [[GroupingSets]] objects.
+   * @param groupingSets
+   *   A list of [[GroupingSets]] objects.
    * @since 0.4.0
    */
   // scalastyle:on line.size.limit
   def groupByGroupingSets(groupingSets: Seq[GroupingSets]): RelationalGroupedDataFrame =
     RelationalGroupedDataFrame(
       this,
-      groupingSets.map(_.toExpression),
+      groupingSets.map(_.toExpression).toSeq,
       RelationalGroupedDataFrame.GroupByGroupingSetsType)
 
   /**
@@ -1293,9 +1393,12 @@ class DataFrame private[snowpark] (
    *
    * @group transform
    * @since 0.1.0
-   * @param first The expression for the first column to use.
-   * @param remaining A list of expressions for additional columns to use.
-   * @return A [[RelationalGroupedDataFrame]]
+   * @param first
+   *   The expression for the first column to use.
+   * @param remaining
+   *   A list of expressions for additional columns to use.
+   * @return
+   *   A [[RelationalGroupedDataFrame]]
    */
   def cube(first: Column, remaining: Column*): RelationalGroupedDataFrame =
     cube(first +: remaining)
@@ -1307,11 +1410,13 @@ class DataFrame private[snowpark] (
    *
    * @group transform
    * @since 0.2.0
-   * @param cols A list of expressions for columns to use.
-   * @return A [[RelationalGroupedDataFrame]]
+   * @param cols
+   *   A list of expressions for columns to use.
+   * @return
+   *   A [[RelationalGroupedDataFrame]]
    */
   def cube[T: ClassTag](cols: Seq[Column]): RelationalGroupedDataFrame =
-    RelationalGroupedDataFrame(this, cols.map(_.expr), RelationalGroupedDataFrame.CubeType)
+    RelationalGroupedDataFrame(this, cols.map(_.expr).toSeq, RelationalGroupedDataFrame.CubeType)
 
   /**
    * Performs an SQL
@@ -1320,8 +1425,10 @@ class DataFrame private[snowpark] (
    *
    * @group transform
    * @since 0.9.0
-   * @param cols A list of expressions for columns to use.
-   * @return A [[RelationalGroupedDataFrame]]
+   * @param cols
+   *   A list of expressions for columns to use.
+   * @return
+   *   A [[RelationalGroupedDataFrame]]
    */
   def cube(cols: Array[Column]): RelationalGroupedDataFrame = cube(cols.toSeq)
 
@@ -1332,9 +1439,12 @@ class DataFrame private[snowpark] (
    *
    * @group transform
    * @since 0.1.0
-   * @param first The name of the first column to use.
-   * @param remaining A list of the names of additional columns to use.
-   * @return A [[RelationalGroupedDataFrame]]
+   * @param first
+   *   The name of the first column to use.
+   * @param remaining
+   *   A list of the names of additional columns to use.
+   * @return
+   *   A [[RelationalGroupedDataFrame]]
    */
   def cube(first: String, remaining: String*): RelationalGroupedDataFrame =
     cube(first +: remaining)
@@ -1345,11 +1455,13 @@ class DataFrame private[snowpark] (
    *
    * @group transform
    * @since 0.2.0
-   * @param cols A list of the names of columns to use.
-   * @return A [[RelationalGroupedDataFrame]]
+   * @param cols
+   *   A list of the names of columns to use.
+   * @return
+   *   A [[RelationalGroupedDataFrame]]
    */
   def cube(cols: Seq[String]): RelationalGroupedDataFrame =
-    RelationalGroupedDataFrame(this, cols.map(resolve), RelationalGroupedDataFrame.CubeType)
+    RelationalGroupedDataFrame(this, cols.map(resolve).toSeq, RelationalGroupedDataFrame.CubeType)
 
   /**
    * Returns a new DataFrame that contains only the rows with distinct values from the current
@@ -1359,28 +1471,25 @@ class DataFrame private[snowpark] (
    *
    * @group transform
    * @since 0.1.0
-   * @return A [[DataFrame]]
+   * @return
+   *   A [[DataFrame]]
    */
   def distinct(): DataFrame = transformation("distinct") {
     groupBy(output.map(att => quoteName(att.name)).map(this.col)).agg(Map.empty[Column, String])
   }
 
   /**
-   * Creates a new DataFrame by removing duplicated rows on given subset of columns.
-   * If no subset of columns specified, this function is same as [[distinct()]] function.
-   * The result is non-deterministic when removing duplicated rows from the subset of
-   * columns but not all columns.
-   * For example:
-   * Supposes we have a DataFrame `df`, which contains three rows (a, b, c):
-   * (1, 1, 1), (1, 1, 2), (1, 2, 3)
-   * The result of df.dropDuplicates("a", "b") can be either
-   * (1, 1, 1), (1, 2, 3)
-   * or
-   * (1, 1, 2), (1, 2, 3)
+   * Creates a new DataFrame by removing duplicated rows on given subset of columns. If no subset of
+   * columns specified, this function is same as [[distinct()]] function. The result is
+   * non-deterministic when removing duplicated rows from the subset of columns but not all columns.
+   * For example: Supposes we have a DataFrame `df`, which contains three rows (a, b, c): (1, 1, 1),
+   * (1, 1, 2), (1, 2, 3) The result of df.dropDuplicates("a", "b") can be either (1, 1, 1), (1, 2,
+   * 3) or (1, 1, 2), (1, 2, 3)
    *
    * @group transform
    * @since 0.10.0
-   * @return A [[DataFrame]]
+   * @return
+   *   A [[DataFrame]]
    */
   def dropDuplicates(colNames: String*): DataFrame = transformation("dropDuplicates") {
     if (colNames.isEmpty) {
@@ -1400,9 +1509,8 @@ class DataFrame private[snowpark] (
   }
 
   /**
-   * Rotates this DataFrame by turning the unique values from one column in the input
-   * expression into multiple columns and aggregating results where required on any
-   * remaining column values.
+   * Rotates this DataFrame by turning the unique values from one column in the input expression
+   * into multiple columns and aggregating results where required on any remaining column values.
    *
    * Only one aggregate is supported with pivot.
    *
@@ -1413,17 +1521,19 @@ class DataFrame private[snowpark] (
    *
    * @group transform
    * @since 0.1.0
-   * @param pivotColumn The name of the column to use.
-   * @param values A list of values in the column.
-   * @return A [[RelationalGroupedDataFrame]]
+   * @param pivotColumn
+   *   The name of the column to use.
+   * @param values
+   *   A list of values in the column.
+   * @return
+   *   A [[RelationalGroupedDataFrame]]
    */
   def pivot(pivotColumn: String, values: Seq[Any]): RelationalGroupedDataFrame =
     pivot(Column(pivotColumn), values)
 
   /**
-   * Rotates this DataFrame by turning the unique values from one column in the input
-   * expression into multiple columns and aggregating results where required on any
-   * remaining column values.
+   * Rotates this DataFrame by turning the unique values from one column in the input expression
+   * into multiple columns and aggregating results where required on any remaining column values.
    *
    * Only one aggregate is supported with pivot.
    *
@@ -1434,31 +1544,36 @@ class DataFrame private[snowpark] (
    *
    * @group transform
    * @since 0.1.0
-   * @param pivotColumn Expression for the column that you want to use.
-   * @param values A list of values in the column.
-   * @return A [[RelationalGroupedDataFrame]]
+   * @param pivotColumn
+   *   Expression for the column that you want to use.
+   * @param values
+   *   A list of values in the column.
+   * @return
+   *   A [[RelationalGroupedDataFrame]]
    */
   def pivot(pivotColumn: Column, values: Seq[Any]): RelationalGroupedDataFrame = {
     val valueExprs = values.map {
       case c: Column => c.expr
       case v => Literal(v)
-    }
+    }.toSeq
     RelationalGroupedDataFrame(
       this,
-      Seq.empty,
+      Seq.empty.toSeq,
       RelationalGroupedDataFrame.PivotType(pivotColumn.expr, valueExprs))
   }
 
   /**
-   * Returns a new DataFrame that contains at most ''n'' rows from the current DataFrame (similar
-   * to LIMIT in SQL).
+   * Returns a new DataFrame that contains at most ''n'' rows from the current DataFrame (similar to
+   * LIMIT in SQL).
    *
    * Note that this is a transformation method and not an action method.
    *
    * @group transform
    * @since 0.1.0
-   * @param n Number of rows to return.
-   * @return A [[DataFrame]]
+   * @param n
+   *   Number of rows to return.
+   * @return
+   *   A [[DataFrame]]
    */
   def limit(n: Int): DataFrame = transformation("limit") {
     withPlan(Limit(Literal(n), plan))
@@ -1466,8 +1581,8 @@ class DataFrame private[snowpark] (
 
   /**
    * Returns a new DataFrame that contains all the rows in the current DataFrame and another
-   * DataFrame (`other`), excluding any duplicate rows. Both input DataFrames must contain
-   * the same number of columns.
+   * DataFrame (`other`), excluding any duplicate rows. Both input DataFrames must contain the same
+   * number of columns.
    *
    * For example:
    *
@@ -1477,8 +1592,10 @@ class DataFrame private[snowpark] (
    *
    * @group transform
    * @since 0.1.0
-   * @param other The other [[DataFrame]] that contains the rows to include.
-   * @return A [[DataFrame]]
+   * @param other
+   *   The other [[DataFrame]] that contains the rows to include.
+   * @return
+   *   A [[DataFrame]]
    */
   def union(other: DataFrame): DataFrame = transformation("union") {
     withPlan(Union(plan, other.plan))
@@ -1486,8 +1603,8 @@ class DataFrame private[snowpark] (
 
   /**
    * Returns a new DataFrame that contains all the rows in the current DataFrame and another
-   * DataFrame (`other`), including any duplicate rows. Both input DataFrames must contain
-   * the same number of columns.
+   * DataFrame (`other`), including any duplicate rows. Both input DataFrames must contain the same
+   * number of columns.
    *
    * For example:
    *
@@ -1497,8 +1614,10 @@ class DataFrame private[snowpark] (
    *
    * @group transform
    * @since 0.1.0
-   * @param other The other [[DataFrame]] that contains the rows to include.
-   * @return A [[DataFrame]]
+   * @param other
+   *   The other [[DataFrame]] that contains the rows to include.
+   * @return
+   *   A [[DataFrame]]
    */
   def unionAll(other: DataFrame): DataFrame = transformation("unionAll") {
     withPlan(UnionAll(plan, other.plan))
@@ -1509,8 +1628,8 @@ class DataFrame private[snowpark] (
    * DataFrame (`other`), excluding any duplicate rows.
    *
    * This method matches the columns in the two DataFrames by their names, not by their positions.
-   * The columns in the other DataFrame are rearranged to match the order of columns in the
-   * current DataFrame.
+   * The columns in the other DataFrame are rearranged to match the order of columns in the current
+   * DataFrame.
    *
    * For example:
    *
@@ -1520,8 +1639,10 @@ class DataFrame private[snowpark] (
    *
    * @group transform
    * @since 0.1.0
-   * @param other The other [[DataFrame]] that contains the rows to include.
-   * @return A [[DataFrame]]
+   * @param other
+   *   The other [[DataFrame]] that contains the rows to include.
+   * @return
+   *   A [[DataFrame]]
    */
   def unionByName(other: DataFrame): DataFrame = transformation("unionByName") {
     internalUnionByName(other, isAll = false)
@@ -1532,8 +1653,8 @@ class DataFrame private[snowpark] (
    * DataFrame (`other`), including any duplicate rows.
    *
    * This method matches the columns in the two DataFrames by their names, not by their positions.
-   * The columns in the other DataFrame are rearranged to match the order of columns in the
-   * current DataFrame.
+   * The columns in the other DataFrame are rearranged to match the order of columns in the current
+   * DataFrame.
    *
    * For example:
    *
@@ -1543,8 +1664,10 @@ class DataFrame private[snowpark] (
    *
    * @group transform
    * @since 0.9.0
-   * @param other The other [[DataFrame]] that contains the rows to include.
-   * @return A [[DataFrame]]
+   * @param other
+   *   The other [[DataFrame]] that contains the rows to include.
+   * @return
+   *   A [[DataFrame]]
    */
   def unionAllByName(other: DataFrame): DataFrame = transformation("unionAllByName") {
     internalUnionByName(other, isAll = true)
@@ -1557,19 +1680,19 @@ class DataFrame private[snowpark] (
     val matched: Boolean = if (leftOutputAttrs.size != rightOutputAttrs.size) {
       false
     } else {
-      leftOutputAttrs.zip(rightOutputAttrs).forall {
-        case (attribute, attribute1) => attribute.name == attribute1.name
+      leftOutputAttrs.zip(rightOutputAttrs).forall { case (attribute, attribute1) =>
+        attribute.name == attribute1.name
       }
     }
 
     val rightChild: LogicalPlan = if (matched) {
       other.plan
     } else {
-      val rightProjectList = leftOutputAttrs.map(
-        lattr =>
-          rightOutputAttrs
-            .find(rattr => lattr.name == rattr.name)
-            .getOrElse(throw ErrorMessage.DF_CANNOT_RESOLVE_COLUMN_NAME_AMONG(
+      val rightProjectList = leftOutputAttrs.map(lattr =>
+        rightOutputAttrs
+          .find(rattr => lattr.name == rattr.name)
+          .getOrElse(
+            throw ErrorMessage.DF_CANNOT_RESOLVE_COLUMN_NAME_AMONG(
               lattr.name,
               rightOutputAttrs.map(_.name).mkString(", "))))
       val notFoundAttrs = rightOutputAttrs.diff(rightProjectList)
@@ -1596,8 +1719,10 @@ class DataFrame private[snowpark] (
    *
    * @group transform
    * @since 0.1.0
-   * @param other The other [[DataFrame]] that contains the rows to use for the intersection.
-   * @return A [[DataFrame]]
+   * @param other
+   *   The other [[DataFrame]] that contains the rows to use for the intersection.
+   * @return
+   *   A [[DataFrame]]
    */
   def intersect(other: DataFrame): DataFrame = transformation("intersect") {
     withPlan(Intersect(plan, other.plan))
@@ -1615,8 +1740,10 @@ class DataFrame private[snowpark] (
    *
    * @group transform
    * @since 0.1.0
-   * @param other The [[DataFrame]] that contains the rows to exclude.
-   * @return A [[DataFrame]]
+   * @param other
+   *   The [[DataFrame]] that contains the rows to exclude.
+   * @return
+   *   A [[DataFrame]]
    */
   def except(other: DataFrame): DataFrame = transformation("except") {
     withPlan(Except(plan, other.plan))
@@ -1628,9 +1755,9 @@ class DataFrame private[snowpark] (
    * Because this method does not specify a join condition, the returned DataFrame is a cartesian
    * product of the two DataFrames.
    *
-   * If the current and `right` DataFrames have columns with the same name, and you need to refer
-   * to one of these columns in the returned DataFrame, use the [[apply]] or [[col]] function
-   * on the current or `right` DataFrame to disambiguate references to these columns.
+   * If the current and `right` DataFrames have columns with the same name, and you need to refer to
+   * one of these columns in the returned DataFrame, use the [[apply]] or [[col]] function on the
+   * current or `right` DataFrame to disambiguate references to these columns.
    *
    * For example:
    *
@@ -1641,8 +1768,10 @@ class DataFrame private[snowpark] (
    *
    * @group transform
    * @since 0.1.0
-   * @param right The other [[DataFrame]] to join.
-   * @return A [[DataFrame]]
+   * @param right
+   *   The other [[DataFrame]] to join.
+   * @return
+   *   A [[DataFrame]]
    */
   def join(right: DataFrame): DataFrame = transformation("join") {
     join(right, Seq.empty)
@@ -1663,16 +1792,19 @@ class DataFrame private[snowpark] (
    *
    * @group transform
    * @since 0.1.0
-   * @param right The other [[DataFrame]] to join.
-   * @param usingColumn The name of the column to use for the join.
-   * @return A [[DataFrame]]
+   * @param right
+   *   The other [[DataFrame]] to join.
+   * @param usingColumn
+   *   The name of the column to use for the join.
+   * @return
+   *   A [[DataFrame]]
    */
   def join(right: DataFrame, usingColumn: String): DataFrame = transformation("join") {
     join(right, Seq(usingColumn))
   }
 
   /**
-   * Performs a default inner join of the current DataFrame and another DataFrame (`right`)  on a
+   * Performs a default inner join of the current DataFrame and another DataFrame (`right`) on a
    * list of columns (`usingColumns`).
    *
    * The method assumes that the columns in `usingColumns` have the same meaning in the left and
@@ -1687,9 +1819,12 @@ class DataFrame private[snowpark] (
    *
    * @group transform
    * @since 0.1.0
-   * @param right The other [[DataFrame]] to join.
-   * @param usingColumns A list of the names of the columns to use for the join.
-   * @return A [[DataFrame]]
+   * @param right
+   *   The other [[DataFrame]] to join.
+   * @param usingColumns
+   *   A list of the names of the columns to use for the join.
+   * @return
+   *   A [[DataFrame]]
    */
   def join(right: DataFrame, usingColumns: Seq[String]): DataFrame = transformation("join") {
     join(right, usingColumns, "inner")
@@ -1711,10 +1846,14 @@ class DataFrame private[snowpark] (
    *
    * @group transform
    * @since 0.1.0
-   * @param right The other [[DataFrame]] to join.
-   * @param usingColumns A list of the names of the columns to use for the join.
-   * @param joinType The type of join (e.g. {@code "right"}, {@code "outer"}, etc.).
-   * @return A [[DataFrame]]
+   * @param right
+   *   The other [[DataFrame]] to join.
+   * @param usingColumns
+   *   A list of the names of the columns to use for the join.
+   * @param joinType
+   *   The type of join (e.g. {@code "right"} , {@code "outer"} , etc.).
+   * @return
+   *   A [[DataFrame]]
    */
   def join(right: DataFrame, usingColumns: Seq[String], joinType: String): DataFrame =
     transformation("join") {
@@ -1728,7 +1867,7 @@ class DataFrame private[snowpark] (
       } else {
         val (lhs, rhs) = disambiguate(this, right, jType, usingColumns)
         withPlan {
-          Join(lhs.plan, rhs.plan, UsingJoin(jType, usingColumns), None)
+          Join(lhs.plan, rhs.plan, UsingJoin(jType, usingColumns.toSeq), None)
         }
       }
     }
@@ -1738,10 +1877,10 @@ class DataFrame private[snowpark] (
    * Performs a default inner join of the current DataFrame and another DataFrame (`right`) using
    * the join condition specified in an expression (`joinExpr`).
    *
-   * To disambiguate columns with the same name in the left DataFrame and right DataFrame, use
-   * the [[apply]] or [[col]] method of each DataFrame (`df("col")` or `df.col("col")`).
-   * You can use this approach to disambiguate columns in the `joinExprs` parameter and to refer
-   * to columns in the returned DataFrame.
+   * To disambiguate columns with the same name in the left DataFrame and right DataFrame, use the
+   * [[apply]] or [[col]] method of each DataFrame (`df("col")` or `df.col("col")`). You can use
+   * this approach to disambiguate columns in the `joinExprs` parameter and to refer to columns in
+   * the returned DataFrame.
    *
    * For example:
    *
@@ -1758,16 +1897,19 @@ class DataFrame private[snowpark] (
    * {{{
    *   val dfJoined = df.join(df, df("a") === df("b")) // Column references are ambiguous
    * }}}
-   * As a workaround, you can either construct the left and right DataFrames separately,
-   * or you can call a
+   * As a workaround, you can either construct the left and right DataFrames separately, or you can
+   * call a
    * [[join(right:com\.snowflake\.snowpark\.DataFrame,usingColumns:Seq[String]):com\.snowflake\.snowpark\.DataFrame* join]]
    * method that allows you to pass in 'usingColumns' parameter.
    *
    * @group transform
    * @since 0.1.0
-   * @param right The other [[DataFrame]] to join.
-   * @param joinExprs Expression that specifies the join condition.
-   * @return A [[DataFrame]]
+   * @param right
+   *   The other [[DataFrame]] to join.
+   * @param joinExprs
+   *   Expression that specifies the join condition.
+   * @return
+   *   A [[DataFrame]]
    */
   // scalastyle:on line.size.limit
   def join(right: DataFrame, joinExprs: Column): DataFrame = transformation("join") {
@@ -1779,10 +1921,10 @@ class DataFrame private[snowpark] (
    * Performs a join of the specified type (`joinType`) with the current DataFrame and another
    * DataFrame (`right`) using the join condition specified in an expression (`joinExpr`).
    *
-   * To disambiguate columns with the same name in the left DataFrame and right DataFrame, use
-   * the [[apply]] or [[col]] method of each DataFrame (`df("col")` or `df.col("col")`).
-   * You can use this approach to disambiguate columns in the `joinExprs` parameter and to refer
-   * to columns in the returned DataFrame.
+   * To disambiguate columns with the same name in the left DataFrame and right DataFrame, use the
+   * [[apply]] or [[col]] method of each DataFrame (`df("col")` or `df.col("col")`). You can use
+   * this approach to disambiguate columns in the `joinExprs` parameter and to refer to columns in
+   * the returned DataFrame.
    *
    * For example:
    *
@@ -1810,10 +1952,14 @@ class DataFrame private[snowpark] (
    *
    * @group transform
    * @since 0.1.0
-   * @param right The other [[DataFrame]] to join.
-   * @param joinExprs Expression that specifies the join condition.
-   * @param joinType The type of join (e.g. {@code "right"}, {@code "outer"}, etc.).
-   * @return A [[DataFrame]]
+   * @param right
+   *   The other [[DataFrame]] to join.
+   * @param joinExprs
+   *   Expression that specifies the join condition.
+   * @param joinType
+   *   The type of join (e.g. {@code "right"} , {@code "outer"} , etc.).
+   * @return
+   *   A [[DataFrame]]
    */
   // scalastyle:on line.size.limit
   def join(right: DataFrame, joinExprs: Column, joinType: String): DataFrame =
@@ -1846,10 +1992,13 @@ class DataFrame private[snowpark] (
    *
    * @group transform
    * @since 0.4.0
-   * @param func [[TableFunction]] object, which can be one of the values in the [[tableFunctions]]
-   *   object or an object that you create from the [[TableFunction]] class.
-   * @param firstArg The first argument to pass to the specified table function.
-   * @param remaining A list of any additional arguments for the specified table function.
+   * @param func
+   *   [[TableFunction]] object, which can be one of the values in the [[tableFunctions]] object or
+   *   an object that you create from the [[TableFunction]] class.
+   * @param firstArg
+   *   The first argument to pass to the specified table function.
+   * @param remaining
+   *   A list of any additional arguments for the specified table function.
    */
   def join(func: TableFunction, firstArg: Column, remaining: Column*): DataFrame =
     transformation("join") {
@@ -1876,17 +2025,19 @@ class DataFrame private[snowpark] (
    *
    * @group transform
    * @since 0.4.0
-   * @param func [[TableFunction]] object, which can be one of the values in the [[tableFunctions]]
-   *   object or an object that you create from the [[TableFunction]] class.
-   * @param args A list of arguments to pass to the specified table function.
+   * @param func
+   *   [[TableFunction]] object, which can be one of the values in the [[tableFunctions]] object or
+   *   an object that you create from the [[TableFunction]] class.
+   * @param args
+   *   A list of arguments to pass to the specified table function.
    */
   def join(func: TableFunction, args: Seq[Column]): DataFrame = transformation("join") {
-    joinTableFunction(func.call(args: _*), None)
+    joinTableFunction(func.call(args.toSeq: _*), None)
   }
 
   /**
-   * Joins the current DataFrame with the output of the specified user-defined table
-   * function (UDTF) `func`.
+   * Joins the current DataFrame with the output of the specified user-defined table function (UDTF)
+   * `func`.
    *
    * To pass arguments to the table function, use the `args` argument of this method. In the table
    * function arguments, you can include references to columns in this DataFrame.
@@ -1905,10 +2056,14 @@ class DataFrame private[snowpark] (
    *
    * @group transform
    * @since 1.7.0
-   * @param func [[TableFunction]] object that represents a user-defined table function (UDTF).
-   * @param args A list of arguments to pass to the specified table function.
-   * @param partitionBy A list of columns partitioned by.
-   * @param orderBy A list of columns ordered by.
+   * @param func
+   *   [[TableFunction]] object that represents a user-defined table function (UDTF).
+   * @param args
+   *   A list of arguments to pass to the specified table function.
+   * @param partitionBy
+   *   A list of columns partitioned by.
+   * @param orderBy
+   *   A list of columns ordered by.
    */
   def join(
       func: TableFunction,
@@ -1916,8 +2071,12 @@ class DataFrame private[snowpark] (
       partitionBy: Seq[Column],
       orderBy: Seq[Column]): DataFrame = transformation("join") {
     joinTableFunction(
-      func.call(args: _*),
-      Some(Window.partitionBy(partitionBy: _*).orderBy(orderBy: _*).getWindowSpecDefinition))
+      func.call(args.toSeq: _*),
+      Some(
+        Window
+          .partitionBy(partitionBy.toSeq: _*)
+          .orderBy(orderBy.toSeq: _*)
+          .getWindowSpecDefinition))
   }
 
   /**
@@ -1944,11 +2103,13 @@ class DataFrame private[snowpark] (
    *
    * @group transform
    * @since 0.4.0
-   * @param func [[TableFunction]] object, which can be one of the values in the [[tableFunctions]]
-   *   object or an object that you create from the [[TableFunction]] class.
-   *  @param args Map of arguments to pass to the specified table function.
-   *              Some functions, like `flatten`, have named parameters.
-   *              Use this map to specify the parameter names and their corresponding values.
+   * @param func
+   *   [[TableFunction]] object, which can be one of the values in the [[tableFunctions]] object or
+   *   an object that you create from the [[TableFunction]] class.
+   * @param args
+   *   Map of arguments to pass to the specified table function. Some functions, like `flatten`,
+   *   have named parameters. Use this map to specify the parameter names and their corresponding
+   *   values.
    */
   def join(func: TableFunction, args: Map[String, Column]): DataFrame =
     transformation("join") {
@@ -1956,8 +2117,8 @@ class DataFrame private[snowpark] (
     }
 
   /**
-   * Joins the current DataFrame with the output of the specified user-defined table function
-   * (UDTF) `func`.
+   * Joins the current DataFrame with the output of the specified user-defined table function (UDTF)
+   * `func`.
    *
    * To pass arguments to the table function, use the `args` argument of this method. Pass in a
    * `Map` of parameter names and values. In these values, you can include references to columns in
@@ -1981,12 +2142,16 @@ class DataFrame private[snowpark] (
    *
    * @group transform
    * @since 1.7.0
-   * @param func [[TableFunction]] object that represents a user-defined table function (UDTF).
-   * @param args Map of arguments to pass to the specified table function.
-   *              Some functions, like `flatten`, have named parameters.
-   *              Use this map to specify the parameter names and their corresponding values.
-   * @param partitionBy A list of columns partitioned by.
-   * @param orderBy A list of columns ordered by.
+   * @param func
+   *   [[TableFunction]] object that represents a user-defined table function (UDTF).
+   * @param args
+   *   Map of arguments to pass to the specified table function. Some functions, like `flatten`,
+   *   have named parameters. Use this map to specify the parameter names and their corresponding
+   *   values.
+   * @param partitionBy
+   *   A list of columns partitioned by.
+   * @param orderBy
+   *   A list of columns ordered by.
    */
   def join(
       func: TableFunction,
@@ -1995,12 +2160,15 @@ class DataFrame private[snowpark] (
       orderBy: Seq[Column]): DataFrame = transformation("join") {
     joinTableFunction(
       func.call(args),
-      Some(Window.partitionBy(partitionBy: _*).orderBy(orderBy: _*).getWindowSpecDefinition))
+      Some(
+        Window
+          .partitionBy(partitionBy.toSeq: _*)
+          .orderBy(orderBy.toSeq: _*)
+          .getWindowSpecDefinition))
   }
 
   /**
    * Joins the current DataFrame with the output of the specified table function `func`.
-   *
    *
    * For example:
    * {{{
@@ -2017,16 +2185,17 @@ class DataFrame private[snowpark] (
    *
    * @group transform
    * @since 1.10.0
-   * @param func [[TableFunction]] object, which can be one of the values in the [[tableFunctions]]
-   *             object or an object that you create from the [[TableFunction.apply()]].
+   * @param func
+   *   [[TableFunctionEx]] object, which can be one of the values in the [[tableFunctions]] object
+   *   or an object that you create from the [[TableFunctionEx.apply()]].
    */
   def join(func: Column): DataFrame = transformation("join") {
     joinTableFunction(getTableFunctionExpression(func), None)
   }
 
   /**
-   * Joins the current DataFrame with the output of the specified user-defined table function
-   * (UDTF) `func`.
+   * Joins the current DataFrame with the output of the specified user-defined table function (UDTF)
+   * `func`.
    *
    * To specify a PARTITION BY or ORDER BY clause, use the `partitionBy` and `orderBy` arguments.
    *
@@ -2038,15 +2207,22 @@ class DataFrame private[snowpark] (
    *
    * @group transform
    * @since 1.10.0
-   * @param func        [[TableFunction]] object that represents a user-defined table function.
-   * @param partitionBy A list of columns partitioned by.
-   * @param orderBy     A list of columns ordered by.
+   * @param func
+   *   [[TableFunction]] object that represents a user-defined table function.
+   * @param partitionBy
+   *   A list of columns partitioned by.
+   * @param orderBy
+   *   A list of columns ordered by.
    */
   def join(func: Column, partitionBy: Seq[Column], orderBy: Seq[Column]): DataFrame =
     transformation("join") {
       joinTableFunction(
         getTableFunctionExpression(func),
-        Some(Window.partitionBy(partitionBy: _*).orderBy(orderBy: _*).getWindowSpecDefinition))
+        Some(
+          Window
+            .partitionBy(partitionBy.toSeq: _*)
+            .orderBy(orderBy.toSeq: _*)
+            .getWindowSpecDefinition))
     }
 
   private def joinTableFunction(
@@ -2054,7 +2230,7 @@ class DataFrame private[snowpark] (
       partitionByOrderBy: Option[WindowSpecDefinition]): DataFrame = {
     func match {
       // explode is a client side function
-      case TF(funcName, args) if funcName.toLowerCase().trim.equals("explode") =>
+      case TableFunctionEx(funcName, args) if funcName.toLowerCase().trim.equals("explode") =>
         // explode has only one argument
         joinWithExplode(args.head, partitionByOrderBy)
       case _ =>
@@ -2099,12 +2275,12 @@ class DataFrame private[snowpark] (
   }
 
   /**
-   * Performs a cross join, which returns the cartesian product of the current DataFrame and
-   * another DataFrame (`right`).
+   * Performs a cross join, which returns the cartesian product of the current DataFrame and another
+   * DataFrame (`right`).
    *
-   * If the current and `right` DataFrames have columns with the same name, and you need to refer
-   * to one of these columns in the returned DataFrame, use the [[apply]] or [[col]] function
-   * on the current or `right` DataFrame to disambiguate references to these columns.
+   * If the current and `right` DataFrames have columns with the same name, and you need to refer to
+   * one of these columns in the returned DataFrame, use the [[apply]] or [[col]] function on the
+   * current or `right` DataFrame to disambiguate references to these columns.
    *
    * For example:
    *
@@ -2115,8 +2291,10 @@ class DataFrame private[snowpark] (
    *
    * @group transform
    * @since 0.1.0
-   * @param right The other [[DataFrame]] to join.
-   * @return A [[DataFrame]]
+   * @param right
+   *   The other [[DataFrame]] to join.
+   * @return
+   *   A [[DataFrame]]
    */
   def crossJoin(right: DataFrame): DataFrame = transformation("crossJoin") {
     join(right, JoinType("cross"), None)
@@ -2146,8 +2324,10 @@ class DataFrame private[snowpark] (
    *
    * @group transform
    * @since 0.1.0
-   * @param right The other [[DataFrame]] to join.
-   * @return A [[DataFrame]]
+   * @param right
+   *   The other [[DataFrame]] to join.
+   * @return
+   *   A [[DataFrame]]
    */
   def naturalJoin(right: DataFrame): DataFrame = transformation("naturalJoin") {
     naturalJoin(right, "inner")
@@ -2165,9 +2345,12 @@ class DataFrame private[snowpark] (
    *
    * @group transform
    * @since 0.1.0
-   * @param right The other [[DataFrame]] to join.
-   * @param joinType The type of join (e.g. {@code "right"}, {@code "outer"}, etc.).
-   * @return A [[DataFrame]]
+   * @param right
+   *   The other [[DataFrame]] to join.
+   * @param joinType
+   *   The type of join (e.g. {@code "right"} , {@code "outer"} , etc.).
+   * @return
+   *   A [[DataFrame]]
    */
   def naturalJoin(right: DataFrame, joinType: String): DataFrame = transformation("naturalJoin") {
     withPlan {
@@ -2179,8 +2362,8 @@ class DataFrame private[snowpark] (
    * Returns a DataFrame with an additional column with the specified name (`colName`). The column
    * is computed by using the specified expression (`col`).
    *
-   * If a column with the same name already exists in the DataFrame, that column is replaced by
-   * the new column.
+   * If a column with the same name already exists in the DataFrame, that column is replaced by the
+   * new column.
    *
    * This example adds a new column named `mean_price` that contains the mean of the existing
    * `price` column in the DataFrame.
@@ -2190,17 +2373,20 @@ class DataFrame private[snowpark] (
    * }}}
    * @group transform
    * @since 0.1.0
-   * @param colName The name of the column to add or replace.
-   * @param col The [[Column]] to add or replace.
-   * @return A [[DataFrame]]
+   * @param colName
+   *   The name of the column to add or replace.
+   * @param col
+   *   The [[Column]] to add or replace.
+   * @return
+   *   A [[DataFrame]]
    */
   def withColumn(colName: String, col: Column): DataFrame = transformation("withColumn") {
     withColumns(Seq(colName), Seq(col))
   }
 
   /**
-   * Returns a DataFrame with additional columns with the specified names (`colNames`). The
-   * columns are computed by using the specified expressions (`cols`).
+   * Returns a DataFrame with additional columns with the specified names (`colNames`). The columns
+   * are computed by using the specified expressions (`cols`).
    *
    * If columns with the same names already exist in the DataFrame, those columns are replaced by
    * the new columns.
@@ -2214,23 +2400,24 @@ class DataFrame private[snowpark] (
    * }}}
    * @group transform
    * @since 0.1.0
-   * @param colNames A list of the names of the columns to add or replace.
-   * @param values A list of the [[Column]] objects to add or replace.
-   * @return A [[DataFrame]]
+   * @param colNames
+   *   A list of the names of the columns to add or replace.
+   * @param values
+   *   A list of the [[Column]] objects to add or replace.
+   * @return
+   *   A [[DataFrame]]
    */
   def withColumns(colNames: Seq[String], values: Seq[Column]): DataFrame =
     transformation("withColumns") {
       if (colNames.size != values.size) {
-        throw ErrorMessage.DF_WITH_COLUMNS_INPUT_NAMES_NOT_MATCH_VALUES(
-          colNames.size,
-          values.size)
+        throw ErrorMessage.DF_WITH_COLUMNS_INPUT_NAMES_NOT_MATCH_VALUES(colNames.size, values.size)
       }
       val qualifiedNames = colNames.map(quoteName)
       if (qualifiedNames.toSet.size != colNames.size) {
         throw ErrorMessage.DF_WITH_COLUMNS_INPUT_NAMES_CONTAINS_DUPLICATES
       }
-      val newCols = qualifiedNames.zip(values).map {
-        case (name, col) => col.as(name).expr.asInstanceOf[NamedExpression]
+      val newCols = qualifiedNames.zip(values).map { case (name, col) =>
+        col.as(name).expr.asInstanceOf[NamedExpression]
       }
       withPlan(WithColumns(newCols, plan))
     }
@@ -2246,9 +2433,12 @@ class DataFrame private[snowpark] (
    * }}}
    * @group transform
    * @since 0.9.0
-   * @param newName The new name for the column
-   * @param col The [[Column]] to be renamed
-   * @return A [[DataFrame]]
+   * @param newName
+   *   The new name for the column
+   * @param col
+   *   The [[Column]] to be renamed
+   * @return
+   *   A [[DataFrame]]
    */
   def rename(newName: String, col: Column): DataFrame = transformation("rename") {
     // Normalize the new column name
@@ -2285,7 +2475,8 @@ class DataFrame private[snowpark] (
    *
    * @group actions
    * @since 0.1.0
-   * @return An Array of [[Row]]
+   * @return
+   *   An Array of [[Row]]
    */
   def collect(): Array[Row] = action("collect") {
     session.conn.telemetry.reportActionCollect()
@@ -2300,7 +2491,8 @@ class DataFrame private[snowpark] (
    *
    * @group actions
    * @since 0.5.0
-   * @return An Iterator of [[Row]]
+   * @return
+   *   An Iterator of [[Row]]
    */
   def toLocalIterator: Iterator[Row] = action("toLocalIterator") {
     session.conn.telemetry.reportActionToLocalIterator()
@@ -2313,7 +2505,8 @@ class DataFrame private[snowpark] (
    *
    * @group actions
    * @since 0.1.0
-   * @return The number of rows.
+   * @return
+   *   The number of rows.
    */
   def count(): Long = action("count") {
     session.conn.telemetry.reportActionCount()
@@ -2321,8 +2514,8 @@ class DataFrame private[snowpark] (
   }
 
   /**
-   * Returns a [[DataFrameWriter]] object that you can use to write the data in the DataFrame to
-   * any supported destination. The Default [[SaveMode]] for the returned [[DataFrameWriter]] is
+   * Returns a [[DataFrameWriter]] object that you can use to write the data in the DataFrame to any
+   * supported destination. The Default [[SaveMode]] for the returned [[DataFrameWriter]] is
    * [[SaveMode.Append Append]].
    *
    * Example:
@@ -2332,13 +2525,14 @@ class DataFrame private[snowpark] (
    *
    * @group basic
    * @since 0.1.0
-   * @return A [[DataFrameWriter]]
+   * @return
+   *   A [[DataFrameWriter]]
    */
   def write: DataFrameWriter = new DataFrameWriter(this)
 
   /**
-   * Returns a [[DataFrameAsyncActor]] object that can be used to execute
-   * DataFrame actions asynchronously.
+   * Returns a [[DataFrameAsyncActor]] object that can be used to execute DataFrame actions
+   * asynchronously.
    *
    * Example:
    * {{{
@@ -2351,7 +2545,8 @@ class DataFrame private[snowpark] (
    *
    * @since 0.11.0
    * @group basic
-   * @return A [[DataFrameAsyncActor]] object
+   * @return
+   *   A [[DataFrameAsyncActor]] object
    */
   def async: DataFrameAsyncActor = new DataFrameAsyncActor(this)
 
@@ -2370,7 +2565,8 @@ class DataFrame private[snowpark] (
    *
    * @group actions
    * @since 0.1.0
-   * @param n The number of rows to print out.
+   * @param n
+   *   The number of rows to print out.
    */
   def show(n: Int): Unit = action("show") {
     show(n, 50)
@@ -2382,10 +2578,11 @@ class DataFrame private[snowpark] (
    *
    * @group actions
    * @since 0.5.0
-   * @param n The number of rows to print out.
-   * @param maxWidth The maximum number of characters to print out for each column. If the number
-   *   of characters exceeds the maximum, the method prints out an ellipsis (...) at the end of
-   *   the column.
+   * @param n
+   *   The number of rows to print out.
+   * @param maxWidth
+   *   The maximum number of characters to print out for each column. If the number of characters
+   *   exceeds the maximum, the method prints out an ellipsis (...) at the end of the column.
    */
   def show(n: Int, maxWidth: Int): Unit = action("show") {
     session.conn.telemetry.reportActionShow()
@@ -2419,33 +2616,31 @@ class DataFrame private[snowpark] (
     val colCount = meta.size
     val colWidth: Array[Int] = new Array[Int](colCount)
 
-    val header: Seq[String] = metaWithDisplayName.zipWithIndex.map {
-      case (field, index) =>
-        val name: String = field.name
-        colWidth(index) = name.length
-        name
+    val header: Seq[String] = metaWithDisplayName.zipWithIndex.map { case (field, index) =>
+      val name: String = field.name
+      colWidth(index) = name.length
+      name
     }
 
     def splitLines(value: String): Seq[String] = {
       val lines = new ArrayBuffer[String]()
       var startIndex = 0
-      value.zipWithIndex.foreach {
-        case (c, index) =>
-          if (c == '\n') {
-            lines.append(value.substring(startIndex, index))
-            startIndex = index + 1
-          }
+      value.zipWithIndex.foreach { case (c, index) =>
+        if (c == '\n') {
+          lines.append(value.substring(startIndex, index))
+          startIndex = index + 1
+        }
       }
       lines.append(value.substring(startIndex))
-      lines
+      lines.toSeq
     }
 
     def convertValueToString(value: Any): String =
       value match {
         case map: Map[_, _] =>
           map
-            .map {
-              case (key, value) => s"${convertValueToString(key)}:${convertValueToString(value)}"
+            .map { case (key, value) =>
+              s"${convertValueToString(key)}:${convertValueToString(value)}"
             }
             .mkString("{", ",", "}")
         case ba: Array[Byte] => s"'${DatatypeConverter.printHexBinary(ba)}'"
@@ -2463,24 +2658,23 @@ class DataFrame private[snowpark] (
 
     val body: Seq[Seq[String]] = result.flatMap(row => {
       // Value may contain multiple lines
-      val lines: Seq[Seq[String]] = row.toSeq.zipWithIndex.map {
-        case (value, index) =>
-          val texts: Seq[String] = if (value != null) {
-            // if the result contains multiple lines, split result string
-            splitLines(convertValueToString(value))
-          } else {
-            Seq("NULL")
+      val lines: Seq[Seq[String]] = row.toSeq.zipWithIndex.map { case (value, index) =>
+        val texts: Seq[String] = if (value != null) {
+          // if the result contains multiple lines, split result string
+          splitLines(convertValueToString(value))
+        } else {
+          Seq("NULL")
+        }
+        texts.foreach(str => {
+          // update column width
+          if (colWidth(index) < str.length) {
+            colWidth(index) = str.length
           }
-          texts.foreach(str => {
-            // update column width
-            if (colWidth(index) < str.length) {
-              colWidth(index) = str.length
-            }
-            if (colWidth(index) > maxWidth) {
-              colWidth(index) = maxWidth
-            }
-          })
-          texts
+          if (colWidth(index) > maxWidth) {
+            colWidth(index) = maxWidth
+          }
+        })
+        texts
       }
       // max line number in this row
       val lineCount: Int = lines.map(_.size).max
@@ -2507,14 +2701,13 @@ class DataFrame private[snowpark] (
     def rowToString(row: Seq[String]): String =
       row
         .zip(colWidth)
-        .map {
-          case (str, size) =>
-            if (str.length > maxWidth) {
-              // if truncated, add ... to the end
-              (str.take(maxWidth - 3) + "...").padTo(size, " ").mkString
-            } else {
-              str.padTo(size, " ").mkString
-            }
+        .map { case (str, size) =>
+          if (str.length > maxWidth) {
+            // if truncated, add ... to the end
+            (str.take(maxWidth - 3) + "...").padTo(size, " ").mkString
+          } else {
+            str.padTo(size, " ").mkString
+          }
         }
         .mkString("|", "|", "|") + "\n"
 
@@ -2533,7 +2726,8 @@ class DataFrame private[snowpark] (
    *
    * @since 0.1.0
    * @group actions
-   * @param viewName The name of the view to create or replace.
+   * @param viewName
+   *   The name of the view to create or replace.
    */
   def createOrReplaceView(viewName: String): Unit = action("createOrReplaceView") {
     doCreateOrReplaceView(viewName, PersistedView)
@@ -2551,8 +2745,8 @@ class DataFrame private[snowpark] (
    *
    * @since 0.5.0
    * @group actions
-   * @param multipartIdentifier A sequence of strings that specifies the database name, schema name,
-   *                            and view name.
+   * @param multipartIdentifier
+   *   A sequence of strings that specifies the database name, schema name, and view name.
    */
   def createOrReplaceView(multipartIdentifier: Seq[String]): Unit =
     action("createOrReplaceView") {
@@ -2571,19 +2765,19 @@ class DataFrame private[snowpark] (
    *
    * @since 0.5.0
    * @group actions
-   * @param multipartIdentifier A list of strings that specifies the database name, schema name,
-   *                            and view name.
+   * @param multipartIdentifier
+   *   A list of strings that specifies the database name, schema name, and view name.
    */
   def createOrReplaceView(multipartIdentifier: java.util.List[String]): Unit =
     action("createOrReplaceView") {
-      createOrReplaceView(multipartIdentifier.asScala)
+      createOrReplaceView(multipartIdentifier.asScala.toSeq)
     }
 
   /**
    * Creates a temporary view that returns the same results as this DataFrame.
    *
-   * You can use the view in subsequent SQL queries and statements during the current session.
-   * The temporary view is only available in the session in which it is created.
+   * You can use the view in subsequent SQL queries and statements during the current session. The
+   * temporary view is only available in the session in which it is created.
    *
    * For `viewName`, you can include the database and schema name (i.e. specify a fully-qualified
    * name). If no database name or schema name are specified, the view will be created in the
@@ -2594,7 +2788,8 @@ class DataFrame private[snowpark] (
    *
    * @since 0.4.0
    * @group actions
-   * @param viewName The name of the view to create or replace.
+   * @param viewName
+   *   The name of the view to create or replace.
    */
   def createOrReplaceTempView(viewName: String): Unit = action("createOrReplaceTempView") {
     doCreateOrReplaceView(viewName, LocalTempView)
@@ -2603,8 +2798,8 @@ class DataFrame private[snowpark] (
   /**
    * Creates a temporary view that returns the same results as this DataFrame.
    *
-   * You can use the view in subsequent SQL queries and statements during the current session.
-   * The temporary view is only available in the session in which it is created.
+   * You can use the view in subsequent SQL queries and statements during the current session. The
+   * temporary view is only available in the session in which it is created.
    *
    * In `multipartIdentifer`, you can include the database and schema name to specify a
    * fully-qualified name. If no database name or schema name are specified, the view will be
@@ -2615,8 +2810,8 @@ class DataFrame private[snowpark] (
    *
    * @since 0.5.0
    * @group actions
-   * @param multipartIdentifier A sequence of strings that specify the database name, schema name,
-   *                            and view name.
+   * @param multipartIdentifier
+   *   A sequence of strings that specify the database name, schema name, and view name.
    */
   def createOrReplaceTempView(multipartIdentifier: Seq[String]): Unit =
     action("createOrReplaceTempView") {
@@ -2626,8 +2821,8 @@ class DataFrame private[snowpark] (
   /**
    * Creates a temporary view that returns the same results as this DataFrame.
    *
-   * You can use the view in subsequent SQL queries and statements during the current session.
-   * The temporary view is only available in the session in which it is created.
+   * You can use the view in subsequent SQL queries and statements during the current session. The
+   * temporary view is only available in the session in which it is created.
    *
    * In `multipartIdentifer`, you can include the database and schema name to specify a
    * fully-qualified name. If no database name or schema name are specified, the view will be
@@ -2638,12 +2833,12 @@ class DataFrame private[snowpark] (
    *
    * @since 0.5.0
    * @group actions
-   * @param multipartIdentifier A list of strings that specify the database name, schema name, and
-   *                            view name.
+   * @param multipartIdentifier
+   *   A list of strings that specify the database name, schema name, and view name.
    */
   def createOrReplaceTempView(multipartIdentifier: java.util.List[String]): Unit =
     action("createOrReplaceTempView") {
-      createOrReplaceTempView(multipartIdentifier.asScala)
+      createOrReplaceTempView(multipartIdentifier.asScala.toSeq)
     }
 
   private def doCreateOrReplaceView(viewName: String, viewType: ViewType): Unit = {
@@ -2657,7 +2852,8 @@ class DataFrame private[snowpark] (
    *
    * @group actions
    * @since 0.2.0
-   * @return The first [[Row]], if the row exists. Otherwise, returns `None`.
+   * @return
+   *   The first [[Row]], if the row exists. Otherwise, returns `None`.
    */
   def first(): Option[Row] = action("first") {
     first(1).headOption
@@ -2669,9 +2865,11 @@ class DataFrame private[snowpark] (
    *
    * @group actions
    * @since 0.2.0
-   * @param n The number of rows to return.
-   * @return An Array of the first {@code n} [[Row]] objects. If {@code n} is negative or larger
-   *   than the number of rows in the results, returns all rows in the results.
+   * @param n
+   *   The number of rows to return.
+   * @return
+   *   An Array of the first {@code n} [[Row]] objects. If {@code n} is negative or larger than the
+   *   number of rows in the results, returns all rows in the results.
    */
   def first(n: Int): Array[Row] = action("first") {
     session.conn.telemetry.reportActionFirst()
@@ -2704,15 +2902,17 @@ class DataFrame private[snowpark] (
    *
    * NOTE:
    *
-   *  - If the row count in the DataFrame is larger than the requested number
-   *    of rows, the method returns a DataFrame containing the number of requested rows.
-   *  - If the row count in the DataFrame is smaller than the requested number
-   *    of rows, the method returns a DataFrame containing all rows.
+   *   - If the row count in the DataFrame is larger than the requested number of rows, the method
+   *     returns a DataFrame containing the number of requested rows.
+   *   - If the row count in the DataFrame is smaller than the requested number of rows, the method
+   *     returns a DataFrame containing all rows.
    *
-   * @param num The number of rows to sample in the range of 0 to 1,000,000.
+   * @param num
+   *   The number of rows to sample in the range of 0 to 1,000,000.
    * @group transform
    * @since 0.2.0
-   * @return A [[DataFrame]] containing the sample of {@code num} rows.
+   * @return
+   *   A [[DataFrame]] containing the sample of {@code num} rows.
    */
   def sample(num: Long): DataFrame = transformation("sample") {
     withPlan(SnowflakeSampleNode(None, Some(num), plan))
@@ -2723,19 +2923,19 @@ class DataFrame private[snowpark] (
    *
    * NOTE:
    *
-   *  - The number of rows returned may be close to (but not exactly equal to)
-   *    {@code (probabilityFraction * totalRowCount)}.
-   *  - The Snowflake
-   *    [[https://docs.snowflake.com/en/sql-reference/constructs/sample.html SAMPLE]] function
-   *    supports specifying 'probability' as a percentage number.
-   *    The range of 'probability' is {@code [0.0, 100.0]}. The conversion formula is
-   *    {@code probability = probabilityFraction * 100}.
+   *   - The number of rows returned may be close to (but not exactly equal to)
+   *     {@code (probabilityFraction * totalRowCount)} .
+   *   - The Snowflake [[https://docs.snowflake.com/en/sql-reference/constructs/sample.html SAMPLE]]
+   *     function supports specifying 'probability' as a percentage number. The range of
+   *     'probability' is {@code [0.0, 100.0]} . The conversion formula is
+   *     {@code probability = probabilityFraction * 100} .
    *
-   * @param probabilityFraction The fraction of rows to sample. This must be in the range of
-   *   `0.0` to `1.0`.
+   * @param probabilityFraction
+   *   The fraction of rows to sample. This must be in the range of `0.0` to `1.0`.
    * @group transform
    * @since 0.2.0
-   * @return A [[DataFrame]] containing the sample of rows.
+   * @return
+   *   A [[DataFrame]] containing the sample of rows.
    */
   def sample(probabilityFraction: Double): DataFrame = transformation("sample") {
     withPlan(SnowflakeSampleNode(Some(probabilityFraction), None, plan))
@@ -2746,16 +2946,17 @@ class DataFrame private[snowpark] (
    *
    * NOTE:
    *
-   *  - If only one weight is specified, the returned DataFrame array
-   *    only includes the current DataFrame.
-   *  - If multiple weights are specified, the current DataFrame will
-   *    be cached before being split.
+   *   - If only one weight is specified, the returned DataFrame array only includes the current
+   *     DataFrame.
+   *   - If multiple weights are specified, the current DataFrame will be cached before being split.
    *
-   * @param weights Weights to use for splitting the DataFrame. If the weights don't add up to 1,
-   *   the weights will be normalized.
+   * @param weights
+   *   Weights to use for splitting the DataFrame. If the weights don't add up to 1, the weights
+   *   will be normalized.
    * @group actions
    * @since 0.2.0
-   * @return A list of [[DataFrame]] objects
+   * @return
+   *   A list of [[DataFrame]] objects
    */
   def randomSplit(weights: Array[Double]): Array[DataFrame] = action("randomSplit") {
     session.conn.telemetry.reportActionRandomSplit()
@@ -2768,7 +2969,7 @@ class DataFrame private[snowpark] (
       weights.foreach(w =>
         if (w <= 0) {
           throw ErrorMessage.DF_RANDOM_SPLIT_WEIGHT_INVALID()
-      })
+        })
 
       val oneMillion = 1000000L
       val tempColumnName = s"SNOWPARK_RANDOM_COLUMN_${Random.nextInt.abs}"
@@ -2797,18 +2998,18 @@ class DataFrame private[snowpark] (
    * [[https://docs.snowflake.com/en/sql-reference/functions/flatten.html FLATTEN]] function).
    *
    * The `flatten` method adds the following
-   * [[https://docs.snowflake.com/en/sql-reference/functions/flatten.html#output columns]]
-   * to the returned DataFrame:
+   * [[https://docs.snowflake.com/en/sql-reference/functions/flatten.html#output columns]] to the
+   * returned DataFrame:
    *
-   *  - SEQ
-   *  - KEY
-   *  - PATH
-   *  - INDEX
-   *  - VALUE
-   *  - THIS
+   *   - SEQ
+   *   - KEY
+   *   - PATH
+   *   - INDEX
+   *   - VALUE
+   *   - THIS
    *
-   * If {@code this} DataFrame also has columns with the names above,
-   * you can disambiguate the columns by using the {@code this("value")} syntax.
+   * If {@code this} DataFrame also has columns with the names above, you can disambiguate the
+   * columns by using the {@code this("value")} syntax.
    *
    * For example, if the current DataFrame has a column named `value`:
    * {{{
@@ -2818,10 +3019,12 @@ class DataFrame private[snowpark] (
    *   flattened.select(table1("value"), flattened("value").as("newValue")).show()
    * }}}
    *
-   * @param input The expression that will be unseated into rows.
-   *              The expression must be of data type VARIANT, OBJECT, or ARRAY.
+   * @param input
+   *   The expression that will be unseated into rows. The expression must be of data type VARIANT,
+   *   OBJECT, or ARRAY.
    * @group transform
-   * @return A [[DataFrame]] containing the flattened values.
+   * @return
+   *   A [[DataFrame]] containing the flattened values.
    * @since 0.2.0
    */
   def flatten(input: Column): DataFrame = transformation("flatten") {
@@ -2833,18 +3036,18 @@ class DataFrame private[snowpark] (
    * [[https://docs.snowflake.com/en/sql-reference/functions/flatten.html FLATTEN]] function).
    *
    * The `flatten` method adds the following
-   * [[https://docs.snowflake.com/en/sql-reference/functions/flatten.html#output columns]]
-   * to the returned DataFrame:
+   * [[https://docs.snowflake.com/en/sql-reference/functions/flatten.html#output columns]] to the
+   * returned DataFrame:
    *
-   *  - SEQ
-   *  - KEY
-   *  - PATH
-   *  - INDEX
-   *  - VALUE
-   *  - THIS
+   *   - SEQ
+   *   - KEY
+   *   - PATH
+   *   - INDEX
+   *   - VALUE
+   *   - THIS
    *
-   * If {@code this} DataFrame also has columns with the names above,
-   * you can disambiguate the columns by using the {@code this("value")} syntax.
+   * If {@code this} DataFrame also has columns with the names above, you can disambiguate the
+   * columns by using the {@code this("value")} syntax.
    *
    * For example, if the current DataFrame has a column named `value`:
    * {{{
@@ -2855,22 +3058,25 @@ class DataFrame private[snowpark] (
    *   flattened.select(table1("value"), flattened("value").as("newValue")).show()
    * }}}
    *
-   * @param input The expression that will be unseated into rows.
-   *              The expression must be of data type VARIANT, OBJECT, or ARRAY.
-   * @param path The path to the element within a VARIANT data structure which
-   *             needs to be flattened. Can be a zero-length string
-   *             (i.e. empty path) if the outermost element is to be flattened.
-   * @param outer If FALSE, any input rows that cannot be expanded,
-   *              either because they cannot be accessed in the path or because
-   *              they have zero fields or entries, are completely omitted from
-   *              the output. Otherwise, exactly one row is generated for
-   *              zero-row expansions (with NULL in the KEY, INDEX, and VALUE columns).
-   * @param recursive If FALSE, only the element referenced by PATH is expanded.
-   *                  Otherwise, the expansion is performed for all sub-elements
-   *                  recursively.
-   * @param mode Specifies whether only OBJECT, ARRAY, or BOTH should be flattened.
+   * @param input
+   *   The expression that will be unseated into rows. The expression must be of data type VARIANT,
+   *   OBJECT, or ARRAY.
+   * @param path
+   *   The path to the element within a VARIANT data structure which needs to be flattened. Can be a
+   *   zero-length string (i.e. empty path) if the outermost element is to be flattened.
+   * @param outer
+   *   If FALSE, any input rows that cannot be expanded, either because they cannot be accessed in
+   *   the path or because they have zero fields or entries, are completely omitted from the output.
+   *   Otherwise, exactly one row is generated for zero-row expansions (with NULL in the KEY, INDEX,
+   *   and VALUE columns).
+   * @param recursive
+   *   If FALSE, only the element referenced by PATH is expanded. Otherwise, the expansion is
+   *   performed for all sub-elements recursively.
+   * @param mode
+   *   Specifies whether only OBJECT, ARRAY, or BOTH should be flattened.
    * @group transform
-   * @return A [[DataFrame]] containing the flattened values.
+   * @return
+   *   A [[DataFrame]] containing the flattened values.
    * @since 0.2.0
    */
   def flatten(
@@ -2991,20 +3197,21 @@ class DataFrame private[snowpark] (
   }
 
   /**
-   * Executes the query representing this DataFrame and returns the query ID that represents
-   * its result.
+   * Executes the query representing this DataFrame and returns the query ID that represents its
+   * result.
    */
   private[snowpark] def executeAndGetQueryId(): String = {
     executeAndGetQueryId(Map.empty)
   }
 
   /**
-   * Executes the query representing this DataFrame with statement parameters and
-   * returns the query ID that represents its result.
-   * NOTE: The statement parameters are only used for the last query.
+   * Executes the query representing this DataFrame with statement parameters and returns the query
+   * ID that represents its result. NOTE: The statement parameters are only used for the last query.
    *
-   * @param statementParameters The statement parameters map
-   * @return the query ID
+   * @param statementParameters
+   *   The statement parameters map
+   * @return
+   *   the query ID
    */
   private[snowpark] def executeAndGetQueryId(statementParameters: Map[String, Any]): String = {
     // This function is used by java stored proc.
@@ -3017,14 +3224,14 @@ class DataFrame private[snowpark] (
   }
 
   lazy private[snowpark] val output: Seq[Attribute] = {
-    SnowflakePlan.wrapException(plan.children: _*) {
+    SnowflakePlan.wrapException(plan.children.toSeq: _*) {
       snowflakePlan.output
     }
   }
 
   lazy private[snowpark] val methodChainString: String =
-    methodChain.foldLeft("DataFrame") {
-      case (str, methodName) => s"$str.$methodName"
+    methodChain.foldLeft("DataFrame") { case (str, methodName) =>
+      s"$str.$methodName"
     }
 
   @inline protected def withPlan(plan: LogicalPlan): DataFrame = DataFrame(session, plan)
@@ -3038,9 +3245,9 @@ class DataFrame private[snowpark] (
 }
 
 /**
- * A DataFrame that returns cached data. Repeated invocations of actions on
- * this type of dataframe are guaranteed to produce the same results.
- * It is returned from `cacheResult` functions (e.g. [[DataFrame.cacheResult]]).
+ * A DataFrame that returns cached data. Repeated invocations of actions on this type of dataframe
+ * are guaranteed to produce the same results. It is returned from `cacheResult` functions (e.g.
+ * [[DataFrame.cacheResult]]).
  *
  * @since 0.4.0
  */
@@ -3053,12 +3260,13 @@ class HasCachedResult private[snowpark] (
   /**
    * Caches the content of this DataFrame to create a new cached DataFrame.
    *
-   * All subsequent operations on the returned cached DataFrame are performed on the cached data
-   * and have no effect on the original DataFrame.
+   * All subsequent operations on the returned cached DataFrame are performed on the cached data and
+   * have no effect on the original DataFrame.
    *
    * @since 1.5.0
    * @group actions
-   * @return A [[HasCachedResult]]
+   * @return
+   *   A [[HasCachedResult]]
    */
   override def cacheResult(): HasCachedResult = action("cacheResult") {
     // cacheResult function of HashCachedResult returns a clone of this
@@ -3077,8 +3285,9 @@ class DataFrameAsyncActor private[snowpark] (df: DataFrame) {
   /**
    * Executes [[DataFrame.collect]] asynchronously.
    *
-   * @return A [[TypedAsyncJob]] object that you can use to check the status of the action
-   *         and get the results.
+   * @return
+   *   A [[TypedAsyncJob]] object that you can use to check the status of the action and get the
+   *   results.
    * @since 0.11.0
    */
   def collect(): TypedAsyncJob[Array[Row]] = action("collect") {
@@ -3088,8 +3297,9 @@ class DataFrameAsyncActor private[snowpark] (df: DataFrame) {
   /**
    * Executes [[DataFrame.toLocalIterator]] asynchronously.
    *
-   * @return A [[TypedAsyncJob]] object that you can use to check the status of the action
-   *         and get the results.
+   * @return
+   *   A [[TypedAsyncJob]] object that you can use to check the status of the action and get the
+   *   results.
    * @since 0.11.0
    */
   def toLocalIterator(): TypedAsyncJob[Iterator[Row]] = action("toLocalIterator") {
@@ -3099,8 +3309,9 @@ class DataFrameAsyncActor private[snowpark] (df: DataFrame) {
   /**
    * Executes [[DataFrame.count]] asynchronously.
    *
-   * @return A [[TypedAsyncJob]] object that you can use to check the status of the action
-   *         and get the results.
+   * @return
+   *   A [[TypedAsyncJob]] object that you can use to check the status of the action and get the
+   *   results.
    * @since 0.11.0
    */
   def count(): TypedAsyncJob[Long] = action("count") {

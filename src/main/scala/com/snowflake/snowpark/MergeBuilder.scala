@@ -67,24 +67,25 @@ class MergeBuilder private[snowpark] (
     private[snowpark] val deleted: Boolean) {
 
   /**
-   * Adds a matched clause into the merge action. It matches all remaining rows in target
-   * that satisfy <joinExpr>. Returns a [[MatchedClauseBuilder]] which provides APIs to
-   * define actions to take when a row is matched.
+   * Adds a matched clause into the merge action. It matches all remaining rows in target that
+   * satisfy <joinExpr>. Returns a [[MatchedClauseBuilder]] which provides APIs to define actions to
+   * take when a row is matched.
    *
    * For example:
    * {{{
    *   target.merge(source, target("id") === source("id")).whenMatched
    * }}}
    *
-   * Adds a matched clause where a row in the [[Updatable]] target is matched if its id equals
-   * the id of a row in the [[DataFrame]] source.
+   * Adds a matched clause where a row in the [[Updatable]] target is matched if its id equals the
+   * id of a row in the [[DataFrame]] source.
    *
-   * Caution: Since it matches all remaining rows, no more whenMatched calls will be accepted
-   * beyond this call.
+   * Caution: Since it matches all remaining rows, no more whenMatched calls will be accepted beyond
+   * this call.
    *
    * @group transform
    * @since 0.7.0
-   * @return [[MatchedClauseBuilder]]
+   * @return
+   *   [[MatchedClauseBuilder]]
    */
   def whenMatched: MatchedClauseBuilder = whenMatched(None)
 
@@ -103,7 +104,8 @@ class MergeBuilder private[snowpark] (
    *
    * @group transform
    * @since 0.7.0
-   * @return [[MatchedClauseBuilder]]
+   * @return
+   *   [[MatchedClauseBuilder]]
    */
   def whenMatched(condition: Column): MatchedClauseBuilder =
     whenMatched(Some(condition))
@@ -113,24 +115,25 @@ class MergeBuilder private[snowpark] (
   }
 
   /**
-   * Adds a not matched clause into the merge action. It matches all remaining rows in source
-   * that do not satisfy <joinExpr>. Returns a [[MatchedClauseBuilder]] which provides APIs to
-   * define actions to take when a row is not matched.
+   * Adds a not matched clause into the merge action. It matches all remaining rows in source that
+   * do not satisfy <joinExpr>. Returns a [[MatchedClauseBuilder]] which provides APIs to define
+   * actions to take when a row is not matched.
    *
    * For example:
    * {{{
    *   target.merge(source, target("id") === source("id")).whenNotMatched
    * }}}
    *
-   * Adds a not matched clause where a row in the [[DataFrame]] source is not matched if its id
-   * does not equal the id of any row in the [[Updatable]] target.
+   * Adds a not matched clause where a row in the [[DataFrame]] source is not matched if its id does
+   * not equal the id of any row in the [[Updatable]] target.
    *
    * Caution: Since it matches all remaining rows, no more whenNotMatched calls will be accepted
    * beyond this call.
    *
    * @group transform
    * @since 0.7.0
-   * @return [[NotMatchedClauseBuilder]]
+   * @return
+   *   [[NotMatchedClauseBuilder]]
    */
   def whenNotMatched: NotMatchedClauseBuilder = whenNotMatched(None)
 
@@ -145,12 +148,13 @@ class MergeBuilder private[snowpark] (
    *   .whenNotMatched(source("value") === lit(0))
    * }}}
    *
-   * Adds a not matched clause where a row in the [[DataFrame]] source is not matched if its id
-   * does not equal the id of any row in the [[Updatable]] source and its value equals 0.
+   * Adds a not matched clause where a row in the [[DataFrame]] source is not matched if its id does
+   * not equal the id of any row in the [[Updatable]] source and its value equals 0.
    *
    * @group transform
    * @since 0.7.0
-   * @return [[NotMatchedClauseBuilder]]
+   * @return
+   *   [[NotMatchedClauseBuilder]]
    */
   def whenNotMatched(condition: Column): NotMatchedClauseBuilder =
     whenNotMatched(Some(condition))
@@ -165,7 +169,8 @@ class MergeBuilder private[snowpark] (
    *
    * @group action
    * @since 0.7.0
-   * @return [[MergeResult]]
+   * @return
+   *   [[MergeResult]]
    */
   def collect(): MergeResult = action("collect") {
     val rows = getMergeDataFrame().collect()
@@ -179,8 +184,8 @@ class MergeBuilder private[snowpark] (
   }
 
   /**
-   * Returns a [[MergeBuilderAsyncActor]] object that can be used to execute
-   * MergeBuilder actions asynchronously.
+   * Returns a [[MergeBuilderAsyncActor]] object that can be used to execute MergeBuilder actions
+   * asynchronously.
    *
    * Example:
    * {{{
@@ -199,7 +204,8 @@ class MergeBuilder private[snowpark] (
    * }}}
    *
    * @since 1.3.0
-   * @return A [[MergeBuilderAsyncActor]] object
+   * @return
+   *   A [[MergeBuilderAsyncActor]] object
    */
   def async: MergeBuilderAsyncActor = new MergeBuilderAsyncActor(this)
 
@@ -218,8 +224,9 @@ class MergeBuilderAsyncActor private[snowpark] (mergeBuilder: MergeBuilder) {
   /**
    * Executes `MergeBuilder.collect()` asynchronously.
    *
-   * @return A [[TypedAsyncJob]] object that you can use to check the status of the action
-   *         and get the results.
+   * @return
+   *   A [[TypedAsyncJob]] object that you can use to check the status of the action and get the
+   *   results.
    * @since 1.3.0
    */
   def collect(): TypedAsyncJob[MergeResult] = action("collect") {

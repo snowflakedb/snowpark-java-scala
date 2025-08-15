@@ -34,8 +34,8 @@ import FileOperationCommand._
 final class FileOperation(session: Session) extends Logging {
 
   /**
-   * Uploads the local files specified by {@code localFileName} to the stage location
-   * specified in {@code stageLocation}.
+   * Uploads the local files specified by {@code localFileName} to the stage location specified in
+   * {@code stageLocation} .
    *
    * This method returns the results as an Array of [[PutResult]] objects (one for each file). Each
    * object represents the results of uploading a file.
@@ -51,16 +51,18 @@ final class FileOperation(session: Session) extends Logging {
    *   val res2 = session.file.put("file:///tmp/file*.csv", "@myStage/prefix2")
    * }}}
    *
-   * @param localFileName The path to the local file(s) to upload. Specify the path in the
-   *                      following format: `file://<path_to_file>/<filename>`. (The
-   *                      `file://` prefix is optional.) To match multiple files in the path, you
-   *                      can specify the wildcard characters `*` and `?`.
-   * @param stageLocation The stage (and prefix) where you want to upload the file(s).
-   *                      The `@` prefix is optional.
-   * @param options A Map containing the names and values of optional
+   * @param localFileName
+   *   The path to the local file(s) to upload. Specify the path in the following format:
+   *   `file://<path_to_file>/<filename>`. (The `file://` prefix is optional.) To match multiple
+   *   files in the path, you can specify the wildcard characters `*` and `?`.
+   * @param stageLocation
+   *   The stage (and prefix) where you want to upload the file(s). The `@` prefix is optional.
+   * @param options
+   *   A Map containing the names and values of optional
    *   [[https://docs.snowflake.com/en/sql-reference/sql/put.html#optional-parameters parameters]]
    *   for the PUT command.
-   * @return An Array of [[PutResult]] objects (one object for each file uploaded).
+   * @return
+   *   An Array of [[PutResult]] objects (one object for each file uploaded).
    * @since 0.4.0
    */
   def put(
@@ -89,8 +91,8 @@ final class FileOperation(session: Session) extends Logging {
   }
 
   /**
-   * Downloads the specified files from a path in a stage (specified by {@code stageLocation}) to
-   * the local directory specified by {@code targetLocation}.
+   * Downloads the specified files from a path in a stage (specified by {@code stageLocation} ) to
+   * the local directory specified by {@code targetLocation} .
    *
    * This method returns the results as an Array of [[GetResult]] objects (one for each file). Each
    * object represents the results of downloading a file.
@@ -110,16 +112,19 @@ final class FileOperation(session: Session) extends Logging {
    *   val res3 = session.file.get("@myStage/prefix2", "file:///tmp/target3", getOptions)
    * }}}
    *
-   * @param stageLocation The location (a directory or filename on a stage) from which you want to
-   *                      download the files. The `@` prefix is optional.
-   * @param targetDirectory The path to the local directory where the file(s) should be downloaded.
-   *                        Specify the path in the following format:
-   *                        `file://<path_to_file>/<filename>`. If {@code targetDirectory} does not
-   *                        already exist, the method creates the directory.
-   * @param options A Map containing the names and values of optional
+   * @param stageLocation
+   *   The location (a directory or filename on a stage) from which you want to download the files.
+   *   The `@` prefix is optional.
+   * @param targetDirectory
+   *   The path to the local directory where the file(s) should be downloaded. Specify the path in
+   *   the following format: `file://<path_to_file>/<filename>`. If {@code targetDirectory} does not
+   *   already exist, the method creates the directory.
+   * @param options
+   *   A Map containing the names and values of optional
    *   [[https://docs.snowflake.com/en/sql-reference/sql/get.html#optional-parameters parameters]]
    *   for the GET command.
-   * @return An Array of [[PutResult]] objects (one object for each file downloaded).
+   * @return
+   *   An Array of [[PutResult]] objects (one object for each file downloaded).
    * @since 0.4.0
    */
   def get(
@@ -149,9 +154,12 @@ final class FileOperation(session: Session) extends Logging {
    *
    * <p>caller is responsible for releasing the inputStream after the method is called.
    *
-   * @param stageLocation Full stage path to the file
-   * @param inputStream Input stream from which the data will be uploaded
-   * @param compress Compress data or not before uploading stream
+   * @param stageLocation
+   *   Full stage path to the file
+   * @param inputStream
+   *   Input stream from which the data will be uploaded
+   * @param compress
+   *   Compress data or not before uploading stream
    * @since 1.4.0
    */
   def uploadStream(stageLocation: String, inputStream: InputStream, compress: Boolean): Unit = {
@@ -162,9 +170,12 @@ final class FileOperation(session: Session) extends Logging {
   /**
    * Download file from the given stage and return an input stream
    *
-   * @param stageLocation Full stage path to the file
-   * @param decompress True if file compressed
-   * @return An InputStream object
+   * @param stageLocation
+   *   Full stage path to the file
+   * @param decompress
+   *   True if file compressed
+   * @return
+   *   An InputStream object
    * @since 1.4.0
    */
   def downloadStream(stageLocation: String, decompress: Boolean): InputStream = {
@@ -214,7 +225,7 @@ case class PutResult(
  * Represents the results of downloading a file from a stage location to the local file system.
  *
  * NOTE: {@code fileName} is the relative path to the file on the stage. For example, if you
- *       download `@myStage/prefix1/file1.csv.gz`, {@code fileName} is `prefix1/file1.csv.gz`.
+ * download `@myStage/prefix1/file1.csv.gz`, {@code fileName} is `prefix1/file1.csv.gz`.
  *
  * @since 0.4.0
  */

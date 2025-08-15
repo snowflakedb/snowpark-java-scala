@@ -9,51 +9,50 @@ import scala.reflect.runtime.universe.{TypeTag, typeOf}
  *
  * You can use this object to check the status of an asynchronous query and retrieve the results.
  *
- * To check the status of an asynchronous query that you submitted earlier,
- * call [[Session.createAsyncJob]], and pass in the query ID. This returns an `AsyncJob` object
- * that you can use to check the status of the query and retrieve the query results.
+ * To check the status of an asynchronous query that you submitted earlier, call
+ * [[Session.createAsyncJob]], and pass in the query ID. This returns an `AsyncJob` object that you
+ * can use to check the status of the query and retrieve the query results.
  *
- * Example 1: Create an AsyncJob by specifying a valid `<query_id>`, check whether
- * the query is running or not, and get the result rows.
+ * Example 1: Create an AsyncJob by specifying a valid `<query_id>`, check whether the query is
+ * running or not, and get the result rows.
  * {{{
  *   val asyncJob = session.createAsyncJob(<query_id>)
  *   println(s"Is query \${asyncJob.getQueryId()} running? \${asyncJob.isRunning()}")
  *   val rows = asyncJob.getRows()
  * }}}
  *
- * Example 2: Create an AsyncJob by specifying a valid `<query_id>` and cancel the query if
- * it is still running.
+ * Example 2: Create an AsyncJob by specifying a valid `<query_id>` and cancel the query if it is
+ * still running.
  * {{{
  *   session.createAsyncJob(<query_id>).cancel()
  * }}}
  *
  * @since 0.11.0
  */
-class AsyncJob private[snowpark] (
-    queryID: String,
-    session: Session,
-    plan: Option[SnowflakePlan]) {
+class AsyncJob private[snowpark] (queryID: String, session: Session, plan: Option[SnowflakePlan]) {
 
   /**
    * Get the query ID for the underlying query.
    *
    * @since 0.11.0
-   * @return a query ID
+   * @return
+   *   a query ID
    */
   def getQueryId(): String = queryID
 
   /**
-   * Returns an iterator of [[Row]] objects that you can use to retrieve the results for
-   * the underlying query.
+   * Returns an iterator of [[Row]] objects that you can use to retrieve the results for the
+   * underlying query.
    *
    * Unlike the [[getRows]] method, this method does not load all data into memory at once.
    *
    * @since 0.11.0
-   * @param maxWaitTimeInSeconds The maximum number of seconds to wait for the query to
-   *                             complete before attempting to retrieve the results.
-   *                             The default value is the value of the
-   *                             `snowpark_request_timeout_in_seconds` configuration property.
-   * @return An Iterator of [[Row]] objects
+   * @param maxWaitTimeInSeconds
+   *   The maximum number of seconds to wait for the query to complete before attempting to retrieve
+   *   the results. The default value is the value of the `snowpark_request_timeout_in_seconds`
+   *   configuration property.
+   * @return
+   *   An Iterator of [[Row]] objects
    */
   def getIterator(maxWaitTimeInSeconds: Int = session.requestTimeoutInSeconds): Iterator[Row] =
     session.conn.getAsyncResult(queryID, maxWaitTimeInSeconds, plan)._1
@@ -62,11 +61,12 @@ class AsyncJob private[snowpark] (
    * Returns an Array of [[Row]] objects that represent the results of the underlying query.
    *
    * @since 0.11.0
-   * @param maxWaitTimeInSeconds The maximum number of seconds to wait for the query to
-   *                             complete before attempting to retrieve the results.
-   *                             The default value is the value of the
-   *                             `snowpark_request_timeout_in_seconds` configuration property.
-   * @return An Array of [[Row]] objects
+   * @param maxWaitTimeInSeconds
+   *   The maximum number of seconds to wait for the query to complete before attempting to retrieve
+   *   the results. The default value is the value of the `snowpark_request_timeout_in_seconds`
+   *   configuration property.
+   * @return
+   *   An Array of [[Row]] objects
    */
   def getRows(maxWaitTimeInSeconds: Int = session.requestTimeoutInSeconds): Array[Row] =
     getIterator(maxWaitTimeInSeconds).toArray
@@ -74,11 +74,12 @@ class AsyncJob private[snowpark] (
   /**
    * Returns true if the underlying query completed.
    *
-   * Completion may be due to query success, cancellation or failure,
-   * in all of these cases, this method will return true.
+   * Completion may be due to query success, cancellation or failure, in all of these cases, this
+   * method will return true.
    *
    * @since 0.11.0
-   * @return true if this query completed.
+   * @return
+   *   true if this query completed.
    */
   def isDone(): Boolean = session.conn.isDone(queryID)
 
@@ -93,8 +94,8 @@ class AsyncJob private[snowpark] (
 /**
  * Provides a way to track an asynchronously executed action in a DataFrame.
  *
- * To get the result of the action (e.g. the number of results from a `count()` action
- * or an Array of [[Row]] objects from the `collect()` action), call the [[getResult]] method.
+ * To get the result of the action (e.g. the number of results from a `count()` action or an Array
+ * of [[Row]] objects from the `collect()` action), call the [[getResult]] method.
  *
  * To perform an action on a DataFrame asynchronously, call an action method on the
  * [[DataFrameAsyncActor]] object returned by [[DataFrame.async]]. For example:
@@ -103,8 +104,8 @@ class AsyncJob private[snowpark] (
  *   val asyncJob2 = df.async.toLocalIterator()
  *   val asyncJob3 = df.async.count()
  * }}}
- * Each of these methods returns a TypedAsyncJob object that you can use to get
- * the results of the action.
+ * Each of these methods returns a TypedAsyncJob object that you can use to get the results of the
+ * action.
  *
  * @since 0.11.0
  */
@@ -118,8 +119,8 @@ class TypedAsyncJob[T: TypeTag] private[snowpark] (
    * Returns the result for the specific DataFrame action.
    *
    * Example 1: Create a TypedAsyncJob by asynchronously executing a DataFrame action `collect()`,
-   * check whether the job is running or not, and get the action result with [[getResult]].
-   * NOTE: The returned type for [[getResult]] in this example is `Array[Row]`.
+   * check whether the job is running or not, and get the action result with [[getResult]]. NOTE:
+   * The returned type for [[getResult]] in this example is `Array[Row]`.
    * {{{
    *   val df = session.table("t1")
    *   val asyncJob = df.async.collect()
@@ -128,19 +129,20 @@ class TypedAsyncJob[T: TypeTag] private[snowpark] (
    * }}}
    *
    * Example 2: Create a TypedAsyncJob by asynchronously executing a DataFrame action count() and
-   * get the action result with [[getResult]].
-   * NOTE: The returned type for [[getResult]] in this example is `Long`.
+   * get the action result with [[getResult]]. NOTE: The returned type for [[getResult]] in this
+   * example is `Long`.
    * {{{
    *   val asyncJob = df.async.count()
    *   val longResult = asyncJob.getResult()
    * }}}
    *
    * @since 0.11.0
-   * @param maxWaitTimeInSeconds The maximum number of seconds to wait for the query to
-   *                             complete before attempting to retrieve the results.
-   *                             The default value is the value of the
-   *                             `snowpark_request_timeout_in_seconds` configuration property.
-   * @return The result for the specific action
+   * @param maxWaitTimeInSeconds
+   *   The maximum number of seconds to wait for the query to complete before attempting to retrieve
+   *   the results. The default value is the value of the `snowpark_request_timeout_in_seconds`
+   *   configuration property.
+   * @return
+   *   The result for the specific action
    */
   def getResult(maxWaitTimeInSeconds: Int = session.requestTimeoutInSeconds): T = {
     val tpe = typeOf[T]
@@ -203,13 +205,13 @@ class MergeTypedAsyncJob private[snowpark] (
    * Returns the MergeResult for the MergeBuilder's action
    *
    * @since 1.3.0
-   * @param maxWaitTimeInSeconds The maximum number of seconds to wait for the query to
-   *                             complete before attempting to retrieve the results.
-   *                             The default value is the value of the
-   *                             `snowpark_request_timeout_in_seconds` configuration property.
-   * @return The [[MergeResult]]
+   * @param maxWaitTimeInSeconds
+   *   The maximum number of seconds to wait for the query to complete before attempting to retrieve
+   *   the results. The default value is the value of the `snowpark_request_timeout_in_seconds`
+   *   configuration property.
+   * @return
+   *   The [[MergeResult]]
    */
-  override def getResult(
-      maxWaitTimeInSeconds: Int = session.requestTimeoutInSeconds): MergeResult =
+  override def getResult(maxWaitTimeInSeconds: Int = session.requestTimeoutInSeconds): MergeResult =
     MergeBuilder.getMergeResult(getRows(maxWaitTimeInSeconds), mergeBuilder)
 }

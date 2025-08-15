@@ -35,7 +35,8 @@ public class JavaUDFSuite extends UDFTestBase {
     DataFrame df1 =
         getSession()
             .sql(
-                "select array_construct(to_variant(a), to_variant(b)) as arr from values(1, 2) as t(a, b)");
+                "select array_construct(to_variant(a), to_variant(b)) as arr from values(1, 2) as"
+                    + " t(a, b)");
     UserDefinedFunction udf1 =
         Functions.udf(
             (Variant[] arr) -> new Variant[] {arr[1], arr[0]},
@@ -48,7 +49,8 @@ public class JavaUDFSuite extends UDFTestBase {
     DataFrame df2 =
         getSession()
             .sql(
-                "select object_construct('a', to_variant(a), 'b', to_variant(b)) as map from values(1, 2) as t(a, b)");
+                "select object_construct('a', to_variant(a), 'b', to_variant(b)) as map from"
+                    + " values(1, 2) as t(a, b)");
     UserDefinedFunction udf2 =
         Functions.udf(
             (Map<String, Variant> map) -> map,

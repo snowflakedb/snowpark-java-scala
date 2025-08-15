@@ -4,8 +4,8 @@ import com.snowflake.snowpark.functions.lit
 
 // scalastyle:off
 /**
- * Provides utility functions that generate table function expressions that can be
- * passed to DataFrame join method and Session tableFunction method.
+ * Provides utility functions that generate table function expressions that can be passed to
+ * DataFrame join method and Session tableFunction method.
  *
  * This object also provides functions that correspond to Snowflake
  * [[https://docs.snowflake.com/en/sql-reference/functions-table.html system-defined table functions]].
@@ -33,8 +33,8 @@ object tableFunctions {
   // scalastyle:on
 
   /**
-   * This table function splits a string (based on a specified delimiter)
-   * and flattens the results into rows.
+   * This table function splits a string (based on a specified delimiter) and flattens the results
+   * into rows.
    *
    * Argument List:
    *
@@ -60,8 +60,8 @@ object tableFunctions {
   lazy val split_to_table: TableFunction = TableFunction("split_to_table")
 
   /**
-   * This table function splits a string (based on a specified delimiter)
-   * and flattens the results into rows.
+   * This table function splits a string (based on a specified delimiter) and flattens the results
+   * into rows.
    *
    * Example
    * {{{
@@ -72,9 +72,12 @@ object tableFunctions {
    * }}}
    *
    * @since 1.10.0
-   * @param str Text to be split.
-   * @param delimiter Text to split string by.
-   * @return The result Column reference
+   * @param str
+   *   Text to be split.
+   * @param delimiter
+   *   Text to split string by.
+   * @return
+   *   The result Column reference
    */
   def split_to_table(str: Column, delimiter: String): Column =
     split_to_table.apply(str, lit(delimiter))
@@ -84,30 +87,23 @@ object tableFunctions {
    *
    * Argument List:
    *
-   * input: Required. The expression that will be unseated into rows.
-   * The expression must be of data type VariantType, MapType or ArrayType.
+   * input: Required. The expression that will be unseated into rows. The expression must be of data
+   * type VariantType, MapType or ArrayType.
    *
-   * path: Optional. The path to the element within a VariantType data structure
-   * which needs to be flattened. Can be a zero-length string (i.e. empty path)
-   * if the outermost element is to be flattened.
-   * Default: Zero-length string (i.e. empty path)
+   * path: Optional. The path to the element within a VariantType data structure which needs to be
+   * flattened. Can be a zero-length string (i.e. empty path) if the outermost element is to be
+   * flattened. Default: Zero-length string (i.e. empty path)
    *
-   * outer: Optional boolean value.
-   * If FALSE, any input rows that cannot be expanded,
-   * either because they cannot be accessed in the path or because they have
-   * zero fields or entries, are completely omitted from the output.
-   * If TRUE, exactly one row is generated for zero-row expansions
-   * (with NULL in the KEY, INDEX, and VALUE columns).
-   * Default: FALSE
+   * outer: Optional boolean value. If FALSE, any input rows that cannot be expanded, either because
+   * they cannot be accessed in the path or because they have zero fields or entries, are completely
+   * omitted from the output. If TRUE, exactly one row is generated for zero-row expansions (with
+   * NULL in the KEY, INDEX, and VALUE columns). Default: FALSE
    *
-   * recursive: Optional boolean value
-   * If FALSE, only the element referenced by PATH is expanded.
-   * If TRUE, the expansion is performed for all sub-elements recursively.
-   * Default: FALSE
+   * recursive: Optional boolean value If FALSE, only the element referenced by PATH is expanded. If
+   * TRUE, the expansion is performed for all sub-elements recursively. Default: FALSE
    *
-   * mode: Optional String ("object", "array", or "both")
-   * Specifies whether only objects, arrays, or both should be flattened.
-   * Default: both
+   * mode: Optional String ("object", "array", or "both") Specifies whether only objects, arrays, or
+   * both should be flattened. Default: both
    *
    * Example
    * {{{
@@ -132,7 +128,6 @@ object tableFunctions {
   /**
    * Flattens (explodes) compound values into multiple rows.
    *
-   *
    * Example
    * {{{
    *   import com.snowflake.snowpark.functions._
@@ -145,15 +140,16 @@ object tableFunctions {
    * }}}
    *
    * @since 1.10.0
-   * @param input     The expression that will be unseated into rows.
-   *                  The expression must be of data type VariantType, MapType or ArrayType.
-   * @return The result Column reference
+   * @param input
+   *   The expression that will be unseated into rows. The expression must be of data type
+   *   VariantType, MapType or ArrayType.
+   * @return
+   *   The result Column reference
    */
   def flatten(input: Column): Column = flatten.apply(input)
 
   /**
    * Flattens (explodes) compound values into multiple rows.
-   *
    *
    * Example
    * {{{
@@ -167,22 +163,25 @@ object tableFunctions {
    * }}}
    *
    * @since 1.10.0
-   * @param input The expression that will be unseated into rows.
-   *              The expression must be of data type VariantType, MapType or ArrayType.
-   * @param path The path to the element within a VariantType data structure
-   *             which needs to be flattened. Can be a zero-length string (i.e. empty path)
-   *             if the outermost element is to be flattened.
-   * @param outer Optional boolean value.
-   *              If FALSE, any input rows that cannot be expanded,
-   *              either because they cannot be accessed in the path or because they have
-   *              zero fields or entries, are completely omitted from the output.
-   *              If TRUE, exactly one row is generated for zero-row expansions
-   *              (with NULL in the KEY, INDEX, and VALUE columns).
-   * @param recursive If FALSE, only the element referenced by PATH is expanded.
-   *                  If TRUE, the expansion is performed for all sub-elements recursively.
-   * @param mode ("object", "array", or "both")
-   *             Specifies whether only objects, arrays, or both should be flattened.
-   * @return The result Column reference
+   * @param input
+   *   The expression that will be unseated into rows. The expression must be of data type
+   *   VariantType, MapType or ArrayType.
+   * @param path
+   *   The path to the element within a VariantType data structure which needs to be flattened. Can
+   *   be a zero-length string (i.e. empty path) if the outermost element is to be flattened.
+   * @param outer
+   *   Optional boolean value. If FALSE, any input rows that cannot be expanded, either because they
+   *   cannot be accessed in the path or because they have zero fields or entries, are completely
+   *   omitted from the output. If TRUE, exactly one row is generated for zero-row expansions (with
+   *   NULL in the KEY, INDEX, and VALUE columns).
+   * @param recursive
+   *   If FALSE, only the element referenced by PATH is expanded. If TRUE, the expansion is
+   *   performed for all sub-elements recursively.
+   * @param mode
+   *   ("object", "array", or "both") Specifies whether only objects, arrays, or both should be
+   *   flattened.
+   * @return
+   *   The result Column reference
    */
   def flatten(
       input: Column,
@@ -199,9 +198,8 @@ object tableFunctions {
         "mode" -> lit(mode)))
 
   /**
-   * Flattens a given array or map type column into individual rows.
-   * The output column(s) in case of array input column is `VALUE`,
-   * and are `KEY` and `VALUE` in case of amp input column.
+   * Flattens a given array or map type column into individual rows. The output column(s) in case of
+   * array input column is `VALUE`, and are `KEY` and `VALUE` in case of amp input column.
    *
    * Example
    * {{{
@@ -216,9 +214,11 @@ object tableFunctions {
    * }}}
    *
    * @since 1.10.0
-   * @param input The expression that will be unseated into rows.
-   *              The expression must be either MapType or ArrayType data.
-   * @return The result Column reference
+   * @param input
+   *   The expression that will be unseated into rows. The expression must be either MapType or
+   *   ArrayType data.
+   * @return
+   *   The result Column reference
    */
   def explode(input: Column): Column = TableFunction("explode").apply(input)
 

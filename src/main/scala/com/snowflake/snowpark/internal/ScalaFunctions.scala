@@ -417,7 +417,8 @@ object ScalaFunctions {
 
   /**
    * Creates a Scala closure of 0 arguments as user-defined function (UDF).
-   * @tparam RT return type of UDF.
+   * @tparam RT
+   *   return type of UDF.
    */
   def _toUdf[RT: TypeTag](func: Function0[RT]): UserDefinedFunction = {
     Vector().foreach(isSupported(_))
@@ -429,7 +430,8 @@ object ScalaFunctions {
 
   /**
    * Creates a Scala closure of 1 arguments as user-defined function (UDF).
-   * @tparam RT return type of UDF.
+   * @tparam RT
+   *   return type of UDF.
    */
   def _toUdf[RT: TypeTag, A1: TypeTag](func: Function1[A1, RT]): UserDefinedFunction = {
     Vector(typeOf[A1]).foreach(isSupported(_))
@@ -441,7 +443,8 @@ object ScalaFunctions {
 
   /**
    * Creates a Scala closure of 2 arguments as user-defined function (UDF).
-   * @tparam RT return type of UDF.
+   * @tparam RT
+   *   return type of UDF.
    */
   def _toUdf[RT: TypeTag, A1: TypeTag, A2: TypeTag](
       func: Function2[A1, A2, RT]): UserDefinedFunction = {
@@ -454,52 +457,53 @@ object ScalaFunctions {
 
   /**
    * Creates a Scala closure of 3 arguments as user-defined function (UDF).
-   * @tparam RT return type of UDF.
+   * @tparam RT
+   *   return type of UDF.
    */
   def _toUdf[RT: TypeTag, A1: TypeTag, A2: TypeTag, A3: TypeTag](
       func: Function3[A1, A2, A3, RT]): UserDefinedFunction = {
     Vector(typeOf[A1], typeOf[A2], typeOf[A3]).foreach(isSupported(_))
     isSupported(typeOf[RT])
     val returnColumn = schemaForWrapper[RT]
-    val inputColumns
-      : Seq[UdfColumnSchema] = schemaForWrapper[A1] :: schemaForWrapper[A2] :: schemaForWrapper[
-      A3] :: Nil
+    val inputColumns: Seq[UdfColumnSchema] =
+      schemaForWrapper[A1] :: schemaForWrapper[A2] :: schemaForWrapper[A3] :: Nil
     UserDefinedFunction(func, returnColumn, inputColumns)
   }
 
   /**
    * Creates a Scala closure of 4 arguments as user-defined function (UDF).
-   * @tparam RT return type of UDF.
+   * @tparam RT
+   *   return type of UDF.
    */
   def _toUdf[RT: TypeTag, A1: TypeTag, A2: TypeTag, A3: TypeTag, A4: TypeTag](
       func: Function4[A1, A2, A3, A4, RT]): UserDefinedFunction = {
     Vector(typeOf[A1], typeOf[A2], typeOf[A3], typeOf[A4]).foreach(isSupported(_))
     isSupported(typeOf[RT])
     val returnColumn = schemaForWrapper[RT]
-    val inputColumns
-      : Seq[UdfColumnSchema] = schemaForWrapper[A1] :: schemaForWrapper[A2] :: schemaForWrapper[
-      A3] :: schemaForWrapper[A4] :: Nil
+    val inputColumns: Seq[UdfColumnSchema] = schemaForWrapper[A1] :: schemaForWrapper[
+      A2] :: schemaForWrapper[A3] :: schemaForWrapper[A4] :: Nil
     UserDefinedFunction(func, returnColumn, inputColumns)
   }
 
   /**
    * Creates a Scala closure of 5 arguments as user-defined function (UDF).
-   * @tparam RT return type of UDF.
+   * @tparam RT
+   *   return type of UDF.
    */
   def _toUdf[RT: TypeTag, A1: TypeTag, A2: TypeTag, A3: TypeTag, A4: TypeTag, A5: TypeTag](
       func: Function5[A1, A2, A3, A4, A5, RT]): UserDefinedFunction = {
     Vector(typeOf[A1], typeOf[A2], typeOf[A3], typeOf[A4], typeOf[A5]).foreach(isSupported(_))
     isSupported(typeOf[RT])
     val returnColumn = schemaForWrapper[RT]
-    val inputColumns
-      : Seq[UdfColumnSchema] = schemaForWrapper[A1] :: schemaForWrapper[A2] :: schemaForWrapper[
-      A3] :: schemaForWrapper[A4] :: schemaForWrapper[A5] :: Nil
+    val inputColumns: Seq[UdfColumnSchema] = schemaForWrapper[A1] :: schemaForWrapper[
+      A2] :: schemaForWrapper[A3] :: schemaForWrapper[A4] :: schemaForWrapper[A5] :: Nil
     UserDefinedFunction(func, returnColumn, inputColumns)
   }
 
   /**
    * Creates a Scala closure of 6 arguments as user-defined function (UDF).
-   * @tparam RT return type of UDF.
+   * @tparam RT
+   *   return type of UDF.
    */
   def _toUdf[
       RT: TypeTag,
@@ -513,15 +517,16 @@ object ScalaFunctions {
       .foreach(isSupported(_))
     isSupported(typeOf[RT])
     val returnColumn = schemaForWrapper[RT]
-    val inputColumns
-      : Seq[UdfColumnSchema] = schemaForWrapper[A1] :: schemaForWrapper[A2] :: schemaForWrapper[
-      A3] :: schemaForWrapper[A4] :: schemaForWrapper[A5] :: schemaForWrapper[A6] :: Nil
+    val inputColumns: Seq[UdfColumnSchema] =
+      schemaForWrapper[A1] :: schemaForWrapper[A2] :: schemaForWrapper[A3] :: schemaForWrapper[
+        A4] :: schemaForWrapper[A5] :: schemaForWrapper[A6] :: Nil
     UserDefinedFunction(func, returnColumn, inputColumns)
   }
 
   /**
    * Creates a Scala closure of 7 arguments as user-defined function (UDF).
-   * @tparam RT return type of UDF.
+   * @tparam RT
+   *   return type of UDF.
    */
   def _toUdf[
       RT: TypeTag,
@@ -536,16 +541,16 @@ object ScalaFunctions {
       .foreach(isSupported(_))
     isSupported(typeOf[RT])
     val returnColumn = schemaForWrapper[RT]
-    val inputColumns
-      : Seq[UdfColumnSchema] = schemaForWrapper[A1] :: schemaForWrapper[A2] :: schemaForWrapper[
-      A3] :: schemaForWrapper[A4] :: schemaForWrapper[A5] :: schemaForWrapper[A6] :: schemaForWrapper[
-      A7] :: Nil
+    val inputColumns: Seq[UdfColumnSchema] =
+      schemaForWrapper[A1] :: schemaForWrapper[A2] :: schemaForWrapper[A3] :: schemaForWrapper[
+        A4] :: schemaForWrapper[A5] :: schemaForWrapper[A6] :: schemaForWrapper[A7] :: Nil
     UserDefinedFunction(func, returnColumn, inputColumns)
   }
 
   /**
    * Creates a Scala closure of 8 arguments as user-defined function (UDF).
-   * @tparam RT return type of UDF.
+   * @tparam RT
+   *   return type of UDF.
    */
   def _toUdf[
       RT: TypeTag,
@@ -568,16 +573,16 @@ object ScalaFunctions {
       typeOf[A8]).foreach(isSupported(_))
     isSupported(typeOf[RT])
     val returnColumn = schemaForWrapper[RT]
-    val inputColumns
-      : Seq[UdfColumnSchema] = schemaForWrapper[A1] :: schemaForWrapper[A2] :: schemaForWrapper[
-      A3] :: schemaForWrapper[A4] :: schemaForWrapper[A5] :: schemaForWrapper[A6] :: schemaForWrapper[
-      A7] :: schemaForWrapper[A8] :: Nil
+    val inputColumns: Seq[UdfColumnSchema] = schemaForWrapper[A1] :: schemaForWrapper[
+      A2] :: schemaForWrapper[A3] :: schemaForWrapper[A4] :: schemaForWrapper[
+      A5] :: schemaForWrapper[A6] :: schemaForWrapper[A7] :: schemaForWrapper[A8] :: Nil
     UserDefinedFunction(func, returnColumn, inputColumns)
   }
 
   /**
    * Creates a Scala closure of 9 arguments as user-defined function (UDF).
-   * @tparam RT return type of UDF.
+   * @tparam RT
+   *   return type of UDF.
    */
   def _toUdf[
       RT: TypeTag,
@@ -589,8 +594,7 @@ object ScalaFunctions {
       A6: TypeTag,
       A7: TypeTag,
       A8: TypeTag,
-      A9: TypeTag](
-      func: Function9[A1, A2, A3, A4, A5, A6, A7, A8, A9, RT]): UserDefinedFunction = {
+      A9: TypeTag](func: Function9[A1, A2, A3, A4, A5, A6, A7, A8, A9, RT]): UserDefinedFunction = {
     Vector(
       typeOf[A1],
       typeOf[A2],
@@ -604,15 +608,16 @@ object ScalaFunctions {
     isSupported(typeOf[RT])
     val returnColumn = schemaForWrapper[RT]
     val inputColumns
-      : Seq[UdfColumnSchema] = schemaForWrapper[A1] :: schemaForWrapper[A2] :: schemaForWrapper[
-      A3] :: schemaForWrapper[A4] :: schemaForWrapper[A5] :: schemaForWrapper[A6] :: schemaForWrapper[
-      A7] :: schemaForWrapper[A8] :: schemaForWrapper[A9] :: Nil
+        : Seq[UdfColumnSchema] = schemaForWrapper[A1] :: schemaForWrapper[A2] :: schemaForWrapper[
+      A3] :: schemaForWrapper[A4] :: schemaForWrapper[A5] :: schemaForWrapper[
+      A6] :: schemaForWrapper[A7] :: schemaForWrapper[A8] :: schemaForWrapper[A9] :: Nil
     UserDefinedFunction(func, returnColumn, inputColumns)
   }
 
   /**
    * Creates a Scala closure of 10 arguments as user-defined function (UDF).
-   * @tparam RT return type of UDF.
+   * @tparam RT
+   *   return type of UDF.
    */
   def _toUdf[
       RT: TypeTag,
@@ -640,16 +645,17 @@ object ScalaFunctions {
       typeOf[A10]).foreach(isSupported(_))
     isSupported(typeOf[RT])
     val returnColumn = schemaForWrapper[RT]
-    val inputColumns
-      : Seq[UdfColumnSchema] = schemaForWrapper[A1] :: schemaForWrapper[A2] :: schemaForWrapper[
-      A3] :: schemaForWrapper[A4] :: schemaForWrapper[A5] :: schemaForWrapper[A6] :: schemaForWrapper[
-      A7] :: schemaForWrapper[A8] :: schemaForWrapper[A9] :: schemaForWrapper[A10] :: Nil
+    val inputColumns: Seq[UdfColumnSchema] =
+      schemaForWrapper[A1] :: schemaForWrapper[A2] :: schemaForWrapper[A3] :: schemaForWrapper[
+        A4] :: schemaForWrapper[A5] :: schemaForWrapper[A6] :: schemaForWrapper[
+        A7] :: schemaForWrapper[A8] :: schemaForWrapper[A9] :: schemaForWrapper[A10] :: Nil
     UserDefinedFunction(func, returnColumn, inputColumns)
   }
 
   /**
    * Creates a Scala closure of 11 arguments as user-defined function (UDF).
-   * @tparam RT return type of UDF.
+   * @tparam RT
+   *   return type of UDF.
    */
   def _toUdf[
       RT: TypeTag,
@@ -679,17 +685,18 @@ object ScalaFunctions {
       typeOf[A11]).foreach(isSupported(_))
     isSupported(typeOf[RT])
     val returnColumn = schemaForWrapper[RT]
-    val inputColumns
-      : Seq[UdfColumnSchema] = schemaForWrapper[A1] :: schemaForWrapper[A2] :: schemaForWrapper[
-      A3] :: schemaForWrapper[A4] :: schemaForWrapper[A5] :: schemaForWrapper[A6] :: schemaForWrapper[
-      A7] :: schemaForWrapper[A8] :: schemaForWrapper[A9] :: schemaForWrapper[A10] :: schemaForWrapper[
-      A11] :: Nil
+    val inputColumns: Seq[UdfColumnSchema] =
+      schemaForWrapper[A1] :: schemaForWrapper[A2] :: schemaForWrapper[A3] :: schemaForWrapper[
+        A4] :: schemaForWrapper[A5] :: schemaForWrapper[A6] :: schemaForWrapper[
+        A7] :: schemaForWrapper[A8] :: schemaForWrapper[A9] :: schemaForWrapper[
+        A10] :: schemaForWrapper[A11] :: Nil
     UserDefinedFunction(func, returnColumn, inputColumns)
   }
 
   /**
    * Creates a Scala closure of 12 arguments as user-defined function (UDF).
-   * @tparam RT return type of UDF.
+   * @tparam RT
+   *   return type of UDF.
    */
   def _toUdf[
       RT: TypeTag,
@@ -705,7 +712,7 @@ object ScalaFunctions {
       A10: TypeTag,
       A11: TypeTag,
       A12: TypeTag](func: Function12[A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, RT])
-    : UserDefinedFunction = {
+      : UserDefinedFunction = {
     Vector(
       typeOf[A1],
       typeOf[A2],
@@ -722,16 +729,17 @@ object ScalaFunctions {
     isSupported(typeOf[RT])
     val returnColumn = schemaForWrapper[RT]
     val inputColumns
-      : Seq[UdfColumnSchema] = schemaForWrapper[A1] :: schemaForWrapper[A2] :: schemaForWrapper[
-      A3] :: schemaForWrapper[A4] :: schemaForWrapper[A5] :: schemaForWrapper[A6] :: schemaForWrapper[
-      A7] :: schemaForWrapper[A8] :: schemaForWrapper[A9] :: schemaForWrapper[A10] :: schemaForWrapper[
-      A11] :: schemaForWrapper[A12] :: Nil
+        : Seq[UdfColumnSchema] = schemaForWrapper[A1] :: schemaForWrapper[A2] :: schemaForWrapper[
+      A3] :: schemaForWrapper[A4] :: schemaForWrapper[A5] :: schemaForWrapper[
+      A6] :: schemaForWrapper[A7] :: schemaForWrapper[A8] :: schemaForWrapper[
+      A9] :: schemaForWrapper[A10] :: schemaForWrapper[A11] :: schemaForWrapper[A12] :: Nil
     UserDefinedFunction(func, returnColumn, inputColumns)
   }
 
   /**
    * Creates a Scala closure of 13 arguments as user-defined function (UDF).
-   * @tparam RT return type of UDF.
+   * @tparam RT
+   *   return type of UDF.
    */
   def _toUdf[
       RT: TypeTag,
@@ -748,7 +756,7 @@ object ScalaFunctions {
       A11: TypeTag,
       A12: TypeTag,
       A13: TypeTag](func: Function13[A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, RT])
-    : UserDefinedFunction = {
+      : UserDefinedFunction = {
     Vector(
       typeOf[A1],
       typeOf[A2],
@@ -765,17 +773,18 @@ object ScalaFunctions {
       typeOf[A13]).foreach(isSupported(_))
     isSupported(typeOf[RT])
     val returnColumn = schemaForWrapper[RT]
-    val inputColumns
-      : Seq[UdfColumnSchema] = schemaForWrapper[A1] :: schemaForWrapper[A2] :: schemaForWrapper[
-      A3] :: schemaForWrapper[A4] :: schemaForWrapper[A5] :: schemaForWrapper[A6] :: schemaForWrapper[
-      A7] :: schemaForWrapper[A8] :: schemaForWrapper[A9] :: schemaForWrapper[A10] :: schemaForWrapper[
-      A11] :: schemaForWrapper[A12] :: schemaForWrapper[A13] :: Nil
+    val inputColumns: Seq[UdfColumnSchema] =
+      schemaForWrapper[A1] :: schemaForWrapper[A2] :: schemaForWrapper[A3] :: schemaForWrapper[
+        A4] :: schemaForWrapper[A5] :: schemaForWrapper[A6] :: schemaForWrapper[
+        A7] :: schemaForWrapper[A8] :: schemaForWrapper[A9] :: schemaForWrapper[
+        A10] :: schemaForWrapper[A11] :: schemaForWrapper[A12] :: schemaForWrapper[A13] :: Nil
     UserDefinedFunction(func, returnColumn, inputColumns)
   }
 
   /**
    * Creates a Scala closure of 14 arguments as user-defined function (UDF).
-   * @tparam RT return type of UDF.
+   * @tparam RT
+   *   return type of UDF.
    */
   def _toUdf[
       RT: TypeTag,
@@ -794,7 +803,7 @@ object ScalaFunctions {
       A13: TypeTag,
       A14: TypeTag](
       func: Function14[A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, RT])
-    : UserDefinedFunction = {
+      : UserDefinedFunction = {
     Vector(
       typeOf[A1],
       typeOf[A2],
@@ -812,17 +821,19 @@ object ScalaFunctions {
       typeOf[A14]).foreach(isSupported(_))
     isSupported(typeOf[RT])
     val returnColumn = schemaForWrapper[RT]
-    val inputColumns
-      : Seq[UdfColumnSchema] = schemaForWrapper[A1] :: schemaForWrapper[A2] :: schemaForWrapper[
-      A3] :: schemaForWrapper[A4] :: schemaForWrapper[A5] :: schemaForWrapper[A6] :: schemaForWrapper[
-      A7] :: schemaForWrapper[A8] :: schemaForWrapper[A9] :: schemaForWrapper[A10] :: schemaForWrapper[
-      A11] :: schemaForWrapper[A12] :: schemaForWrapper[A13] :: schemaForWrapper[A14] :: Nil
+    val inputColumns: Seq[UdfColumnSchema] =
+      schemaForWrapper[A1] :: schemaForWrapper[A2] :: schemaForWrapper[A3] :: schemaForWrapper[
+        A4] :: schemaForWrapper[A5] :: schemaForWrapper[A6] :: schemaForWrapper[
+        A7] :: schemaForWrapper[A8] :: schemaForWrapper[A9] :: schemaForWrapper[
+        A10] :: schemaForWrapper[A11] :: schemaForWrapper[A12] :: schemaForWrapper[
+        A13] :: schemaForWrapper[A14] :: Nil
     UserDefinedFunction(func, returnColumn, inputColumns)
   }
 
   /**
    * Creates a Scala closure of 15 arguments as user-defined function (UDF).
-   * @tparam RT return type of UDF.
+   * @tparam RT
+   *   return type of UDF.
    */
   def _toUdf[
       RT: TypeTag,
@@ -842,7 +853,7 @@ object ScalaFunctions {
       A14: TypeTag,
       A15: TypeTag](
       func: Function15[A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15, RT])
-    : UserDefinedFunction = {
+      : UserDefinedFunction = {
     Vector(
       typeOf[A1],
       typeOf[A2],
@@ -862,17 +873,18 @@ object ScalaFunctions {
     isSupported(typeOf[RT])
     val returnColumn = schemaForWrapper[RT]
     val inputColumns
-      : Seq[UdfColumnSchema] = schemaForWrapper[A1] :: schemaForWrapper[A2] :: schemaForWrapper[
-      A3] :: schemaForWrapper[A4] :: schemaForWrapper[A5] :: schemaForWrapper[A6] :: schemaForWrapper[
-      A7] :: schemaForWrapper[A8] :: schemaForWrapper[A9] :: schemaForWrapper[A10] :: schemaForWrapper[
-      A11] :: schemaForWrapper[A12] :: schemaForWrapper[A13] :: schemaForWrapper[A14] :: schemaForWrapper[
-      A15] :: Nil
+        : Seq[UdfColumnSchema] = schemaForWrapper[A1] :: schemaForWrapper[A2] :: schemaForWrapper[
+      A3] :: schemaForWrapper[A4] :: schemaForWrapper[A5] :: schemaForWrapper[
+      A6] :: schemaForWrapper[A7] :: schemaForWrapper[A8] :: schemaForWrapper[
+      A9] :: schemaForWrapper[A10] :: schemaForWrapper[A11] :: schemaForWrapper[
+      A12] :: schemaForWrapper[A13] :: schemaForWrapper[A14] :: schemaForWrapper[A15] :: Nil
     UserDefinedFunction(func, returnColumn, inputColumns)
   }
 
   /**
    * Creates a Scala closure of 16 arguments as user-defined function (UDF).
-   * @tparam RT return type of UDF.
+   * @tparam RT
+   *   return type of UDF.
    */
   def _toUdf[
       RT: TypeTag,
@@ -893,7 +905,7 @@ object ScalaFunctions {
       A15: TypeTag,
       A16: TypeTag](
       func: Function16[A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15, A16, RT])
-    : UserDefinedFunction = {
+      : UserDefinedFunction = {
     Vector(
       typeOf[A1],
       typeOf[A2],
@@ -913,18 +925,19 @@ object ScalaFunctions {
       typeOf[A16]).foreach(isSupported(_))
     isSupported(typeOf[RT])
     val returnColumn = schemaForWrapper[RT]
-    val inputColumns
-      : Seq[UdfColumnSchema] = schemaForWrapper[A1] :: schemaForWrapper[A2] :: schemaForWrapper[
-      A3] :: schemaForWrapper[A4] :: schemaForWrapper[A5] :: schemaForWrapper[A6] :: schemaForWrapper[
-      A7] :: schemaForWrapper[A8] :: schemaForWrapper[A9] :: schemaForWrapper[A10] :: schemaForWrapper[
-      A11] :: schemaForWrapper[A12] :: schemaForWrapper[A13] :: schemaForWrapper[A14] :: schemaForWrapper[
-      A15] :: schemaForWrapper[A16] :: Nil
+    val inputColumns: Seq[UdfColumnSchema] =
+      schemaForWrapper[A1] :: schemaForWrapper[A2] :: schemaForWrapper[A3] :: schemaForWrapper[
+        A4] :: schemaForWrapper[A5] :: schemaForWrapper[A6] :: schemaForWrapper[
+        A7] :: schemaForWrapper[A8] :: schemaForWrapper[A9] :: schemaForWrapper[
+        A10] :: schemaForWrapper[A11] :: schemaForWrapper[A12] :: schemaForWrapper[
+        A13] :: schemaForWrapper[A14] :: schemaForWrapper[A15] :: schemaForWrapper[A16] :: Nil
     UserDefinedFunction(func, returnColumn, inputColumns)
   }
 
   /**
    * Creates a Scala closure of 17 arguments as user-defined function (UDF).
-   * @tparam RT return type of UDF.
+   * @tparam RT
+   *   return type of UDF.
    */
   def _toUdf[
       RT: TypeTag,
@@ -984,18 +997,20 @@ object ScalaFunctions {
       typeOf[A17]).foreach(isSupported(_))
     isSupported(typeOf[RT])
     val returnColumn = schemaForWrapper[RT]
-    val inputColumns
-      : Seq[UdfColumnSchema] = schemaForWrapper[A1] :: schemaForWrapper[A2] :: schemaForWrapper[
-      A3] :: schemaForWrapper[A4] :: schemaForWrapper[A5] :: schemaForWrapper[A6] :: schemaForWrapper[
-      A7] :: schemaForWrapper[A8] :: schemaForWrapper[A9] :: schemaForWrapper[A10] :: schemaForWrapper[
-      A11] :: schemaForWrapper[A12] :: schemaForWrapper[A13] :: schemaForWrapper[A14] :: schemaForWrapper[
-      A15] :: schemaForWrapper[A16] :: schemaForWrapper[A17] :: Nil
+    val inputColumns: Seq[UdfColumnSchema] =
+      schemaForWrapper[A1] :: schemaForWrapper[A2] :: schemaForWrapper[A3] :: schemaForWrapper[
+        A4] :: schemaForWrapper[A5] :: schemaForWrapper[A6] :: schemaForWrapper[
+        A7] :: schemaForWrapper[A8] :: schemaForWrapper[A9] :: schemaForWrapper[
+        A10] :: schemaForWrapper[A11] :: schemaForWrapper[A12] :: schemaForWrapper[
+        A13] :: schemaForWrapper[A14] :: schemaForWrapper[A15] :: schemaForWrapper[
+        A16] :: schemaForWrapper[A17] :: Nil
     UserDefinedFunction(func, returnColumn, inputColumns)
   }
 
   /**
    * Creates a Scala closure of 18 arguments as user-defined function (UDF).
-   * @tparam RT return type of UDF.
+   * @tparam RT
+   *   return type of UDF.
    */
   def _toUdf[
       RT: TypeTag,
@@ -1059,17 +1074,19 @@ object ScalaFunctions {
     isSupported(typeOf[RT])
     val returnColumn = schemaForWrapper[RT]
     val inputColumns
-      : Seq[UdfColumnSchema] = schemaForWrapper[A1] :: schemaForWrapper[A2] :: schemaForWrapper[
-      A3] :: schemaForWrapper[A4] :: schemaForWrapper[A5] :: schemaForWrapper[A6] :: schemaForWrapper[
-      A7] :: schemaForWrapper[A8] :: schemaForWrapper[A9] :: schemaForWrapper[A10] :: schemaForWrapper[
-      A11] :: schemaForWrapper[A12] :: schemaForWrapper[A13] :: schemaForWrapper[A14] :: schemaForWrapper[
+        : Seq[UdfColumnSchema] = schemaForWrapper[A1] :: schemaForWrapper[A2] :: schemaForWrapper[
+      A3] :: schemaForWrapper[A4] :: schemaForWrapper[A5] :: schemaForWrapper[
+      A6] :: schemaForWrapper[A7] :: schemaForWrapper[A8] :: schemaForWrapper[
+      A9] :: schemaForWrapper[A10] :: schemaForWrapper[A11] :: schemaForWrapper[
+      A12] :: schemaForWrapper[A13] :: schemaForWrapper[A14] :: schemaForWrapper[
       A15] :: schemaForWrapper[A16] :: schemaForWrapper[A17] :: schemaForWrapper[A18] :: Nil
     UserDefinedFunction(func, returnColumn, inputColumns)
   }
 
   /**
    * Creates a Scala closure of 19 arguments as user-defined function (UDF).
-   * @tparam RT return type of UDF.
+   * @tparam RT
+   *   return type of UDF.
    */
   def _toUdf[
       RT: TypeTag,
@@ -1135,19 +1152,20 @@ object ScalaFunctions {
       typeOf[A19]).foreach(isSupported(_))
     isSupported(typeOf[RT])
     val returnColumn = schemaForWrapper[RT]
-    val inputColumns
-      : Seq[UdfColumnSchema] = schemaForWrapper[A1] :: schemaForWrapper[A2] :: schemaForWrapper[
-      A3] :: schemaForWrapper[A4] :: schemaForWrapper[A5] :: schemaForWrapper[A6] :: schemaForWrapper[
-      A7] :: schemaForWrapper[A8] :: schemaForWrapper[A9] :: schemaForWrapper[A10] :: schemaForWrapper[
-      A11] :: schemaForWrapper[A12] :: schemaForWrapper[A13] :: schemaForWrapper[A14] :: schemaForWrapper[
-      A15] :: schemaForWrapper[A16] :: schemaForWrapper[A17] :: schemaForWrapper[A18] :: schemaForWrapper[
-      A19] :: Nil
+    val inputColumns: Seq[UdfColumnSchema] =
+      schemaForWrapper[A1] :: schemaForWrapper[A2] :: schemaForWrapper[A3] :: schemaForWrapper[
+        A4] :: schemaForWrapper[A5] :: schemaForWrapper[A6] :: schemaForWrapper[
+        A7] :: schemaForWrapper[A8] :: schemaForWrapper[A9] :: schemaForWrapper[
+        A10] :: schemaForWrapper[A11] :: schemaForWrapper[A12] :: schemaForWrapper[
+        A13] :: schemaForWrapper[A14] :: schemaForWrapper[A15] :: schemaForWrapper[
+        A16] :: schemaForWrapper[A17] :: schemaForWrapper[A18] :: schemaForWrapper[A19] :: Nil
     UserDefinedFunction(func, returnColumn, inputColumns)
   }
 
   /**
    * Creates a Scala closure of 20 arguments as user-defined function (UDF).
-   * @tparam RT return type of UDF.
+   * @tparam RT
+   *   return type of UDF.
    */
   def _toUdf[
       RT: TypeTag,
@@ -1216,19 +1234,21 @@ object ScalaFunctions {
       typeOf[A20]).foreach(isSupported(_))
     isSupported(typeOf[RT])
     val returnColumn = schemaForWrapper[RT]
-    val inputColumns
-      : Seq[UdfColumnSchema] = schemaForWrapper[A1] :: schemaForWrapper[A2] :: schemaForWrapper[
-      A3] :: schemaForWrapper[A4] :: schemaForWrapper[A5] :: schemaForWrapper[A6] :: schemaForWrapper[
-      A7] :: schemaForWrapper[A8] :: schemaForWrapper[A9] :: schemaForWrapper[A10] :: schemaForWrapper[
-      A11] :: schemaForWrapper[A12] :: schemaForWrapper[A13] :: schemaForWrapper[A14] :: schemaForWrapper[
-      A15] :: schemaForWrapper[A16] :: schemaForWrapper[A17] :: schemaForWrapper[A18] :: schemaForWrapper[
-      A19] :: schemaForWrapper[A20] :: Nil
+    val inputColumns: Seq[UdfColumnSchema] =
+      schemaForWrapper[A1] :: schemaForWrapper[A2] :: schemaForWrapper[A3] :: schemaForWrapper[
+        A4] :: schemaForWrapper[A5] :: schemaForWrapper[A6] :: schemaForWrapper[
+        A7] :: schemaForWrapper[A8] :: schemaForWrapper[A9] :: schemaForWrapper[
+        A10] :: schemaForWrapper[A11] :: schemaForWrapper[A12] :: schemaForWrapper[
+        A13] :: schemaForWrapper[A14] :: schemaForWrapper[A15] :: schemaForWrapper[
+        A16] :: schemaForWrapper[A17] :: schemaForWrapper[A18] :: schemaForWrapper[
+        A19] :: schemaForWrapper[A20] :: Nil
     UserDefinedFunction(func, returnColumn, inputColumns)
   }
 
   /**
    * Creates a Scala closure of 21 arguments as user-defined function (UDF).
-   * @tparam RT return type of UDF.
+   * @tparam RT
+   *   return type of UDF.
    */
   def _toUdf[
       RT: TypeTag,
@@ -1301,18 +1321,20 @@ object ScalaFunctions {
     isSupported(typeOf[RT])
     val returnColumn = schemaForWrapper[RT]
     val inputColumns
-      : Seq[UdfColumnSchema] = schemaForWrapper[A1] :: schemaForWrapper[A2] :: schemaForWrapper[
-      A3] :: schemaForWrapper[A4] :: schemaForWrapper[A5] :: schemaForWrapper[A6] :: schemaForWrapper[
-      A7] :: schemaForWrapper[A8] :: schemaForWrapper[A9] :: schemaForWrapper[A10] :: schemaForWrapper[
-      A11] :: schemaForWrapper[A12] :: schemaForWrapper[A13] :: schemaForWrapper[A14] :: schemaForWrapper[
-      A15] :: schemaForWrapper[A16] :: schemaForWrapper[A17] :: schemaForWrapper[A18] :: schemaForWrapper[
-      A19] :: schemaForWrapper[A20] :: schemaForWrapper[A21] :: Nil
+        : Seq[UdfColumnSchema] = schemaForWrapper[A1] :: schemaForWrapper[A2] :: schemaForWrapper[
+      A3] :: schemaForWrapper[A4] :: schemaForWrapper[A5] :: schemaForWrapper[
+      A6] :: schemaForWrapper[A7] :: schemaForWrapper[A8] :: schemaForWrapper[
+      A9] :: schemaForWrapper[A10] :: schemaForWrapper[A11] :: schemaForWrapper[
+      A12] :: schemaForWrapper[A13] :: schemaForWrapper[A14] :: schemaForWrapper[
+      A15] :: schemaForWrapper[A16] :: schemaForWrapper[A17] :: schemaForWrapper[
+      A18] :: schemaForWrapper[A19] :: schemaForWrapper[A20] :: schemaForWrapper[A21] :: Nil
     UserDefinedFunction(func, returnColumn, inputColumns)
   }
 
   /**
    * Creates a Scala closure of 22 arguments as user-defined function (UDF).
-   * @tparam RT return type of UDF.
+   * @tparam RT
+   *   return type of UDF.
    */
   def _toUdf[
       RT: TypeTag,
@@ -1387,13 +1409,14 @@ object ScalaFunctions {
       typeOf[A22]).foreach(isSupported(_))
     isSupported(typeOf[RT])
     val returnColumn = schemaForWrapper[RT]
-    val inputColumns
-      : Seq[UdfColumnSchema] = schemaForWrapper[A1] :: schemaForWrapper[A2] :: schemaForWrapper[
-      A3] :: schemaForWrapper[A4] :: schemaForWrapper[A5] :: schemaForWrapper[A6] :: schemaForWrapper[
-      A7] :: schemaForWrapper[A8] :: schemaForWrapper[A9] :: schemaForWrapper[A10] :: schemaForWrapper[
-      A11] :: schemaForWrapper[A12] :: schemaForWrapper[A13] :: schemaForWrapper[A14] :: schemaForWrapper[
-      A15] :: schemaForWrapper[A16] :: schemaForWrapper[A17] :: schemaForWrapper[A18] :: schemaForWrapper[
-      A19] :: schemaForWrapper[A20] :: schemaForWrapper[A21] :: schemaForWrapper[A22] :: Nil
+    val inputColumns: Seq[UdfColumnSchema] =
+      schemaForWrapper[A1] :: schemaForWrapper[A2] :: schemaForWrapper[A3] :: schemaForWrapper[
+        A4] :: schemaForWrapper[A5] :: schemaForWrapper[A6] :: schemaForWrapper[
+        A7] :: schemaForWrapper[A8] :: schemaForWrapper[A9] :: schemaForWrapper[
+        A10] :: schemaForWrapper[A11] :: schemaForWrapper[A12] :: schemaForWrapper[
+        A13] :: schemaForWrapper[A14] :: schemaForWrapper[A15] :: schemaForWrapper[
+        A16] :: schemaForWrapper[A17] :: schemaForWrapper[A18] :: schemaForWrapper[
+        A19] :: schemaForWrapper[A20] :: schemaForWrapper[A21] :: schemaForWrapper[A22] :: Nil
     UserDefinedFunction(func, returnColumn, inputColumns)
   }
 
@@ -1604,7 +1627,8 @@ object ScalaFunctions {
 
   /**
    * Creates a Scala closure of 0 arguments as Stored Procedure function (SProc).
-   * @tparam RT return type of UDF.
+   * @tparam RT
+   *   return type of UDF.
    */
   def _toSP[RT: TypeTag](sp: Function1[Session, RT]): StoredProcedure = {
     Vector().foreach(isSupported)
@@ -1616,7 +1640,8 @@ object ScalaFunctions {
 
   /**
    * Creates a Scala closure of 1 arguments as Stored Procedure function (SProc).
-   * @tparam RT return type of UDF.
+   * @tparam RT
+   *   return type of UDF.
    */
   def _toSP[RT: TypeTag, A1: TypeTag](sp: Function2[Session, A1, RT]): StoredProcedure = {
     Vector(typeOf[A1]).foreach(isSupported)
@@ -1628,7 +1653,8 @@ object ScalaFunctions {
 
   /**
    * Creates a Scala closure of 2 arguments as Stored Procedure function (SProc).
-   * @tparam RT return type of UDF.
+   * @tparam RT
+   *   return type of UDF.
    */
   def _toSP[RT: TypeTag, A1: TypeTag, A2: TypeTag](
       sp: Function3[Session, A1, A2, RT]): StoredProcedure = {
@@ -1641,52 +1667,53 @@ object ScalaFunctions {
 
   /**
    * Creates a Scala closure of 3 arguments as Stored Procedure function (SProc).
-   * @tparam RT return type of UDF.
+   * @tparam RT
+   *   return type of UDF.
    */
   def _toSP[RT: TypeTag, A1: TypeTag, A2: TypeTag, A3: TypeTag](
       sp: Function4[Session, A1, A2, A3, RT]): StoredProcedure = {
     Vector(typeOf[A1], typeOf[A2], typeOf[A3]).foreach(isSupported)
     isSupported(typeOf[RT])
     val returnColumn = schemaForWrapper[RT]
-    val inputColumns
-      : Seq[UdfColumnSchema] = schemaForWrapper[A1] :: schemaForWrapper[A2] :: schemaForWrapper[
-      A3] :: Nil
+    val inputColumns: Seq[UdfColumnSchema] =
+      schemaForWrapper[A1] :: schemaForWrapper[A2] :: schemaForWrapper[A3] :: Nil
     StoredProcedure(sp, returnColumn, inputColumns)
   }
 
   /**
    * Creates a Scala closure of 4 arguments as Stored Procedure function (SProc).
-   * @tparam RT return type of UDF.
+   * @tparam RT
+   *   return type of UDF.
    */
   def _toSP[RT: TypeTag, A1: TypeTag, A2: TypeTag, A3: TypeTag, A4: TypeTag](
       sp: Function5[Session, A1, A2, A3, A4, RT]): StoredProcedure = {
     Vector(typeOf[A1], typeOf[A2], typeOf[A3], typeOf[A4]).foreach(isSupported)
     isSupported(typeOf[RT])
     val returnColumn = schemaForWrapper[RT]
-    val inputColumns
-      : Seq[UdfColumnSchema] = schemaForWrapper[A1] :: schemaForWrapper[A2] :: schemaForWrapper[
-      A3] :: schemaForWrapper[A4] :: Nil
+    val inputColumns: Seq[UdfColumnSchema] = schemaForWrapper[A1] :: schemaForWrapper[
+      A2] :: schemaForWrapper[A3] :: schemaForWrapper[A4] :: Nil
     StoredProcedure(sp, returnColumn, inputColumns)
   }
 
   /**
    * Creates a Scala closure of 5 arguments as Stored Procedure function (SProc).
-   * @tparam RT return type of UDF.
+   * @tparam RT
+   *   return type of UDF.
    */
   def _toSP[RT: TypeTag, A1: TypeTag, A2: TypeTag, A3: TypeTag, A4: TypeTag, A5: TypeTag](
       sp: Function6[Session, A1, A2, A3, A4, A5, RT]): StoredProcedure = {
     Vector(typeOf[A1], typeOf[A2], typeOf[A3], typeOf[A4], typeOf[A5]).foreach(isSupported)
     isSupported(typeOf[RT])
     val returnColumn = schemaForWrapper[RT]
-    val inputColumns
-      : Seq[UdfColumnSchema] = schemaForWrapper[A1] :: schemaForWrapper[A2] :: schemaForWrapper[
-      A3] :: schemaForWrapper[A4] :: schemaForWrapper[A5] :: Nil
+    val inputColumns: Seq[UdfColumnSchema] = schemaForWrapper[A1] :: schemaForWrapper[
+      A2] :: schemaForWrapper[A3] :: schemaForWrapper[A4] :: schemaForWrapper[A5] :: Nil
     StoredProcedure(sp, returnColumn, inputColumns)
   }
 
   /**
    * Creates a Scala closure of 6 arguments as Stored Procedure function (SProc).
-   * @tparam RT return type of UDF.
+   * @tparam RT
+   *   return type of UDF.
    */
   def _toSP[
       RT: TypeTag,
@@ -1700,15 +1727,16 @@ object ScalaFunctions {
       .foreach(isSupported)
     isSupported(typeOf[RT])
     val returnColumn = schemaForWrapper[RT]
-    val inputColumns
-      : Seq[UdfColumnSchema] = schemaForWrapper[A1] :: schemaForWrapper[A2] :: schemaForWrapper[
-      A3] :: schemaForWrapper[A4] :: schemaForWrapper[A5] :: schemaForWrapper[A6] :: Nil
+    val inputColumns: Seq[UdfColumnSchema] =
+      schemaForWrapper[A1] :: schemaForWrapper[A2] :: schemaForWrapper[A3] :: schemaForWrapper[
+        A4] :: schemaForWrapper[A5] :: schemaForWrapper[A6] :: Nil
     StoredProcedure(sp, returnColumn, inputColumns)
   }
 
   /**
    * Creates a Scala closure of 7 arguments as Stored Procedure function (SProc).
-   * @tparam RT return type of UDF.
+   * @tparam RT
+   *   return type of UDF.
    */
   def _toSP[
       RT: TypeTag,
@@ -1723,16 +1751,16 @@ object ScalaFunctions {
       .foreach(isSupported)
     isSupported(typeOf[RT])
     val returnColumn = schemaForWrapper[RT]
-    val inputColumns
-      : Seq[UdfColumnSchema] = schemaForWrapper[A1] :: schemaForWrapper[A2] :: schemaForWrapper[
-      A3] :: schemaForWrapper[A4] :: schemaForWrapper[A5] :: schemaForWrapper[A6] :: schemaForWrapper[
-      A7] :: Nil
+    val inputColumns: Seq[UdfColumnSchema] =
+      schemaForWrapper[A1] :: schemaForWrapper[A2] :: schemaForWrapper[A3] :: schemaForWrapper[
+        A4] :: schemaForWrapper[A5] :: schemaForWrapper[A6] :: schemaForWrapper[A7] :: Nil
     StoredProcedure(sp, returnColumn, inputColumns)
   }
 
   /**
    * Creates a Scala closure of 8 arguments as Stored Procedure function (SProc).
-   * @tparam RT return type of UDF.
+   * @tparam RT
+   *   return type of UDF.
    */
   def _toSP[
       RT: TypeTag,
@@ -1743,8 +1771,7 @@ object ScalaFunctions {
       A5: TypeTag,
       A6: TypeTag,
       A7: TypeTag,
-      A8: TypeTag](
-      sp: Function9[Session, A1, A2, A3, A4, A5, A6, A7, A8, RT]): StoredProcedure = {
+      A8: TypeTag](sp: Function9[Session, A1, A2, A3, A4, A5, A6, A7, A8, RT]): StoredProcedure = {
     Vector(
       typeOf[A1],
       typeOf[A2],
@@ -1756,16 +1783,16 @@ object ScalaFunctions {
       typeOf[A8]).foreach(isSupported)
     isSupported(typeOf[RT])
     val returnColumn = schemaForWrapper[RT]
-    val inputColumns
-      : Seq[UdfColumnSchema] = schemaForWrapper[A1] :: schemaForWrapper[A2] :: schemaForWrapper[
-      A3] :: schemaForWrapper[A4] :: schemaForWrapper[A5] :: schemaForWrapper[A6] :: schemaForWrapper[
-      A7] :: schemaForWrapper[A8] :: Nil
+    val inputColumns: Seq[UdfColumnSchema] = schemaForWrapper[A1] :: schemaForWrapper[
+      A2] :: schemaForWrapper[A3] :: schemaForWrapper[A4] :: schemaForWrapper[
+      A5] :: schemaForWrapper[A6] :: schemaForWrapper[A7] :: schemaForWrapper[A8] :: Nil
     StoredProcedure(sp, returnColumn, inputColumns)
   }
 
   /**
    * Creates a Scala closure of 9 arguments as Stored Procedure function (SProc).
-   * @tparam RT return type of UDF.
+   * @tparam RT
+   *   return type of UDF.
    */
   def _toSP[
       RT: TypeTag,
@@ -1792,15 +1819,16 @@ object ScalaFunctions {
     isSupported(typeOf[RT])
     val returnColumn = schemaForWrapper[RT]
     val inputColumns
-      : Seq[UdfColumnSchema] = schemaForWrapper[A1] :: schemaForWrapper[A2] :: schemaForWrapper[
-      A3] :: schemaForWrapper[A4] :: schemaForWrapper[A5] :: schemaForWrapper[A6] :: schemaForWrapper[
-      A7] :: schemaForWrapper[A8] :: schemaForWrapper[A9] :: Nil
+        : Seq[UdfColumnSchema] = schemaForWrapper[A1] :: schemaForWrapper[A2] :: schemaForWrapper[
+      A3] :: schemaForWrapper[A4] :: schemaForWrapper[A5] :: schemaForWrapper[
+      A6] :: schemaForWrapper[A7] :: schemaForWrapper[A8] :: schemaForWrapper[A9] :: Nil
     StoredProcedure(sp, returnColumn, inputColumns)
   }
 
   /**
    * Creates a Scala closure of 10 arguments as Stored Procedure function (SProc).
-   * @tparam RT return type of UDF.
+   * @tparam RT
+   *   return type of UDF.
    */
   def _toSP[
       RT: TypeTag,
@@ -1828,16 +1856,17 @@ object ScalaFunctions {
       typeOf[A10]).foreach(isSupported)
     isSupported(typeOf[RT])
     val returnColumn = schemaForWrapper[RT]
-    val inputColumns
-      : Seq[UdfColumnSchema] = schemaForWrapper[A1] :: schemaForWrapper[A2] :: schemaForWrapper[
-      A3] :: schemaForWrapper[A4] :: schemaForWrapper[A5] :: schemaForWrapper[A6] :: schemaForWrapper[
-      A7] :: schemaForWrapper[A8] :: schemaForWrapper[A9] :: schemaForWrapper[A10] :: Nil
+    val inputColumns: Seq[UdfColumnSchema] =
+      schemaForWrapper[A1] :: schemaForWrapper[A2] :: schemaForWrapper[A3] :: schemaForWrapper[
+        A4] :: schemaForWrapper[A5] :: schemaForWrapper[A6] :: schemaForWrapper[
+        A7] :: schemaForWrapper[A8] :: schemaForWrapper[A9] :: schemaForWrapper[A10] :: Nil
     StoredProcedure(sp, returnColumn, inputColumns)
   }
 
   /**
    * Creates a Scala closure of 11 arguments as Stored Procedure function (SProc).
-   * @tparam RT return type of UDF.
+   * @tparam RT
+   *   return type of UDF.
    */
   def _toSP[
       RT: TypeTag,
@@ -1852,7 +1881,7 @@ object ScalaFunctions {
       A9: TypeTag,
       A10: TypeTag,
       A11: TypeTag](sp: Function12[Session, A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, RT])
-    : StoredProcedure = {
+      : StoredProcedure = {
     Vector(
       typeOf[A1],
       typeOf[A2],
@@ -1867,17 +1896,18 @@ object ScalaFunctions {
       typeOf[A11]).foreach(isSupported)
     isSupported(typeOf[RT])
     val returnColumn = schemaForWrapper[RT]
-    val inputColumns
-      : Seq[UdfColumnSchema] = schemaForWrapper[A1] :: schemaForWrapper[A2] :: schemaForWrapper[
-      A3] :: schemaForWrapper[A4] :: schemaForWrapper[A5] :: schemaForWrapper[A6] :: schemaForWrapper[
-      A7] :: schemaForWrapper[A8] :: schemaForWrapper[A9] :: schemaForWrapper[A10] :: schemaForWrapper[
-      A11] :: Nil
+    val inputColumns: Seq[UdfColumnSchema] =
+      schemaForWrapper[A1] :: schemaForWrapper[A2] :: schemaForWrapper[A3] :: schemaForWrapper[
+        A4] :: schemaForWrapper[A5] :: schemaForWrapper[A6] :: schemaForWrapper[
+        A7] :: schemaForWrapper[A8] :: schemaForWrapper[A9] :: schemaForWrapper[
+        A10] :: schemaForWrapper[A11] :: Nil
     StoredProcedure(sp, returnColumn, inputColumns)
   }
 
   /**
    * Creates a Scala closure of 12 arguments as Stored Procedure function (SProc).
-   * @tparam RT return type of UDF.
+   * @tparam RT
+   *   return type of UDF.
    */
   def _toSP[
       RT: TypeTag,
@@ -1892,9 +1922,8 @@ object ScalaFunctions {
       A9: TypeTag,
       A10: TypeTag,
       A11: TypeTag,
-      A12: TypeTag](
-      sp: Function13[Session, A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, RT])
-    : StoredProcedure = {
+      A12: TypeTag](sp: Function13[Session, A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, RT])
+      : StoredProcedure = {
     Vector(
       typeOf[A1],
       typeOf[A2],
@@ -1911,16 +1940,17 @@ object ScalaFunctions {
     isSupported(typeOf[RT])
     val returnColumn = schemaForWrapper[RT]
     val inputColumns
-      : Seq[UdfColumnSchema] = schemaForWrapper[A1] :: schemaForWrapper[A2] :: schemaForWrapper[
-      A3] :: schemaForWrapper[A4] :: schemaForWrapper[A5] :: schemaForWrapper[A6] :: schemaForWrapper[
-      A7] :: schemaForWrapper[A8] :: schemaForWrapper[A9] :: schemaForWrapper[A10] :: schemaForWrapper[
-      A11] :: schemaForWrapper[A12] :: Nil
+        : Seq[UdfColumnSchema] = schemaForWrapper[A1] :: schemaForWrapper[A2] :: schemaForWrapper[
+      A3] :: schemaForWrapper[A4] :: schemaForWrapper[A5] :: schemaForWrapper[
+      A6] :: schemaForWrapper[A7] :: schemaForWrapper[A8] :: schemaForWrapper[
+      A9] :: schemaForWrapper[A10] :: schemaForWrapper[A11] :: schemaForWrapper[A12] :: Nil
     StoredProcedure(sp, returnColumn, inputColumns)
   }
 
   /**
    * Creates a Scala closure of 13 arguments as Stored Procedure function (SProc).
-   * @tparam RT return type of UDF.
+   * @tparam RT
+   *   return type of UDF.
    */
   def _toSP[
       RT: TypeTag,
@@ -1938,7 +1968,7 @@ object ScalaFunctions {
       A12: TypeTag,
       A13: TypeTag](
       sp: Function14[Session, A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, RT])
-    : StoredProcedure = {
+      : StoredProcedure = {
     Vector(
       typeOf[A1],
       typeOf[A2],
@@ -1955,17 +1985,18 @@ object ScalaFunctions {
       typeOf[A13]).foreach(isSupported)
     isSupported(typeOf[RT])
     val returnColumn = schemaForWrapper[RT]
-    val inputColumns
-      : Seq[UdfColumnSchema] = schemaForWrapper[A1] :: schemaForWrapper[A2] :: schemaForWrapper[
-      A3] :: schemaForWrapper[A4] :: schemaForWrapper[A5] :: schemaForWrapper[A6] :: schemaForWrapper[
-      A7] :: schemaForWrapper[A8] :: schemaForWrapper[A9] :: schemaForWrapper[A10] :: schemaForWrapper[
-      A11] :: schemaForWrapper[A12] :: schemaForWrapper[A13] :: Nil
+    val inputColumns: Seq[UdfColumnSchema] =
+      schemaForWrapper[A1] :: schemaForWrapper[A2] :: schemaForWrapper[A3] :: schemaForWrapper[
+        A4] :: schemaForWrapper[A5] :: schemaForWrapper[A6] :: schemaForWrapper[
+        A7] :: schemaForWrapper[A8] :: schemaForWrapper[A9] :: schemaForWrapper[
+        A10] :: schemaForWrapper[A11] :: schemaForWrapper[A12] :: schemaForWrapper[A13] :: Nil
     StoredProcedure(sp, returnColumn, inputColumns)
   }
 
   /**
    * Creates a Scala closure of 14 arguments as Stored Procedure function (SProc).
-   * @tparam RT return type of UDF.
+   * @tparam RT
+   *   return type of UDF.
    */
   def _toSP[
       RT: TypeTag,
@@ -1984,7 +2015,7 @@ object ScalaFunctions {
       A13: TypeTag,
       A14: TypeTag](
       sp: Function15[Session, A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, RT])
-    : StoredProcedure = {
+      : StoredProcedure = {
     Vector(
       typeOf[A1],
       typeOf[A2],
@@ -2002,17 +2033,19 @@ object ScalaFunctions {
       typeOf[A14]).foreach(isSupported)
     isSupported(typeOf[RT])
     val returnColumn = schemaForWrapper[RT]
-    val inputColumns
-      : Seq[UdfColumnSchema] = schemaForWrapper[A1] :: schemaForWrapper[A2] :: schemaForWrapper[
-      A3] :: schemaForWrapper[A4] :: schemaForWrapper[A5] :: schemaForWrapper[A6] :: schemaForWrapper[
-      A7] :: schemaForWrapper[A8] :: schemaForWrapper[A9] :: schemaForWrapper[A10] :: schemaForWrapper[
-      A11] :: schemaForWrapper[A12] :: schemaForWrapper[A13] :: schemaForWrapper[A14] :: Nil
+    val inputColumns: Seq[UdfColumnSchema] =
+      schemaForWrapper[A1] :: schemaForWrapper[A2] :: schemaForWrapper[A3] :: schemaForWrapper[
+        A4] :: schemaForWrapper[A5] :: schemaForWrapper[A6] :: schemaForWrapper[
+        A7] :: schemaForWrapper[A8] :: schemaForWrapper[A9] :: schemaForWrapper[
+        A10] :: schemaForWrapper[A11] :: schemaForWrapper[A12] :: schemaForWrapper[
+        A13] :: schemaForWrapper[A14] :: Nil
     StoredProcedure(sp, returnColumn, inputColumns)
   }
 
   /**
    * Creates a Scala closure of 15 arguments as Stored Procedure function (SProc).
-   * @tparam RT return type of UDF.
+   * @tparam RT
+   *   return type of UDF.
    */
   def _toSP[
       RT: TypeTag,
@@ -2031,24 +2064,8 @@ object ScalaFunctions {
       A13: TypeTag,
       A14: TypeTag,
       A15: TypeTag](
-      sp: Function16[
-        Session,
-        A1,
-        A2,
-        A3,
-        A4,
-        A5,
-        A6,
-        A7,
-        A8,
-        A9,
-        A10,
-        A11,
-        A12,
-        A13,
-        A14,
-        A15,
-        RT]): StoredProcedure = {
+      sp: Function16[Session, A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15, RT])
+      : StoredProcedure = {
     Vector(
       typeOf[A1],
       typeOf[A2],
@@ -2068,17 +2085,18 @@ object ScalaFunctions {
     isSupported(typeOf[RT])
     val returnColumn = schemaForWrapper[RT]
     val inputColumns
-      : Seq[UdfColumnSchema] = schemaForWrapper[A1] :: schemaForWrapper[A2] :: schemaForWrapper[
-      A3] :: schemaForWrapper[A4] :: schemaForWrapper[A5] :: schemaForWrapper[A6] :: schemaForWrapper[
-      A7] :: schemaForWrapper[A8] :: schemaForWrapper[A9] :: schemaForWrapper[A10] :: schemaForWrapper[
-      A11] :: schemaForWrapper[A12] :: schemaForWrapper[A13] :: schemaForWrapper[A14] :: schemaForWrapper[
-      A15] :: Nil
+        : Seq[UdfColumnSchema] = schemaForWrapper[A1] :: schemaForWrapper[A2] :: schemaForWrapper[
+      A3] :: schemaForWrapper[A4] :: schemaForWrapper[A5] :: schemaForWrapper[
+      A6] :: schemaForWrapper[A7] :: schemaForWrapper[A8] :: schemaForWrapper[
+      A9] :: schemaForWrapper[A10] :: schemaForWrapper[A11] :: schemaForWrapper[
+      A12] :: schemaForWrapper[A13] :: schemaForWrapper[A14] :: schemaForWrapper[A15] :: Nil
     StoredProcedure(sp, returnColumn, inputColumns)
   }
 
   /**
    * Creates a Scala closure of 16 arguments as Stored Procedure function (SProc).
-   * @tparam RT return type of UDF.
+   * @tparam RT
+   *   return type of UDF.
    */
   def _toSP[
       RT: TypeTag,
@@ -2136,18 +2154,19 @@ object ScalaFunctions {
       typeOf[A16]).foreach(isSupported)
     isSupported(typeOf[RT])
     val returnColumn = schemaForWrapper[RT]
-    val inputColumns
-      : Seq[UdfColumnSchema] = schemaForWrapper[A1] :: schemaForWrapper[A2] :: schemaForWrapper[
-      A3] :: schemaForWrapper[A4] :: schemaForWrapper[A5] :: schemaForWrapper[A6] :: schemaForWrapper[
-      A7] :: schemaForWrapper[A8] :: schemaForWrapper[A9] :: schemaForWrapper[A10] :: schemaForWrapper[
-      A11] :: schemaForWrapper[A12] :: schemaForWrapper[A13] :: schemaForWrapper[A14] :: schemaForWrapper[
-      A15] :: schemaForWrapper[A16] :: Nil
+    val inputColumns: Seq[UdfColumnSchema] =
+      schemaForWrapper[A1] :: schemaForWrapper[A2] :: schemaForWrapper[A3] :: schemaForWrapper[
+        A4] :: schemaForWrapper[A5] :: schemaForWrapper[A6] :: schemaForWrapper[
+        A7] :: schemaForWrapper[A8] :: schemaForWrapper[A9] :: schemaForWrapper[
+        A10] :: schemaForWrapper[A11] :: schemaForWrapper[A12] :: schemaForWrapper[
+        A13] :: schemaForWrapper[A14] :: schemaForWrapper[A15] :: schemaForWrapper[A16] :: Nil
     StoredProcedure(sp, returnColumn, inputColumns)
   }
 
   /**
    * Creates a Scala closure of 17 arguments as Stored Procedure function (SProc).
-   * @tparam RT return type of UDF.
+   * @tparam RT
+   *   return type of UDF.
    */
   def _toSP[
       RT: TypeTag,
@@ -2208,18 +2227,20 @@ object ScalaFunctions {
       typeOf[A17]).foreach(isSupported)
     isSupported(typeOf[RT])
     val returnColumn = schemaForWrapper[RT]
-    val inputColumns
-      : Seq[UdfColumnSchema] = schemaForWrapper[A1] :: schemaForWrapper[A2] :: schemaForWrapper[
-      A3] :: schemaForWrapper[A4] :: schemaForWrapper[A5] :: schemaForWrapper[A6] :: schemaForWrapper[
-      A7] :: schemaForWrapper[A8] :: schemaForWrapper[A9] :: schemaForWrapper[A10] :: schemaForWrapper[
-      A11] :: schemaForWrapper[A12] :: schemaForWrapper[A13] :: schemaForWrapper[A14] :: schemaForWrapper[
-      A15] :: schemaForWrapper[A16] :: schemaForWrapper[A17] :: Nil
+    val inputColumns: Seq[UdfColumnSchema] =
+      schemaForWrapper[A1] :: schemaForWrapper[A2] :: schemaForWrapper[A3] :: schemaForWrapper[
+        A4] :: schemaForWrapper[A5] :: schemaForWrapper[A6] :: schemaForWrapper[
+        A7] :: schemaForWrapper[A8] :: schemaForWrapper[A9] :: schemaForWrapper[
+        A10] :: schemaForWrapper[A11] :: schemaForWrapper[A12] :: schemaForWrapper[
+        A13] :: schemaForWrapper[A14] :: schemaForWrapper[A15] :: schemaForWrapper[
+        A16] :: schemaForWrapper[A17] :: Nil
     StoredProcedure(sp, returnColumn, inputColumns)
   }
 
   /**
    * Creates a Scala closure of 18 arguments as Stored Procedure function (SProc).
-   * @tparam RT return type of UDF.
+   * @tparam RT
+   *   return type of UDF.
    */
   def _toSP[
       RT: TypeTag,
@@ -2284,17 +2305,19 @@ object ScalaFunctions {
     isSupported(typeOf[RT])
     val returnColumn = schemaForWrapper[RT]
     val inputColumns
-      : Seq[UdfColumnSchema] = schemaForWrapper[A1] :: schemaForWrapper[A2] :: schemaForWrapper[
-      A3] :: schemaForWrapper[A4] :: schemaForWrapper[A5] :: schemaForWrapper[A6] :: schemaForWrapper[
-      A7] :: schemaForWrapper[A8] :: schemaForWrapper[A9] :: schemaForWrapper[A10] :: schemaForWrapper[
-      A11] :: schemaForWrapper[A12] :: schemaForWrapper[A13] :: schemaForWrapper[A14] :: schemaForWrapper[
+        : Seq[UdfColumnSchema] = schemaForWrapper[A1] :: schemaForWrapper[A2] :: schemaForWrapper[
+      A3] :: schemaForWrapper[A4] :: schemaForWrapper[A5] :: schemaForWrapper[
+      A6] :: schemaForWrapper[A7] :: schemaForWrapper[A8] :: schemaForWrapper[
+      A9] :: schemaForWrapper[A10] :: schemaForWrapper[A11] :: schemaForWrapper[
+      A12] :: schemaForWrapper[A13] :: schemaForWrapper[A14] :: schemaForWrapper[
       A15] :: schemaForWrapper[A16] :: schemaForWrapper[A17] :: schemaForWrapper[A18] :: Nil
     StoredProcedure(sp, returnColumn, inputColumns)
   }
 
   /**
    * Creates a Scala closure of 19 arguments as Stored Procedure function (SProc).
-   * @tparam RT return type of UDF.
+   * @tparam RT
+   *   return type of UDF.
    */
   def _toSP[
       RT: TypeTag,
@@ -2361,19 +2384,20 @@ object ScalaFunctions {
       typeOf[A19]).foreach(isSupported)
     isSupported(typeOf[RT])
     val returnColumn = schemaForWrapper[RT]
-    val inputColumns
-      : Seq[UdfColumnSchema] = schemaForWrapper[A1] :: schemaForWrapper[A2] :: schemaForWrapper[
-      A3] :: schemaForWrapper[A4] :: schemaForWrapper[A5] :: schemaForWrapper[A6] :: schemaForWrapper[
-      A7] :: schemaForWrapper[A8] :: schemaForWrapper[A9] :: schemaForWrapper[A10] :: schemaForWrapper[
-      A11] :: schemaForWrapper[A12] :: schemaForWrapper[A13] :: schemaForWrapper[A14] :: schemaForWrapper[
-      A15] :: schemaForWrapper[A16] :: schemaForWrapper[A17] :: schemaForWrapper[A18] :: schemaForWrapper[
-      A19] :: Nil
+    val inputColumns: Seq[UdfColumnSchema] =
+      schemaForWrapper[A1] :: schemaForWrapper[A2] :: schemaForWrapper[A3] :: schemaForWrapper[
+        A4] :: schemaForWrapper[A5] :: schemaForWrapper[A6] :: schemaForWrapper[
+        A7] :: schemaForWrapper[A8] :: schemaForWrapper[A9] :: schemaForWrapper[
+        A10] :: schemaForWrapper[A11] :: schemaForWrapper[A12] :: schemaForWrapper[
+        A13] :: schemaForWrapper[A14] :: schemaForWrapper[A15] :: schemaForWrapper[
+        A16] :: schemaForWrapper[A17] :: schemaForWrapper[A18] :: schemaForWrapper[A19] :: Nil
     StoredProcedure(sp, returnColumn, inputColumns)
   }
 
   /**
    * Creates a Scala closure of 20 arguments as Stored Procedure function (SProc).
-   * @tparam RT return type of UDF.
+   * @tparam RT
+   *   return type of UDF.
    */
   def _toSP[
       RT: TypeTag,
@@ -2443,19 +2467,21 @@ object ScalaFunctions {
       typeOf[A20]).foreach(isSupported)
     isSupported(typeOf[RT])
     val returnColumn = schemaForWrapper[RT]
-    val inputColumns
-      : Seq[UdfColumnSchema] = schemaForWrapper[A1] :: schemaForWrapper[A2] :: schemaForWrapper[
-      A3] :: schemaForWrapper[A4] :: schemaForWrapper[A5] :: schemaForWrapper[A6] :: schemaForWrapper[
-      A7] :: schemaForWrapper[A8] :: schemaForWrapper[A9] :: schemaForWrapper[A10] :: schemaForWrapper[
-      A11] :: schemaForWrapper[A12] :: schemaForWrapper[A13] :: schemaForWrapper[A14] :: schemaForWrapper[
-      A15] :: schemaForWrapper[A16] :: schemaForWrapper[A17] :: schemaForWrapper[A18] :: schemaForWrapper[
-      A19] :: schemaForWrapper[A20] :: Nil
+    val inputColumns: Seq[UdfColumnSchema] =
+      schemaForWrapper[A1] :: schemaForWrapper[A2] :: schemaForWrapper[A3] :: schemaForWrapper[
+        A4] :: schemaForWrapper[A5] :: schemaForWrapper[A6] :: schemaForWrapper[
+        A7] :: schemaForWrapper[A8] :: schemaForWrapper[A9] :: schemaForWrapper[
+        A10] :: schemaForWrapper[A11] :: schemaForWrapper[A12] :: schemaForWrapper[
+        A13] :: schemaForWrapper[A14] :: schemaForWrapper[A15] :: schemaForWrapper[
+        A16] :: schemaForWrapper[A17] :: schemaForWrapper[A18] :: schemaForWrapper[
+        A19] :: schemaForWrapper[A20] :: Nil
     StoredProcedure(sp, returnColumn, inputColumns)
   }
 
   /**
    * Creates a Scala closure of 21 arguments as Stored Procedure function (SProc).
-   * @tparam RT return type of UDF.
+   * @tparam RT
+   *   return type of UDF.
    */
   def _toSP[
       RT: TypeTag,
@@ -2529,12 +2555,13 @@ object ScalaFunctions {
     isSupported(typeOf[RT])
     val returnColumn = schemaForWrapper[RT]
     val inputColumns
-      : Seq[UdfColumnSchema] = schemaForWrapper[A1] :: schemaForWrapper[A2] :: schemaForWrapper[
-      A3] :: schemaForWrapper[A4] :: schemaForWrapper[A5] :: schemaForWrapper[A6] :: schemaForWrapper[
-      A7] :: schemaForWrapper[A8] :: schemaForWrapper[A9] :: schemaForWrapper[A10] :: schemaForWrapper[
-      A11] :: schemaForWrapper[A12] :: schemaForWrapper[A13] :: schemaForWrapper[A14] :: schemaForWrapper[
-      A15] :: schemaForWrapper[A16] :: schemaForWrapper[A17] :: schemaForWrapper[A18] :: schemaForWrapper[
-      A19] :: schemaForWrapper[A20] :: schemaForWrapper[A21] :: Nil
+        : Seq[UdfColumnSchema] = schemaForWrapper[A1] :: schemaForWrapper[A2] :: schemaForWrapper[
+      A3] :: schemaForWrapper[A4] :: schemaForWrapper[A5] :: schemaForWrapper[
+      A6] :: schemaForWrapper[A7] :: schemaForWrapper[A8] :: schemaForWrapper[
+      A9] :: schemaForWrapper[A10] :: schemaForWrapper[A11] :: schemaForWrapper[
+      A12] :: schemaForWrapper[A13] :: schemaForWrapper[A14] :: schemaForWrapper[
+      A15] :: schemaForWrapper[A16] :: schemaForWrapper[A17] :: schemaForWrapper[
+      A18] :: schemaForWrapper[A19] :: schemaForWrapper[A20] :: schemaForWrapper[A21] :: Nil
     StoredProcedure(sp, returnColumn, inputColumns)
   }
 
@@ -2559,7 +2586,7 @@ object ScalaFunctions {
       } else {
         m.getName.equals(processFuncName) && m.getParameterCount == argCount &&
         m.getParameterTypes.map(_.getCanonicalName).exists(!_.equals("java.lang.Object"))
-    })
+      })
     if (methods.length != 1) {
       throw ErrorMessage.UDF_CANNOT_INFER_MULTIPLE_PROCESS(argCount)
     }

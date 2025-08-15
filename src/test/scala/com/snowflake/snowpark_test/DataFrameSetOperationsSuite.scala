@@ -249,7 +249,7 @@ class DataFrameSetOperationsSuite extends TestData {
       (new Date(3), BigDecimal.valueOf(4), new Timestamp(5))).toDF("date", "decimal", "timestamp")
 
     val widenTypedRows =
-      Seq((new Timestamp(2), 10.5D, (new Timestamp(10)).toString))
+      Seq((new Timestamp(2), 10.5d, (new Timestamp(10)).toString))
         .toDF("date", "decimal", "timestamp")
 
     dates.union(widenTypedRows).collect()

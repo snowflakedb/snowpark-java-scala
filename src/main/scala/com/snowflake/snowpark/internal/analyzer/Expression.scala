@@ -119,12 +119,12 @@ private[snowpark] case class FlattenFunction(
     FlattenFunction(analyzedChildren.head, path, outer, recursive, mode)
 }
 
-private[snowpark] case class TableFunction(funcName: String, args: Seq[Expression])
+private[snowpark] case class TableFunctionEx(funcName: String, args: Seq[Expression])
     extends TableFunctionExpression {
   override def children: Seq[Expression] = args
 
   override protected def createAnalyzedExpression(analyzedChildren: Seq[Expression]): Expression =
-    TableFunction(funcName, analyzedChildren)
+    TableFunctionEx(funcName, analyzedChildren)
 }
 
 private[snowpark] case class NamedArgumentsTableFunction(
@@ -134,14 +134,13 @@ private[snowpark] case class NamedArgumentsTableFunction(
   override def children: Seq[Expression] = args.values.toSeq
 
   // do not use this function, override analyze function directly
-  override protected def createAnalyzedExpression(
-      analyzedChildren: Seq[Expression]): Expression = {
+  override protected def createAnalyzedExpression(analyzedChildren: Seq[Expression]): Expression = {
     throw new UnsupportedOperationException
   }
 
   override def analyze(func: Expression => Expression): Expression = {
-    val analyzedArgs = args.map {
-      case (key, value) => key -> value.analyze(func)
+    val analyzedArgs = args.map { case (key, value) =>
+      key -> value.analyze(func)
     }
     if (analyzedArgs == args) {
       func(this)
@@ -151,13 +150,11 @@ private[snowpark] case class NamedArgumentsTableFunction(
   }
 }
 
-private[snowpark] case class GroupingSetsExpression(args: Seq[Set[Expression]])
-    extends Expression {
+private[snowpark] case class GroupingSetsExpression(args: Seq[Set[Expression]]) extends Expression {
   override def children: Seq[Expression] = args.flatten
 
   // do not use this function, override analyze function directly
-  override protected def createAnalyzedExpression(
-      analyzedChildren: Seq[Expression]): Expression = {
+  override protected def createAnalyzedExpression(analyzedChildren: Seq[Expression]): Expression = {
     throw new UnsupportedOperationException
   }
 
@@ -191,15 +188,14 @@ private[snowpark] case class UpdateMergeExpression(
     Seq(condition.toSeq, assignments.keys, assignments.values).flatten
 
   // do not use this function, override analyze function directly
-  override protected def createAnalyzedExpression(
-      analyzedChildren: Seq[Expression]): Expression = {
+  override protected def createAnalyzedExpression(analyzedChildren: Seq[Expression]): Expression = {
     throw new UnsupportedOperationException
   }
 
   override def analyze(func: Expression => Expression): Expression = {
     val analyzedCondition = condition.map(_.analyze(func))
-    val analyzedAssignments = assignments.map {
-      case (key, value) => key.analyze(func) -> value.analyze(func)
+    val analyzedAssignments = assignments.map { case (key, value) =>
+      key.analyze(func) -> value.analyze(func)
     }
     if (analyzedAssignments == assignments && analyzedCondition == condition) {
       func(this)
@@ -226,8 +222,7 @@ private[snowpark] case class InsertMergeExpression(
     condition.toSeq ++ keys ++ values
 
   // do not use this function, override analyze function directly
-  override protected def createAnalyzedExpression(
-      analyzedChildren: Seq[Expression]): Expression = {
+  override protected def createAnalyzedExpression(analyzedChildren: Seq[Expression]): Expression = {
     throw new UnsupportedOperationException
   }
 
@@ -273,14 +268,13 @@ private[snowpark] case class CaseWhen(
     branches.flatMap(x => Seq(x._1, x._2)) ++ elseValue.toSeq
 
   // do not use this function, override analyze function directly
-  override protected def createAnalyzedExpression(
-      analyzedChildren: Seq[Expression]): Expression = {
+  override protected def createAnalyzedExpression(analyzedChildren: Seq[Expression]): Expression = {
     throw new UnsupportedOperationException
   }
 
   override def analyze(func: Expression => Expression): Expression = {
-    val analyzedBranches = branches.map {
-      case (key, value) => key.analyze(func) -> value.analyze(func)
+    val analyzedBranches = branches.map { case (key, value) =>
+      key.analyze(func) -> value.analyze(func)
     }
     val analyzedElseValue = elseValue.map(_.analyze(func))
     if (branches == analyzedBranches && elseValue == analyzedElseValue) {

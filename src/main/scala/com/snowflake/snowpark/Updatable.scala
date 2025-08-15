@@ -10,11 +10,13 @@ private[snowpark] object Updatable extends Logging {
     new Updatable(tableName, session, DataFrame.methodChainCache.value)
 
   private[snowpark] def getUpdateResult(rows: Array[Row]): UpdateResult =
-    UpdateResult(rows.head.getLong(0), if (rows.head.length == 1) {
-      0
-    } else {
-      rows.head.getLong(1)
-    })
+    UpdateResult(
+      rows.head.getLong(0),
+      if (rows.head.length == 1) {
+        0
+      } else {
+        rows.head.getLong(1)
+      })
 
   private[snowpark] def getDeleteResult(rows: Array[Row]): DeleteResult =
     DeleteResult(rows.head.getLong(0))
@@ -36,13 +38,13 @@ case class UpdateResult(rowsUpdated: Long, multiJoinedRowsUpdated: Long)
 case class DeleteResult(rowsDeleted: Long)
 
 /**
- * Represents a lazily-evaluated Updatable. It extends [[DataFrame]] so all
- * [[DataFrame]] operations can be applied on it.
+ * Represents a lazily-evaluated Updatable. It extends [[DataFrame]] so all [[DataFrame]] operations
+ * can be applied on it.
  *
  * '''Creating an Updatable'''
  *
- * You can create an Updatable by calling [[Session.table(name* session.table]] with the name of
- * the Updatable.
+ * You can create an Updatable by calling [[Session.table(name* session.table]] with the name of the
+ * Updatable.
  *
  * Example 1: Creating a Updatable by reading a table.
  * {{{
@@ -82,7 +84,8 @@ class Updatable private[snowpark] (
    *
    * @group actions
    * @since 0.7.0
-   * @return [[UpdateResult]]
+   * @return
+   *   [[UpdateResult]]
    */
   def update(assignments: Map[Column, Column]): UpdateResult = action("update") {
     val newDf = getUpdateDataFrameWithColumn(assignments, None, None)
@@ -108,7 +111,8 @@ class Updatable private[snowpark] (
    *
    * @group actions
    * @since 0.7.0
-   * @return [[UpdateResult]]
+   * @return
+   *   [[UpdateResult]]
    */
   def update[T: ClassTag](assignments: Map[String, Column]): UpdateResult = action("update") {
     val newDf = getUpdateDataFrameWithString(assignments, None, None)
@@ -117,8 +121,8 @@ class Updatable private[snowpark] (
 
   /**
    * Updates all rows in the updatable that satisfy specified condition with specified assignments
-   * and returns a [[UpdateResult]], representing number of rows modified and number of
-   * multi-joined rows modified.
+   * and returns a [[UpdateResult]], representing number of rows modified and number of multi-joined
+   * rows modified.
    *
    * For example:
    * {{{
@@ -129,7 +133,8 @@ class Updatable private[snowpark] (
    *
    * @group actions
    * @since 0.7.0
-   * @return [[UpdateResult]]
+   * @return
+   *   [[UpdateResult]]
    */
   def update(assignments: Map[Column, Column], condition: Column): UpdateResult =
     action("update") {
@@ -139,8 +144,8 @@ class Updatable private[snowpark] (
 
   /**
    * Updates all rows in the updatable that satisfy specified condition with specified assignments
-   * and returns a [[UpdateResult]], representing number of rows modified and number of
-   * multi-joined rows modified.
+   * and returns a [[UpdateResult]], representing number of rows modified and number of multi-joined
+   * rows modified.
    *
    * For example:
    * {{{
@@ -151,7 +156,8 @@ class Updatable private[snowpark] (
    *
    * @group actions
    * @since 0.7.0
-   * @return [[UpdateResult]]
+   * @return
+   *   [[UpdateResult]]
    */
   def update[T: ClassTag](assignments: Map[String, Column], condition: Column): UpdateResult =
     action("update") {
@@ -173,7 +179,8 @@ class Updatable private[snowpark] (
    *
    * @group actions
    * @since 0.7.0
-   * @return [[UpdateResult]]
+   * @return
+   *   [[UpdateResult]]
    */
   def update(
       assignments: Map[Column, Column],
@@ -197,7 +204,8 @@ class Updatable private[snowpark] (
    *
    * @group actions
    * @since 0.7.0
-   * @return [[UpdateResult]]
+   * @return
+   *   [[UpdateResult]]
    */
   def update[T: ClassTag](
       assignments: Map[String, Column],
@@ -242,7 +250,8 @@ class Updatable private[snowpark] (
    *
    * @group actions
    * @since 0.7.0
-   * @return [[DeleteResult]]
+   * @return
+   *   [[DeleteResult]]
    */
   def delete(): DeleteResult = action("delete") {
     val newDf = getDeleteDataFrame(None, None)
@@ -262,7 +271,8 @@ class Updatable private[snowpark] (
    *
    * @group actions
    * @since 0.7.0
-   * @return [[DeleteResult]]
+   * @return
+   *   [[DeleteResult]]
    */
   def delete(condition: Column): DeleteResult = action("delete") {
     val newDf = getDeleteDataFrame(Some(condition), None)
@@ -283,7 +293,8 @@ class Updatable private[snowpark] (
    *
    * @group actions
    * @since 0.7.0
-   * @return [[DeleteResult]]
+   * @return
+   *   [[DeleteResult]]
    */
   def delete(condition: Column, sourceData: DataFrame): DeleteResult = action("delete") {
     val newDf = getDeleteDataFrame(Some(condition), Some(sourceData))
@@ -302,20 +313,21 @@ class Updatable private[snowpark] (
   }
 
   /**
-   * Initiates a merge action for this updatable with [[DataFrame]] source on specified
-   * join expression. Returns a [[MergeBuilder]] which provides APIs to define merge clauses.
+   * Initiates a merge action for this updatable with [[DataFrame]] source on specified join
+   * expression. Returns a [[MergeBuilder]] which provides APIs to define merge clauses.
    *
    * For example:
    * {{{
    *   target.merge(source, target("id") === source("id"))
    * }}}
    *
-   * Initiates a merge action for target with source where the expression target.id = source.id
-   * is used to join target and source.
+   * Initiates a merge action for target with source where the expression target.id = source.id is
+   * used to join target and source.
    *
    * @group actions
    * @since 0.7.0
-   * @return [[MergeBuilder]]
+   * @return
+   *   [[MergeBuilder]]
    */
   def merge(source: DataFrame, joinExpr: Column): MergeBuilder = {
     session.conn.telemetry.reportActionMerge()
@@ -332,7 +344,8 @@ class Updatable private[snowpark] (
   /**
    * Returns a clone of this Updatable.
    *
-   * @return A [[Updatable]]
+   * @return
+   *   A [[Updatable]]
    * @since 0.10.0
    * @group basic
    */
@@ -341,8 +354,8 @@ class Updatable private[snowpark] (
   }
 
   /**
-   * Returns an [[UpdatableAsyncActor]] object that can be used to execute
-   * Updatable actions asynchronously.
+   * Returns an [[UpdatableAsyncActor]] object that can be used to execute Updatable actions
+   * asynchronously.
    *
    * Example:
    * {{{
@@ -355,7 +368,8 @@ class Updatable private[snowpark] (
    * }}}
    *
    * @since 0.11.0
-   * @return A [[UpdatableAsyncActor]] object
+   * @return
+   *   A [[UpdatableAsyncActor]] object
    */
   override def async: UpdatableAsyncActor = new UpdatableAsyncActor(this)
 
@@ -375,8 +389,9 @@ class UpdatableAsyncActor private[snowpark] (updatable: Updatable)
   /**
    * Executes `Updatable.update` asynchronously.
    *
-   * @return A [[TypedAsyncJob]] object that you can use to check the status of the action
-   *         and get the results.
+   * @return
+   *   A [[TypedAsyncJob]] object that you can use to check the status of the action and get the
+   *   results.
    * @since 0.11.0
    */
   def update(assignments: Map[Column, Column]): TypedAsyncJob[UpdateResult] =
@@ -388,8 +403,9 @@ class UpdatableAsyncActor private[snowpark] (updatable: Updatable)
   /**
    * Executes `Updatable.update` asynchronously.
    *
-   * @return A [[TypedAsyncJob]] object that you can use to check the status of the action
-   *         and get the results.
+   * @return
+   *   A [[TypedAsyncJob]] object that you can use to check the status of the action and get the
+   *   results.
    * @since 0.11.0
    */
   def update[T: ClassTag](assignments: Map[String, Column]): TypedAsyncJob[UpdateResult] =
@@ -401,8 +417,9 @@ class UpdatableAsyncActor private[snowpark] (updatable: Updatable)
   /**
    * Executes `Updatable.update` asynchronously.
    *
-   * @return A [[TypedAsyncJob]] object that you can use to check the status of the action
-   *         and get the results.
+   * @return
+   *   A [[TypedAsyncJob]] object that you can use to check the status of the action and get the
+   *   results.
    * @since 0.11.0
    */
   def update(assignments: Map[Column, Column], condition: Column): TypedAsyncJob[UpdateResult] =
@@ -414,8 +431,9 @@ class UpdatableAsyncActor private[snowpark] (updatable: Updatable)
   /**
    * Executes `Updatable.update` asynchronously.
    *
-   * @return A [[TypedAsyncJob]] object that you can use to check the status of the action
-   *         and get the results.
+   * @return
+   *   A [[TypedAsyncJob]] object that you can use to check the status of the action and get the
+   *   results.
    * @since 0.11.0
    */
   def update[T: ClassTag](
@@ -429,8 +447,9 @@ class UpdatableAsyncActor private[snowpark] (updatable: Updatable)
   /**
    * Executes `Updatable.update` asynchronously.
    *
-   * @return A [[TypedAsyncJob]] object that you can use to check the status of the action
-   *         and get the results.
+   * @return
+   *   A [[TypedAsyncJob]] object that you can use to check the status of the action and get the
+   *   results.
    * @since 0.11.0
    */
   def update(
@@ -445,8 +464,9 @@ class UpdatableAsyncActor private[snowpark] (updatable: Updatable)
   /**
    * Executes `Updatable.update` asynchronously.
    *
-   * @return A [[TypedAsyncJob]] object that you can use to check the status of the action
-   *         and get the results.
+   * @return
+   *   A [[TypedAsyncJob]] object that you can use to check the status of the action and get the
+   *   results.
    * @since 0.11.0
    */
   def update[T: ClassTag](
@@ -461,8 +481,9 @@ class UpdatableAsyncActor private[snowpark] (updatable: Updatable)
   /**
    * Executes `Updatable.delete` asynchronously.
    *
-   * @return A [[TypedAsyncJob]] object that you can use to check the status of the action
-   *         and get the results.
+   * @return
+   *   A [[TypedAsyncJob]] object that you can use to check the status of the action and get the
+   *   results.
    * @since 0.11.0
    */
   def delete(): TypedAsyncJob[DeleteResult] = action("delete") {
@@ -473,8 +494,9 @@ class UpdatableAsyncActor private[snowpark] (updatable: Updatable)
   /**
    * Executes `Updatable.delete` asynchronously.
    *
-   * @return A [[TypedAsyncJob]] object that you can use to check the status of the action
-   *         and get the results.
+   * @return
+   *   A [[TypedAsyncJob]] object that you can use to check the status of the action and get the
+   *   results.
    * @since 0.11.0
    */
   def delete(condition: Column): TypedAsyncJob[DeleteResult] = action("delete") {
@@ -485,8 +507,9 @@ class UpdatableAsyncActor private[snowpark] (updatable: Updatable)
   /**
    * Executes `Updatable.delete` asynchronously.
    *
-   * @return A [[TypedAsyncJob]] object that you can use to check the status of the action
-   *         and get the results.
+   * @return
+   *   A [[TypedAsyncJob]] object that you can use to check the status of the action and get the
+   *   results.
    * @since 0.11.0
    */
   def delete(condition: Column, sourceData: DataFrame): TypedAsyncJob[DeleteResult] =

@@ -5,13 +5,12 @@ import com.snowflake.snowpark.internal.analyzer.Expression
 import com.snowflake.snowpark.internal.{SnowflakeUDF, UdfColumnSchema}
 
 /**
- * Encapsulates a user defined lambda or function that is
- * returned by [[UDFRegistration.registerTemporary[RT](name* UDFRegistration.registerTemporary]]
- * or by
+ * Encapsulates a user defined lambda or function that is returned by
+ * [[UDFRegistration.registerTemporary[RT](name* UDFRegistration.registerTemporary]] or by
  * [[com.snowflake.snowpark.functions.udf[RT](* com.snowflake.snowpark.functions.udf]].
  *
- * Use [[UserDefinedFunction!.apply UserDefinedFunction.apply]] to generate [[Column]]
- * expressions from an instance.
+ * Use [[UserDefinedFunction!.apply UserDefinedFunction.apply]] to generate [[Column]] expressions
+ * from an instance.
  * {{{
  *   import com.snowflake.snowpark.functions._
  *   val myUdf = udf((x: Int, y: String) => y + x)

@@ -125,18 +125,12 @@ class StoredProcedureSuite extends SNTestBase {
 
   test("multiple input types") {
     val sp = session.sproc.registerTemporary(
-      (
-          _: Session,
-          num1: Int,
-          num2: Long,
-          num3: Short,
-          num4: Float,
-          num5: Double,
-          bool: Boolean) => {
-        val num = num1 + num2 + num3
-        val float = (num4 + num5).ceil
-        s"$num, $float, $bool"
-      })
+      (_: Session, num1: Int, num2: Long, num3: Short, num4: Float, num5: Double, bool: Boolean) =>
+        {
+          val num = num1 + num2 + num3
+          val float = (num4 + num5).ceil
+          s"$num, $float, $bool"
+        })
     checkAnswer(
       session.storedProcedure(sp, 1, 2L, 3.toShort, 4.4f, 5.5, false),
       Seq(Row(s"6, 10.0, false")))
@@ -273,8 +267,7 @@ class StoredProcedureSuite extends SNTestBase {
       createStage(stageName, isTemporary = false)
       val sp = session.sproc.registerPermanent(
         spName,
-        (_: Session, num1: Int, num2: Int, num3: Int, num4: Int) =>
-          num1 + num2 + num3 + num4 + 100,
+        (_: Session, num1: Int, num2: Int, num3: Int, num4: Int) => num1 + num2 + num3 + num4 + 100,
         stageName,
         isCallerMode = true)
       checkAnswer(session.storedProcedure(sp, 1, 2, 3, 4), Seq(Row(110)))
@@ -330,15 +323,8 @@ class StoredProcedureSuite extends SNTestBase {
       createStage(stageName, isTemporary = false)
       val sp = session.sproc.registerPermanent(
         spName,
-        (
-            _: Session,
-            num1: Int,
-            num2: Int,
-            num3: Int,
-            num4: Int,
-            num5: Int,
-            num6: Int,
-            num7: Int) => num1 + num2 + num3 + num4 + num5 + num6 + num7 + 100,
+        (_: Session, num1: Int, num2: Int, num3: Int, num4: Int, num5: Int, num6: Int, num7: Int) =>
+          num1 + num2 + num3 + num4 + num5 + num6 + num7 + 100,
         stageName,
         isCallerMode = true)
       checkAnswer(session.storedProcedure(sp, 1, 2, 3, 4, 5, 6, 7), Seq(Row(128)))
@@ -462,9 +448,7 @@ class StoredProcedureSuite extends SNTestBase {
         stageName,
         isCallerMode = true)
       checkAnswer(session.storedProcedure(sp, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11), Seq(Row(166)))
-      checkAnswer(
-        session.storedProcedure(spName, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11),
-        Seq(Row(166)))
+      checkAnswer(session.storedProcedure(spName, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11), Seq(Row(166)))
     } finally {
       dropStage(stageName)
       session
@@ -498,17 +482,14 @@ class StoredProcedureSuite extends SNTestBase {
             num10 + num11 + num12 + 100,
         stageName,
         isCallerMode = true)
-      checkAnswer(
-        session.storedProcedure(sp, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12),
-        Seq(Row(178)))
+      checkAnswer(session.storedProcedure(sp, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12), Seq(Row(178)))
       checkAnswer(
         session.storedProcedure(spName, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12),
         Seq(Row(178)))
     } finally {
       dropStage(stageName)
       session
-        .sql(
-          s"drop procedure if exists $spName (INT,INT,INT,INT,INT,INT,INT,INT,INT,INT,INT,INT)")
+        .sql(s"drop procedure if exists $spName (INT,INT,INT,INT,INT,INT,INT,INT,INT,INT,INT,INT)")
         .show()
     }
   }
@@ -1449,26 +1430,8 @@ println(s"""
       num1 + num2 + num3 + num4 + num5 + num6 + num7 + num8 + num9 +
         num10 + num11 + num12 + num13 + num14 + num15 + num16 + num17 + num18 + 100
     val sp = session.sproc.registerTemporary(func)
-    val result = session.sproc.runLocally(
-      func,
-      1,
-      2,
-      3,
-      4,
-      5,
-      6,
-      7,
-      8,
-      9,
-      10,
-      11,
-      12,
-      13,
-      14,
-      15,
-      16,
-      17,
-      18)
+    val result =
+      session.sproc.runLocally(func, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18)
     assert(result == 271)
     checkAnswer(
       session.storedProcedure(sp, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18),
@@ -1578,28 +1541,8 @@ println(s"""
       20)
     assert(result == 310)
     checkAnswer(
-      session.storedProcedure(
-        sp,
-        1,
-        2,
-        3,
-        4,
-        5,
-        6,
-        7,
-        8,
-        9,
-        10,
-        11,
-        12,
-        13,
-        14,
-        15,
-        16,
-        17,
-        18,
-        19,
-        20),
+      session
+        .storedProcedure(sp, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20),
       Seq(Row(result)))
   }
 
@@ -1830,8 +1773,7 @@ println(s"""
           num7: Int,
           num8: Int,
           num9: Int,
-          num10: Int) =>
-        num1 + num2 + num3 + num4 + num5 + num6 + num7 + num8 + num9 + num10 + 100)
+          num10: Int) => num1 + num2 + num3 + num4 + num5 + num6 + num7 + num8 + num9 + num10 + 100)
     checkAnswer(session.storedProcedure(sp, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10), Seq(Row(155)))
     checkAnswer(session.storedProcedure(name, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10), Seq(Row(155)))
   }
@@ -1878,9 +1820,7 @@ println(s"""
           num12: Int) =>
         num1 + num2 + num3 + num4 + num5 + num6 + num7 + num8 + num9 + num10 + num11 + num12 + 100)
     checkAnswer(session.storedProcedure(sp, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12), Seq(Row(178)))
-    checkAnswer(
-      session.storedProcedure(name, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12),
-      Seq(Row(178)))
+    checkAnswer(session.storedProcedure(name, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12), Seq(Row(178)))
   }
 
   test("named temporary: 13 args", JavaStoredProcExclude) {
@@ -2140,28 +2080,8 @@ println(s"""
           num10 + num11 + num12 + num13 + num14 + num15 + num16 + num17 +
           num18 + num19 + num20 + 100)
     checkAnswer(
-      session.storedProcedure(
-        sp,
-        1,
-        2,
-        3,
-        4,
-        5,
-        6,
-        7,
-        8,
-        9,
-        10,
-        11,
-        12,
-        13,
-        14,
-        15,
-        16,
-        17,
-        18,
-        19,
-        20),
+      session
+        .storedProcedure(sp, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20),
       Seq(Row(310)))
     checkAnswer(
       session.storedProcedure(

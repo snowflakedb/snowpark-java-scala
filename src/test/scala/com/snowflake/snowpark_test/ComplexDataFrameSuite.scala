@@ -8,10 +8,7 @@ trait ComplexDataFrameSuite extends SNTestBase {
   val tableName: String = randomName()
   val tmpStageName: String = randomStageName()
   private val userSchema: StructType = StructType(
-    Seq(
-      StructField("a", IntegerType),
-      StructField("b", StringType),
-      StructField("c", DoubleType)))
+    Seq(StructField("a", IntegerType), StructField("b", StringType), StructField("c", DoubleType)))
 
   override def beforeAll: Unit = {
     super.beforeAll()

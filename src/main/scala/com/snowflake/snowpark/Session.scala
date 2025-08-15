@@ -7,7 +7,7 @@ import java.util.{Properties, Map => JMap, Set => JSet}
 import java.util.concurrent.{ConcurrentHashMap, ForkJoinPool, ForkJoinWorkerThread}
 import com.snowflake.snowpark.internal.analyzer._
 import com.snowflake.snowpark.internal._
-import com.snowflake.snowpark.internal.analyzer.{TableFunction => TFunction}
+import com.snowflake.snowpark.internal.analyzer.{TableFunctionEx => TFunction}
 import com.snowflake.snowpark.types._
 import com.snowflake.snowpark.functions._
 import com.snowflake.snowpark.internal.ErrorMessage.{
@@ -28,14 +28,13 @@ import scala.collection.JavaConverters._
 import scala.reflect.runtime.universe.TypeTag
 
 /**
- *
  * Establishes a connection with a Snowflake database and provides methods for creating DataFrames
  * and accessing objects for working with files in stages.
  *
  * When you create a {@code Session} object, you provide configuration settings to establish a
  * connection with a Snowflake database (e.g. the URL for the account, a user name, etc.). You can
- * specify these settings in a configuration file or in a Map that associates configuration
- * setting names with values.
+ * specify these settings in a configuration file or in a Map that associates configuration setting
+ * names with values.
  *
  * To create a Session from a file:
  * {{{
@@ -89,15 +88,15 @@ class Session private (private[snowpark] val conn: ServerConnection) extends Log
        | "os.name" : "${Utils.OSName}",
        | "jdbc.version" : "${SnowflakeDriver.implementVersion}",
        | "snowpark.library" : "${Utils.escapePath(
-         UDFClassPath.snowparkJar.location.getOrElse("snowpark library not found"))}",
+        UDFClassPath.snowparkJar.location.getOrElse("snowpark library not found"))}",
        | "scala.library" : "${Utils.escapePath(
-         UDFClassPath
-           .getPathForClass(classOf[scala.Product])
-           .getOrElse("Scala library not found"))}",
+        UDFClassPath
+          .getPathForClass(classOf[scala.Product])
+          .getOrElse("Scala library not found"))}",
        | "jdbc.library" : "${Utils.escapePath(
-         UDFClassPath
-           .getPathForClass(classOf[net.snowflake.client.jdbc.SnowflakeDriver])
-           .getOrElse("JDBC library not found"))}"
+        UDFClassPath
+          .getPathForClass(classOf[net.snowflake.client.jdbc.SnowflakeDriver])
+          .getOrElse("JDBC library not found"))}"
        |}""".stripMargin
 
   // report session created
@@ -158,7 +157,8 @@ class Session private (private[snowpark] val conn: ServerConnection) extends Log
    * Returns the list of URLs for all the dependencies that were added for user-defined functions
    * (UDFs). This list includes any JAR files that were added automatically by the library.
    *
-   * @return Set[URI]
+   * @return
+   *   Set[URI]
    * @since 0.1.0
    */
   def getDependencies: collection.Set[URI] = {
@@ -196,28 +196,29 @@ class Session private (private[snowpark] val conn: ServerConnection) extends Log
 
   /**
    * Returns the JDBC
-   * [[https://docs.snowflake.com/en/user-guide/jdbc-api.html#object-connection Connection]]
-   * object used for the connection to the Snowflake database.
+   * [[https://docs.snowflake.com/en/user-guide/jdbc-api.html#object-connection Connection]] object
+   * used for the connection to the Snowflake database.
    *
-   * @return JDBC Connection object
+   * @return
+   *   JDBC Connection object
    */
   def jdbcConnection: Connection = conn.connection
 
   /**
    * Registers a file in stage or a local file as a dependency of a user-defined function (UDF).
    *
-   * The local file can be a JAR file, a directory, or any other file resource.
-   * If you pass the path to a local file to {@code addDependency}, the Snowpark library uploads
-   * the file to a temporary stage and imports the file when executing a UDF.
+   * The local file can be a JAR file, a directory, or any other file resource. If you pass the path
+   * to a local file to {@code addDependency} , the Snowpark library uploads the file to a temporary
+   * stage and imports the file when executing a UDF.
    *
-   * If you pass the path to a file in a stage to {@code addDependency}, the file is included in
+   * If you pass the path to a file in a stage to {@code addDependency} , the file is included in
    * the imports when executing a UDF.
    *
    * Note that in most cases, you don't need to add the Snowpark JAR file and the JAR file (or
    * directory) of the currently running application as dependencies. The Snowpark library
    * automatically attempts to detect and upload these JAR files. However, if this automatic
    * detection fails, the Snowpark library reports this in an error message, and you must add these
-   * JAR files explicitly by calling {@code addDependency}.
+   * JAR files explicitly by calling {@code addDependency} .
    *
    * The following example demonstrates how to add dependencies on local files and files in a stage:
    *
@@ -228,7 +229,8 @@ class Session private (private[snowpark] val conn: ServerConnection) extends Log
    *   session.addDependency("./resource.xml")
    * }}}
    * @since 0.1.0
-   * @param path Path to a local directory, local file, or file in a stage.
+   * @param path
+   *   Path to a local directory, local file, or file in a stage.
    */
   def addDependency(path: String): Unit = {
     val trimmedPath = path.trim
@@ -254,7 +256,8 @@ class Session private (private[snowpark] val conn: ServerConnection) extends Log
   /**
    * Removes a path from the set of dependencies.
    * @since 0.1.0
-   * @param path Path to a local directory, local file, or file in a stage.
+   * @param path
+   *   Path to a local directory, local file, or file in a stage.
    */
   def removeDependency(path: String): Unit = {
     val trimmedPath = path.trim
@@ -267,7 +270,8 @@ class Session private (private[snowpark] val conn: ServerConnection) extends Log
 
   /**
    * Adds a server side JVM package as a dependency of a user-defined function (UDF).
-   * @param packageName Name of the package, formatted as `groupName:packageName:version`
+   * @param packageName
+   *   Name of the package, formatted as `groupName:packageName:version`
    */
   private[snowpark] def addPackage(packageName: String): Unit = {
     packageNames.add(packageName.trim.toLowerCase())
@@ -275,7 +279,8 @@ class Session private (private[snowpark] val conn: ServerConnection) extends Log
 
   /**
    * Removes a server side JVM package from the set of dependencies.
-   * @param packageName Name of the package
+   * @param packageName
+   *   Name of the package
    */
   private[snowpark] def removePackage(packageName: String): Unit = {
     packageNames.remove(packageName.trim.toLowerCase())
@@ -283,7 +288,8 @@ class Session private (private[snowpark] val conn: ServerConnection) extends Log
 
   /**
    * List server supported JVM packages
-   * @return Set of supported package names
+   * @return
+   *   Set of supported package names
    */
   private[snowpark] def listPackages(): Set[String] = serverPackages
 
@@ -292,10 +298,11 @@ class Session private (private[snowpark] val conn: ServerConnection) extends Log
    * session.
    *
    * If not set, the default value of query tag is the Snowpark library call and the class and
-   * method in your code that invoked the query (e.g.
-   * `com.snowflake.snowpark.DataFrame.collect Main$.main(Main.scala:18)`).
+   * method in your code that invoked the query (e.g. `com.snowflake.snowpark.DataFrame.collect
+   * Main$.main(Main.scala:18)`).
    *
-   * @param queryTag String to use as the query tag for this session.
+   * @param queryTag
+   *   String to use as the query tag for this session.
    * @since 0.1.0
    */
   def setQueryTag(queryTag: String): Unit = synchronized {
@@ -306,8 +313,8 @@ class Session private (private[snowpark] val conn: ServerConnection) extends Log
    * Unset query_tag parameter for this session.
    *
    * If not set, the default value of query tag is the Snowpark library call and the class and
-   * method in your code that invoked the query (e.g.
-   * `com.snowflake.snowpark.DataFrame.collect Main$.main(Main.scala:18)`).
+   * method in your code that invoked the query (e.g. `com.snowflake.snowpark.DataFrame.collect
+   * Main$.main(Main.scala:18)`).
    *
    * @since 0.10.0
    */
@@ -351,10 +358,11 @@ class Session private (private[snowpark] val conn: ServerConnection) extends Log
    *   {"key1":"value1"}
    * }}}
    *
-   * @param queryTag A JSON encoded string that provides updates to the current query tag.
-   * @throws SnowparkClientException If the provided query tag or the query tag of the current
-   *                                 session are not valid JSON strings; or if it could not
-   *                                 serialize the query tag into a JSON string.
+   * @param queryTag
+   *   A JSON encoded string that provides updates to the current query tag.
+   * @throws SnowparkClientException
+   *   If the provided query tag or the query tag of the current session are not valid JSON strings;
+   *   or if it could not serialize the query tag into a JSON string.
    * @since 1.13.0
    */
   def updateQueryTag(queryTag: String): Unit = synchronized {
@@ -383,9 +391,11 @@ class Session private (private[snowpark] val conn: ServerConnection) extends Log
   /**
    * Attempts to parse a JSON-encoded string into a [[scala.collection.immutable.Map]].
    *
-   * @param jsonString The JSON-encoded string to parse.
-   * @return An `Option` containing the `Map` if the parsing of the JSON string was
-   *         successful, or `None` otherwise.
+   * @param jsonString
+   *   The JSON-encoded string to parse.
+   * @return
+   *   An `Option` containing the `Map` if the parsing of the JSON string was successful, or `None`
+   *   otherwise.
    */
   private def parseJsonString(jsonString: String): Option[Map[String, Any]] = {
     Utils.jsonToMap(jsonString)
@@ -394,9 +404,11 @@ class Session private (private[snowpark] val conn: ServerConnection) extends Log
   /**
    * Attempts to convert a [[scala.collection.immutable.Map]] into a JSON-encoded string.
    *
-   * @param map The `Map` to convert.
-   * @return An `Option` containing the JSON-encoded string if the conversion was successful,
-   *         or `None` otherwise.
+   * @param map
+   *   The `Map` to convert.
+   * @return
+   *   An `Option` containing the JSON-encoded string if the conversion was successful, or `None`
+   *   otherwise.
    */
   private def toJsonString(map: Map[String, Any]): Option[String] = {
     Utils.mapToJson(map)
@@ -461,20 +473,12 @@ class Session private (private[snowpark] val conn: ServerConnection) extends Log
   }
 
   /**
-   * the format of file name on stage is
-   * stage/prefix/file
+   * the format of file name on stage is stage/prefix/file
    *
-   * stage: case insensitive, no quote
-   * for example:
-   * stage -> stage
-   * STAGE -> stage
-   * "stage" -> stage
-   * "STAGE" -> stage
-   * "sta/ge" -> sta/ge
+   * stage: case insensitive, no quote for example: stage -> stage STAGE -> stage "stage" -> stage
+   * "STAGE" -> stage "sta/ge" -> sta/ge
    *
-   * prefix: case sensitive
-   * file: case sensitive
-   *
+   * prefix: case sensitive file: case sensitive
    */
   private[snowpark] def listFilesInStage(stageLocation: String): Set[String] = {
     val normalized = Utils.normalizeStageLocation(stageLocation)
@@ -490,12 +494,13 @@ class Session private (private[snowpark] val conn: ServerConnection) extends Log
   /**
    * Returns an Updatable that points to the specified table.
    *
-   * {@code name} can be a fully qualified identifier and must conform to the
-   * rules for a Snowflake identifier.
+   * {@code name} can be a fully qualified identifier and must conform to the rules for a Snowflake
+   * identifier.
    *
-   * @param name Table name that is either a fully qualified name
-   *             or a name in the current database/schema.
-   * @return A [[Updatable]]
+   * @param name
+   *   Table name that is either a fully qualified name or a name in the current database/schema.
+   * @return
+   *   A [[Updatable]]
    * @since 0.1.0
    */
   def table(name: String): Updatable = {
@@ -506,10 +511,11 @@ class Session private (private[snowpark] val conn: ServerConnection) extends Log
   /**
    * Returns an Updatable that points to the specified table.
    *
-   * @param multipartIdentifier A sequence of strings that specify the database name, schema name,
-   *                            and table name (e.g.
-   *                            {@code Seq("database_name", "schema_name", "table_name")}).
-   * @return A [[Updatable]]
+   * @param multipartIdentifier
+   *   A sequence of strings that specify the database name, schema name, and table name (e.g.
+   *   {@code Seq("database_name", "schema_name", "table_name")} ).
+   * @return
+   *   A [[Updatable]]
    * @since 0.1.0
    */
   // [[<database name>.]<schema name>.]<table name>
@@ -519,19 +525,20 @@ class Session private (private[snowpark] val conn: ServerConnection) extends Log
   /**
    * Returns an Updatable that points to the specified table.
    *
-   * @param multipartIdentifier A list of strings that specify the database name, schema name,
-   *                            and table name.
-   * @return A [[Updatable]]
+   * @param multipartIdentifier
+   *   A list of strings that specify the database name, schema name, and table name.
+   * @return
+   *   A [[Updatable]]
    * @since 0.2.0
    */
   def table(multipartIdentifier: java.util.List[String]): Updatable =
-    table(multipartIdentifier.asScala)
+    table(multipartIdentifier.asScala.toSeq)
 
   /**
    * Returns an Updatable that points to the specified table.
    *
-   * @param multipartIdentifier An array of strings that specify the database name, schema name,
-   *                            and table name.
+   * @param multipartIdentifier
+   *   An array of strings that specify the database name, schema name, and table name.
    * @since 0.7.0
    */
   def table(multipartIdentifier: Array[String]): Updatable = {
@@ -541,8 +548,10 @@ class Session private (private[snowpark] val conn: ServerConnection) extends Log
   /**
    * Returns a dataframe with only columns that are in the result of df.join but not the original df
    *
-   * @param df The source DataFrame on which the join operation was called
-   * @param result The resulting Dataframe of the join operation
+   * @param df
+   *   The source DataFrame on which the join operation was called
+   * @param result
+   *   The resulting Dataframe of the join operation
    */
   private def tableFunctionResultOnly(df: DataFrame, result: DataFrame): DataFrame = {
     // Check if the leading result columns are from the source df to confirm positions
@@ -573,10 +582,13 @@ class Session private (private[snowpark] val conn: ServerConnection) extends Log
    * }}}
    *
    * @since 0.4.0
-   * @param func Table function object, can be created from TableFunction class or
-   *              referred from the built-in list from tableFunctions.
-   * @param firstArg the first function argument of the given table function.
-   * @param remaining all remaining function arguments.
+   * @param func
+   *   Table function object, can be created from TableFunction class or referred from the built-in
+   *   list from tableFunctions.
+   * @param firstArg
+   *   the first function argument of the given table function.
+   * @param remaining
+   *   all remaining function arguments.
    */
   def tableFunction(func: TableFunction, firstArg: Column, remaining: Column*): DataFrame =
     tableFunction(func, firstArg +: remaining)
@@ -602,9 +614,11 @@ class Session private (private[snowpark] val conn: ServerConnection) extends Log
    * }}}
    *
    * @since 0.4.0
-   * @param func Table function object, can be created from TableFunction class or
-   *             referred from the built-in list from tableFunctions.
-   * @param args function arguments of the given table function.
+   * @param func
+   *   Table function object, can be created from TableFunction class or referred from the built-in
+   *   list from tableFunctions.
+   * @param args
+   *   function arguments of the given table function.
    */
   def tableFunction(func: TableFunction, args: Seq[Column]): DataFrame = {
     // Use df.join to apply function result if args contains a DF column
@@ -613,7 +627,7 @@ class Session private (private[snowpark] val conn: ServerConnection) extends Log
       // explode function requires a special handling since it is a client side function.
       if (func.funcName.trim.toLowerCase() == "explode") {
         callExplode(args.head)
-      } else DataFrame(this, TableFunctionRelation(func.call(args: _*)))
+      } else DataFrame(this, TableFunctionRelation(func.call(args.toSeq: _*)))
     } else if (sourceDFs.toSet.size > 1) {
       throw UDF_CANNOT_ACCEPT_MANY_DF_COLS()
     } else {
@@ -644,11 +658,12 @@ class Session private (private[snowpark] val conn: ServerConnection) extends Log
    * }}}
    *
    * @since 0.4.0
-   * @param func Table function object, can be created from TableFunction class or
-   *             referred from the built-in list from tableFunctions.
-   * @param args function arguments map of the given table function.
-   *              Some functions, like flatten, have named parameters.
-   *              use this map to assign values to the corresponding parameters.
+   * @param func
+   *   Table function object, can be created from TableFunction class or referred from the built-in
+   *   list from tableFunctions.
+   * @param args
+   *   function arguments map of the given table function. Some functions, like flatten, have named
+   *   parameters. use this map to assign values to the corresponding parameters.
    */
   def tableFunction(func: TableFunction, args: Map[String, Column]): DataFrame = {
     // Use df.join to apply function result if args contains a DF column
@@ -690,17 +705,20 @@ class Session private (private[snowpark] val conn: ServerConnection) extends Log
    * }}}
    *
    * @since 1.10.0
-   * @param func Table function object, can be created from TableFunction class or
-   *             referred from the built-in list from tableFunctions.
+   * @param func
+   *   Table function object, can be created from TableFunction class or referred from the built-in
+   *   list from tableFunctions.
    */
   def tableFunction(func: Column): DataFrame = {
     func.expr match {
-      case TFunction(funcName, args) =>
+      case TableFunctionEx(funcName, args) =>
         tableFunction(TableFunction(funcName), args.map(Column(_)))
       case NamedArgumentsTableFunction(funcName, argMap) =>
-        tableFunction(TableFunction(funcName), argMap.map {
-          case (key, value) => key -> Column(value)
-        })
+        tableFunction(
+          TableFunction(funcName),
+          argMap.map { case (key, value) =>
+            key -> Column(value)
+          })
       case _ => throw ErrorMessage.MISC_INVALID_TABLE_FUNCTION_INPUT()
     }
   }
@@ -717,8 +735,10 @@ class Session private (private[snowpark] val conn: ServerConnection) extends Log
    *   ).show()
    * }}}
    * @since 1.8.0
-   * @param spName The name of stored procedures.
-   * @param args The arguments of the given stored procedure
+   * @param spName
+   *   The name of stored procedures.
+   * @param args
+   *   The arguments of the given stored procedure
    */
   def storedProcedure(spName: String, args: Any*): DataFrame = {
     Utils.validateObjectName(spName)
@@ -735,8 +755,10 @@ class Session private (private[snowpark] val conn: ServerConnection) extends Log
    *   ).show()
    * }}}
    * @since 1.8.0
-   * @param sp The stored procedures object, can be created by `Session.sproc.register` methods.
-   * @param args The arguments of the given stored procedure
+   * @param sp
+   *   The stored procedures object, can be created by `Session.sproc.register` methods.
+   * @param args
+   *   The arguments of the given stored procedure
    */
   def storedProcedure(sp: StoredProcedure, args: Any*): DataFrame =
     createFromStoredProc(sp.name.get, args)
@@ -745,12 +767,12 @@ class Session private (private[snowpark] val conn: ServerConnection) extends Log
    * Creates a new DataFrame containing the specified values. Currently, you can use values of the
    * following types:
    *
-   *  - '''Base types (Int, Short, String etc.).''' The resulting DataFrame has the column name
-   *    "VALUE".
-   *  - '''Tuples consisting of base types.''' The resulting DataFrame has the column names "_1",
-   *    "_2", etc.
-   *  - '''Case classes consisting of base types.''' The resulting DataFrame has column names that
-   *    correspond to the case class constituents.
+   *   - '''Base types (Int, Short, String etc.).''' The resulting DataFrame has the column name
+   *     "VALUE".
+   *   - '''Tuples consisting of base types.''' The resulting DataFrame has the column names "_1",
+   *     "_2", etc.
+   *   - '''Case classes consisting of base types.''' The resulting DataFrame has column names that
+   *     correspond to the case class constituents.
    *
    * If you want to create a DataFrame by calling the {@code toDF} method of a {@code Seq} object,
    * import `session.implicits._`, where `session` is an object of the `Session` class that you
@@ -765,9 +787,12 @@ class Session private (private[snowpark] val conn: ServerConnection) extends Log
    *   df.show()
    * }}}
    *
-   * @param data A sequence in which each element represents a row of values in the DataFrame.
-   * @tparam T DataType
-   * @return A [[DataFrame]]
+   * @param data
+   *   A sequence in which each element represents a row of values in the DataFrame.
+   * @tparam T
+   *   DataType
+   * @return
+   *   A [[DataFrame]]
    * @since 0.1.0
    */
   def createDataFrame[T: TypeTag](data: Seq[T]): DataFrame = {
@@ -805,9 +830,12 @@ class Session private (private[snowpark] val conn: ServerConnection) extends Log
    *   val df = session.createDataFrame(data, schema)
    * }}}
    *
-   * @param data A sequence of [[Row]] objects representing rows of data.
-   * @param schema [[types.StructType StructType]] representing the schema for the DataFrame.
-   * @return A [[DataFrame]]
+   * @param data
+   *   A sequence of [[Row]] objects representing rows of data.
+   * @param schema
+   *   [[types.StructType StructType]] representing the schema for the DataFrame.
+   * @return
+   *   A [[DataFrame]]
    * @since 0.2.0
    */
   def createDataFrame(data: Seq[Row], schema: StructType): DataFrame = {
@@ -880,8 +908,8 @@ class Session private (private[snowpark] val conn: ServerConnection) extends Log
    * Creates a new DataFrame that uses the specified schema and contains the specified [[Row]]
    * objects.
    *
-   * For example, the following code creates a DataFrame containing two columns of the types
-   * `int` and `string` with two rows of data:
+   * For example, the following code creates a DataFrame containing two columns of the types `int`
+   * and `string` with two rows of data:
    *
    * For example
    *
@@ -897,44 +925,56 @@ class Session private (private[snowpark] val conn: ServerConnection) extends Log
    *   val df = session.createDataFrame(data, schema)
    * }}}
    *
-   * @param data An array of [[Row]] objects representing rows of data.
-   * @param schema [[types.StructType StructType]] representing the schema for the DataFrame.
-   * @return A [[DataFrame]]
+   * @param data
+   *   An array of [[Row]] objects representing rows of data.
+   * @param schema
+   *   [[types.StructType StructType]] representing the schema for the DataFrame.
+   * @return
+   *   A [[DataFrame]]
    * @since 0.7.0
    */
   def createDataFrame(data: Array[Row], schema: StructType): DataFrame =
     createDataFrame(data.toSeq, schema)
 
   /**
-   * Creates a new DataFrame from a range of numbers.
-   * The resulting DataFrame has the column name "ID" and a row for each number in the sequence.
+   * Creates a new DataFrame from a range of numbers. The resulting DataFrame has the column name
+   * "ID" and a row for each number in the sequence.
    *
-   * @param start Start of the range.
-   * @param end End of the range.
-   * @param step Step function for producing the numbers in the range.
-   * @return A [[DataFrame]]
+   * @param start
+   *   Start of the range.
+   * @param end
+   *   End of the range.
+   * @param step
+   *   Step function for producing the numbers in the range.
+   * @return
+   *   A [[DataFrame]]
    * @since 0.1.0
    */
   def range(start: Long, end: Long, step: Long): DataFrame =
     DataFrame(this, Range(start, end, step))
 
   /**
-   * Creates a new DataFrame from a range of numbers starting from 0.
-   * The resulting DataFrame has the column name "ID" and a row for each number in the sequence.
+   * Creates a new DataFrame from a range of numbers starting from 0. The resulting DataFrame has
+   * the column name "ID" and a row for each number in the sequence.
    *
-   * @param end End of the range.
-   * @return A [[DataFrame]]
+   * @param end
+   *   End of the range.
+   * @return
+   *   A [[DataFrame]]
    * @since 0.1.0
    */
   def range(end: Long): DataFrame = range(0, end)
 
   /**
-   * Creates a new DataFrame from a range of numbers.
-   * The resulting DataFrame has the column name "ID" and a row for each number in the sequence.
+   * Creates a new DataFrame from a range of numbers. The resulting DataFrame has the column name
+   * "ID" and a row for each number in the sequence.
    *
-   * @param start Start of the range.
-   * @param end End of the range.
-   * @return A [[DataFrame]]
+   * @param start
+   *   Start of the range.
+   * @param end
+   *   End of the range.
+   * @return
+   *   A [[DataFrame]]
    * @since 0.1.0
    */
   def range(start: Long, end: Long): DataFrame = range(start, end, 1)
@@ -944,8 +984,10 @@ class Session private (private[snowpark] val conn: ServerConnection) extends Log
    *
    * You can use this method to execute an arbitrary SQL statement.
    *
-   * @param query The SQL statement to execute.
-   * @return A [[DataFrame]]
+   * @param query
+   *   The SQL statement to execute.
+   * @return
+   *   A [[DataFrame]]
    * @since 0.1.0
    */
   def sql(query: String): DataFrame = {
@@ -957,9 +999,12 @@ class Session private (private[snowpark] val conn: ServerConnection) extends Log
    *
    * You can use this method to execute an arbitrary SQL statement.
    *
-   * @param query The SQL statement to execute.
-   * @param params for bind variables in SQL statement.
-   * @return A [[DataFrame]]
+   * @param query
+   *   The SQL statement to execute.
+   * @param params
+   *   for bind variables in SQL statement.
+   * @return
+   *   A [[DataFrame]]
    * @since 1.15.0
    */
   def sql(query: String, params: Seq[Any]): DataFrame = {
@@ -976,9 +1021,12 @@ class Session private (private[snowpark] val conn: ServerConnection) extends Log
    *   session.generator(10, Seq(seq4(), uniform(lit(1), lit(5), random()))).show()
    * }}}
    *
-   * @param rowCount The row count of the result DataFrame.
-   * @param columns the column list of the result DataFrame
-   * @return A [[DataFrame]]
+   * @param rowCount
+   *   The row count of the result DataFrame.
+   * @param columns
+   *   the column list of the result DataFrame
+   * @return
+   *   A [[DataFrame]]
    * @since 0.11.0
    */
   def generator(rowCount: Long, columns: Seq[Column]): DataFrame =
@@ -993,10 +1041,14 @@ class Session private (private[snowpark] val conn: ServerConnection) extends Log
    *   session.generator(10, seq4(), uniform(lit(1), lit(5), random())).show()
    * }}}
    *
-   * @param rowCount The row count of the result DataFrame.
-   * @param col the column of the result DataFrame
-   * @param cols A list of columns excepts the first column
-   * @return A [[DataFrame]]
+   * @param rowCount
+   *   The row count of the result DataFrame.
+   * @param col
+   *   the column of the result DataFrame
+   * @param cols
+   *   A list of columns excepts the first column
+   * @return
+   *   A [[DataFrame]]
    * @since 0.11.0
    */
   def generator(rowCount: Long, col: Column, cols: Column*): DataFrame =
@@ -1006,7 +1058,8 @@ class Session private (private[snowpark] val conn: ServerConnection) extends Log
    * Returns a [[DataFrameReader]] that you can use to read data from various supported sources
    * (e.g. a file in a stage) as a DataFrame.
    *
-   * @return A [[DataFrameReader]]
+   * @return
+   *   A [[DataFrameReader]]
    * @since 0.1.0
    */
   def read: DataFrameReader = new DataFrameReader(this)
@@ -1018,7 +1071,8 @@ class Session private (private[snowpark] val conn: ServerConnection) extends Log
   /**
    * Returns the name of the default database configured for this session in [[Session.builder]].
    *
-   * @return The name of the default database
+   * @return
+   *   The name of the default database
    * @since 0.1.0
    */
   def getDefaultDatabase: Option[String] = conn.getDefaultDatabase
@@ -1026,7 +1080,8 @@ class Session private (private[snowpark] val conn: ServerConnection) extends Log
   /**
    * Returns the name of the default schema configured for this session in [[Session.builder]].
    *
-   * @return The name of the default schema
+   * @return
+   *   The name of the default schema
    * @since 0.1.0
    */
   def getDefaultSchema: Option[String] = conn.getDefaultSchema
@@ -1042,7 +1097,8 @@ class Session private (private[snowpark] val conn: ServerConnection) extends Log
    *
    * the method returns `newDB`.
    *
-   * @return The name of the current database for this session.
+   * @return
+   *   The name of the current database for this session.
    * @since 0.1.0
    */
   def getCurrentDatabase: Option[String] = conn.getCurrentDatabase
@@ -1058,7 +1114,8 @@ class Session private (private[snowpark] val conn: ServerConnection) extends Log
    *
    * the method returns `newSchema`.
    *
-   * @return Current schema in session.
+   * @return
+   *   Current schema in session.
    * @since 0.1.0
    */
   def getCurrentSchema: Option[String] = conn.getCurrentSchema
@@ -1066,7 +1123,8 @@ class Session private (private[snowpark] val conn: ServerConnection) extends Log
   /**
    * Returns the fully qualified name of the current schema for the session.
    *
-   * @return The fully qualified name of the schema
+   * @return
+   *   The fully qualified name of the schema
    * @since 0.2.0
    */
   def getFullyQualifiedCurrentSchema: String =
@@ -1076,11 +1134,12 @@ class Session private (private[snowpark] val conn: ServerConnection) extends Log
     conn.getResultAttributes(sql)
 
   /**
-   * Returns the name of the temporary stage created by the Snowpark library for uploading and
-   * store temporary artifacts for this session. These artifacts include classes for UDFs that you
-   * define in this session and dependencies that you add when calling [[addDependency]].
+   * Returns the name of the temporary stage created by the Snowpark library for uploading and store
+   * temporary artifacts for this session. These artifacts include classes for UDFs that you define
+   * in this session and dependencies that you add when calling [[addDependency]].
    *
-   * @return The name of stage.
+   * @return
+   *   The name of stage.
    * @since 0.1.0
    */
   def getSessionStage: String = synchronized {
@@ -1095,8 +1154,7 @@ class Session private (private[snowpark] val conn: ServerConnection) extends Log
   }
 
   /**
-   * Returns a [[UDFRegistration]] object that you can use to register UDFs.
-   * For example:
+   * Returns a [[UDFRegistration]] object that you can use to register UDFs. For example:
    * {{{
    *   session.udf.registerTemporary("mydoubleudf", (x: Int) => 2 * x)
    *   session.sql(s"SELECT mydoubleudf(c) FROM table")
@@ -1106,8 +1164,7 @@ class Session private (private[snowpark] val conn: ServerConnection) extends Log
   lazy val udf = new UDFRegistration(this)
 
   /**
-   * Returns a [[UDTFRegistration]] object that you can use to register UDTFs.
-   * For example:
+   * Returns a [[UDTFRegistration]] object that you can use to register UDTFs. For example:
    * {{{
    *   class MyWordSplitter extends UDTF1[String] {
    *     override def process(input: String): Iterable[Row] = input.split(" ").map(Row(_))
@@ -1122,8 +1179,8 @@ class Session private (private[snowpark] val conn: ServerConnection) extends Log
   lazy val udtf: UDTFRegistration = new UDTFRegistration(this)
 
   /**
-   * Returns a [[SProcRegistration]] object that you can use to register Stored Procedures.
-   * For example:
+   * Returns a [[SProcRegistration]] object that you can use to register Stored Procedures. For
+   * example:
    * {{{
    *   val sp = session.sproc.registerTemporary((session: Session, num: Int) => num * 2)
    *   session.storedProcedure(sp, 100).show()
@@ -1134,8 +1191,8 @@ class Session private (private[snowpark] val conn: ServerConnection) extends Log
   lazy val sproc: SProcRegistration = new SProcRegistration(this)
 
   /**
-   * Returns a [[FileOperation]] object that you can use to perform file operations on stages.
-   * For example:
+   * Returns a [[FileOperation]] object that you can use to perform file operations on stages. For
+   * example:
    * {{{
    *   session.file.put("file:///tmp/file1.csv", "@myStage/prefix1")
    *   session.file.get("@myStage/prefix1", "file:///tmp")
@@ -1148,7 +1205,7 @@ class Session private (private[snowpark] val conn: ServerConnection) extends Log
   /**
    * Provides implicit methods for convert Scala objects to Snowpark DataFrame and Column objects.
    *
-   * To use this, import {@code session.implicits._}:
+   * To use this, import {@code session.implicits._} :
    * {{{
    *   val session = Session.builder.configFile(..).create
    *   import session.implicits._
@@ -1186,9 +1243,11 @@ class Session private (private[snowpark] val conn: ServerConnection) extends Log
    *   val df = session.flatten(parse_json(lit("""{"a":[1,2]}""")))
    * }}}
    *
-   * @param input The expression that will be unseated into rows.
-   *              The expression must be of data type VARIANT, OBJECT, or ARRAY.
-   * @return A [[DataFrame]].
+   * @param input
+   *   The expression that will be unseated into rows. The expression must be of data type VARIANT,
+   *   OBJECT, or ARRAY.
+   * @return
+   *   A [[DataFrame]].
    * @since 0.2.0
    */
   def flatten(input: Column): DataFrame =
@@ -1203,21 +1262,23 @@ class Session private (private[snowpark] val conn: ServerConnection) extends Log
    *   val df = session.flatten(parse_json(lit("""{"a":[1,2]}""")), "a", false, false, "BOTH")
    * }}}
    *
-   * @param input The expression that will be unseated into rows.
-   *              The expression must be of data type VARIANT, OBJECT, or ARRAY.
-   * @param path The path to the element within a VARIANT data structure which
-   *             needs to be flattened. Can be a zero-length string
-   *             (i.e. empty path) if the outermost element is to be flattened.
-   * @param outer If {@code false}, any input rows that cannot be expanded,
-   *              either because they cannot be accessed in the path or because
-   *              they have zero fields or entries, are completely omitted from
-   *              the output. Otherwise, exactly one row is generated for
-   *              zero-row expansions (with NULL in the KEY, INDEX, and VALUE columns).
-   * @param recursive If {@code false}, only the element referenced by PATH is expanded.
-   *                  Otherwise, the expansion is performed for all sub-elements
-   *                  recursively.
-   * @param mode Specifies which types should be flattened ({@code "OBJECT"}, {@code "ARRAY"}, or
-   *             {@code "BOTH"}).
+   * @param input
+   *   The expression that will be unseated into rows. The expression must be of data type VARIANT,
+   *   OBJECT, or ARRAY.
+   * @param path
+   *   The path to the element within a VARIANT data structure which needs to be flattened. Can be a
+   *   zero-length string (i.e. empty path) if the outermost element is to be flattened.
+   * @param outer
+   *   If {@code false} , any input rows that cannot be expanded, either because they cannot be
+   *   accessed in the path or because they have zero fields or entries, are completely omitted from
+   *   the output. Otherwise, exactly one row is generated for zero-row expansions (with NULL in the
+   *   KEY, INDEX, and VALUE columns).
+   * @param recursive
+   *   If {@code false} , only the element referenced by PATH is expanded. Otherwise, the expansion
+   *   is performed for all sub-elements recursively.
+   * @param mode
+   *   Specifies which types should be flattened ({@code "OBJECT"}, {@code "ARRAY"} , or
+   *   {@code "BOTH"} ).
    * @since 0.2.0
    */
   def flatten(
@@ -1303,8 +1364,7 @@ class Session private (private[snowpark] val conn: ServerConnection) extends Log
   }
 
   /**
-   * This api is for Stored Procedure internal usage only.
-   * Do not call this api.
+   * This api is for Stored Procedure internal usage only. Do not call this api.
    */
   private[snowpark] def dropAllTempObjects(): Unit = {
     tempObjectsMap.foreach(v => {
@@ -1313,8 +1373,8 @@ class Session private (private[snowpark] val conn: ServerConnection) extends Log
   }
 
   // For test
-  private[snowpark] def getTempObjectMap
-    : scala.collection.concurrent.Map[String, TempObjectType] = tempObjectsMap
+  private[snowpark] def getTempObjectMap: scala.collection.concurrent.Map[String, TempObjectType] =
+    tempObjectsMap
 
   /**
    * Close this session.
@@ -1368,11 +1428,11 @@ class Session private (private[snowpark] val conn: ServerConnection) extends Log
   def getSessionInfo(): String = sessionInfo
 
   /**
-   * Returns an [[AsyncJob]] object that you can use to track the status and get the results of
-   * the asynchronous query specified by the query ID.
+   * Returns an [[AsyncJob]] object that you can use to track the status and get the results of the
+   * asynchronous query specified by the query ID.
    *
-   * For example, create an AsyncJob by specifying a valid `<query_id>`, check whether
-   * the query is running or not, and get the result rows.
+   * For example, create an AsyncJob by specifying a valid `<query_id>`, check whether the query is
+   * running or not, and get the result rows.
    * {{{
    *   val asyncJob = session.createAsyncJob(<query_id>)
    *   println(s"Is query \${asyncJob.getQueryId} running? \${asyncJob.isRunning()}")
@@ -1380,8 +1440,10 @@ class Session private (private[snowpark] val conn: ServerConnection) extends Log
    * }}}
    *
    * @since 0.11.0
-   * @param queryID A valid query ID
-   * @return An [[AsyncJob]] object
+   * @param queryID
+   *   A valid query ID
+   * @return
+   *   An [[AsyncJob]] object
    */
   def createAsyncJob(queryID: String): AsyncJob = new AsyncJob(queryID, this, None)
 
@@ -1403,10 +1465,10 @@ object Session extends Logging {
   }
 
   /**
-   * This api is for Stored Procedure internal usage only.
-   * Do not create a Session with this api.
+   * This api is for Stored Procedure internal usage only. Do not create a Session with this api.
    *
-   * @return [[Session]]
+   * @return
+   *   [[Session]]
    */
   private[snowpark] def apply(connection: SnowflakeConnectionV1): Session = {
     Session.builder.createInternal(Some(connection))
@@ -1426,7 +1488,8 @@ object Session extends Logging {
 
   /**
    * Returns a builder you can use to set configuration properties and create a [[Session]] object.
-   * @return [[SessionBuilder]]
+   * @return
+   *   [[SessionBuilder]]
    * @since 0.1.0
    */
   def builder: SessionBuilder = new SessionBuilder
@@ -1463,7 +1526,8 @@ object Session extends Logging {
   /**
    * Returns the active session in this thread, if any.
    *
-   * @return [[Session]]
+   * @return
+   *   [[Session]]
    * @since 0.1.0
    */
   private[snowpark] def getActiveSession: Option[Session] = {
@@ -1522,8 +1586,10 @@ object Session extends Logging {
      *   APPNAME=myApp
      * }}}
      *
-     * @param appName Name of the app.
-     * @return A [[SessionBuilder]]
+     * @param appName
+     *   Name of the app.
+     * @return
+     *   A [[SessionBuilder]]
      * @since 1.12.0
      */
     def appName(appName: String): SessionBuilder = {
@@ -1534,8 +1600,10 @@ object Session extends Logging {
     /**
      * Adds the configuration properties in the specified file to the SessionBuilder configuration.
      *
-     * @param file Path to the file containing the configuration properties.
-     * @return A [[SessionBuilder]]
+     * @param file
+     *   Path to the file containing the configuration properties.
+     * @return
+     *   A [[SessionBuilder]]
      * @since 0.1.0
      */
     def configFile(file: String): SessionBuilder = {
@@ -1545,9 +1613,12 @@ object Session extends Logging {
     /**
      * Adds the specified configuration property and value to the SessionBuilder configuration.
      *
-     * @param key Name of the configuration property.
-     * @param value Value of the configuration property.
-     * @return A [[SessionBuilder]]
+     * @param key
+     *   Name of the configuration property.
+     * @param value
+     *   Value of the configuration property.
+     * @return
+     *   A [[SessionBuilder]]
      * @since 0.1.0
      */
     def config(key: String, value: String): SessionBuilder = synchronized {
@@ -1562,8 +1633,10 @@ object Session extends Logging {
      * Note that calling this method overwrites any existing configuration properties that you have
      * already set in the SessionBuilder.
      *
-     * @param configs Map of the names and values of configuration properties.
-     * @return A [[SessionBuilder]]
+     * @param configs
+     *   Map of the names and values of configuration properties.
+     * @return
+     *   A [[SessionBuilder]]
      * @since 0.1.0
      */
     def configs(configs: Map[String, String]): SessionBuilder = synchronized {
@@ -1587,7 +1660,8 @@ object Session extends Logging {
     /**
      * Creates a new Session.
      *
-     * @return A [[Session]]
+     * @return
+     *   A [[Session]]
      * @since 0.1.0
      */
     def create: Session = {
@@ -1603,7 +1677,8 @@ object Session extends Logging {
     /**
      * Returns the existing session if already exists or create it if not.
      *
-     * @return A [[Session]]
+     * @return
+     *   A [[Session]]
      * @since 1.10.0
      */
     def getOrCreate: Session = {

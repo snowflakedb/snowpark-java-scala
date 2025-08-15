@@ -127,11 +127,14 @@ class ExpressionAndPlanNodeSuite extends SNTestBase {
           .foldRight((List.empty[Expression], List.empty[String], Option(Set.empty[String]))) {
             // generate test data and expected result
             case ((exp, name, invoked), (expList, nameList, invokedSet)) =>
-              (exp :: expList, name :: nameList, if (invoked.isEmpty || invokedSet.isEmpty) {
-                None
-              } else {
-                Some(invoked.get ++ invokedSet.get)
-              })
+              (
+                exp :: expList,
+                name :: nameList,
+                if (invoked.isEmpty || invokedSet.isEmpty) {
+                  None
+                } else {
+                  Some(invoked.get ++ invokedSet.get)
+                })
           }
 
         val exp = func(exprs)
@@ -162,7 +165,7 @@ class ExpressionAndPlanNodeSuite extends SNTestBase {
     binaryChecker(Like)
     binaryChecker(RegExp)
     binaryChecker((x, y) => FunctionExpression("dummy", Seq(x, y), isDistinct = false))
-    binaryChecker((x, y) => internal.analyzer.TableFunction("dummy", Seq(x, y)))
+    binaryChecker((x, y) => internal.analyzer.TableFunctionEx("dummy", Seq(x, y)))
     binaryChecker((x, y) => NamedArgumentsTableFunction("dummy", Map("a" -> x, "b" -> y)))
     binaryChecker((x, y) => GroupingSetsExpression(Seq(Set(x, y))))
     binaryChecker((x, y) => GroupingSetsExpression(Seq(Set(x), Set(y))))
@@ -180,8 +183,7 @@ class ExpressionAndPlanNodeSuite extends SNTestBase {
 
     childrenChecker(
       5,
-      data =>
-        InsertMergeExpression(Some(data.head), Seq(data(1), data(2)), Seq(data(3), data(4))))
+      data => InsertMergeExpression(Some(data.head), Seq(data(1), data(2)), Seq(data(3), data(4))))
     childrenChecker(
       4,
       data => InsertMergeExpression(None, Seq(data(1), data(2)), Seq(data(3), data.head)))
@@ -384,7 +386,7 @@ class ExpressionAndPlanNodeSuite extends SNTestBase {
     unaryAnalyzerChecker(SubfieldInt(_, 1))
     analyzerChecker(2, FunctionExpression("dummy", _, isDistinct = false))
     unaryAnalyzerChecker(FlattenFunction(_, "a", outer = false, recursive = true, "b"))
-    analyzerChecker(2, internal.analyzer.TableFunction("dummy", _))
+    analyzerChecker(2, internal.analyzer.TableFunctionEx("dummy", _))
     analyzerChecker(
       2,
       data => NamedArgumentsTableFunction("dummy", Map("a" -> data.head, "b" -> data(1))))
@@ -408,8 +410,7 @@ class ExpressionAndPlanNodeSuite extends SNTestBase {
 
     analyzerChecker(
       5,
-      data =>
-        InsertMergeExpression(Some(data.head), Seq(data(1), data(2)), Seq(data(3), data(4))))
+      data => InsertMergeExpression(Some(data.head), Seq(data(1), data(2)), Seq(data(3), data(4))))
     analyzerChecker(
       4,
       data => InsertMergeExpression(None, Seq(data.head, data(1)), Seq(data(2), data(3))))
@@ -606,12 +607,12 @@ class ExpressionAndPlanNodeSuite extends SNTestBase {
   }
 
   test("TableFunctionRelation - Analyzer") {
-    val exp = internal.analyzer.TableFunction("dummy", Seq.empty)
+    val exp = internal.analyzer.TableFunctionEx("dummy", Seq.empty)
     val plan = TableFunctionRelation(exp)
     assert(plan.aliasMap.isEmpty)
     assert(plan.analyzed == plan)
 
-    val exp1 = internal.analyzer.TableFunction("dummy", Seq(alias1, alias2))
+    val exp1 = internal.analyzer.TableFunctionEx("dummy", Seq(alias1, alias2))
     val plan1 = TableFunctionRelation(exp1)
     assert(plan1.aliasMap == map1)
     assert(plan1.analyzed.toString == plan1.toString)
@@ -761,8 +762,7 @@ class ExpressionAndPlanNodeSuite extends SNTestBase {
 
     val plan1 = Filter(attr3, child2)
     assert(plan1.aliasMap.isEmpty)
-    assert(
-      plan1.analyzed.asInstanceOf[Filter].condition.asInstanceOf[Attribute].name == "\"COL3\"")
+    assert(plan1.analyzed.asInstanceOf[Filter].condition.asInstanceOf[Attribute].name == "\"COL3\"")
   }
 
   test("Project - Analyzer") {
@@ -832,7 +832,7 @@ class ExpressionAndPlanNodeSuite extends SNTestBase {
   }
 
   test("Lateral - Analyzer") {
-    import com.snowflake.snowpark.internal.analyzer.{TableFunction => TableFunc}
+    import com.snowflake.snowpark.internal.analyzer.{TableFunctionEx => TableFunc}
     val tf = TableFunc("dummy", Seq(attr3))
     val plan1 = Lateral(child1, tf)
     assert(plan1.aliasMap == map2)
@@ -880,7 +880,7 @@ class ExpressionAndPlanNodeSuite extends SNTestBase {
   }
 
   test("TableFunctionJoin - Analyzer") {
-    import com.snowflake.snowpark.internal.analyzer.{TableFunction => TableFunc}
+    import com.snowflake.snowpark.internal.analyzer.{TableFunctionEx => TableFunc}
     val tf = TableFunc("dummy", Seq(attr3))
     val plan1 = TableFunctionJoin(child1, tf, None)
     assert(plan1.aliasMap == map2)
@@ -1067,7 +1067,7 @@ class ExpressionAndPlanNodeSuite extends SNTestBase {
         // small change for future verification
         case Range(_, end, _) => Range(end, 1, 1)
         case _ => plan
-    }
+      }
     val plan = func(testData)
     val newPlan = plan.updateChildren(testFunc)
     assert(newPlan.children.zipWithIndex.forall {
@@ -1087,7 +1087,7 @@ class ExpressionAndPlanNodeSuite extends SNTestBase {
     simplifierChecker(2, data => func(data.head, data(1)))
 
   test("simplifier") {
-    val tableFunction = internal.analyzer.TableFunction("dummy", Seq.empty)
+    val tableFunction = internal.analyzer.TableFunctionEx("dummy", Seq.empty)
     leafSimplifierChecker(TableFunctionRelation(tableFunction))
     leafSimplifierChecker(Range(1, 1, 2))
     leafSimplifierChecker(Generator(Seq(tableFunction), 1))
@@ -1122,8 +1122,7 @@ class ExpressionAndPlanNodeSuite extends SNTestBase {
     unarySimplifierChecker(x => TableUpdate("a", Map.empty, None, Some(x)))
     unarySimplifierChecker(x => TableDelete("a", None, Some(x)))
     unarySimplifierChecker(x => SnowflakeCreateTable("a", SaveMode.Append, Some(x)))
-    leafSimplifierChecker(
-      SnowflakePlan(Seq.empty, "222", session, None, supportAsyncMode = false))
+    leafSimplifierChecker(SnowflakePlan(Seq.empty, "222", session, None, supportAsyncMode = false))
 
   }
 }

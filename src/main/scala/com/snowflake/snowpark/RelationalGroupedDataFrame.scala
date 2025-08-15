@@ -33,9 +33,8 @@ private[snowpark] object RelationalGroupedDataFrame {
 }
 
 /**
- * Represents an underlying DataFrame with rows that are grouped by
- * common values. Can be used to define aggregations on these grouped
- * DataFrames.
+ * Represents an underlying DataFrame with rows that are grouped by common values. Can be used to
+ * define aggregations on these grouped DataFrames.
  *
  * Example:
  * {{{
@@ -45,8 +44,8 @@ private[snowpark] object RelationalGroupedDataFrame {
  *
  * The methods [[DataFrame.groupBy(cols:Array[String* DataFrame.groupBy]],
  * [[DataFrame.cube(cols:Seq[String* DataFrame.cube]] and
- * [[DataFrame.rollup(cols:Array[String* DataFrame.rollup]]
- * return an instance of type [[RelationalGroupedDataFrame]]
+ * [[DataFrame.rollup(cols:Array[String* DataFrame.rollup]] return an instance of type
+ * [[RelationalGroupedDataFrame]]
  *
  * @since 0.1.0
  */
@@ -104,17 +103,14 @@ class RelationalGroupedDataFrame private[snowpark] (
         case name => functions.builtin(name)(inputExpr).expr
       }
     }
-    (inputExpr: Expression) =>
-      exprToFunc(inputExpr)
+    (inputExpr: Expression) => exprToFunc(inputExpr)
   }
 
   /**
-   * Returns a DataFrame with computed aggregates. The first element
-   * of the 'expr' pair is the column to aggregate and the second
-   * element is the aggregate function to compute.
-   * The following example computes the mean of the price column and
-   * the sum of the sales column.
-   * The name of the aggregate function to compute must be a valid Snowflake
+   * Returns a DataFrame with computed aggregates. The first element of the 'expr' pair is the
+   * column to aggregate and the second element is the aggregate function to compute. The following
+   * example computes the mean of the price column and the sum of the sales column. The name of the
+   * aggregate function to compute must be a valid Snowflake
    * [[https://docs.snowflake.com/en/sql-reference/functions-aggregation.html aggregate function]]
    * "average" and "mean" can be used to specify "avg".
    *
@@ -125,7 +121,8 @@ class RelationalGroupedDataFrame private[snowpark] (
    *     col("sales") -> "sum")
    * }}}
    *
-   * @return a [[DataFrame]]
+   * @return
+   *   a [[DataFrame]]
    * @since 0.1.0
    */
   def agg(expr: (Column, String), exprs: (Column, String)*): DataFrame = transformation("agg") {
@@ -133,12 +130,10 @@ class RelationalGroupedDataFrame private[snowpark] (
   }
 
   /**
-   * Returns a DataFrame with computed aggregates. The first element
-   * of the 'expr' pair is the column to aggregate and the second
-   * element is the aggregate function to compute.
-   * The following example computes the mean of the price column and
-   * the sum of the sales column.
-   * The name of the aggregate function to compute must be a valid Snowflake
+   * Returns a DataFrame with computed aggregates. The first element of the 'expr' pair is the
+   * column to aggregate and the second element is the aggregate function to compute. The following
+   * example computes the mean of the price column and the sum of the sales column. The name of the
+   * aggregate function to compute must be a valid Snowflake
    * [[https://docs.snowflake.com/en/sql-reference/functions-aggregation.html aggregate function]]
    * "average" and "mean" can be used to specify "avg".
    *
@@ -149,7 +144,8 @@ class RelationalGroupedDataFrame private[snowpark] (
    *     col("sales") -> "sum"))
    * }}}
    *
-   * @return a [[DataFrame]]
+   * @return
+   *   a [[DataFrame]]
    * @since 0.2.0
    */
   def agg(exprs: Seq[(Column, String)]): DataFrame = transformation("agg") {
@@ -157,9 +153,9 @@ class RelationalGroupedDataFrame private[snowpark] (
   }
 
   /**
-   * Returns a DataFrame with aggregated computed according to the supplied
-   * [[Column]] expressions. [[com.snowflake.snowpark.functions]] contains some
-   * built-in aggregate functions that can be used.
+   * Returns a DataFrame with aggregated computed according to the supplied [[Column]] expressions.
+   * [[com.snowflake.snowpark.functions]] contains some built-in aggregate functions that can be
+   * used.
    *
    * {{{
    *   impoer com.snowflake.snowpark.functions._
@@ -168,7 +164,8 @@ class RelationalGroupedDataFrame private[snowpark] (
    *     sum($"sales"))
    * }}}
    *
-   * @return a [[DataFrame]]
+   * @return
+   *   a [[DataFrame]]
    * @since 0.1.0
    */
   def agg(expr: Column, exprs: Column*): DataFrame = transformation("agg") {
@@ -176,9 +173,9 @@ class RelationalGroupedDataFrame private[snowpark] (
   }
 
   /**
-   * Returns a DataFrame with aggregated computed according to the supplied
-   * [[Column]] expressions. [[com.snowflake.snowpark.functions]] contains some
-   * built-in aggregate functions that can be used.
+   * Returns a DataFrame with aggregated computed according to the supplied [[Column]] expressions.
+   * [[com.snowflake.snowpark.functions]] contains some built-in aggregate functions that can be
+   * used.
    *
    * {{{
    *   impoer com.snowflake.snowpark.functions._
@@ -187,7 +184,8 @@ class RelationalGroupedDataFrame private[snowpark] (
    *     sum($"sales")))
    * }}}
    *
-   * @return a [[DataFrame]]
+   * @return
+   *   a [[DataFrame]]
    * @since 0.2.0
    */
   def agg[T: ClassTag](exprs: Seq[Column]): DataFrame = transformation("agg") {
@@ -195,11 +193,12 @@ class RelationalGroupedDataFrame private[snowpark] (
   }
 
   /**
-   * Returns a DataFrame with aggregated computed according to the supplied
-   * [[Column]] expressions. [[com.snowflake.snowpark.functions]] contains some
-   * built-in aggregate functions that can be used.
+   * Returns a DataFrame with aggregated computed according to the supplied [[Column]] expressions.
+   * [[com.snowflake.snowpark.functions]] contains some built-in aggregate functions that can be
+   * used.
    *
-   * @return a [[DataFrame]]
+   * @return
+   *   a [[DataFrame]]
    * @since 0.9.0
    */
   def agg(exprs: Array[Column]): DataFrame = transformation("agg") {
@@ -207,12 +206,10 @@ class RelationalGroupedDataFrame private[snowpark] (
   }
 
   /**
-   * Returns a DataFrame with computed aggregates. The first element
-   * of the 'expr' pair is the column to aggregate and the second
-   * element is the aggregate function to compute.
-   * The following example computes the mean of the price column and
-   * the sum of the sales column.
-   * The name of the aggregate function to compute must be a valid Snowflake
+   * Returns a DataFrame with computed aggregates. The first element of the 'expr' pair is the
+   * column to aggregate and the second element is the aggregate function to compute. The following
+   * example computes the mean of the price column and the sum of the sales column. The name of the
+   * aggregate function to compute must be a valid Snowflake
    * [[https://docs.snowflake.com/en/sql-reference/functions-aggregation.html aggregate function]]
    * "average" and "mean" can be used to specify "avg".
    *
@@ -224,12 +221,13 @@ class RelationalGroupedDataFrame private[snowpark] (
    *   ))
    * }}}
    *
-   * @return a [[DataFrame]]
+   * @return
+   *   a [[DataFrame]]
    * @since 0.1.0
    */
   def agg(exprs: Map[Column, String]): DataFrame = transformation("agg") {
-    toDF(exprs.map {
-      case (col, expr) => strToExpr(expr)(col.expr)
+    toDF(exprs.map { case (col, expr) =>
+      strToExpr(expr)(col.expr)
     }.toSeq)
   }
 
@@ -237,7 +235,8 @@ class RelationalGroupedDataFrame private[snowpark] (
    * Return the average for the specified numeric columns.
    *
    * @since 0.4.0
-   * @return a [[DataFrame]]
+   * @return
+   *   a [[DataFrame]]
    */
   def avg(cols: Column*): DataFrame = transformation("avg") {
     nonEmptyArgumentFunction("avg", cols)
@@ -247,7 +246,8 @@ class RelationalGroupedDataFrame private[snowpark] (
    * Return the average for the specified numeric columns. Alias of avg
    *
    * @since 0.4.0
-   * @return a [[DataFrame]]
+   * @return
+   *   a [[DataFrame]]
    */
   def mean(cols: Column*): DataFrame = transformation("mean") {
     avg(cols: _*)
@@ -257,7 +257,8 @@ class RelationalGroupedDataFrame private[snowpark] (
    * Return the sum for the specified numeric columns.
    *
    * @since 0.1.0
-   * @return a [[DataFrame]]
+   * @return
+   *   a [[DataFrame]]
    */
   def sum(cols: Column*): DataFrame = transformation("sum") {
     nonEmptyArgumentFunction("sum", cols)
@@ -267,7 +268,8 @@ class RelationalGroupedDataFrame private[snowpark] (
    * Return the median for the specified numeric columns.
    *
    * @since 0.5.0
-   * @return A [[DataFrame]]
+   * @return
+   *   A [[DataFrame]]
    */
   def median(cols: Column*): DataFrame = transformation("median") {
     nonEmptyArgumentFunction("median", cols)
@@ -277,7 +279,8 @@ class RelationalGroupedDataFrame private[snowpark] (
    * Return the min for the specified numeric columns.
    *
    * @since 0.1.0
-   * @return A [[DataFrame]]
+   * @return
+   *   A [[DataFrame]]
    */
   def min(cols: Column*): DataFrame = transformation("min") {
     nonEmptyArgumentFunction("min", cols)
@@ -287,7 +290,8 @@ class RelationalGroupedDataFrame private[snowpark] (
    * Return the max for the specified numeric columns.
    *
    * @since 0.4.0
-   * @return A [[DataFrame]]
+   * @return
+   *   A [[DataFrame]]
    */
   def max(cols: Column*): DataFrame = transformation("max") {
     nonEmptyArgumentFunction("max", cols)
@@ -297,7 +301,8 @@ class RelationalGroupedDataFrame private[snowpark] (
    * Returns non-deterministic values for the specified columns.
    *
    * @since 0.12.0
-   * @return A [[DataFrame]]
+   * @return
+   *   A [[DataFrame]]
    */
   def any_value(cols: Column*): DataFrame = transformation("any_value") {
     nonEmptyArgumentFunction("any_value", cols)
@@ -307,15 +312,16 @@ class RelationalGroupedDataFrame private[snowpark] (
    * Return the number of rows for each group.
    *
    * @since 0.1.0
-   * @return A [[DataFrame]]
+   * @return
+   *   A [[DataFrame]]
    */
   def count(): DataFrame = transformation("count") {
     toDF(Seq(Alias(functions.builtin("count")(Literal(1)).expr, "count")))
   }
 
   /**
-   * Computes the builtin aggregate 'aggName' over the specified columns.
-   * Use this function to invoke any aggregates not explicitly listed in this class.
+   * Computes the builtin aggregate 'aggName' over the specified columns. Use this function to
+   * invoke any aggregates not explicitly listed in this class.
    *
    * For example:
    * {{{
@@ -323,9 +329,10 @@ class RelationalGroupedDataFrame private[snowpark] (
    * }}}
    *
    * @since 0.6.0
-   * @param aggName the Name of an aggregate function.
-   * @return A [[DataFrame]]
-   *
+   * @param aggName
+   *   the Name of an aggregate function.
+   * @return
+   *   A [[DataFrame]]
    */
   def builtin(aggName: String)(cols: Column*): DataFrame = transformation("builtin") {
     toDF(cols.map(_.expr).map(expr => functions.builtin(aggName)(expr).expr))

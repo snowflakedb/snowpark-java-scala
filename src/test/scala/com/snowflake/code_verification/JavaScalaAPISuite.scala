@@ -1,11 +1,11 @@
 package com.snowflake.code_verification
 
 import com.snowflake.snowpark.{CodeVerification, DataFrame}
-import org.scalatest.FunSuite
+import org.scalatest.funsuite.AnyFunSuite
 
 // verify API Java and Scala API contain same functions
 @CodeVerification
-class JavaScalaAPISuite extends FunSuite {
+class JavaScalaAPISuite extends AnyFunSuite {
   private val scalaCaseClassFunctions = Set(
     "apply",
     "copy",
@@ -18,7 +18,9 @@ class JavaScalaAPISuite extends FunSuite {
     "productArity",
     "unapply",
     "tupled",
-    "curried")
+    "curried",
+    "productElementName",
+    "productElementNames")
 
   // used to get list of Scala Seq functions
   class FakeSeq extends Seq[String] {
@@ -65,7 +67,8 @@ class JavaScalaAPISuite extends FunSuite {
           "unary_not", // Scala API has "unary_!"
           "unary_minus" // Scala API has "unary_-"
         ),
-        class2Only = Set("name" // Java API has "alias"
+        class2Only = Set(
+          "name" // Java API has "alias"
         ) ++ scalaCaseClassFunctions,
         class1To2NameMap = Map("subField" -> "apply")))
   }
@@ -108,9 +111,7 @@ class JavaScalaAPISuite extends FunSuite {
   }
 
   test("CopyableDataFrameAsyncActor") {
-    import com.snowflake.snowpark.{
-      CopyableDataFrameAsyncActor => ScalaCopyableDataFrameAsyncActor
-    }
+    import com.snowflake.snowpark.{CopyableDataFrameAsyncActor => ScalaCopyableDataFrameAsyncActor}
     import com.snowflake.snowpark_java.{
       CopyableDataFrameAsyncActor => JavaCopyableDataFrameAsyncActor
     }
@@ -167,9 +168,7 @@ class JavaScalaAPISuite extends FunSuite {
   }
 
   test("DataFrameWriterAsyncActor") {
-    import com.snowflake.snowpark_java.{
-      DataFrameWriterAsyncActor => JavaDataFrameWriterAsyncActor
-    }
+    import com.snowflake.snowpark_java.{DataFrameWriterAsyncActor => JavaDataFrameWriterAsyncActor}
     import com.snowflake.snowpark.{DataFrameWriterAsyncActor => ScalaDataFrameWriterAsyncActor}
     assert(
       ClassUtils.containsSameFunctionNames(
@@ -317,7 +316,10 @@ class JavaScalaAPISuite extends FunSuite {
         classOf[JavaRow],
         classOf[ScalaRow],
         class1Only = Set(),
-        class2Only = Set("fromArray", "fromSeq", "length" // Java API has "size"
+        class2Only = Set(
+          "fromArray",
+          "fromSeq",
+          "length" // Java API has "size"
         ) ++ scalaCaseClassFunctions,
         class1To2NameMap = Map(
           "toList" -> "toSeq",
@@ -442,8 +444,7 @@ class JavaScalaAPISuite extends FunSuite {
   test("WindowSpec") {
     import com.snowflake.snowpark_java.{WindowSpec => JavaWindowSpec}
     import com.snowflake.snowpark.{WindowSpec => ScalaWindowSpec}
-    assert(
-      ClassUtils.containsSameFunctionNames(classOf[JavaWindowSpec], classOf[ScalaWindowSpec]))
+    assert(ClassUtils.containsSameFunctionNames(classOf[JavaWindowSpec], classOf[ScalaWindowSpec]))
   }
 
   // types
@@ -529,8 +530,7 @@ class JavaScalaAPISuite extends FunSuite {
   test("DoubleType") {
     import com.snowflake.snowpark_java.types.{DoubleType => JavaDoubleType}
     import com.snowflake.snowpark.types.{DoubleType => ScalaDoubleType}
-    assert(
-      ClassUtils.containsSameFunctionNames(classOf[JavaDoubleType], ScalaDoubleType.getClass))
+    assert(ClassUtils.containsSameFunctionNames(classOf[JavaDoubleType], ScalaDoubleType.getClass))
   }
 
   test("FloatType") {
@@ -604,8 +604,7 @@ class JavaScalaAPISuite extends FunSuite {
   test("StringType") {
     import com.snowflake.snowpark_java.types.{StringType => JavaStringType}
     import com.snowflake.snowpark.types.{StringType => ScalaStringType}
-    assert(
-      ClassUtils.containsSameFunctionNames(classOf[JavaStringType], ScalaStringType.getClass))
+    assert(ClassUtils.containsSameFunctionNames(classOf[JavaStringType], ScalaStringType.getClass))
   }
 
   test("TimestampType") {

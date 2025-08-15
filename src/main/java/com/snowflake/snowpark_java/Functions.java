@@ -2559,6 +2559,7 @@ public final class Functions {
         com.snowflake.snowpark.functions.dateadd(
             part, value.toScalaColumn(), expr.toScalaColumn()));
   }
+
   /**
    * Calculates the difference between two date, time, or timestamp columns based on the date or
    * time part requested.
@@ -4142,6 +4143,7 @@ public final class Functions {
   public static Column listagg(Column col) {
     return new Column(com.snowflake.snowpark.functions.listagg(col.toScalaColumn()));
   }
+
   /**
    * Wrapper for Snowflake built-in reverse function. Gets the reversed string. Reverses the order
    * of characters in a string, or of bytes in a binary value. The returned value is the same length
@@ -4383,6 +4385,7 @@ public final class Functions {
     return new Column(
         com.snowflake.snowpark.functions.date_add(start.toScalaColumn(), days.toScalaColumn()));
   }
+
   /**
    * Aggregate function: returns a set of objects with duplicate elements eliminated. Returns the
    * input values, pivoted into an ARRAY. If the input is empty, an empty ARRAY is returned.
@@ -4411,6 +4414,7 @@ public final class Functions {
   public static Column collect_set(Column e) {
     return new Column(com.snowflake.snowpark.functions.collect_set(e.toScalaColumn()));
   }
+
   /**
    * Aggregate function: returns a set of objects with duplicate elements eliminated. Returns the
    * input values, pivoted into an ARRAY. If the input is empty, an empty ARRAY is returned.
@@ -4461,6 +4465,7 @@ public final class Functions {
   public static Column from_unixtime(Column ut) {
     return new Column(com.snowflake.snowpark.functions.from_unixtime(ut.toScalaColumn()));
   }
+
   /**
    * Converts the number of seconds from unix epoch (1970-01-01 00:00:00 UTC) to a string
    * representing the timestamp of that moment in the current system time zone in the given format.
@@ -4511,6 +4516,7 @@ public final class Functions {
   public static Column monotonically_increasing_id() {
     return new Column(com.snowflake.snowpark.functions.monotonically_increasing_id());
   }
+
   /**
    * Returns number of months between dates `start` and `end`.
    *
