@@ -662,10 +662,19 @@ public class JavaRowSuite extends TestBase {
 
   @Test
   public void mkString() {
-    Row row1 = Row.create(1, "hello", 3.14, null, true, Collections.singletonMap("key", "value"), Arrays.asList("a", "b"));
+    Row row1 =
+        Row.create(
+            1,
+            "hello",
+            3.14,
+            null,
+            true,
+            Collections.singletonMap("key", "value"),
+            Arrays.asList("a", "b"));
     assert (row1.mkString().equals("1hello3.14nulltrueMap(key -> value)[a, b]"));
     assert (row1.mkString(",").equals("1,hello,3.14,null,true,Map(key -> value),[a, b]"));
-    assert (row1.mkString("[", " | ", "]").equals("[1 | hello | 3.14 | null | true | Map(key -> value) | [a, b]]"));
+    assert (row1.mkString("[", " | ", "]")
+        .equals("[1 | hello | 3.14 | null | true | Map(key -> value) | [a, b]]"));
 
     Row row2 = Row.create();
     assert (row2.mkString().isEmpty());
