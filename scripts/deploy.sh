@@ -44,8 +44,7 @@ fi
 
 mkdir -p ~/.ivy2
 
-STR=$'realm=Sonatype Nexus Repository Manager
-host=oss.sonatype.org
+STR=$'host=central.sonatype.com
 user='$sonatype_user'
 password='$sonatype_password''
 
@@ -80,16 +79,21 @@ git checkout tags/$github_version_tag
 
 if [ "$PUBLISH" = true ]; then
   if [ -v SNOWPARK_FIPS ]; then
-    echo "[INFO] Publishing snowpark-fips @ tag: $github_version_tag."
+    echo "[INFO] Packaging snowpark-fips @ tag: $github_version_tag."
   else
-    echo "[INFO] Publishing snowpark @ tag: $github_version_tag."
+    echo "[INFO] Packaging snowpark @ tag: $github_version_tag."
   fi
   sbt +publishSigned
-  echo "[INFO] SUCCESS - Released Snowpark Java-Scala v$github_version_tag to Maven."
-
+  echo "[INFO] Staged packaged artifacts locally with PGP signing."
+  sbt sonaUpload
+  echo "[SUCCESS] Uploaded artifacts to central portal."
+  echo "[ACTION-REQUIRED] Please log in to Central Portal to publish artifacts: https://central.sonatype.com/"
+  # TODO: alternatively automate publishing fully
+#  sbt sonaRelease
+#  echo "[SUCCESS] Released Snowpark Java-Scala v$github_version_tag to Maven."
 else
   #release to s3
-  echo "[INFO] Publishing signed artifacts to local ivy2 repository."
+  echo "[INFO] Staging signed artifacts to local ivy2 repository."
   rm -rf ~/.ivy2/local/
   sbt +publishLocalSigned
 
@@ -97,11 +101,11 @@ else
   if [ -v SNOWPARK_FIPS ]; then
     S3_JENKINS_URL="s3://sfc-eng-jenkins/repository/snowparkclient-fips"
     S3_DATA_URL="s3://sfc-eng-data/client/snowparkclient-fips/releases"
-    echo "[INFO] Releasing snowpark-fips to:"
+    echo "[INFO] Uploading snowpark-fips artifacts to:"
   else
     S3_JENKINS_URL="s3://sfc-eng-jenkins/repository/snowparkclient"
     S3_DATA_URL="s3://sfc-eng-data/client/snowparkclient/releases"
-    echo "[INFO] Releasing snowpark to:"
+    echo "[INFO] Uploading snowpark artifacts to:"
   fi
   echo "[INFO]   - $S3_JENKINS_URL/$github_version_tag/"
   echo "[INFO]   - $S3_DATA_URL/$github_version_tag/"
@@ -109,5 +113,5 @@ else
   aws s3 cp ~/.ivy2/local $S3_JENKINS_URL/$github_version_tag/ --recursive
   aws s3 cp ~/.ivy2/local $S3_DATA_URL/$github_version_tag/ --recursive
 
-  echo "[INFO] SUCCESS - Released Snowpark Java-Scala v$github_version_tag to S3."
+  echo "[SUCCESS] Published Snowpark Java-Scala v$github_version_tag artifacts to S3."
 fi

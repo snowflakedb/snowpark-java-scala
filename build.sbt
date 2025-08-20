@@ -257,20 +257,20 @@ lazy val root = (project in file("."))
       Properties.envOrNone("GPG_HEX_CODE").getOrElse("Jenkins_build_not_set_GPG_HEX_CODE"),
       "ignored" // this field is ignored; passwords are supplied by pinentry
     ),
-    resolvers +=
-      "Sonatype OSS Snapshots" at "https://oss.sonatype.org/content/repositories/snapshots",
     // usePgpKeyHex(Properties.envOrElse("GPG_SIGNATURE", "12345")),
     Global / pgpPassphrase := Properties.envOrNone("GPG_KEY_PASSPHRASE").map(_.toCharArray),
     publishMavenStyle := true,
     releaseCrossBuild := true,
     releasePublishArtifactsAction := PgpKeys.publishSigned.value,
-    publishTo := Some(
+    // New setting for the Central Portal
+    publishTo := {
+      val centralSnapshots = "https://central.sonatype.com/repository/maven-snapshots/"
       if (isSnapshot.value) {
-        Opts.resolver.sonatypeOssSnapshots.head
+        Some("central-snapshots" at centralSnapshots)
       } else {
-        Opts.resolver.sonatypeStaging
+        localStaging.value
       }
-    ),
+    },
     pomExtra :=
       <developers>
         <developer>
