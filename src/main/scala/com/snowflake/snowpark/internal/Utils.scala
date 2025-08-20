@@ -24,13 +24,13 @@ import scala.util.Random
 
 object Utils extends Logging {
   val Version: String = BuildInfo.version
-  // Package name of snowpark on server side
-  val SnowparkPackageName = "com.snowflake:snowpark"
-  val PackageNameDelimiter = ":"
   // Define the compat scala version instead of reading from property file
   // because it fails to read the property file in some environment such as
   // VSCode worksheet.
   val ScalaCompatVersion: String = BuildInfo.scalaVersion.split("\\.").take(2).mkString(".")
+  // Package name of snowpark on server side
+  val SnowparkPackageName = s"com.snowflake:snowpark_$ScalaCompatVersion"
+  val PackageNameDelimiter = ":"
 
   // Minimum GS version for us to identify as Snowpark client
   val MinimumGSVersionForSnowparkClientType: String = "5.20.0"
