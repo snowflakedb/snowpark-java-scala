@@ -468,6 +468,86 @@ class Row protected (values: Array[Any], schema: Option[StructType]) extends Ser
     }
   }
 
+  /**
+   * Creates a string representation of all elements in this Row without any separators.
+   *
+   * Example:
+   * {{{
+   *   val row = Row(1, "hello", 3.14, null)
+   *   row.mkString
+   *   // res: String = "1hello3.14null"
+   * }}}
+   *
+   * @return
+   *   a string containing all field values concatenated together
+   * @since 1.17.0
+   */
+  def mkString: String = mkString("")
+
+  /**
+   * Creates a string representation of all elements in this Row using the specified separator.
+   *
+   * Example:
+   * {{{
+   *   val row = Row(1, "hello", 3.14, null)
+   *   row.mkString(", ")
+   *   // res: String = "1, hello, 3.14, null"
+   *
+   *   row.mkString(" | ")
+   *   // res: String = "1 | hello | 3.14 | null"
+   *
+   *   row.mkString("")
+   *   // res: String = "1hello3.14null"
+   * }}}
+   *
+   * @param sep
+   *   the separator string to insert between field values
+   * @return
+   *   a string containing all field values separated by the given separator
+   * @since 1.17.0
+   */
+  def mkString(sep: String): String = mkString("", sep, "")
+
+  /**
+   * Creates a string representation of all elements in this Row using the specified start string,
+   * separator, and end string.
+   *
+   * Example:
+   * {{{
+   *   val row = Row(1, "hello", 3.14, null)
+   *   row.mkString("[", " | ", "]")
+   *   // res: String = "[1 | hello | 3.14 | null]"
+   *
+   *   val emptyRow = Row()
+   *   emptyRow.mkString("(", ", ", ")")
+   *   // res: String = "()"
+   * }}}
+   *
+   * @param start
+   *   the string to prepend to the result
+   * @param sep
+   *   the separator string to insert between field values
+   * @param end
+   *   the string to append to the result
+   * @return
+   *   a string containing all field values formatted with the specified start, separator, and end
+   * @since 1.17.0
+   */
+  def mkString(start: String, sep: String, end: String): String = {
+    if (length == 0) {
+      return start + end
+    }
+
+    val builder = new StringBuilder(start)
+    builder.append(get(0))
+
+    for (i <- 1 until length) {
+      builder.append(sep).append(get(i))
+    }
+
+    builder.append(end).toString()
+  }
+
   protected def convertValueToString(value: Any): String =
     value match {
       case null => "null"

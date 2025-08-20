@@ -659,4 +659,29 @@ public class JavaRowSuite extends TestBase {
     assert (row.fieldIndex("NumVal") == 1);
     assertThrows(IllegalArgumentException.class, () -> row.fieldIndex("NonExistingColumn"));
   }
+
+  @Test
+  public void mkString() {
+    Row row1 = Row.create(1, "hello", 3.14, null, true, Collections.singletonMap("key", "value"), Arrays.asList("a", "b"));
+    assert (row1.mkString().equals("1hello3.14nulltrueMap(key -> value)[a, b]"));
+    assert (row1.mkString(",").equals("1,hello,3.14,null,true,Map(key -> value),[a, b]"));
+    assert (row1.mkString("[", " | ", "]").equals("[1 | hello | 3.14 | null | true | Map(key -> value) | [a, b]]"));
+
+    Row row2 = Row.create();
+    assert (row2.mkString().isEmpty());
+    assert (row2.mkString(",").isEmpty());
+    assert (row2.mkString("[", " | ", "]").equals("[]"));
+
+    Row row3 = Row.create("test");
+    assert (row3.mkString().equals("test"));
+    assert (row3.mkString(",").equals("test"));
+    assert (row3.mkString("[", " | ", "]").equals("[test]"));
+
+    Row row4 = Row.create("a", "b", "c");
+    assert (row4.mkString("\n").equals("a\nb\nc"));
+    assert (row4.mkString("\t").equals("a\tb\tc"));
+    assert (row4.mkString("\\").equals("a\\b\\c"));
+    assert (row4.mkString("\"").equals("a\"b\"c"));
+    assert (row4.mkString("'").equals("a'b'c"));
+  }
 }

@@ -444,4 +444,32 @@ class RowSuite extends SNTestBase {
     assert(row2.getVariant(0) == new Variant("{\"1\": \"one\"}"))
     assert(row2.getVariant(1) == new Variant("{\"2\": \"two\"}"))
   }
+
+  test("mkString") {
+    val row1 = Row(1, "hello", 3.14, null, true, Map("key" -> "value"), Seq("a", "b"))
+    assert(row1.mkString == "1hello3.14nulltrueMap(key -> value)List(a, b)")
+    assert(row1.mkString(",") == "1,hello,3.14,null,true,Map(key -> value),List(a, b)")
+    assert(
+      row1.mkString(
+        "[",
+        " | ",
+        "]") == "[1 | hello | 3.14 | null | true | Map(key -> value) | List(a, b)]")
+
+    val row2 = Row()
+    assert(row2.mkString == "")
+    assert(row2.mkString(",") == "")
+    assert(row2.mkString("[", " | ", "]") == "[]")
+
+    val row3 = Row("test")
+    assert(row3.mkString == "test")
+    assert(row3.mkString(",") == "test")
+    assert(row3.mkString("[", " | ", "]") == "[test]")
+
+    val row4 = Row("a", "b", "c")
+    assert(row4.mkString("\n") == "a\nb\nc")
+    assert(row4.mkString("\t") == "a\tb\tc")
+    assert(row4.mkString("\\") == "a\\b\\c")
+    assert(row4.mkString("\"") == "a\"b\"c")
+    assert(row4.mkString("'") == "a'b'c")
+  }
 }
