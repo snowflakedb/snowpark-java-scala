@@ -7,12 +7,12 @@ Are you an external contibutor? Follow this guide to make your first pull reques
 ### Prerequisites
 
 - Java 11
-- Maven 3
+- SBT
 - A Snowflake account
 
 ### Setup instructions
 
-1. Create a fork of this repository into your personal account and clone the repo locally. 
+1. Create a fork of this repository into your personal account and clone the repo locally.
 2. Create `profile.properties` from the template (`profile.properties.example`).
 3. Run the test suite using the following command
 

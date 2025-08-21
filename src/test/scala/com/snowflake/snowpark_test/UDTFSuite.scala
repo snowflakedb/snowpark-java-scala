@@ -1714,20 +1714,15 @@ class UDTFSuite extends TestData {
   }
 
   test("test input Type: Date/Time/TimeStamp", JavaStoredProcExclude) {
-    val oldTimeZone = TimeZone.getDefault
-    val sfTimezone =
-      session.sql("SHOW PARAMETERS LIKE 'TIMEZONE' IN SESSION").collect().head.getString(1)
-    try {
-      // Test with UTC timezone
-      session.sql("alter session set TIMEZONE = 'UTC'").collect()
-      TimeZone.setDefault(TimeZone.getTimeZone(sfTimezone))
-
+    testWithTimezone() {
       class UDTFInputTimestampTypes extends UDTF3[Date, Time, Timestamp] {
         override def process(date: Date, time: Time, timestamp: Timestamp): Iterable[Row] = {
           val row = Row(date.toString, time.toString, timestamp.toString)
           Seq(row)
         }
+
         override def endPartition(): Iterable[Row] = Seq.empty
+
         override def outputSchema(): StructType =
           StructType(
             StructField("date_str", StringType),
@@ -1771,9 +1766,6 @@ class UDTFSuite extends TestData {
             "2022-01-25",
             "12:13:14",
             "2022-01-25 12:13:14.123")))
-    } finally {
-      TimeZone.setDefault(oldTimeZone)
-      session.sql(s"alter session set TIMEZONE = '$sfTimezone'").collect()
     }
   }
 
@@ -1931,14 +1923,7 @@ class UDTFSuite extends TestData {
   }
 
   test("test output type: Time, Date, Timestamp", JavaStoredProcExclude) {
-    val oldTimeZone = TimeZone.getDefault
-    val sfTimezone =
-      session.sql("SHOW PARAMETERS LIKE 'TIMEZONE' IN SESSION").collect().head.getString(1)
-    try {
-      // Test with UTC timezone
-      session.sql("alter session set TIMEZONE = 'UTC'").collect()
-      TimeZone.setDefault(TimeZone.getTimeZone(sfTimezone))
-
+    testWithTimezone() {
       class ReturnTimestampTypes3 extends UDTF1[String] {
         override def process(data: String): Iterable[Row] = {
           val timestamp = java.sql.Timestamp.valueOf(data)
@@ -1946,7 +1931,9 @@ class UDTFSuite extends TestData {
           val date = java.sql.Date.valueOf(data.split(" ").head)
           Seq(Row(time, date, timestamp), Row(time, date, timestamp))
         }
+
         override def endPartition(): Iterable[Row] = Seq.empty
+
         override def outputSchema(): StructType =
           StructType(
             StructField("time", TimeType),
@@ -1974,9 +1961,6 @@ class UDTFSuite extends TestData {
         Seq(
           Row(ts, Time.valueOf(time), Date.valueOf(date), Timestamp.valueOf(ts)),
           Row(ts, Time.valueOf(time), Date.valueOf(date), Timestamp.valueOf(ts))))
-    } finally {
-      TimeZone.setDefault(oldTimeZone)
-      session.sql(s"alter session set TIMEZONE = '$sfTimezone'").collect()
     }
   }
 

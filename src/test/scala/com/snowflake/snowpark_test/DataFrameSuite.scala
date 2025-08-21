@@ -1448,15 +1448,18 @@ trait DataFrameSuite extends TestData with BeforeAndAfterEach {
   }
 
   test("time, date and timestamp test") {
-    assert(session.sql("select '00:00:00' :: Time").collect()(0).getTime(0).toString == "00:00:00")
-    assert(
-      session
-        .sql("select '1970-1-1 00:00:00' :: Timestamp")
-        .collect()(0)
-        .getTimestamp(0)
-        .toString == "1970-01-01 00:00:00.0")
-    assert(
-      session.sql("select '1970-1-1' :: Date").collect()(0).getDate(0).toString == "1970-01-01")
+    testWithTimezone() {
+      assert(
+        session.sql("select '00:00:00' :: Time").collect()(0).getTime(0).toString == "00:00:00")
+      assert(
+        session
+          .sql("select '1970-1-1 00:00:00' :: Timestamp")
+          .collect()(0)
+          .getTimestamp(0)
+          .toString == "1970-01-01 00:00:00.0")
+      assert(
+        session.sql("select '1970-1-1' :: Date").collect()(0).getDate(0).toString == "1970-01-01")
+    }
   }
 
   test("quoted column names") {
@@ -1967,31 +1970,33 @@ trait DataFrameSuite extends TestData with BeforeAndAfterEach {
   }
 
   test("with columns keep order", JavaStoredProcExclude) {
-    val data = new Variant(
-      Map("STARTTIME" -> 0, "ENDTIME" -> 10000, "START_STATION_ID" -> 2, "END_STATION_ID" -> 3))
-    val df = Seq((1, data)).toDF("TRIPID", "V")
+    testWithTimezone("America/Los_Angeles") {
+      val data = new Variant(
+        Map("STARTTIME" -> 0, "ENDTIME" -> 10000, "START_STATION_ID" -> 2, "END_STATION_ID" -> 3))
+      val df = Seq((1, data)).toDF("TRIPID", "V")
 
-    val result = df.withColumns(
-      Seq("starttime", "endtime", "duration", "start_station_id", "end_station_id"),
-      Seq(
-        to_timestamp(get(col("V"), lit("STARTTIME"))),
-        to_timestamp(get(col("V"), lit("ENDTIME"))),
-        datediff("minute", col("STARTTIME"), col("ENDTIME")),
-        as_integer(get(col("V"), lit("START_STATION_ID"))),
-        as_integer(get(col("V"), lit("END_STATION_ID")))))
+      val result = df.withColumns(
+        Seq("starttime", "endtime", "duration", "start_station_id", "end_station_id"),
+        Seq(
+          to_timestamp(get(col("V"), lit("STARTTIME"))),
+          to_timestamp(get(col("V"), lit("ENDTIME"))),
+          datediff("minute", col("STARTTIME"), col("ENDTIME")),
+          as_integer(get(col("V"), lit("START_STATION_ID"))),
+          as_integer(get(col("V"), lit("END_STATION_ID")))))
 
-    checkAnswer(
-      result,
-      Seq(
-        Row(
-          1,
-          "{\n  \"ENDTIME\": 10000,\n  \"END_STATION_ID\": 3," +
-            "\n  \"STARTTIME\": 0,\n  \"START_STATION_ID\": 2\n}",
-          Timestamp.valueOf("1969-12-31 16:00:00.0"),
-          Timestamp.valueOf("1969-12-31 18:46:40.0"),
-          166,
-          2,
-          3)))
+      checkAnswer(
+        result,
+        Seq(
+          Row(
+            1,
+            "{\n  \"ENDTIME\": 10000,\n  \"END_STATION_ID\": 3," +
+              "\n  \"STARTTIME\": 0,\n  \"START_STATION_ID\": 2\n}",
+            Timestamp.valueOf("1969-12-31 16:00:00.0"),
+            Timestamp.valueOf("1969-12-31 18:46:40.0"),
+            166,
+            2,
+            3)))
+    }
   }
 
   test("withColumns input doesn't match each other") {

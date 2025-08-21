@@ -3,10 +3,8 @@ package com.snowflake.snowpark_test
 import com.snowflake.snowpark.{Row, SNTestBase, TestUtils}
 import com.snowflake.snowpark.types._
 import com.snowflake.snowpark.functions._
-import com.snowflake.snowpark.internal.Utils
 
 import java.sql.{Date, Time, Timestamp}
-import java.util.TimeZone
 
 // Test DataTypes out of com.snowflake.snowpark package.
 class DataTypeSuite extends SNTestBase {
@@ -184,11 +182,8 @@ class DataTypeSuite extends SNTestBase {
   }
 
   test("read Structured Array") {
-    structuredTypeTest {
-      val oldTimeZone = TimeZone.getDefault
-      try {
-        // Need to set default time zone because the expected result has timestamp data
-        TimeZone.setDefault(TimeZone.getTimeZone("US/Pacific"))
+    testWithTimezone() {
+      structuredTypeTest {
         val query =
           """SELECT
             |    [1, 2, 3]::ARRAY(NUMBER) AS arr1,
@@ -221,8 +216,6 @@ class DataTypeSuite extends SNTestBase {
             Array(Array(1L, 2L), Array(3L, 4L)),
             Array(java.math.BigDecimal.valueOf(1.234)),
             Array(Time.valueOf("10:03:56"))))
-      } finally {
-        TimeZone.setDefault(oldTimeZone)
       }
     }
   }

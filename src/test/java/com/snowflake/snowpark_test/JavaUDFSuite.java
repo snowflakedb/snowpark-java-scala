@@ -115,35 +115,43 @@ public class JavaUDFSuite extends UDFTestBase {
 
   @Test
   public void udfOfDate() {
-    Row[] data = {
-      Row.create(
-          Date.valueOf("2021-12-07"),
-          Timestamp.valueOf("2019-01-01 00:00:00"),
-          Time.valueOf("01:02:03"))
-    };
-    StructType schema =
-        StructType.create(
-            new StructField("date", DataTypes.DateType),
-            new StructField("timestamp", DataTypes.TimestampType),
-            new StructField("time", DataTypes.TimeType));
-    DataFrame df = getSession().createDataFrame(data, schema);
+    withTimeZoneTest(
+        () -> {
+          Row[] data = {
+            Row.create(
+                Date.valueOf("2021-12-07"),
+                Timestamp.valueOf("2019-01-01 00:00:00"),
+                Time.valueOf("01:02:03"))
+          };
+          StructType schema =
+              StructType.create(
+                  new StructField("date", DataTypes.DateType),
+                  new StructField("timestamp", DataTypes.TimestampType),
+                  new StructField("time", DataTypes.TimeType));
+          DataFrame df = getSession().createDataFrame(data, schema);
 
-    UserDefinedFunction udf1 =
-        Functions.udf((Date date) -> date, DataTypes.DateType, DataTypes.DateType);
-    checkAnswer(
-        df.select(udf1.apply(df.col("date"))), new Row[] {Row.create(Date.valueOf("2021-12-07"))});
+          UserDefinedFunction udf1 =
+              Functions.udf((Date date) -> date, DataTypes.DateType, DataTypes.DateType);
+          checkAnswer(
+              df.select(udf1.apply(df.col("date"))),
+              new Row[] {Row.create(Date.valueOf("2021-12-07"))});
 
-    UserDefinedFunction udf2 =
-        Functions.udf(
-            (Timestamp timestamp) -> timestamp, DataTypes.TimestampType, DataTypes.TimestampType);
-    checkAnswer(
-        df.select(udf2.apply(df.col("timestamp"))),
-        new Row[] {Row.create(Timestamp.valueOf("2019-01-01 00:00:00"))});
+          UserDefinedFunction udf2 =
+              Functions.udf(
+                  (Timestamp timestamp) -> timestamp,
+                  DataTypes.TimestampType,
+                  DataTypes.TimestampType);
+          checkAnswer(
+              df.select(udf2.apply(df.col("timestamp"))),
+              new Row[] {Row.create(Timestamp.valueOf("2019-01-01 00:00:00"))});
 
-    UserDefinedFunction udf3 =
-        Functions.udf((Time time) -> time, DataTypes.TimeType, DataTypes.TimeType);
-    checkAnswer(
-        df.select(udf3.apply(df.col("time"))), new Row[] {Row.create(Time.valueOf("01:02:03"))});
+          UserDefinedFunction udf3 =
+              Functions.udf((Time time) -> time, DataTypes.TimeType, DataTypes.TimeType);
+          checkAnswer(
+              df.select(udf3.apply(df.col("time"))),
+              new Row[] {Row.create(Time.valueOf("01:02:03"))});
+        },
+        getSession());
   }
 
   @Test

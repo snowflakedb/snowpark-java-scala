@@ -7,7 +7,6 @@ import com.snowflake.snowpark.types._
 import net.snowflake.client.jdbc.SnowflakeSQLException
 
 import java.sql.{Date, Time}
-import java.util.TimeZone
 import scala.util.Random
 
 class DataFrameWriterSuite extends TestData {
@@ -362,24 +361,21 @@ class DataFrameWriterSuite extends TestData {
   //  [ PARTITION BY <expr> ]
   //  [ HEADER ]
   test("write CSV files: sub clause", JavaStoredProcExclude) {
-    val oldTimeZone = TimeZone.getDefault
-    val sfTimezone =
-      session.sql("SHOW PARAMETERS LIKE 'TIMEZONE' IN SESSION").collect().head.getString(1)
-    try {
+    testWithTimezone() {
       runQuery(
         s"""create or replace table $tableName (
-         |  dt date,
-         |  ts time
-         |  )
-         |as
-         |  select to_date($$1)
-         |        ,to_time($$2)
-         |    from values
-         |           ('2020-01-26', '18:05')
-         |          ,('2020-01-27', '22:57')
-         |          ,('2020-01-28', null)
-         |          ,('2020-01-29', '02:15')
-         |""".stripMargin,
+           |  dt date,
+           |  ts time
+           |  )
+           |as
+           |  select to_date($$1)
+           |        ,to_time($$2)
+           |    from values
+           |           ('2020-01-26', '18:05')
+           |          ,('2020-01-27', '22:57')
+           |          ,('2020-01-28', null)
+           |          ,('2020-01-29', '02:15')
+           |""".stripMargin,
         session)
       val schema = StructType(Seq(StructField("dt", DateType), StructField("tm", TimeType)))
       val df = session.table(tableName)
@@ -402,9 +398,6 @@ class DataFrameWriterSuite extends TestData {
           Row(Date.valueOf("2020-01-27"), Time.valueOf("22:57:00")),
           Row(Date.valueOf("2020-01-28"), null),
           Row(Date.valueOf("2020-01-29"), Time.valueOf("02:15:00"))))
-    } finally {
-      TimeZone.setDefault(oldTimeZone)
-      session.sql(s"alter session set TIMEZONE = '$sfTimezone'").collect()
     }
   }
 

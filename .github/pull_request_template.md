@@ -1,8 +1,6 @@
-Please answer these questions before submitting your pull requests. Thanks!
+1. What Jira ticket or GitHub issue is this PR addressing? Make sure that there is a ticket or issue accompanying your PR.
 
-1. What GitHub issue is this PR addressing? Make sure that there is an accompanying issue to your PR.
-
-   Fixes #NNNN
+   Fixes #NNNN/SNOW-NNNNNNN
 
 2. Fill out the following pre-review checklist:
 
@@ -15,10 +13,3 @@ Please answer these questions before submitting your pull requests. Thanks!
 3. Please describe how your code solves the related issue.
 
    *Replace this with a short description of how your code change solves the related issue.*
-
-## Pre-review checklist
-
-(For Snowflake employees)
-
-- [ ] This change has passed precommit
-- [ ] I have reviewed code coverage report for my PR in  ([Sonarqube](https://sonarqube.int.snowflakecomputing.com/dashboard?id=snowpark))

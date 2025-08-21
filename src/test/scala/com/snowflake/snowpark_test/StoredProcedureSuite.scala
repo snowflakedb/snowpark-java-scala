@@ -150,12 +150,14 @@ class StoredProcedureSuite extends SNTestBase {
   }
 
   test("Timestamp") {
-    val time = Timestamp.valueOf("2019-01-01 00:00:00")
-    val date = Date.valueOf("2019-01-01")
-    val d = session.sproc.registerTemporary((_: Session, d: Date) => d)
-    val t = session.sproc.registerTemporary((_: Session, t: Timestamp) => t)
-    checkAnswer(session.storedProcedure(d, date), Seq(Row(date)))
-    checkAnswer(session.storedProcedure(t, time), Seq(Row(time)))
+    testWithTimezone() {
+      val time = Timestamp.valueOf("2019-01-01 00:00:00")
+      val date = Date.valueOf("2019-01-01")
+      val d = session.sproc.registerTemporary((_: Session, d: Date) => d)
+      val t = session.sproc.registerTemporary((_: Session, t: Timestamp) => t)
+      checkAnswer(session.storedProcedure(d, date), Seq(Row(date)))
+      checkAnswer(session.storedProcedure(t, time), Seq(Row(time)))
+    }
   }
 
   test("permanent: 0 args", JavaStoredProcExclude) {

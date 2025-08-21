@@ -359,43 +359,47 @@ trait UDFSuite extends TestData {
 
   // Excluding this test for known Timezone issue in stored proc
   test("Test for date and timestamp data type", JavaStoredProcExclude) {
-    val input = Seq(
-      (Date.valueOf("2019-01-01"), Timestamp.valueOf("2019-01-01 00:00:00")),
-      (Date.valueOf("2020-01-01"), Timestamp.valueOf("2020-01-01 00:00:00")),
-      (null, null))
-    val out = input.map {
-      case (null, null) => Row(null, null)
-      case (a, b) =>
-        Row(new Timestamp(a.getTime), new Date(b.getTime))
-    }
-    val dates = input.toDF("date", "timestamp")
-    val toSNUDF = udf((x: Date) => if (x == null) null else new Timestamp(x.getTime))
-    val toDateUDF = udf((x: Timestamp) => if (x == null) null else new Date(x.getTime))
+    testWithTimezone() {
+      val input = Seq(
+        (Date.valueOf("2019-01-01"), Timestamp.valueOf("2019-01-01 00:00:00")),
+        (Date.valueOf("2020-01-01"), Timestamp.valueOf("2020-01-01 00:00:00")),
+        (null, null))
+      val out = input.map {
+        case (null, null) => Row(null, null)
+        case (a, b) =>
+          Row(new Timestamp(a.getTime), new Date(b.getTime))
+      }
+      val dates = input.toDF("date", "timestamp")
+      val toSNUDF = udf((x: Date) => if (x == null) null else new Timestamp(x.getTime))
+      val toDateUDF = udf((x: Timestamp) => if (x == null) null else new Date(x.getTime))
 
-    checkAnswer(
-      dates
-        .withColumn("c", toSNUDF(col("date")))
-        .withColumn("d", toDateUDF(col("timestamp")))
-        .select($"c", $"d"),
-      out)
+      checkAnswer(
+        dates
+          .withColumn("c", toSNUDF(col("date")))
+          .withColumn("d", toDateUDF(col("timestamp")))
+          .select($"c", $"d"),
+        out)
+    }
   }
 
   test("Test for time, date, timestamp with snowflake timezone") {
-    var df = session.sql("select '00:00:00' :: time as col1")
-    var addUDF = udf((x: Time) => new Time(x.getTime + 5000))
-    assert(df.select(addUDF(col("col1"))).collect()(0).getTime(0).toString == "00:00:05")
+    testWithTimezone() {
+      var df = session.sql("select '00:00:00' :: time as col1")
+      var addUDF = udf((x: Time) => new Time(x.getTime + 5000))
+      assert(df.select(addUDF(col("col1"))).collect()(0).getTime(0).toString == "00:00:05")
 
-    df = session.sql("select '2020-1-1' :: date as col1")
-    addUDF = udf((x: Date) => new Date(x.getTime + 3600 * 1000 * 24))
-    assert(df.select(addUDF(col("col1"))).collect()(0).getDate(0).toString == "2020-01-02")
+      df = session.sql("select '2020-1-1' :: date as col1")
+      addUDF = udf((x: Date) => new Date(x.getTime + 3600 * 1000 * 24))
+      assert(df.select(addUDF(col("col1"))).collect()(0).getDate(0).toString == "2020-01-02")
 
-    df = session.sql("select '2020-1-1 00:00:00' :: timestamp as col1")
-    addUDF = udf((x: Timestamp) => new Timestamp(x.getTime + 5000))
-    assert(
-      df.select(addUDF(col("col1")))
-        .collect()(0)
-        .getTimestamp(0)
-        .toString == "2020-01-01 00:00:05.0")
+      df = session.sql("select '2020-1-1 00:00:00' :: timestamp as col1")
+      addUDF = udf((x: Timestamp) => new Timestamp(x.getTime + 5000))
+      assert(
+        df.select(addUDF(col("col1")))
+          .collect()(0)
+          .getTimestamp(0)
+          .toString == "2020-01-01 00:00:05.0")
+    }
   }
 
   test("Test for Geography data type") {
@@ -469,6 +473,8 @@ trait UDFSuite extends TestData {
 
   // Excluding this test for known Timezone issue in stored proc
   test("Test for Variant Timestamp input", JavaStoredProcExclude) {
+    // TODO: Figure out why testWithTimezone causes test flakiness
+    // testWithTimezone("America/Los_Angeles") {
     val variantTimestampUDF = udf((v: Variant) => {
       if (v == null) {
         null
@@ -482,10 +488,13 @@ trait UDFSuite extends TestData {
     checkAnswer(
       variant1.select(variantTimestampUDF(col("timestamp_ntz1"))),
       Seq(Row(Timestamp.valueOf("2017-02-24 20:00:05.456"))))
+    // }
   }
 
   // Excluding this test for known Timezone issue in stored proc
   test("Test for Variant Time input", JavaStoredProcExclude) {
+    // TODO: Figure out why testWithTimezone causes test flakiness
+    // testWithTimezone("America/Los_Angeles") {
     val variantTimeUDF = udf((v: Variant) => new Timestamp(v.asTime().getTime + 5000))
 
     // The UDF will add 5 seconds to the time. There is precision loss in the time.
@@ -494,10 +503,13 @@ trait UDFSuite extends TestData {
     checkAnswer(
       variant1.select(variantTimeUDF(col("time1"))),
       Seq(Row(Timestamp.valueOf("1970-01-02 04:57:06.0"))))
+    // }
   }
 
   // Excluding this test for known Timezone issue in stored proc
   test("Test for Variant Date input", JavaStoredProcExclude) {
+    // TODO: Figure out why testWithTimezone causes test flakiness
+    // testWithTimezone("America/Los_Angeles") {
     val variantUDF = udf((v: Variant) => new Timestamp(v.asDate().getTime + 5000))
 
     // The UDF will add 5 seconds to the date.
@@ -506,6 +518,7 @@ trait UDFSuite extends TestData {
     checkAnswer(
       variant1.select(variantUDF(col("date1"))),
       Seq(Row(Timestamp.valueOf("2017-02-24 08:00:05.0"))))
+    // }
   }
 
   test("Test for Variant String input") {
@@ -581,21 +594,27 @@ trait UDFSuite extends TestData {
   }
 
   test("Test for Date Variant output") {
-    val variantOutputUDF = udf((_: Variant) => new Variant(Date.valueOf("2020-10-10")))
-    checkAnswer(variant1.select(variantOutputUDF(col("num1"))), Seq(Row("\"2020-10-10\"")))
+    testWithTimezone() {
+      val variantOutputUDF = udf((_: Variant) => new Variant(Date.valueOf("2020-10-10")))
+      checkAnswer(variant1.select(variantOutputUDF(col("num1"))), Seq(Row("\"2020-10-10\"")))
+    }
   }
 
   test("Test for Time Variant output") {
-    val variantOutputUDF = udf((_: Variant) => new Variant(Time.valueOf("01:02:03")))
-    checkAnswer(variant1.select(variantOutputUDF(col("num1"))), Seq(Row("\"01:02:03\"")))
+    testWithTimezone() {
+      val variantOutputUDF = udf((_: Variant) => new Variant(Time.valueOf("01:02:03")))
+      checkAnswer(variant1.select(variantOutputUDF(col("num1"))), Seq(Row("\"01:02:03\"")))
+    }
   }
 
   test("Test for Timestamp Variant output") {
-    val variantOutputUDF =
-      udf((_: Variant) => new Variant(Timestamp.valueOf("2020-10-10 01:02:03")))
-    checkAnswer(
-      variant1.select(variantOutputUDF(col("num1"))),
-      Seq(Row("\"2020-10-10 01:02:03.0\"")))
+    testWithTimezone() {
+      val variantOutputUDF =
+        udf((_: Variant) => new Variant(Timestamp.valueOf("2020-10-10 01:02:03")))
+      checkAnswer(
+        variant1.select(variantOutputUDF(col("num1"))),
+        Seq(Row("\"2020-10-10 01:02:03.0\"")))
+    }
   }
 
   test("Test for Array[Variant]") {
@@ -637,21 +656,25 @@ trait UDFSuite extends TestData {
 
   // Excluding this test for known Timezone issue in stored proc
   test("Test for time and timestamp data type", JavaStoredProcExclude) {
-    createTable(tableName, "time time, timestamp timestamp")
-    runQuery(
-      s"insert into $tableName select to_time(a), to_timestamp(b) from values('01:02:03', " +
-        s"'1970-01-01 01:02:03'),(null, null) as T(a, b)",
-      session)
-    val times = session.table(tableName)
-    val toSNUDF = udf((x: Time) => if (x == null) null else new Timestamp(x.getTime))
-    val toTimeUDF = udf((x: Timestamp) => if (x == null) null else new Time(x.getTime))
+    testWithTimezone() {
+      createTable(tableName, "time time, timestamp timestamp")
+      runQuery(
+        s"insert into $tableName select to_time(a), to_timestamp(b) from values('01:02:03', " +
+          s"'1970-01-01 01:02:03'),(null, null) as T(a, b)",
+        session)
+      val times = session.table(tableName)
+      val toSNUDF = udf((x: Time) => if (x == null) null else new Timestamp(x.getTime))
+      val toTimeUDF = udf((x: Timestamp) => if (x == null) null else new Time(x.getTime))
 
-    checkAnswer(
-      times
-        .withColumn("c", toSNUDF(col("time")))
-        .withColumn("d", toTimeUDF(col("timestamp")))
-        .select($"c", $"d"),
-      Seq(Row(Timestamp.valueOf("1970-01-01 01:02:03"), Time.valueOf("01:02:03")), Row(null, null)))
+      checkAnswer(
+        times
+          .withColumn("c", toSNUDF(col("time")))
+          .withColumn("d", toTimeUDF(col("timestamp")))
+          .select($"c", $"d"),
+        Seq(
+          Row(Timestamp.valueOf("1970-01-01 01:02:03"), Time.valueOf("01:02:03")),
+          Row(null, null)))
+    }
   }
   // Excluding the tests for 2 to 22 args from stored procs to limit overall time
   // of the UDFSuite run as a regression test

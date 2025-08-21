@@ -128,22 +128,28 @@ public class JavaStoredProcedureSuite extends UDFTestBase {
 
   @Test
   public void timestamp() {
-    Timestamp time = Timestamp.valueOf("2019-01-01 00:00:00");
-    Date date = Date.valueOf("2019-01-01");
-    StoredProcedure d =
-        getSession()
-            .sproc()
-            .registerTemporary(
-                (Session session, Date date1) -> date1, DataTypes.DateType, DataTypes.DateType);
-    StoredProcedure t =
-        getSession()
-            .sproc()
-            .registerTemporary(
-                (Session session, Timestamp time1) -> time1,
-                DataTypes.TimestampType,
-                DataTypes.TimestampType);
-    checkAnswer(getSession().storedProcedure(d, date), new Row[] {Row.create(date)});
-    checkAnswer(getSession().storedProcedure(t, time), new Row[] {Row.create(time)});
+    withTimeZoneTest(
+        () -> {
+          Timestamp time = Timestamp.valueOf("2019-01-01 00:00:00");
+          Date date = Date.valueOf("2019-01-01");
+          StoredProcedure d =
+              getSession()
+                  .sproc()
+                  .registerTemporary(
+                      (Session session, Date date1) -> date1,
+                      DataTypes.DateType,
+                      DataTypes.DateType);
+          StoredProcedure t =
+              getSession()
+                  .sproc()
+                  .registerTemporary(
+                      (Session session, Timestamp time1) -> time1,
+                      DataTypes.TimestampType,
+                      DataTypes.TimestampType);
+          checkAnswer(getSession().storedProcedure(d, date), new Row[] {Row.create(date)});
+          checkAnswer(getSession().storedProcedure(t, time), new Row[] {Row.create(time)});
+        },
+        getSession());
   }
 
   @Test

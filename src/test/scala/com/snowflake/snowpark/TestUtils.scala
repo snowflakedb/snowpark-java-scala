@@ -2,7 +2,7 @@ package com.snowflake.snowpark
 
 import java.io.{BufferedWriter, File, FileInputStream, FileOutputStream, FileWriter}
 import java.nio.file.Files
-import java.sql.{Date, ResultSet, ResultSetMetaData, Statement, Time, Timestamp}
+import java.sql.{Date, ResultSetMetaData, Statement, Time, Timestamp}
 import java.util.jar.JarOutputStream
 import com.snowflake.snowpark.RelationalGroupedDataFrame.GroupType
 import com.snowflake.snowpark.internal.{
@@ -14,7 +14,6 @@ import com.snowflake.snowpark.internal.{
   UDFClassPath,
   Utils
 }
-import com.snowflake.snowpark.internal.UDFClassPath.getPathForClass
 import com.snowflake.snowpark.internal.analyzer.{quoteName, quoteNameWithoutUpperCasing}
 import com.snowflake.snowpark.types._
 import com.snowflake.snowpark_java.types.{InternalUtils, StructType => JavaStructType}
@@ -34,9 +33,7 @@ import org.scalatest.funsuite.AnyFunSuite
 import java.security.Provider
 import scala.collection.JavaConverters._
 import scala.collection.mutable.ArrayBuffer
-import scala.reflect.api.Universe
 import scala.reflect.io.Directory
-import scala.tools.nsc.Global
 import scala.util.Random
 
 object TestUtils extends Logging {

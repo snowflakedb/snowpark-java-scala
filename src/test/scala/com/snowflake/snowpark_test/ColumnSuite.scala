@@ -628,10 +628,7 @@ class ColumnSuite extends TestData {
   }
 
   test("In Expression 3: IN with all types") {
-    val oldTimeZone = TimeZone.getDefault
-    try {
-      // Need to set default time zone because the expected result has timestamp data
-      TimeZone.setDefault(TimeZone.getTimeZone("US/Pacific"))
+    testWithTimezone("America/Los_Angeles") {
       val schema = StructType(
         Seq(
           StructField("ID", LongType),
@@ -701,8 +698,6 @@ class ColumnSuite extends TestData {
             |------------------------------------------------------------------------------------------------------------------------------------------------------
             |""".stripMargin)
       // scalastyle:on
-    } finally {
-      TimeZone.setDefault(oldTimeZone)
     }
   }
 

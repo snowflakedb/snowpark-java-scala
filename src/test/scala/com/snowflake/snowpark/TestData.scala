@@ -1,7 +1,80 @@
 package com.snowflake.snowpark
 
+import java.util.TimeZone
+
 trait TestData extends SNTestBase {
   import session.implicits._
+
+  val defaultTimezone = TimeZone.getDefault
+  val oldSfTimeZone =
+    session.sql("SHOW PARAMETERS LIKE 'TIMEZONE' IN SESSION").collect().head.getString(1)
+
+  TimeZone.setDefault(TimeZone.getTimeZone("UTC"))
+  session.runQuery(s"alter session set TIMEZONE = 'UTC'")
+
+  val variant1: DataFrame =
+    session.sql(
+      "select to_variant(to_array('Example')) as arr1," +
+        " to_variant(to_object(parse_json('{\"Tree\": \"Pine\"}'))) as obj1, " +
+        " to_variant(to_binary('snow', 'utf-8')) as bin1," +
+        " to_variant(true) as bool1," +
+        " to_variant('X') as str1, " +
+        " to_variant(to_date('2017-02-24')) as date1, " +
+        " to_variant(to_time('20:57:01.123456789+07:00')) as time1, " +
+        " to_variant(to_timestamp_ntz('2017-02-24 12:00:00.456')) as timestamp_ntz1, " +
+        " to_variant(to_timestamp_ltz('2017-02-24 13:00:00.123 +01:00')) as timestamp_ltz1, " +
+        " to_variant(to_timestamp_tz('2017-02-24 13:00:00.123 +01:00')) as timestamp_tz1, " +
+        " to_variant(1.23::decimal(6, 3)) as decimal1, " +
+        " to_variant(3.21::double) as double1, " +
+        " to_variant(15) as num1 ")
+
+  val variant2: DataFrame =
+    session.sql("""
+                  |select parse_json(column1) as src
+                  |from values
+                  |('{
+                  |    "date with '' and ." : "2017-04-28",
+                  |    "salesperson" : {
+                  |      "id": "55",
+                  |      "name": "Frank Beasley"
+                  |    },
+                  |    "customer" : [
+                  |      {"name": "Joyce Ridgely", "phone": "16504378889", "address": "San Francisco, CA"}
+                  |    ],
+                  |    "vehicle" : [
+                  |      {"make": "Honda", "extras":["ext warranty", "paint protection"]}
+                  |    ]
+                  |}')
+                  |""".stripMargin)
+
+  val date1: DataFrame =
+    session.sql("select * from values('2020-08-01'::Date, 1),('2010-12-01'::Date, 2) as T(a,b)")
+
+  val date2: DataFrame =
+    session.sql(
+      "select * from values('2020-08-01'::Date, 'mo'),('2010-12-01'::Date, 'we') as T(a,b)")
+
+  val date3: DataFrame =
+    Seq((2020, 10, 28, 13, 35, 47, 1234567, "America/Los_Angeles")).toDF(
+      "year",
+      "month",
+      "day",
+      "hour",
+      "minute",
+      "second",
+      "nanosecond",
+      "timezone")
+
+  val timestamp1: DataFrame = session.sql(
+    "select * from values('2020-05-01 13:11:20.000' :: timestamp)," +
+      "('2020-08-21 01:30:05.000' :: timestamp) as T(a)")
+
+  val timestampNTZ: DataFrame = session.sql(
+    "select * from values('2020-05-01 13:11:20.000' :: timestamp_ntz)," +
+      "('2020-08-21 01:30:05.000' :: timestamp_ntz) as T(a)")
+
+  TimeZone.setDefault(defaultTimezone)
+  session.runQuery(s"alter session set TIMEZONE = '$oldSfTimeZone'")
 
   lazy val testData1: DataFrame =
     session.createDataFrame(Seq(Data(1, true, "a"), Data(2, false, "b")))
@@ -142,41 +215,6 @@ trait TestData extends SNTestBase {
       "select array_construct(a,b,c) as arr1, array_construct(d,e,f) as arr2 " +
         "from values(1,null,3,3,null,5),(6,null,8,9,null,1) as T(a,b,c,d,e,f)")
 
-  lazy val variant1: DataFrame =
-    session.sql(
-      "select to_variant(to_array('Example')) as arr1," +
-        " to_variant(to_object(parse_json('{\"Tree\": \"Pine\"}'))) as obj1, " +
-        " to_variant(to_binary('snow', 'utf-8')) as bin1," +
-        " to_variant(true) as bool1," +
-        " to_variant('X') as str1, " +
-        " to_variant(to_date('2017-02-24')) as date1, " +
-        " to_variant(to_time('20:57:01.123456789+07:00')) as time1, " +
-        " to_variant(to_timestamp_ntz('2017-02-24 12:00:00.456')) as timestamp_ntz1, " +
-        " to_variant(to_timestamp_ltz('2017-02-24 13:00:00.123 +01:00')) as timestamp_ltz1, " +
-        " to_variant(to_timestamp_tz('2017-02-24 13:00:00.123 +01:00')) as timestamp_tz1, " +
-        " to_variant(1.23::decimal(6, 3)) as decimal1, " +
-        " to_variant(3.21::double) as double1, " +
-        " to_variant(15) as num1 ")
-
-  lazy val variant2: DataFrame =
-    session.sql("""
-        |select parse_json(column1) as src
-        |from values
-        |('{
-        |    "date with '' and ." : "2017-04-28",
-        |    "salesperson" : {
-        |      "id": "55",
-        |      "name": "Frank Beasley"
-        |    },
-        |    "customer" : [
-        |      {"name": "Joyce Ridgely", "phone": "16504378889", "address": "San Francisco, CA"}
-        |    ],
-        |    "vehicle" : [
-        |      {"make": "Honda", "extras":["ext warranty", "paint protection"]}
-        |    ]
-        |}')
-        |""".stripMargin)
-
   lazy val nullJson1: DataFrame = session.sql(
     "select parse_json(column1) as v  from values ('{\"a\": null}'), ('{\"a\": \"foo\"}'), (null)")
 
@@ -198,24 +236,6 @@ trait TestData extends SNTestBase {
 
   lazy val invalidXML1: DataFrame =
     session.sql("select (column1) as v from values ('<t1></t>'), ('<t1><t1>'), ('<t1</t1>')")
-
-  lazy val date1: DataFrame =
-    session.sql("select * from values('2020-08-01'::Date, 1),('2010-12-01'::Date, 2) as T(a,b)")
-
-  lazy val date2: DataFrame =
-    session.sql(
-      "select * from values('2020-08-01'::Date, 'mo'),('2010-12-01'::Date, 'we') as T(a,b)")
-
-  lazy val date3: DataFrame =
-    Seq((2020, 10, 28, 13, 35, 47, 1234567, "America/Los_Angeles")).toDF(
-      "year",
-      "month",
-      "day",
-      "hour",
-      "minute",
-      "second",
-      "nanosecond",
-      "timezone")
 
   lazy val number1: DataFrame = session.createDataFrame(
     Seq(
@@ -240,14 +260,6 @@ trait TestData extends SNTestBase {
   lazy val number3: DataFrame = session.sql("select * from values(1),(2),(3) as T(a)")
 
   lazy val zero1: DataFrame = session.sql("select * from values(0) as T(a)")
-
-  lazy val timestamp1: DataFrame = session.sql(
-    "select * from values('2020-05-01 13:11:20.000' :: timestamp)," +
-      "('2020-08-21 01:30:05.000' :: timestamp) as T(a)")
-
-  lazy val timestampNTZ: DataFrame = session.sql(
-    "select * from values('2020-05-01 13:11:20.000' :: timestamp_ntz)," +
-      "('2020-08-21 01:30:05.000' :: timestamp_ntz) as T(a)")
 
   lazy val xyz: DataFrame =
     session.createDataFrame(

@@ -1,7 +1,7 @@
 package com.snowflake.snowpark_test
 
 import com.snowflake.snowpark.functions._
-import com.snowflake.snowpark.types.{GeographyType, Geometry, GeometryType, TimeType}
+import com.snowflake.snowpark.types.{GeographyType, GeometryType, TimeType}
 import com.snowflake.snowpark.{TestData, UnstableTest}
 
 import java.sql.Types

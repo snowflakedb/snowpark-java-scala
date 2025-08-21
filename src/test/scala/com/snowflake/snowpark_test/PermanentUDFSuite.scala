@@ -2149,6 +2149,8 @@ class PermanentUDFSuite extends TestData {
   }
 
   test("Test callUDF with non-numeric literal", JavaStoredProcExclude) {
+    // TODO: Figure out why testWithTimezone causes test flakiness
+    // testWithTimezone("America/Los_Angeles") {
     val timestamp: Long = 1606179541282L
     val values = (
       "str",
@@ -2158,33 +2160,36 @@ class PermanentUDFSuite extends TestData {
       new Date(timestamp - 100))
 
     val func = (a: String, b: Boolean, c: Array[Byte], d: Timestamp, e: Date) =>
-      s"$a $b 0x${c.map { _.toHexString }.mkString("")} $d $e"
+      s"$a $b 0x${c
+          .map {
+            _.toHexString
+          }
+          .mkString("")} $d $e"
 
     val funcName = randomName()
-    val defaultTimeZone = TimeZone.getDefault
+    val expected = Seq(Row("str true 0x3d3e 2020-11-23 16:59:01.182 2020-11-23"))
     try {
-      TimeZone.setDefault(TimeZone.getTimeZone("GMT"))
       session.udf.registerPermanent(funcName, func, stageName)
       // test callUDF()
       val df = session
         .range(1)
         .select(callUDF(funcName, values._1, values._2, values._3, values._4, values._5))
       df.show()
-      checkAnswer(df, Seq(Row("str true 0x3d3e 2020-11-23 16:59:01.182 2020-11-23")))
+      checkAnswer(df, expected)
       // test callBuiltin()
       val df2 = session
         .range(1)
         .select(callBuiltin(funcName, values._1, values._2, values._3, values._4, values._5))
-      checkAnswer(df2, Seq(Row("str true 0x3d3e 2020-11-23 16:59:01.182 2020-11-23")))
+      checkAnswer(df2, expected)
       // test builtin()()
       val df3 = session
         .range(1)
         .select(builtin(funcName)(values._1, values._2, values._3, values._4, values._5))
-      checkAnswer(df3, Seq(Row("str true 0x3d3e 2020-11-23 16:59:01.182 2020-11-23")))
+      checkAnswer(df3, expected)
     } finally {
-      TimeZone.setDefault(defaultTimeZone)
       runQuery(s"drop function if exists $funcName(STRING,BOOLEAN,BINARY,TIMESTAMP,DATE)", session)
     }
+    // }
   }
 
   test("register temp/perm UDF doesn't commit open transaction", JavaStoredProcExclude) {
