@@ -565,6 +565,13 @@ trait DataFrameSuite extends TestData with BeforeAndAfterEach {
     integer1.first(-10) sameElements Seq(Row(1), Row(2), Row(3))
   }
 
+  test("isEmpty") {
+    val notEmpty = integer1.isEmpty
+    val empty = emptyDf.isEmpty
+    assert(!notEmpty)
+    assert(empty)
+  }
+
   test("sample() with row count") {
     val rowCount = 10000
     val df1 = session.range(rowCount)
