@@ -993,6 +993,17 @@ public class DataFrame extends Logging implements Cloneable {
   }
 
   /**
+   * Determines if the 'DataFrame' is empty.
+   *
+   * @group actions
+   * @since 0.2.0 The number of rows to return.
+   * @return Whether dataframe is empty or not.
+   */
+  public Boolean isEmpty() {
+    return this.first().isEmpty();
+  }
+
+  /**
    * Returns a new DataFrame with a sample of N rows from the underlying DataFrame.
    *
    * <p>NOTE:

@@ -2881,6 +2881,19 @@ class DataFrame private[snowpark] (
   }
 
   /**
+   * Determines if the 'DataFrame' is empty.
+   *
+   * @group actions
+   * @since 0.2.0
+   *   The number of rows to return.
+   * @return
+   *   Whether dataframe is empty or not.
+   */
+  def isEmpty: Boolean = action("isEmpty") {
+    first().isEmpty
+  }
+
+  /**
    * Returns a [[DataFrameNaFunctions]] object that provides functions for handling missing values
    * in the DataFrame.
    *
