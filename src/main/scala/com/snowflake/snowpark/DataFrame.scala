@@ -2881,13 +2881,24 @@ class DataFrame private[snowpark] (
   }
 
   /**
-   * Determines if the 'DataFrame' is empty.
+   * Checks whether the [[DataFrame]] contains any rows.
+   *
+   * This method triggers an action to evaluate the underlying query plan and determines whether the
+   * [[DataFrame]] is empty (i.e., has zero rows).
+   *
+   * ===Example===
+   * {{{
+   * val df = session.sql("SELECT * FROM values (1), (2), (3) as T(a)")
+   * df.isEmpty  // returns false
+   *
+   * val emptyDf = session.sql("SELECT * FROM (SELECT 1) WHERE 1 = 0")
+   * emptyDf.isEmpty  // returns true
+   * }}}
    *
    * @group actions
-   * @since 0.2.0
-   *   The number of rows to return.
+   * @since 1.17.0
    * @return
-   *   Whether dataframe is empty or not.
+   *   `true` if the [[DataFrame]] contains no rows; otherwise, `false`.
    */
   def isEmpty: Boolean = action("isEmpty") {
     first().isEmpty
