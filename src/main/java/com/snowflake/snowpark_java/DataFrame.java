@@ -1012,7 +1012,7 @@ public class DataFrame extends Logging implements Cloneable {
    * @since 1.17.0
    */
   public Boolean isEmpty() {
-    return this.df.first().isEmpty();
+    return this.df.isEmpty();
   }
 
   /**
