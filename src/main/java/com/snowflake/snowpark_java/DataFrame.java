@@ -995,9 +995,6 @@ public class DataFrame extends Logging implements Cloneable {
   /**
    * Checks whether the {@code DataFrame} contains any rows.
    *
-   * <p>This method executes an action to evaluate the query and determines whether the {@code
-   * DataFrame} is empty (i.e., contains zero rows).
-   *
    * <p><b>Example:</b>
    *
    * <pre>{@code
