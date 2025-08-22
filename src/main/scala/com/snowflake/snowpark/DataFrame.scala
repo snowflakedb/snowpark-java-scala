@@ -2883,9 +2883,6 @@ class DataFrame private[snowpark] (
   /**
    * Checks whether the [[DataFrame]] contains any rows.
    *
-   * This method triggers an action to evaluate the underlying query plan and determines whether the
-   * [[DataFrame]] is empty (i.e., has zero rows).
-   *
    * ===Example===
    * {{{
    * val df = session.sql("SELECT * FROM values (1), (2), (3) as T(a)")
