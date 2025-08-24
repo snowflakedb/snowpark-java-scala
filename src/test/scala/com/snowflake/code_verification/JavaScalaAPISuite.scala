@@ -1,6 +1,6 @@
 package com.snowflake.code_verification
 
-import com.snowflake.snowpark.{CodeVerification, DataFrame}
+import com.snowflake.snowpark.CodeVerification
 import org.scalatest.funsuite.AnyFunSuite
 
 // verify API Java and Scala API contain same functions

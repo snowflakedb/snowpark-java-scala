@@ -4,10 +4,10 @@ import java.sql.{Statement, Types}
 import java.util.TimeZone
 import com.snowflake.snowpark.internal.ParameterUtils.SnowparkLazyAnalysis
 import com.snowflake.snowpark.internal.analyzer.Query
-import com.snowflake.snowpark.internal.{ParameterUtils, ServerConnection, UDFClassPath}
+import com.snowflake.snowpark.internal.{ParameterUtils, ServerConnection}
 import com.snowflake.snowpark.types._
 import com.snowflake.snowpark_test.TestFiles
-import org.mockito.Mockito.{doReturn, spy, when}
+import org.mockito.Mockito.{spy, when}
 import org.scalatest.BeforeAndAfterAll
 import org.scalatest.funsuite.AnyFunSuite
 
@@ -185,13 +185,17 @@ trait SNTestBase extends AnyFunSuite with BeforeAndAfterAll with SFTestUtils wit
     }
   }
 
-  def testWithTimezone[T](thunk: => T, timezone: String): T = {
+  def testWithTimezone(timezone: String = "UTC")(thunk: => Unit): Unit = {
     val defaultTimezone = TimeZone.getDefault
+    val oldSfTimeZone =
+      session.sql("SHOW PARAMETERS LIKE 'TIMEZONE' IN SESSION").collect().head.getString(1)
     try {
       TimeZone.setDefault(TimeZone.getTimeZone(timezone))
+      session.runQuery(s"alter session set TIMEZONE = '$timezone'")
       thunk
     } finally {
       TimeZone.setDefault(defaultTimezone)
+      session.runQuery(s"alter session set TIMEZONE = '$oldSfTimeZone'")
     }
   }
 

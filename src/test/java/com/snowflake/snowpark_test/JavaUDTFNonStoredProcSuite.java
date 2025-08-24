@@ -9,7 +9,6 @@ import com.snowflake.snowpark_java.udtf.*;
 import java.sql.Date;
 import java.sql.Time;
 import java.sql.Timestamp;
-import java.util.TimeZone;
 import java.util.stream.Stream;
 import org.junit.Test;
 
@@ -52,54 +51,50 @@ public class JavaUDTFNonStoredProcSuite extends UDFTestBase {
 
   @Test
   public void dateTimestamp() {
-    TimeZone oldTimeZone = TimeZone.getDefault();
-    String sfTimezone =
-        getSession().sql("SHOW PARAMETERS LIKE 'TIMEZONE' IN SESSION").collect()[0].getString(1);
-    // Test with UTC timezone
-    try {
-      String crt =
-          "create or replace temp table " + tableName + "(d Date, t Time, ts timestamp_ntz)";
-      runQuery(crt);
-      String insert =
-          "insert into "
-              + tableName
-              + " values "
-              + "('2022-01-24', '00:00:00', '2022-01-25 00:00:00.000'),"
-              + "('2022-01-25', '12:13:14', '2022-01-25 12:13:14.123'),"
-              + "(null, null, null)";
-      runQuery(insert);
+    withTimeZoneTest(
+        () -> {
+          String crt =
+              "create or replace temp table " + tableName + "(d Date, t Time, ts timestamp_ntz)";
+          runQuery(crt);
+          String insert =
+              "insert into "
+                  + tableName
+                  + " values "
+                  + "('2022-01-24', '00:00:00', '2022-01-25 00:00:00.000'),"
+                  + "('2022-01-25', '12:13:14', '2022-01-25 12:13:14.123'),"
+                  + "(null, null, null)";
+          runQuery(insert);
 
-      TableFunction tableFunction = getSession().udtf().registerTemporary(new UDTFDateTimestamp());
+          TableFunction tableFunction =
+              getSession().udtf().registerTemporary(new UDTFDateTimestamp());
 
-      DataFrame df =
-          getSession().table(tableName).join(tableFunction, col("d"), col("t"), col("ts"));
+          DataFrame df =
+              getSession().table(tableName).join(tableFunction, col("d"), col("t"), col("ts"));
 
-      String schema = TestUtils.treeString(df.schema(), 0);
-      String expectedSchema =
-          "root\n"
-              + " |--D: Date (nullable = true)\n"
-              + " |--T: Time (nullable = true)\n"
-              + " |--TS: Timestamp (nullable = true)\n"
-              + " |--DATE: Date (nullable = true)\n"
-              + " |--TIME: Time (nullable = true)\n"
-              + " |--TIMESTAMP: Timestamp (nullable = true)";
-      assert schema.replaceAll("\\W", "").equals(expectedSchema.replaceAll("\\W", ""));
+          String schema = TestUtils.treeString(df.schema(), 0);
+          String expectedSchema =
+              "root\n"
+                  + " |--D: Date (nullable = true)\n"
+                  + " |--T: Time (nullable = true)\n"
+                  + " |--TS: Timestamp (nullable = true)\n"
+                  + " |--DATE: Date (nullable = true)\n"
+                  + " |--TIME: Time (nullable = true)\n"
+                  + " |--TIMESTAMP: Timestamp (nullable = true)";
+          assert schema.replaceAll("\\W", "").equals(expectedSchema.replaceAll("\\W", ""));
 
-      Date d1 = Date.valueOf("2022-01-24");
-      Date d2 = Date.valueOf("2022-01-25");
-      Time t1 = Time.valueOf("00:00:00");
-      Time t2 = Time.valueOf("12:13:14");
-      Timestamp ts1 = Timestamp.valueOf("2022-01-25 00:00:00.0");
-      Timestamp ts2 = Timestamp.valueOf("2022-01-25 12:13:14.123");
-      Row row1 = Row.create(d1, t1, ts1, d1, t1, ts1);
-      Row row2 = Row.create(d2, t2, ts2, d2, t2, ts2);
-      Row row3 = Row.create(null, null, null, null, null, null);
-      Row[] expectRows = new Row[] {row1, row1, row2, row2, row3, row3};
-      checkAnswer(df, expectRows);
-    } finally {
-      TimeZone.setDefault(oldTimeZone);
-      getSession().sql("alter session set TIMEZONE = '" + sfTimezone + "'").collect();
-    }
+          Date d1 = Date.valueOf("2022-01-24");
+          Date d2 = Date.valueOf("2022-01-25");
+          Time t1 = Time.valueOf("00:00:00");
+          Time t2 = Time.valueOf("12:13:14");
+          Timestamp ts1 = Timestamp.valueOf("2022-01-25 00:00:00.0");
+          Timestamp ts2 = Timestamp.valueOf("2022-01-25 12:13:14.123");
+          Row row1 = Row.create(d1, t1, ts1, d1, t1, ts1);
+          Row row2 = Row.create(d2, t2, ts2, d2, t2, ts2);
+          Row row3 = Row.create(null, null, null, null, null, null);
+          Row[] expectRows = new Row[] {row1, row1, row2, row2, row3, row3};
+          checkAnswer(df, expectRows);
+        },
+        getSession());
   }
 
   @Test

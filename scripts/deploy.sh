@@ -110,8 +110,12 @@ else
   echo "[INFO]   - $S3_JENKINS_URL/$github_version_tag/"
   echo "[INFO]   - $S3_DATA_URL/$github_version_tag/"
 
-  aws s3 cp ~/.ivy2/local $S3_JENKINS_URL/$github_version_tag/ --recursive
-  aws s3 cp ~/.ivy2/local $S3_DATA_URL/$github_version_tag/ --recursive
+  # Rename all produced artifacts to include version number (sbt doesn't by default when publishing to local ivy2 repository).
+  find ~/.ivy2/local -type f -name "*snowpark*" | while read file; do newfile=$(echo "$file" | sed "s/\(2\.1[23]\)\([-\.]\)/\1-${github_version_tag#v}\2/"); mv "$file" "$newfile"; done
+
+  # Copy all files, flattening the nested structure of the ivy2 repository into the expected structure on s3.
+  find ~/.ivy2/local -type f -name "*snowpark*" -exec aws s3 cp \{\} $S3_JENKINS_URL/$github_version_tag/ \;
+  find ~/.ivy2/local -type f -name "*snowpark*" -exec aws s3 cp \{\} $S3_DATA_URL/$github_version_tag/ \;
 
   echo "[SUCCESS] Published Snowpark Java-Scala v$github_version_tag artifacts to S3."
 fi

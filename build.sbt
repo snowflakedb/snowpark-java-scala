@@ -124,9 +124,8 @@ lazy val root = (project in file("."))
     scalafmtOnCompile := true,
     javafmtOnCompile := true,
     Test / testOptions := Seq(Tests.Argument(TestFrameworks.JUnit, "-a", "-v", "-q")),
-//    Test / crossPaths := false,
-    Test / fork := false,
-//    Test / javaOptions ++= Seq("-Xms1024M", "-Xmx4096M"),
+//    Test / fork := true,
+//    Test / javaOptions ++= Seq("-Xms1024M", "-Xmx4096M", "-Duser.timezone=UTC"),
     // Test Groups
     inConfig(CodeVerificationTests)(Defaults.testTasks),
     CodeVerificationTests / testOptions += Tests.Filter(isCodeVerification),
@@ -216,7 +215,7 @@ lazy val root = (project in file("."))
     // Publish the fat test JAR alongside normal artifacts
     Test / assembly / artifact := {
       val base = (Test / packageBin / artifact).value
-      base.withClassifier(Some("tests-with-dependencies"))
+      base.withName(s"fat-test-$snowparkName").withClassifier(Some("fat-test"))
     },
     addArtifact(Test / assembly / artifact, Test / assembly),
 

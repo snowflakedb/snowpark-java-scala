@@ -946,29 +946,42 @@ public class JavaFunctionSuite extends TestBase {
 
   @Test
   public void add_month() {
-    DataFrame df =
-        getSession()
-            .sql("select * from values('2020-08-01'::Date, 1),('2010-12-01'::Date, 2) as T(a,b)");
-    Row[] expected = {
-      Row.create(Date.valueOf("2020-09-01")), Row.create(Date.valueOf("2011-01-01"))
-    };
-    checkAnswer(df.select(Functions.add_months(df.col("a"), Functions.lit(1))), expected);
+    withTimeZoneTest(
+        () -> {
+          DataFrame df =
+              getSession()
+                  .sql(
+                      "select * from values('2020-08-01'::Date, 1),('2010-12-01'::Date, 2) as T(a,b)");
+          Row[] expected = {
+            Row.create(Date.valueOf("2020-09-01")), Row.create(Date.valueOf("2011-01-01"))
+          };
+          checkAnswer(df.select(Functions.add_months(df.col("a"), Functions.lit(1))), expected);
+        },
+        getSession());
   }
 
   @Test
   public void current_date() {
-    DataFrame df = getSession().sql("select * from values(0) as T(a)");
-    Row[] expected = getSession().sql("select current_date()").collect();
-    checkAnswer(df.select(Functions.current_date()), expected);
+    withTimeZoneTest(
+        () -> {
+          DataFrame df = getSession().sql("select * from values(0) as T(a)");
+          Row[] expected = getSession().sql("select current_date()").collect();
+          checkAnswer(df.select(Functions.current_date()), expected);
+        },
+        getSession());
   }
 
   @Test
   public void current_timestamp() {
-    DataFrame df = getSession().sql("select * from values(0) as T(a)");
-    assert Math.abs(
-            df.select(Functions.current_timestamp()).collect()[0].getTimestamp(0).getTime()
-                - System.currentTimeMillis())
-        < 100000;
+    withTimeZoneTest(
+        () -> {
+          DataFrame df = getSession().sql("select * from values(0) as T(a)");
+          assert Math.abs(
+                  df.select(Functions.current_timestamp()).collect()[0].getTimestamp(0).getTime()
+                      - System.currentTimeMillis())
+              < 100000;
+        },
+        getSession());
   }
 
   @Test
@@ -980,12 +993,16 @@ public class JavaFunctionSuite extends TestBase {
 
   @Test
   public void current_time() {
-    DataFrame df = getSession().sql("select * from values(0) as T(a)");
-    assert df.select(Functions.current_time())
-        .collect()[0]
-        .getTime(0)
-        .toString()
-        .matches("\\d{2}:\\d{2}:\\d{2}");
+    withTimeZoneTest(
+        () -> {
+          DataFrame df = getSession().sql("select * from values(0) as T(a)");
+          assert df.select(Functions.current_time())
+              .collect()[0]
+              .getTime(0)
+              .toString()
+              .matches("\\d{2}:\\d{2}:\\d{2}");
+        },
+        getSession());
   }
 
   @Test
@@ -1070,375 +1087,466 @@ public class JavaFunctionSuite extends TestBase {
 
   @Test
   public void sysdate() {
-    DataFrame df = getSession().sql("select * from values(0) as T(a)");
-    assert df.select(Functions.sysdate()).collect()[0].getTimestamp(0).toString().length() > 0;
+    withTimeZoneTest(
+        () -> {
+          DataFrame df = getSession().sql("select * from values(0) as T(a)");
+          assert df.select(Functions.sysdate()).collect()[0].getTimestamp(0).toString().length()
+              > 0;
+        },
+        getSession());
   }
 
   @Test
   public void convert_timezone() {
-    DataFrame df =
-        getSession()
-            .sql(
-                "select * from values('2020-05-01 13:11:20.000' :: timestamp_ntz),"
-                    + "('2020-08-21 01:30:05.000' :: timestamp_ntz) as T(a)");
-    Row[] expected = {
-      Row.create(Timestamp.valueOf("2020-05-01 16:11:20.0")),
-      Row.create(Timestamp.valueOf("2020-08-21 04:30:05.0"))
-    };
-    checkAnswer(
-        df.select(
-            Functions.convert_timezone(
-                Functions.lit("America/Los_Angeles"),
-                Functions.lit("America/New_York"),
-                df.col("a"))),
-        expected);
+    withTimeZoneTest(
+        () -> {
+          DataFrame df =
+              getSession()
+                  .sql(
+                      "select * from values('2020-05-01 13:11:20.000' :: timestamp_ntz),"
+                          + "('2020-08-21 01:30:05.000' :: timestamp_ntz) as T(a)");
+          Row[] expected = {
+            Row.create(Timestamp.valueOf("2020-05-01 16:11:20.0")),
+            Row.create(Timestamp.valueOf("2020-08-21 04:30:05.0"))
+          };
+          checkAnswer(
+              df.select(
+                  Functions.convert_timezone(
+                      Functions.lit("America/Los_Angeles"),
+                      Functions.lit("America/New_York"),
+                      df.col("a"))),
+              expected);
 
-    DataFrame df2 =
-        getSession()
-            .sql(
-                "select * from values('2020-05-01 16:11:20.0 +02:00',"
-                    + "'2020-08-21 04:30:05.0 -06:00') as T(a, b)");
-    Row[] expected2 = {
-      Row.create(
-          Timestamp.valueOf("2020-05-01 07:11:20.0"), Timestamp.valueOf("2020-08-21 06:30:05.0"))
-    };
-    checkAnswer(
-        df2.select(
-            Functions.convert_timezone(Functions.lit("America/Los_Angeles"), df2.col("a")),
-            Functions.convert_timezone(Functions.lit("America/New_York"), df2.col("b"))),
-        expected2);
+          DataFrame df2 =
+              getSession()
+                  .sql(
+                      "select * from values('2020-05-01 16:11:20.0 +02:00',"
+                          + "'2020-08-21 04:30:05.0 -06:00') as T(a, b)");
+          Row[] expected2 = {
+            Row.create(
+                Timestamp.valueOf("2020-05-01 07:11:20.0"),
+                Timestamp.valueOf("2020-08-21 06:30:05.0"))
+          };
+          checkAnswer(
+              df2.select(
+                  Functions.convert_timezone(Functions.lit("America/Los_Angeles"), df2.col("a")),
+                  Functions.convert_timezone(Functions.lit("America/New_York"), df2.col("b"))),
+              expected2);
+        },
+        getSession());
   }
 
   @Test
   public void year_month_day() {
-    DataFrame df =
-        getSession()
-            .sql("select * from values('2020-08-01'::Date, 1),('2010-12-01'::Date, 2) as T(a,b)");
-    Row[] expected = {
-      Row.create(2020, 8, 1, 6, 214, 3, 31, new Date(120, 7, 31)),
-      Row.create(2010, 12, 1, 3, 335, 4, 48, new Date(110, 11, 31))
-    };
-    checkAnswer(
-        df.select(
-            Functions.year(df.col("a")),
-            Functions.month(df.col("a")),
-            Functions.dayofmonth(df.col("a")),
-            Functions.dayofweek(df.col("a")),
-            Functions.dayofyear(df.col("a")),
-            Functions.quarter(df.col("a")),
-            Functions.weekofyear(df.col("a")),
-            Functions.last_day(df.col("a"))),
-        expected);
+    withTimeZoneTest(
+        () -> {
+          DataFrame df =
+              getSession()
+                  .sql(
+                      "select * from values('2020-08-01'::Date, 1),('2010-12-01'::Date, 2) as T(a,b)");
+          Row[] expected = {
+            Row.create(2020, 8, 1, 6, 214, 3, 31, new Date(120, 7, 31)),
+            Row.create(2010, 12, 1, 3, 335, 4, 48, new Date(110, 11, 31))
+          };
+          checkAnswer(
+              df.select(
+                  Functions.year(df.col("a")),
+                  Functions.month(df.col("a")),
+                  Functions.dayofmonth(df.col("a")),
+                  Functions.dayofweek(df.col("a")),
+                  Functions.dayofyear(df.col("a")),
+                  Functions.quarter(df.col("a")),
+                  Functions.weekofyear(df.col("a")),
+                  Functions.last_day(df.col("a"))),
+              expected);
+        },
+        getSession());
   }
 
   @Test
   public void hour_minute_second() {
-    DataFrame df =
-        getSession()
-            .sql(
-                "select * from values('2020-05-01 13:11:20.000' :: timestamp),"
-                    + "('2020-08-21 01:30:05.000' :: timestamp) as T(a)");
-    Row[] expected = {Row.create(13, 11, 20), Row.create(1, 30, 5)};
-    checkAnswer(
-        df.select(
-            Functions.hour(df.col("a")),
-            Functions.minute(df.col("a")),
-            Functions.second(df.col("a"))),
-        expected);
+    withTimeZoneTest(
+        () -> {
+          DataFrame df =
+              getSession()
+                  .sql(
+                      "select * from values('2020-05-01 13:11:20.000' :: timestamp),"
+                          + "('2020-08-21 01:30:05.000' :: timestamp) as T(a)");
+          Row[] expected = {Row.create(13, 11, 20), Row.create(1, 30, 5)};
+          checkAnswer(
+              df.select(
+                  Functions.hour(df.col("a")),
+                  Functions.minute(df.col("a")),
+                  Functions.second(df.col("a"))),
+              expected);
+        },
+        getSession());
   }
 
   @Test
   public void nextDay() {
-    DataFrame df =
-        getSession()
-            .sql("select * from values('2020-08-01'::Date, 1),('2010-12-01'::Date, 2) as T(a,b)");
-    Row[] expected = {Row.create(new Date(120, 7, 7)), Row.create(new Date(110, 11, 3))};
-    checkAnswer(df.select(Functions.next_day(df.col("a"), Functions.lit("FR"))), expected);
+    withTimeZoneTest(
+        () -> {
+          DataFrame df =
+              getSession()
+                  .sql(
+                      "select * from values('2020-08-01'::Date, 1),('2010-12-01'::Date, 2) as T(a,b)");
+          Row[] expected = {Row.create(new Date(120, 7, 7)), Row.create(new Date(110, 11, 3))};
+          checkAnswer(df.select(Functions.next_day(df.col("a"), Functions.lit("FR"))), expected);
+        },
+        getSession());
   }
 
   @Test
   public void previousDay() {
-    DataFrame df =
-        getSession()
-            .sql(
-                "select * from values('2020-08-01'::Date, 'mo'),('2010-12-01'::Date, 'we') as"
-                    + " T(a,b)");
-    Row[] expected = {Row.create(new Date(120, 6, 27)), Row.create(new Date(110, 10, 24))};
-    checkAnswer(df.select(Functions.previous_day(df.col("a"), df.col("b"))), expected);
+    withTimeZoneTest(
+        () -> {
+          DataFrame df =
+              getSession()
+                  .sql(
+                      "select * from values('2020-08-01'::Date, 'mo'),('2010-12-01'::Date, 'we') as"
+                          + " T(a,b)");
+          Row[] expected = {Row.create(new Date(120, 6, 27)), Row.create(new Date(110, 10, 24))};
+          checkAnswer(df.select(Functions.previous_day(df.col("a"), df.col("b"))), expected);
+        },
+        getSession());
   }
 
   @Test
   public void to_timestamp() {
-    DataFrame df =
-        getSession().sql("select * from values(1561479557),(1565479557),(1161479557) as T(a)");
-    Row[] expected = {
-      Row.create(Timestamp.valueOf("2019-06-25 16:19:17.0")),
-      Row.create(Timestamp.valueOf("2019-08-10 23:25:57.0")),
-      Row.create(Timestamp.valueOf("2006-10-22 01:12:37.0"))
-    };
-    checkAnswer(df.select(Functions.to_timestamp(df.col("a"))), expected);
+    withTimeZoneTest(
+        () -> {
+          DataFrame df =
+              getSession()
+                  .sql("select * from values(1561479557),(1565479557),(1161479557) as T(a)");
+          Row[] expected = {
+            Row.create(Timestamp.valueOf("2019-06-25 16:19:17.0")),
+            Row.create(Timestamp.valueOf("2019-08-10 23:25:57.0")),
+            Row.create(Timestamp.valueOf("2006-10-22 01:12:37.0"))
+          };
+          checkAnswer(df.select(Functions.to_timestamp(df.col("a"))), expected);
 
-    DataFrame df2 = getSession().sql("select * from values('04/05/2020 01:02:03') as T(a)");
-    Row[] expected2 = {Row.create(Timestamp.valueOf("2020-04-05 01:02:03.0"))};
-    checkAnswer(
-        df2.select(Functions.to_timestamp(df2.col("a"), Functions.lit("mm/dd/yyyy hh24:mi:ss"))),
-        expected2);
+          DataFrame df2 = getSession().sql("select * from values('04/05/2020 01:02:03') as T(a)");
+          Row[] expected2 = {Row.create(Timestamp.valueOf("2020-04-05 01:02:03.0"))};
+          checkAnswer(
+              df2.select(
+                  Functions.to_timestamp(df2.col("a"), Functions.lit("mm/dd/yyyy hh24:mi:ss"))),
+              expected2);
+        },
+        getSession());
   }
 
   @Test
   public void to_date() {
-    DataFrame df = getSession().sql("select * from values('2020-05-11') as T(a)");
-    Row[] expected = {Row.create(new Date(120, 4, 11))};
-    checkAnswer(df.select(Functions.to_date(df.col("a"))), expected);
+    withTimeZoneTest(
+        () -> {
+          DataFrame df = getSession().sql("select * from values('2020-05-11') as T(a)");
+          Row[] expected = {Row.create(new Date(120, 4, 11))};
+          checkAnswer(df.select(Functions.to_date(df.col("a"))), expected);
 
-    DataFrame df1 = getSession().sql("select * from values('2020.07.23') as T(a)");
-    Row[] expected1 = {Row.create(new Date(120, 6, 23))};
-    checkAnswer(df1.select(Functions.to_date(df.col("a"), Functions.lit("YYYY.MM.DD"))), expected1);
+          DataFrame df1 = getSession().sql("select * from values('2020.07.23') as T(a)");
+          Row[] expected1 = {Row.create(new Date(120, 6, 23))};
+          checkAnswer(
+              df1.select(Functions.to_date(df.col("a"), Functions.lit("YYYY.MM.DD"))), expected1);
+        },
+        getSession());
   }
 
   @Test
   public void date_from_parts() {
-    DataFrame df = getSession().sql("select * from values(2020, 9, 16) as t(year, month, day)");
-    Row[] expected = {Row.create(new Date(120, 8, 16))};
-    checkAnswer(
-        df.select(Functions.date_from_parts(df.col("year"), df.col("month"), df.col("day"))),
-        expected);
+    withTimeZoneTest(
+        () -> {
+          DataFrame df =
+              getSession().sql("select * from values(2020, 9, 16) as t(year, month, day)");
+          Row[] expected = {Row.create(new Date(120, 8, 16))};
+          checkAnswer(
+              df.select(Functions.date_from_parts(df.col("year"), df.col("month"), df.col("day"))),
+              expected);
+        },
+        getSession());
   }
 
   @Test
   public void time_from_parts() {
-    DataFrame df = getSession().sql("select * from values(0) as T(a)");
-    assert df.select(
-            Functions.time_from_parts(Functions.lit(1), Functions.lit(2), Functions.lit(3)))
-        .collect()[0]
-        .getTime(0)
-        .equals(Time.valueOf("01:02:03"));
+    withTimeZoneTest(
+        () -> {
+          DataFrame df = getSession().sql("select * from values(0) as T(a)");
+          assert df.select(
+                  Functions.time_from_parts(Functions.lit(1), Functions.lit(2), Functions.lit(3)))
+              .collect()[0]
+              .getTime(0)
+              .equals(Time.valueOf("01:02:03"));
 
-    assert df.select(
-            Functions.time_from_parts(
-                Functions.lit(1), Functions.lit(2), Functions.lit(3), Functions.lit(0)))
-        .collect()[0]
-        .getTime(0)
-        .equals(Time.valueOf("01:02:03"));
+          assert df.select(
+                  Functions.time_from_parts(
+                      Functions.lit(1), Functions.lit(2), Functions.lit(3), Functions.lit(0)))
+              .collect()[0]
+              .getTime(0)
+              .equals(Time.valueOf("01:02:03"));
+        },
+        getSession());
   }
 
   @Test
   public void timestamp_from_parts() {
-    DataFrame df =
-        getSession()
-            .sql(
-                "select * from values(2020, 10, 28, 13, 35, 47, 1234567, 'America/Los_Angeles') as"
-                    + " T(year, month, day, hour, minute, second, nanosecond, timezone)");
-    assert df.select(
-            Functions.timestamp_from_parts(
-                df.col("year"),
-                df.col("month"),
-                df.col("day"),
-                df.col("hour"),
-                df.col("minute"),
-                df.col("second")))
-        .collect()[0]
-        .getTimestamp(0)
-        .toString()
-        .equals("2020-10-28 13:35:47.0");
+    withTimeZoneTest(
+        () -> {
+          DataFrame df =
+              getSession()
+                  .sql(
+                      "select * from values(2020, 10, 28, 13, 35, 47, 1234567, 'America/Los_Angeles') as"
+                          + " T(year, month, day, hour, minute, second, nanosecond, timezone)");
+          assert df.select(
+                  Functions.timestamp_from_parts(
+                      df.col("year"),
+                      df.col("month"),
+                      df.col("day"),
+                      df.col("hour"),
+                      df.col("minute"),
+                      df.col("second")))
+              .collect()[0]
+              .getTimestamp(0)
+              .toString()
+              .equals("2020-10-28 13:35:47.0");
 
-    assert df.select(
-            Functions.timestamp_from_parts(
-                df.col("year"),
-                df.col("month"),
-                df.col("day"),
-                df.col("hour"),
-                df.col("minute"),
-                df.col("second"),
-                df.col("nanosecond")))
-        .collect()[0]
-        .getTimestamp(0)
-        .toString()
-        .equals("2020-10-28 13:35:47.001234567");
+          assert df.select(
+                  Functions.timestamp_from_parts(
+                      df.col("year"),
+                      df.col("month"),
+                      df.col("day"),
+                      df.col("hour"),
+                      df.col("minute"),
+                      df.col("second"),
+                      df.col("nanosecond")))
+              .collect()[0]
+              .getTimestamp(0)
+              .toString()
+              .equals("2020-10-28 13:35:47.001234567");
 
-    assert df.select(
-            Functions.timestamp_from_parts(
-                Functions.date_from_parts(df.col("year"), df.col("month"), df.col("day")),
-                Functions.time_from_parts(
-                    df.col("hour"), df.col("minute"), df.col("second"), df.col("nanosecond"))))
-        .collect()[0]
-        .getTimestamp(0)
-        .toString()
-        .equals("2020-10-28 13:35:47.001234567");
+          assert df.select(
+                  Functions.timestamp_from_parts(
+                      Functions.date_from_parts(df.col("year"), df.col("month"), df.col("day")),
+                      Functions.time_from_parts(
+                          df.col("hour"),
+                          df.col("minute"),
+                          df.col("second"),
+                          df.col("nanosecond"))))
+              .collect()[0]
+              .getTimestamp(0)
+              .toString()
+              .equals("2020-10-28 13:35:47.001234567");
+        },
+        getSession());
   }
 
   @Test
   public void timestamp_ltz_from_parts() {
-    DataFrame df =
-        getSession()
-            .sql(
-                "select * from values(2020, 10, 28, 13, 35, 47, 1234567, 'America/Los_Angeles') as"
-                    + " T(year, month, day, hour, minute, second, nanosecond, timezone)");
+    withTimeZoneTest(
+        () -> {
+          DataFrame df =
+              getSession()
+                  .sql(
+                      "select * from values(2020, 10, 28, 13, 35, 47, 1234567, 'America/Los_Angeles') as"
+                          + " T(year, month, day, hour, minute, second, nanosecond, timezone)");
 
-    assert df.select(
-            Functions.timestamp_ltz_from_parts(
-                df.col("year"),
-                df.col("month"),
-                df.col("day"),
-                df.col("hour"),
-                df.col("minute"),
-                df.col("second")))
-        .collect()[0]
-        .getTimestamp(0)
-        .toString()
-        .equals("2020-10-28 13:35:47.0");
+          assert df.select(
+                  Functions.timestamp_ltz_from_parts(
+                      df.col("year"),
+                      df.col("month"),
+                      df.col("day"),
+                      df.col("hour"),
+                      df.col("minute"),
+                      df.col("second")))
+              .collect()[0]
+              .getTimestamp(0)
+              .toString()
+              .equals("2020-10-28 13:35:47.0");
 
-    assert df.select(
-            Functions.timestamp_ltz_from_parts(
-                df.col("year"),
-                df.col("month"),
-                df.col("day"),
-                df.col("hour"),
-                df.col("minute"),
-                df.col("second"),
-                df.col("nanosecond")))
-        .collect()[0]
-        .getTimestamp(0)
-        .toString()
-        .equals("2020-10-28 13:35:47.001234567");
+          assert df.select(
+                  Functions.timestamp_ltz_from_parts(
+                      df.col("year"),
+                      df.col("month"),
+                      df.col("day"),
+                      df.col("hour"),
+                      df.col("minute"),
+                      df.col("second"),
+                      df.col("nanosecond")))
+              .collect()[0]
+              .getTimestamp(0)
+              .toString()
+              .equals("2020-10-28 13:35:47.001234567");
+        },
+        getSession());
   }
 
   @Test
   public void timestamp_ntz_from_parts() {
-    DataFrame df =
-        getSession()
-            .sql(
-                "select * from values(2020, 10, 28, 13, 35, 47, 1234567, 'America/Los_Angeles') as"
-                    + " T(year, month, day, hour, minute, second, nanosecond, timezone)");
+    withTimeZoneTest(
+        () -> {
+          DataFrame df =
+              getSession()
+                  .sql(
+                      "select * from values(2020, 10, 28, 13, 35, 47, 1234567, 'America/Los_Angeles') as"
+                          + " T(year, month, day, hour, minute, second, nanosecond, timezone)");
 
-    assert df.select(
-            Functions.timestamp_ntz_from_parts(
-                df.col("year"),
-                df.col("month"),
-                df.col("day"),
-                df.col("hour"),
-                df.col("minute"),
-                df.col("second")))
-        .collect()[0]
-        .getTimestamp(0)
-        .toString()
-        .equals("2020-10-28 13:35:47.0");
+          assert df.select(
+                  Functions.timestamp_ntz_from_parts(
+                      df.col("year"),
+                      df.col("month"),
+                      df.col("day"),
+                      df.col("hour"),
+                      df.col("minute"),
+                      df.col("second")))
+              .collect()[0]
+              .getTimestamp(0)
+              .toString()
+              .equals("2020-10-28 13:35:47.0");
 
-    assert df.select(
-            Functions.timestamp_ntz_from_parts(
-                df.col("year"),
-                df.col("month"),
-                df.col("day"),
-                df.col("hour"),
-                df.col("minute"),
-                df.col("second"),
-                df.col("nanosecond")))
-        .collect()[0]
-        .getTimestamp(0)
-        .toString()
-        .equals("2020-10-28 13:35:47.001234567");
+          assert df.select(
+                  Functions.timestamp_ntz_from_parts(
+                      df.col("year"),
+                      df.col("month"),
+                      df.col("day"),
+                      df.col("hour"),
+                      df.col("minute"),
+                      df.col("second"),
+                      df.col("nanosecond")))
+              .collect()[0]
+              .getTimestamp(0)
+              .toString()
+              .equals("2020-10-28 13:35:47.001234567");
 
-    assert df.select(
-            Functions.timestamp_ntz_from_parts(
-                Functions.date_from_parts(df.col("year"), df.col("month"), df.col("day")),
-                Functions.time_from_parts(
-                    df.col("hour"), df.col("minute"), df.col("second"), df.col("nanosecond"))))
-        .collect()[0]
-        .getTimestamp(0)
-        .toString()
-        .equals("2020-10-28 13:35:47.001234567");
+          assert df.select(
+                  Functions.timestamp_ntz_from_parts(
+                      Functions.date_from_parts(df.col("year"), df.col("month"), df.col("day")),
+                      Functions.time_from_parts(
+                          df.col("hour"),
+                          df.col("minute"),
+                          df.col("second"),
+                          df.col("nanosecond"))))
+              .collect()[0]
+              .getTimestamp(0)
+              .toString()
+              .equals("2020-10-28 13:35:47.001234567");
+        },
+        getSession());
   }
 
   @Test
   public void timestamp_tz_from_parts() {
-    DataFrame df =
-        getSession()
-            .sql(
-                "select * from values(2020, 10, 28, 13, 35, 47, 1234567, 'America/Los_Angeles') as"
-                    + " T(year, month, day, hour, minute, second, nanosecond, timezone)");
+    withTimeZoneTest(
+        () -> {
+          DataFrame df =
+              getSession()
+                  .sql(
+                      "select * from values(2020, 10, 28, 13, 35, 47, 1234567, 'America/Los_Angeles') as"
+                          + " T(year, month, day, hour, minute, second, nanosecond, timezone)");
 
-    assert df.select(
-            Functions.timestamp_tz_from_parts(
-                df.col("year"),
-                df.col("month"),
-                df.col("day"),
-                df.col("hour"),
-                df.col("minute"),
-                df.col("second")))
-        .collect()[0]
-        .getTimestamp(0)
-        .toString()
-        .equals("2020-10-28 13:35:47.0");
+          assert df.select(
+                  Functions.timestamp_tz_from_parts(
+                      df.col("year"),
+                      df.col("month"),
+                      df.col("day"),
+                      df.col("hour"),
+                      df.col("minute"),
+                      df.col("second")))
+              .collect()[0]
+              .getTimestamp(0)
+              .toString()
+              .equals("2020-10-28 13:35:47.0");
 
-    assert df.select(
-            Functions.timestamp_tz_from_parts(
-                df.col("year"),
-                df.col("month"),
-                df.col("day"),
-                df.col("hour"),
-                df.col("minute"),
-                df.col("second"),
-                df.col("nanosecond")))
-        .collect()[0]
-        .getTimestamp(0)
-        .toString()
-        .equals("2020-10-28 13:35:47.001234567");
+          assert df.select(
+                  Functions.timestamp_tz_from_parts(
+                      df.col("year"),
+                      df.col("month"),
+                      df.col("day"),
+                      df.col("hour"),
+                      df.col("minute"),
+                      df.col("second"),
+                      df.col("nanosecond")))
+              .collect()[0]
+              .getTimestamp(0)
+              .toString()
+              .equals("2020-10-28 13:35:47.001234567");
 
-    assert df.select(
-            Functions.timestamp_tz_from_parts(
-                df.col("year"),
-                df.col("month"),
-                df.col("day"),
-                df.col("hour"),
-                df.col("minute"),
-                df.col("second"),
-                df.col("nanosecond"),
-                df.col("timezone")))
-        .collect()[0]
-        .getTimestamp(0)
-        .toString()
-        .equals("2020-10-28 13:35:47.001234567");
+          assert df.select(
+                  Functions.timestamp_tz_from_parts(
+                      df.col("year"),
+                      df.col("month"),
+                      df.col("day"),
+                      df.col("hour"),
+                      df.col("minute"),
+                      df.col("second"),
+                      df.col("nanosecond"),
+                      df.col("timezone")))
+              .collect()[0]
+              .getTimestamp(0)
+              .toString()
+              .equals("2020-10-28 13:35:47.001234567");
+        },
+        getSession());
   }
 
   @Test
   public void dayname() {
-    DataFrame df =
-        getSession()
-            .sql("select * from values('2020-08-01'::Date, 1),('2010-12-01'::Date, 2) as T(a,b)");
-    Row[] expected = {Row.create("Sat"), Row.create("Wed")};
-    checkAnswer(df.select(Functions.dayname(df.col("a"))), expected);
+    withTimeZoneTest(
+        () -> {
+          DataFrame df =
+              getSession()
+                  .sql(
+                      "select * from values('2020-08-01'::Date, 1),('2010-12-01'::Date, 2) as T(a,b)");
+          Row[] expected = {Row.create("Sat"), Row.create("Wed")};
+          checkAnswer(df.select(Functions.dayname(df.col("a"))), expected);
+        },
+        getSession());
   }
 
   @Test
   public void monthname() {
-    DataFrame df =
-        getSession()
-            .sql("select * from values('2020-08-01'::Date, 1),('2010-12-01'::Date, 2) as T(a,b)");
-    Row[] expected = {Row.create("Aug"), Row.create("Dec")};
-    checkAnswer(df.select(Functions.monthname(df.col("a"))), expected);
+    withTimeZoneTest(
+        () -> {
+          DataFrame df =
+              getSession()
+                  .sql(
+                      "select * from values('2020-08-01'::Date, 1),('2010-12-01'::Date, 2) as T(a,b)");
+          Row[] expected = {Row.create("Aug"), Row.create("Dec")};
+          checkAnswer(df.select(Functions.monthname(df.col("a"))), expected);
+        },
+        getSession());
   }
 
   @Test
   public void dateadd() {
-    DataFrame df =
-        getSession()
-            .sql("select * from values('2020-08-01'::Date, 1),('2010-12-01'::Date, 2) as T(a,b)");
-    Row[] expected = {Row.create(new Date(121, 7, 1)), Row.create(new Date(111, 11, 1))};
-    checkAnswer(df.select(Functions.dateadd("year", Functions.lit(1), df.col("a"))), expected);
+    withTimeZoneTest(
+        () -> {
+          DataFrame df =
+              getSession()
+                  .sql(
+                      "select * from values('2020-08-01'::Date, 1),('2010-12-01'::Date, 2) as T(a,b)");
+          Row[] expected = {Row.create(new Date(121, 7, 1)), Row.create(new Date(111, 11, 1))};
+          checkAnswer(
+              df.select(Functions.dateadd("year", Functions.lit(1), df.col("a"))), expected);
+        },
+        getSession());
   }
 
   @Test
   public void datediff() {
-    DataFrame df =
-        getSession()
-            .sql(
-                "select * from values('2020-05-01 13:11:20.000' :: timestamp),"
-                    + "('2020-08-21 01:30:05.000' :: timestamp) as T(a)");
-    Row[] expected = {Row.create(1), Row.create(1)};
-    checkAnswer(
-        df.select(df.col("a"), Functions.dateadd("year", Functions.lit(1), df.col("a")).as("b"))
-            .select(Functions.datediff("year", Functions.col("a"), Functions.col("b"))),
-        expected);
+    withTimeZoneTest(
+        () -> {
+          DataFrame df =
+              getSession()
+                  .sql(
+                      "select * from values('2020-05-01 13:11:20.000' :: timestamp),"
+                          + "('2020-08-21 01:30:05.000' :: timestamp) as T(a)");
+          Row[] expected = {Row.create(1), Row.create(1)};
+          checkAnswer(
+              df.select(
+                      df.col("a"), Functions.dateadd("year", Functions.lit(1), df.col("a")).as("b"))
+                  .select(Functions.datediff("year", Functions.col("a"), Functions.col("b"))),
+              expected);
+        },
+        getSession());
   }
 
   @Test
@@ -1450,16 +1558,20 @@ public class JavaFunctionSuite extends TestBase {
 
   @Test
   public void date_trunc() {
-    DataFrame df =
-        getSession()
-            .sql(
-                "select * from values('2020-05-01 13:11:20.000' :: timestamp),"
-                    + "('2020-08-21 01:30:05.000' :: timestamp) as T(a)");
-    Row[] expected = {
-      Row.create(Timestamp.valueOf("2020-04-01 00:00:00.0")),
-      Row.create(Timestamp.valueOf("2020-07-01 00:00:00.0"))
-    };
-    checkAnswer(df.select(Functions.date_trunc("quarter", df.col("a"))), expected);
+    withTimeZoneTest(
+        () -> {
+          DataFrame df =
+              getSession()
+                  .sql(
+                      "select * from values('2020-05-01 13:11:20.000' :: timestamp),"
+                          + "('2020-08-21 01:30:05.000' :: timestamp) as T(a)");
+          Row[] expected = {
+            Row.create(Timestamp.valueOf("2020-04-01 00:00:00.0")),
+            Row.create(Timestamp.valueOf("2020-07-01 00:00:00.0"))
+          };
+          checkAnswer(df.select(Functions.date_trunc("quarter", df.col("a"))), expected);
+        },
+        getSession());
   }
 
   @Test
@@ -2289,26 +2401,30 @@ public class JavaFunctionSuite extends TestBase {
 
   @Test
   public void as_date() {
-    DataFrame df =
-        getSession()
-            .sql(
-                "select to_variant(to_array('Example')) as arr1,"
-                    + " to_variant(to_object(parse_json('{\"Tree\": \"Pine\"}'))) as obj1, "
-                    + " to_variant(to_binary('snow', 'utf-8')) as bin1, to_variant(true) as bool1,"
-                    + " to_variant('X') as str1,  to_variant(to_date('2017-02-24')) as date1, "
-                    + " to_variant(to_time('20:57:01.123456789+07:00')) as time1, "
-                    + " to_variant(to_timestamp_ntz('2017-02-24 12:00:00.456')) as timestamp_ntz1, "
-                    + " to_variant(to_timestamp_ltz('2017-02-24 13:00:00.123 +01:00')) as"
-                    + " timestamp_ltz1,  to_variant(to_timestamp_tz('2017-02-24 13:00:00.123"
-                    + " +01:00')) as timestamp_tz1,  to_variant(1.23::decimal(6, 3)) as decimal1, "
-                    + " to_variant(3.21::double) as double1,  to_variant(15) as num1 ");
-    Row[] expected = {Row.create(new Date(117, 1, 24), null, null)};
-    checkAnswer(
-        df.select(
-            Functions.as_date(df.col("date1")),
-            Functions.as_date(df.col("time1")),
-            Functions.as_date(df.col("bool1"))),
-        expected);
+    withTimeZoneTest(
+        () -> {
+          DataFrame df =
+              getSession()
+                  .sql(
+                      "select to_variant(to_array('Example')) as arr1,"
+                          + " to_variant(to_object(parse_json('{\"Tree\": \"Pine\"}'))) as obj1, "
+                          + " to_variant(to_binary('snow', 'utf-8')) as bin1, to_variant(true) as bool1,"
+                          + " to_variant('X') as str1,  to_variant(to_date('2017-02-24')) as date1, "
+                          + " to_variant(to_time('20:57:01.123456789+07:00')) as time1, "
+                          + " to_variant(to_timestamp_ntz('2017-02-24 12:00:00.456')) as timestamp_ntz1, "
+                          + " to_variant(to_timestamp_ltz('2017-02-24 13:00:00.123 +01:00')) as"
+                          + " timestamp_ltz1,  to_variant(to_timestamp_tz('2017-02-24 13:00:00.123"
+                          + " +01:00')) as timestamp_tz1,  to_variant(1.23::decimal(6, 3)) as decimal1, "
+                          + " to_variant(3.21::double) as double1,  to_variant(15) as num1 ");
+          Row[] expected = {Row.create(new Date(117, 1, 24), null, null)};
+          checkAnswer(
+              df.select(
+                  Functions.as_date(df.col("date1")),
+                  Functions.as_date(df.col("time1")),
+                  Functions.as_date(df.col("bool1"))),
+              expected);
+        },
+        getSession());
   }
 
   @Test
@@ -2428,66 +2544,74 @@ public class JavaFunctionSuite extends TestBase {
 
   @Test
   public void as_time() {
-    DataFrame df =
-        getSession()
-            .sql(
-                "select to_variant(to_array('Example')) as arr1,"
-                    + " to_variant(to_object(parse_json('{\"Tree\": \"Pine\"}'))) as obj1, "
-                    + " to_variant(to_binary('snow', 'utf-8')) as bin1, to_variant(true) as bool1,"
-                    + " to_variant('X') as str1,  to_variant(to_date('2017-02-24')) as date1, "
-                    + " to_variant(to_time('20:57:01.123456789+07:00')) as time1, "
-                    + " to_variant(to_timestamp_ntz('2017-02-24 12:00:00.456')) as timestamp_ntz1, "
-                    + " to_variant(to_timestamp_ltz('2017-02-24 13:00:00.123 +01:00')) as"
-                    + " timestamp_ltz1,  to_variant(to_timestamp_tz('2017-02-24 13:00:00.123"
-                    + " +01:00')) as timestamp_tz1,  to_variant(1.23::decimal(6, 3)) as decimal1, "
-                    + " to_variant(3.21::double) as double1,  to_variant(15) as num1 ");
-    Row[] expected = {Row.create(Time.valueOf("20:57:01"), null, null)};
-    checkAnswer(
-        df.select(
-            Functions.as_time(df.col("time1")),
-            Functions.as_time(df.col("date1")),
-            Functions.as_time(df.col("timestamp_tz1"))),
-        expected);
+    withTimeZoneTest(
+        () -> {
+          DataFrame df =
+              getSession()
+                  .sql(
+                      "select to_variant(to_array('Example')) as arr1,"
+                          + " to_variant(to_object(parse_json('{\"Tree\": \"Pine\"}'))) as obj1, "
+                          + " to_variant(to_binary('snow', 'utf-8')) as bin1, to_variant(true) as bool1,"
+                          + " to_variant('X') as str1,  to_variant(to_date('2017-02-24')) as date1, "
+                          + " to_variant(to_time('20:57:01.123456789+07:00')) as time1, "
+                          + " to_variant(to_timestamp_ntz('2017-02-24 12:00:00.456')) as timestamp_ntz1, "
+                          + " to_variant(to_timestamp_ltz('2017-02-24 13:00:00.123 +01:00')) as"
+                          + " timestamp_ltz1,  to_variant(to_timestamp_tz('2017-02-24 13:00:00.123"
+                          + " +01:00')) as timestamp_tz1,  to_variant(1.23::decimal(6, 3)) as decimal1, "
+                          + " to_variant(3.21::double) as double1,  to_variant(15) as num1 ");
+          Row[] expected = {Row.create(Time.valueOf("20:57:01"), null, null)};
+          checkAnswer(
+              df.select(
+                  Functions.as_time(df.col("time1")),
+                  Functions.as_time(df.col("date1")),
+                  Functions.as_time(df.col("timestamp_tz1"))),
+              expected);
+        },
+        getSession());
   }
 
   @Test
   public void as_timestamp() {
-    DataFrame df =
-        getSession()
-            .sql(
-                "select to_variant(to_array('Example')) as arr1,"
-                    + " to_variant(to_object(parse_json('{\"Tree\": \"Pine\"}'))) as obj1, "
-                    + " to_variant(to_binary('snow', 'utf-8')) as bin1, to_variant(true) as bool1,"
-                    + " to_variant('X') as str1,  to_variant(to_date('2017-02-24')) as date1, "
-                    + " to_variant(to_time('20:57:01.123456789+07:00')) as time1, "
-                    + " to_variant(to_timestamp_ntz('2017-02-24 12:00:00.456')) as timestamp_ntz1, "
-                    + " to_variant(to_timestamp_ltz('2017-02-24 13:00:00.123 +01:00')) as"
-                    + " timestamp_ltz1,  to_variant(to_timestamp_tz('2017-02-24 13:00:00.123"
-                    + " +01:00')) as timestamp_tz1,  to_variant(1.23::decimal(6, 3)) as decimal1, "
-                    + " to_variant(3.21::double) as double1,  to_variant(15) as num1 ");
-    Row[] expected = {Row.create(Timestamp.valueOf("2017-02-24 12:00:00.456"), null, null)};
-    checkAnswer(
-        df.select(
-            Functions.as_timestamp_ntz(df.col("timestamp_ntz1")),
-            Functions.as_timestamp_ntz(df.col("timestamp_tz1")),
-            Functions.as_timestamp_ntz(df.col("timestamp_ltz1"))),
-        expected);
+    withTimeZoneTest(
+        () -> {
+          DataFrame df =
+              getSession()
+                  .sql(
+                      "select to_variant(to_array('Example')) as arr1,"
+                          + " to_variant(to_object(parse_json('{\"Tree\": \"Pine\"}'))) as obj1, "
+                          + " to_variant(to_binary('snow', 'utf-8')) as bin1, to_variant(true) as bool1,"
+                          + " to_variant('X') as str1,  to_variant(to_date('2017-02-24')) as date1, "
+                          + " to_variant(to_time('20:57:01.123456789+07:00')) as time1, "
+                          + " to_variant(to_timestamp_ntz('2017-02-24 12:00:00.456')) as timestamp_ntz1, "
+                          + " to_variant(to_timestamp_ltz('2017-02-24 13:00:00.123 +01:00')) as"
+                          + " timestamp_ltz1,  to_variant(to_timestamp_tz('2017-02-24 13:00:00.123"
+                          + " +01:00')) as timestamp_tz1,  to_variant(1.23::decimal(6, 3)) as decimal1, "
+                          + " to_variant(3.21::double) as double1,  to_variant(15) as num1 ");
+          Row[] expected = {Row.create(Timestamp.valueOf("2017-02-24 12:00:00.456"), null, null)};
+          checkAnswer(
+              df.select(
+                  Functions.as_timestamp_ntz(df.col("timestamp_ntz1")),
+                  Functions.as_timestamp_ntz(df.col("timestamp_tz1")),
+                  Functions.as_timestamp_ntz(df.col("timestamp_ltz1"))),
+              expected);
 
-    Row[] expected1 = {Row.create(null, null, Timestamp.valueOf("2017-02-24 04:00:00.123"))};
-    checkAnswer(
-        df.select(
-            Functions.as_timestamp_ltz(df.col("timestamp_ntz1")),
-            Functions.as_timestamp_ltz(df.col("timestamp_tz1")),
-            Functions.as_timestamp_ltz(df.col("timestamp_ltz1"))),
-        expected1);
+          Row[] expected1 = {Row.create(null, null, Timestamp.valueOf("2017-02-24 12:00:00.123"))};
+          checkAnswer(
+              df.select(
+                  Functions.as_timestamp_ltz(df.col("timestamp_ntz1")),
+                  Functions.as_timestamp_ltz(df.col("timestamp_tz1")),
+                  Functions.as_timestamp_ltz(df.col("timestamp_ltz1"))),
+              expected1);
 
-    Row[] expected2 = {Row.create(null, Timestamp.valueOf("2017-02-24 13:00:00.123"), null)};
-    checkAnswer(
-        df.select(
-            Functions.as_timestamp_tz(df.col("timestamp_ntz1")),
-            Functions.as_timestamp_tz(df.col("timestamp_tz1")),
-            Functions.as_timestamp_tz(df.col("timestamp_ltz1"))),
-        expected2);
+          Row[] expected2 = {Row.create(null, Timestamp.valueOf("2017-02-24 13:00:00.123"), null)};
+          checkAnswer(
+              df.select(
+                  Functions.as_timestamp_tz(df.col("timestamp_ntz1")),
+                  Functions.as_timestamp_tz(df.col("timestamp_tz1")),
+                  Functions.as_timestamp_tz(df.col("timestamp_ltz1"))),
+              expected2);
+        },
+        getSession());
   }
 
   @Test
@@ -2724,13 +2848,17 @@ public class JavaFunctionSuite extends TestBase {
 
   @Test
   public void unix_timestamp() {
-    DataFrame df =
-        getSession()
-            .sql(
-                "select to_timestamp('2013-05-08 23:39:20.123') as a from values('2013-05-08"
-                    + " 23:39:20.123') as t(a)");
-    checkAnswer(
-        df.select(Functions.unix_timestamp(df.col("a"))), new Row[] {Row.create(1368056360)});
+    withTimeZoneTest(
+        () -> {
+          DataFrame df =
+              getSession()
+                  .sql(
+                      "select to_timestamp('2013-05-08 23:39:20.123') as a from values('2013-05-08"
+                          + " 23:39:20.123') as t(a)");
+          checkAnswer(
+              df.select(Functions.unix_timestamp(df.col("a"))), new Row[] {Row.create(1368056360)});
+        },
+        getSession());
   }
 
   @Test
@@ -2827,10 +2955,15 @@ public class JavaFunctionSuite extends TestBase {
 
   @Test
   public void date_format() {
-    DataFrame df = getSession().sql("select * from values ('2023-10-10'), ('2022-05-15') as T(a)");
-    Row[] expected = {Row.create("2023/10/10"), Row.create("2022/05/15")};
+    withTimeZoneTest(
+        () -> {
+          DataFrame df =
+              getSession().sql("select * from values ('2023-10-10'), ('2022-05-15') as T(a)");
+          Row[] expected = {Row.create("2023/10/10"), Row.create("2022/05/15")};
 
-    checkAnswer(df.select(Functions.date_format(df.col("a"), "YYYY/MM/DD")), expected);
+          checkAnswer(df.select(Functions.date_format(df.col("a"), "YYYY/MM/DD")), expected);
+        },
+        getSession());
   }
 
   @Test
@@ -2948,24 +3081,34 @@ public class JavaFunctionSuite extends TestBase {
 
   @Test
   public void date_add1() {
-    DataFrame df =
-        getSession()
-            .sql("select * from values('2020-08-01'::Date, 1),('2010-12-01'::Date, 2) as T(a,b)");
-    Row[] expected = {
-      Row.create(Date.valueOf("2020-08-02")), Row.create(Date.valueOf("2010-12-02"))
-    };
-    checkAnswer(df.select(Functions.date_add(df.col("a"), Functions.lit(1))), expected);
+    withTimeZoneTest(
+        () -> {
+          DataFrame df =
+              getSession()
+                  .sql(
+                      "select * from values('2020-08-01'::Date, 1),('2010-12-01'::Date, 2) as T(a,b)");
+          Row[] expected = {
+            Row.create(Date.valueOf("2020-08-02")), Row.create(Date.valueOf("2010-12-02"))
+          };
+          checkAnswer(df.select(Functions.date_add(df.col("a"), Functions.lit(1))), expected);
+        },
+        getSession());
   }
 
   @Test
   public void date_add2() {
-    DataFrame df =
-        getSession()
-            .sql("select * from values('2020-08-01'::Date, 1),('2010-12-01'::Date, 2) as T(a,b)");
-    Row[] expected = {
-      Row.create(Date.valueOf("2020-08-02")), Row.create(Date.valueOf("2010-12-02"))
-    };
-    checkAnswer(df.select(Functions.date_add(1, df.col("a"))), expected);
+    withTimeZoneTest(
+        () -> {
+          DataFrame df =
+              getSession()
+                  .sql(
+                      "select * from values('2020-08-01'::Date, 1),('2010-12-01'::Date, 2) as T(a,b)");
+          Row[] expected = {
+            Row.create(Date.valueOf("2020-08-02")), Row.create(Date.valueOf("2010-12-02"))
+          };
+          checkAnswer(df.select(Functions.date_add(1, df.col("a"))), expected);
+        },
+        getSession());
   }
 
   @Test
@@ -2976,16 +3119,26 @@ public class JavaFunctionSuite extends TestBase {
 
   @Test
   public void from_unixtime1() {
-    DataFrame df = getSession().sql("select * from values(20231010), (20220515) as t(a)");
-    Row[] expected = {Row.create("1970-08-23 03:43:30.000"), Row.create("1970-08-23 00:48:35.000")};
-    checkAnswer(df.select(Functions.from_unixtime(df.col("a"))), expected);
+    withTimeZoneTest(
+        () -> {
+          DataFrame df = getSession().sql("select * from values(20231010), (20220515) as t(a)");
+          Row[] expected = {
+            Row.create("1970-08-23 03:43:30.000"), Row.create("1970-08-23 00:48:35.000")
+          };
+          checkAnswer(df.select(Functions.from_unixtime(df.col("a"))), expected);
+        },
+        getSession());
   }
 
   @Test
   public void from_unixtime2() {
-    DataFrame df = getSession().sql("select * from values(20231010), (456700809) as t(a)");
-    Row[] expected = {Row.create("1970/08/23"), Row.create("1984/06/21")};
-    checkAnswer(df.select(Functions.from_unixtime(df.col("a"), "YYYY/MM/DD")), expected);
+    withTimeZoneTest(
+        () -> {
+          DataFrame df = getSession().sql("select * from values(20231010), (456700809) as t(a)");
+          Row[] expected = {Row.create("1970/08/23"), Row.create("1984/06/21")};
+          checkAnswer(df.select(Functions.from_unixtime(df.col("a"), "YYYY/MM/DD")), expected);
+        },
+        getSession());
   }
 
   @Test
@@ -3024,13 +3177,17 @@ public class JavaFunctionSuite extends TestBase {
 
   @Test
   public void months_between() {
-    DataFrame df =
-        getSession()
-            .sql(
-                "select * from values('2010-07-02'::Date,'2010-08-02'::Date), "
-                    + "('2020-08-02'::Date,'2020-12-02'::Date) as t(a,b)");
-    Row[] expected = {Row.create(1.000000), Row.create(4.000000)};
-    checkAnswer(df.select(Functions.months_between("b", "a")), expected);
+    withTimeZoneTest(
+        () -> {
+          DataFrame df =
+              getSession()
+                  .sql(
+                      "select * from values('2010-07-02'::Date,'2010-08-02'::Date), "
+                          + "('2020-08-02'::Date,'2020-12-02'::Date) as t(a,b)");
+          Row[] expected = {Row.create(1.000000), Row.create(4.000000)};
+          checkAnswer(df.select(Functions.months_between("b", "a")), expected);
+        },
+        getSession());
   }
 
   @Test
@@ -3060,15 +3217,23 @@ public class JavaFunctionSuite extends TestBase {
 
   @Test
   public void from_utc_timestamp() {
-    DataFrame df = getSession().sql("select * from values('2024-04-05 01:02:03') as t(a)");
-    Row[] expected = {Row.create(Timestamp.valueOf("2024-04-05 01:02:03.0"))};
-    checkAnswer(df.select(Functions.from_utc_timestamp(df.col("a"))), expected);
+    withTimeZoneTest(
+        () -> {
+          DataFrame df = getSession().sql("select * from values('2024-04-05 01:02:03') as t(a)");
+          Row[] expected = {Row.create(Timestamp.valueOf("2024-04-05 01:02:03.0"))};
+          checkAnswer(df.select(Functions.from_utc_timestamp(df.col("a"))), expected);
+        },
+        getSession());
   }
 
   @Test
   public void to_utc_timestamp() {
-    DataFrame df = getSession().sql("select * from values('2024-04-05 01:02:03') as t(a)");
-    Row[] expected = {Row.create(Timestamp.valueOf("2024-04-05 01:02:03.0"))};
-    checkAnswer(df.select(Functions.to_utc_timestamp(df.col("a"))), expected);
+    withTimeZoneTest(
+        () -> {
+          DataFrame df = getSession().sql("select * from values('2024-04-05 01:02:03') as t(a)");
+          Row[] expected = {Row.create(Timestamp.valueOf("2024-04-05 01:02:03.0"))};
+          checkAnswer(df.select(Functions.to_utc_timestamp(df.col("a"))), expected);
+        },
+        getSession());
   }
 }

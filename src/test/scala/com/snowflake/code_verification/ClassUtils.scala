@@ -4,7 +4,7 @@ import com.snowflake.snowpark.internal.Logging
 
 import java.lang.reflect.Modifier
 import scala.collection.mutable
-import scala.reflect.runtime.universe.{MethodSymbol, Type, TypeTag, typeOf}
+import scala.reflect.runtime.universe.{TypeTag, typeOf}
 
 object ClassUtils extends Logging {
 

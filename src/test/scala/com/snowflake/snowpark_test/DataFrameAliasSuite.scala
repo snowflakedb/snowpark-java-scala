@@ -2,12 +2,7 @@ package com.snowflake.snowpark_test
 
 import com.snowflake.snowpark._
 import com.snowflake.snowpark.functions._
-import com.snowflake.snowpark.internal.analyzer._
-import com.snowflake.snowpark.types._
-import net.snowflake.client.jdbc.SnowflakeSQLException
 import org.scalatest.BeforeAndAfterEach
-import java.sql.{Date, Time, Timestamp}
-import scala.util.Random
 
 class DataFrameAliasSuite extends TestData with BeforeAndAfterEach with EagerSession {
   val tableName1: String = randomName()

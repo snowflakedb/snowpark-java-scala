@@ -7,8 +7,6 @@ import com.snowflake.snowpark.{JavaStoredProcExclude, Row, SampleDataTest, TestD
 import java.sql.{Date, Time, Timestamp}
 import com.snowflake.snowpark.internal.Utils.randomGenerator
 
-import scala.collection.mutable.ArrayBuffer
-
 // contains costly tests
 class LargeDataFrameSuite extends TestData {
   import session.implicits._
@@ -72,86 +70,92 @@ class LargeDataFrameSuite extends TestData {
   }
 
   test("createDataFrame for large values: basic types") {
-    val schema = StructType(
-      Seq(
-        StructField("ID", LongType),
-        StructField("string", StringType),
-        StructField("byte", ByteType),
-        StructField("short", ShortType),
-        StructField("int", IntegerType),
-        StructField("long", LongType),
-        StructField("float", FloatType),
-        StructField("double", DoubleType),
-        StructField("decimal", DecimalType(10, 3)),
-        StructField("boolean", BooleanType),
-        StructField("binary", BinaryType),
-        StructField("timestamp", TimestampType),
-        StructField("date", DateType)))
+    testWithTimezone() {
+      val schema = StructType(
+        Seq(
+          StructField("ID", LongType),
+          StructField("string", StringType),
+          StructField("byte", ByteType),
+          StructField("short", ShortType),
+          StructField("int", IntegerType),
+          StructField("long", LongType),
+          StructField("float", FloatType),
+          StructField("double", DoubleType),
+          StructField("decimal", DecimalType(10, 3)),
+          StructField("boolean", BooleanType),
+          StructField("binary", BinaryType),
+          StructField("timestamp", TimestampType),
+          StructField("date", DateType)))
 
-    val schemaString = """root
-                         | |--ID: Long (nullable = true)
-                         | |--STRING: String (nullable = true)
-                         | |--BYTE: Long (nullable = true)
-                         | |--SHORT: Long (nullable = true)
-                         | |--INT: Long (nullable = true)
-                         | |--LONG: Long (nullable = true)
-                         | |--FLOAT: Double (nullable = true)
-                         | |--DOUBLE: Double (nullable = true)
-                         | |--DECIMAL: Decimal(10, 3) (nullable = true)
-                         | |--BOOLEAN: Boolean (nullable = true)
-                         | |--BINARY: Binary (nullable = true)
-                         | |--TIMESTAMP: Timestamp (nullable = true)
-                         | |--DATE: Date (nullable = true)
-                         |""".stripMargin
+      val schemaString =
+        """root
+          | |--ID: Long (nullable = true)
+          | |--STRING: String (nullable = true)
+          | |--BYTE: Long (nullable = true)
+          | |--SHORT: Long (nullable = true)
+          | |--INT: Long (nullable = true)
+          | |--LONG: Long (nullable = true)
+          | |--FLOAT: Double (nullable = true)
+          | |--DOUBLE: Double (nullable = true)
+          | |--DECIMAL: Decimal(10, 3) (nullable = true)
+          | |--BOOLEAN: Boolean (nullable = true)
+          | |--BINARY: Binary (nullable = true)
+          | |--TIMESTAMP: Timestamp (nullable = true)
+          | |--DATE: Date (nullable = true)
+          |""".stripMargin
 
-    val timestamp: Long = 1606179541282L
+      val timestamp: Long = 1606179541282L
 
-    var largeData =
-      for (i <- 0 to 1024)
-        yield Row(
-          i.toLong,
-          "a",
-          1.toByte,
-          2.toShort,
-          3,
-          4L,
-          1.1f,
-          1.2d,
-          new java.math.BigDecimal(1.2),
-          true,
-          Array(1.toByte, 2.toByte),
-          new Timestamp(timestamp - 100),
-          new Date(timestamp - 100))
-    // Add one null values
-    largeData :+= Row(1025, null, null, null, null, null, null, null, null, null, null, null, null)
+      var largeData =
+        for (i <- 0 to 1024)
+          yield Row(
+            i.toLong,
+            "a",
+            1.toByte,
+            2.toShort,
+            3,
+            4L,
+            1.1f,
+            1.2d,
+            new java.math.BigDecimal(1.2),
+            true,
+            Array(1.toByte, 2.toByte),
+            new Timestamp(timestamp - 100),
+            new Date(timestamp - 100))
+      // Add one null values
+      largeData :+= Row(1025, null, null, null, null, null, null, null, null, null, null, null,
+        null)
 
-    val result = session.createDataFrame(largeData, schema)
-    // byte, short, int, long are converted to long
-    // float and double are converted to double
-    result.schema.printTreeString()
-    assert(getSchemaString(result.schema) == schemaString)
-    checkAnswer(result.sort(col("id")), largeData)
+      val result = session.createDataFrame(largeData, schema)
+      // byte, short, int, long are converted to long
+      // float and double are converted to double
+      result.schema.printTreeString()
+      assert(getSchemaString(result.schema) == schemaString)
+      checkAnswer(result.sort(col("id")), largeData)
+    }
   }
 
   test("createDataFrame for large values: time") {
-    val schema = StructType(Seq(StructField("id", LongType), StructField("time", TimeType)))
+    testWithTimezone() {
+      val schema = StructType(Seq(StructField("id", LongType), StructField("time", TimeType)))
 
-    val rowCount = 550
-    var largeData = for (i <- 0 until rowCount) yield Row(i.toLong, Time.valueOf("11:12:13"))
-    largeData :+= Row(rowCount, null)
+      val rowCount = 550
+      var largeData = for (i <- 0 until rowCount) yield Row(i.toLong, Time.valueOf("11:12:13"))
+      largeData :+= Row(rowCount, null)
 
-    val df = session.createDataFrame(largeData, schema)
-    assert(
-      getSchemaString(df.schema) ==
-        """root
-          | |--ID: Long (nullable = true)
-          | |--TIME: Time (nullable = true)
-          |""".stripMargin)
+      val df = session.createDataFrame(largeData, schema)
+      assert(
+        getSchemaString(df.schema) ==
+          """root
+            | |--ID: Long (nullable = true)
+            | |--TIME: Time (nullable = true)
+            |""".stripMargin)
 
-    val snowflakeTime = session.sql("select '11:12:13' :: Time").collect()(0).getTime(0)
-    var expected = for (i <- 0 until rowCount) yield Row(i.toLong, snowflakeTime)
-    expected :+= Row(rowCount, null)
-    checkAnswer(df.sort(col("id")), expected)
+      val snowflakeTime = session.sql("select '11:12:13' :: Time").collect()(0).getTime(0)
+      var expected = for (i <- 0 until rowCount) yield Row(i.toLong, snowflakeTime)
+      expected :+= Row(rowCount, null)
+      checkAnswer(df.sort(col("id")), expected)
+    }
   }
 
   // In the result, Array, Map and Geography are String data

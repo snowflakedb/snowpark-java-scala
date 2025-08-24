@@ -10,7 +10,6 @@ import com.snowflake.snowpark.internal.{ParameterUtils, Utils}
 import com.snowflake.snowpark.internal.analyzer.{
   Attribute,
   Literal,
-  Project,
   Query,
   SnowflakePlan,
   schemaValueStatement
@@ -22,7 +21,6 @@ import net.snowflake.client.jdbc.SnowflakeSQLException
 import java.nio.file.Files
 import java.sql.{Date, Timestamp}
 import scala.collection.mutable
-import scala.collection.mutable.ArrayBuffer
 import scala.concurrent.Await
 import scala.concurrent.duration._
 import scala.util.Random
@@ -498,36 +496,38 @@ class APIInternalSuite extends TestData {
   }
 
   test("show structured array") {
-    structuredTypeTest {
-      val query =
-        """SELECT
-          |    [1, 2, 3]::ARRAY(NUMBER) AS arr1,
-          |    [1.1, 2.2, 3.3]::ARRAY(FLOAT) AS arr2,
-          |    [true, false]::ARRAY(BOOLEAN) AS arr3,
-          |    ['a', 'b']::ARRAY(VARCHAR) AS arr4,
-          |    [parse_json(31000000)::timestamp_ntz]::ARRAY(TIMESTAMP_NTZ) AS arr5,
-          |    [TO_BINARY('SNOW', 'utf-8')]::ARRAY(BINARY) AS arr6,
-          |    [TO_DATE('2013-05-17')]::ARRAY(DATE) AS arr7,
-          |    [[1,2]]::ARRAY(ARRAY) AS arr9,
-          |    [OBJECT_CONSTRUCT('name', 1)]::ARRAY(OBJECT) AS arr10,
-          |    [[1, 2], [3, 4]]::ARRAY(ARRAY(NUMBER)) AS arr11,
-          |    [1.234::DECIMAL(13, 5)]::ARRAY(DECIMAL(13,5)) as arr12,
-          |    [time '10:03:56']::ARRAY(TIME) as arr21
-          |""".stripMargin
-      val df = session.sql(query)
-      // scalastyle:off
-      assert(
-        df.showString(10) ==
-          """---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-            ||"ARR1"   |"ARR2"         |"ARR3"        |"ARR4"  |"ARR5"                   |"ARR6"        |"ARR7"        |"ARR9"  |"ARR10"      |"ARR11"        |"ARR12"    |"ARR21"     |
-            |---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-            ||[1,2,3]  |[1.1,2.2,3.3]  |[true,false]  |[a,b]   |[1970-12-25 11:06:40.0]  |['534E4F57']  |[2013-05-17]  |[[      |[{           |[[1,2],[3,4]]  |[1.23400]  |[10:03:56]  |
-            ||         |               |              |        |                         |              |              |  1,    |  "name": 1  |               |           |            |
-            ||         |               |              |        |                         |              |              |  2     |}]           |               |           |            |
-            ||         |               |              |        |                         |              |              |]]      |             |               |           |            |
-            |---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-            |""".stripMargin)
-      // scalastyle:on
+    testWithTimezone() {
+      structuredTypeTest {
+        val query =
+          """SELECT
+            |    [1, 2, 3]::ARRAY(NUMBER) AS arr1,
+            |    [1.1, 2.2, 3.3]::ARRAY(FLOAT) AS arr2,
+            |    [true, false]::ARRAY(BOOLEAN) AS arr3,
+            |    ['a', 'b']::ARRAY(VARCHAR) AS arr4,
+            |    [parse_json(31000000)::timestamp_ntz]::ARRAY(TIMESTAMP_NTZ) AS arr5,
+            |    [TO_BINARY('SNOW', 'utf-8')]::ARRAY(BINARY) AS arr6,
+            |    [TO_DATE('2013-05-17')]::ARRAY(DATE) AS arr7,
+            |    [[1,2]]::ARRAY(ARRAY) AS arr9,
+            |    [OBJECT_CONSTRUCT('name', 1)]::ARRAY(OBJECT) AS arr10,
+            |    [[1, 2], [3, 4]]::ARRAY(ARRAY(NUMBER)) AS arr11,
+            |    [1.234::DECIMAL(13, 5)]::ARRAY(DECIMAL(13,5)) as arr12,
+            |    [time '10:03:56']::ARRAY(TIME) as arr21
+            |""".stripMargin
+        val df = session.sql(query)
+        // scalastyle:off
+        assert(
+          df.showString(10) ==
+            """---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+              ||"ARR1"   |"ARR2"         |"ARR3"        |"ARR4"  |"ARR5"                   |"ARR6"        |"ARR7"        |"ARR9"  |"ARR10"      |"ARR11"        |"ARR12"    |"ARR21"     |
+              |---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+              ||[1,2,3]  |[1.1,2.2,3.3]  |[true,false]  |[a,b]   |[1970-12-25 19:06:40.0]  |['534E4F57']  |[2013-05-17]  |[[      |[{           |[[1,2],[3,4]]  |[1.23400]  |[10:03:56]  |
+              ||         |               |              |        |                         |              |              |  1,    |  "name": 1  |               |           |            |
+              ||         |               |              |        |                         |              |              |  2     |}]           |               |           |            |
+              ||         |               |              |        |                         |              |              |]]      |             |               |           |            |
+              |---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+              |""".stripMargin)
+        // scalastyle:on
+      }
     }
   }
 

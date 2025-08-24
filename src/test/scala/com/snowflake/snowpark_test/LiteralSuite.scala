@@ -165,9 +165,7 @@ class LiteralSuite extends TestData {
   }
 
   test("Literal TimeStamp and Instant") {
-    val oldTimeZone = TimeZone.getDefault
-    try {
-      TimeZone.setDefault(TimeZone.getTimeZone("UTC"))
+    testWithTimezone() {
       val instant = LocalDateTime
         .of(2020, 10, 11, 12, 13, 14, 123000000)
         .toInstant(ZoneOffset.UTC)
@@ -193,15 +191,11 @@ class LiteralSuite extends TestData {
             ||1     |2018-10-11 12:13:14.123  |2020-10-11 12:13:14.123  |
             |------------------------------------------------------------
             |""".stripMargin)
-    } finally {
-      TimeZone.setDefault(oldTimeZone)
     }
   }
 
   test("Literal Date and LocalDate") {
-    val oldTimeZone = TimeZone.getDefault
-    try {
-      TimeZone.setDefault(TimeZone.getTimeZone("UTC"))
+    testWithTimezone() {
       val df = session
         .range(2)
         .withColumn("local_date", lit(LocalDate.of(2020, 10, 11)))
@@ -224,8 +218,6 @@ class LiteralSuite extends TestData {
             ||1     |2020-10-11    |2018-10-11  |
             |------------------------------------
             |""".stripMargin)
-    } finally {
-      TimeZone.setDefault(oldTimeZone)
     }
   }
 

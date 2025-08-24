@@ -8,7 +8,6 @@ import com.snowflake.snowpark.types._
 import net.snowflake.client.jdbc.SnowflakeSQLException
 
 import java.sql.{Date, Time, Timestamp}
-import scala.collection.JavaConverters._
 
 trait FunctionSuite extends TestData {
   import session.implicits._
@@ -463,145 +462,163 @@ trait FunctionSuite extends TestData {
   }
 
   test("add months, current date") {
-    checkAnswer(
-      date1.select(add_months(col("A"), lit(1))),
-      Seq(Row(Date.valueOf("2020-09-01")), Row(Date.valueOf("2011-01-01"))))
+    testWithTimezone() {
+      checkAnswer(
+        date1.select(add_months(col("A"), lit(1))),
+        Seq(Row(Date.valueOf("2020-09-01")), Row(Date.valueOf("2011-01-01"))))
+    }
     // zero1.select(current_date()) gets the date on server, which uses session timezone.
     // System.currentTimeMillis() is based on jvm timezone. They should not always be equal.
     // We can set local JVM timezone to session timezone to ensure it passes.
     testWithAlteredSessionParameter(
-      testWithTimezone(
-        {
-          checkAnswer(zero1.select(current_date()), Seq(Row(new Date(System.currentTimeMillis()))))
-        },
-        getTimeZone(session)),
+      testWithTimezone(getTimeZone(session)) {
+        checkAnswer(zero1.select(current_date()), Seq(Row(new Date(System.currentTimeMillis()))))
+      },
       "TIMEZONE",
       "'GMT'")
     testWithAlteredSessionParameter(
-      testWithTimezone(
-        {
-          checkAnswer(zero1.select(current_date()), Seq(Row(new Date(System.currentTimeMillis()))))
-        },
-        getTimeZone(session)),
+      testWithTimezone(getTimeZone(session)) {
+        checkAnswer(zero1.select(current_date()), Seq(Row(new Date(System.currentTimeMillis()))))
+      },
       "TIMEZONE",
       "'Etc/GMT+8'")
     testWithAlteredSessionParameter(
-      testWithTimezone(
-        {
-          checkAnswer(zero1.select(current_date()), Seq(Row(new Date(System.currentTimeMillis()))))
-        },
-        getTimeZone(session)),
+      testWithTimezone(getTimeZone(session)) {
+        checkAnswer(zero1.select(current_date()), Seq(Row(new Date(System.currentTimeMillis()))))
+      },
       "TIMEZONE",
       "'Etc/GMT-8'")
   }
 
   test("current timestamp") {
-    assert(
-      (System.currentTimeMillis() - zero1
-        .select(current_timestamp())
-        .collect()(0)
-        .getTimestamp(0)
-        .getTime).abs < 100000)
+    testWithTimezone() {
+      assert(
+        (System.currentTimeMillis() - zero1
+          .select(current_timestamp())
+          .collect()(0)
+          .getTimestamp(0)
+          .getTime).abs < 100000)
+    }
   }
 
   test("year month day week quarter") {
-    checkAnswer(
-      date1.select(
-        year(col("A")),
-        month(col("A")),
-        dayofmonth(col("A")),
-        dayofweek(col("A")),
-        dayofyear(col("A")),
-        quarter(col("A")),
-        weekofyear(col("A")),
-        last_day(col("A"))),
-      Seq(
-        Row(2020, 8, 1, 6, 214, 3, 31, new Date(120, 7, 31)),
-        Row(2010, 12, 1, 3, 335, 4, 48, new Date(110, 11, 31))))
+    testWithTimezone() {
+      checkAnswer(
+        date1.select(
+          year(col("A")),
+          month(col("A")),
+          dayofmonth(col("A")),
+          dayofweek(col("A")),
+          dayofyear(col("A")),
+          quarter(col("A")),
+          weekofyear(col("A")),
+          last_day(col("A"))),
+        Seq(
+          Row(2020, 8, 1, 6, 214, 3, 31, new Date(120, 7, 31)),
+          Row(2010, 12, 1, 3, 335, 4, 48, new Date(110, 11, 31))))
+    }
   }
 
   test("next day") {
-    checkAnswer(
-      date1.select(next_day(col("A"), lit("FR"))),
-      Seq(Row(new Date(120, 7, 7)), Row(new Date(110, 11, 3))))
+    testWithTimezone() {
+      checkAnswer(
+        date1.select(next_day(col("A"), lit("FR"))),
+        Seq(Row(new Date(120, 7, 7)), Row(new Date(110, 11, 3))))
+    }
   }
 
   test("previous day") {
-    date2.select(previous_day(col("a"), col("b"))).show()
-    checkAnswer(
-      date2.select(previous_day(col("a"), col("b"))),
-      Seq(Row(new Date(120, 6, 27)), Row(new Date(110, 10, 24))))
+    testWithTimezone() {
+      date2.select(previous_day(col("a"), col("b"))).show()
+      checkAnswer(
+        date2.select(previous_day(col("a"), col("b"))),
+        Seq(Row(new Date(120, 6, 27)), Row(new Date(110, 10, 24))))
+    }
   }
 
   test("hour minute second") {
-    checkAnswer(
-      timestamp1.select(hour(col("A")), minute(col("A")), second(col("A"))),
-      Seq(Row(13, 11, 20), Row(1, 30, 5)))
+    testWithTimezone() {
+      checkAnswer(
+        timestamp1.select(hour(col("A")), minute(col("A")), second(col("A"))),
+        Seq(Row(13, 11, 20), Row(1, 30, 5)))
+    }
   }
 
   test("datediff") {
-    checkAnswer(
-      timestamp1
-        .select(col("a"), dateadd("year", lit(1), col("a")).as("b"))
-        .select(datediff("year", col("a"), col("b"))),
-      Seq(Row(1), Row(1)))
+    testWithTimezone() {
+      checkAnswer(
+        timestamp1
+          .select(col("a"), dateadd("year", lit(1), col("a")).as("b"))
+          .select(datediff("year", col("a"), col("b"))),
+        Seq(Row(1), Row(1)))
+    }
   }
 
   test("dateadd") {
-    checkAnswer(
-      date1.select(dateadd("year", lit(1), col("a"))),
-      Seq(Row(new Date(121, 7, 1)), Row(new Date(111, 11, 1))))
+    testWithTimezone() {
+      checkAnswer(
+        date1.select(dateadd("year", lit(1), col("a"))),
+        Seq(Row(new Date(121, 7, 1)), Row(new Date(111, 11, 1))))
+    }
   }
 
   test("to_timestamp") {
-    checkAnswer(
-      long1.select(to_timestamp(col("A"))),
-      Seq(
-        Row(Timestamp.valueOf("2019-06-25 16:19:17.0")),
-        Row(Timestamp.valueOf("2019-08-10 23:25:57.0")),
-        Row(Timestamp.valueOf("2006-10-22 01:12:37.0"))))
+    testWithTimezone() {
+      checkAnswer(
+        long1.select(to_timestamp(col("A"))),
+        Seq(
+          Row(Timestamp.valueOf("2019-06-25 16:19:17.0")),
+          Row(Timestamp.valueOf("2019-08-10 23:25:57.0")),
+          Row(Timestamp.valueOf("2006-10-22 01:12:37.0"))))
 
-    val df = session.sql("select * from values('04/05/2020 01:02:03') as T(a)")
+      val df = session.sql("select * from values('04/05/2020 01:02:03') as T(a)")
 
-    checkAnswer(
-      df.select(to_timestamp(col("A"), lit("mm/dd/yyyy hh24:mi:ss"))),
-      Seq(Row(Timestamp.valueOf("2020-04-05 01:02:03.0"))))
+      checkAnswer(
+        df.select(to_timestamp(col("A"), lit("mm/dd/yyyy hh24:mi:ss"))),
+        Seq(Row(Timestamp.valueOf("2020-04-05 01:02:03.0"))))
+    }
   }
 
   test("convert_timezone") {
-    checkAnswer(
-      timestampNTZ.select(
-        convert_timezone(lit("America/Los_Angeles"), lit("America/New_York"), col("a"))),
-      Seq(
-        Row(Timestamp.valueOf("2020-05-01 16:11:20.0")),
-        Row(Timestamp.valueOf("2020-08-21 04:30:05.0"))))
+    testWithTimezone() {
+      checkAnswer(
+        timestampNTZ.select(
+          convert_timezone(lit("America/Los_Angeles"), lit("America/New_York"), col("a"))),
+        Seq(
+          Row(Timestamp.valueOf("2020-05-01 16:11:20.0")),
+          Row(Timestamp.valueOf("2020-08-21 04:30:05.0"))))
 
-    val df = Seq(("2020-05-01 16:11:20.0 +02:00", "2020-08-21 04:30:05.0 -06:00")).toDF("a", "b")
-    checkAnswer(
-      df.select(
-        convert_timezone(lit("America/Los_Angeles"), col("a")),
-        convert_timezone(lit("America/New_York"), col("b"))),
-      Seq(
-        Row(
-          Timestamp.valueOf("2020-05-01 07:11:20.0"),
-          Timestamp.valueOf("2020-08-21 06:30:05.0"))))
+      val df = Seq(("2020-05-01 16:11:20.0 +02:00", "2020-08-21 04:30:05.0 -06:00")).toDF("a", "b")
+      checkAnswer(
+        df.select(
+          convert_timezone(lit("America/Los_Angeles"), col("a")),
+          convert_timezone(lit("America/New_York"), col("b"))),
+        Seq(
+          Row(
+            Timestamp.valueOf("2020-05-01 07:11:20.0"),
+            Timestamp.valueOf("2020-08-21 06:30:05.0"))))
+    }
     // -06:00 -> New_York should be -06:00 -> -04:00, which is +2 hours.
   }
 
   test("to_date") {
-    val df = session.sql("select * from values('2020-05-11') as T(a)")
-    checkAnswer(df.select(to_date(col("A"))), Seq(Row(new Date(120, 4, 11))))
+    testWithTimezone() {
+      val df = session.sql("select * from values('2020-05-11') as T(a)")
+      checkAnswer(df.select(to_date(col("A"))), Seq(Row(new Date(120, 4, 11))))
 
-    val df1 = session.sql("select * from values('2020.07.23') as T(a)")
-    checkAnswer(df1.select(to_date(col("A"), lit("YYYY.MM.DD"))), Seq(Row(new Date(120, 6, 23))))
+      val df1 = session.sql("select * from values('2020.07.23') as T(a)")
+      checkAnswer(df1.select(to_date(col("A"), lit("YYYY.MM.DD"))), Seq(Row(new Date(120, 6, 23))))
+    }
   }
 
   test("date_trunc") {
-    checkAnswer(
-      timestamp1.select(date_trunc("quarter", col("A"))),
-      Seq(
-        Row(Timestamp.valueOf("2020-04-01 00:00:00.0")),
-        Row(Timestamp.valueOf("2020-07-01 00:00:00.0"))))
+    testWithTimezone() {
+      checkAnswer(
+        timestamp1.select(date_trunc("quarter", col("A"))),
+        Seq(
+          Row(Timestamp.valueOf("2020-04-01 00:00:00.0")),
+          Row(Timestamp.valueOf("2020-07-01 00:00:00.0"))))
+    }
   }
 
   test("trunc") {
@@ -877,17 +894,23 @@ trait FunctionSuite extends TestData {
   }
 
   test("date_from_parts") {
-    val df = Seq((2020, 9, 16)).toDF("year", "month", "day")
-    val result = df.select(date_from_parts(col("year"), col("month"), col("day")))
-    checkAnswer(result, Seq(Row(new Date(120, 8, 16))))
+    testWithTimezone() {
+      val df = Seq((2020, 9, 16)).toDF("year", "month", "day")
+      val result = df.select(date_from_parts(col("year"), col("month"), col("day")))
+      checkAnswer(result, Seq(Row(new Date(120, 8, 16))))
+    }
   }
 
   test("dayname") {
-    checkAnswer(date1.select(dayname(col("a"))), Seq(Row("Sat"), Row("Wed")))
+    testWithTimezone() {
+      checkAnswer(date1.select(dayname(col("a"))), Seq(Row("Sat"), Row("Wed")))
+    }
   }
 
   test("monthname") {
-    checkAnswer(date1.select(monthname(col("a"))), Seq(Row("Aug"), Row("Dec")))
+    testWithTimezone() {
+      checkAnswer(date1.select(monthname(col("a"))), Seq(Row("Aug"), Row("Dec")))
+    }
   }
 
   test("endswith") {
@@ -938,19 +961,21 @@ trait FunctionSuite extends TestData {
   }
 
   test("time_from_parts") {
-    assert(
-      zero1
-        .select(time_from_parts(lit(1), lit(2), lit(3)))
-        .collect()(0)
-        .getTime(0)
-        .equals(new Time(3723000)))
+    testWithTimezone() {
+      assert(
+        zero1
+          .select(time_from_parts(lit(1), lit(2), lit(3)))
+          .collect()(0)
+          .getTime(0)
+          .equals(new Time(3723000)))
 
-    assert(
-      zero1
-        .select(time_from_parts(lit(1), lit(2), lit(3), lit(444444444)))
-        .collect()(0)
-        .getTime(0)
-        .equals(new Time(3723444)))
+      assert(
+        zero1
+          .select(time_from_parts(lit(1), lit(2), lit(3), lit(444444444)))
+          .collect()(0)
+          .getTime(0)
+          .equals(new Time(3723444)))
+    }
   }
 
   test("charindex") {
@@ -972,178 +997,185 @@ trait FunctionSuite extends TestData {
   }
 
   test("timestamp_from_parts") {
-    assert(
-      date3
-        .select(
-          timestamp_from_parts(
-            col("year"),
-            col("month"),
-            col("day"),
-            col("hour"),
-            col("minute"),
-            col("second")))
-        .collect()(0)
-        .getTimestamp(0)
-        .toString == "2020-10-28 13:35:47.0")
+    testWithTimezone() {
+      assert(
+        date3
+          .select(
+            timestamp_from_parts(
+              col("year"),
+              col("month"),
+              col("day"),
+              col("hour"),
+              col("minute"),
+              col("second")))
+          .collect()(0)
+          .getTimestamp(0)
+          .toString == "2020-10-28 13:35:47.0")
 
-    assert(
-      date3
-        .select(
-          timestamp_from_parts(
-            col("year"),
-            col("month"),
-            col("day"),
-            col("hour"),
-            col("minute"),
-            col("second"),
-            col("nanosecond")))
-        .collect()(0)
-        .getTimestamp(0)
-        .toString == "2020-10-28 13:35:47.001234567")
+      assert(
+        date3
+          .select(
+            timestamp_from_parts(
+              col("year"),
+              col("month"),
+              col("day"),
+              col("hour"),
+              col("minute"),
+              col("second"),
+              col("nanosecond")))
+          .collect()(0)
+          .getTimestamp(0)
+          .toString == "2020-10-28 13:35:47.001234567")
 
-    assert(
-      date3
-        .select(timestamp_from_parts(
-          date_from_parts(col("year"), col("month"), col("day")),
-          time_from_parts(col("hour"), col("minute"), col("second"), col("nanosecond"))))
-        .collect()(0)
-        .getTimestamp(0)
-        .toString == "2020-10-28 13:35:47.001234567")
+      assert(
+        date3
+          .select(timestamp_from_parts(
+            date_from_parts(col("year"), col("month"), col("day")),
+            time_from_parts(col("hour"), col("minute"), col("second"), col("nanosecond"))))
+          .collect()(0)
+          .getTimestamp(0)
+          .toString == "2020-10-28 13:35:47.001234567")
+    }
   }
 
   test("timestamp_ltz_from_parts") {
-    assert(
-      date3
-        .select(
-          timestamp_ltz_from_parts(
-            col("year"),
-            col("month"),
-            col("day"),
-            col("hour"),
-            col("minute"),
-            col("second")))
-        .collect()(0)
-        .getTimestamp(0)
-        .toString == "2020-10-28 13:35:47.0")
+    testWithTimezone() {
+      assert(
+        date3
+          .select(
+            timestamp_ltz_from_parts(
+              col("year"),
+              col("month"),
+              col("day"),
+              col("hour"),
+              col("minute"),
+              col("second")))
+          .collect()(0)
+          .getTimestamp(0)
+          .toString == "2020-10-28 13:35:47.0")
 
-    assert(
-      date3
-        .select(
-          timestamp_ltz_from_parts(
-            col("year"),
-            col("month"),
-            col("day"),
-            col("hour"),
-            col("minute"),
-            col("second"),
-            col("nanosecond")))
-        .collect()(0)
-        .getTimestamp(0)
-        .toString == "2020-10-28 13:35:47.001234567")
+      assert(
+        date3
+          .select(
+            timestamp_ltz_from_parts(
+              col("year"),
+              col("month"),
+              col("day"),
+              col("hour"),
+              col("minute"),
+              col("second"),
+              col("nanosecond")))
+          .collect()(0)
+          .getTimestamp(0)
+          .toString == "2020-10-28 13:35:47.001234567")
+    }
   }
 
   test("timestamp_ntz_from_parts") {
-    assert(
-      date3
-        .select(
-          timestamp_ntz_from_parts(
-            col("year"),
-            col("month"),
-            col("day"),
-            col("hour"),
-            col("minute"),
-            col("second")))
-        .collect()(0)
-        .getTimestamp(0)
-        .toString == "2020-10-28 13:35:47.0")
+    testWithTimezone() {
+      assert(
+        date3
+          .select(
+            timestamp_ntz_from_parts(
+              col("year"),
+              col("month"),
+              col("day"),
+              col("hour"),
+              col("minute"),
+              col("second")))
+          .collect()(0)
+          .getTimestamp(0)
+          .toString == "2020-10-28 13:35:47.0")
 
-    assert(
-      date3
-        .select(
-          timestamp_ntz_from_parts(
-            col("year"),
-            col("month"),
-            col("day"),
-            col("hour"),
-            col("minute"),
-            col("second"),
-            col("nanosecond")))
-        .collect()(0)
-        .getTimestamp(0)
-        .toString == "2020-10-28 13:35:47.001234567")
+      assert(
+        date3
+          .select(
+            timestamp_ntz_from_parts(
+              col("year"),
+              col("month"),
+              col("day"),
+              col("hour"),
+              col("minute"),
+              col("second"),
+              col("nanosecond")))
+          .collect()(0)
+          .getTimestamp(0)
+          .toString == "2020-10-28 13:35:47.001234567")
 
-    assert(
-      date3
-        .select(timestamp_ntz_from_parts(
-          date_from_parts(col("year"), col("month"), col("day")),
-          time_from_parts(col("hour"), col("minute"), col("second"), col("nanosecond"))))
-        .collect()(0)
-        .getTimestamp(0)
-        .toString == "2020-10-28 13:35:47.001234567")
+      assert(
+        date3
+          .select(timestamp_ntz_from_parts(
+            date_from_parts(col("year"), col("month"), col("day")),
+            time_from_parts(col("hour"), col("minute"), col("second"), col("nanosecond"))))
+          .collect()(0)
+          .getTimestamp(0)
+          .toString == "2020-10-28 13:35:47.001234567")
+    }
   }
 
   test("timestamp_tz_from_parts") {
-    assert(
-      date3
-        .select(
-          timestamp_tz_from_parts(
-            col("year"),
-            col("month"),
-            col("day"),
-            col("hour"),
-            col("minute"),
-            col("second")))
-        .collect()(0)
-        .getTimestamp(0)
-        .toString == "2020-10-28 13:35:47.0")
+    testWithTimezone() {
+      assert(
+        date3
+          .select(
+            timestamp_tz_from_parts(
+              col("year"),
+              col("month"),
+              col("day"),
+              col("hour"),
+              col("minute"),
+              col("second")))
+          .collect()(0)
+          .getTimestamp(0)
+          .toString == "2020-10-28 13:35:47.0")
 
-    assert(
-      date3
-        .select(
-          timestamp_tz_from_parts(
-            col("year"),
-            col("month"),
-            col("day"),
-            col("hour"),
-            col("minute"),
-            col("second"),
-            col("nanosecond")))
-        .collect()(0)
-        .getTimestamp(0)
-        .toString == "2020-10-28 13:35:47.001234567")
+      assert(
+        date3
+          .select(
+            timestamp_tz_from_parts(
+              col("year"),
+              col("month"),
+              col("day"),
+              col("hour"),
+              col("minute"),
+              col("second"),
+              col("nanosecond")))
+          .collect()(0)
+          .getTimestamp(0)
+          .toString == "2020-10-28 13:35:47.001234567")
 
-    assert(
-      date3
-        .select(
-          timestamp_tz_from_parts(
-            col("year"),
-            col("month"),
-            col("day"),
-            col("hour"),
-            col("minute"),
-            col("second"),
-            col("nanosecond"),
-            col("timezone")))
-        .collect()(0)
-        .getTimestamp(0)
-        .toString == "2020-10-28 13:35:47.001234567")
+      assert(
+        date3
+          .select(
+            timestamp_tz_from_parts(
+              col("year"),
+              col("month"),
+              col("day"),
+              col("hour"),
+              col("minute"),
+              col("second"),
+              col("nanosecond"),
+              col("timezone")))
+          .collect()(0)
+          .getTimestamp(0)
+          .toString == "2020-10-28 13:35:47.001234567")
 
-    assert(
-      date3
-        .select(
-          timestamp_tz_from_parts(
-            col("year"),
-            col("month"),
-            col("day"),
-            col("hour"),
-            col("minute"),
-            col("second"),
-            col("nanosecond"),
-            lit("America/New_York")))
-        .collect()(0)
-        .getTimestamp(0)
-        .toGMTString == "28 Oct 2020 17:35:47 GMT")
-
+      assert(
+        date3
+          .select(
+            timestamp_tz_from_parts(
+              col("year"),
+              col("month"),
+              col("day"),
+              col("hour"),
+              col("minute"),
+              col("second"),
+              col("nanosecond"),
+              lit("America/New_York")))
+          .collect()(0)
+          .getTimestamp(0)
+          .toGMTString == "28 Oct 2020 17:35:47 GMT")
+    }
   }
 
   test("check_json") {
@@ -1496,9 +1528,11 @@ trait FunctionSuite extends TestData {
   }
 
   test("as_date") {
-    checkAnswer(
-      variant1.select(as_date(col("date1")), as_date(col("time1")), as_date(col("bool1"))),
-      Seq(Row(new Date(117, 1, 24), null, null)))
+    testWithTimezone() {
+      checkAnswer(
+        variant1.select(as_date(col("date1")), as_date(col("time1")), as_date(col("bool1"))),
+        Seq(Row(new Date(117, 1, 24), null, null)))
+    }
   }
 
   test("as_decimal/as_number") {
@@ -1574,33 +1608,37 @@ trait FunctionSuite extends TestData {
   }
 
   test("as_time") {
-    checkAnswer(
-      variant1
-        .select(as_time(col("time1")), as_time(col("date1")), as_time(col("timestamp_tz1"))),
-      Seq(Row(Time.valueOf("20:57:01"), null, null)))
+    testWithTimezone() {
+      checkAnswer(
+        variant1
+          .select(as_time(col("time1")), as_time(col("date1")), as_time(col("timestamp_tz1"))),
+        Seq(Row(Time.valueOf("20:57:01"), null, null)))
+    }
   }
 
   test("as_timestamp_*") {
-    checkAnswer(
-      variant1.select(
-        as_timestamp_ntz(col("timestamp_ntz1")),
-        as_timestamp_ntz(col("timestamp_tz1")),
-        as_timestamp_ntz(col("timestamp_ltz1"))),
-      Seq(Row(Timestamp.valueOf("2017-02-24 12:00:00.456"), null, null)))
+    testWithTimezone("America/Los_Angeles") {
+      checkAnswer(
+        variant1.select(
+          as_timestamp_ntz(col("timestamp_ntz1")),
+          as_timestamp_ntz(col("timestamp_tz1")),
+          as_timestamp_ntz(col("timestamp_ltz1"))),
+        Seq(Row(Timestamp.valueOf("2017-02-24 12:00:00.456"), null, null)))
 
-    checkAnswer(
-      variant1.select(
-        as_timestamp_ltz(col("timestamp_ntz1")),
-        as_timestamp_ltz(col("timestamp_tz1")),
-        as_timestamp_ltz(col("timestamp_ltz1"))),
-      Seq(Row(null, null, Timestamp.valueOf("2017-02-24 04:00:00.123"))))
+      checkAnswer(
+        variant1.select(
+          as_timestamp_ltz(col("timestamp_ntz1")),
+          as_timestamp_ltz(col("timestamp_tz1")),
+          as_timestamp_ltz(col("timestamp_ltz1"))),
+        Seq(Row(null, null, Timestamp.valueOf("2017-02-24 04:00:00.123"))))
 
-    checkAnswer(
-      variant1.select(
-        as_timestamp_tz(col("timestamp_ntz1")),
-        as_timestamp_tz(col("timestamp_tz1")),
-        as_timestamp_tz(col("timestamp_ltz1"))),
-      Seq(Row(null, Timestamp.valueOf("2017-02-24 13:00:00.123"), null)))
+      checkAnswer(
+        variant1.select(
+          as_timestamp_tz(col("timestamp_ntz1")),
+          as_timestamp_tz(col("timestamp_tz1")),
+          as_timestamp_tz(col("timestamp_ltz1"))),
+        Seq(Row(null, Timestamp.valueOf("2017-02-24 13:00:00.123"), null)))
+    }
   }
 
   test("strtok_to_array") {
@@ -1632,10 +1670,12 @@ trait FunctionSuite extends TestData {
         .select(to_json(col("a"))),
       Seq(Row("1"), Row("2"), Row("3")))
 
-    checkAnswer(
-      variant1
-        .select(to_json(col("time1"))),
-      Seq(Row("\"20:57:01\"")))
+    testWithTimezone() {
+      checkAnswer(
+        variant1
+          .select(to_json(col("time1"))),
+        Seq(Row("\"20:57:01\"")))
+    }
   }
 
   test("to_object") {
@@ -2091,11 +2131,14 @@ trait FunctionSuite extends TestData {
   }
 
   test("date format function") {
+    testWithTimezone() {
+      val input = Seq("2023-10-10", "2022-05-15").toDF("date")
+      val expected = Seq("2023/10/10", "2022/05/15").toDF("formatted_date")
 
-    val input = Seq("2023-10-10", "2022-05-15").toDF("date")
-    val expected = Seq("2023/10/10", "2022/05/15").toDF("formatted_date")
-
-    checkAnswer(input.select(date_format(col("date"), "YYYY/MM/DD").as("formatted_date")), expected)
+      checkAnswer(
+        input.select(date_format(col("date"), "YYYY/MM/DD").as("formatted_date")),
+        expected)
+    }
   }
 
   test("last function") {
@@ -2155,9 +2198,11 @@ trait FunctionSuite extends TestData {
   }
 
   test("unix_timestamp") {
-    val expected = Seq(1368056360).toDF("epoch")
-    val data = Seq(Timestamp.valueOf("2013-05-08 23:39:20.123")).toDF("a")
-    checkAnswer(data.select(unix_timestamp(col("a"))), expected)
+    testWithTimezone() {
+      val expected = Seq(1368056360).toDF("epoch")
+      val data = Seq(Timestamp.valueOf("2013-05-08 23:39:20.123")).toDF("a")
+      checkAnswer(data.select(unix_timestamp(col("a"))), expected)
+    }
   }
 
   test("locate Column function") {
@@ -2197,33 +2242,43 @@ trait FunctionSuite extends TestData {
   }
 
   test("date_add1") {
-    checkAnswer(
-      date1.select(date_add(col("a"), lit(1))),
-      Seq(Row(Date.valueOf("2020-08-02")), Row(Date.valueOf("2010-12-02"))))
+    testWithTimezone() {
+      checkAnswer(
+        date1.select(date_add(col("a"), lit(1))),
+        Seq(Row(Date.valueOf("2020-08-02")), Row(Date.valueOf("2010-12-02"))))
+    }
   }
 
   test("date_add2") {
-    checkAnswer(
-      date1.select(date_add(1, col("a"))),
-      Seq(Row(Date.valueOf("2020-08-02")), Row(Date.valueOf("2010-12-02"))))
+    testWithTimezone() {
+      checkAnswer(
+        date1.select(date_add(1, col("a"))),
+        Seq(Row(Date.valueOf("2020-08-02")), Row(Date.valueOf("2010-12-02"))))
+    }
   }
+
   test("collect_set") {
     array1.select(collect_set(col("ARR1"))).show()
   }
+
   test("from_unixtime_1") {
-    val input = Seq("20231010", "20220515").toDF("date")
-    checkAnswer(
-      input.select(from_unixtime(col("date")).as("formatted_date")),
-      Seq(Row("1970-08-23 03:43:30.000"), Row("1970-08-23 00:48:35.000")))
+    testWithTimezone() {
+      val input = Seq("20231010", "20220515").toDF("date")
+      checkAnswer(
+        input.select(from_unixtime(col("date")).as("formatted_date")),
+        Seq(Row("1970-08-23 03:43:30.000"), Row("1970-08-23 00:48:35.000")))
+    }
   }
+
   test("from_unixtime_2") {
+    testWithTimezone() {
+      val input = Seq("20231010", "456700809").toDF("date")
+      val expected = Seq("1970/08/23", "1984/06/21").toDF("formatted_date")
 
-    val input = Seq("20231010", "456700809").toDF("date")
-    val expected = Seq("1970/08/23", "1984/06/21").toDF("formatted_date")
-
-    checkAnswer(
-      input.select(from_unixtime(col("date"), "YYYY/MM/DD").as("formatted_date")),
-      expected)
+      checkAnswer(
+        input.select(from_unixtime(col("date"), "YYYY/MM/DD").as("formatted_date")),
+        expected)
+    }
   }
 
   test("monotonically_increasing_id") {
@@ -2256,14 +2311,16 @@ trait FunctionSuite extends TestData {
       Seq(Row("1"), Row("2"), Row("3")))
   }
   test("months_between") {
-    val months_between = functions.builtin("MONTHS_BETWEEN")
-    val input = Seq(
-      (Date.valueOf("2010-08-02"), Date.valueOf("2010-07-02")),
-      (Date.valueOf("2020-12-02"), Date.valueOf("2020-08-02")))
-      .toDF("a", "b")
-    checkAnswer(
-      input.select(months_between(col("a"), col("b"))),
-      Seq(Row((1.000000)), Row(4.000000)))
+    testWithTimezone() {
+      val months_between = functions.builtin("MONTHS_BETWEEN")
+      val input = Seq(
+        (Date.valueOf("2010-08-02"), Date.valueOf("2010-07-02")),
+        (Date.valueOf("2020-12-02"), Date.valueOf("2020-08-02")))
+        .toDF("a", "b")
+      checkAnswer(
+        input.select(months_between(col("a"), col("b"))),
+        Seq(Row((1.000000)), Row(4.000000)))
+    }
   }
 
   test("instr") {
@@ -2293,17 +2350,20 @@ trait FunctionSuite extends TestData {
   }
 
   test("from_utc_timestamp") {
-    val expected = Seq(Timestamp.valueOf("2024-04-05 01:02:03.0")).toDF("a")
-    val data = Seq("2024-04-05 01:02:03").toDF("a")
-    checkAnswer(data.select(from_utc_timestamp(col("a"))), expected)
+    testWithTimezone() {
+      val expected = Seq(Timestamp.valueOf("2024-04-05 01:02:03.0")).toDF("a")
+      val data = Seq("2024-04-05 01:02:03").toDF("a")
+      checkAnswer(data.select(from_utc_timestamp(col("a"))), expected)
+    }
   }
 
   test("to_utc_timestamp") {
-    val expected = Seq(Timestamp.valueOf("2024-04-05 01:02:03.0")).toDF("a")
-    val data = Seq("2024-04-05 01:02:03").toDF("a")
-    checkAnswer(data.select(to_utc_timestamp(col("a"))), expected)
+    testWithTimezone() {
+      val expected = Seq(Timestamp.valueOf("2024-04-05 01:02:03.0")).toDF("a")
+      val data = Seq("2024-04-05 01:02:03").toDF("a")
+      checkAnswer(data.select(to_utc_timestamp(col("a"))), expected)
+    }
   }
-
 }
 
 class EagerFunctionSuite extends FunctionSuite with EagerSession

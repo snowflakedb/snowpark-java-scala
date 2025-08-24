@@ -1,10 +1,9 @@
 package com.snowflake.snowpark
 
-import com.snowflake.snowpark.functions.{col, udf}
+import com.snowflake.snowpark.functions.col
 import com.snowflake.snowpark.internal.{UDFClassPath, Utils}
 import com.snowflake.snowpark_test.{UDFSuite, UDTFSuite}
 import junit.framework.Assert.assertEquals
-import junit.framework.TestCase.assertFalse
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.{never, spy, times, verify, when}
 

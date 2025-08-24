@@ -1,4 +1,6 @@
 #!/usr/bin/env bash
+set -Eeuxo pipefail
+trap cleanup SIGINT SIGTERM ERR EXIT
 
 build_jdbc() {
   git clone git@github.com:snowflakedb/snowflake-jdbc.git
@@ -19,19 +21,6 @@ build_jdbc() {
   git diff pom.xml
 }
 
-exit_code_decorator(){
-  cmd=$1
-    args=${@:2}
-    echo $1
-    $cmd $args
-
-    if [ $? -ne 0 ]; then
-    	echo "Command '${1}' FAILED"
-   		exit 1
-	fi
-}
-
-# test
 # decrypt profile
 gpg --quiet --batch --yes --decrypt --passphrase="$GPG_KEY" --output profile.properties scripts/profile.properties.gpg
 
@@ -40,16 +29,20 @@ build_jdbc
 # skip com.snowflake.snowpark.ReplSuite because classpath are not set well for local jdbc jar
 rm -fr ./src/test/scala/com/snowflake/snowpark/ReplSuite.scala
 
-exit_code_decorator "sbt clean +compile"
-exit_code_decorator "sbt +JavaAPITests:test"
-exit_code_decorator "sbt +NonparallelTests:test"
-exit_code_decorator "sbt \"UDFTests:testOnly * -- -l SampleDataTest\""
-exit_code_decorator "sbt \"++ 2.13.16 UDFTests:testOnly * -- -l com.snowflake.snowpark.UDFPackageTest -l SampleDataTest\""
-exit_code_decorator "sbt UDTFTests:test"
-exit_code_decorator "sbt \"++ 2.13.16 UDTFTests:testOnly * -- -l com.snowflake.snowpark.UDFPackageTest\""
-exit_code_decorator "sbt +SprocTests:test"
-exit_code_decorator "sbt +OtherTests:test"
+# test
+sbt clean +compile
+sbt +JavaAPITests:test
+sbt +NonparallelTests:test
+sbt "UDFTests:testOnly * -- -l SampleDataTest"
+sbt "++ 2.13.16 UDFTests:testOnly * -- -l com.snowflake.snowpark.UDFPackageTest -l SampleDataTest"
+sbt UDTFTests:test
+sbt "++ 2.13.16 UDTFTests:testOnly * -- -l com.snowflake.snowpark.UDFPackageTest"
+sbt +SprocTests:test
+sbt +OtherTests:test
 
 # clean up
-rm -fr snowflake-jdbc
-git checkout -- .
+cleanup() {
+  trap - SIGINT SIGTERM ERR EXIT
+  rm -fr snowflake-jdbc
+  git checkout -- .
+}

@@ -22,26 +22,28 @@ class TableSuite extends TestData {
 
   override def beforeAll: Unit = {
     super.beforeAll()
-    val tableFromDifferentSchema = getFullyQualifiedTempSchema + "." + tempTableName
-    createTable(tableName, "num int")
-    runQuery(s"insert into $tableName values(1),(2),(3)", session)
-    createTable(tableName4, "num int")
-    runQuery(s"insert into $tableName4 values(1),(2),(3)", session)
-    createTable(tableFromDifferentSchema, "str string")
-    runQuery(s"insert into $tableFromDifferentSchema values('abc')", session)
-    createTable(quotedName, "num int")
-    runQuery(s"insert into $quotedName values(1),(2)", session)
-    createTable(semiStructuredTable, "a1 array, o1 object, v1 variant, g1 geography")
-    runQuery(
-      s"insert into $semiStructuredTable select parse_json(a), parse_json(b), " +
-        s"parse_json(a), to_geography(c) from values('[1,2]', '{a:1}', 'POINT(-122.35 37.55)')," +
-        s"('[1,2,3]', '{b:2}', 'POINT(-12 37)') as T(a,b,c)",
-      session)
-    createTable(timeTable, "time time")
-    runQuery(
-      s"insert into $timeTable select to_time(a) from values('09:15:29')," +
-        s"('09:15:29.99999999') as T(a)",
-      session)
+    testWithTimezone() {
+      val tableFromDifferentSchema = getFullyQualifiedTempSchema + "." + tempTableName
+      createTable(tableName, "num int")
+      runQuery(s"insert into $tableName values(1),(2),(3)", session)
+      createTable(tableName4, "num int")
+      runQuery(s"insert into $tableName4 values(1),(2),(3)", session)
+      createTable(tableFromDifferentSchema, "str string")
+      runQuery(s"insert into $tableFromDifferentSchema values('abc')", session)
+      createTable(quotedName, "num int")
+      runQuery(s"insert into $quotedName values(1),(2)", session)
+      createTable(semiStructuredTable, "a1 array, o1 object, v1 variant, g1 geography")
+      runQuery(
+        s"insert into $semiStructuredTable select parse_json(a), parse_json(b), " +
+          s"parse_json(a), to_geography(c) from values('[1,2]', '{a:1}', 'POINT(-122.35 37.55)')," +
+          s"('[1,2,3]', '{b:2}', 'POINT(-12 37)') as T(a,b,c)",
+        session)
+      createTable(timeTable, "time time")
+      runQuery(
+        s"insert into $timeTable select to_time(a) from values('09:15:29')," +
+          s"('09:15:29.99999999') as T(a)",
+        session)
+    }
   }
 
   override def afterAll: Unit = {
@@ -262,9 +264,11 @@ class TableSuite extends TestData {
   }
 
   test("table with time type") {
-    val df2 = session.table(timeTable)
-    // Java time has accuracy of 1ms. Snowflake time has accuracy of 1ns. Lost accuracy here.
-    checkAnswer(df2, Seq(Row(Time.valueOf("09:15:29")), Row(Time.valueOf("09:15:29"))))
+    testWithTimezone() {
+      val df2 = session.table(timeTable)
+      // Java time has accuracy of 1ms. Snowflake time has accuracy of 1ns. Lost accuracy here.
+      checkAnswer(df2, Seq(Row(Time.valueOf("09:15:29")), Row(Time.valueOf("09:15:29"))))
+    }
   }
 
   // getDatabaseFromProperties will read local files, which is not supported in Java SP yet.
