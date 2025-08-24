@@ -533,6 +533,76 @@ public class Row implements Serializable, Cloneable {
   }
 
   /**
+   * Creates a string representation of all elements in this Row without any separators.
+   *
+   * <p>Example:
+   *
+   * <pre>{@code
+   * Row row = Row.create(1, "hello", 3.14, null);
+   * row.mkString();
+   * // res: String = "1hello3.14null"
+   * }</pre>
+   *
+   * @return a string containing all field values concatenated together
+   * @since 1.17.0
+   */
+  public String mkString() {
+    return this.mkString("");
+  }
+
+  /**
+   * Creates a string representation of all elements in this Row using the specified separator.
+   *
+   * <p>Example:
+   *
+   * <pre>{@code
+   * Row row = Row.create(1, "hello", 3.14, null);
+   * row.mkString(", ");
+   * // res: String = "1, hello, 3.14, null"
+   *
+   * row.mkString(" | ");
+   * // res: String = "1 | hello | 3.14 | null"
+   *
+   * row.mkString("");
+   * // res: String = "1hello3.14null"
+   * }</pre>
+   *
+   * @param sep the separator string to insert between field values
+   * @return a string containing all field values separated by the given separator
+   * @since 1.17.0
+   */
+  public String mkString(String sep) {
+    return this.mkString("", sep, "");
+  }
+
+  /**
+   * Creates a string representation of all elements in this Row using the specified start string,
+   * separator, and end string.
+   *
+   * <p>Example:
+   *
+   * <pre>{@code
+   * Row row = Row.create(1, "hello", 3.14, null);
+   * row.mkString("[", " | ", "]");
+   * // res: String = "[1 | hello | 3.14 | null]"
+   *
+   * Row emptyRow = Row.create();
+   * emptyRow.mkString("(", ", ", ")");
+   * // res: String = "()"
+   * }</pre>
+   *
+   * @param start the string to prepend to the result
+   * @param sep the separator string to insert between field values
+   * @param end the string to append to the result
+   * @return a string containing all field values formatted with the specified start, separator, and
+   *     end
+   * @since 1.17.0
+   */
+  public String mkString(String start, String sep, String end) {
+    return this.scalaRow.mkString(start, sep, end);
+  }
+
+  /**
    * Generates a string value to represent the content of this row.
    *
    * @return A String value representing the content of this row
