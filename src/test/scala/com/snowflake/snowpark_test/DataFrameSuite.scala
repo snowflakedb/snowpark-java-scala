@@ -1970,7 +1970,7 @@ trait DataFrameSuite extends TestData with BeforeAndAfterEach {
   }
 
   test("with columns keep order", JavaStoredProcExclude) {
-    testWithTimezone("America/Los_Angeles") {
+    testWithTimezone() {
       val data = new Variant(
         Map("STARTTIME" -> 0, "ENDTIME" -> 10000, "START_STATION_ID" -> 2, "END_STATION_ID" -> 3))
       val df = Seq((1, data)).toDF("TRIPID", "V")

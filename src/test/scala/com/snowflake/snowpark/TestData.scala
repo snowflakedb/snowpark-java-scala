@@ -5,12 +5,14 @@ import java.util.TimeZone
 trait TestData extends SNTestBase {
   import session.implicits._
 
+  val sysTimeZone = System.getProperty("user.timezone", "")
   val defaultTimezone = TimeZone.getDefault
   val oldSfTimeZone =
     session.sql("SHOW PARAMETERS LIKE 'TIMEZONE' IN SESSION").collect().head.getString(1)
 
-  TimeZone.setDefault(TimeZone.getTimeZone("UTC"))
-  session.runQuery(s"alter session set TIMEZONE = 'UTC'")
+  System.setProperty("user.timezone", "America/Los_Angeles")
+  TimeZone.setDefault(TimeZone.getTimeZone("America/Los_Angeles"))
+  session.runQuery(s"alter session set TIMEZONE = 'America/Los_Angeles'")
 
   val variant1: DataFrame =
     session.sql(
@@ -73,6 +75,7 @@ trait TestData extends SNTestBase {
     "select * from values('2020-05-01 13:11:20.000' :: timestamp_ntz)," +
       "('2020-08-21 01:30:05.000' :: timestamp_ntz) as T(a)")
 
+  System.setProperty("user.timezone", sysTimeZone)
   TimeZone.setDefault(defaultTimezone)
   session.runQuery(s"alter session set TIMEZONE = '$oldSfTimeZone'")
 
