@@ -2,6 +2,7 @@ package com.snowflake.snowpark_test;
 
 import com.snowflake.snowpark.internal.JavaDataTypeUtils;
 import com.snowflake.snowpark_java.types.*;
+import java.util.Arrays;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 import java.util.Optional;
@@ -309,6 +310,7 @@ public class JavaDataTypesSuite {
     assert names.length == 2;
     assert names[0].equals("C1");
     assert names[1].equals("C2");
+    assert Arrays.equals(type2.fieldNames(), names);
     assert type1.size() == 2;
     assert StructType.create(new StructField("c3", DataTypes.FloatType)).size() == 1;
 
