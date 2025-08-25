@@ -84,10 +84,37 @@ case class StructType(fields: Array[StructField] = Array()) extends DataType wit
     add(StructField(name, dataType, nullable))
 
   /**
-   * (Scala API Only) Returns a Seq of the name of [[StructField]].
+   * Retrieves the names of all [[StructField]] in this [[StructType]].
+   *
+   * Example:
+   * {{{
+   *   val schema = StructType(Array(StructField("c1", IntegerType), StructField("c2", StringType)))
+   *   schema.names
+   *   // res: Seq[String] = List("C1", "C2")
+   * }}}
+   *
+   * @return
+   *   a sequence representing the names of the fields in this StructType.
    * @since 0.1.0
    */
   def names: Seq[String] = fields.map(_.name)
+
+  /**
+   * Retrieves the names of all [[StructField]] in this [[StructType]]. This is an alias of
+   * [[names]].
+   *
+   * Example:
+   * {{{
+   *   val schema = StructType(Array(StructField("c1", IntegerType), StructField("c2", StringType)))
+   *   schema.fieldNames
+   *   // res: Seq[String] = List("C1", "C2")
+   * }}}
+   *
+   * @return
+   *   a sequence representing the names of the fields in this StructType.
+   * @since 1.17.0
+   */
+  def fieldNames: Seq[String] = names
 
   /**
    * Returns the corresponding [[StructField]] object of the given name.

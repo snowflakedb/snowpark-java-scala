@@ -95,6 +95,7 @@ class DataTypeSuite extends SNTestBase {
     assert(tpe("col1") == StructField("col1", IntegerType))
 
     assert(tpe.names == Seq("COL1", "COL2"))
+    assert(tpe.fieldNames == tpe.names)
     assert(tpe.nameToField("col3").isEmpty)
 
     assertThrows[ArrayIndexOutOfBoundsException] {

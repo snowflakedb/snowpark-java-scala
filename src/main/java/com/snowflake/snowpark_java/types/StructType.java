@@ -71,13 +71,47 @@ public class StructType extends DataType implements Iterable<StructField> {
   }
 
   /**
-   * Retrieves the names of StructField.
+   * Retrieves the names of all {@link com.snowflake.snowpark_java.types.StructField} in this {@link
+   * com.snowflake.snowpark_java.types.StructType}.
    *
-   * @return An array of String representing the names of StructFields
+   * <p>Example:
+   *
+   * <pre>{@code
+   * StructType schema = new StructType(new StructField[] {
+   *   new StructField("c1", DataTypes.IntegerType),
+   *   new StructField("c2", DataTypes.StringType),
+   * });
+   * schema.names();
+   * // res: String[] = {"C1", "C2"}
+   * }</pre>
+   *
+   * @return an array representing the names of the fields in this StructType.
    * @since 0.9.0
    */
   public String[] names() {
     return JavaUtils.seqToJavaStringArray(this.scalaStructType.names());
+  }
+
+  /**
+   * Retrieves the names of all {@link com.snowflake.snowpark_java.types.StructField} in this {@link
+   * com.snowflake.snowpark_java.types.StructType}. This is an alias of {@link #names}.
+   *
+   * <p>Example:
+   *
+   * <pre>{@code
+   * StructType schema = new StructType(new StructField[] {
+   *   new StructField("c1", DataTypes.IntegerType),
+   *   new StructField("c2", DataTypes.StringType),
+   * });
+   * schema.fieldNames();
+   * // res: String[] = {"C1", "C2"}
+   * }</pre>
+   *
+   * @return an array representing the names of the fields in this StructType.
+   * @since 1.17.0
+   */
+  public String[] fieldNames() {
+    return this.names();
   }
 
   /**
