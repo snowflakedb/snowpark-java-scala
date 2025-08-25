@@ -1928,7 +1928,7 @@ object functions {
    * }}}
    *
    * @param e
-   *   The input value to be converted to timestamp.
+   *   The input value to be converted to date.
    * @param fmt
    *   The time format
    * @return
