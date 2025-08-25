@@ -574,8 +574,9 @@ trait FunctionSuite extends TestData {
   }
 
   test("try_to_timestamp") {
-    val df1 = session.sql("select * from values(1561479557),(1565479557),(1161479557),(NotATimestamp) as T(a)")
-
+    val df1 = session.sql(
+      "select * from values(1561479557),(1565479557),(1161479557),('INVALID') as T(a)"
+    )
     checkAnswer(
       df1.select(try_to_timestamp(col("A"))),
       Seq(
@@ -584,8 +585,7 @@ trait FunctionSuite extends TestData {
         Row(Timestamp.valueOf("2006-10-22 01:12:37.0")),
         Row(null)))
 
-    val df2 = session.sql("select * from values('04/05/2020 01:02:03'),('NotATimestamp') as T(a)")
-
+    val df2 = session.sql("select * from values('04/05/2020 01:02:03'),('INVALID') as T(a)")
     checkAnswer(
       df2.select(try_to_timestamp(col("A"), lit("mm/dd/yyyy hh24:mi:ss"))),
       Seq(
@@ -626,11 +626,11 @@ trait FunctionSuite extends TestData {
   }
 
   test("try_to_date") {
-    val df = session.sql("select * from values('2020-05-11'),('NotADate') as T(a)")
+    val df = session.sql("select * from values('2020-05-11'),('INVALID') as T(a)")
     checkAnswer(df.select(try_to_date(col("A"))),
       Seq(Row(new Date(120, 4, 11))))
 
-    val df1 = session.sql("select * from values('2020.07.23'),('NotADate') as T(a)")
+    val df1 = session.sql("select * from values('2020.07.23'),('INVALID') as T(a)")
     checkAnswer(
       df1.select(try_to_date(col("A"), lit("YYYY.MM.DD"))),
       Seq(
