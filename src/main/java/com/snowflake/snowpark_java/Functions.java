@@ -2249,11 +2249,11 @@ public final class Functions {
    *
    * <pre>{@code
    * SELECT TRY_TO_DATE('2020.07.23', 'YYYY.MM.DD') as valid, TRY_TO_DATE('INVALID', 'YYYY.MM.DD') as invalid);
-   * -----------------------+
+   * +------------+---------+
    * | VALID      | INVALID |
-   * -------------+----------
+   * +------------+---------+
    * | 2020-07-23 | NULL    |
-   * -------------+---------+
+   * +------------+---------+
    * }</pre>
    *
    * @param e The input value
