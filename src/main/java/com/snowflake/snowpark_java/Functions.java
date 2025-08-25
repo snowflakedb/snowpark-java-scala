@@ -2170,13 +2170,15 @@ public final class Functions {
    * Converts an input expression into the corresponding timestamp, but with error-handling support,
    * if the conversion cannot be performed, it returns a NULL value instead of raising an error.
    *
+   * <p><b>Example:</b>
+   *
    * <pre>{@code
    * SELECT TRY_TO_TIMESTAMP('04/05/2020 01:02:03', 'mm/dd/yyyy hh24:mi:ss') as valid,
    *        TRY_TO_TIMESTAMP('INVALID', 'mm/dd/yyyy hh24:mi:ss') as invalid;
    * +-------------------------+---------+
    * | VALID                   | INVALID |
    * |-------------------------+---------|
-   * | 2024-01-15 12:30:00.000 | NULL    |
+   * | 2020-04-05 01:02:03.000 | NULL    |
    * +-------------------------+---------+
    * }</pre>
    *
@@ -2214,7 +2216,7 @@ public final class Functions {
    * | VALID      | INVALID |
    * |------------+---------|
    * | 2020-05-11 | NULL    |
-   * -------------+---------+
+   * +------------+---------+
    * }</pre>
    *
    * @param e Column to be converted to date.
@@ -2247,11 +2249,11 @@ public final class Functions {
    *
    * <pre>{@code
    * SELECT TRY_TO_DATE('2020.07.23', 'YYYY.MM.DD') as valid, TRY_TO_DATE('INVALID') as invalid);
-   * ----------------------
-   * |VALID      |INVALID |
-   * ----------------------
-   * |2020-07-23 |NULL    |
-   * ----------------------
+   * -----------------------+
+   * | VALID      | INVALID |
+   * -------------+----------
+   * | 2020-07-23 | NULL    |
+   * -------------+---------+
    * }</pre>
    *
    * @param e The input value
