@@ -2892,10 +2892,10 @@ class DataFrame private[snowpark] (
    * emptyDf.isEmpty  // returns true
    * }}}
    *
-   * @group actions
-   * @since 1.17.0
    * @return
    *   `true` if the [[DataFrame]] contains no rows; otherwise, `false`.
+   * @group actions
+   * @since 1.17.0
    */
   def isEmpty: Boolean = action("isEmpty") {
     first().isEmpty
