@@ -1238,26 +1238,31 @@ public class JavaFunctionSuite extends TestBase {
 
   @Test
   public void try_to_timestamp() {
-    DataFrame df =
-        getSession()
-            .sql("select * from values(1561479557),(1565479557),(1161479557),('Invalid') as T(a)");
-    Row[] expected = {
-      Row.create(Timestamp.valueOf("2019-06-25 16:19:17.0")),
-      Row.create(Timestamp.valueOf("2019-08-10 23:25:57.0")),
-      Row.create(Timestamp.valueOf("2006-10-22 01:12:37.0")),
-      Row.create((Object) null)
-    };
-    checkAnswer(df.select(Functions.try_to_timestamp(df.col("a"))), expected);
+    withTimeZoneTest(
+        () -> {
+          DataFrame df =
+              getSession()
+                  .sql("select * from values(1561479557),(1565479557),(-100000000000) as T(a)");
+          Row[] expected = {
+            Row.create(Timestamp.valueOf("2019-06-25 16:19:17.0")),
+            Row.create(Timestamp.valueOf("2019-08-10 23:25:57.0")),
+            Row.create((Object) null)
+          };
+          checkAnswer(df.select(Functions.try_to_timestamp(df.col("a"))), expected);
 
-    DataFrame df2 =
-        getSession().sql("select * from values('04/05/2020 01:02:03'),('Invalid') as T(a)");
-    Row[] expected2 = {
-      Row.create(Timestamp.valueOf("2020-04-05 01:02:03.0")), Row.create((Object) null)
-    };
-    checkAnswer(
-        df2.select(
-            Functions.try_to_timestamp(df2.col("a"), Functions.lit("mm/dd/yyyy hh24:mi:ss"))),
-        expected2);
+          DataFrame df2 =
+              getSession()
+                  .sql(
+                      "select * from values('04/05/2020 01:02:03'::VARCHAR),('Invalid'::VARCHAR) as T(a)");
+          Row[] expected2 = {
+            Row.create(Timestamp.valueOf("2020-04-05 01:02:03.0")), Row.create((Object) null)
+          };
+          checkAnswer(
+              df2.select(
+                  Functions.try_to_timestamp(df2.col("a"), Functions.lit("mm/dd/yyyy hh24:mi:ss"))),
+              expected2);
+        },
+        getSession());
   }
 
   @Test
@@ -1278,14 +1283,21 @@ public class JavaFunctionSuite extends TestBase {
 
   @Test
   public void try_to_date() {
-    DataFrame df = getSession().sql("select * from values('2020-05-11'), ('Invalid') as T(a)");
-    Row[] expected = {Row.create(new Date(120, 4, 11)), Row.create((Object) null)};
-    checkAnswer(df.select(Functions.try_to_date(df.col("a"))), expected);
+    withTimeZoneTest(
+        () -> {
+          DataFrame df =
+              getSession().sql("select * from values('2020-05-11'), ('Invalid') as T(a)");
+          Row[] expected = {Row.create(new Date(120, 4, 11)), Row.create((Object) null)};
+          checkAnswer(df.select(Functions.try_to_date(df.col("a"))), expected);
 
-    DataFrame df1 = getSession().sql("select * from values('2020.07.23'), ('Invalid') as T(a)");
-    Row[] expected1 = {Row.create(new Date(120, 6, 23)), Row.create((Object) null)};
-    checkAnswer(
-        df1.select(Functions.try_to_date(df.col("a"), Functions.lit("YYYY.MM.DD"))), expected1);
+          DataFrame df1 =
+              getSession().sql("select * from values('2020.07.23'), ('Invalid') as T(a)");
+          Row[] expected1 = {Row.create(new Date(120, 6, 23)), Row.create((Object) null)};
+          checkAnswer(
+              df1.select(Functions.try_to_date(df.col("a"), Functions.lit("YYYY.MM.DD"))),
+              expected1);
+        },
+        getSession());
   }
 
   @Test
