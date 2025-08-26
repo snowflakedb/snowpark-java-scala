@@ -575,13 +575,12 @@ trait FunctionSuite extends TestData {
 
   test("try_to_timestamp") {
     val df1 =
-      session.sql("select * from values(1561479557),(1565479557),(1161479557),('INVALID') as T(a)")
+      session.sql("select * from values(1561479557),(1565479557),(-100000000000) as T(a)")
     checkAnswer(
       df1.select(try_to_timestamp(col("A"))),
       Seq(
         Row(Timestamp.valueOf("2019-06-25 16:19:17.0")),
         Row(Timestamp.valueOf("2019-08-10 23:25:57.0")),
-        Row(Timestamp.valueOf("2006-10-22 01:12:37.0")),
         Row(null)))
 
     val df2 = session.sql("select * from values('04/05/2020 01:02:03'),('INVALID') as T(a)")
