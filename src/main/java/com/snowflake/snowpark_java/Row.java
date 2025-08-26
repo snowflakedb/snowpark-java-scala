@@ -547,7 +547,7 @@ public class Row implements Serializable, Cloneable {
    * @since 1.17.0
    */
   public String mkString() {
-    return this.mkString("");
+    return this.scalaRow.mkString();
   }
 
   /**
@@ -572,7 +572,7 @@ public class Row implements Serializable, Cloneable {
    * @since 1.17.0
    */
   public String mkString(String sep) {
-    return this.mkString("", sep, "");
+    return this.scalaRow.mkString(sep);
   }
 
   /**
