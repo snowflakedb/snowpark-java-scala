@@ -2129,9 +2129,9 @@ public final class Functions {
   }
 
   /**
-   * Wrapper for Snowflake built-in try_to_timestamp function.
-   * Converts an input expression into the corresponding timestamp, but with error-handling support,
-   * if the conversion cannot be performed, it returns a NULL value instead of raising an error.
+   * Wrapper for Snowflake built-in try_to_timestamp function. Converts an input expression into the
+   * corresponding timestamp, but with error-handling support, if the conversion cannot be
+   * performed, it returns a NULL value instead of raising an error.
    *
    * <p><b>Example:</b>
    *
@@ -2166,9 +2166,9 @@ public final class Functions {
   }
 
   /**
-   * Wrapper for Snowflake built-in try_to_timestamp function.
-   * Converts an input expression into the corresponding timestamp, but with error-handling support,
-   * if the conversion cannot be performed, it returns a NULL value instead of raising an error.
+   * Wrapper for Snowflake built-in try_to_timestamp function. Converts an input expression into the
+   * corresponding timestamp, but with error-handling support, if the conversion cannot be
+   * performed, it returns a NULL value instead of raising an error.
    *
    * <p><b>Example:</b>
    *
@@ -2189,7 +2189,7 @@ public final class Functions {
    */
   public static Column try_to_timestamp(Column s, Column fmt) {
     return new Column(
-            com.snowflake.snowpark.functions.try_to_timestamp(s.toScalaColumn(), fmt.toScalaColumn()));
+        com.snowflake.snowpark.functions.try_to_timestamp(s.toScalaColumn(), fmt.toScalaColumn()));
   }
 
   /**
@@ -2204,9 +2204,9 @@ public final class Functions {
   }
 
   /**
-   * Wrapper for Snowflake built-in try_to_date function.
-   * Converts an input expression to a date, but with error-handling support
-   * (i.e. if the conversion cannot be performed, it returns a NULL value instead of raising an error)
+   * Wrapper for Snowflake built-in try_to_date function. Converts an input expression to a date,
+   * but with error-handling support (i.e. if the conversion cannot be performed, it returns a NULL
+   * value instead of raising an error)
    *
    * <p><b>Example:</b>
    *
@@ -2241,9 +2241,9 @@ public final class Functions {
   }
 
   /**
-   * Wrapper for Snowflake built-in try_to_date function.
-   * Converts an input expression to a date, but with error-handling support
-   * (i.e. if the conversion cannot be performed, it returns a NULL value instead of raising an error)
+   * Wrapper for Snowflake built-in try_to_date function. Converts an input expression to a date,
+   * but with error-handling support (i.e. if the conversion cannot be performed, it returns a NULL
+   * value instead of raising an error)
    *
    * <p><b>Example:</b>
    *
@@ -2263,7 +2263,7 @@ public final class Functions {
    */
   public static Column try_to_date(Column e, Column fmt) {
     return new Column(
-      com.snowflake.snowpark.functions.try_to_date(e.toScalaColumn(), fmt.toScalaColumn()));
+        com.snowflake.snowpark.functions.try_to_date(e.toScalaColumn(), fmt.toScalaColumn()));
   }
 
   /**
