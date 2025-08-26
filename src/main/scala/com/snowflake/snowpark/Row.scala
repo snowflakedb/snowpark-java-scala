@@ -480,6 +480,7 @@ class Row protected (values: Array[Any], schema: Option[StructType]) extends Ser
    *
    * @return
    *   a string containing all field values concatenated together
+   * @group utl
    * @since 1.17.0
    */
   def mkString: String = mkString("")
@@ -504,6 +505,7 @@ class Row protected (values: Array[Any], schema: Option[StructType]) extends Ser
    *   the separator string to insert between field values
    * @return
    *   a string containing all field values separated by the given separator
+   * @group utl
    * @since 1.17.0
    */
   def mkString(sep: String): String = mkString("", sep, "")
@@ -531,6 +533,7 @@ class Row protected (values: Array[Any], schema: Option[StructType]) extends Ser
    *   the string to append to the result
    * @return
    *   a string containing all field values formatted with the specified start, separator, and end
+   * @group utl
    * @since 1.17.0
    */
   def mkString(start: String, sep: String, end: String): String = {
