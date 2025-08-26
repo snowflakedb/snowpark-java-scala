@@ -905,13 +905,142 @@ public class JavaFunctionSuite extends TestBase {
   }
 
   @Test
-  public void substring() {
+  public void substring_basic_functionality() {
     DataFrame df =
         getSession()
             .sql("select * from values('test1', 'a'),('test2', 'b'),('test3', 'c') as T(a, b)");
-    Row[] expected = {Row.create("est1"), Row.create("est2"), Row.create("est3")};
+    Row[] expectedSubstrings = {Row.create("est1"), Row.create("est2"), Row.create("est3")};
+
+    // With Column parameters
     checkAnswer(
-        df.select(Functions.substring(df.col("a"), Functions.lit(2), Functions.lit(4))), expected);
+        df.select(Functions.substring(df.col("a"), Functions.lit(2), Functions.lit(4))),
+        expectedSubstrings);
+
+    // With literal parameters
+    checkAnswer(df.select(Functions.substring(df.col("a"), 2, 4)), expectedSubstrings);
+  }
+
+  @Test
+  public void substring_start_position_variations() {
+    DataFrame df = getSession().sql("select * from values('test1'),('test2'),('test3') as T(a)");
+
+    // Start position 1 (first character)
+    Row[] expectedFirstThree = {Row.create("tes"), Row.create("tes"), Row.create("tes")};
+    checkAnswer(df.select(Functions.substring(df.col("a"), 1, 3)), expectedFirstThree);
+
+    // Start position 0 (should behave like position 1)
+    checkAnswer(df.select(Functions.substring(df.col("a"), 0, 3)), expectedFirstThree);
+
+    // Starting from the last character (position 5)
+    Row[] expectedLastChar = {Row.create("1"), Row.create("2"), Row.create("3")};
+    checkAnswer(df.select(Functions.substring(df.col("a"), 5, 1)), expectedLastChar);
+  }
+
+  @Test
+  public void substring_length_variations() {
+    DataFrame df = getSession().sql("select * from values('test1'),('test2'),('test3') as T(a)");
+
+    // Length 0 - should return empty string regardless of start position
+    Row[] expectedEmptyStrings = {Row.create(""), Row.create(""), Row.create("")};
+    checkAnswer(df.select(Functions.substring(df.col("a"), 2, 0)), expectedEmptyStrings);
+
+    // Length 1 - should return single character
+    Row[] expectedSingleChar = {Row.create("e"), Row.create("e"), Row.create("e")};
+    checkAnswer(df.select(Functions.substring(df.col("a"), 2, 1)), expectedSingleChar);
+
+    // Very large length (should return remainder of string from position)
+    Row[] expectedRemainder = {Row.create("est1"), Row.create("est2"), Row.create("est3")};
+    checkAnswer(df.select(Functions.substring(df.col("a"), 2, 1000)), expectedRemainder);
+  }
+
+  @Test
+  public void substring_negative_values() {
+    DataFrame df = getSession().sql("select * from values('test1'),('test2'),('test3') as T(a)");
+
+    // Negative start position (-1) - should return characters from the end
+    Row[] expectedFromEnd = {Row.create("1"), Row.create("2"), Row.create("3")};
+    checkAnswer(df.select(Functions.substring(df.col("a"), -1, 3)), expectedFromEnd);
+
+    // Negative length - should return empty string
+    Row[] expectedEmptyStrings = {Row.create(""), Row.create(""), Row.create("")};
+    checkAnswer(df.select(Functions.substring(df.col("a"), 2, -1)), expectedEmptyStrings);
+
+    // Both negative start and length - should return empty string
+    checkAnswer(df.select(Functions.substring(df.col("a"), -1, -1)), expectedEmptyStrings);
+  }
+
+  @Test
+  public void substring_boundary_conditions() {
+    DataFrame df = getSession().sql("select * from values('test1'),('test2'),('test3') as T(a)");
+
+    // Start position equals string length - should get last character
+    Row[] expectedLastCharacter = {Row.create("1"), Row.create("2"), Row.create("3")};
+    checkAnswer(df.select(Functions.substring(df.col("a"), 5, 2)), expectedLastCharacter);
+
+    // Start position is greater than string length - should return empty string
+    Row[] expectedEmpty = {Row.create(""), Row.create(""), Row.create("")};
+    checkAnswer(df.select(Functions.substring(df.col("a"), 10, 2)), expectedEmpty);
+
+    // Start + length equals string length - should extract entire string
+    Row[] expectedFullString = {Row.create("test1"), Row.create("test2"), Row.create("test3")};
+    checkAnswer(df.select(Functions.substring(df.col("a"), 1, 5)), expectedFullString);
+
+    // Start + length exceeds string length - should return remainder from position
+    Row[] expectedRemainder = {Row.create("st1"), Row.create("st2"), Row.create("st3")};
+    checkAnswer(df.select(Functions.substring(df.col("a"), 3, 10)), expectedRemainder);
+  }
+
+  @Test
+  public void substring_special_string_cases() {
+    DataFrame emptyStrings = getSession().sql("select * from values(''),(''),('') as T(a)");
+    Row[] expectedEmptyResults = {Row.create(""), Row.create(""), Row.create("")};
+
+    // Substring of empty string should always return empty string
+    checkAnswer(
+        emptyStrings.select(Functions.substring(emptyStrings.col("a"), 1, 2)),
+        expectedEmptyResults);
+    checkAnswer(
+        emptyStrings.select(Functions.substring(emptyStrings.col("a"), -1, 3)),
+        expectedEmptyResults);
+  }
+
+  @Test
+  public void substring_null_handling() {
+    // Case 1: Null string input - should return null regardless of other parameters
+    DataFrame nullStrings = getSession().sql("select * from values(null),('test'),(null) as T(a)");
+    Row[] expectedNullResults = {
+      Row.create((Object) null), Row.create("te"), Row.create((Object) null)
+    };
+    checkAnswer(
+        nullStrings.select(Functions.substring(nullStrings.col("a"), 1, 2)), expectedNullResults);
+
+    // Case 2: Null start position - any null parameter should result in null output
+    DataFrame testDataNullStart =
+        getSession()
+            .sql(
+                "select * from values('test1', null, 2),('test2', 1, 2) as T(str, start_pos, len)");
+    Row[] expectedNullStartResults = {Row.create((Object) null), Row.create("te")};
+    checkAnswer(
+        testDataNullStart.select(
+            Functions.substring(
+                testDataNullStart.col("str"),
+                testDataNullStart.col("start_pos"),
+                testDataNullStart.col("len"))),
+        expectedNullStartResults);
+
+    // Case 3: Null length - any null parameter should result in null output
+    DataFrame testDataNullLen =
+        getSession()
+            .sql(
+                "select * from values('test1', 1, null),('test2', 1, 2) as T(str, start_pos, len)");
+    Row[] expectedNullLenResults = {Row.create((Object) null), Row.create("te")};
+    checkAnswer(
+        testDataNullLen.select(
+            Functions.substring(
+                testDataNullLen.col("str"),
+                testDataNullLen.col("start_pos"),
+                testDataNullLen.col("len"))),
+        expectedNullLenResults);
   }
 
   @Test

@@ -1660,19 +1660,105 @@ public final class Functions {
   }
 
   /**
-   * Returns the portion of the string or binary value str, starting from the character/byte
-   * specified by pos, with limited length.
+   * Returns the portion of the string or binary value from {@code str}, starting from the
+   * character/byte specified by {@code pos}, with limited length.
    *
+   * <p>Examples:
+   *
+   * <pre>{@code
+   * DataFrame df = session.createDataFrame(
+   *     new Row[] {
+   *       Row.create("john.doe@company.com"),
+   *       Row.create("user123@domain.org"),
+   *       Row.create("admin@test.net"),
+   *     },
+   *     StructType.create(new StructField[] {
+   *       new StructField("email", DataTypes.StringType),
+   *     })
+   * );
+   *
+   * // Extract first 4 characters (1-based indexing)
+   * df.select(substring(col("email"), lit(1), lit(4))).show();
+   * --------------------------------
+   * |"SUBSTRING(""EMAIL"", 1, 4)"  |
+   * --------------------------------
+   * |john                          |
+   * |user                          |
+   * |admi                          |
+   * --------------------------------
+   *
+   * // Extract domain part (starting from position after @)
+   * df.select(substring(col("email"), expr("POSITION('@' IN email) + 1"), lit(20))).show();
+   * ----------------------------------------------------------
+   * |"SUBSTRING(""EMAIL"", POSITION('@' IN EMAIL) + 1, 20)"  |
+   * ----------------------------------------------------------
+   * |company.com                                             |
+   * |domain.org                                              |
+   * |test.net                                                |
+   * ----------------------------------------------------------
+   * }</pre>
+   *
+   * @param str The input string or binary value to extract a substring from.
+   * @param pos The starting position of the substring (1-based index).
+   * @param len The maximum length of the substring to extract. If the length is a negative number,
+   *     the function returns an empty string.
+   * @return A Column containing the extracted substring.
    * @since 0.11.0
-   * @param str The input string
-   * @param len The length
-   * @param pos The position
-   * @return The result column
    */
   public static Column substring(Column str, Column pos, Column len) {
     return new Column(
         com.snowflake.snowpark.functions.substring(
             str.toScalaColumn(), pos.toScalaColumn(), len.toScalaColumn()));
+  }
+
+  /**
+   * Returns the portion of the string or binary value from {@code str}, starting from the
+   * character/byte specified by {@code pos}, with limited length.
+   *
+   * <p>Examples:
+   *
+   * <pre>{@code
+   * DataFrame df = session.createDataFrame(
+   *     new Row[] {
+   *       Row.create("SKU-12345-ABC"),
+   *       Row.create("PRD-67890-XYZ"),
+   *       Row.create("ITM-11111-DEF"),
+   *     },
+   *     StructType.create(new StructField[] {
+   *       new StructField("product_id", DataTypes.StringType),
+   *     })
+   * );
+   *
+   * // Extract product code (characters 5-9)
+   * df.select(substring(col("product_id"), 5, 5)).show();
+   * -------------------------------------
+   * |"SUBSTRING(""PRODUCT_ID"", 5, 5)"  |
+   * -------------------------------------
+   * |12345                              |
+   * |67890                              |
+   * |11111                              |
+   * -------------------------------------
+   *
+   * // Extract category suffix (last 3 characters)
+   * df.select(substring(col("product_id"), 11, 3)).show();
+   * --------------------------------------
+   * |"SUBSTRING(""PRODUCT_ID"", 11, 3)"  |
+   * --------------------------------------
+   * |ABC                                 |
+   * |XYZ                                 |
+   * |DEF                                 |
+   * --------------------------------------
+   * }</pre>
+   *
+   * @param str The input string or binary value to extract a substring from.
+   * @param pos The starting position of the substring (1-based index).
+   * @param len The maximum length of the substring to extract. If the length is a negative number,
+   *     the function returns an empty string.
+   * @return A Column containing the extracted substring.
+   * @since 1.17.0
+   */
+  public static Column substring(Column str, int pos, int len) {
+    return new Column(com.snowflake.snowpark.functions.substring(str.toScalaColumn(), pos, len));
   }
 
   /**
