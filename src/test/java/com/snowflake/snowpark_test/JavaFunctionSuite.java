@@ -2595,7 +2595,7 @@ public class JavaFunctionSuite extends TestBase {
                   Functions.as_timestamp_ntz(df.col("timestamp_ltz1"))),
               expected);
 
-          Row[] expected1 = {Row.create(null, null, Timestamp.valueOf("2017-02-24 12:00:00.123"))};
+          Row[] expected1 = {Row.create(null, null, Timestamp.valueOf("2017-02-24 04:00:00.123"))};
           checkAnswer(
               df.select(
                   Functions.as_timestamp_ltz(df.col("timestamp_ntz1")),

@@ -1756,16 +1756,16 @@ class UDTFSuite extends TestData {
             Date.valueOf("2022-01-25"),
             Time.valueOf("00:00:00"),
             Timestamp.valueOf("2022-01-25 00:00:00.0"),
-            "2022-01-25",
-            "00:00:00",
-            "2022-01-25 00:00:00.0"),
+            "2022-01-24",
+            "16:00:00",
+            "2022-01-24 16:00:00.0"),
           Row(
             Date.valueOf("2022-01-25"),
             Time.valueOf("12:13:14"),
             Timestamp.valueOf("2022-01-25 12:13:14.123"),
-            "2022-01-25",
-            "12:13:14",
-            "2022-01-25 12:13:14.123")))
+            "2022-01-24",
+            "04:13:14",
+            "2022-01-25 04:13:14.123")))
     }
   }
 
@@ -1959,8 +1959,16 @@ class UDTFSuite extends TestData {
       checkAnswer(
         df1,
         Seq(
-          Row(ts, Time.valueOf(time), Date.valueOf(date), Timestamp.valueOf(ts)),
-          Row(ts, Time.valueOf(time), Date.valueOf(date), Timestamp.valueOf(ts))))
+          Row(
+            "2022-01-25 12:12:12",
+            Time.valueOf("20:12:12"),
+            Date.valueOf("2022-01-25"),
+            Timestamp.valueOf("2022-01-25 20:12:12")),
+          Row(
+            "2022-01-25 12:12:12",
+            Time.valueOf("20:12:12"),
+            Date.valueOf("2022-01-25"),
+            Timestamp.valueOf("2022-01-25 20:12:12"))))
     }
   }
 

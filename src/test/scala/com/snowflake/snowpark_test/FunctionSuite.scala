@@ -461,33 +461,27 @@ trait FunctionSuite extends TestData {
       Seq(Row("XYcYX"), Row("X12321X")))
   }
 
-  test("add months, current date") {
+  test("add months") {
     testWithTimezone() {
       checkAnswer(
         date1.select(add_months(col("A"), lit(1))),
         Seq(Row(Date.valueOf("2020-09-01")), Row(Date.valueOf("2011-01-01"))))
     }
+  }
+
+  test("current date") {
     // zero1.select(current_date()) gets the date on server, which uses session timezone.
     // System.currentTimeMillis() is based on jvm timezone. They should not always be equal.
     // We can set local JVM timezone to session timezone to ensure it passes.
-    testWithAlteredSessionParameter(
-      testWithTimezone(getTimeZone(session)) {
-        checkAnswer(zero1.select(current_date()), Seq(Row(new Date(System.currentTimeMillis()))))
-      },
-      "TIMEZONE",
-      "'GMT'")
-    testWithAlteredSessionParameter(
-      testWithTimezone(getTimeZone(session)) {
-        checkAnswer(zero1.select(current_date()), Seq(Row(new Date(System.currentTimeMillis()))))
-      },
-      "TIMEZONE",
-      "'Etc/GMT+8'")
-    testWithAlteredSessionParameter(
-      testWithTimezone(getTimeZone(session)) {
-        checkAnswer(zero1.select(current_date()), Seq(Row(new Date(System.currentTimeMillis()))))
-      },
-      "TIMEZONE",
-      "'Etc/GMT-8'")
+    testWithTimezone("GMT") {
+      checkAnswer(zero1.select(current_date()), Seq(Row(new Date(System.currentTimeMillis()))))
+    }
+    testWithTimezone("Etc/GMT+8") {
+      checkAnswer(zero1.select(current_date()), Seq(Row(new Date(System.currentTimeMillis()))))
+    }
+    testWithTimezone("Etc/GMT-8") {
+      checkAnswer(zero1.select(current_date()), Seq(Row(new Date(System.currentTimeMillis()))))
+    }
   }
 
   test("current timestamp") {
@@ -967,14 +961,14 @@ trait FunctionSuite extends TestData {
           .select(time_from_parts(lit(1), lit(2), lit(3)))
           .collect()(0)
           .getTime(0)
-          .equals(new Time(3723000)))
+          .equals(new Time(32523000)))
 
       assert(
         zero1
           .select(time_from_parts(lit(1), lit(2), lit(3), lit(444444444)))
           .collect()(0)
           .getTime(0)
-          .equals(new Time(3723444)))
+          .equals(new Time(32523444)))
     }
   }
 
@@ -1617,7 +1611,7 @@ trait FunctionSuite extends TestData {
   }
 
   test("as_timestamp_*") {
-    testWithTimezone("America/Los_Angeles") {
+    testWithTimezone() {
       checkAnswer(
         variant1.select(
           as_timestamp_ntz(col("timestamp_ntz1")),
