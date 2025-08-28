@@ -606,7 +606,8 @@ public class DataFrame extends Logging implements Cloneable {
   }
 
   /**
-   * Sorts a DataFrame by the specified column names in ascending order (similar to ORDER BY in SQL).
+   * Sorts a DataFrame by the specified column names in ascending order (similar to ORDER BY in
+   * SQL).
    *
    * <p>Example:
    *
