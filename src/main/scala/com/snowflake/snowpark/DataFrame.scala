@@ -477,6 +477,49 @@ class DataFrame private[snowpark] (
   }
 
   /**
+   * Sorts a DataFrame by the specified column names in ascending order (similar to ORDER BY in SQL).
+   *
+   * Example:
+   * {{{
+   *  val df = Seq(
+   *    ("Alice", 30, "Manager"),
+   *    ("Charlie", 25, "Designer"),
+   *    ("Bob", 25, "Engineer"),
+   *  ).toDF("name", "age", "role")
+   *
+   *  df.sort("role").show()
+   *  ------------------------------
+   *  |"NAME"   |"AGE"  |"ROLE"    |
+   *  ------------------------------
+   *  |Charlie  |25     |Designer  |
+   *  |Bob      |25     |Engineer  |
+   *  |Alice    |30     |Manager   |
+   *  ------------------------------
+   *
+   *  df.sort("age", "name").show()
+   *  ------------------------------
+   *  |"NAME"   |"AGE"  |"ROLE"    |
+   *  ------------------------------
+   *  |Bob      |25     |Engineer  |
+   *  |Charlie  |25     |Designer  |
+   *  |Alice    |30     |Manager   |
+   *  ------------------------------
+   * }}}
+   *
+   * @param first
+   *   The first column name for sorting the DataFrame.
+   * @param remaining
+   *   Additional column names for sorting the DataFrame.
+   * @return
+   *   A [[DataFrame]] with rows sorted according to the specified column names.
+   * @group transform
+   * @since 1.17.0
+   */
+  def sort(first: String, remaining: String*): DataFrame = transformation("sort") {
+    sort((first +: remaining).map(Column(_)))
+  }
+
+  /**
    * Sorts a DataFrame by the specified expressions (similar to ORDER BY in SQL).
    *
    * For example:
