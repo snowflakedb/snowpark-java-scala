@@ -313,6 +313,15 @@ public class JavaDataFrameSuite extends TestBase {
   }
 
   @Test
+  public void isEmpty() {
+    DataFrame populatedDf = getSession().sql("select * from values(1), (2), (3) as t(a)");
+    DataFrame emptyDf = getSession().sql("select * from (select null as a) where 1 = 0");
+
+    assert !populatedDf.isEmpty();
+    assert emptyDf.isEmpty();
+  }
+
+  @Test
   public void sample() {
     long rowCount = 10000;
     DataFrame df = getSession().range(rowCount);

@@ -136,6 +136,9 @@ trait TestData extends SNTestBase {
         "(null, 3, false, null), (4.0, null, null, 'd'), (null, null, null, null), " +
         "('NaN'::Double, null, null, null) as T(flo, int, boo, str)")
 
+  lazy val emptyDf: DataFrame =
+    session.sql("select * from (select null as a) where 1 = 0")
+
   lazy val integer1: DataFrame = session.sql("select * from values(1),(2),(3) as T(a)")
 
   lazy val double1: DataFrame =
