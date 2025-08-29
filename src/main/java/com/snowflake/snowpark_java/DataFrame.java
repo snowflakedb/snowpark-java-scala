@@ -650,7 +650,7 @@ public class DataFrame extends Logging implements Cloneable {
    * @since 1.17.0
    */
   public DataFrame sort(String first, String... remaining) {
-    return new DataFrame(df.sort(first, JavaUtils.stringArrayToStringSeq(remaining)));
+    return new DataFrame(this.df.sort(first, JavaUtils.stringArrayToStringSeq(remaining)));
   }
 
   /**

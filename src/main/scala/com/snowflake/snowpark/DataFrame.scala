@@ -517,7 +517,7 @@ class DataFrame private[snowpark] (
    * @since 1.17.0
    */
   def sort(first: String, remaining: String*): DataFrame = transformation("sort") {
-    sort((first +: remaining).map(Column(_)))
+    this.sort((first +: remaining).map(Column(_)))
   }
 
   /**
