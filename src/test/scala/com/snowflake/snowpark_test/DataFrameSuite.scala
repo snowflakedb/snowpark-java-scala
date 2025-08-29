@@ -805,23 +805,38 @@ trait DataFrameSuite extends TestData with BeforeAndAfterEach {
   }
 
   test("test sort(String, String*)") {
-    val df = Seq(("Alice", 30, "Manager"), ("Charlie", 25, "Designer"), ("Bob", 25, "Engineer"))
-      .toDF("name", "age", "role")
+    val df = Seq(
+      ("Alice", 25, "Engineer"),
+      ("Bob", 25, "Designer"),
+      ("Charlie", 30, "Engineer"),
+      ("Diana", 25, "Engineer")).toDF("name", "age", "role")
 
     // Sort by single column
     checkAnswer(
       df.sort("role"),
-      Seq(Row("Charlie", 25, "Designer"), Row("Bob", 25, "Engineer"), Row("Alice", 30, "Manager")))
+      Seq(
+        Row("Bob", 25, "Designer"),
+        Row("Alice", 25, "Engineer"),
+        Row("Charlie", 30, "Engineer"),
+        Row("Diana", 25, "Engineer")))
 
     // Sort by exactly two columns
     checkAnswer(
       df.sort("age", "name"),
-      Seq(Row("Bob", 25, "Engineer"), Row("Charlie", 25, "Designer"), Row("Alice", 30, "Manager")))
+      Seq(
+        Row("Alice", 25, "Engineer"),
+        Row("Bob", 25, "Designer"),
+        Row("Diana", 25, "Engineer"),
+        Row("Charlie", 30, "Engineer")))
 
     // Sort by three or more columns
     checkAnswer(
       df.sort("age", "role", "name"),
-      Seq(Row("Charlie", 25, "Designer"), Row("Bob", 25, "Engineer"), Row("Alice", 30, "Manager")))
+      Seq(
+        Row("Bob", 25, "Designer"),
+        Row("Alice", 25, "Engineer"),
+        Row("Diana", 25, "Engineer"),
+        Row("Charlie", 30, "Engineer")))
 
     // Negative test: column doesn't exist
     assertThrows[SnowflakeSQLException]({

@@ -374,36 +374,40 @@ public class JavaDataFrameSuite extends TestBase {
         getSession()
             .sql(
                 "select * from values"
-                    + "('Alice', 30, 'Manager'), "
-                    + "('Charlie', 25, 'Designer'), "
-                    + "('Bob', 25, 'Engineer') "
+                    + "('Alice', 25, 'Engineer'), "
+                    + "('Bob', 25, 'Designer'), "
+                    + "('Charlie', 30, 'Engineer'), "
+                    + "('Diana', 25, 'Engineer') "
                     + "as t(name, age, role)");
 
     // Sort by single column
     checkAnswer(
         df.sort("role"),
         new Row[] {
-          Row.create("Charlie", 25, "Designer"),
-          Row.create("Bob", 25, "Engineer"),
-          Row.create("Alice", 30, "Manager"),
+          Row.create("Bob", 25, "Designer"),
+          Row.create("Alice", 25, "Engineer"),
+          Row.create("Charlie", 30, "Engineer"),
+          Row.create("Diana", 25, "Engineer"),
         });
 
     // Sort by exactly two columns
     checkAnswer(
         df.sort("age", "name"),
         new Row[] {
-          Row.create("Bob", 25, "Engineer"),
-          Row.create("Charlie", 25, "Designer"),
-          Row.create("Alice", 30, "Manager"),
+          Row.create("Alice", 25, "Engineer"),
+          Row.create("Bob", 25, "Designer"),
+          Row.create("Diana", 25, "Engineer"),
+          Row.create("Charlie", 30, "Engineer"),
         });
 
     // Sort by three or more columns
     checkAnswer(
         df.sort("age", "role", "name"),
         new Row[] {
-          Row.create("Charlie", 25, "Designer"),
-          Row.create("Bob", 25, "Engineer"),
-          Row.create("Alice", 30, "Manager"),
+          Row.create("Bob", 25, "Designer"),
+          Row.create("Alice", 25, "Engineer"),
+          Row.create("Diana", 25, "Engineer"),
+          Row.create("Charlie", 30, "Engineer"),
         });
 
     // Negative test: column doesn't exist
