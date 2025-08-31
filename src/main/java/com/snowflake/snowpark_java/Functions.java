@@ -1667,14 +1667,12 @@ public final class Functions {
    *
    * <pre>{@code
    * DataFrame df = session.createDataFrame(
-   *     new Row[] {
-   *       Row.create("john.doe@company.com"),
-   *       Row.create("user123@domain.org"),
-   *       Row.create("admin@test.net"),
-   *     },
-   *     StructType.create(new StructField[] {
-   *       new StructField("email", DataTypes.StringType),
-   *     })
+   *   new Row[] {
+   *     Row.create("john.doe@company.com"),
+   *     Row.create("user123@domain.org"),
+   *     Row.create("admin@test.net"),
+   *   },
+   *   StructType.create(new StructField("email", DataTypes.StringType))
    * );
    *
    * // Extract first 4 characters (1-based indexing)
@@ -1719,14 +1717,12 @@ public final class Functions {
    *
    * <pre>{@code
    * DataFrame df = session.createDataFrame(
-   *     new Row[] {
-   *       Row.create("SKU-12345-ABC"),
-   *       Row.create("PRD-67890-XYZ"),
-   *       Row.create("ITM-11111-DEF"),
-   *     },
-   *     StructType.create(new StructField[] {
-   *       new StructField("product_id", DataTypes.StringType),
-   *     })
+   *   new Row[] {
+   *     Row.create("SKU-12345-ABC"),
+   *     Row.create("PRD-67890-XYZ"),
+   *     Row.create("ITM-11111-DEF"),
+   *   },
+   *   StructType.create(new StructField("product_id", DataTypes.StringType))
    * );
    *
    * // Extract product code (characters 5-9)

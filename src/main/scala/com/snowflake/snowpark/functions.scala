@@ -1545,7 +1545,7 @@ object functions {
    * @group str_func
    * @since 1.17.0
    */
-  def substring(str: Column, pos: Int, len: Int): Column = substring(str, lit(pos), lit(len))
+  def substring(str: Column, pos: Int, len: Int): Column = this.substring(str, lit(pos), lit(len))
 
   /**
    * Translates src from the characters in matchingString to the characters in replaceString.
