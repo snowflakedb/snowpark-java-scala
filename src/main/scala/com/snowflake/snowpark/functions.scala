@@ -1345,6 +1345,63 @@ object functions {
     builtin("lpad")(str, len, pad)
 
   /**
+   * Left-pads a string with characters from another string.
+   *
+   * Examples:
+   * {{{
+   *   val df = Seq("hello", "world").toDF("a")
+   *   df.select(lpad(col("a"), 10, "*")).show()
+   *
+   *   --------------------------
+   *   |"LPAD(""A"", 10, '*')"  |
+   *   --------------------------
+   *   |*****hello              |
+   *   |*****world              |
+   *   --------------------------
+   * }}}
+   *
+   * @param str
+   *   The string column to pad.
+   * @param len
+   *   The target length of the resulting string value (in characters).
+   * @param pad
+   *   The string literal to use for padding.
+   * @return
+   *   A new column containing the left-padded string.
+   * @group str_func
+   * @since 1.17.0
+   */
+  def lpad(str: Column, len: Int, pad: String): Column = lpad(str, lit(len), lit(pad))
+
+  /**
+   * Left-pads a binary value with bytes from another binary value.
+   *
+   * Examples:
+   * {{{
+   *   val df = Seq(Array[Byte](65, 66)).toDF("a")
+   *   df.select(lpad(col("a"), 5, Array[Byte](0))).show()
+   *
+   *   ------------------------------------
+   *   |"LPAD(""A"", 5, '00' :: BINARY)"  |
+   *   ------------------------------------
+   *   |'0000004142'                      |
+   *   ------------------------------------
+   * }}}
+   *
+   * @param str
+   *   The binary column to pad.
+   * @param len
+   *   The target length of the resulting binary value (in bytes).
+   * @param pad
+   *   The byte array to use for padding.
+   * @return
+   *   A new column containing the left-padded binary value.
+   * @group str_func
+   * @since 1.17.0
+   */
+  def lpad(str: Column, len: Int, pad: Array[Byte]): Column = lpad(str, lit(len), lit(pad))
+
+  /**
    * Removes leading characters, including whitespace, from a string.
    *
    * @group str_func
@@ -1369,6 +1426,63 @@ object functions {
    */
   def rpad(str: Column, len: Column, pad: Column): Column =
     builtin("rpad")(str, len, pad)
+
+  /**
+   * Right-pads a string with characters from another string.
+   *
+   * Examples:
+   * {{{
+   *   val df = Seq("hello", "world").toDF("a")
+   *   df.select(rpad(col("a"), 10, "*")).show()
+   *
+   *   --------------------------
+   *   |"RPAD(""A"", 10, '*')"  |
+   *   --------------------------
+   *   |hello*****              |
+   *   |world*****              |
+   *   --------------------------
+   * }}}
+   *
+   * @param str
+   *   The string column to pad.
+   * @param len
+   *   The target length of the resulting string value (in characters).
+   * @param pad
+   *   The string literal to use for padding.
+   * @return
+   *   A new column containing the right-padded string.
+   * @group str_func
+   * @since 1.17.0
+   */
+  def rpad(str: Column, len: Int, pad: String): Column = rpad(str, lit(len), lit(pad))
+
+  /**
+   * Right-pads a binary value with bytes from another binary value.
+   *
+   * Examples:
+   * {{{
+   *   val df = Seq(Array[Byte](65, 66)).toDF("a")
+   *   df.select(rpad(col("a"), 5, Array[Byte](0))).show()
+   *
+   *   ------------------------------------
+   *   |"RPAD(""A"", 5, '00' :: BINARY)"  |
+   *   ------------------------------------
+   *   |'4142000000'                      |
+   *   ------------------------------------
+   * }}}
+   *
+   * @param str
+   *   The binary column to pad.
+   * @param len
+   *   The target length of the resulting binary value (in bytes).
+   * @param pad
+   *   The byte array to use for padding.
+   * @return
+   *   A new column containing the right-padded binary value.
+   * @group str_func
+   * @since 1.17.0
+   */
+  def rpad(str: Column, len: Int, pad: Array[Byte]): Column = rpad(str, lit(len), lit(pad))
 
   /**
    * Builds a string by repeating the input for the specified number of times.

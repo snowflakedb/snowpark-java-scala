@@ -1546,6 +1546,65 @@ public final class Functions {
   }
 
   /**
+   * Left-pads a string with characters from another string.
+   *
+   * <p>Example:
+   *
+   * <pre>{@code
+   * DataFrame df = session.createDataFrame(
+   *   new Row[] {Row.create("hello"), Row.create("world")},
+   *   StructType.create(new StructField("a", DataTypes.StringType))
+   * );
+   * df.select(lpad(col("a"), 10, "*")).show();
+   *
+   * --------------------------
+   * |"LPAD(""A"", 10, '*')"  |
+   * --------------------------
+   * |*****hello              |
+   * |*****world              |
+   * --------------------------
+   * }</pre>
+   *
+   * @param str The string column to pad.
+   * @param len The target length of the resulting string value (in characters).
+   * @param pad The string literal to use for padding.
+   * @return A new column containing the left-padded string.
+   * @since 1.17.0
+   */
+  public static Column lpad(Column str, int len, String pad) {
+    return new Column(com.snowflake.snowpark.functions.lpad(str.toScalaColumn(), len, pad));
+  }
+
+  /**
+   * Left-pads a binary value with bytes from another binary value.
+   *
+   * <p>Example:
+   *
+   * <pre>{@code
+   * DataFrame df = session.createDataFrame(
+   *   new Row[] {Row.create((Object) new byte[]{65, 66})},
+   *   StructType.create(new StructField("a", DataTypes.BinaryType))
+   * );
+   * df.select(lpad(col("a"), 5, new byte[] {0})).show();
+   *
+   * ------------------------------------
+   * |"LPAD(""A"", 5, '00' :: BINARY)"  |
+   * ------------------------------------
+   * |'0000004142'                      |
+   * ------------------------------------
+   * }</pre>
+   *
+   * @param str The binary column to pad.
+   * @param len The target length of the resulting binary value (in bytes).
+   * @param pad The byte array to use for padding.
+   * @return A new column containing the left-padded binary value.
+   * @since 1.17.0
+   */
+  public static Column lpad(Column str, int len, byte[] pad) {
+    return new Column(com.snowflake.snowpark.functions.lpad(str.toScalaColumn(), len, pad));
+  }
+
+  /**
    * Right-pads a string with characters from another string, or right-pads a binary value with
    * bytes from another binary value.
    *
@@ -1559,6 +1618,65 @@ public final class Functions {
     return new Column(
         com.snowflake.snowpark.functions.rpad(
             str.toScalaColumn(), len.toScalaColumn(), pad.toScalaColumn()));
+  }
+
+  /**
+   * Right-pads a string with characters from another string.
+   *
+   * <p>Example:
+   *
+   * <pre>{@code
+   * DataFrame df = session.createDataFrame(
+   *   new Row[] {Row.create("hello"), Row.create("world")},
+   *   StructType.create(new StructField("a", DataTypes.StringType))
+   * );
+   * df.select(rpad(col("a"), 10, "*")).show();
+   *
+   * --------------------------
+   * |"RPAD(""A"", 10, '*')"  |
+   * --------------------------
+   * |hello*****              |
+   * |world*****              |
+   * --------------------------
+   * }</pre>
+   *
+   * @param str The string column to pad.
+   * @param len The target length of the resulting string value (in characters).
+   * @param pad The string literal to use for padding.
+   * @return A new column containing the right-padded string.
+   * @since 1.17.0
+   */
+  public static Column rpad(Column str, int len, String pad) {
+    return new Column(com.snowflake.snowpark.functions.rpad(str.toScalaColumn(), len, pad));
+  }
+
+  /**
+   * Right-pads a binary value with bytes from another binary value.
+   *
+   * <p>Example:
+   *
+   * <pre>{@code
+   * DataFrame df = session.createDataFrame(
+   *   new Row[] {Row.create((Object) new byte[]{65, 66})},
+   *   StructType.create(new StructField("a", DataTypes.BinaryType))
+   * );
+   * df.select(rpad(col("a"), 5, new byte[] {0})).show();
+   *
+   * ------------------------------------
+   * |"RPAD(""A"", 5, '00' :: BINARY)"  |
+   * ------------------------------------
+   * |'4142000000'                      |
+   * ------------------------------------
+   * }</pre>
+   *
+   * @param str The binary column to pad.
+   * @param len The target length of the resulting binary value (in bytes).
+   * @param pad The byte array to use for padding.
+   * @return A new column containing the right-padded binary value.
+   * @since 1.17.0
+   */
+  public static Column rpad(Column str, int len, byte[] pad) {
+    return new Column(com.snowflake.snowpark.functions.rpad(str.toScalaColumn(), len, pad));
   }
 
   /**
