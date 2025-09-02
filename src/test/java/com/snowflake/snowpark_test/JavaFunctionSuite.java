@@ -846,7 +846,7 @@ public class JavaFunctionSuite extends TestBase {
   }
 
   @Test
-  public void lpad_rpad() {
+  public void lpad_rpad_string() {
     DataFrame df = getSession().sql("select * from values('asdFg'),('qqq'),('Qw') as T(a)");
     Row[] expected = {
       Row.create("XXXasdFg", "asdFgSSSS"),
@@ -858,24 +858,88 @@ public class JavaFunctionSuite extends TestBase {
             Functions.lpad(df.col("a"), Functions.lit(8), Functions.lit("X")),
             Functions.rpad(df.col("a"), Functions.lit(9), Functions.lit("S"))),
         expected);
+    checkAnswer(
+        df.select(Functions.lpad(df.col("a"), 8, "X"), Functions.rpad(df.col("a"), 9, "S")),
+        expected);
+  }
+
+  @Test
+  public void lpad_rpad_binary() {
+    DataFrame df = getSession().sql("select to_binary(X'010203') as A");
+    checkAnswer(
+        df.select(
+            Functions.lpad(df.col("A"), 5, new byte[] {9, 8}),
+            Functions.rpad(df.col("A"), 5, new byte[] {9, 8})),
+        new Row[] {Row.create(new byte[] {9, 8, 1, 2, 3}, new byte[] {1, 2, 3, 9, 8})});
+  }
+
+  @Test
+  public void lpad_rpad_length_edge_cases() {
+    DataFrame df = getSession().sql("select * from values('asdFg'),('qqq'),('Qw') as T(a)");
+
+    // Zero length
+    checkAnswer(
+        df.select(Functions.lpad(df.col("a"), 0, "X"), Functions.rpad(df.col("a"), 0, "X")),
+        new Row[] {Row.create("", ""), Row.create("", ""), Row.create("", "")});
+
+    // Negative length
+    checkAnswer(
+        df.select(Functions.lpad(df.col("a"), -1, "X"), Functions.rpad(df.col("a"), -1, "X")),
+        new Row[] {Row.create("", ""), Row.create("", ""), Row.create("", "")});
+
+    // Target length shorter than input string (truncation)
+    checkAnswer(
+        df.select(Functions.lpad(df.col("a"), 2, "X"), Functions.rpad(df.col("a"), 2, "X")),
+        new Row[] {Row.create("as", "as"), Row.create("qq", "qq"), Row.create("Qw", "Qw")});
+  }
+
+  @Test
+  public void lpad_rpad_null_and_empty_inputs() {
+    // Null input string
+    DataFrame nullStringDf = getSession().sql("select * from values(null),('test') as T(a)");
+    checkAnswer(
+        nullStringDf.select(
+            Functions.lpad(nullStringDf.col("a"), 5, "X"),
+            Functions.rpad(nullStringDf.col("a"), 5, "X")),
+        new Row[] {Row.create(null, null), Row.create("Xtest", "testX")});
+
+    // Empty string input
+    DataFrame emptyStringDf = getSession().sql("select * from values(''),('test') as T(a)");
+    checkAnswer(
+        emptyStringDf.select(
+            Functions.lpad(emptyStringDf.col("a"), 3, "X"),
+            Functions.rpad(emptyStringDf.col("a"), 3, "X")),
+        new Row[] {Row.create("XXX", "XXX"), Row.create("tes", "tes")});
+
+    DataFrame emptyBinaryDf = getSession().sql("select to_binary('') as A");
+    checkAnswer(
+        emptyBinaryDf.select(
+            Functions.lpad(emptyBinaryDf.col("A"), 3, new byte[] {0}),
+            Functions.rpad(emptyBinaryDf.col("A"), 3, new byte[] {0})),
+        new Row[] {Row.create(new byte[] {0, 0, 0}, new byte[] {0, 0, 0})});
+
+    // Empty padding string
+    DataFrame df = getSession().sql("select * from values('asdFg'),('qqq'),('Qw') as T(a)");
+    checkAnswer(
+        df.select(Functions.lpad(df.col("a"), 8, ""), Functions.rpad(df.col("a"), 8, "")),
+        new Row[] {Row.create("asdFg", "asdFg"), Row.create("qqq", "qqq"), Row.create("Qw", "Qw")});
   }
 
   @Test
   public void ltrim_rtrim_trim() {
     DataFrame df = getSession().sql("select * from values('  abcba  '), (' a12321a   ') as T(a)");
-    Row[] expected = {
-      Row.create("bcba  ", "  abcb", "bcb"), Row.create("12321a   ", " a12321", "12321")
-    };
     checkAnswer(
         df.select(
             Functions.ltrim(df.col("a"), Functions.lit(" a")),
             Functions.rtrim(df.col("a"), Functions.lit(" a")),
             Functions.trim(df.col("a"), Functions.lit("a "))),
-        expected);
+        new Row[] {
+          Row.create("bcba  ", "  abcb", "bcb"), Row.create("12321a   ", " a12321", "12321")
+        });
 
-    Row[] expected2 = {Row.create("abcba  ", "  abcba"), Row.create("a12321a   ", " a12321a")};
-
-    checkAnswer(df.select(Functions.ltrim(df.col("a")), Functions.rtrim(df.col("a"))), expected2);
+    checkAnswer(
+        df.select(Functions.ltrim(df.col("a")), Functions.rtrim(df.col("a"))),
+        new Row[] {Row.create("abcba  ", "  abcba"), Row.create("a12321a   ", " a12321a")});
   }
 
   @Test
