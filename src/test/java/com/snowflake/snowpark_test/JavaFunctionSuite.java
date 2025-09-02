@@ -1286,12 +1286,12 @@ public class JavaFunctionSuite extends TestBase {
     withTimeZoneTest(
         () -> {
           DataFrame df =
-              getSession().sql("select * from values('2020-05-11'), ('Invalid') as T(a)");
+              getSession().sql("select * from values('2020-05-11'), ('INVALID') as T(a)");
           Row[] expected = {Row.create(new Date(120, 4, 11)), Row.create((Object) null)};
           checkAnswer(df.select(Functions.try_to_date(df.col("a"))), expected);
 
           DataFrame df1 =
-              getSession().sql("select * from values('2020.07.23'), ('Invalid') as T(a)");
+              getSession().sql("select * from values('2020.07.23'), ('INVALID') as T(a)");
           Row[] expected1 = {Row.create(new Date(120, 6, 23)), Row.create((Object) null)};
           checkAnswer(
               df1.select(Functions.try_to_date(df.col("a"), Functions.lit("YYYY.MM.DD"))),

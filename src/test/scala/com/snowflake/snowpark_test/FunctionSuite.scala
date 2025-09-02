@@ -624,7 +624,7 @@ trait FunctionSuite extends TestData {
 
   test("try_to_date") {
     val df = session.sql("select * from values('2020-05-11'),('INVALID') as T(a)")
-    checkAnswer(df.select(try_to_date(col("A"))), Seq(Row(new Date(120, 4, 11))))
+    checkAnswer(df.select(try_to_date(col("A"))), Seq(Row(new Date(120, 4, 11)), Row(null)))
 
     val df1 = session.sql("select * from values('2020.07.23'),('INVALID') as T(a)")
     checkAnswer(
