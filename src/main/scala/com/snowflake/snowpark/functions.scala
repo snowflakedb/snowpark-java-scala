@@ -1456,6 +1456,10 @@ object functions {
    * Returns the portion of the string or binary value from `str`, starting from the character/byte
    * specified by `pos`, with limited length.
    *
+   * This function is a wrapper over the Snowflake SQL `SUBSTR`/`SUBSTRING` function. For detailed
+   * behavior documentation, see:
+   * [[https://docs.snowflake.com/en/sql-reference/functions/substr substr]]
+   *
    * Examples:
    * {{{
    *   val df = Seq(
@@ -1503,6 +1507,10 @@ object functions {
   /**
    * Returns the portion of the string or binary value from `str`, starting from the character/byte
    * specified by `pos`, with limited length.
+   *
+   * This function is a wrapper over the Snowflake SQL `SUBSTR`/`SUBSTRING` function. For detailed
+   * behavior documentation, see:
+   * [[https://docs.snowflake.com/en/sql-reference/functions/substr substr]]
    *
    * Examples:
    * {{{

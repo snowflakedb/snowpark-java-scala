@@ -1663,6 +1663,10 @@ public final class Functions {
    * Returns the portion of the string or binary value from {@code str}, starting from the
    * character/byte specified by {@code pos}, with limited length.
    *
+   * <p>This function is a wrapper over the Snowflake SQL {@code SUBSTR}/{@code SUBSTRING} function.
+   * For detailed behavior documentation, see: <a
+   * href="https://docs.snowflake.com/en/sql-reference/functions/substr">substr</a>
+   *
    * <p>Examples:
    *
    * <pre>{@code
@@ -1712,6 +1716,10 @@ public final class Functions {
   /**
    * Returns the portion of the string or binary value from {@code str}, starting from the
    * character/byte specified by {@code pos}, with limited length.
+   *
+   * <p>This function is a wrapper over the Snowflake SQL {@code SUBSTR}/{@code SUBSTRING} function.
+   * For detailed behavior documentation, see: <a
+   * href="https://docs.snowflake.com/en/sql-reference/functions/substr">substr</a>
    *
    * <p>Examples:
    *
