@@ -1371,7 +1371,7 @@ object functions {
    * @group str_func
    * @since 1.17.0
    */
-  def lpad(str: Column, len: Int, pad: String): Column = lpad(str, lit(len), lit(pad))
+  def lpad(str: Column, len: Int, pad: String): Column = this.lpad(str, lit(len), lit(pad))
 
   /**
    * Left-pads a binary value with bytes from another binary value.
@@ -1399,7 +1399,7 @@ object functions {
    * @group str_func
    * @since 1.17.0
    */
-  def lpad(str: Column, len: Int, pad: Array[Byte]): Column = lpad(str, lit(len), lit(pad))
+  def lpad(str: Column, len: Int, pad: Array[Byte]): Column = this.lpad(str, lit(len), lit(pad))
 
   /**
    * Removes leading characters, including whitespace, from a string.
@@ -1454,7 +1454,7 @@ object functions {
    * @group str_func
    * @since 1.17.0
    */
-  def rpad(str: Column, len: Int, pad: String): Column = rpad(str, lit(len), lit(pad))
+  def rpad(str: Column, len: Int, pad: String): Column = this.rpad(str, lit(len), lit(pad))
 
   /**
    * Right-pads a binary value with bytes from another binary value.
@@ -1482,7 +1482,7 @@ object functions {
    * @group str_func
    * @since 1.17.0
    */
-  def rpad(str: Column, len: Int, pad: Array[Byte]): Column = rpad(str, lit(len), lit(pad))
+  def rpad(str: Column, len: Int, pad: Array[Byte]): Column = this.rpad(str, lit(len), lit(pad))
 
   /**
    * Builds a string by repeating the input for the specified number of times.
