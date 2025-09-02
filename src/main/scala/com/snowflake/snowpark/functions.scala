@@ -1819,6 +1819,7 @@ object functions {
    * ===Example===
    * {{{
    * SELECT TRY_TO_TIMESTAMP('2024-01-15 12:30:00') as valid,
+   *        TRY_TO_TIMESTAMP('1561479557') as valid,
    *        TRY_TO_TIMESTAMP('INVALID') as invalid;
    * +-------------------------+---------+
    * | VALID                   | INVALID |

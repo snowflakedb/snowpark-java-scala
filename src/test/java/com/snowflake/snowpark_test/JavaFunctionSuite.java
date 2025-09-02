@@ -1242,7 +1242,7 @@ public class JavaFunctionSuite extends TestBase {
         () -> {
           DataFrame df =
               getSession()
-                  .sql("select * from values(1561479557),(1565479557),(-100000000000) as T(a)");
+                  .sql("select * from values('1561479557'),('1565479557'),('INVALID') as T(a)");
           Row[] expected = {
             Row.create(Timestamp.valueOf("2019-06-25 16:19:17.0")),
             Row.create(Timestamp.valueOf("2019-08-10 23:25:57.0")),
@@ -1253,7 +1253,7 @@ public class JavaFunctionSuite extends TestBase {
           DataFrame df2 =
               getSession()
                   .sql(
-                      "select * from values('04/05/2020 01:02:03'::VARCHAR),('Invalid'::VARCHAR) as T(a)");
+                      "select * from values('04/05/2020 01:02:03'::VARCHAR),('INVALID'::VARCHAR) as T(a)");
           Row[] expected2 = {
             Row.create(Timestamp.valueOf("2020-04-05 01:02:03.0")), Row.create((Object) null)
           };
