@@ -1378,8 +1378,8 @@ object functions {
    *
    * Examples:
    * {{{
-   *   val df = Seq(Array[Byte](65, 66)).toDF("a")
-   *   df.select(lpad(col("a"), 5, Array[Byte](0))).show()
+   *   val df = Seq(Array[Byte](0x41, 0x42)).toDF("a")
+   *   df.select(lpad(col("a"), 5, Array[Byte](0x00))).show()
    *
    *   ------------------------------------
    *   |"LPAD(""A"", 5, '00' :: BINARY)"  |
@@ -1461,8 +1461,8 @@ object functions {
    *
    * Examples:
    * {{{
-   *   val df = Seq(Array[Byte](65, 66)).toDF("a")
-   *   df.select(rpad(col("a"), 5, Array[Byte](0))).show()
+   *   val df = Seq(Array[Byte](0x41, 0x42)).toDF("a")
+   *   df.select(rpad(col("a"), 5, Array[Byte](0x00))).show()
    *
    *   ------------------------------------
    *   |"RPAD(""A"", 5, '00' :: BINARY)"  |

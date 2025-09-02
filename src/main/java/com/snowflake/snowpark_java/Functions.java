@@ -1582,10 +1582,10 @@ public final class Functions {
    *
    * <pre>{@code
    * DataFrame df = session.createDataFrame(
-   *   new Row[] {Row.create((Object) new byte[]{65, 66})},
+   *   new Row[] {Row.create((Object) new byte[]{0x41, 0x42})},
    *   StructType.create(new StructField("a", DataTypes.BinaryType))
    * );
-   * df.select(lpad(col("a"), 5, new byte[] {0})).show();
+   * df.select(lpad(col("a"), 5, new byte[] {0x00})).show();
    *
    * ------------------------------------
    * |"LPAD(""A"", 5, '00' :: BINARY)"  |
@@ -1657,10 +1657,10 @@ public final class Functions {
    *
    * <pre>{@code
    * DataFrame df = session.createDataFrame(
-   *   new Row[] {Row.create((Object) new byte[]{65, 66})},
+   *   new Row[] {Row.create((Object) new byte[]{0x41, 0x42})},
    *   StructType.create(new StructField("a", DataTypes.BinaryType))
    * );
-   * df.select(rpad(col("a"), 5, new byte[] {0})).show();
+   * df.select(rpad(col("a"), 5, new byte[] {0x00})).show();
    *
    * ------------------------------------
    * |"RPAD(""A"", 5, '00' :: BINARY)"  |
