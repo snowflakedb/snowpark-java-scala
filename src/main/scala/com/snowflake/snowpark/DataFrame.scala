@@ -2881,6 +2881,27 @@ class DataFrame private[snowpark] (
   }
 
   /**
+   * Checks whether the [[DataFrame]] contains any rows.
+   *
+   * ===Example===
+   * {{{
+   * val df = session.sql("SELECT * FROM values (1), (2), (3) as T(a)")
+   * df.isEmpty  // returns false
+   *
+   * val emptyDf = session.sql("SELECT * FROM (SELECT 1) WHERE 1 = 0")
+   * emptyDf.isEmpty  // returns true
+   * }}}
+   *
+   * @return
+   *   `true` if the [[DataFrame]] contains no rows; otherwise, `false`.
+   * @group actions
+   * @since 1.17.0
+   */
+  def isEmpty: Boolean = action("isEmpty") {
+    first().isEmpty
+  }
+
+  /**
    * Returns a [[DataFrameNaFunctions]] object that provides functions for handling missing values
    * in the DataFrame.
    *

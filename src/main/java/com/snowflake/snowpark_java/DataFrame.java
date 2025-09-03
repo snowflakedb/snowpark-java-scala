@@ -993,6 +993,26 @@ public class DataFrame extends Logging implements Cloneable {
   }
 
   /**
+   * Checks whether the {@code DataFrame} contains any rows.
+   *
+   * <p><b>Example:</b>
+   *
+   * <pre>{@code
+   * DataFrame df = session.sql("SELECT * FROM VALUES (1), (2), (3) AS T(a)");
+   * boolean isEmpty = df.isEmpty(); // returns false
+   *
+   * DataFrame emptyDf = session.sql("SELECT * FROM (SELECT 1) WHERE 1 = 0");
+   * boolean isEmptyDf = emptyDf.isEmpty(); // returns true
+   * }</pre>
+   *
+   * @return {@code true} if the {@code DataFrame} contains no rows; {@code false} otherwise.
+   * @since 1.17.0
+   */
+  public Boolean isEmpty() {
+    return this.df.isEmpty();
+  }
+
+  /**
    * Returns a new DataFrame with a sample of N rows from the underlying DataFrame.
    *
    * <p>NOTE:
