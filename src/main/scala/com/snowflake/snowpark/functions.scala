@@ -1493,9 +1493,15 @@ object functions {
    *   The input string or binary value to extract a substring from.
    * @param pos
    *   The starting position of the substring (1-based index).
+   *   - If `pos` is 0, it is treated as 1 (start from the first character/byte).
+   *   - If `pos` is negative, it counts backward from the end of the string (e.g., -1 starts at the
+   *     last character/byte, -2 starts at the second-to-last character/byte).
+   *   - If `pos` is greater than the length of `str`, the result is an empty string.
    * @param len
-   *   The maximum length of the substring to extract. If the length is a negative number, the
-   *   function returns an empty string.
+   *   The maximum number of characters/bytes to return.
+   *   - If `len` is 0 or negative, the result is an empty string.
+   *   - If `len` exceeds the remaining length from `pos`, the result contains characters/bytes from
+   *     `pos` to the end.
    * @return
    *   A Column containing the extracted substring.
    * @group str_func
@@ -1545,9 +1551,15 @@ object functions {
    *   The input string or binary value to extract a substring from.
    * @param pos
    *   The starting position of the substring (1-based index).
+   *   - If `pos` is 0, it is treated as 1 (start from the first character/byte).
+   *   - If `pos` is negative, it counts backward from the end of the string (e.g., -1 starts at the
+   *     last character/byte, -2 starts at the second-to-last character/byte).
+   *   - If `pos` is greater than the length of `str`, the result is an empty string.
    * @param len
-   *   The maximum length of the substring to extract. If the length is a negative number, the
-   *   function returns an empty string.
+   *   The maximum number of characters/bytes to return.
+   *   - If `len` is 0 or negative, the result is an empty string.
+   *   - If `len` exceeds the remaining length from `pos`, the result contains characters/bytes from
+   *     `pos` to the end.
    * @return
    *   A Column containing the extracted substring.
    * @group str_func

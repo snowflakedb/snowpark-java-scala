@@ -1702,8 +1702,21 @@ public final class Functions {
    *
    * @param str The input string or binary value to extract a substring from.
    * @param pos The starting position of the substring (1-based index).
-   * @param len The maximum length of the substring to extract. If the length is a negative number,
-   *     the function returns an empty string.
+   *     <ul>
+   *       <li>If {@code pos} is 0, it is treated as 1 (start from the first character/byte).
+   *       <li>If {@code pos} is negative, it counts backward from the end of the string (e.g., -1
+   *           starts at the last character/byte, -2 starts at the second-to-last character/byte)
+   *       <li>If {@code pos} is greater than the length of {@code str}, the result is an empty
+   *           string.
+   *     </ul>
+   *
+   * @param len The maximum number of characters/bytes to return.
+   *     <ul>
+   *       <li>If {@code len} is 0 or negative, the result is an empty string.
+   *       <li>If {@code len} exceeds the remaining length from {@code pos}, the result contains
+   *           characters/bytes from {@code pos} to the end.
+   *     </ul>
+   *
    * @return A Column containing the extracted substring.
    * @since 0.11.0
    */
@@ -1756,8 +1769,21 @@ public final class Functions {
    *
    * @param str The input string or binary value to extract a substring from.
    * @param pos The starting position of the substring (1-based index).
-   * @param len The maximum length of the substring to extract. If the length is a negative number,
-   *     the function returns an empty string.
+   *     <ul>
+   *       <li>If {@code pos} is 0, it is treated as 1 (start from the first character/byte).
+   *       <li>If {@code pos} is negative, it counts backward from the end of the string (e.g., -1
+   *           starts at the last character/byte, -2 starts at the second-to-last character/byte)
+   *       <li>If {@code pos} is greater than the length of {@code str}, the result is an empty
+   *           string.
+   *     </ul>
+   *
+   * @param len The maximum number of characters/bytes to return.
+   *     <ul>
+   *       <li>If {@code len} is 0 or negative, the result is an empty string.
+   *       <li>If {@code len} exceeds the remaining length from {@code pos}, the result contains
+   *           characters/bytes from {@code pos} to the end.
+   *     </ul>
+   *
    * @return A Column containing the extracted substring.
    * @since 1.17.0
    */
