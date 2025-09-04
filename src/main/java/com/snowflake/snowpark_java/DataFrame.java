@@ -620,6 +620,17 @@ public class DataFrame extends Logging implements Cloneable {
   }
 
   /**
+   * Returns a new DataFrame starting from the specified offset (similar to the SQL OFFSET clause).
+   *
+   * @param offset The number of rows to skip.
+   * @return A DataFrame starting at the given offset.
+   * @since 1.16.0
+   */
+  public DataFrame offset(int offset) {
+    return new DataFrame(df.offset(offset));
+  }
+
+  /**
    * Groups rows by the columns specified by expressions (similar to GROUP BY in SQL).
    *
    * @since 0.9.0

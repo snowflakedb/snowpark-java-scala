@@ -142,6 +142,10 @@ class MethodChainSuite extends TestData {
     checkMethodChain(df1.limit(1), "limit")
   }
 
+  test("offset") {
+    checkMethodChain(df1.offset(1), "offset")
+  }
+
   test("union") {
     checkMethodChain(df1.union(df1.clone), "union")
     checkMethodChain(df1.unionAll(df1.clone), "unionAll")
