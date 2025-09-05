@@ -1483,6 +1483,49 @@ public final class Functions {
   }
 
   /**
+   * Concatenates two or more strings ignoring any null values.
+   *
+   * <p>Unlike {@link #concat_ws}, this function automatically filters out null values before
+   * concatenation.
+   *
+   * <p><b>Examples</b>
+   *
+   * <pre>{@code
+   * DataFrame df = session.createDataFrame(
+   *   new Row[] {
+   *     Row.create("Hello", "World", null),
+   *     Row.create(null, null, null),
+   *     Row.create("Hello", null, null)
+   *   },
+   *   StructType.create(
+   *     new StructField("A", DataTypes.StringType),
+   *     new StructField("B", DataTypes.StringType),
+   *     new StructField("C", DataTypes.StringType)
+   *   )
+   * );
+   *
+   * df.select(concat_ws_ignore_nulls(" | ", col("A"), col("B"), col("C"))).show();
+   * --------------------------------------------------------
+   * |"CONCAT_WS_IGNORE_NULLS(' | ', ""A"", ""B"", ""C"")"  |
+   * --------------------------------------------------------
+   * |Hello | World                                         |
+   * |                                                      |
+   * |Hello                                                 |
+   * --------------------------------------------------------
+   * }</pre>
+   *
+   * @param separator A string literal used as the separator between concatenated values.
+   * @param exprs The columns to be concatenated.
+   * @return A Column containing the concatenated values with null values filtered out.
+   * @since 1.17.0
+   */
+  public static Column concat_ws_ignore_nulls(String separator, Column... exprs) {
+    return new Column(
+        com.snowflake.snowpark.functions.concat_ws_ignore_nulls(
+            separator, JavaUtils.columnArrayToSeq(Column.toScalaColumnArray(exprs))));
+  }
+
+  /**
    * Returns the input string with the first letter of each word in uppercase and the subsequent
    * letters in lowercase.
    *
@@ -3577,6 +3620,94 @@ public final class Functions {
     return new Column(
         com.snowflake.snowpark.functions.array_contains(
             variant.toScalaColumn(), array.toScalaColumn()));
+  }
+
+  /**
+   * Flattens an array of arrays into a single array, removing only one level of nesting.
+   *
+   * <p><b>Examples</b>
+   *
+   * <p>Example 1: Flattens a two-level nested array into a single array of elements.
+   *
+   * <pre>{@code
+   * DataFrame df = session.createDataFrame(
+   *   new Row[] {
+   *     Row.create((Object) new int[][] {{1, 2}, {3, 4}}),
+   *     Row.create((Object) new int[][] {{5, 6, 7}, {8}}),
+   *     Row.create((Object) new int[][] {{}, {9, 10}}),
+   *   },
+   *   StructType.create(new StructField(
+   *     "a",
+   *     DataTypes.createArrayType(DataTypes.createArrayType(DataTypes.IntegerType))
+   *   ))
+   * );
+   *
+   * df.select(array_flatten(col("a"))).show();
+   * --------------------------
+   * |"ARRAY_FLATTEN(""A"")"  |
+   * --------------------------
+   * |[                       |
+   * |  1,                    |
+   * |  2,                    |
+   * |  3,                    |
+   * |  4                     |
+   * |]                       |
+   * |[                       |
+   * |  5,                    |
+   * |  6,                    |
+   * |  7,                    |
+   * |  8                     |
+   * |]                       |
+   * |[                       |
+   * |  9,                    |
+   * |  10                    |
+   * |]                       |
+   * --------------------------
+   * }</pre>
+   *
+   * <p>Example 2: Flattens only one level of a three-level nested array.
+   *
+   * <pre>{@code
+   * DataFrame df = session.createDataFrame(
+   *   new Row[] {
+   *     Row.create((Object) new int[][][] {{{1, 2}, {3}}, {{4, 5}}}),
+   *   },
+   *   StructType.create(new StructField(
+   *     "a",
+   *     DataTypes.createArrayType(DataTypes.createArrayType(DataTypes.createArrayType(DataTypes.IntegerType)))
+   *   ))
+   * );
+   *
+   * df.select(array_flatten(col("a"))).show();
+   * --------------------------
+   * |"ARRAY_FLATTEN(""A"")"  |
+   * --------------------------
+   * |[                       |
+   * |  [                     |
+   * |    1,                  |
+   * |    2                   |
+   * |  ],                    |
+   * |  [                     |
+   * |    3                   |
+   * |  ],                    |
+   * |  [                     |
+   * |    4,                  |
+   * |    5                   |
+   * |  ]                     |
+   * |]                       |
+   * --------------------------
+   * }</pre>
+   *
+   * @param array Column containing the array of arrays to flatten.
+   *     <ul>
+   *       <li>If any element of {@code array} is not an ARRAY, the function throws an error.
+   *       <li>If {@code array} is NULL, the function returns NULL.
+   *     </ul>
+   * @return A column containing the flattened array.
+   * @since 1.17.0
+   */
+  public static Column array_flatten(Column array) {
+    return new Column(com.snowflake.snowpark.functions.array_flatten(array.toScalaColumn()));
   }
 
   /**
