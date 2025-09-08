@@ -453,9 +453,9 @@ trait FunctionSuite extends TestData {
 
     val df2 = session.createDataFrame(
       Seq(Row(Date.valueOf("2021-12-21")), Row(Date.valueOf("1969-12-31"))),
-      StructType(StructField("year_month", DateType)))
+      StructType(StructField("YearMonth", DateType)))
     checkAnswer(
-      df2.select(concat_ws_ignore_nulls("-", year(col("year_month")), month(col("year_month")))),
+      df2.select(concat_ws_ignore_nulls("-", year(col("YearMonth")), month(col("YearMonth")))),
       Seq(Row("2021-12"), Row("1969-12")))
   }
 
