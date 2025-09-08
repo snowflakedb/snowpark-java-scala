@@ -893,13 +893,13 @@ public class JavaFunctionSuite extends TestBase {
                 new Row[] {
                   Row.create(Date.valueOf("2021-12-21")), Row.create(Date.valueOf("1969-12-31"))
                 },
-                StructType.create(new StructField("year_month", DataTypes.DateType)));
+                StructType.create(new StructField("YearMonth", DataTypes.DateType)));
     checkAnswer(
         df2.select(
             Functions.concat_ws_ignore_nulls(
                 "-",
-                Functions.year(Functions.col("year_month")),
-                Functions.month(Functions.col("year_month")))),
+                Functions.year(Functions.col("YearMonth")),
+                Functions.month(Functions.col("YearMonth")))),
         new Row[] {Row.create("2021-12"), Row.create("1969-12")});
   }
 
