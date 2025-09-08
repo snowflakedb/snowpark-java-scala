@@ -1354,6 +1354,7 @@ object functions {
       exprs.zipWithIndex
         .map { case (col, idx) => col.getName.getOrElse(s"COL$idx") }
         .mkString(", ")
+
     array_to_string(nonNullArray, lit(separator))
       .alias(s"CONCAT_WS_IGNORE_NULLS('$separator', $columnNames)")
   }

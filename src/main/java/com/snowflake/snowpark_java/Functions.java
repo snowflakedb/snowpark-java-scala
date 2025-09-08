@@ -3703,6 +3703,7 @@ public final class Functions {
    *       <li>If any element of {@code array} is not an ARRAY, the function throws an error.
    *       <li>If {@code array} is NULL, the function returns NULL.
    *     </ul>
+   *
    * @return A column containing the flattened array.
    * @since 1.17.0
    */
