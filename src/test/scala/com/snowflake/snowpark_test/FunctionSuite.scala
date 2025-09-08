@@ -1644,10 +1644,10 @@ trait FunctionSuite extends TestData {
 
     // Flattening an array with non-array elements
     val df4 = session.sql("SELECT [1, 2, 3] AS A")
-    val ex = intercept[SnowflakeSQLException] {
+    val exception = intercept[SnowflakeSQLException] {
       df4.select(array_flatten(col("A"))).collect()
     }
-    assert(ex.getMessage.contains("not an array"))
+    assert(exception.getMessage.contains("not an array"))
   }
 
   test("array_to_string") {

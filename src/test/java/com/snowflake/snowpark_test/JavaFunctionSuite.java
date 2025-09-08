@@ -2523,28 +2523,32 @@ public class JavaFunctionSuite extends TestBase {
 
   @Test
   public void array_flatten() {
+    // Flattening a 2D array
     DataFrame df1 =
         getSession().sql("SELECT [[1, 2, 3], [], [4], [5, NULL, PARSE_JSON('null')]] AS A");
     checkAnswer(
         df1.select(Functions.array_flatten(Functions.col("A"))),
         new Row[] {Row.create("[\n  1,\n  2,\n  3,\n  4,\n  5,\n  undefined,\n  null\n]")});
 
+    // Flattening a 3D array
     DataFrame df2 = getSession().sql("SELECT [[[1, 2], [3]]] AS A");
     checkAnswer(
         df2.select(Functions.array_flatten(Functions.col("A"))),
         new Row[] {Row.create("[\n  [\n    1,\n    2\n  ],\n  [\n    3\n  ]\n]")});
 
+    // Flattening a null array
     DataFrame df3 = getSession().sql("SELECT NULL::ARRAY AS A");
     checkAnswer(
         df3.select(Functions.array_flatten(Functions.col("A"))),
         new Row[] {Row.create((Object) null)});
 
+    // Flattening an array with non-array elements
     DataFrame df4 = getSession().sql("SELECT [1, 2, 3] AS A");
-    SnowflakeSQLException ex =
+    SnowflakeSQLException exception =
         assertThrows(
             SnowflakeSQLException.class,
             () -> df4.select(Functions.array_flatten(Functions.col("A"))).collect());
-    Assert.assertTrue(ex.getMessage().contains("not an array"));
+    Assert.assertTrue(exception.getMessage().contains("not an array"));
   }
 
   @Test
