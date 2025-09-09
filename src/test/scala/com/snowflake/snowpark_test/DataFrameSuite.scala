@@ -98,8 +98,7 @@ trait DataFrameSuite extends TestData with BeforeAndAfterEach {
           ||Short Sample                                                                 |
           ||Exceeding Maximum Characters Length Row Value To Evaluate Truncated Results  |
           |-------------------------------------------------------------------------------
-          |"""
-          .stripMargin)
+          |""".stripMargin)
   }
 
   test("show truncated") {
@@ -117,8 +116,7 @@ trait DataFrameSuite extends TestData with BeforeAndAfterEach {
           ||Short Sample                                        |
           ||Exceeding Maximum Characters Length Row Value T...  |
           |------------------------------------------------------
-          |"""
-          .stripMargin)
+          |""".stripMargin)
   }
 
   test("show not truncated limited rows") {
@@ -135,8 +133,7 @@ trait DataFrameSuite extends TestData with BeforeAndAfterEach {
           |-------------------------------------------------------------------------------
           ||Exceeding Maximum Characters Length Row Value To Evaluate Truncated Results  |
           |-------------------------------------------------------------------------------
-          |"""
-          .stripMargin)
+          |""".stripMargin)
   }
 
   test("show truncated limited rows") {
@@ -153,8 +150,7 @@ trait DataFrameSuite extends TestData with BeforeAndAfterEach {
           |------------------------------------------------------
           ||Exceeding Maximum Characters Length Row Value T...  |
           |------------------------------------------------------
-          |"""
-          .stripMargin)
+          |""".stripMargin)
   }
 
   test("show with null data") {
