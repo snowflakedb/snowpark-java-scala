@@ -47,6 +47,14 @@ public class JavaOpenTelemetrySuite extends JavaOpenTelemetryEnabled {
     checkSpan("snow.snowpark.DataFrame", "show");
     df.show(1, 100);
     checkSpan("snow.snowpark.DataFrame", "show");
+    df.show(true);
+    checkSpan("snow.snowpark.DataFrame", "show");
+    df.show(false);
+    checkSpan("snow.snowpark.DataFrame", "show");
+    df.show(1, true);
+    checkSpan("snow.snowpark.DataFrame", "show");
+    df.show(1, false);
+    checkSpan("snow.snowpark.DataFrame", "show");
   }
 
   @Test
