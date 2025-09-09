@@ -1328,14 +1328,16 @@ object functions {
    *   )
    * )
    *
-   * df.select(concat_ws_ignore_nulls(" | ", col("A"), col("B"), col("C"))).show()
-   * --------------------------------------------------------
-   * |"CONCAT_WS_IGNORE_NULLS(' | ', ""A"", ""B"", ""C"")"  |
-   * --------------------------------------------------------
-   * |Hello | World                                         |
-   * |                                                      |
-   * |Hello                                                 |
-   * --------------------------------------------------------
+   * df.select(
+   *   concat_ws_ignore_nulls(" | ", col("A"), col("B"), col("C")).as("concat_ws_ignore_nulls")
+   * ).show()
+   * ----------------------------
+   * |"CONCAT_WS_IGNORE_NULLS"  |
+   * ----------------------------
+   * |Hello | World             |
+   * |                          |
+   * |Hello                     |
+   * ----------------------------
    * }}}
    *
    * @param separator
@@ -1350,13 +1352,7 @@ object functions {
   def concat_ws_ignore_nulls(separator: String, exprs: Column*): Column = {
     val stringArrays = exprs.map(_.cast(ArrayType(StringType)))
     val nonNullArray = array_compact(array_flatten(array_construct_compact(stringArrays: _*)))
-    val columnNames =
-      exprs.zipWithIndex
-        .map { case (col, idx) => col.getName.getOrElse(s"COL$idx") }
-        .mkString(", ")
-
     array_to_string(nonNullArray, lit(separator))
-      .alias(s"CONCAT_WS_IGNORE_NULLS('$separator', $columnNames)")
   }
 
   /**

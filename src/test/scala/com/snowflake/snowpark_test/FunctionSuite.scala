@@ -454,8 +454,16 @@ trait FunctionSuite extends TestData {
     val df2 = session.createDataFrame(
       Seq(Row(Date.valueOf("2021-12-21")), Row(Date.valueOf("1969-12-31"))),
       StructType(StructField("YearMonth", DateType)))
+
     checkAnswer(
       df2.select(concat_ws_ignore_nulls("-", year(col("YearMonth")), month(col("YearMonth")))),
+      Seq(Row("2021-12"), Row("1969-12")))
+
+    // Resulting column should allow to define an alias
+    checkAnswer(
+      df2.select(
+        concat_ws_ignore_nulls("-", year(col("YearMonth")), month(col("YearMonth")))
+          .alias("YEAR_MONTH")),
       Seq(Row("2021-12"), Row("1969-12")))
   }
 
