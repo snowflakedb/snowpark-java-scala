@@ -1504,14 +1504,16 @@ public final class Functions {
    *   )
    * );
    *
-   * df.select(concat_ws_ignore_nulls(" | ", col("A"), col("B"), col("C"))).show();
-   * --------------------------------------------------------
-   * |"CONCAT_WS_IGNORE_NULLS(' | ', ""A"", ""B"", ""C"")"  |
-   * --------------------------------------------------------
-   * |Hello | World                                         |
-   * |                                                      |
-   * |Hello                                                 |
-   * --------------------------------------------------------
+   * df.select(
+   *   concat_ws_ignore_nulls(" | ", col("A"), col("B"), col("C")).as("concat_ws_ignore_nulls")
+   * ).show();
+   * ----------------------------
+   * |"CONCAT_WS_IGNORE_NULLS"  |
+   * ----------------------------
+   * |Hello | World             |
+   * |                          |
+   * |Hello                     |
+   * ----------------------------
    * }</pre>
    *
    * @param separator A string literal used as the separator between concatenated values.

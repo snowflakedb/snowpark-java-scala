@@ -894,12 +894,23 @@ public class JavaFunctionSuite extends TestBase {
                   Row.create(Date.valueOf("2021-12-21")), Row.create(Date.valueOf("1969-12-31"))
                 },
                 StructType.create(new StructField("YearMonth", DataTypes.DateType)));
+
     checkAnswer(
         df2.select(
             Functions.concat_ws_ignore_nulls(
                 "-",
                 Functions.year(Functions.col("YearMonth")),
                 Functions.month(Functions.col("YearMonth")))),
+        new Row[] {Row.create("2021-12"), Row.create("1969-12")});
+
+    // Resulting column should allow to define an alias
+    checkAnswer(
+        df2.select(
+            Functions.concat_ws_ignore_nulls(
+                    "-",
+                    Functions.year(Functions.col("YearMonth")),
+                    Functions.month(Functions.col("YearMonth")))
+                .alias("YEAR_MONTH")),
         new Row[] {Row.create("2021-12"), Row.create("1969-12")});
   }
 
