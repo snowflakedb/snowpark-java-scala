@@ -3,7 +3,6 @@ package com.snowflake.snowpark
 import java.io.File
 import java.net.URLClassLoader
 import com.snowflake.snowpark.internal.ScalaFunctions._toUdf
-import com.snowflake.snowpark.internal.Utils.clientPackageName
 import com.snowflake.snowpark.internal.{UDFClassPath, UDXRegistrationHandler, Utils}
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.{atLeastOnce, never, reset, spy, times, verify}
@@ -15,9 +14,15 @@ import scala.util.Random
 @UDFTest
 class UDFClasspathSuite extends SNTestBase {
 
-  override def beforeAll(): Unit = {
-    super.beforeAll()
+  override def beforeAll: Unit = {
+    super.beforeAll
     TestUtils.addDepsToClassPath(session)
+    enableScala213UdxfSprocParams(session)
+  }
+
+  override def afterAll: Unit = {
+    disableScala213UdxfSprocParams(session)
+    super.afterAll
   }
 
   test("Test that jars uploaded to different stages") {
@@ -97,8 +102,8 @@ class UDFClasspathSuite extends SNTestBase {
     val fixedPath = path.replace("scoverage-", "")
     // Remove snowpark jar from classpath, The code will catch error and add the path and retry
     newSession.removeDependency(fixedPath)
-    newSession.removePackage("com.snowflake:snowpark:latest")
-    newSession.removePackage(clientPackageName)
+    newSession.removePackage(s"${Utils.SnowparkPackageName}:latest")
+    newSession.removePackage(Utils.clientPackageName)
     val func = "func_" + Random.nextInt().abs
 
     ignoreClassNotFoundForScoverageClasses {

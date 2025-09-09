@@ -1,12 +1,9 @@
 package com.snowflake.snowpark_test
 
 import java.math.RoundingMode
-import com.snowflake.snowpark.TestUtils._
 import com.snowflake.snowpark.functions._
 
-import java.nio.file._
 import java.sql.{Date, Time, Timestamp}
-import java.util.TimeZone
 import com.snowflake.snowpark.{Row, _}
 import com.snowflake.snowpark.internal._
 import com.snowflake.snowpark.types._
@@ -31,11 +28,14 @@ class UDTFSuite extends TestData {
       .toDF("c1", "c2")
       .write
       .saveAsTable(wordCountTableName)
+
+    enableScala213UdxfSprocParams(session)
   }
 
   override def afterAll: Unit = {
     dropTable(wordCountTableName)
     dropTable(tableName)
+    disableScala213UdxfSprocParams(session)
     super.afterAll
   }
 

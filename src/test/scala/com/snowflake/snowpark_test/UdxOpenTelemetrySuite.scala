@@ -11,6 +11,12 @@ class UdxOpenTelemetrySuite extends OpenTelemetryEnabled {
     if (!isStoredProc(session)) {
       TestUtils.addDepsToClassPath(session)
     }
+    enableScala213UdxfSprocParams(session)
+  }
+
+  override def afterAll: Unit = {
+    disableScala213UdxfSprocParams(session)
+    super.afterAll
   }
 
   test("udf") {
