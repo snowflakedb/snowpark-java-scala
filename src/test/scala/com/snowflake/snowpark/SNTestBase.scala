@@ -5,6 +5,7 @@ import java.util.TimeZone
 import com.snowflake.snowpark.internal.ParameterUtils.SnowparkLazyAnalysis
 import com.snowflake.snowpark.internal.analyzer.Query
 import com.snowflake.snowpark.internal.{ParameterUtils, ServerConnection}
+import com.snowflake.snowpark.internal.Utils.ScalaCompatVersion
 import com.snowflake.snowpark.types._
 import com.snowflake.snowpark_test.TestFiles
 import org.mockito.Mockito.{spy, when}
@@ -315,6 +316,18 @@ trait SNTestBase extends AnyFunSuite with BeforeAndAfterAll with SFTestUtils wit
       currentSession,
       skipPreprod = true)(thunk)
     // disable these tests on preprod daily tests until these parameters are enabled by default.
+  }
+
+  def enableScala213UdxfSprocParams(session: Session): Unit = {
+    if (ScalaCompatVersion.contentEquals("2.13")) {
+      runQuery("alter session set ENABLE_SCALA_UDF_RUNTIME_2_13=true", session)
+    }
+  }
+
+  def disableScala213UdxfSprocParams(session: Session): Unit = {
+    if (ScalaCompatVersion.contentEquals("2.13")) {
+      runQuery("alter session set ENABLE_SCALA_UDF_RUNTIME_2_13=false", session)
+    }
   }
 }
 

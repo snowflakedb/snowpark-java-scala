@@ -23,8 +23,8 @@ class AsyncJobSuite extends TestData with BeforeAndAfterEach {
   // session to verify permanent udf
   lazy private val newSession = Session.builder.configFile(defaultProfile).create
 
-  override def beforeAll(): Unit = {
-    super.beforeAll()
+  override def beforeAll: Unit = {
+    super.beforeAll
     // create temporary stage to store the file
     runQuery(s"CREATE TEMPORARY STAGE $tmpStageName", session)
     // Create temp target stage for writing DF to file test.
@@ -38,9 +38,11 @@ class AsyncJobSuite extends TestData with BeforeAndAfterEach {
       // In stored procs mode, there is only one session
       TestUtils.addDepsToClassPath(newSession, Some(tmpStageName))
     }
+    enableScala213UdxfSprocParams(session)
+    enableScala213UdxfSprocParams(newSession)
   }
 
-  override def afterAll(): Unit = {
+  override def afterAll: Unit = {
     // drop the temporary stages
     runQuery(s"DROP STAGE IF EXISTS $tmpStageName", session)
     if (!isStoredProc(session)) {
@@ -49,8 +51,9 @@ class AsyncJobSuite extends TestData with BeforeAndAfterEach {
     dropTable(tableName)
     dropTable(tableName1)
     dropTable(tableName2)
-
-    super.afterAll()
+    disableScala213UdxfSprocParams(session)
+    disableScala213UdxfSprocParams(newSession)
+    super.afterAll
   }
 
   test("async DataFrame collect(): common case") {

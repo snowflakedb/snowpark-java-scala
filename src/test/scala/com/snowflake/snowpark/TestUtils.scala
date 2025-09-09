@@ -125,7 +125,7 @@ object TestUtils extends Logging {
     sess.removeDependency(snClassDir)
     if (usePackages) {
       sess.removePackage(Utils.clientPackageName)
-      sess.addPackage("com.snowflake:snowpark:latest")
+      sess.addPackage(s"${Utils.SnowparkPackageName}:latest")
     } else {
       // Replace scoverage classes in classpath because they are instrumented.
       sess.addDependency(snClassDir.replace("scoverage-", ""))
@@ -147,10 +147,7 @@ object TestUtils extends Logging {
       classOf[org.scalatest.compatible.Assertion],
       classOf[org.scalactic.TripleEquals], // scalactic jar
       classOf[io.opentelemetry.exporters.inmemory.InMemorySpanExporter],
-      classOf[io.opentelemetry.sdk.trace.export.SpanExporter],
-      classOf[scala.Product],
-      classOf[scala.reflect.api.Universe],
-      classOf[scala.tools.nsc.Global])
+      classOf[io.opentelemetry.sdk.trace.export.SpanExporter])
       .flatMap(UDFClassPath.getPathForClass(_))
       .foreach(path => {
         val file = new File(path)
@@ -179,10 +176,7 @@ object TestUtils extends Logging {
       classOf[BeforeAndAfterAll], // scala test jar
       classOf[org.scalactic.TripleEquals], // scalactic jar
       classOf[io.opentelemetry.exporters.inmemory.InMemorySpanExporter],
-      classOf[io.opentelemetry.sdk.trace.export.SpanExporter],
-      classOf[scala.Product],
-      classOf[scala.reflect.api.Universe],
-      classOf[scala.tools.nsc.Global])
+      classOf[io.opentelemetry.sdk.trace.export.SpanExporter])
       .flatMap(UDFClassPath.getPathForClass(_))
       .foreach(path => {
         val file = new File(path)

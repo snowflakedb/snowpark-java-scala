@@ -1,6 +1,7 @@
 package com.snowflake.snowpark_test;
 
 import com.snowflake.snowpark.SnowparkClientException;
+import com.snowflake.snowpark.internal.JavaUtils;
 import com.snowflake.snowpark_java.Row;
 import com.snowflake.snowpark_java.Session;
 import com.snowflake.snowpark_java.StoredProcedure;
@@ -37,7 +38,9 @@ public class JavaStoredProcedureSuite extends UDFTestBase {
             + "returns STRING\n"
             + "language scala\n"
             + "runtime_version=2.12\n"
-            + "packages=('com.snowflake:snowpark:latest')\n"
+            + "packages=('"
+            + JavaUtils.snowparkPackageName()
+            + ":latest')\n"
             + "handler='Test.run'\n"
             + "as\n"
             + "$$\n"

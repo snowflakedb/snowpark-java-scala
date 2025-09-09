@@ -5,7 +5,6 @@ import com.snowflake.snowpark.internal.ActionInfo
 import com.snowflake.snowpark.functions._
 import com.snowflake.snowpark.types.{DoubleType, IntegerType, StringType, StructField, StructType}
 
-import java.time.Instant
 import java.util
 
 class OpenTelemetrySuite extends OpenTelemetryEnabled {

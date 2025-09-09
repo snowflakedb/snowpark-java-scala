@@ -1,10 +1,8 @@
 package com.snowflake.snowpark_test
 
-import com.snowflake.snowpark.TestUtils._
 import com.snowflake.snowpark.functions._
 
 import com.snowflake.snowpark._
-import com.snowflake.snowpark.internal._
 import com.snowflake.snowpark.types._
 import com.snowflake.snowpark.udtf._
 import net.snowflake.client.jdbc.SnowflakeSQLException
@@ -27,10 +25,14 @@ class PermanentUDTFSuite extends TestData {
       TestUtils.addDepsToClassPath(session, Some(stageName))
       TestUtils.addDepsToClassPath(newSession, Some(stageName))
     }
+    enableScala213UdxfSprocParams(session)
+    enableScala213UdxfSprocParams(newSession)
   }
 
   override def afterAll: Unit = {
     dropStage(stageName)
+    disableScala213UdxfSprocParams(session)
+    disableScala213UdxfSprocParams(newSession)
     super.afterAll
   }
 
