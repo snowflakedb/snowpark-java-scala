@@ -536,20 +536,8 @@ class Row protected (values: Array[Any], schema: Option[StructType]) extends Ser
    * @group utl
    * @since 1.17.0
    */
-  def mkString(start: String, sep: String, end: String): String = {
-    if (length == 0) {
-      return start + end
-    }
-
-    val builder = new StringBuilder(start)
-    builder.append(get(0))
-
-    for (i <- 1 until length) {
-      builder.append(sep).append(get(i))
-    }
-
-    builder.append(end).toString()
-  }
+  def mkString(start: String, sep: String, end: String): String =
+    this.toSeq.mkString(start, sep, end)
 
   protected def convertValueToString(value: Any): String =
     value match {
