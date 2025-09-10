@@ -419,10 +419,61 @@ trait FunctionSuite extends TestData {
       Seq(Row("Asdfg", 5, "asdfg", "ASDFG"), Row("Qqq", 3, "qqq", "QQQ"), Row("Qw", 2, "qw", "QW")))
   }
 
-  test("lpad rpad") {
+  test("lpad rpad string") {
+    val expected =
+      Seq(Row("XXXasdFg", "asdFgSSSS"), Row("XXXXXqqq", "qqqSSSSSS"), Row("XXXXXXQw", "QwSSSSSSS"))
     checkAnswer(
       string2.select(lpad(col("A"), lit(8), lit("X")), rpad(col("A"), lit(9), lit("S"))),
-      Seq(Row("XXXasdFg", "asdFgSSSS"), Row("XXXXXqqq", "qqqSSSSSS"), Row("XXXXXXQw", "QwSSSSSSS")))
+      expected)
+    checkAnswer(string2.select(lpad(col("A"), 8, "X"), rpad(col("A"), 9, "S")), expected)
+  }
+
+  test("lpad rpad binary") {
+    val df = Seq(Array[Byte](1, 2, 3)).toDF("A")
+    checkAnswer(
+      df.select(lpad(col("A"), 5, Array[Byte](9, 8)), rpad(col("A"), 5, Array[Byte](9, 8))),
+      Seq(Row(Array[Byte](9, 8, 1, 2, 3), Array[Byte](1, 2, 3, 9, 8))))
+  }
+
+  test("lpad rpad length edge cases") {
+    // Zero length
+    checkAnswer(
+      string2.select(lpad(col("A"), 0, "X"), rpad(col("A"), 0, "X")),
+      Seq(Row("", ""), Row("", ""), Row("", "")))
+
+    // Negative length
+    checkAnswer(
+      string2.select(lpad(col("A"), -1, "X"), rpad(col("A"), -1, "X")),
+      Seq(Row("", ""), Row("", ""), Row("", "")))
+
+    // Target length shorter than input string (truncation)
+    checkAnswer(
+      string2.select(lpad(col("A"), 2, "X"), rpad(col("A"), 2, "X")),
+      Seq(Row("as", "as"), Row("qq", "qq"), Row("Qw", "Qw")))
+  }
+
+  test("lpad rpad null and empty inputs") {
+    // Null input string
+    val nullStringDf = session.sql("select * from values(null),('test') as T(a)")
+    checkAnswer(
+      nullStringDf.select(lpad(col("A"), 5, "X"), rpad(col("A"), 5, "X")),
+      Seq(Row(null, null), Row("Xtest", "testX")))
+
+    // Empty string input
+    val emptyStringDf = session.sql("select * from values(''),('test') as T(a)")
+    checkAnswer(
+      emptyStringDf.select(lpad(col("A"), 3, "X"), rpad(col("A"), 3, "X")),
+      Seq(Row("XXX", "XXX"), Row("tes", "tes")))
+
+    val emptyBinaryDf = session.sql("select to_binary('') as A")
+    checkAnswer(
+      emptyBinaryDf.select(lpad(col("A"), 3, Array[Byte](0)), rpad(col("A"), 3, Array[Byte](0))),
+      Seq(Row(Array[Byte](0, 0, 0), Array[Byte](0, 0, 0))))
+
+    // Empty padding string
+    checkAnswer(
+      string2.select(lpad(col("A"), 8, ""), rpad(col("A"), 8, "")),
+      Seq(Row("asdFg", "asdFg"), Row("qqq", "qqq"), Row("Qw", "Qw")))
   }
 
   test("ltrim rtrim, trim") {
