@@ -4325,19 +4325,20 @@ public final class Functions {
    * <pre>{@code
    * import com.snowflake.snowpark_java.Functions;
    * df.select(Functions
-   *     .when(df.col("col").is_null, Functions.lit(1))
-   *     .when(df.col("col").equal_to(Functions.lit(1)), Functions.lit(6))
+   *     .when(df.col("col").is_null, 1)
+   *     .when(df.col("col").equal_to(Functions.lit(1)), 6)
    *     .otherwise(Functions.lit(7)));
    * }</pre>
    *
-   * @since 0.12.0
    * @param condition The condition
    * @param value The result value
    * @return The result column
+   * @since 1.17.0
    */
-  public static CaseExpr when(Column condition, Column value) {
+  public static CaseExpr when(Column condition, Object value) {
     return new CaseExpr(
-        com.snowflake.snowpark.functions.when(condition.toScalaColumn(), value.toScalaColumn()));
+        com.snowflake.snowpark.functions.when(
+            condition.toScalaColumn(), toExpr(value).toScalaColumn()));
   }
 
   /**
@@ -6037,5 +6038,17 @@ public final class Functions {
   private static UserDefinedFunction userDefinedFunction(
       String funcName, Supplier<UserDefinedFunction> func) {
     return javaUDF("Functions", funcName, "", "", func);
+  }
+
+  /**
+   * Converts any value to an Expression. If the value is already a Column, uses its expression
+   * directly. Otherwise, wraps it with lit() to create a Column expression.
+   */
+  private static Column toExpr(Object exp) {
+    if (exp instanceof Column) {
+      return ((Column) exp);
+    }
+
+    return Functions.lit(exp);
   }
 }

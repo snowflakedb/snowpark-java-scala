@@ -20,25 +20,56 @@ public class CaseExpr extends Column {
   }
 
   /**
-   * Appends one more WHEN condition to the CASE expression.
+   * Appends one more WHEN condition to the CASE expression. This method handles any literal value
+   * and converts it into a `Column`.
    *
-   * @since 0.12.0
+   * <p><b>Example:</b>
+   *
+   * <pre>{@code
+   * Column result = when(col("age").lt(lit(18)), "Minor")
+   * .when(col("age").lt(lit(65)), "Adult")
+   * .otherwise("Senior");
+   * }</pre>
+   *
    * @param condition The case condition
    * @param value The result value in the given condition
    * @return The result case expression
+   * @since 1.17.0
    */
-  public CaseExpr when(Column condition, Column value) {
-    return new CaseExpr(caseExpr.when(condition.toScalaColumn(), value.toScalaColumn()));
+  public CaseExpr when(Column condition, Object value) {
+    return new CaseExpr(caseExpr.when(condition.toScalaColumn(), toExpr(value).toScalaColumn()));
   }
 
   /**
-   * Sets the default result for this CASE expression.
+   * Sets the default result for this CASE expression. This method handles any literal value and
+   * converts it into a `Column`.
    *
-   * @since 0.12.0
-   * @param value The default value
-   * @return The result column
+   * <p><b>Example:</b>
+   *
+   * <pre>{@code
+   * Column result = when(col("state").equal(lit("CA")), lit(1000))
+   * .when(col("state").equal(lit("NY")), lit(2000))
+   * .otherwise(1000);
+   * }</pre>
+   *
+   * @param value The default value, which can be any literal (e.g., String, int, boolean) or a
+   *     `Column`.
+   * @return The result column.
+   * @since 1.17.0
    */
-  public Column otherwise(Column value) {
-    return new Column(caseExpr.otherwise(value.toScalaColumn()));
+  public Column otherwise(Object value) {
+    return new Column(caseExpr.otherwise(toExpr(value).toScalaColumn()));
+  }
+
+  /**
+   * Converts any value to an Expression. If the value is already a Column, uses its expression
+   * directly. Otherwise, wraps it with lit() to create a Column expression.
+   */
+  private Column toExpr(Object exp) {
+    if (exp instanceof Column) {
+      return ((Column) exp);
+    }
+
+    return Functions.lit(exp);
   }
 }

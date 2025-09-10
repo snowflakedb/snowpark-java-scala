@@ -513,6 +513,51 @@ class ColumnSuite extends TestData {
           .as("a")),
       Seq(Row(5), Row(7), Row(6), Row(7), Row(5)))
 
+    // no column typed value
+    checkAnswer(
+      nullData1.select(
+        functions
+          .when(col("a").is_null, lit(1))
+          .when(col("a") === 1, col("a") / 2)
+          .when(col("a") === 2, col("a") * 2)
+          .when(col("a") === 3, pow(col("a"), 2))
+          .as("a")),
+      Seq(Row(0.5), Row(1.0), Row(1.0), Row(4.0), Row(9.0)))
+
+    checkAnswer(
+      nullData1.select(
+        functions
+          .when(col("a").is_null, "null_value")
+          .when(col("a") <= 2, "lower or equal than two")
+          .when(col("a") >= 3, "greater than two")
+          .as("a")),
+      Seq(
+        Row("greater than two"),
+        Row("lower or equal than two"),
+        Row("lower or equal than two"),
+        Row("null_value"),
+        Row("null_value")))
+
+    // No column otherwise
+    checkAnswer(
+      nullData1.select(
+        functions
+          .when(col("a").is_null, lit(5))
+          .when(col("a") === 1, lit(6))
+          .otherwise(7)
+          .as("a")),
+      Seq(Row(5), Row(7), Row(6), Row(7), Row(5)))
+
+    // Handling nulls
+    checkAnswer(
+      nullData1.select(
+        functions
+          .when(col("a").is_null, null)
+          .when(col("a") === 1, null)
+          .otherwise(null)
+          .as("a")),
+      Seq(Row(null), Row(null), Row(null), Row(null), Row(null)))
+
     // empty otherwise
     checkAnswer(
       nullData1.select(
