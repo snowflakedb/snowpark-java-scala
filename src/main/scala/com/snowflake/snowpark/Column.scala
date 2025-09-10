@@ -764,18 +764,54 @@ class CaseExpr private[snowpark] (branches: Seq[(Expression, Expression)])
   /**
    * Appends one more WHEN condition to the CASE expression.
    *
+   * This method handles any literal value and converts it into a `Column`.
+   *
+   * ===Example===
+   * {{{
+   * val df = session.sql("SELECT * FROM values (10), (25), (65), (70) as T(age)")
+   * val result = df.select(
+   *   when(col("age") < lit(18), "Minor")
+   *     .when(col("age") < lit(65), lit("Adult"))
+   *     .otherwise("Senior")
+   * )
+   * // The second when condition will be "Adult" for rows where age >= 18 and age < 65
+   * }}}
+   *
+   * @param condition
+   *   The case condition.
+   * @param value
+   *   The result value, which can be any literal (e.g., String, Int, Boolean) or a `Column`.
+   * @return
+   *   The result case expression.
    * @since 0.2.0
    */
-  def when(condition: Column, value: Column): CaseExpr =
-    new CaseExpr(branches :+ ((condition.expr, value.expr)))
+  def when(condition: Column, value: Any): CaseExpr =
+    new CaseExpr(branches :+ (condition.expr, toExpr(value)))
 
   /**
    * Sets the default result for this CASE expression.
    *
+   * This method handles any literal value and converts it into a `Column` using `lit()`.
+   *
+   * ===Example===
+   * {{{
+   * val df = session.sql("SELECT * FROM values (10), (25), (65), (70) as T(age)")
+   * val result = df.select(
+   *   when(col("age") < lit(18), "Minor")
+   *     .when(col("age") < lit(65), lit("Adult"))
+   *     .otherwise("Senior")
+   * )
+   * // The age_category column will be "Senior" for rows where age >= 65
+   * }}}
+   *
+   * @param value
+   *   The default value, which can be any literal (e.g., String, Int, Boolean) or a `Column`.
+   * @return
+   *   The result column.
    * @since 0.2.0
    */
-  def otherwise(value: Column): Column = withExpr {
-    CaseWhen(branches, Option(value.expr))
+  def otherwise(value: Any): Column = withExpr {
+    CaseWhen(branches, Option(toExpr(value)))
   }
 
   /**
@@ -783,5 +819,14 @@ class CaseExpr private[snowpark] (branches: Seq[(Expression, Expression)])
    *
    * @since 0.2.0
    */
-  def `else`(value: Column): Column = otherwise(value)
+  def `else`(value: Any): Column = otherwise(value)
+
+  /**
+   * Converts any value to an Expression. If the value is already a Column, uses its expression
+   * directly. Otherwise, wraps it with lit() to create a Column expression.
+   */
+  private def toExpr(exp: Any) = exp match {
+    case c: Column => c.expr
+    case _ => lit(exp).expr
+  }
 }
