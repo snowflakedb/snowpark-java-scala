@@ -1453,14 +1453,119 @@ object functions {
   def split(str: Column, pattern: Column): Column = builtin("split")(str, pattern)
 
   /**
-   * Returns the portion of the string or binary value str, starting from the character/byte
-   * specified by pos, with limited length.
+   * Returns the portion of the string or binary value from `str`, starting from the character/byte
+   * specified by `pos`, with limited length.
    *
+   * This function is a wrapper over the Snowflake SQL `SUBSTR`/`SUBSTRING` function. For detailed
+   * behavior documentation, see:
+   * [[https://docs.snowflake.com/en/sql-reference/functions/substr substr]]
+   *
+   * Examples:
+   * {{{
+   *   val df = Seq(
+   *     "john.doe@company.com",
+   *     "user123@domain.org",
+   *     "admin@test.net",
+   *   ).toDF("email")
+   *
+   *   // Extract first 4 characters (1-based indexing)
+   *   df.select(substring(col("email"), lit(1), lit(4))).show()
+   *   --------------------------------
+   *   |"SUBSTRING(""EMAIL"", 1, 4)"  |
+   *   --------------------------------
+   *   |john                          |
+   *   |user                          |
+   *   |admi                          |
+   *   --------------------------------
+   *
+   *   // Extract domain part (starting from position after @)
+   *   df.select(substring(col("email"), expr("POSITION('@' IN email) + 1"), lit(20))).show()
+   *   ----------------------------------------------------------
+   *   |"SUBSTRING(""EMAIL"", POSITION('@' IN EMAIL) + 1, 20)"  |
+   *   ----------------------------------------------------------
+   *   |company.com                                             |
+   *   |domain.org                                              |
+   *   |test.net                                                |
+   *   ----------------------------------------------------------
+   * }}}
+   *
+   * @param str
+   *   The input string or binary value to extract a substring from.
+   * @param pos
+   *   The starting position of the substring (1-based index).
+   *   - If `pos` is 0, it is treated as 1 (start from the first character/byte).
+   *   - If `pos` is negative, it counts backward from the end of the string (e.g., -1 starts at the
+   *     last character/byte, -2 starts at the second-to-last character/byte).
+   *   - If `pos` is greater than the length of `str`, the result is an empty string.
+   * @param len
+   *   The maximum number of characters/bytes to return.
+   *   - If `len` is 0 or negative, the result is an empty string.
+   *   - If `len` exceeds the remaining length from `pos`, the result contains characters/bytes from
+   *     `pos` to the end.
+   * @return
+   *   A Column containing the extracted substring.
    * @group str_func
    * @since 0.1.0
    */
   def substring(str: Column, pos: Column, len: Column): Column =
     builtin("substring")(str, pos, len)
+
+  /**
+   * Returns the portion of the string or binary value from `str`, starting from the character/byte
+   * specified by `pos`, with limited length.
+   *
+   * This function is a wrapper over the Snowflake SQL `SUBSTR`/`SUBSTRING` function. For detailed
+   * behavior documentation, see:
+   * [[https://docs.snowflake.com/en/sql-reference/functions/substr substr]]
+   *
+   * Examples:
+   * {{{
+   *   val df = Seq(
+   *     "SKU-12345-ABC",
+   *     "PRD-67890-XYZ",
+   *     "ITM-11111-DEF",
+   *   ).toDF("product_id")
+   *
+   *   // Extract product code (characters 5-9)
+   *   df.select(substring(col("product_id"), 5, 5)).show()
+   *   -------------------------------------
+   *   |"SUBSTRING(""PRODUCT_ID"", 5, 5)"  |
+   *   -------------------------------------
+   *   |12345                              |
+   *   |67890                              |
+   *   |11111                              |
+   *   -------------------------------------
+   *
+   *   // Extract category suffix (last 3 characters)
+   *   df.select(substring(col("product_id"), 11, 3)).show()
+   *   --------------------------------------
+   *   |"SUBSTRING(""PRODUCT_ID"", 11, 3)"  |
+   *   --------------------------------------
+   *   |ABC                                 |
+   *   |XYZ                                 |
+   *   |DEF                                 |
+   *   --------------------------------------
+   * }}}
+   *
+   * @param str
+   *   The input string or binary value to extract a substring from.
+   * @param pos
+   *   The starting position of the substring (1-based index).
+   *   - If `pos` is 0, it is treated as 1 (start from the first character/byte).
+   *   - If `pos` is negative, it counts backward from the end of the string (e.g., -1 starts at the
+   *     last character/byte, -2 starts at the second-to-last character/byte).
+   *   - If `pos` is greater than the length of `str`, the result is an empty string.
+   * @param len
+   *   The maximum number of characters/bytes to return.
+   *   - If `len` is 0 or negative, the result is an empty string.
+   *   - If `len` exceeds the remaining length from `pos`, the result contains characters/bytes from
+   *     `pos` to the end.
+   * @return
+   *   A Column containing the extracted substring.
+   * @group str_func
+   * @since 1.17.0
+   */
+  def substring(str: Column, pos: Int, len: Int): Column = this.substring(str, lit(pos), lit(len))
 
   /**
    * Translates src from the characters in matchingString to the characters in replaceString.

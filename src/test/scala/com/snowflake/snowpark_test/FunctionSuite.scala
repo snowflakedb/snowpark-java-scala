@@ -449,10 +449,79 @@ trait FunctionSuite extends TestData {
     checkAnswer(string4.select(soundex(col("A"))), Seq(Row("a140"), Row("b550"), Row("p200")))
   }
 
-  test("sub string") {
+  test("substring - basic functionality") {
+    val expected = Seq(Row("est1"), Row("est2"), Row("est3"))
+    // With Column parameters
+    checkAnswer(string1.select(substring(col("A"), lit(2), lit(4))), expected)
+    // With literal parameters
+    checkAnswer(string1.select(substring(col("A"), 2, 4)), expected)
+  }
+
+  test("substring - start position variations") {
+    // Start position 1 (first character)
+    val expectedFirstThree = Seq(Row("tes"), Row("tes"), Row("tes"))
+    checkAnswer(string1.select(substring(col("A"), 1, 3)), expectedFirstThree)
+
+    // Start position 0 - should behave like position 1
+    checkAnswer(string1.select(substring(col("A"), 0, 3)), expectedFirstThree)
+
+    // Start position equals string length - should get last character
+    val expectedLastChar = Seq(Row("1"), Row("2"), Row("3"))
+    checkAnswer(string1.select(substring(col("A"), 5, 2)), expectedLastChar)
+
+    // Start position greater than string length - should return empty string
+    val expectedEmpty = Seq(Row(""), Row(""), Row(""))
+    checkAnswer(string1.select(substring(col("A"), 10, 2)), expectedEmpty)
+  }
+
+  test("substring - length variations") {
+    // Length 0 - should return empty string regardless of start position
+    val expectedEmptyStrings = Seq(Row(""), Row(""), Row(""))
+    checkAnswer(string1.select(substring(col("A"), 2, 0)), expectedEmptyStrings)
+
+    // Length 1 - should return single character
+    val expectedSingleChar = Seq(Row("e"), Row("e"), Row("e"))
+    checkAnswer(string1.select(substring(col("A"), 2, 1)), expectedSingleChar)
+
+    // Very large length - should return remainder of string from position
+    val expectedRemainder = Seq(Row("est1"), Row("est2"), Row("est3"))
+    checkAnswer(string1.select(substring(col("A"), 2, 1000)), expectedRemainder)
+  }
+
+  test("substring - negative values") {
+    // Negative start position - should return characters from the end
+    val expectedFromEnd = Seq(Row("1"), Row("2"), Row("3"))
+    checkAnswer(string1.select(substring(col("A"), -1, 3)), expectedFromEnd)
+
+    // Negative length - should return empty string
+    val expectedEmptyStrings = Seq(Row(""), Row(""), Row(""))
+    checkAnswer(string1.select(substring(col("A"), 2, -1)), expectedEmptyStrings)
+
+    // Both negative start and length - should return empty string
+    checkAnswer(string1.select(substring(col("A"), -1, -1)), expectedEmptyStrings)
+  }
+
+  test("substring - null handling") {
+    // Null string input - should return null regardless of other parameters
+    val dfNullStrings = session.sql("select * from values(null),('test'),(null) as T(a)")
+    val expectedNullStrings = Seq(Row(null), Row("te"), Row(null))
+    checkAnswer(dfNullStrings.select(substring(col("A"), 1, 2)), expectedNullStrings)
+
+    // Null start position - any null parameter should result in null output
+    val dfNullStart = session.sql(
+      "select * from values('test1', null, 2),('test2', 1, 2) as T(str, start_pos, len)")
+    val expectedNullStart = Seq(Row(null), Row("te"))
     checkAnswer(
-      string1.select(substring(col("A"), lit(2), lit(4))),
-      Seq(Row("est1"), Row("est2"), Row("est3")))
+      dfNullStart.select(substring(col("str"), col("start_pos"), col("len"))),
+      expectedNullStart)
+
+    // Null length - any null parameter should result in null output
+    val dfNullLen = session.sql(
+      "select * from values('test1', 1, null),('test2', 1, 2) as T(str, start_pos, len)")
+    val expectedNullLen = Seq(Row(null), Row("te"))
+    checkAnswer(
+      dfNullLen.select(substring(col("str"), col("start_pos"), col("len"))),
+      expectedNullLen)
   }
 
   test("translate") {
