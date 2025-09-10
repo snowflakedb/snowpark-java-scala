@@ -1,9 +1,17 @@
 package com.snowflake.snowpark_test;
 
+import static org.junit.Assert.assertThrows;
+
 import com.snowflake.snowpark_java.*;
+import com.snowflake.snowpark_java.types.DataTypes;
+import com.snowflake.snowpark_java.types.StructField;
+import com.snowflake.snowpark_java.types.StructType;
 import java.sql.Date;
 import java.sql.Time;
 import java.sql.Timestamp;
+import java.util.Arrays;
+import net.snowflake.client.jdbc.SnowflakeSQLException;
+import org.junit.Assert;
 import org.junit.Test;
 
 public class JavaFunctionSuite extends TestBase {
@@ -826,6 +834,84 @@ public class JavaFunctionSuite extends TestBase {
     Row[] expected = {Row.create("test1,a"), Row.create("test2,b"), Row.create("test3,c")};
     checkAnswer(
         df.select(Functions.concat_ws(Functions.lit(","), df.col("a"), df.col("b"))), expected);
+  }
+
+  @Test
+  public void concat_ws_ignore_nulls() {
+    DataFrame df =
+        getSession()
+            .createDataFrame(
+                new Row[] {
+                  Row.create(new String[] {"a", "b"}, new String[] {"c"}, "d", "e", 1, 2),
+                  Row.create(
+                      new String[] {"Hello", null, "world"},
+                      new String[] {null, "!", null},
+                      "bye",
+                      "world",
+                      3,
+                      null),
+                  Row.create(new String[] {null, null}, new String[] {"R", "H"}, null, "TD", 4, 5),
+                  Row.create(null, new String[] {null}, null, null, null, null),
+                  Row.create(null, null, null, null, null, null),
+                },
+                StructType.create(
+                    new StructField("arr1", DataTypes.createArrayType(DataTypes.StringType)),
+                    new StructField("arr2", DataTypes.createArrayType(DataTypes.StringType)),
+                    new StructField("str1", DataTypes.StringType),
+                    new StructField("str2", DataTypes.StringType),
+                    new StructField("int1", DataTypes.IntegerType),
+                    new StructField("int2", DataTypes.IntegerType)));
+
+    Column[] columns =
+        Arrays.stream(df.schema().fieldNames()).map(Functions::col).toArray(Column[]::new);
+
+    // Single character delimiter
+    checkAnswer(
+        df.select(Functions.concat_ws_ignore_nulls(",", columns)),
+        new Row[] {
+          Row.create("a,b,c,d,e,1,2"),
+          Row.create("Hello,world,!,bye,world,3"),
+          Row.create("R,H,TD,4,5"),
+          Row.create(""),
+          Row.create("")
+        });
+
+    // Multi-character delimiter
+    checkAnswer(
+        df.select(Functions.concat_ws_ignore_nulls(" : ", columns)),
+        new Row[] {
+          Row.create("a : b : c : d : e : 1 : 2"),
+          Row.create("Hello : world : ! : bye : world : 3"),
+          Row.create("R : H : TD : 4 : 5"),
+          Row.create(""),
+          Row.create("")
+        });
+
+    DataFrame df2 =
+        getSession()
+            .createDataFrame(
+                new Row[] {
+                  Row.create(Date.valueOf("2021-12-21")), Row.create(Date.valueOf("1969-12-31"))
+                },
+                StructType.create(new StructField("YearMonth", DataTypes.DateType)));
+
+    checkAnswer(
+        df2.select(
+            Functions.concat_ws_ignore_nulls(
+                "-",
+                Functions.year(Functions.col("YearMonth")),
+                Functions.month(Functions.col("YearMonth")))),
+        new Row[] {Row.create("2021-12"), Row.create("1969-12")});
+
+    // Resulting column should allow to define an alias
+    checkAnswer(
+        df2.select(
+            Functions.concat_ws_ignore_nulls(
+                    "-",
+                    Functions.year(Functions.col("YearMonth")),
+                    Functions.month(Functions.col("YearMonth")))
+                .alias("YEAR_MONTH")),
+        new Row[] {Row.create("2021-12"), Row.create("1969-12")});
   }
 
   @Test
@@ -2444,6 +2530,36 @@ public class JavaFunctionSuite extends TestBase {
     };
     checkAnswer(
         df.select(Functions.array_slice(df.col("arr1"), df.col("d"), df.col("e"))), expected);
+  }
+
+  @Test
+  public void array_flatten() {
+    // Flattening a 2D array
+    DataFrame df1 =
+        getSession().sql("SELECT [[1, 2, 3], [], [4], [5, NULL, PARSE_JSON('null')]] AS A");
+    checkAnswer(
+        df1.select(Functions.array_flatten(Functions.col("A"))),
+        new Row[] {Row.create("[\n  1,\n  2,\n  3,\n  4,\n  5,\n  undefined,\n  null\n]")});
+
+    // Flattening a 3D array
+    DataFrame df2 = getSession().sql("SELECT [[[1, 2], [3]]] AS A");
+    checkAnswer(
+        df2.select(Functions.array_flatten(Functions.col("A"))),
+        new Row[] {Row.create("[\n  [\n    1,\n    2\n  ],\n  [\n    3\n  ]\n]")});
+
+    // Flattening a null array
+    DataFrame df3 = getSession().sql("SELECT NULL::ARRAY AS A");
+    checkAnswer(
+        df3.select(Functions.array_flatten(Functions.col("A"))),
+        new Row[] {Row.create((Object) null)});
+
+    // Flattening an array with non-array elements
+    DataFrame df4 = getSession().sql("SELECT [1, 2, 3] AS A");
+    SnowflakeSQLException exception =
+        assertThrows(
+            SnowflakeSQLException.class,
+            () -> df4.select(Functions.array_flatten(Functions.col("A"))).collect());
+    Assert.assertTrue(exception.getMessage().contains("not an array"));
   }
 
   @Test
