@@ -21,7 +21,7 @@ public class CaseExpr extends Column {
 
   /**
    * Appends one more WHEN condition to the CASE expression. This method handles any literal value
-   * and converts it into a `Column`.
+   * and converts it into a `Column` if applies.
    *
    * <p><b>Example:</b>
    *
@@ -34,7 +34,7 @@ public class CaseExpr extends Column {
    * @param condition The case condition
    * @param value The result value in the given condition
    * @return The result case expression
-   * @since 1.17.0
+   * @since 0.12.0
    */
   public CaseExpr when(Column condition, Object value) {
     return new CaseExpr(caseExpr.when(condition.toScalaColumn(), toExpr(value).toScalaColumn()));
@@ -42,7 +42,7 @@ public class CaseExpr extends Column {
 
   /**
    * Sets the default result for this CASE expression. This method handles any literal value and
-   * converts it into a `Column`.
+   * converts it into a `Column` if applies.
    *
    * <p><b>Example:</b>
    *
@@ -55,7 +55,7 @@ public class CaseExpr extends Column {
    * @param value The default value, which can be any literal (e.g., String, int, boolean) or a
    *     `Column`.
    * @return The result column.
-   * @since 1.17.0
+   * @since 0.12.0
    */
   public Column otherwise(Object value) {
     return new Column(caseExpr.otherwise(toExpr(value).toScalaColumn()));
