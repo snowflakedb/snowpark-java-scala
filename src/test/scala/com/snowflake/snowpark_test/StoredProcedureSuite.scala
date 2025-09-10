@@ -1,6 +1,7 @@
 package com.snowflake.snowpark_test
 
 import com.snowflake.snowpark._
+import com.snowflake.snowpark.internal.Utils.SnowparkPackageName;
 import net.snowflake.client.jdbc.SnowflakeSQLException
 
 import java.sql.{Date, Timestamp}
@@ -29,7 +30,7 @@ class StoredProcedureSuite extends SNTestBase {
          |returns STRING
          |language scala
          |runtime_version=2.12
-         |packages=('com.snowflake:snowpark:latest')
+         |packages=('${SnowparkPackageName}:latest')
          |handler='Test.run'
          |as
          |$$$$
@@ -56,7 +57,7 @@ class StoredProcedureSuite extends SNTestBase {
          |returns STRING
          |language scala
          |runtime_version=2.12
-         |packages=('com.snowflake:snowpark:latest')
+         |packages=('${SnowparkPackageName}:latest')
          |handler='Test.run'
          |as
          |$$$$
@@ -81,7 +82,7 @@ class StoredProcedureSuite extends SNTestBase {
          |returns STRING
          |language scala
          |runtime_version=2.12
-         |packages=('com.snowflake:snowpark:latest')
+         |packages=('${SnowparkPackageName}:latest')
          |handler='Test.run'
          |as
          |$$$$
