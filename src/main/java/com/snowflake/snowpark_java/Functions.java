@@ -4333,7 +4333,7 @@ public final class Functions {
    * @param condition The condition
    * @param value The result value
    * @return The result column
-   * @since 1.17.0
+   * @since 0.12.0
    */
   public static CaseExpr when(Column condition, Object value) {
     return new CaseExpr(
