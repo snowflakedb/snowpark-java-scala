@@ -1,9 +1,12 @@
 package com.snowflake.snowpark_test;
 
+import static org.junit.Assert.assertThrows;
+
 import com.snowflake.snowpark_java.*;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 import java.util.Optional;
+import net.snowflake.client.jdbc.SnowflakeSQLException;
 import org.junit.Test;
 
 public class JavaDataFrameSuite extends TestBase {
@@ -363,5 +366,51 @@ public class JavaDataFrameSuite extends TestBase {
     checkAnswer(
         df.flatten(df.col("value"), "", false, false, "both").select(Functions.col("value")),
         new Row[] {Row.create("1"), Row.create("2")});
+  }
+
+  @Test
+  public void sortStringColumns() {
+    DataFrame df =
+        getSession()
+            .sql(
+                "select * from values"
+                    + "('Alice', 25, 'Engineer'), "
+                    + "('Bob', 25, 'Designer'), "
+                    + "('Charlie', 30, 'Engineer'), "
+                    + "('Diana', 25, 'Engineer') "
+                    + "as t(name, age, role)");
+
+    // Sort by single column
+    checkAnswer(
+        df.sort("role"),
+        new Row[] {
+          Row.create("Bob", 25, "Designer"),
+          Row.create("Alice", 25, "Engineer"),
+          Row.create("Charlie", 30, "Engineer"),
+          Row.create("Diana", 25, "Engineer"),
+        });
+
+    // Sort by exactly two columns
+    checkAnswer(
+        df.sort("age", "name"),
+        new Row[] {
+          Row.create("Alice", 25, "Engineer"),
+          Row.create("Bob", 25, "Designer"),
+          Row.create("Diana", 25, "Engineer"),
+          Row.create("Charlie", 30, "Engineer"),
+        });
+
+    // Sort by three or more columns
+    checkAnswer(
+        df.sort("age", "role", "name"),
+        new Row[] {
+          Row.create("Bob", 25, "Designer"),
+          Row.create("Alice", 25, "Engineer"),
+          Row.create("Diana", 25, "Engineer"),
+          Row.create("Charlie", 30, "Engineer"),
+        });
+
+    // Negative test: column doesn't exist
+    assertThrows(SnowflakeSQLException.class, () -> df.sort("non_existent_column").collect());
   }
 }

@@ -606,6 +606,54 @@ public class DataFrame extends Logging implements Cloneable {
   }
 
   /**
+   * Sorts a DataFrame by the specified column names in ascending order (similar to ORDER BY in
+   * SQL).
+   *
+   * <p>Example:
+   *
+   * <pre>{@code
+   * DataFrame df = session.createDataFrame(
+   *   new Row[] {
+   *     Row.create("Alice", 30, "Manager"),
+   *     Row.create("Charlie", 25, "Designer"),
+   *     Row.create("Bob", 25, "Engineer"),
+   *   },
+   *   StructType.create(
+   *     new StructField("name", DataTypes.StringType),
+   *     new StructField("age", DataTypes.IntegerType),
+   *     new StructField("role", DataTypes.StringType)
+   *   )
+   * );
+   *
+   * df.sort("role").show();
+   * ------------------------------
+   * |"NAME"   |"AGE"  |"ROLE"    |
+   * ------------------------------
+   * |Charlie  |25     |Designer  |
+   * |Bob      |25     |Engineer  |
+   * |Alice    |30     |Manager   |
+   * ------------------------------
+   *
+   * df.sort("age", "name").show();
+   * ------------------------------
+   * |"NAME"   |"AGE"  |"ROLE"    |
+   * ------------------------------
+   * |Bob      |25     |Engineer  |
+   * |Charlie  |25     |Designer  |
+   * |Alice    |30     |Manager   |
+   * ------------------------------
+   * }</pre>
+   *
+   * @param first The first column name for sorting the DataFrame.
+   * @param remaining Additional column names for sorting the DataFrame.
+   * @return A {@code DataFrame} with rows sorted according to the specified column names.
+   * @since 1.17.0
+   */
+  public DataFrame sort(String first, String... remaining) {
+    return new DataFrame(this.df.sort(first, JavaUtils.stringArrayToStringSeq(remaining)));
+  }
+
+  /**
    * Returns a new DataFrame that contains at most `n` rows from the current DataFrame (similar to
    * LIMIT in SQL).
    *
