@@ -1812,12 +1812,65 @@ object functions {
   def to_timestamp(s: Column): Column = builtin("to_timestamp")(s)
 
   /**
+   * Wrapper for Snowflake built-in try_to_timestamp function. Converts an input expression into the
+   * corresponding timestamp, but with error-handling support, if the conversion cannot be
+   * performed, it returns a NULL value instead of raising an error.
+   *
+   * ===Example===
+   * {{{
+   * SELECT TRY_TO_TIMESTAMP('2024-01-15 12:30:00') as valid,
+   *        TRY_TO_TIMESTAMP('1561479557') as valid,
+   *        TRY_TO_TIMESTAMP('INVALID') as invalid;
+   * +-------------------------+---------+
+   * | VALID                   | INVALID |
+   * |-------------------------+---------|
+   * | 2024-01-15 12:30:00.000 | NULL    |
+   * +-------------------------+---------+
+   * }}}
+   *
+   * @param s
+   *   The input value to be converted to timestamp.
+   * @return
+   *   The result column.
+   * @group date_func
+   * @since 1.17.0
+   */
+  def try_to_timestamp(s: Column): Column = builtin("try_to_timestamp")(s)
+
+  /**
    * Converts an input expression into the corresponding timestamp.
    *
    * @group date_func
    * @since 0.1.0
    */
   def to_timestamp(s: Column, fmt: Column): Column = builtin("to_timestamp")(s, fmt)
+
+  /**
+   * Wrapper for Snowflake built-in try_to_timestamp function. Converts an input expression into the
+   * corresponding timestamp, but with error-handling support, if the conversion cannot be
+   * performed, it returns a NULL value instead of raising an error.
+   *
+   * ===Example===
+   * {{{
+   * SELECT TRY_TO_TIMESTAMP('04/05/2020 01:02:03', 'mm/dd/yyyy hh24:mi:ss') as valid,
+   *        TRY_TO_TIMESTAMP('INVALID', 'mm/dd/yyyy hh24:mi:ss') as invalid;
+   * +-------------------------+---------+
+   * | VALID                   | INVALID |
+   * |-------------------------+---------|
+   * | 2020-04-05 01:02:03.000 | NULL    |
+   * +-------------------------+---------+
+   * }}}
+   *
+   * @param s
+   *   The input value to be converted to timestamp.
+   * @param fmt
+   *   The time format
+   * @return
+   *   The result column.
+   * @group date_func
+   * @since 1.17.0
+   */
+  def try_to_timestamp(s: Column, fmt: Column): Column = builtin("try_to_timestamp")(s, fmt)
 
   /**
    * Converts an input expression to a date.
@@ -1828,12 +1881,63 @@ object functions {
   def to_date(e: Column): Column = builtin("to_date")(e)
 
   /**
+   * Wrapper for Snowflake built-in try_to_date function. Converts an input expression to a date,
+   * but with error-handling support, if the conversion cannot be performed, it returns a NULL value
+   * instead of raising an error.
+   *
+   * ===Example===
+   * {{{
+   * SELECT TRY_TO_DATE("2020-05-11") as valid, TRY_TO_DATE("invalid") as invalid;
+   * +------------+---------+
+   * | VALID      | INVALID |
+   * |------------+---------|
+   * | 2020-05-11 | NULL    |
+   * +------------+---------+
+   * }}}
+   *
+   * @param e
+   *   The input value to be converted to date.
+   * @return
+   *   The result column.
+   * @group date_func
+   * @since 1.17.0
+   */
+  def try_to_date(e: Column): Column = builtin("try_to_date")(e)
+
+  /**
    * Converts an input expression to a date.
    *
    * @group date_func
    * @since 0.1.0
    */
   def to_date(e: Column, fmt: Column): Column = builtin("to_date")(e, fmt)
+
+  /**
+   * Wrapper for Snowflake built-in try_to_date function. Converts an input expression to a date,
+   * but with error-handling support, if the conversion cannot be performed, it returns a NULL value
+   * instead of raising an error.
+   *
+   * ===Example===
+   * {{{
+   * SELECT TRY_TO_DATE("2020-05-11", "YYYY.MM.DD") as valid,
+   *        TRY_TO_DATE("invalid", "YYYY.MM.DD") as invalid;
+   * +------------+---------+
+   * | VALID      | INVALID |
+   * |------------+---------|
+   * | 2020-05-11 | NULL    |
+   * +------------+---------+
+   * }}}
+   *
+   * @param e
+   *   The input value to be converted to date.
+   * @param fmt
+   *   The time format
+   * @return
+   *   The result column.
+   * @group date_func
+   * @since 1.17.0
+   */
+  def try_to_date(e: Column, fmt: Column): Column = builtin("try_to_date")(e, fmt)
 
   /**
    * Creates a date from individual numeric components that represent the year, month, and day of
