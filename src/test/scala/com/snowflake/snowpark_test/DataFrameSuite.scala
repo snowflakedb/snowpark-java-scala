@@ -83,6 +83,76 @@ trait DataFrameSuite extends TestData with BeforeAndAfterEach {
           |""".stripMargin)
   }
 
+  test("show not truncated") {
+    // run show function, make sure no error reported
+    val df = Seq(
+      "Short Sample",
+      "Exceeding Maximum Characters Length Row Value To Evaluate Truncated Results").toDF("Column")
+    df.show(false)
+
+    assert(
+      getShowString(df, 10, 0) ==
+        """-------------------------------------------------------------------------------
+          ||"COLUMN"                                                                     |
+          |-------------------------------------------------------------------------------
+          ||Short Sample                                                                 |
+          ||Exceeding Maximum Characters Length Row Value To Evaluate Truncated Results  |
+          |-------------------------------------------------------------------------------
+          |""".stripMargin)
+  }
+
+  test("show truncated") {
+    // run show function, make sure no error reported
+    val df = Seq(
+      "Short Sample",
+      "Exceeding Maximum Characters Length Row Value To Evaluate Truncated Results").toDF("Column")
+    df.show(true)
+
+    assert(
+      getShowString(df, 10) ==
+        """------------------------------------------------------
+          ||"COLUMN"                                            |
+          |------------------------------------------------------
+          ||Short Sample                                        |
+          ||Exceeding Maximum Characters Length Row Value T...  |
+          |------------------------------------------------------
+          |""".stripMargin)
+  }
+
+  test("show not truncated limited rows") {
+    // run show function, make sure no error reported
+    val df = Seq(
+      "Exceeding Maximum Characters Length Row Value To Evaluate Truncated Results",
+      "Short Sample").toDF("Column")
+    df.show(1, false)
+
+    assert(
+      getShowString(df, 1, 0) ==
+        """-------------------------------------------------------------------------------
+          ||"COLUMN"                                                                     |
+          |-------------------------------------------------------------------------------
+          ||Exceeding Maximum Characters Length Row Value To Evaluate Truncated Results  |
+          |-------------------------------------------------------------------------------
+          |""".stripMargin)
+  }
+
+  test("show truncated limited rows") {
+    // run show function, make sure no error reported
+    val df = Seq(
+      "Exceeding Maximum Characters Length Row Value To Evaluate Truncated Results",
+      "Short Sample").toDF("Column")
+    df.show(1, true)
+
+    assert(
+      getShowString(df, 1) ==
+        """------------------------------------------------------
+          ||"COLUMN"                                            |
+          |------------------------------------------------------
+          ||Exceeding Maximum Characters Length Row Value T...  |
+          |------------------------------------------------------
+          |""".stripMargin)
+  }
+
   test("show with null data") {
     // run show function, make sure no error reported
     val df = Seq((1, null), (2, "NotNull")).toDF("a", "b")
