@@ -523,6 +523,34 @@ case class Column private[snowpark] (private[snowpark] val expr: Expression) ext
   def cast(to: DataType): Column = withExpr(Cast(expr, to))
 
   /**
+   * Casts the values in the Column to the specified data type.
+   *
+   * '''Examples'''
+   *
+   * {{{
+   * val df = Seq("123", "456", "789").toDF("a")
+   * df.select(col("a").cast("int")).show()
+   *
+   * -------------------------
+   * |"CAST (""A"" AS INT)"  |
+   * -------------------------
+   * |123                    |
+   * |456                    |
+   * |789                    |
+   * -------------------------
+   * }}}
+   *
+   * @param to
+   *   A string representing the target data type.
+   * @return
+   *   A new Column with values cast to the specified data type.
+   * @group op
+   * @since 1.17.0
+   */
+  def cast(to: String): Column =
+    this.cast(com.snowflake.snowpark.types.DataTypeParser.parseDataType(to))
+
+  /**
    * Returns a Column expression with values sorted in descending order.
    * @group op
    * @since 0.1.0

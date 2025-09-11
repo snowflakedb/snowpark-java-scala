@@ -357,6 +357,35 @@ public class Column {
   }
 
   /**
+   * Casts the values in the Column to the specified data type.
+   *
+   * <p><b>Examples</b>
+   *
+   * <pre>{@code
+   * DataFrame df = session.createDataFrame(
+   *   new Row[] { Row.create("123"), Row.create("456"), Row.create("789") },
+   *   StructType.create(new StructField("a", DataTypes.StringType))
+   * );
+   * df.select(col("a").cast("int")).show();
+   *
+   * -------------------------
+   * |"CAST (""A"" AS INT)"  |
+   * -------------------------
+   * |123                    |
+   * |456                    |
+   * |789                    |
+   * -------------------------
+   * }</pre>
+   *
+   * @param to A string representing the target data type.
+   * @return A new Column with values cast to the specified data type.
+   * @since 1.17.0
+   */
+  public Column cast(String to) {
+    return new Column(this.scalaColumn.cast(to));
+  }
+
+  /**
    * Sorts this column in descending order.
    *
    * @return The result column object
