@@ -363,18 +363,11 @@ public class Column {
    *
    * <pre>{@code
    * DataFrame df = session.createDataFrame(
-   *   new Row[] { Row.create("123"), Row.create("456"), Row.create("789") },
-   *   StructType.create(new StructField("a", DataTypes.StringType))
+   *   new Row[] { Row.create(123), Row.create(456), Row.create(789) },
+   *   StructType.create(new StructField("a", DataTypes.IntegerType))
    * );
-   * df.select(col("a").cast("int")).show();
-   *
-   * -------------------------
-   * |"CAST (""A"" AS INT)"  |
-   * -------------------------
-   * |123                    |
-   * |456                    |
-   * |789                    |
-   * -------------------------
+   * df.select(col("a").cast("string").as("casted")).schema().toString();
+   * // res: String = "StructType[StructField(CASTED, String, Nullable = false)]"
    * }</pre>
    *
    * @param to A string representing the target data type.

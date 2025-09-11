@@ -528,16 +528,9 @@ case class Column private[snowpark] (private[snowpark] val expr: Expression) ext
    * '''Examples'''
    *
    * {{{
-   * val df = Seq("123", "456", "789").toDF("a")
-   * df.select(col("a").cast("int")).show()
-   *
-   * -------------------------
-   * |"CAST (""A"" AS INT)"  |
-   * -------------------------
-   * |123                    |
-   * |456                    |
-   * |789                    |
-   * -------------------------
+   * val df = Seq(123, 456, 789).toDF("a")
+   * df.select(col("a").cast("string").as("casted")).schema.toString
+   * // res: String = "StructType[StructField(CASTED, String, Nullable = false)]"
    * }}}
    *
    * @param to
