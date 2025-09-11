@@ -2,7 +2,7 @@ package com.snowflake.snowpark
 
 import com.snowflake.snowpark.internal.analyzer._
 import com.snowflake.snowpark.internal.{ErrorMessage, Logging}
-import com.snowflake.snowpark.types.DataType
+import com.snowflake.snowpark.types.{DataType, DataTypeParser}
 import com.snowflake.snowpark.functions.lit
 
 // scalastyle:off
@@ -547,8 +547,12 @@ case class Column private[snowpark] (private[snowpark] val expr: Expression) ext
    * @group op
    * @since 1.17.0
    */
-  def cast(to: String): Column =
-    this.cast(com.snowflake.snowpark.types.DataTypeParser.parseDataType(to))
+  def cast(to: String): Column = {
+    DataTypeParser.parseDataType(to) match {
+      case Right(dataType) => this.cast(dataType)
+      case Left(error) => throw new IllegalArgumentException(error.format)
+    }
+  }
 
   /**
    * Returns a Column expression with values sorted in descending order.
