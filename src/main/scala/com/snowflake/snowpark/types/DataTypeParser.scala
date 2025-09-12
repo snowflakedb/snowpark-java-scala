@@ -2,70 +2,65 @@ package com.snowflake.snowpark.types
 
 import java.util.Locale
 import scala.annotation.tailrec
-import scala.util.{Failure, Success, Try}
-import scala.util.control.NonFatal
+import scala.util.{Either, Left, Right, Try}
 import scala.util.matching.Regex
 
 private[snowpark] object DataTypeParser {
 
-  /**
-   * Base exception for all data type parsing errors. Provides detailed context about what went
-   * wrong during parsing.
-   */
-  private sealed abstract class DataTypeParseException(
-      message: String,
-      val input: String,
-      val position: Option[Int] = None,
-      cause: Throwable = null)
-      extends Exception(
-        s"$message${position.map(p => s" at position $p").getOrElse("")}: '$input'",
-        cause)
-
-  /** Thrown when an unknown or unsupported data type is encountered */
-  private final case class UnsupportedDataTypeException(
-    dataType: String,
-    suggestions: Seq[String] = Seq.empty) extends DataTypeParseException(s"Unsupported data type${if (suggestions.nonEmpty) s" (did you mean: ${suggestions.mkString(", ")}?)" else ""}", dataType)
-
-  /** Thrown when the structure of a complex type is malformed */
-  private final case class MalformedTypeException(
-      dataType: String,
-      expectedFormat: String,
-      pos: Option[Int] = None)
-      extends DataTypeParseException(
-        s"Malformed type definition. Expected format: $expectedFormat",
-        dataType,
-        pos)
-
-  /** Thrown when brackets or parentheses are mismatched */
-  private final case class UnbalancedBracketsException(
-      dataType: String,
-      bracketType: String,
-      pos: Int)
-      extends DataTypeParseException(s"Unbalanced $bracketType", dataType, Some(pos))
-
-  /** Thrown when decimal precision/scale values are invalid */
-  private final case class InvalidDecimalParametersException(
-      dataType: String,
-      precision: String,
-      scale: Option[String],
-      error: String)
-      extends DataTypeParseException(
-        s"Invalid decimal parameters (precision=$precision${scale.map(s => s", scale=$s").getOrElse("")}): $error",
-        dataType)
-
-  private object Patterns {
-    val Array: Regex = """(?i)^array\s*<\s*(.+?)\s*>$""".r
-    val Decimal: Regex =
-      """(?i)^(decimal|number|numeric)\s*\(\s*(\d+)(?:\s*,\s*(\d+))?\s*\)\s*$""".r
-    val Map: Regex = """(?i)^map\s*<\s*(.+)\s*>$""".r
+  sealed trait ParseError {
+    def format: String
   }
 
+  private case class EmptyInput() extends ParseError {
+    def format: String = "Type definition cannot be null or empty"
+  }
+
+  private case class UnsupportedType(input: String) extends ParseError {
+    def format: String = s"Unsupported data type: '$input'"
+  }
+
+  private case class MalformedType(input: String, expected: String) extends ParseError {
+    def format: String = s"Malformed type '$input'. Expected: $expected"
+  }
+
+  private case class UnbalancedBrackets(input: String, bracketType: String, pos: Int)
+      extends ParseError {
+    def format: String = s"Unbalanced $bracketType at position $pos: '$input'"
+  }
+
+  private case class InvalidDecimal(input: String, reason: String) extends ParseError {
+    def format: String = s"Invalid decimal '$input': $reason"
+  }
+
+  /**
+   * Compiled regex patterns for complex data types.
+   */
+  private object TypePatterns {
+    val ArrayPattern: Regex = """(?i)^array\s*<\s*(.+?)\s*>$""".r
+    val DecimalPattern: Regex =
+      """(?i)^(decimal|number|numeric)\s*\(\s*([^,\s)]+)(?:\s*,\s*([^,\s)]+))?\s*\)\s*$""".r
+    val MapPattern: Regex = """(?i)^map\s*<\s*(.+)\s*>$""".r
+  }
+
+  /**
+   * Bracket types for validation.
+   */
+  private object BracketTypes {
+    val AngleBrackets = "angle brackets <>"
+    val Parentheses = "parentheses ()"
+  }
+
+  /**
+   * Default decimal type when no parameters are specified.
+   */
   private val DefaultDecimalType = DecimalType(DecimalType.MAX_PRECISION, 0)
 
   /**
-   * Mapping of simple type names to their corresponding [[DataType]] instances.
+   * Registry mapping normalized type names to their corresponding [[DataType]] instances.
+   *
+   * This map is used for fast lookup of simple, non-parameterized types.
    */
-  private val SimpleTypeMap: Map[String, DataType] = Map(
+  private val SimpleTypeRegistry: Map[String, DataType] = Map(
     // Integer types
     "byte" -> ByteType,
     "byteint" -> ByteType,
@@ -86,281 +81,366 @@ private[snowpark] object DataTypeParser {
     "number" -> DefaultDecimalType,
     "numeric" -> DefaultDecimalType,
 
-    // String and binary types
+    // Text and binary types
     "string" -> StringType,
     "binary" -> BinaryType,
 
-    // Date/Time types
+    // Date and time types
     "date" -> DateType,
     "time" -> TimeType,
     "timestamp" -> TimestampType,
 
-    // Boolean type
-    "boolean" -> BooleanType,
-
     // Semi-structured types
     "variant" -> VariantType,
     "object" -> MapType(StringType, VariantType),
+    "boolean" -> BooleanType,
 
     // Spatial types
     "geography" -> GeographyType,
-    "geometry" -> GeometryType)
-
-  private def normalizeDataType(dataType: String): String = dataType.toLowerCase(Locale.ROOT).trim
+    "geometry" -> GeometryType
+  )
 
   /**
-   * Parses a string representation of a data type into a [[DataType]] instance.
+   * Normalizes input string by trimming whitespace and converting to lowercase.
    *
-   * This method handles both simple types (e.g., "string", "int", "boolean") and complex types
-   * (e.g., "decimal(10,2)", "array<string>", "map<string,int>", "struct<name:string,age:int>").
+   * @param input
+   *   The string to normalize.
+   * @return
+   *   The normalized string.
+   */
+  private def normalize(input: String): String =
+    Option(input).map(_.toLowerCase(Locale.ROOT).trim).getOrElse("")
+
+  /**
+   * Parses a data type from its string representation.
    *
-   * @param dataType
+   * This method handles both simple types (e.g., `string`, `int`, `boolean`) and complex types
+   * (e.g., `decimal(10,2)`, `array<string>`, `map<string, int>`).
+   *
+   * @param input
    *   The string representation of the data type to parse.
    * @return
-   *   The corresponding [[DataType]] instance.
-   * @throws MalformedTypeException
-   *   If the input is null, empty, or malformed.
-   * @throws UnsupportedDataTypeException
-   *   If the data type is not supported.
+   *   Either a [[ParseError]] if parsing fails, or the corresponding [[DataType]] instance.
    */
-  def parseDataType(dataType: String): DataType = {
-    if (dataType == null) {
-      throw MalformedTypeException(dataType, "non-empty type definition")
-    }
-
-    val normalizedDataType = this.normalizeDataType(dataType)
-
-    if (normalizedDataType.isEmpty) {
-      throw MalformedTypeException(dataType, "non-empty type definition")
-    }
-
-    SimpleTypeMap.get(normalizedDataType) match {
-      case Some(parsedDataType) => parsedDataType
-      case None => parseComplexType(normalizedDataType, dataType)
+  def parseDataType(input: String): Either[ParseError, DataType] = {
+    Option(input).map(_.trim).filter(_.nonEmpty) match {
+      case None | Some("") => Left(EmptyInput())
+      case Some(validInput) =>
+        val normalized = normalize(validInput)
+        SimpleTypeRegistry.get(normalized) match {
+          case Some(dataType) => Right(dataType)
+          case None => parseComplexType(normalized, validInput)
+        }
     }
   }
 
   /**
-   * Parses complex data types that require parameter parsing or nested type definitions.
+   * Parses complex data types from normalized input strings.
    *
-   * This method handles parameterized types such as decimal(precision,scale), array<elementType>,
-   * map<keyType,valueType>, and struct<field1:type1,field2:type2>.
+   * Handles parameterized types such as decimal, array, and map by matching against custom
+   * extractors.
    *
-   * @param normalizedDataType
-   *   The normalized string representation of the data type.
-   * @param originalDataType
-   *   The original string representation for error reporting.
+   * @param normalized
+   *   The normalized type string.
+   * @param original
+   *   The original input string for error reporting.
    * @return
-   *   The corresponding [[DataType]] instance for the complex type.
-   * @throws UnsupportedDataTypeException
-   *   If the complex type pattern is not recognized.
-   * @throws MalformedTypeException
-   *   If the type definition is malformed (via delegate methods).
-   * @throws InvalidDecimalParametersException
-   *   If decimal parameters are invalid (via parseDecimalType).
+   *   Either a [[ParseError]] or the parsed [[DataType]].
    */
-  private def parseComplexType(normalizedDataType: String, originalDataType: String): DataType = {
-    normalizedDataType match {
-      case Patterns.Decimal(_, precision, scale) =>
-        parseDecimalType(precision, Option(scale), originalDataType)
+  private def parseComplexType(
+      normalized: String,
+      original: String): Either[ParseError, DataType] = {
+    // If input appears to use brackets/parentheses, first validate their balance
+    // so we can surface precise UnbalancedBrackets errors instead of generic unsupported types.
+    val containsBrackets = original.contains('<') || original.contains('>') || original.contains(
+      '(') || original.contains(')')
+    if (containsBrackets) {
+      validateBrackets(original) match {
+        case Left(err) => return Left(err)
+        case Right(_) => // continue
+      }
+    }
 
-      case Patterns.Array(arrayType) =>
-        parseArrayType(arrayType, originalDataType)
-
-      case Patterns.Map(mapType) =>
-        parseMapType(mapType, originalDataType)
-
+    normalized match {
+      case DecimalExtractor(precision, scale) =>
+        parseDecimalType(precision, scale, original)
+      case ArrayExtractor(elementType) =>
+        parseArrayType(elementType, original)
+      case MapExtractor(innerTypes) =>
+        parseMapType(innerTypes, original)
       case _ =>
-        throw UnsupportedDataTypeException(originalDataType)
+        Left(UnsupportedType(original))
     }
   }
 
+  /**
+   * Extractor object for decimal type strings.
+   */
+  private object DecimalExtractor {
+
+    /**
+     * Extracts precision and optional scale from decimal type strings.
+     *
+     * Matches strings like "decimal(10)", "decimal(10, 2)", etc. and extracts the precision
+     * (required) and scale (optional) parameters.
+     *
+     * @param s
+     *   The normalized decimal type string to match against.
+     * @return
+     *   Some((precision, scale)) if the string matches the decimal pattern, where precision is
+     *   always present and scale is optional; None otherwise.
+     */
+    def unapply(s: String): Option[(String, Option[String])] = {
+      TypePatterns.DecimalPattern.findFirstMatchIn(s).map { m =>
+        (m.group(2), Option(m.group(3)))
+      }
+    }
+  }
+
+  /**
+   * Extractor object for array type strings.
+   */
+  private object ArrayExtractor {
+
+    /**
+     * Extracts the element type from array type strings.
+     *
+     * Matches strings like "array<string>", "array<decimal(10, 2)>", etc. and extracts the inner
+     * element type specification.
+     *
+     * @param s
+     *   The normalized array type string to match against.
+     * @return
+     *   Some(elementType) if the string matches the array pattern, where elementType is the inner
+     *   type specification; None otherwise.
+     */
+    def unapply(s: String): Option[String] = {
+      TypePatterns.ArrayPattern.findFirstMatchIn(s).map(_.group(1))
+    }
+  }
+
+  /**
+   * Extractor object for map type strings.
+   */
+  private object MapExtractor {
+
+    /**
+     * Extracts the inner type specification from map type strings.
+     *
+     * Matches strings like "map<string, int>", "map<decimal(10, 2), array<string>>", etc. and
+     * extracts the inner type specification containing both key and value types.
+     *
+     * @param s
+     *   The normalized map type string to match against.
+     * @return
+     *   Some(innerTypes) if the string matches the map pattern, where innerTypes is the
+     *   comma-separated key and value type specification; None otherwise.
+     */
+    def unapply(s: String): Option[String] = {
+      TypePatterns.MapPattern.findFirstMatchIn(s).map(_.group(1))
+    }
+  }
+
+  /**
+   * Parses a decimal type from precision and scale strings.
+   *
+   * This method constructs a DecimalType from string representations of precision and scale
+   * parameters. It validates that both parameters are valid integers and that they fall within the
+   * acceptable ranges for decimal types in Snowflake.
+   *
+   * @param precisionStr
+   *   The string representation of the decimal precision (total number of digits)
+   * @param scaleStr
+   *   The optional string representation of the decimal scale (number of digits after decimal
+   *   point). If None, defaults to 0.
+   * @param original
+   *   The original input string for error reporting purposes
+   * @return
+   *   Either a ParseError if the parameters are invalid, or a DecimalType with the specified
+   *   precision and scale
+   */
   private def parseDecimalType(
       precisionStr: String,
       scaleStr: Option[String],
-      original: String): DecimalType = {
-    Try {
-      val precision = precisionStr.toInt
-      val scale = scaleStr.map(_.toInt).getOrElse(0)
-
-      if (precision <= 0 || precision > DecimalType.MAX_PRECISION) {
-        throw InvalidDecimalParametersException(
-          original,
-          precisionStr,
-          scaleStr,
-          s"precision must be between 1 and ${DecimalType.MAX_PRECISION}")
-      }
-
-      if (scale < 0 || scale > DecimalType.MAX_SCALE || scale > precision) {
-        throw InvalidDecimalParametersException(
-          original,
-          precisionStr,
-          scaleStr,
-          s"scale must be between 0 and precision ($precision)")
-      }
-
-      DecimalType(precision, scale)
-    } match {
-      case Success(decimalType) => decimalType
-      case Failure(_: NumberFormatException) =>
-        throw InvalidDecimalParametersException(
-          original,
-          precisionStr,
-          scaleStr,
-          "parameters must be valid integers")
-      case Failure(e: DataTypeParseException) => throw e
-      case Failure(NonFatal(e)) =>
-        throw InvalidDecimalParametersException(
-          original,
-          precisionStr,
-          scaleStr,
-          s"unexpected error: ${e.getMessage}")
-    }
+      original: String): Either[ParseError, DataType] = {
+    for {
+      precision <- parseIntSafe(precisionStr, original)
+      scale <- scaleStr.fold[Either[ParseError, Int]](Right(0))(parseIntSafe(_, original))
+      _ <- validateDecimalParameters(precision, scale, original)
+    } yield DecimalType(precision, scale)
   }
 
   /**
-   * Parses an array type from its string representation.
+   * Safely parses a string to an integer with error handling.
    *
-   * This method validates the bracket structure of the original type string and then
-   * recursively parses the element type to create an ArrayType instance.
+   * This method attempts to convert a string representation to an integer value, wrapping any
+   * parsing failures in a ParseError for consistent error handling throughout the parser.
    *
-   * @param arrayType
-   *   The string representation of the array's element type (e.g., "int" for "array<int>").
-   * @param originalDataType
-   *   The original complete type string for error reporting (e.g., "array<int>").
-   * @return
-   *   An ArrayType instance with the parsed element type.
-   * @throws DataTypeParseException
-   *   If the bracket structure is invalid or the element type cannot be parsed.
-   */
-  private def parseArrayType(arrayType: String, originalDataType: String): ArrayType = {
-    this.validateBrackets(originalDataType)
-    ArrayType(this.parseDataType(arrayType))
-  }
-
-  /**
-   * Parses a map type from its string representation.
-   *
-   * This method validates the bracket structure of the original type string and then
-   * splits the map type string at the top-level comma delimiter to extract the key and value
-   * type strings. Both key and value types are recursively parsed to create a MapType instance.
-   *
-   * @param mapType
-   *   The string representation of the map's key and value types (e.g., "string, int" for "map<string, int>").
+   * @param str
+   *   The string to parse as an integer
    * @param original
-   *   The original complete type string for error reporting (e.g., "map<string, int>").
+   *   The original input string for error reporting context
    * @return
-   *   A MapType instance with the parsed key and value types.
-   * @throws DataTypeParseException
-   *   If the bracket structure is invalid, the key/value types cannot be parsed, or the format
-   *   doesn't match the expected "map<key_type, value_type>" pattern.
+   *   Either a ParseError if the string cannot be parsed as an integer, or the successfully parsed
+   *   integer value
    */
-  private def parseMapType(mapType: String, original: String): MapType = {
-    this.validateBrackets(original)
-    this.splitAtTopLevelDelimiter(mapType, delimiter = ',') match {
-      case Some((keyStr, valueStr)) if keyStr.nonEmpty && valueStr.nonEmpty =>
-        val keyType = this.parseDataType(keyStr)
-        val valueType = this.parseDataType(valueStr)
-        MapType(keyType, valueType)
-      case _ =>
-        throw MalformedTypeException(original, "map<key_type, value_type>")
+  private def parseIntSafe(str: String, original: String): Either[ParseError, Int] =
+    Try(str.toInt).toEither.left.map(_ =>
+      InvalidDecimal(original, s"'$str' is not a valid integer"))
+
+  /**
+   * Validates decimal type parameters for correctness and compliance with Snowflake constraints.
+   *
+   * This method performs comprehensive validation of decimal precision and scale parameters to
+   * ensure they meet Snowflake's requirements:
+   *   - Precision must be between 1 and the maximum allowed precision
+   *   - Scale must be between 0 and the maximum allowed scale
+   *   - Scale cannot exceed precision (as it represents digits after the decimal point)
+   *
+   * @param precision
+   *   The total number of digits in the decimal number (must be > 0 and <= MAX_PRECISION)
+   * @param scale
+   *   The number of digits after the decimal point (must be >= 0, <= MAX_SCALE, and <= precision)
+   * @param original
+   *   The original input string for error reporting context
+   * @return
+   *   Either a ParseError describing the validation failure, or Unit if all parameters are valid
+   */
+  private def validateDecimalParameters(
+      precision: Int,
+      scale: Int,
+      original: String): Either[ParseError, Unit] = {
+    if (precision <= 0 || precision > DecimalType.MAX_PRECISION) {
+      Left(
+        InvalidDecimal(original, s"precision must be between 1 and ${DecimalType.MAX_PRECISION}"))
+    } else if (scale < 0 || scale > DecimalType.MAX_SCALE) {
+      Left(InvalidDecimal(original, s"scale must be between 0 and ${DecimalType.MAX_SCALE}"))
+    } else if (scale > precision) {
+      Left(InvalidDecimal(original, s"scale cannot exceed precision ($precision)"))
+    } else {
+      Right(())
     }
   }
 
   /**
-   * Tracks the nesting depth of brackets and the current position while parsing data type strings.
-   *
-   * This case class is used to maintain state during parsing operations that need to respect
-   * bracket boundaries. It tracks the depth of angle brackets `< >` and parentheses `( )`
-   * separately, along with the current character position in the string being parsed.
+   * @param elementTypeStr
+   * @param original
+   * @return
+   */
+  private def parseArrayType(
+      elementTypeStr: String,
+      original: String): Either[ParseError, DataType] = {
+    for {
+      _ <- validateBrackets(original)
+      elementType <- parseDataType(elementTypeStr)
+    } yield ArrayType(elementType)
+  }
+
+  /**
+   * @param innerTypes
+   * @param original
+   * @return
+   */
+  private def parseMapType(innerTypes: String, original: String): Either[ParseError, DataType] = {
+    validateBrackets(original).flatMap { _ =>
+      splitAtTopLevelDelimiter(innerTypes, delimiter = ',') match {
+        case Some((keyStr, valueStr)) if keyStr.nonEmpty && valueStr.nonEmpty =>
+          for {
+            keyType <- parseDataType(keyStr)
+            valueType <- parseDataType(valueStr)
+          } yield MapType(keyType, valueType)
+        case _ =>
+          Left(MalformedType(original, "map<key_type, value_type>"))
+      }
+    }
+  }
+
+  /**
+   * Immutable state for tracking bracket nesting during parsing. Uses functional updates for
+   * thread-safety and clarity.
    *
    * @param angleDepth
-   *   The current nesting depth of angle brackets (< >). Starts at 0.
    * @param parenDepth
-   *   The current nesting depth of parentheses (( )). Starts at 0.
    * @param position
-   *   The current character position in the string being parsed. Starts at 0.
    */
   private case class BracketState(angleDepth: Int = 0, parenDepth: Int = 0, position: Int = 0) {
     def isAtTopLevel: Boolean = angleDepth == 0 && parenDepth == 0
+    def isValid: Boolean = angleDepth >= 0 && parenDepth >= 0
 
-    def update(char: Char): BracketState = char match {
-      case '<' => copy(angleDepth = angleDepth + 1, position = position + 1)
-      case '>' => copy(angleDepth = angleDepth - 1, position = position + 1)
-      case '(' => copy(parenDepth = parenDepth + 1, position = position + 1)
-      case ')' => copy(parenDepth = parenDepth - 1, position = position + 1)
-      case _ => copy(position = position + 1)
+    def processChar(char: Char): BracketState = {
+      val nextPosition = position + 1
+      char match {
+        case '<' => copy(angleDepth = angleDepth + 1, position = nextPosition)
+        case '>' => copy(angleDepth = angleDepth - 1, position = nextPosition)
+        case '(' => copy(parenDepth = parenDepth + 1, position = nextPosition)
+        case ')' => copy(parenDepth = parenDepth - 1, position = nextPosition)
+        case _ => copy(position = nextPosition)
+      }
     }
   }
 
   /**
-   * Split a string at the first occurrence of a delimiter at the top level.
-   *
-   * This method finds the first occurrence of the specified delimiter that is not nested within
-   * angle brackets `< >` or parentheses `( )`. If such a delimiter is found, the string is split
-   * into two parts at that position, with both parts trimmed of leading and trailing whitespace.
+   * Splits a string at the first top-level delimiter. Top-level means not nested within angle
+   * brackets or parentheses.
    *
    * @param s
-   *   The string to split.
+   *   The string to split
    * @param delimiter
-   *   The character to split on.
+   *   The delimiter character
    * @return
-   *   Some((left, right)) if a top-level delimiter is found, None otherwise. Both left and right
-   *   parts are trimmed of whitespace.
+   *   Some((left, right)) if delimiter found, None otherwise
    */
   private def splitAtTopLevelDelimiter(s: String, delimiter: Char): Option[(String, String)] = {
     @tailrec
-    def findSplit(state: BracketState): Option[Int] = {
-      if (state.position >= s.length) {
-        None
-      } else {
-        val char = s.charAt(state.position)
-        if (char == delimiter && state.isAtTopLevel) {
-          Some(state.position)
-        } else {
-          findSplit(state.update(char))
-        }
+    def findDelimiterPosition(chars: List[Char], state: BracketState): Option[Int] = {
+      chars match {
+        case Nil => None
+        case head :: tail =>
+          if (head == delimiter && state.isAtTopLevel) {
+            Some(state.position)
+          } else {
+            findDelimiterPosition(tail, state.processChar(head))
+          }
       }
     }
 
-    findSplit(BracketState()).map { splitAt =>
-      (s.substring(0, splitAt).trim, s.substring(splitAt + 1).trim)
+    findDelimiterPosition(s.toList, BracketState()).map { pos =>
+      val (left, right) = s.splitAt(pos)
+      (left.trim, right.drop(1).trim) // drop(1) to skip the delimiter
     }
   }
 
-  /**
-   * Validate that brackets are properly balanced in a data type string.
-   *
-   * Checks that angle brackets < > and parentheses ( ) are properly matched and balanced throughout
-   * the data type definition. Throws an exception if any brackets are unbalanced or mismatched.
-   *
-   * @param dataType
-   *   The data type string to validate.
-   * @throws UnbalancedBracketsException
-   *   If brackets are not properly balanced.
-   */
-  private def validateBrackets(dataType: String): Unit = {
+  /** Validates bracket balance */
+  private def validateBrackets(dataType: String): Either[ParseError, Unit] = {
     @tailrec
-    def check(state: BracketState): Unit = {
-      if (state.position >= dataType.length) {
-        if (state.angleDepth != 0) {
-          throw UnbalancedBracketsException(dataType, "angle brackets <>", state.position)
-        }
-        if (state.parenDepth != 0) {
-          throw UnbalancedBracketsException(dataType, "parentheses ()", state.position)
-        }
-      } else {
-        val newState = state.update(dataType.charAt(state.position))
-        if (newState.angleDepth < 0) {
-          throw UnbalancedBracketsException(dataType, "angle brackets <>", state.position)
-        }
-        if (newState.parenDepth < 0) {
-          throw UnbalancedBracketsException(dataType, "parentheses ()", state.position)
-        }
-        check(newState)
+    def validate(chars: List[Char], state: BracketState): Either[ParseError, Unit] = {
+      chars match {
+        case Nil =>
+          // End of string - check final state
+          if (state.angleDepth != 0) {
+            Left(UnbalancedBrackets(dataType, BracketTypes.AngleBrackets, state.position))
+          } else if (state.parenDepth != 0) {
+            Left(UnbalancedBrackets(dataType, BracketTypes.Parentheses, state.position))
+          } else {
+            Right(())
+          }
+
+        case head :: tail =>
+          val newState = state.processChar(head)
+          if (!newState.isValid) {
+            // Negative depth means closing bracket without opening
+            val bracketType = if (newState.angleDepth < 0) {
+              BracketTypes.AngleBrackets
+            } else {
+              BracketTypes.Parentheses
+            }
+            Left(UnbalancedBrackets(dataType, bracketType, state.position))
+          } else {
+            validate(tail, newState)
+          }
       }
     }
 
-    check(BracketState())
+    validate(dataType.toList, BracketState())
   }
 }
