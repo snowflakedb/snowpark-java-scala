@@ -116,16 +116,16 @@ lazy val root = (project in file("."))
       // tests
       "io.opentelemetry" % "opentelemetry-sdk" % openTelemetryVersion % Test,
       "io.opentelemetry" % "opentelemetry-exporters-inmemory" % "0.9.1" % Test,
-//      "junit" % "juint" % "4.13.1" % Test,
       "com.github.sbt" % "junit-interface" % "0.13.3" % Test,
       "org.mockito" % "mockito-core" % "2.23.0" % Test,
       "org.scalatest" %% "scalatest" % "3.2.19" % Test,
     ),
+    // Allow local Maven repository use for dependencies.
+    // Enables testing against latest Snowflake JDBC version install locally in CI.
+    resolvers += Resolver.mavenLocal,
     scalafmtOnCompile := true,
     javafmtOnCompile := true,
     Test / testOptions := Seq(Tests.Argument(TestFrameworks.JUnit, "-a", "-v", "-q")),
-//    Test / fork := true,
-//    Test / javaOptions ++= Seq("-Xms1024M", "-Xmx4096M", "-Duser.timezone=UTC"),
     // Test Groups
     inConfig(CodeVerificationTests)(Defaults.testTasks),
     CodeVerificationTests / testOptions += Tests.Filter(isCodeVerification),

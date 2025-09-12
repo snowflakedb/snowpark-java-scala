@@ -185,15 +185,18 @@ trait SNTestBase extends AnyFunSuite with BeforeAndAfterAll with SFTestUtils wit
     }
   }
 
-  def testWithTimezone(timezone: String = "UTC")(thunk: => Unit): Unit = {
+  def testWithTimezone(timezone: String = "America/Los_Angeles")(thunk: => Unit): Unit = {
+    val sysTimeZone = System.getProperty("user.timezone", "")
     val defaultTimezone = TimeZone.getDefault
     val oldSfTimeZone =
       session.sql("SHOW PARAMETERS LIKE 'TIMEZONE' IN SESSION").collect().head.getString(1)
     try {
+      System.setProperty("user.timezone", timezone)
       TimeZone.setDefault(TimeZone.getTimeZone(timezone))
       session.runQuery(s"alter session set TIMEZONE = '$timezone'")
       thunk
     } finally {
+      System.setProperty("user.timezone", sysTimeZone)
       TimeZone.setDefault(defaultTimezone)
       session.runQuery(s"alter session set TIMEZONE = '$oldSfTimeZone'")
     }

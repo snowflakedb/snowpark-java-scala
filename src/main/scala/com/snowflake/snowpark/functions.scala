@@ -1345,6 +1345,63 @@ object functions {
     builtin("lpad")(str, len, pad)
 
   /**
+   * Left-pads a string with characters from another string.
+   *
+   * Examples:
+   * {{{
+   *   val df = Seq("hello", "world").toDF("a")
+   *   df.select(lpad(col("a"), 10, "*")).show()
+   *
+   *   --------------------------
+   *   |"LPAD(""A"", 10, '*')"  |
+   *   --------------------------
+   *   |*****hello              |
+   *   |*****world              |
+   *   --------------------------
+   * }}}
+   *
+   * @param str
+   *   The string column to pad.
+   * @param len
+   *   The target length of the resulting string value (in characters).
+   * @param pad
+   *   The string literal to use for padding.
+   * @return
+   *   A new column containing the left-padded string.
+   * @group str_func
+   * @since 1.17.0
+   */
+  def lpad(str: Column, len: Int, pad: String): Column = this.lpad(str, lit(len), lit(pad))
+
+  /**
+   * Left-pads a binary value with bytes from another binary value.
+   *
+   * Examples:
+   * {{{
+   *   val df = Seq(Array[Byte](0x41, 0x42)).toDF("a")
+   *   df.select(lpad(col("a"), 5, Array[Byte](0x00))).show()
+   *
+   *   ------------------------------------
+   *   |"LPAD(""A"", 5, '00' :: BINARY)"  |
+   *   ------------------------------------
+   *   |'0000004142'                      |
+   *   ------------------------------------
+   * }}}
+   *
+   * @param str
+   *   The binary column to pad.
+   * @param len
+   *   The target length of the resulting binary value (in bytes).
+   * @param pad
+   *   The byte array to use for padding.
+   * @return
+   *   A new column containing the left-padded binary value.
+   * @group str_func
+   * @since 1.17.0
+   */
+  def lpad(str: Column, len: Int, pad: Array[Byte]): Column = this.lpad(str, lit(len), lit(pad))
+
+  /**
    * Removes leading characters, including whitespace, from a string.
    *
    * @group str_func
@@ -1369,6 +1426,63 @@ object functions {
    */
   def rpad(str: Column, len: Column, pad: Column): Column =
     builtin("rpad")(str, len, pad)
+
+  /**
+   * Right-pads a string with characters from another string.
+   *
+   * Examples:
+   * {{{
+   *   val df = Seq("hello", "world").toDF("a")
+   *   df.select(rpad(col("a"), 10, "*")).show()
+   *
+   *   --------------------------
+   *   |"RPAD(""A"", 10, '*')"  |
+   *   --------------------------
+   *   |hello*****              |
+   *   |world*****              |
+   *   --------------------------
+   * }}}
+   *
+   * @param str
+   *   The string column to pad.
+   * @param len
+   *   The target length of the resulting string value (in characters).
+   * @param pad
+   *   The string literal to use for padding.
+   * @return
+   *   A new column containing the right-padded string.
+   * @group str_func
+   * @since 1.17.0
+   */
+  def rpad(str: Column, len: Int, pad: String): Column = this.rpad(str, lit(len), lit(pad))
+
+  /**
+   * Right-pads a binary value with bytes from another binary value.
+   *
+   * Examples:
+   * {{{
+   *   val df = Seq(Array[Byte](0x41, 0x42)).toDF("a")
+   *   df.select(rpad(col("a"), 5, Array[Byte](0x00))).show()
+   *
+   *   ------------------------------------
+   *   |"RPAD(""A"", 5, '00' :: BINARY)"  |
+   *   ------------------------------------
+   *   |'4142000000'                      |
+   *   ------------------------------------
+   * }}}
+   *
+   * @param str
+   *   The binary column to pad.
+   * @param len
+   *   The target length of the resulting binary value (in bytes).
+   * @param pad
+   *   The byte array to use for padding.
+   * @return
+   *   A new column containing the right-padded binary value.
+   * @group str_func
+   * @since 1.17.0
+   */
+  def rpad(str: Column, len: Int, pad: Array[Byte]): Column = this.rpad(str, lit(len), lit(pad))
 
   /**
    * Builds a string by repeating the input for the specified number of times.
@@ -1453,14 +1567,119 @@ object functions {
   def split(str: Column, pattern: Column): Column = builtin("split")(str, pattern)
 
   /**
-   * Returns the portion of the string or binary value str, starting from the character/byte
-   * specified by pos, with limited length.
+   * Returns the portion of the string or binary value from `str`, starting from the character/byte
+   * specified by `pos`, with limited length.
    *
+   * This function is a wrapper over the Snowflake SQL `SUBSTR`/`SUBSTRING` function. For detailed
+   * behavior documentation, see:
+   * [[https://docs.snowflake.com/en/sql-reference/functions/substr substr]]
+   *
+   * Examples:
+   * {{{
+   *   val df = Seq(
+   *     "john.doe@company.com",
+   *     "user123@domain.org",
+   *     "admin@test.net",
+   *   ).toDF("email")
+   *
+   *   // Extract first 4 characters (1-based indexing)
+   *   df.select(substring(col("email"), lit(1), lit(4))).show()
+   *   --------------------------------
+   *   |"SUBSTRING(""EMAIL"", 1, 4)"  |
+   *   --------------------------------
+   *   |john                          |
+   *   |user                          |
+   *   |admi                          |
+   *   --------------------------------
+   *
+   *   // Extract domain part (starting from position after @)
+   *   df.select(substring(col("email"), expr("POSITION('@' IN email) + 1"), lit(20))).show()
+   *   ----------------------------------------------------------
+   *   |"SUBSTRING(""EMAIL"", POSITION('@' IN EMAIL) + 1, 20)"  |
+   *   ----------------------------------------------------------
+   *   |company.com                                             |
+   *   |domain.org                                              |
+   *   |test.net                                                |
+   *   ----------------------------------------------------------
+   * }}}
+   *
+   * @param str
+   *   The input string or binary value to extract a substring from.
+   * @param pos
+   *   The starting position of the substring (1-based index).
+   *   - If `pos` is 0, it is treated as 1 (start from the first character/byte).
+   *   - If `pos` is negative, it counts backward from the end of the string (e.g., -1 starts at the
+   *     last character/byte, -2 starts at the second-to-last character/byte).
+   *   - If `pos` is greater than the length of `str`, the result is an empty string.
+   * @param len
+   *   The maximum number of characters/bytes to return.
+   *   - If `len` is 0 or negative, the result is an empty string.
+   *   - If `len` exceeds the remaining length from `pos`, the result contains characters/bytes from
+   *     `pos` to the end.
+   * @return
+   *   A Column containing the extracted substring.
    * @group str_func
    * @since 0.1.0
    */
   def substring(str: Column, pos: Column, len: Column): Column =
     builtin("substring")(str, pos, len)
+
+  /**
+   * Returns the portion of the string or binary value from `str`, starting from the character/byte
+   * specified by `pos`, with limited length.
+   *
+   * This function is a wrapper over the Snowflake SQL `SUBSTR`/`SUBSTRING` function. For detailed
+   * behavior documentation, see:
+   * [[https://docs.snowflake.com/en/sql-reference/functions/substr substr]]
+   *
+   * Examples:
+   * {{{
+   *   val df = Seq(
+   *     "SKU-12345-ABC",
+   *     "PRD-67890-XYZ",
+   *     "ITM-11111-DEF",
+   *   ).toDF("product_id")
+   *
+   *   // Extract product code (characters 5-9)
+   *   df.select(substring(col("product_id"), 5, 5)).show()
+   *   -------------------------------------
+   *   |"SUBSTRING(""PRODUCT_ID"", 5, 5)"  |
+   *   -------------------------------------
+   *   |12345                              |
+   *   |67890                              |
+   *   |11111                              |
+   *   -------------------------------------
+   *
+   *   // Extract category suffix (last 3 characters)
+   *   df.select(substring(col("product_id"), 11, 3)).show()
+   *   --------------------------------------
+   *   |"SUBSTRING(""PRODUCT_ID"", 11, 3)"  |
+   *   --------------------------------------
+   *   |ABC                                 |
+   *   |XYZ                                 |
+   *   |DEF                                 |
+   *   --------------------------------------
+   * }}}
+   *
+   * @param str
+   *   The input string or binary value to extract a substring from.
+   * @param pos
+   *   The starting position of the substring (1-based index).
+   *   - If `pos` is 0, it is treated as 1 (start from the first character/byte).
+   *   - If `pos` is negative, it counts backward from the end of the string (e.g., -1 starts at the
+   *     last character/byte, -2 starts at the second-to-last character/byte).
+   *   - If `pos` is greater than the length of `str`, the result is an empty string.
+   * @param len
+   *   The maximum number of characters/bytes to return.
+   *   - If `len` is 0 or negative, the result is an empty string.
+   *   - If `len` exceeds the remaining length from `pos`, the result contains characters/bytes from
+   *     `pos` to the end.
+   * @return
+   *   A Column containing the extracted substring.
+   * @group str_func
+   * @since 1.17.0
+   */
+  def substring(str: Column, pos: Int, len: Int): Column = this.substring(str, lit(pos), lit(len))
 
   /**
    * Translates src from the characters in matchingString to the characters in replaceString.
@@ -1812,12 +2031,65 @@ object functions {
   def to_timestamp(s: Column): Column = builtin("to_timestamp")(s)
 
   /**
+   * Wrapper for Snowflake built-in try_to_timestamp function. Converts an input expression into the
+   * corresponding timestamp, but with error-handling support, if the conversion cannot be
+   * performed, it returns a NULL value instead of raising an error.
+   *
+   * ===Example===
+   * {{{
+   * SELECT TRY_TO_TIMESTAMP('2024-01-15 12:30:00') as valid,
+   *        TRY_TO_TIMESTAMP('1561479557') as valid,
+   *        TRY_TO_TIMESTAMP('INVALID') as invalid;
+   * +-------------------------+---------+
+   * | VALID                   | INVALID |
+   * |-------------------------+---------|
+   * | 2024-01-15 12:30:00.000 | NULL    |
+   * +-------------------------+---------+
+   * }}}
+   *
+   * @param s
+   *   The input value to be converted to timestamp.
+   * @return
+   *   The result column.
+   * @group date_func
+   * @since 1.17.0
+   */
+  def try_to_timestamp(s: Column): Column = builtin("try_to_timestamp")(s)
+
+  /**
    * Converts an input expression into the corresponding timestamp.
    *
    * @group date_func
    * @since 0.1.0
    */
   def to_timestamp(s: Column, fmt: Column): Column = builtin("to_timestamp")(s, fmt)
+
+  /**
+   * Wrapper for Snowflake built-in try_to_timestamp function. Converts an input expression into the
+   * corresponding timestamp, but with error-handling support, if the conversion cannot be
+   * performed, it returns a NULL value instead of raising an error.
+   *
+   * ===Example===
+   * {{{
+   * SELECT TRY_TO_TIMESTAMP('04/05/2020 01:02:03', 'mm/dd/yyyy hh24:mi:ss') as valid,
+   *        TRY_TO_TIMESTAMP('INVALID', 'mm/dd/yyyy hh24:mi:ss') as invalid;
+   * +-------------------------+---------+
+   * | VALID                   | INVALID |
+   * |-------------------------+---------|
+   * | 2020-04-05 01:02:03.000 | NULL    |
+   * +-------------------------+---------+
+   * }}}
+   *
+   * @param s
+   *   The input value to be converted to timestamp.
+   * @param fmt
+   *   The time format
+   * @return
+   *   The result column.
+   * @group date_func
+   * @since 1.17.0
+   */
+  def try_to_timestamp(s: Column, fmt: Column): Column = builtin("try_to_timestamp")(s, fmt)
 
   /**
    * Converts an input expression to a date.
@@ -1828,12 +2100,63 @@ object functions {
   def to_date(e: Column): Column = builtin("to_date")(e)
 
   /**
+   * Wrapper for Snowflake built-in try_to_date function. Converts an input expression to a date,
+   * but with error-handling support, if the conversion cannot be performed, it returns a NULL value
+   * instead of raising an error.
+   *
+   * ===Example===
+   * {{{
+   * SELECT TRY_TO_DATE("2020-05-11") as valid, TRY_TO_DATE("invalid") as invalid;
+   * +------------+---------+
+   * | VALID      | INVALID |
+   * |------------+---------|
+   * | 2020-05-11 | NULL    |
+   * +------------+---------+
+   * }}}
+   *
+   * @param e
+   *   The input value to be converted to date.
+   * @return
+   *   The result column.
+   * @group date_func
+   * @since 1.17.0
+   */
+  def try_to_date(e: Column): Column = builtin("try_to_date")(e)
+
+  /**
    * Converts an input expression to a date.
    *
    * @group date_func
    * @since 0.1.0
    */
   def to_date(e: Column, fmt: Column): Column = builtin("to_date")(e, fmt)
+
+  /**
+   * Wrapper for Snowflake built-in try_to_date function. Converts an input expression to a date,
+   * but with error-handling support, if the conversion cannot be performed, it returns a NULL value
+   * instead of raising an error.
+   *
+   * ===Example===
+   * {{{
+   * SELECT TRY_TO_DATE("2020-05-11", "YYYY.MM.DD") as valid,
+   *        TRY_TO_DATE("invalid", "YYYY.MM.DD") as invalid;
+   * +------------+---------+
+   * | VALID      | INVALID |
+   * |------------+---------|
+   * | 2020-05-11 | NULL    |
+   * +------------+---------+
+   * }}}
+   *
+   * @param e
+   *   The input value to be converted to date.
+   * @param fmt
+   *   The time format
+   * @return
+   *   The result column.
+   * @group date_func
+   * @since 1.17.0
+   */
+  def try_to_date(e: Column, fmt: Column): Column = builtin("try_to_date")(e, fmt)
 
   /**
    * Creates a date from individual numeric components that represent the year, month, and day of

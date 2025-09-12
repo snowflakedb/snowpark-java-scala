@@ -1546,6 +1546,65 @@ public final class Functions {
   }
 
   /**
+   * Left-pads a string with characters from another string.
+   *
+   * <p>Example:
+   *
+   * <pre>{@code
+   * DataFrame df = session.createDataFrame(
+   *   new Row[] {Row.create("hello"), Row.create("world")},
+   *   StructType.create(new StructField("a", DataTypes.StringType))
+   * );
+   * df.select(lpad(col("a"), 10, "*")).show();
+   *
+   * --------------------------
+   * |"LPAD(""A"", 10, '*')"  |
+   * --------------------------
+   * |*****hello              |
+   * |*****world              |
+   * --------------------------
+   * }</pre>
+   *
+   * @param str The string column to pad.
+   * @param len The target length of the resulting string value (in characters).
+   * @param pad The string literal to use for padding.
+   * @return A new column containing the left-padded string.
+   * @since 1.17.0
+   */
+  public static Column lpad(Column str, int len, String pad) {
+    return new Column(com.snowflake.snowpark.functions.lpad(str.toScalaColumn(), len, pad));
+  }
+
+  /**
+   * Left-pads a binary value with bytes from another binary value.
+   *
+   * <p>Example:
+   *
+   * <pre>{@code
+   * DataFrame df = session.createDataFrame(
+   *   new Row[] {Row.create((Object) new byte[]{0x41, 0x42})},
+   *   StructType.create(new StructField("a", DataTypes.BinaryType))
+   * );
+   * df.select(lpad(col("a"), 5, new byte[] {0x00})).show();
+   *
+   * ------------------------------------
+   * |"LPAD(""A"", 5, '00' :: BINARY)"  |
+   * ------------------------------------
+   * |'0000004142'                      |
+   * ------------------------------------
+   * }</pre>
+   *
+   * @param str The binary column to pad.
+   * @param len The target length of the resulting binary value (in bytes).
+   * @param pad The byte array to use for padding.
+   * @return A new column containing the left-padded binary value.
+   * @since 1.17.0
+   */
+  public static Column lpad(Column str, int len, byte[] pad) {
+    return new Column(com.snowflake.snowpark.functions.lpad(str.toScalaColumn(), len, pad));
+  }
+
+  /**
    * Right-pads a string with characters from another string, or right-pads a binary value with
    * bytes from another binary value.
    *
@@ -1559,6 +1618,65 @@ public final class Functions {
     return new Column(
         com.snowflake.snowpark.functions.rpad(
             str.toScalaColumn(), len.toScalaColumn(), pad.toScalaColumn()));
+  }
+
+  /**
+   * Right-pads a string with characters from another string.
+   *
+   * <p>Example:
+   *
+   * <pre>{@code
+   * DataFrame df = session.createDataFrame(
+   *   new Row[] {Row.create("hello"), Row.create("world")},
+   *   StructType.create(new StructField("a", DataTypes.StringType))
+   * );
+   * df.select(rpad(col("a"), 10, "*")).show();
+   *
+   * --------------------------
+   * |"RPAD(""A"", 10, '*')"  |
+   * --------------------------
+   * |hello*****              |
+   * |world*****              |
+   * --------------------------
+   * }</pre>
+   *
+   * @param str The string column to pad.
+   * @param len The target length of the resulting string value (in characters).
+   * @param pad The string literal to use for padding.
+   * @return A new column containing the right-padded string.
+   * @since 1.17.0
+   */
+  public static Column rpad(Column str, int len, String pad) {
+    return new Column(com.snowflake.snowpark.functions.rpad(str.toScalaColumn(), len, pad));
+  }
+
+  /**
+   * Right-pads a binary value with bytes from another binary value.
+   *
+   * <p>Example:
+   *
+   * <pre>{@code
+   * DataFrame df = session.createDataFrame(
+   *   new Row[] {Row.create((Object) new byte[]{0x41, 0x42})},
+   *   StructType.create(new StructField("a", DataTypes.BinaryType))
+   * );
+   * df.select(rpad(col("a"), 5, new byte[] {0x00})).show();
+   *
+   * ------------------------------------
+   * |"RPAD(""A"", 5, '00' :: BINARY)"  |
+   * ------------------------------------
+   * |'4142000000'                      |
+   * ------------------------------------
+   * }</pre>
+   *
+   * @param str The binary column to pad.
+   * @param len The target length of the resulting binary value (in bytes).
+   * @param pad The byte array to use for padding.
+   * @return A new column containing the right-padded binary value.
+   * @since 1.17.0
+   */
+  public static Column rpad(Column str, int len, byte[] pad) {
+    return new Column(com.snowflake.snowpark.functions.rpad(str.toScalaColumn(), len, pad));
   }
 
   /**
@@ -1660,19 +1778,135 @@ public final class Functions {
   }
 
   /**
-   * Returns the portion of the string or binary value str, starting from the character/byte
-   * specified by pos, with limited length.
+   * Returns the portion of the string or binary value from {@code str}, starting from the
+   * character/byte specified by {@code pos}, with limited length.
    *
+   * <p>This function is a wrapper over the Snowflake SQL {@code SUBSTR}/{@code SUBSTRING} function.
+   * For detailed behavior documentation, see: <a
+   * href="https://docs.snowflake.com/en/sql-reference/functions/substr">substr</a>
+   *
+   * <p>Examples:
+   *
+   * <pre>{@code
+   * DataFrame df = session.createDataFrame(
+   *   new Row[] {
+   *     Row.create("john.doe@company.com"),
+   *     Row.create("user123@domain.org"),
+   *     Row.create("admin@test.net"),
+   *   },
+   *   StructType.create(new StructField("email", DataTypes.StringType))
+   * );
+   *
+   * // Extract first 4 characters (1-based indexing)
+   * df.select(substring(col("email"), lit(1), lit(4))).show();
+   * --------------------------------
+   * |"SUBSTRING(""EMAIL"", 1, 4)"  |
+   * --------------------------------
+   * |john                          |
+   * |user                          |
+   * |admi                          |
+   * --------------------------------
+   *
+   * // Extract domain part (starting from position after @)
+   * df.select(substring(col("email"), expr("POSITION('@' IN email) + 1"), lit(20))).show();
+   * ----------------------------------------------------------
+   * |"SUBSTRING(""EMAIL"", POSITION('@' IN EMAIL) + 1, 20)"  |
+   * ----------------------------------------------------------
+   * |company.com                                             |
+   * |domain.org                                              |
+   * |test.net                                                |
+   * ----------------------------------------------------------
+   * }</pre>
+   *
+   * @param str The input string or binary value to extract a substring from.
+   * @param pos The starting position of the substring (1-based index).
+   *     <ul>
+   *       <li>If {@code pos} is 0, it is treated as 1 (start from the first character/byte).
+   *       <li>If {@code pos} is negative, it counts backward from the end of the string (e.g., -1
+   *           starts at the last character/byte, -2 starts at the second-to-last character/byte)
+   *       <li>If {@code pos} is greater than the length of {@code str}, the result is an empty
+   *           string.
+   *     </ul>
+   *
+   * @param len The maximum number of characters/bytes to return.
+   *     <ul>
+   *       <li>If {@code len} is 0 or negative, the result is an empty string.
+   *       <li>If {@code len} exceeds the remaining length from {@code pos}, the result contains
+   *           characters/bytes from {@code pos} to the end.
+   *     </ul>
+   *
+   * @return A Column containing the extracted substring.
    * @since 0.11.0
-   * @param str The input string
-   * @param len The length
-   * @param pos The position
-   * @return The result column
    */
   public static Column substring(Column str, Column pos, Column len) {
     return new Column(
         com.snowflake.snowpark.functions.substring(
             str.toScalaColumn(), pos.toScalaColumn(), len.toScalaColumn()));
+  }
+
+  /**
+   * Returns the portion of the string or binary value from {@code str}, starting from the
+   * character/byte specified by {@code pos}, with limited length.
+   *
+   * <p>This function is a wrapper over the Snowflake SQL {@code SUBSTR}/{@code SUBSTRING} function.
+   * For detailed behavior documentation, see: <a
+   * href="https://docs.snowflake.com/en/sql-reference/functions/substr">substr</a>
+   *
+   * <p>Examples:
+   *
+   * <pre>{@code
+   * DataFrame df = session.createDataFrame(
+   *   new Row[] {
+   *     Row.create("SKU-12345-ABC"),
+   *     Row.create("PRD-67890-XYZ"),
+   *     Row.create("ITM-11111-DEF"),
+   *   },
+   *   StructType.create(new StructField("product_id", DataTypes.StringType))
+   * );
+   *
+   * // Extract product code (characters 5-9)
+   * df.select(substring(col("product_id"), 5, 5)).show();
+   * -------------------------------------
+   * |"SUBSTRING(""PRODUCT_ID"", 5, 5)"  |
+   * -------------------------------------
+   * |12345                              |
+   * |67890                              |
+   * |11111                              |
+   * -------------------------------------
+   *
+   * // Extract category suffix (last 3 characters)
+   * df.select(substring(col("product_id"), 11, 3)).show();
+   * --------------------------------------
+   * |"SUBSTRING(""PRODUCT_ID"", 11, 3)"  |
+   * --------------------------------------
+   * |ABC                                 |
+   * |XYZ                                 |
+   * |DEF                                 |
+   * --------------------------------------
+   * }</pre>
+   *
+   * @param str The input string or binary value to extract a substring from.
+   * @param pos The starting position of the substring (1-based index).
+   *     <ul>
+   *       <li>If {@code pos} is 0, it is treated as 1 (start from the first character/byte).
+   *       <li>If {@code pos} is negative, it counts backward from the end of the string (e.g., -1
+   *           starts at the last character/byte, -2 starts at the second-to-last character/byte)
+   *       <li>If {@code pos} is greater than the length of {@code str}, the result is an empty
+   *           string.
+   *     </ul>
+   *
+   * @param len The maximum number of characters/bytes to return.
+   *     <ul>
+   *       <li>If {@code len} is 0 or negative, the result is an empty string.
+   *       <li>If {@code len} exceeds the remaining length from {@code pos}, the result contains
+   *           characters/bytes from {@code pos} to the end.
+   *     </ul>
+   *
+   * @return A Column containing the extracted substring.
+   * @since 1.17.0
+   */
+  public static Column substring(Column str, int pos, int len) {
+    return new Column(com.snowflake.snowpark.functions.substring(str.toScalaColumn(), pos, len));
   }
 
   /**
@@ -2129,6 +2363,30 @@ public final class Functions {
   }
 
   /**
+   * Wrapper for Snowflake built-in try_to_timestamp function. Converts an input expression into the
+   * corresponding timestamp, but with error-handling support, if the conversion cannot be
+   * performed, it returns a NULL value instead of raising an error.
+   *
+   * <p><b>Example:</b>
+   *
+   * <pre>{@code
+   * SELECT TRY_TO_TIMESTAMP('2024-01-15 12:30:00') as valid, TRY_TO_TIMESTAMP('INVALID') as invalid;
+   * +-------------------------+---------+
+   * | VALID                   | INVALID |
+   * |-------------------------+---------|
+   * | 2024-01-15 12:30:00.000 | NULL    |
+   * +-------------------------+---------+
+   * }</pre>
+   *
+   * @param s The input value to be converted to timestamp
+   * @return The result column
+   * @since 1.17.0
+   */
+  public static Column try_to_timestamp(Column s) {
+    return new Column(com.snowflake.snowpark.functions.try_to_timestamp(s.toScalaColumn()));
+  }
+
+  /**
    * Converts an input expression into the corresponding timestamp.
    *
    * @since 0.11.0
@@ -2139,6 +2397,33 @@ public final class Functions {
   public static Column to_timestamp(Column s, Column fmt) {
     return new Column(
         com.snowflake.snowpark.functions.to_timestamp(s.toScalaColumn(), fmt.toScalaColumn()));
+  }
+
+  /**
+   * Wrapper for Snowflake built-in try_to_timestamp function. Converts an input expression into the
+   * corresponding timestamp, but with error-handling support, if the conversion cannot be
+   * performed, it returns a NULL value instead of raising an error.
+   *
+   * <p><b>Example:</b>
+   *
+   * <pre>{@code
+   * SELECT TRY_TO_TIMESTAMP('04/05/2020 01:02:03', 'mm/dd/yyyy hh24:mi:ss') as valid,
+   *        TRY_TO_TIMESTAMP('INVALID', 'mm/dd/yyyy hh24:mi:ss') as invalid;
+   * +-------------------------+---------+
+   * | VALID                   | INVALID |
+   * |-------------------------+---------|
+   * | 2020-04-05 01:02:03.000 | NULL    |
+   * +-------------------------+---------+
+   * }</pre>
+   *
+   * @param s The input value to be converted to timestamp
+   * @param fmt The time format
+   * @return The result column
+   * @since 1.17.0
+   */
+  public static Column try_to_timestamp(Column s, Column fmt) {
+    return new Column(
+        com.snowflake.snowpark.functions.try_to_timestamp(s.toScalaColumn(), fmt.toScalaColumn()));
   }
 
   /**
@@ -2153,6 +2438,30 @@ public final class Functions {
   }
 
   /**
+   * Wrapper for Snowflake built-in try_to_date function. Converts an input expression to a date,
+   * but with error-handling support (i.e. if the conversion cannot be performed, it returns a NULL
+   * value instead of raising an error)
+   *
+   * <p><b>Example:</b>
+   *
+   * <pre>{@code
+   * SELECT TRY_TO_DATE('2020-05-11') as valid, TRY_TO_DATE('INVALID') as invalid;
+   * +------------+---------+
+   * | VALID      | INVALID |
+   * |------------+---------|
+   * | 2020-05-11 | NULL    |
+   * +------------+---------+
+   * }</pre>
+   *
+   * @param e Column to be converted to date.
+   * @return The result Column object.
+   * @since 1.17.0
+   */
+  public static Column try_to_date(Column e) {
+    return new Column(com.snowflake.snowpark.functions.try_to_date(e.toScalaColumn()));
+  }
+
+  /**
    * Converts an input expression to a date.
    *
    * @since 0.11.0
@@ -2163,6 +2472,32 @@ public final class Functions {
   public static Column to_date(Column e, Column fmt) {
     return new Column(
         com.snowflake.snowpark.functions.to_date(e.toScalaColumn(), fmt.toScalaColumn()));
+  }
+
+  /**
+   * Wrapper for Snowflake built-in try_to_date function. Converts an input expression to a date,
+   * but with error-handling support (i.e. if the conversion cannot be performed, it returns a NULL
+   * value instead of raising an error)
+   *
+   * <p><b>Example:</b>
+   *
+   * <pre>{@code
+   * SELECT TRY_TO_DATE('2020.07.23', 'YYYY.MM.DD') as valid, TRY_TO_DATE('INVALID', 'YYYY.MM.DD') as invalid);
+   * +------------+---------+
+   * | VALID      | INVALID |
+   * +------------+---------+
+   * | 2020-07-23 | NULL    |
+   * +------------+---------+
+   * }</pre>
+   *
+   * @param e The input value
+   * @param fmt The time format
+   * @return The result Column object.
+   * @since 1.17.0
+   */
+  public static Column try_to_date(Column e, Column fmt) {
+    return new Column(
+        com.snowflake.snowpark.functions.try_to_date(e.toScalaColumn(), fmt.toScalaColumn()));
   }
 
   /**
