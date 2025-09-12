@@ -846,7 +846,7 @@ public class JavaFunctionSuite extends TestBase {
   }
 
   @Test
-  public void lpad_rpad() {
+  public void lpad_rpad_string() {
     DataFrame df = getSession().sql("select * from values('asdFg'),('qqq'),('Qw') as T(a)");
     Row[] expected = {
       Row.create("XXXasdFg", "asdFgSSSS"),
@@ -858,24 +858,88 @@ public class JavaFunctionSuite extends TestBase {
             Functions.lpad(df.col("a"), Functions.lit(8), Functions.lit("X")),
             Functions.rpad(df.col("a"), Functions.lit(9), Functions.lit("S"))),
         expected);
+    checkAnswer(
+        df.select(Functions.lpad(df.col("a"), 8, "X"), Functions.rpad(df.col("a"), 9, "S")),
+        expected);
+  }
+
+  @Test
+  public void lpad_rpad_binary() {
+    DataFrame df = getSession().sql("select to_binary(X'010203') as A");
+    checkAnswer(
+        df.select(
+            Functions.lpad(df.col("A"), 5, new byte[] {9, 8}),
+            Functions.rpad(df.col("A"), 5, new byte[] {9, 8})),
+        new Row[] {Row.create(new byte[] {9, 8, 1, 2, 3}, new byte[] {1, 2, 3, 9, 8})});
+  }
+
+  @Test
+  public void lpad_rpad_length_edge_cases() {
+    DataFrame df = getSession().sql("select * from values('asdFg'),('qqq'),('Qw') as T(a)");
+
+    // Zero length
+    checkAnswer(
+        df.select(Functions.lpad(df.col("a"), 0, "X"), Functions.rpad(df.col("a"), 0, "X")),
+        new Row[] {Row.create("", ""), Row.create("", ""), Row.create("", "")});
+
+    // Negative length
+    checkAnswer(
+        df.select(Functions.lpad(df.col("a"), -1, "X"), Functions.rpad(df.col("a"), -1, "X")),
+        new Row[] {Row.create("", ""), Row.create("", ""), Row.create("", "")});
+
+    // Target length shorter than input string (truncation)
+    checkAnswer(
+        df.select(Functions.lpad(df.col("a"), 2, "X"), Functions.rpad(df.col("a"), 2, "X")),
+        new Row[] {Row.create("as", "as"), Row.create("qq", "qq"), Row.create("Qw", "Qw")});
+  }
+
+  @Test
+  public void lpad_rpad_null_and_empty_inputs() {
+    // Null input string
+    DataFrame nullStringDf = getSession().sql("select * from values(null),('test') as T(a)");
+    checkAnswer(
+        nullStringDf.select(
+            Functions.lpad(nullStringDf.col("a"), 5, "X"),
+            Functions.rpad(nullStringDf.col("a"), 5, "X")),
+        new Row[] {Row.create(null, null), Row.create("Xtest", "testX")});
+
+    // Empty string input
+    DataFrame emptyStringDf = getSession().sql("select * from values(''),('test') as T(a)");
+    checkAnswer(
+        emptyStringDf.select(
+            Functions.lpad(emptyStringDf.col("a"), 3, "X"),
+            Functions.rpad(emptyStringDf.col("a"), 3, "X")),
+        new Row[] {Row.create("XXX", "XXX"), Row.create("tes", "tes")});
+
+    DataFrame emptyBinaryDf = getSession().sql("select to_binary('') as A");
+    checkAnswer(
+        emptyBinaryDf.select(
+            Functions.lpad(emptyBinaryDf.col("A"), 3, new byte[] {0}),
+            Functions.rpad(emptyBinaryDf.col("A"), 3, new byte[] {0})),
+        new Row[] {Row.create(new byte[] {0, 0, 0}, new byte[] {0, 0, 0})});
+
+    // Empty padding string
+    DataFrame df = getSession().sql("select * from values('asdFg'),('qqq'),('Qw') as T(a)");
+    checkAnswer(
+        df.select(Functions.lpad(df.col("a"), 8, ""), Functions.rpad(df.col("a"), 8, "")),
+        new Row[] {Row.create("asdFg", "asdFg"), Row.create("qqq", "qqq"), Row.create("Qw", "Qw")});
   }
 
   @Test
   public void ltrim_rtrim_trim() {
     DataFrame df = getSession().sql("select * from values('  abcba  '), (' a12321a   ') as T(a)");
-    Row[] expected = {
-      Row.create("bcba  ", "  abcb", "bcb"), Row.create("12321a   ", " a12321", "12321")
-    };
     checkAnswer(
         df.select(
             Functions.ltrim(df.col("a"), Functions.lit(" a")),
             Functions.rtrim(df.col("a"), Functions.lit(" a")),
             Functions.trim(df.col("a"), Functions.lit("a "))),
-        expected);
+        new Row[] {
+          Row.create("bcba  ", "  abcb", "bcb"), Row.create("12321a   ", " a12321", "12321")
+        });
 
-    Row[] expected2 = {Row.create("abcba  ", "  abcba"), Row.create("a12321a   ", " a12321a")};
-
-    checkAnswer(df.select(Functions.ltrim(df.col("a")), Functions.rtrim(df.col("a"))), expected2);
+    checkAnswer(
+        df.select(Functions.ltrim(df.col("a")), Functions.rtrim(df.col("a"))),
+        new Row[] {Row.create("abcba  ", "  abcba"), Row.create("a12321a   ", " a12321a")});
   }
 
   @Test
@@ -905,13 +969,108 @@ public class JavaFunctionSuite extends TestBase {
   }
 
   @Test
-  public void substring() {
+  public void substring_basic_functionality() {
     DataFrame df =
         getSession()
             .sql("select * from values('test1', 'a'),('test2', 'b'),('test3', 'c') as T(a, b)");
     Row[] expected = {Row.create("est1"), Row.create("est2"), Row.create("est3")};
+
+    // With Column parameters
     checkAnswer(
         df.select(Functions.substring(df.col("a"), Functions.lit(2), Functions.lit(4))), expected);
+
+    // With literal parameters
+    checkAnswer(df.select(Functions.substring(df.col("a"), 2, 4)), expected);
+  }
+
+  @Test
+  public void substring_start_position_variations() {
+    DataFrame df = getSession().sql("select * from values('test1'),('test2'),('test3') as T(a)");
+
+    // Start position 1 (first character)
+    Row[] expectedFirstThree = {Row.create("tes"), Row.create("tes"), Row.create("tes")};
+    checkAnswer(df.select(Functions.substring(df.col("a"), 1, 3)), expectedFirstThree);
+
+    // Start position 0 - should behave like position 1
+    checkAnswer(df.select(Functions.substring(df.col("a"), 0, 3)), expectedFirstThree);
+
+    // Start position equals string length - should get last character
+    Row[] expectedLastChar = {Row.create("1"), Row.create("2"), Row.create("3")};
+    checkAnswer(df.select(Functions.substring(df.col("a"), 5, 2)), expectedLastChar);
+
+    // Start position greater than string length - should return empty string
+    Row[] expectedEmpty = {Row.create(""), Row.create(""), Row.create("")};
+    checkAnswer(df.select(Functions.substring(df.col("a"), 10, 2)), expectedEmpty);
+  }
+
+  @Test
+  public void substring_length_variations() {
+    DataFrame df = getSession().sql("select * from values('test1'),('test2'),('test3') as T(a)");
+
+    // Length 0 - should return empty string regardless of start position
+    Row[] expectedEmptyStrings = {Row.create(""), Row.create(""), Row.create("")};
+    checkAnswer(df.select(Functions.substring(df.col("a"), 2, 0)), expectedEmptyStrings);
+
+    // Length 1 - should return single character
+    Row[] expectedSingleChar = {Row.create("e"), Row.create("e"), Row.create("e")};
+    checkAnswer(df.select(Functions.substring(df.col("a"), 2, 1)), expectedSingleChar);
+
+    // Very large length - should return remainder of string from position
+    Row[] expectedRemainder = {Row.create("est1"), Row.create("est2"), Row.create("est3")};
+    checkAnswer(df.select(Functions.substring(df.col("a"), 2, 1000)), expectedRemainder);
+  }
+
+  @Test
+  public void substring_negative_values() {
+    DataFrame df = getSession().sql("select * from values('test1'),('test2'),('test3') as T(a)");
+
+    // Negative start position - should return characters from the end
+    Row[] expectedFromEnd = {Row.create("1"), Row.create("2"), Row.create("3")};
+    checkAnswer(df.select(Functions.substring(df.col("a"), -1, 3)), expectedFromEnd);
+
+    // Negative length - should return empty string
+    Row[] expectedEmptyStrings = {Row.create(""), Row.create(""), Row.create("")};
+    checkAnswer(df.select(Functions.substring(df.col("a"), 2, -1)), expectedEmptyStrings);
+
+    // Both negative start and length - should return empty string
+    checkAnswer(df.select(Functions.substring(df.col("a"), -1, -1)), expectedEmptyStrings);
+  }
+
+  @Test
+  public void substring_null_handling() {
+    // Null string input - should return null regardless of other parameters
+    DataFrame dfNullStrings =
+        getSession().sql("select * from values(null),('test'),(null) as T(a)");
+    Row[] expectedNullStrings = {
+      Row.create((Object) null), Row.create("te"), Row.create((Object) null)
+    };
+    checkAnswer(
+        dfNullStrings.select(Functions.substring(dfNullStrings.col("a"), 1, 2)),
+        expectedNullStrings);
+
+    // Null start position - any null parameter should result in null output
+    DataFrame dfNullStart =
+        getSession()
+            .sql(
+                "select * from values('test1', null, 2),('test2', 1, 2) as T(str, start_pos, len)");
+    Row[] expectedNullStart = {Row.create((Object) null), Row.create("te")};
+    checkAnswer(
+        dfNullStart.select(
+            Functions.substring(
+                dfNullStart.col("str"), dfNullStart.col("start_pos"), dfNullStart.col("len"))),
+        expectedNullStart);
+
+    // Null length - any null parameter should result in null output
+    DataFrame dfNullLen =
+        getSession()
+            .sql(
+                "select * from values('test1', 1, null),('test2', 1, 2) as T(str, start_pos, len)");
+    Row[] expectedNullLen = {Row.create((Object) null), Row.create("te")};
+    checkAnswer(
+        dfNullLen.select(
+            Functions.substring(
+                dfNullLen.col("str"), dfNullLen.col("start_pos"), dfNullLen.col("len"))),
+        expectedNullLen);
   }
 
   @Test
@@ -1237,6 +1396,35 @@ public class JavaFunctionSuite extends TestBase {
   }
 
   @Test
+  public void try_to_timestamp() {
+    withTimeZoneTest(
+        () -> {
+          DataFrame df =
+              getSession()
+                  .sql("select * from values('1561479557'),('1565479557'),('INVALID') as T(a)");
+          Row[] expected = {
+            Row.create(Timestamp.valueOf("2019-06-25 16:19:17.0")),
+            Row.create(Timestamp.valueOf("2019-08-10 23:25:57.0")),
+            Row.create((Object) null)
+          };
+          checkAnswer(df.select(Functions.try_to_timestamp(df.col("a"))), expected);
+
+          DataFrame df2 =
+              getSession()
+                  .sql(
+                      "select * from values('04/05/2020 01:02:03'::VARCHAR),('INVALID'::VARCHAR) as T(a)");
+          Row[] expected2 = {
+            Row.create(Timestamp.valueOf("2020-04-05 01:02:03.0")), Row.create((Object) null)
+          };
+          checkAnswer(
+              df2.select(
+                  Functions.try_to_timestamp(df2.col("a"), Functions.lit("mm/dd/yyyy hh24:mi:ss"))),
+              expected2);
+        },
+        getSession());
+  }
+
+  @Test
   public void to_date() {
     withTimeZoneTest(
         () -> {
@@ -1248,6 +1436,25 @@ public class JavaFunctionSuite extends TestBase {
           Row[] expected1 = {Row.create(new Date(120, 6, 23))};
           checkAnswer(
               df1.select(Functions.to_date(df.col("a"), Functions.lit("YYYY.MM.DD"))), expected1);
+        },
+        getSession());
+  }
+
+  @Test
+  public void try_to_date() {
+    withTimeZoneTest(
+        () -> {
+          DataFrame df =
+              getSession().sql("select * from values('2020-05-11'), ('INVALID') as T(a)");
+          Row[] expected = {Row.create(new Date(120, 4, 11)), Row.create((Object) null)};
+          checkAnswer(df.select(Functions.try_to_date(df.col("a"))), expected);
+
+          DataFrame df1 =
+              getSession().sql("select * from values('2020.07.23'), ('INVALID') as T(a)");
+          Row[] expected1 = {Row.create(new Date(120, 6, 23)), Row.create((Object) null)};
+          checkAnswer(
+              df1.select(Functions.try_to_date(df.col("a"), Functions.lit("YYYY.MM.DD"))),
+              expected1);
         },
         getSession());
   }
@@ -2595,7 +2802,7 @@ public class JavaFunctionSuite extends TestBase {
                   Functions.as_timestamp_ntz(df.col("timestamp_ltz1"))),
               expected);
 
-          Row[] expected1 = {Row.create(null, null, Timestamp.valueOf("2017-02-24 12:00:00.123"))};
+          Row[] expected1 = {Row.create(null, null, Timestamp.valueOf("2017-02-24 04:00:00.123"))};
           checkAnswer(
               df.select(
                   Functions.as_timestamp_ltz(df.col("timestamp_ntz1")),

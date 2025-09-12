@@ -565,6 +565,13 @@ trait DataFrameSuite extends TestData with BeforeAndAfterEach {
     integer1.first(-10) sameElements Seq(Row(1), Row(2), Row(3))
   }
 
+  test("isEmpty") {
+    val notEmpty = integer1.isEmpty
+    val empty = emptyDf.isEmpty
+    assert(!notEmpty)
+    assert(empty)
+  }
+
   test("sample() with row count") {
     val rowCount = 10000
     val df1 = session.range(rowCount)
@@ -794,6 +801,46 @@ trait DataFrameSuite extends TestData with BeforeAndAfterEach {
     // Negative test: sort() needs at least one sort expression.
     assertThrows[SnowparkClientException]({
       df.sort(Seq.empty)
+    })
+  }
+
+  test("test sort(String, String*)") {
+    val df = Seq(
+      ("Alice", 25, "Engineer"),
+      ("Bob", 25, "Designer"),
+      ("Charlie", 30, "Engineer"),
+      ("Diana", 25, "Engineer")).toDF("name", "age", "role")
+
+    // Sort by single column
+    checkAnswer(
+      df.sort("role"),
+      Seq(
+        Row("Bob", 25, "Designer"),
+        Row("Alice", 25, "Engineer"),
+        Row("Charlie", 30, "Engineer"),
+        Row("Diana", 25, "Engineer")))
+
+    // Sort by exactly two columns
+    checkAnswer(
+      df.sort("age", "name"),
+      Seq(
+        Row("Alice", 25, "Engineer"),
+        Row("Bob", 25, "Designer"),
+        Row("Diana", 25, "Engineer"),
+        Row("Charlie", 30, "Engineer")))
+
+    // Sort by three or more columns
+    checkAnswer(
+      df.sort("age", "role", "name"),
+      Seq(
+        Row("Bob", 25, "Designer"),
+        Row("Alice", 25, "Engineer"),
+        Row("Diana", 25, "Engineer"),
+        Row("Charlie", 30, "Engineer")))
+
+    // Negative test: column doesn't exist
+    assertThrows[SnowflakeSQLException]({
+      df.sort("non_existent_column").collect()
     })
   }
 
@@ -1970,7 +2017,7 @@ trait DataFrameSuite extends TestData with BeforeAndAfterEach {
   }
 
   test("with columns keep order", JavaStoredProcExclude) {
-    testWithTimezone("America/Los_Angeles") {
+    testWithTimezone() {
       val data = new Variant(
         Map("STARTTIME" -> 0, "ENDTIME" -> 10000, "START_STATION_ID" -> 2, "END_STATION_ID" -> 3))
       val df = Seq((1, data)).toDF("TRIPID", "V")

@@ -473,52 +473,49 @@ trait UDFSuite extends TestData {
 
   // Excluding this test for known Timezone issue in stored proc
   test("Test for Variant Timestamp input", JavaStoredProcExclude) {
-    // TODO: Figure out why testWithTimezone causes test flakiness
-    // testWithTimezone("America/Los_Angeles") {
-    val variantTimestampUDF = udf((v: Variant) => {
-      if (v == null) {
-        null
-      } else {
-        new Timestamp(v.asTimestamp().getTime + 5000)
-      }
-    })
+    testWithTimezone() {
+      val variantTimestampUDF = udf((v: Variant) => {
+        if (v == null) {
+          null
+        } else {
+          new Timestamp(v.asTimestamp().getTime + 5000)
+        }
+      })
 
-    // The UDF will add 5 seconds to the timestamp.
-    // '2017-02-24 12:00:00.456' -> '2017-02-24 12:00:05.456'
-    checkAnswer(
-      variant1.select(variantTimestampUDF(col("timestamp_ntz1"))),
-      Seq(Row(Timestamp.valueOf("2017-02-24 20:00:05.456"))))
-    // }
+      // The UDF will add 5 seconds to the timestamp.
+      // '2017-02-24 12:00:00.456' -> '2017-02-24 12:00:05.456'
+      checkAnswer(
+        variant1.select(variantTimestampUDF(col("timestamp_ntz1"))),
+        Seq(Row(Timestamp.valueOf("2017-02-24 20:00:05.456"))))
+    }
   }
 
   // Excluding this test for known Timezone issue in stored proc
   test("Test for Variant Time input", JavaStoredProcExclude) {
-    // TODO: Figure out why testWithTimezone causes test flakiness
-    // testWithTimezone("America/Los_Angeles") {
-    val variantTimeUDF = udf((v: Variant) => new Timestamp(v.asTime().getTime + 5000))
+    testWithTimezone() {
+      val variantTimeUDF = udf((v: Variant) => new Timestamp(v.asTime().getTime + 5000))
 
-    // The UDF will add 5 seconds to the time. There is precision loss in the time.
-    // There is 8 hours time difference local computer and server,
-    // so 20:57:01 -> 04:57:01 + one day. '1970-01-02 04:57:01.0' -> '1970-01-02 04:57:06.0'
-    checkAnswer(
-      variant1.select(variantTimeUDF(col("time1"))),
-      Seq(Row(Timestamp.valueOf("1970-01-02 04:57:06.0"))))
-    // }
+      // The UDF will add 5 seconds to the time. There is precision loss in the time.
+      // There is 8 hours time difference local computer and server,
+      // so 20:57:01 -> 04:57:01 + one day. '1970-01-02 04:57:01.0' -> '1970-01-02 04:57:06.0'
+      checkAnswer(
+        variant1.select(variantTimeUDF(col("time1"))),
+        Seq(Row(Timestamp.valueOf("1970-01-02 04:57:06.0"))))
+    }
   }
 
   // Excluding this test for known Timezone issue in stored proc
   test("Test for Variant Date input", JavaStoredProcExclude) {
-    // TODO: Figure out why testWithTimezone causes test flakiness
-    // testWithTimezone("America/Los_Angeles") {
-    val variantUDF = udf((v: Variant) => new Timestamp(v.asDate().getTime + 5000))
+    testWithTimezone() {
+      val variantUDF = udf((v: Variant) => new Timestamp(v.asDate().getTime + 5000))
 
-    // The UDF will add 5 seconds to the date.
-    // There is 8 hours time difference between local computer and server,
-    // so 2017-02-24 -> 2017-02-24 08:00:00. '2017-02-24 08:00:00' -> '2017-02-24 08:00:05'
-    checkAnswer(
-      variant1.select(variantUDF(col("date1"))),
-      Seq(Row(Timestamp.valueOf("2017-02-24 08:00:05.0"))))
-    // }
+      // The UDF will add 5 seconds to the date.
+      // There is 8 hours time difference between local computer and server,
+      // so 2017-02-24 -> 2017-02-24 08:00:00. '2017-02-24 08:00:00' -> '2017-02-24 08:00:05'
+      checkAnswer(
+        variant1.select(variantUDF(col("date1"))),
+        Seq(Row(Timestamp.valueOf("2017-02-24 08:00:05.0"))))
+    }
   }
 
   test("Test for Variant String input") {

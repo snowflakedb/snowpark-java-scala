@@ -419,10 +419,61 @@ trait FunctionSuite extends TestData {
       Seq(Row("Asdfg", 5, "asdfg", "ASDFG"), Row("Qqq", 3, "qqq", "QQQ"), Row("Qw", 2, "qw", "QW")))
   }
 
-  test("lpad rpad") {
+  test("lpad rpad string") {
+    val expected =
+      Seq(Row("XXXasdFg", "asdFgSSSS"), Row("XXXXXqqq", "qqqSSSSSS"), Row("XXXXXXQw", "QwSSSSSSS"))
     checkAnswer(
       string2.select(lpad(col("A"), lit(8), lit("X")), rpad(col("A"), lit(9), lit("S"))),
-      Seq(Row("XXXasdFg", "asdFgSSSS"), Row("XXXXXqqq", "qqqSSSSSS"), Row("XXXXXXQw", "QwSSSSSSS")))
+      expected)
+    checkAnswer(string2.select(lpad(col("A"), 8, "X"), rpad(col("A"), 9, "S")), expected)
+  }
+
+  test("lpad rpad binary") {
+    val df = Seq(Array[Byte](1, 2, 3)).toDF("A")
+    checkAnswer(
+      df.select(lpad(col("A"), 5, Array[Byte](9, 8)), rpad(col("A"), 5, Array[Byte](9, 8))),
+      Seq(Row(Array[Byte](9, 8, 1, 2, 3), Array[Byte](1, 2, 3, 9, 8))))
+  }
+
+  test("lpad rpad length edge cases") {
+    // Zero length
+    checkAnswer(
+      string2.select(lpad(col("A"), 0, "X"), rpad(col("A"), 0, "X")),
+      Seq(Row("", ""), Row("", ""), Row("", "")))
+
+    // Negative length
+    checkAnswer(
+      string2.select(lpad(col("A"), -1, "X"), rpad(col("A"), -1, "X")),
+      Seq(Row("", ""), Row("", ""), Row("", "")))
+
+    // Target length shorter than input string (truncation)
+    checkAnswer(
+      string2.select(lpad(col("A"), 2, "X"), rpad(col("A"), 2, "X")),
+      Seq(Row("as", "as"), Row("qq", "qq"), Row("Qw", "Qw")))
+  }
+
+  test("lpad rpad null and empty inputs") {
+    // Null input string
+    val nullStringDf = session.sql("select * from values(null),('test') as T(a)")
+    checkAnswer(
+      nullStringDf.select(lpad(col("A"), 5, "X"), rpad(col("A"), 5, "X")),
+      Seq(Row(null, null), Row("Xtest", "testX")))
+
+    // Empty string input
+    val emptyStringDf = session.sql("select * from values(''),('test') as T(a)")
+    checkAnswer(
+      emptyStringDf.select(lpad(col("A"), 3, "X"), rpad(col("A"), 3, "X")),
+      Seq(Row("XXX", "XXX"), Row("tes", "tes")))
+
+    val emptyBinaryDf = session.sql("select to_binary('') as A")
+    checkAnswer(
+      emptyBinaryDf.select(lpad(col("A"), 3, Array[Byte](0)), rpad(col("A"), 3, Array[Byte](0))),
+      Seq(Row(Array[Byte](0, 0, 0), Array[Byte](0, 0, 0))))
+
+    // Empty padding string
+    checkAnswer(
+      string2.select(lpad(col("A"), 8, ""), rpad(col("A"), 8, "")),
+      Seq(Row("asdFg", "asdFg"), Row("qqq", "qqq"), Row("Qw", "Qw")))
   }
 
   test("ltrim rtrim, trim") {
@@ -449,10 +500,79 @@ trait FunctionSuite extends TestData {
     checkAnswer(string4.select(soundex(col("A"))), Seq(Row("a140"), Row("b550"), Row("p200")))
   }
 
-  test("sub string") {
+  test("substring - basic functionality") {
+    val expected = Seq(Row("est1"), Row("est2"), Row("est3"))
+    // With Column parameters
+    checkAnswer(string1.select(substring(col("A"), lit(2), lit(4))), expected)
+    // With literal parameters
+    checkAnswer(string1.select(substring(col("A"), 2, 4)), expected)
+  }
+
+  test("substring - start position variations") {
+    // Start position 1 (first character)
+    val expectedFirstThree = Seq(Row("tes"), Row("tes"), Row("tes"))
+    checkAnswer(string1.select(substring(col("A"), 1, 3)), expectedFirstThree)
+
+    // Start position 0 - should behave like position 1
+    checkAnswer(string1.select(substring(col("A"), 0, 3)), expectedFirstThree)
+
+    // Start position equals string length - should get last character
+    val expectedLastChar = Seq(Row("1"), Row("2"), Row("3"))
+    checkAnswer(string1.select(substring(col("A"), 5, 2)), expectedLastChar)
+
+    // Start position greater than string length - should return empty string
+    val expectedEmpty = Seq(Row(""), Row(""), Row(""))
+    checkAnswer(string1.select(substring(col("A"), 10, 2)), expectedEmpty)
+  }
+
+  test("substring - length variations") {
+    // Length 0 - should return empty string regardless of start position
+    val expectedEmptyStrings = Seq(Row(""), Row(""), Row(""))
+    checkAnswer(string1.select(substring(col("A"), 2, 0)), expectedEmptyStrings)
+
+    // Length 1 - should return single character
+    val expectedSingleChar = Seq(Row("e"), Row("e"), Row("e"))
+    checkAnswer(string1.select(substring(col("A"), 2, 1)), expectedSingleChar)
+
+    // Very large length - should return remainder of string from position
+    val expectedRemainder = Seq(Row("est1"), Row("est2"), Row("est3"))
+    checkAnswer(string1.select(substring(col("A"), 2, 1000)), expectedRemainder)
+  }
+
+  test("substring - negative values") {
+    // Negative start position - should return characters from the end
+    val expectedFromEnd = Seq(Row("1"), Row("2"), Row("3"))
+    checkAnswer(string1.select(substring(col("A"), -1, 3)), expectedFromEnd)
+
+    // Negative length - should return empty string
+    val expectedEmptyStrings = Seq(Row(""), Row(""), Row(""))
+    checkAnswer(string1.select(substring(col("A"), 2, -1)), expectedEmptyStrings)
+
+    // Both negative start and length - should return empty string
+    checkAnswer(string1.select(substring(col("A"), -1, -1)), expectedEmptyStrings)
+  }
+
+  test("substring - null handling") {
+    // Null string input - should return null regardless of other parameters
+    val dfNullStrings = session.sql("select * from values(null),('test'),(null) as T(a)")
+    val expectedNullStrings = Seq(Row(null), Row("te"), Row(null))
+    checkAnswer(dfNullStrings.select(substring(col("A"), 1, 2)), expectedNullStrings)
+
+    // Null start position - any null parameter should result in null output
+    val dfNullStart = session.sql(
+      "select * from values('test1', null, 2),('test2', 1, 2) as T(str, start_pos, len)")
+    val expectedNullStart = Seq(Row(null), Row("te"))
     checkAnswer(
-      string1.select(substring(col("A"), lit(2), lit(4))),
-      Seq(Row("est1"), Row("est2"), Row("est3")))
+      dfNullStart.select(substring(col("str"), col("start_pos"), col("len"))),
+      expectedNullStart)
+
+    // Null length - any null parameter should result in null output
+    val dfNullLen = session.sql(
+      "select * from values('test1', 1, null),('test2', 1, 2) as T(str, start_pos, len)")
+    val expectedNullLen = Seq(Row(null), Row("te"))
+    checkAnswer(
+      dfNullLen.select(substring(col("str"), col("start_pos"), col("len"))),
+      expectedNullLen)
   }
 
   test("translate") {
@@ -461,33 +581,27 @@ trait FunctionSuite extends TestData {
       Seq(Row("XYcYX"), Row("X12321X")))
   }
 
-  test("add months, current date") {
+  test("add months") {
     testWithTimezone() {
       checkAnswer(
         date1.select(add_months(col("A"), lit(1))),
         Seq(Row(Date.valueOf("2020-09-01")), Row(Date.valueOf("2011-01-01"))))
     }
+  }
+
+  test("current date") {
     // zero1.select(current_date()) gets the date on server, which uses session timezone.
     // System.currentTimeMillis() is based on jvm timezone. They should not always be equal.
     // We can set local JVM timezone to session timezone to ensure it passes.
-    testWithAlteredSessionParameter(
-      testWithTimezone(getTimeZone(session)) {
-        checkAnswer(zero1.select(current_date()), Seq(Row(new Date(System.currentTimeMillis()))))
-      },
-      "TIMEZONE",
-      "'GMT'")
-    testWithAlteredSessionParameter(
-      testWithTimezone(getTimeZone(session)) {
-        checkAnswer(zero1.select(current_date()), Seq(Row(new Date(System.currentTimeMillis()))))
-      },
-      "TIMEZONE",
-      "'Etc/GMT+8'")
-    testWithAlteredSessionParameter(
-      testWithTimezone(getTimeZone(session)) {
-        checkAnswer(zero1.select(current_date()), Seq(Row(new Date(System.currentTimeMillis()))))
-      },
-      "TIMEZONE",
-      "'Etc/GMT-8'")
+    testWithTimezone("GMT") {
+      checkAnswer(zero1.select(current_date()), Seq(Row(new Date(System.currentTimeMillis()))))
+    }
+    testWithTimezone("Etc/GMT+8") {
+      checkAnswer(zero1.select(current_date()), Seq(Row(new Date(System.currentTimeMillis()))))
+    }
+    testWithTimezone("Etc/GMT-8") {
+      checkAnswer(zero1.select(current_date()), Seq(Row(new Date(System.currentTimeMillis()))))
+    }
   }
 
   test("current timestamp") {
@@ -579,6 +693,25 @@ trait FunctionSuite extends TestData {
     }
   }
 
+  test("try_to_timestamp") {
+    testWithTimezone() {
+      val unixDf =
+        session.sql("select * from values('1561479557'),('1565479557'),('INVALID') as T(a)")
+      val unixDfConverted = unixDf.select(try_to_timestamp(col("A")));
+      val unixConvertedExpected = Seq(
+        Row(Timestamp.valueOf("2019-06-25 16:19:17.0")),
+        Row(Timestamp.valueOf("2019-08-10 23:25:57.0")),
+        Row(null))
+      checkAnswer(unixDfConverted, unixConvertedExpected)
+
+      val formatDf = session.sql("select * from values('04/05/2020 01:02:03'),('INVALID') as T(a)")
+      val formatDfConverted =
+        formatDf.select(try_to_timestamp(col("A"), lit("mm/dd/yyyy hh24:mi:ss")))
+      val formatConvertedExpected = Seq(Row(Timestamp.valueOf("2020-04-05 01:02:03.0")), Row(null))
+      checkAnswer(formatDfConverted, formatConvertedExpected)
+    }
+  }
+
   test("convert_timezone") {
     testWithTimezone() {
       checkAnswer(
@@ -609,6 +742,16 @@ trait FunctionSuite extends TestData {
       val df1 = session.sql("select * from values('2020.07.23') as T(a)")
       checkAnswer(df1.select(to_date(col("A"), lit("YYYY.MM.DD"))), Seq(Row(new Date(120, 6, 23))))
     }
+  }
+
+  test("try_to_date") {
+    val df = session.sql("select * from values('2020-05-11'),('INVALID') as T(a)")
+    checkAnswer(df.select(try_to_date(col("A"))), Seq(Row(new Date(120, 4, 11)), Row(null)))
+
+    val df1 = session.sql("select * from values('2020.07.23'),('INVALID') as T(a)")
+    checkAnswer(
+      df1.select(try_to_date(col("A"), lit("YYYY.MM.DD"))),
+      Seq(Row(new Date(120, 6, 23)), Row(null)))
   }
 
   test("date_trunc") {
@@ -967,14 +1110,14 @@ trait FunctionSuite extends TestData {
           .select(time_from_parts(lit(1), lit(2), lit(3)))
           .collect()(0)
           .getTime(0)
-          .equals(new Time(3723000)))
+          .equals(new Time(32523000)))
 
       assert(
         zero1
           .select(time_from_parts(lit(1), lit(2), lit(3), lit(444444444)))
           .collect()(0)
           .getTime(0)
-          .equals(new Time(3723444)))
+          .equals(new Time(32523444)))
     }
   }
 
@@ -1617,7 +1760,7 @@ trait FunctionSuite extends TestData {
   }
 
   test("as_timestamp_*") {
-    testWithTimezone("America/Los_Angeles") {
+    testWithTimezone() {
       checkAnswer(
         variant1.select(
           as_timestamp_ntz(col("timestamp_ntz1")),

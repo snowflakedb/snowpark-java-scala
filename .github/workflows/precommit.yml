@@ -53,6 +53,9 @@ jobs:
           PROFILE_PASSWORD: ${{ secrets.PROFILE_PASSWORD }}
       - name: Run tests
         run: sbt "++ ${{ matrix.scala }} CodeVerificationTests:test"
+        env:
+          TZ: "America/Los_Angeles"
+          DISABLE_REDIRECT_STDERR: ""
 
   # Test all core Snowpark Java APIs.
   test-java-apis:
@@ -77,6 +80,9 @@ jobs:
           PROFILE_PASSWORD: ${{ secrets.PROFILE_PASSWORD }}
       - name: Run tests
         run: sbt "++ ${{ matrix.scala }} JavaAPITests:test"
+        env:
+          TZ: "America/Los_Angeles"
+          DISABLE_REDIRECT_STDERR: ""
 
   # Tests that must be run synchronously.
   test-nonparallel:
@@ -101,6 +107,9 @@ jobs:
           PROFILE_PASSWORD: ${{ secrets.PROFILE_PASSWORD }}
       - name: Run tests
         run: sbt "++ ${{ matrix.scala }} NonparallelTests:test"
+        env:
+          TZ: "America/Los_Angeles"
+          DISABLE_REDIRECT_STDERR: ""
 
   # All UDF associated test suites.
   test-udfs:
@@ -130,6 +139,9 @@ jobs:
           else
             sbt "++ ${{ matrix.scala }} UDFTests:testOnly * -- -l com.snowflake.snowpark.UDFPackageTest"
           fi
+        env:
+          TZ: "America/Los_Angeles"
+          DISABLE_REDIRECT_STDERR: ""
 
   # All UDTF associated test suites.
   test-udtfs:
@@ -159,6 +171,9 @@ jobs:
           else
             sbt "++ ${{ matrix.scala }} UDTFTests:testOnly * -- -l com.snowflake.snowpark.UDFPackageTest"
           fi
+        env:
+          TZ: "America/Los_Angeles"
+          DISABLE_REDIRECT_STDERR: ""
 
   # All Stored Procedure associated test suites.
   test-sprocs:
@@ -183,6 +198,9 @@ jobs:
           PROFILE_PASSWORD: ${{ secrets.PROFILE_PASSWORD }}
       - name: Run tests
         run: sbt "++ ${{ matrix.scala }} SprocTests:test"
+        env:
+          TZ: "America/Los_Angeles"
+          DISABLE_REDIRECT_STDERR: ""
 
   # Run UDTFSuite, AlwaysCleanUDFSuite, and StoredProcedureSuite with multiple JDKs.
   test-udf-udtf-sproc-with-multiple-jdk:
@@ -209,6 +227,8 @@ jobs:
       - name: Run test
         run: sbt "++ ${{ matrix.scala }} testOnly com.snowflake.snowpark_test.UDTFSuite com.snowflake.snowpark_test.AlwaysCleanUDFSuite com.snowflake.snowpark_test.StoredProcedureSuite"
         env:
+          TZ: "America/Los_Angeles"
+          DISABLE_REDIRECT_STDERR: ""
           JAVA_OPTS: "--add-opens=java.base/java.io=ALL-UNNAMED --add-opens=java.base/java.nio=org.apache.arrow.memory.core,ALL-UNNAMED --add-opens=java.base/java.lang=ALL-UNNAMED --add-opens=java.base/java.lang.reflect=ALL-UNNAMED --add-opens=java.base/java.util=ALL-UNNAMED --add-exports=java.base/sun.nio.ch=ALL-UNNAMED --add-exports=jdk.unsupported/sun.misc=ALL-UNNAMED --add-opens=java.base/sun.security.util=ALL-UNNAMED"
 
   # Run all other remaining tests.
@@ -234,6 +254,9 @@ jobs:
           PROFILE_PASSWORD: ${{ secrets.PROFILE_PASSWORD }}
       - name: Run tests
         run: sbt "++ ${{ matrix.scala }} OtherTests:test"
+        env:
+          TZ: "America/Los_Angeles"
+          DISABLE_REDIRECT_STDERR: ""
 
   # Test SessionSuite with Snowpark FIPS build.
   test-fips:
@@ -259,6 +282,8 @@ jobs:
       - name: Run tests
         run: sbt -J-DFIPS_TEST=true "++ ${{ matrix.scala }} testOnly com.snowflake.snowpark_test.SessionSuite"
         env:
+          TZ: "America/Los_Angeles"
+          DISABLE_REDIRECT_STDERR: ""
           SNOWPARK_FIPS: true
 
   # Test publishing to local ivy2 repository (includes generating docs, fat jars, and bundles)
