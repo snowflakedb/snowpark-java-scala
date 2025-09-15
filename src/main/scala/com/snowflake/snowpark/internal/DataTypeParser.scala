@@ -100,18 +100,15 @@ private[snowpark] object DataTypeParser {
   }
 
   /**
-   * Error indicating invalid parameters for a decimal data type.
-   *
-   * This error is returned when decimal type parameters (precision and scale) are invalid, such as
-   * non-numeric values, out-of-range values, or scale exceeding precision.
+   * Error indicating that an integer value could not be parsed from the input string.
    *
    * @param input
-   *   The input string that caused the decimal parsing error.
+   *   The input string that caused the parsing error.
    * @param reason
-   *   A specific description of what made the decimal parameters invalid.
+   *   A specific description of what made the integer invalid.
    */
-  private[snowpark] case class InvalidDecimal(input: String, reason: String) extends ParseError {
-    def format: String = s"Invalid decimal '$input': $reason"
+  private[snowpark] case class InvalidInteger(input: String, reason: String) extends ParseError {
+    def format: String = s"Invalid integer '$input': $reason"
   }
 
   /**
@@ -150,6 +147,9 @@ private[snowpark] object DataTypeParser {
     "string" -> StringType,
     "binary" -> BinaryType,
 
+    // Boolean types
+    "boolean" -> BooleanType,
+
     // Date and time types
     "date" -> DateType,
     "time" -> TimeType,
@@ -158,7 +158,6 @@ private[snowpark] object DataTypeParser {
     // Semi-structured types
     "variant" -> VariantType,
     "object" -> MapType(StringType, VariantType),
-    "boolean" -> BooleanType,
 
     // Spatial types
     "geography" -> GeographyType,
@@ -169,7 +168,7 @@ private[snowpark] object DataTypeParser {
     /**
      * Regex pattern for matching array type declarations.
      *
-     * Matches strings like "array<string>", "ARRAY<DECIMAL(10,2)>", etc. Captures the inner element
+     * Matches strings like `array<string>`, `ARRAY<DECIMAL(10,2)>`, etc. Captures the inner element
      * type specification.
      */
     val ArrayPattern: Regex = """(?i)^array\s*<\s*(.+?)\s*>$""".r
@@ -177,7 +176,7 @@ private[snowpark] object DataTypeParser {
     /**
      * Regex pattern for matching decimal/number/numeric type declarations with parameters.
      *
-     * Matches strings like "decimal(10)", "NUMBER(10,2)", "numeric(5, 3)", etc. Captures the
+     * Matches strings like `decimal(10)`, `NUMBER(10,2)`, `numeric(5, 3)`, etc. Captures the
      * precision (required) and scale (optional) parameters. Only accepts valid integers.
      */
     val DecimalPattern: Regex =
@@ -186,7 +185,7 @@ private[snowpark] object DataTypeParser {
     /**
      * Regex pattern for matching map type declarations.
      *
-     * Matches strings like "map<string, int>", "MAP<DECIMAL(10,2), ARRAY<STRING>>", etc. Captures
+     * Matches strings like `map<string, int>`, `MAP<DECIMAL(10,2), ARRAY<STRING>>`, etc. Captures
      * the inner key-value type specification.
      */
     val MapPattern: Regex = """(?i)^map\s*<\s*(.+)\s*>$""".r
@@ -200,7 +199,7 @@ private[snowpark] object DataTypeParser {
      * @param s
      *   The input string representing a decimal type.
      * @return
-     *   An Option containing a tuple of precision and optional scale if the input matches the
+     *   An [[Option]] containing a tuple of precision and optional scale if the input matches the
      *   pattern.
      */
     def unapply(s: String): Option[(String, Option[String])] = {
@@ -218,7 +217,7 @@ private[snowpark] object DataTypeParser {
      * @param s
      *   The input string representing an array type.
      * @return
-     *   An Option containing the element type if the input matches the pattern.
+     *   An [[Option]] containing the element type if the input matches the pattern.
      */
     def unapply(s: String): Option[String] = {
       TypePatterns.ArrayPattern.findFirstMatchIn(s).map(_.group(1))
@@ -233,7 +232,7 @@ private[snowpark] object DataTypeParser {
      * @param s
      *   The input string representing a map type.
      * @return
-     *   An Option containing the key-value type specification if the input matches the pattern.
+     *   An [[Option]] containing the key-value type specification if the input matches the pattern.
      */
     def unapply(s: String): Option[String] = {
       TypePatterns.MapPattern.findFirstMatchIn(s).map(_.group(1))
@@ -246,8 +245,8 @@ private[snowpark] object DataTypeParser {
    * This case class maintains the current nesting depth for different bracket types and the current
    * parsing position.
    *
-   * The state tracking is needed for proper parsing of nested complex types like map<string,
-   * array<decimal(10,2)>> where brackets at different levels have different semantic meanings.
+   * The state tracking is needed for proper parsing of nested complex types such as `map<string,
+   * array<decimal(10,2)>>` where brackets at different levels have different semantic meanings.
    *
    * @param angleDepth
    *   Current nesting depth of angle brackets (<>), used for arrays and maps.
@@ -262,7 +261,8 @@ private[snowpark] object DataTypeParser {
      * Checks if the parser is currently at the top level (not nested within any brackets).
      *
      * @return
-     *   `true` if both angle bracket and parentheses depth are zero; `false` otherwise.
+     *   `true` if the parser is not nested within any angle or parenthesis brackets; `false`
+     *   otherwise.
      */
     def isAtTopLevel: Boolean = angleDepth == 0 && parenDepth == 0
 
@@ -306,7 +306,7 @@ private[snowpark] object DataTypeParser {
       case DecimalExtractor(precision, scale) =>
         this.parseDecimalType(precision, scale, original)
       case ArrayExtractor(elementType) =>
-        this.parseArrayType(elementType, original)
+        this.parseArrayType(elementType)
       case MapExtractor(innerTypes) =>
         this.parseMapType(innerTypes, original)
       case _ =>
@@ -340,17 +340,13 @@ private[snowpark] object DataTypeParser {
   /**
    * Parses an array type by recursively parsing its element type.
    *
-   * @param elementTypeStr
+   * @param elementType
    *   String representation of the array's element type.
-   * @param original
-   *   Original type string for error reporting.
    * @return
    *   Either a [[ArrayType]] containing the parsed element type or a [[ParseError]].
    */
-  private def parseArrayType(
-      elementTypeStr: String,
-      original: String): Either[ParseError, DataType] = {
-    this.parseDataType(elementTypeStr).map(ArrayType)
+  private def parseArrayType(elementType: String): Either[ParseError, DataType] = {
+    this.parseDataType(elementType).map(ArrayType)
   }
 
   /**
@@ -403,7 +399,7 @@ private[snowpark] object DataTypeParser {
    */
   private def parseIntSafe(str: String, original: String): Either[ParseError, Int] =
     Try(str.toInt).toEither.left.map(_ =>
-      InvalidDecimal(original, s"'$str' is not a valid integer"))
+      InvalidInteger(original, s"'$str' is not a valid integer"))
 
   /**
    * Splits a string at the first top-level delimiter occurrence.
