@@ -1,11 +1,14 @@
 package com.snowflake.snowpark_test;
 
+import static org.junit.Assert.assertThrows;
+
 import com.snowflake.snowpark_java.Column;
 import com.snowflake.snowpark_java.DataFrame;
 import com.snowflake.snowpark_java.Functions;
 import com.snowflake.snowpark_java.Row;
 import com.snowflake.snowpark_java.types.DataTypes;
 import java.util.Arrays;
+import java.util.Locale;
 import java.util.Optional;
 import org.junit.Test;
 
@@ -188,8 +191,19 @@ public class JavaColumnSuite extends TestBase {
     data.schema().printTreeString();
     assert data.schema().get(0).dataType().equals(DataTypes.LongType);
 
-    DataFrame data1 = data.select(data.col("a").cast(DataTypes.StringType));
-    assert data1.schema().get(0).dataType().equals(DataTypes.StringType);
+    DataFrame castWithDataType = data.select(data.col("a").cast(DataTypes.StringType));
+    DataFrame castWithStringType = data.select(data.col("a").cast("string"));
+
+    assert castWithDataType.schema().get(0).dataType().equals(DataTypes.StringType);
+    assert castWithStringType.schema().get(0).dataType().equals(DataTypes.StringType);
+
+    IllegalArgumentException exception =
+        assertThrows(
+            "Casting with invalid type should throw an exception",
+            IllegalArgumentException.class,
+            () -> data.select(data.col("a").cast("bad_type")).collect());
+
+    assert exception.getMessage().toLowerCase(Locale.ROOT).contains("unsupported data type");
   }
 
   @Test

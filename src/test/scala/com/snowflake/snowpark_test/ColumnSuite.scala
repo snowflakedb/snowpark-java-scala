@@ -174,10 +174,19 @@ class ColumnSuite extends TestData {
   }
 
   test("cast") {
-    val sc = testData1.select(testData1("NUM").cast(StringType)).schema
+    val castWithDataTypeSchema = testData1.select(testData1("NUM").cast(StringType)).schema
+    val castWithStringSchema = testData1.select(testData1("NUM").cast("string")).schema
+    val expectedSchema = StructType(
+      Array(StructField("\"CAST (\"\"NUM\"\" AS STRING)\"", StringType, nullable = false)))
+
+    assert(castWithDataTypeSchema == expectedSchema)
+    assert(castWithStringSchema == expectedSchema)
+
+    val exception = intercept[IllegalArgumentException] {
+      testData1.select(testData1("NUM").cast("bad_type")).collect()
+    }
     assert(
-      sc == StructType(
-        Array(StructField("\"CAST (\"\"NUM\"\" AS STRING)\"", StringType, nullable = false))))
+      exception.getMessage.toLowerCase(java.util.Locale.ROOT).contains("unsupported data type"))
   }
 
   test("order") {
