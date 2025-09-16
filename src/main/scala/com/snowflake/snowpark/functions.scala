@@ -3594,21 +3594,31 @@ object functions {
    * Works like a cascading if-then-else statement. A series of conditions are evaluated in
    * sequence. When a condition evaluates to TRUE, the evaluation stops and the associated result
    * (after THEN) is returned. If none of the conditions evaluate to TRUE, then the result after the
-   * optional OTHERWISE is returned, if present; otherwise NULL is returned. For Example:
+   * optional OTHERWISE is returned, if present; otherwise NULL is returned.
+   *
+   * ===Example===
    * {{{
-   *     import functions._
-   *     df.select(
-   *       when(col("col").is_null, lit(1))
-   *         .when(col("col") === 1, lit(2))
-   *         .otherwise(lit(3))
-   *     )
+   * import functions._
+   * val df = session.sql("SELECT * FROM values (null, 5), (1, 10), (2, 15) as T(col, numeric_col)")
+   * val result = df.select(
+   *   when(col("col").is_null, lit(1))
+   *     .when(col("col") === 1, lit(2))
+   *     .when(col("col") === 1, col("numeric_col") * 0.10)
+   *     .otherwise(lit(3))
+   * )
    * }}}
    *
+   * @param condition
+   *   The case condition.
+   * @param value
+   *   The result value, which can be any literal (e.g., String, Int, Boolean) or a `Column`.
+   * @return
+   *   The result case expression.
    * @group con_func
    * @since 0.2.0
    */
-  def when(condition: Column, value: Column): CaseExpr =
-    new CaseExpr(Seq((condition.expr, value.expr)))
+  def when(condition: Column, value: Any): CaseExpr =
+    new CaseExpr(Seq((condition.expr, toExpr(value))))
 
   /**
    * Returns one of two specified expressions, depending on a condition.
@@ -5672,4 +5682,12 @@ object functions {
       "")(func)
   }
 
+  /**
+   * Converts any value to an Expression. If the value is already a Column, uses its expression
+   * directly. Otherwise, wraps it with lit() to create a Column expression.
+   */
+  private def toExpr(exp: Any) = exp match {
+    case c: Column => c.expr
+    case _ => lit(exp).expr
+  }
 }

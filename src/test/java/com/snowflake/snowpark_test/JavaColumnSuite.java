@@ -281,6 +281,30 @@ public class JavaColumnSuite extends TestBase {
           Row.create((Object) null),
           Row.create(5)
         });
+
+    // Handling no column type values
+    checkAnswer(
+        df.select(
+            Functions.when(df.col("a").is_null(), 5)
+                .when(df.col("a").equal_to(Functions.lit(1)), 6)
+                .otherwise(7)
+                .as("a")),
+        new Row[] {Row.create(5), Row.create(7), Row.create(6), Row.create(7), Row.create(5)});
+
+    // Handling null values
+    checkAnswer(
+        df.select(
+            Functions.when(df.col("a").is_null(), null)
+                .when(df.col("a").equal_to(Functions.lit(1)), null)
+                .otherwise(null)
+                .as("a")),
+        new Row[] {
+          Row.create((Object) null),
+          Row.create((Object) null),
+          Row.create((Object) null),
+          Row.create((Object) null),
+          Row.create((Object) null)
+        });
   }
 
   @Test
