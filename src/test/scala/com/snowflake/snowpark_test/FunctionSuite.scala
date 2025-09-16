@@ -413,6 +413,60 @@ trait FunctionSuite extends TestData {
       Seq(Row("test1,a"), Row("test2,b"), Row("test3,c")))
   }
 
+  test("concat_ws_ignore_nulls") {
+    val df = session.createDataFrame(
+      Seq(
+        Row(Array("a", "b"), Array("c"), "d", "e", 1, 2),
+        Row(Array("Hello", null, "world"), Array(null, "!", null), "bye", "world", 3, null),
+        Row(Array(null, null), Array("R", "H"), null, "TD", 4, 5),
+        Row(null, Array(null), null, null, null, null),
+        Row(null, null, null, null, null, null)),
+      StructType(
+        StructField("arr1", ArrayType(StringType)),
+        StructField("arr2", ArrayType(StringType)),
+        StructField("str1", StringType),
+        StructField("str2", StringType),
+        StructField("int1", IntegerType),
+        StructField("int2", IntegerType)))
+
+    val columns = df.schema.map(field => col(field.name))
+
+    // Single character delimiter
+    checkAnswer(
+      df.select(concat_ws_ignore_nulls(",", columns: _*)),
+      Seq(
+        Row("a,b,c,d,e,1,2"),
+        Row("Hello,world,!,bye,world,3"),
+        Row("R,H,TD,4,5"),
+        Row(""),
+        Row("")))
+
+    // Multi-character delimiter
+    checkAnswer(
+      df.select(concat_ws_ignore_nulls(" : ", columns: _*)),
+      Seq(
+        Row("a : b : c : d : e : 1 : 2"),
+        Row("Hello : world : ! : bye : world : 3"),
+        Row("R : H : TD : 4 : 5"),
+        Row(""),
+        Row("")))
+
+    val df2 = session.createDataFrame(
+      Seq(Row(Date.valueOf("2021-12-21")), Row(Date.valueOf("1969-12-31"))),
+      StructType(StructField("YearMonth", DateType)))
+
+    checkAnswer(
+      df2.select(concat_ws_ignore_nulls("-", year(col("YearMonth")), month(col("YearMonth")))),
+      Seq(Row("2021-12"), Row("1969-12")))
+
+    // Resulting column should allow to define an alias
+    checkAnswer(
+      df2.select(
+        concat_ws_ignore_nulls("-", year(col("YearMonth")), month(col("YearMonth")))
+          .alias("YEAR_MONTH")),
+      Seq(Row("2021-12"), Row("1969-12")))
+  }
+
   test("initcap length lower upper") {
     checkAnswer(
       string2.select(initcap(col("A")), length(col("A")), lower(col("A")), upper(col("A"))),
@@ -1577,6 +1631,31 @@ trait FunctionSuite extends TestData {
     checkAnswer(
       array3.select(array_slice(col("arr1"), col("d"), col("e"))),
       Seq(Row("[\n  2\n]"), Row("[\n  5\n]"), Row("[\n  6,\n  7\n]")))
+  }
+
+  test("array_flatten") {
+    // Flattening a 2D array
+    val df1 = session.sql("SELECT [[1, 2, 3], [], [4], [5, NULL, PARSE_JSON('null')]] AS A")
+    checkAnswer(
+      df1.select(array_flatten(col("A"))),
+      Seq(Row("[\n  1,\n  2,\n  3,\n  4,\n  5,\n  undefined,\n  null\n]")))
+
+    // Flattening a 3D array
+    val df2 = session.sql("SELECT [[[1, 2], [3]]] AS A")
+    checkAnswer(
+      df2.select(array_flatten(col("A"))),
+      Seq(Row("[\n  [\n    1,\n    2\n  ],\n  [\n    3\n  ]\n]")))
+
+    // Flattening a null array
+    val df3 = session.sql("SELECT NULL::ARRAY AS A")
+    checkAnswer(df3.select(array_flatten(col("A"))), Seq(Row(null)))
+
+    // Flattening an array with non-array elements
+    val df4 = session.sql("SELECT [1, 2, 3] AS A")
+    val exception = intercept[SnowflakeSQLException] {
+      df4.select(array_flatten(col("A"))).collect()
+    }
+    assert(exception.getMessage.contains("not an array"))
   }
 
   test("array_to_string") {
