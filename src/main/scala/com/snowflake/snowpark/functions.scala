@@ -1308,6 +1308,54 @@ object functions {
   }
 
   /**
+   * Concatenates two or more strings ignoring any null values.
+   *
+   * Unlike [[concat_ws]], this function automatically filters out null values before concatenation.
+   *
+   * '''Examples'''
+   *
+   * {{{
+   * val df = session.createDataFrame(
+   *   Seq(
+   *     Row("Hello", "World", null),
+   *     Row(null, null, null),
+   *     Row("Hello", null, null),
+   *   ),
+   *   StructType(
+   *     StructField("A", StringType),
+   *     StructField("B", StringType),
+   *     StructField("C", StringType),
+   *   )
+   * )
+   *
+   * df.select(
+   *   concat_ws_ignore_nulls(" | ", col("A"), col("B"), col("C")).as("concat_ws_ignore_nulls")
+   * ).show()
+   * ----------------------------
+   * |"CONCAT_WS_IGNORE_NULLS"  |
+   * ----------------------------
+   * |Hello | World             |
+   * |                          |
+   * |Hello                     |
+   * ----------------------------
+   * }}}
+   *
+   * @param separator
+   *   A string literal used as the separator between concatenated values.
+   * @param exprs
+   *   The columns to be concatenated.
+   * @return
+   *   A Column containing the concatenated values with null values filtered out.
+   * @group str_func
+   * @since 1.17.0
+   */
+  def concat_ws_ignore_nulls(separator: String, exprs: Column*): Column = {
+    val stringArrays = exprs.map(_.cast(ArrayType(StringType)))
+    val nonNullArray = array_compact(array_flatten(array_construct_compact(stringArrays: _*)))
+    array_to_string(nonNullArray, lit(separator))
+  }
+
+  /**
    * Returns the input string with the first letter of each word in uppercase and the subsequent
    * letters in lowercase.
    *
@@ -2953,6 +3001,81 @@ object functions {
   def array_contains(variant: Column, array: Column): Column = {
     builtin("array_contains")(variant, array)
   }
+
+  /**
+   * Flattens an array of arrays into a single array, removing only one level of nesting.
+   *
+   * '''Examples'''
+   *
+   * Example 1: Flattens a two-level nested array into a single array of elements.
+   *
+   * {{{
+   * val df = Seq(
+   *   Array(Array(1, 2), Array(3, 4)),
+   *   Array(Array(5, 6, 7), Array(8)),
+   *   Array(Array.empty[Int], Array(9, 10)),
+   * ).toDF("a")
+   *
+   * df.select(array_flatten(col("a"))).show()
+   * --------------------------
+   * |"ARRAY_FLATTEN(""A"")"  |
+   * --------------------------
+   * |[                       |
+   * |  1,                    |
+   * |  2,                    |
+   * |  3,                    |
+   * |  4                     |
+   * |]                       |
+   * |[                       |
+   * |  5,                    |
+   * |  6,                    |
+   * |  7,                    |
+   * |  8                     |
+   * |]                       |
+   * |[                       |
+   * |  9,                    |
+   * |  10                    |
+   * |]                       |
+   * --------------------------
+   * }}}
+   *
+   * Example 2: Flattens only one level of a three-level nested array.
+   *
+   * {{{
+   * val df = Seq(
+   *   Array(Array(Array(1, 2), Array(3)), Array(Array(4, 5)))
+   * ).toDF("a")
+   *
+   * df.select(array_flatten(col("a"))).show()
+   * --------------------------
+   * |"ARRAY_FLATTEN(""A"")"  |
+   * --------------------------
+   * |[                       |
+   * |  [                     |
+   * |    1,                  |
+   * |    2                   |
+   * |  ],                    |
+   * |  [                     |
+   * |    3                   |
+   * |  ],                    |
+   * |  [                     |
+   * |    4,                  |
+   * |    5                   |
+   * |  ]                     |
+   * |]                       |
+   * --------------------------
+   * }}}
+   *
+   * @param array
+   *   Column containing the array of arrays to flatten.
+   *   - If any element of `array` is not an ARRAY, the function throws an error.
+   *   - If `array` is NULL, the function returns NULL.
+   * @return
+   *   A column containing the flattened array.
+   * @group semi_func
+   * @since 1.17.0
+   */
+  def array_flatten(array: Column): Column = builtin("array_flatten")(array)
 
   /**
    * Returns an ARRAY containing all elements from the source ARRAY as well as the new element.
