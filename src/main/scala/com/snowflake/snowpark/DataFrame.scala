@@ -2617,15 +2617,15 @@ class DataFrame private[snowpark] (
   }
 
   /**
-   * Evaluates this DataFrame and prints out the first `''n''` rows.
+   * Evaluates this DataFrame and prints out the first `n` rows.
    *
-   * @group actions
-   * @since 1.17.0
    * @param n
    *   The number of rows to print out.
    * @param truncate
-   *   Whether to truncate long column values. If true, column values longer than 50 characters will
-   *   be truncated. If false, full column values will be displayed.
+   *   Whether to truncate long column values. If `true`, column values longer than 50 characters
+   *   will be truncated. If `false`, full column values will be displayed.
+   * @group actions
+   * @since 1.17.0
    */
   def show(n: Int, truncate: Boolean): Unit = action("show") {
     val maxWidth = if (truncate) 50 else 0
@@ -2635,15 +2635,14 @@ class DataFrame private[snowpark] (
   /**
    * Evaluates this DataFrame and prints out the first 10 rows.
    *
+   * @param truncate
+   *   Whether to truncate long column values. If `true`, column values longer than 50 characters
+   *   will be truncated. If `false`, full column values will be displayed.
    * @group actions
    * @since 1.17.0
-   * @param truncate
-   *   Whether to truncate long column values. If true, column values longer than 50 characters will
-   *   be truncated. If false, full column values will be displayed.
    */
   def show(truncate: Boolean): Unit = action("show") {
-    val maxWidth = if (truncate) 50 else 0
-    show(10, maxWidth)
+    show(10, truncate)
   }
 
   /**

@@ -906,10 +906,10 @@ public class DataFrame extends Logging implements Cloneable {
   /**
    * Evaluates this DataFrame and prints out the first ten rows with configurable column truncation.
    *
+   * @param truncate Whether to truncate long column values. If {@code true}, column values longer
+   *     than 50 characters will be truncated with "...". If {@code false}, full column values will
+   *     be displayed regardless of length.
    * @since 1.17.0
-   * @param truncate Whether to truncate long column values. If true, column values longer than 50
-   *     characters will be truncated with "..." If false, full column values will be displayed
-   *     regardless of length.
    */
   public void show(boolean truncate) {
     df.show(truncate);
@@ -926,13 +926,14 @@ public class DataFrame extends Logging implements Cloneable {
   }
 
   /**
-   * Evaluates this DataFrame and prints out the first n rows with configurable column truncation.
+   * Evaluates this DataFrame and prints out the first {@code n} rows with configurable column
+   * truncation.
    *
-   * @since 1.17.0
    * @param n The number of rows to print out.
-   * @param truncate Whether to truncate long column values. If true, column values longer than 50
-   *     characters will be truncated with "..." If false, full column values will be displayed
-   *     regardless of length.
+   * @param truncate Whether to truncate long column values. If {@code true}, column values longer
+   *     than 50 characters will be truncated with "...". If {@code false}, full column values will
+   *     be displayed regardless of length.
+   * @since 1.17.0
    */
   public void show(int n, boolean truncate) {
     df.show(n, truncate);
