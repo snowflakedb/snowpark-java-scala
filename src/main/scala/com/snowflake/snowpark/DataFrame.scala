@@ -2617,6 +2617,35 @@ class DataFrame private[snowpark] (
   }
 
   /**
+   * Evaluates this DataFrame and prints out the first `n` rows.
+   *
+   * @param n
+   *   The number of rows to print out.
+   * @param truncate
+   *   Whether to truncate long column values. If `true`, column values longer than 50 characters
+   *   will be truncated. If `false`, full column values will be displayed.
+   * @group actions
+   * @since 1.17.0
+   */
+  def show(n: Int, truncate: Boolean): Unit = action("show") {
+    val maxWidth = if (truncate) 50 else 0
+    this.show(n, maxWidth)
+  }
+
+  /**
+   * Evaluates this DataFrame and prints out the first 10 rows.
+   *
+   * @param truncate
+   *   Whether to truncate long column values. If `true`, column values longer than 50 characters
+   *   will be truncated. If `false`, full column values will be displayed.
+   * @group actions
+   * @since 1.17.0
+   */
+  def show(truncate: Boolean): Unit = action("show") {
+    this.show(10, truncate)
+  }
+
+  /**
    * Evaluates this DataFrame and prints out the first `''n''` rows with the specified maximum
    * number of characters per column.
    *
@@ -2714,7 +2743,7 @@ class DataFrame private[snowpark] (
           if (colWidth(index) < str.length) {
             colWidth(index) = str.length
           }
-          if (colWidth(index) > maxWidth) {
+          if (maxWidth != 0 && colWidth(index) > maxWidth) {
             colWidth(index) = maxWidth
           }
         })
@@ -2746,7 +2775,7 @@ class DataFrame private[snowpark] (
       row
         .zip(colWidth)
         .map { case (str, size) =>
-          if (str.length > maxWidth) {
+          if (maxWidth != 0 && str.length > maxWidth) {
             // if truncated, add ... to the end
             (str.take(maxWidth - 3) + "...").padTo(size, " ").mkString
           } else {
