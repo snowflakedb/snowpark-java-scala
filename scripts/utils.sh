@@ -62,8 +62,16 @@ run_test_suites() {
   # Avoid failures in subsequent test runs due to an already closed stderr.
   export DISABLE_REDIRECT_STDERR=""
 
+  # Set JVM system property for FIPS test if SNOWPARK_FIPS is true.
+  if [ "$SNOWPARK_FIPS" = true ]; then
+    FIPS='-J-DFIPS_TEST=true'
+    echo "Passing $FIPS to sbt"
+  else
+    FIPS=''
+  fi
+
   # test
-  sbt clean +compile \
+  sbt $FIPS clean +compile \
     +JavaAPITests:test \
     +NonparallelTests:test \
     '++ 2.12.20 OtherTests:testOnly * -- -l SampleDataTest' \
