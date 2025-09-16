@@ -540,7 +540,7 @@ case class Column private[snowpark] (private[snowpark] val expr: Expression) ext
    * @throws IllegalArgumentException
    *   If the provided string does not represent a valid data type.
    * @group op
-   * @since 1.17.0
+   * @since 1.18.0
    */
   def cast(to: String): Column = {
     DataTypeParser.parseDataType(to) match {

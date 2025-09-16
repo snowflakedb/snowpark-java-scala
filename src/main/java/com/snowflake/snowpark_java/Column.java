@@ -373,7 +373,7 @@ public class Column {
    * @param to A string representing the target data type.
    * @return A new Column with values cast to the specified data type.
    * @throws IllegalArgumentException If the provided string does not represent a valid data type.
-   * @since 1.17.0
+   * @since 1.18.0
    */
   public Column cast(String to) {
     return new Column(this.scalaColumn.cast(to));
