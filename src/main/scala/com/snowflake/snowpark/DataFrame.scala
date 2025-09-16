@@ -2629,7 +2629,7 @@ class DataFrame private[snowpark] (
    */
   def show(n: Int, truncate: Boolean): Unit = action("show") {
     val maxWidth = if (truncate) 50 else 0
-    show(n, maxWidth)
+    this.show(n, maxWidth)
   }
 
   /**
@@ -2642,7 +2642,7 @@ class DataFrame private[snowpark] (
    * @since 1.17.0
    */
   def show(truncate: Boolean): Unit = action("show") {
-    show(10, truncate)
+    this.show(10, truncate)
   }
 
   /**
