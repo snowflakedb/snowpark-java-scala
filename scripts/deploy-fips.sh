@@ -1,6 +1,6 @@
 #!/bin/bash -ex
 #
-# Push Snowpark Java/Scala build to the public maven repository.
+# Push Snowpark Java/Scala FIPS build to the public maven repository.
 # This script needs to be executed by snowflake jenkins job.
 #
 
@@ -74,10 +74,10 @@ sbt version
 echo "[INFO] Checking out snowpark-java-scala @ tag: $github_version_tag."
 git checkout $github_version_tag
 
-unset SNOWPARK_FIPS
+export SNOWPARK_FIPS="true"
 
 if [ "$PUBLISH" = true ]; then
-  if [ -v SNOWPARK_FIPS ]; then
+  if [ "$SNOWPARK_FIPS" = true ]; then
     echo "[INFO] Packaging snowpark-fips @ tag: $github_version_tag."
   else
     echo "[INFO] Packaging snowpark @ tag: $github_version_tag."
