@@ -74,10 +74,17 @@ sbt version
 echo "[INFO] Checking out snowpark-java-scala @ tag: $github_version_tag."
 git checkout $github_version_tag
 
+<<<<<<< HEAD
 export SNOWPARK_FIPS=""
 
 if [ "$PUBLISH" = true ]; then
   if [ -v SNOWPARK_FIPS ]; then
+=======
+export SNOWPARK_FIPS="true"
+
+if [ "$PUBLISH" = true ]; then
+  if [ "$SNOWPARK_FIPS" = true ]; then
+>>>>>>> 94c75ab (SNOW-2339275: fix FIPS tests (#244))
     echo "[INFO] Packaging snowpark-fips @ tag: $github_version_tag."
   else
     echo "[INFO] Packaging snowpark @ tag: $github_version_tag."
