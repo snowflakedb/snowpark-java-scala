@@ -806,12 +806,9 @@ trait FunctionSuite extends TestData {
     checkAnswer(df.select(try_to_date(col("A"))), Seq(Row(new Date(120, 4, 11)), Row(null)))
 
     val df1 = session.sql("select * from values('2020.07.23'),('INVALID') as T(a)")
-    checkAnswer(
-      df1.select(try_to_date(col("A"), lit("YYYY.MM.DD"))),
-      Seq(Row(new Date(120, 6, 23)), Row(null)))
-    checkAnswer(
-      df1.select(try_to_date(col("A"), "YYYY.MM.DD")),
-      Seq(Row(new Date(120, 6, 23)), Row(null)))
+    val expected = Seq(Row(new Date(120, 6, 23)), Row(null));
+    checkAnswer(df1.select(try_to_date(col("A"), lit("YYYY.MM.DD"))), expected)
+    checkAnswer(df1.select(try_to_date(col("A"), "YYYY.MM.DD")), expected)
   }
 
   test("date_trunc") {
