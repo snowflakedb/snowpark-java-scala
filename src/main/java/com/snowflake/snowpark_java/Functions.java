@@ -2452,8 +2452,9 @@ public final class Functions {
    * <p><b>Example:</b>
    *
    * <pre>{@code
-   * SELECT TRY_TO_TIMESTAMP('04/05/2020 01:02:03', lit('mm/dd/yyyy hh24:mi:ss')) as valid,
-   *        TRY_TO_TIMESTAMP('INVALID', lit('mm/dd/yyyy hh24:mi:ss')) as invalid;
+   * df.select(
+   *     try_to_timestamp(lit("04/05/2020 01:02:03"), lit("MM/dd/yyyy HH:mm:ss")).as("valid"),
+   *     try_to_timestamp(lit("INVALID"), lit("MM/dd/yyyy HH:mm:ss")).as("invalid")
    * +-------------------------+---------+
    * | VALID                   | INVALID |
    * |-------------------------+---------|
@@ -2479,8 +2480,9 @@ public final class Functions {
    * <p><b>Example:</b>
    *
    * <pre>{@code
-   * SELECT TRY_TO_TIMESTAMP('04/05/2020 01:02:03', 'mm/dd/yyyy hh24:mi:ss') as valid,
-   *        TRY_TO_TIMESTAMP('INVALID', 'mm/dd/yyyy hh24:mi:ss') as invalid;
+   * df.select(
+   *     try_to_timestamp(lit("04/05/2020 01:02:03"), "MM/dd/yyyy HH:mm:ss").as("valid"),
+   *     try_to_timestamp(lit("INVALID"), "MM/dd/yyyy HH:mm:ss").as("invalid")
    * +-------------------------+---------+
    * | VALID                   | INVALID |
    * |-------------------------+---------|
