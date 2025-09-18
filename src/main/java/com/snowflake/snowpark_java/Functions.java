@@ -2452,6 +2452,33 @@ public final class Functions {
    * <p><b>Example:</b>
    *
    * <pre>{@code
+   * SELECT TRY_TO_TIMESTAMP('04/05/2020 01:02:03', lit('mm/dd/yyyy hh24:mi:ss')) as valid,
+   *        TRY_TO_TIMESTAMP('INVALID', lit('mm/dd/yyyy hh24:mi:ss')) as invalid;
+   * +-------------------------+---------+
+   * | VALID                   | INVALID |
+   * |-------------------------+---------|
+   * | 2020-04-05 01:02:03.000 | NULL    |
+   * +-------------------------+---------+
+   * }</pre>
+   *
+   * @param s The input value to be converted to timestamp
+   * @param fmt The time format as Column
+   * @return The result column
+   * @since 1.17.0
+   */
+  public static Column try_to_timestamp(Column s, Column fmt) {
+    return new Column(
+        com.snowflake.snowpark.functions.try_to_timestamp(s.toScalaColumn(), fmt.toScalaColumn()));
+  }
+
+  /**
+   * Wrapper for Snowflake built-in try_to_timestamp function. Converts an input expression into the
+   * corresponding timestamp, but with error-handling support, if the conversion cannot be
+   * performed, it returns a NULL value instead of raising an error.
+   *
+   * <p><b>Example:</b>
+   *
+   * <pre>{@code
    * SELECT TRY_TO_TIMESTAMP('04/05/2020 01:02:03', 'mm/dd/yyyy hh24:mi:ss') as valid,
    *        TRY_TO_TIMESTAMP('INVALID', 'mm/dd/yyyy hh24:mi:ss') as invalid;
    * +-------------------------+---------+
@@ -2462,13 +2489,12 @@ public final class Functions {
    * }</pre>
    *
    * @param s The input value to be converted to timestamp
-   * @param fmt The time format
+   * @param fmt The time format as String
    * @return The result column
-   * @since 1.17.0
+   * @since 1.18.0
    */
-  public static Column try_to_timestamp(Column s, Column fmt) {
-    return new Column(
-        com.snowflake.snowpark.functions.try_to_timestamp(s.toScalaColumn(), fmt.toScalaColumn()));
+  public static Column try_to_timestamp(Column s, String fmt) {
+    return new Column(com.snowflake.snowpark.functions.try_to_timestamp(s.toScalaColumn(), fmt));
   }
 
   /**
@@ -2527,6 +2553,32 @@ public final class Functions {
    * <p><b>Example:</b>
    *
    * <pre>{@code
+   * SELECT TRY_TO_DATE('2020.07.23', lit('YYYY.MM.DD')) as valid, TRY_TO_DATE('INVALID', lit('YYYY.MM.DD')) as invalid);
+   * +------------+---------+
+   * | VALID      | INVALID |
+   * +------------+---------+
+   * | 2020-07-23 | NULL    |
+   * +------------+---------+
+   * }</pre>
+   *
+   * @param e The input value
+   * @param fmt The time format as Column
+   * @return The result Column object.
+   * @since 1.17.0
+   */
+  public static Column try_to_date(Column e, Column fmt) {
+    return new Column(
+        com.snowflake.snowpark.functions.try_to_date(e.toScalaColumn(), fmt.toScalaColumn()));
+  }
+
+  /**
+   * Wrapper for Snowflake built-in try_to_date function. Converts an input expression to a date,
+   * but with error-handling support (i.e. if the conversion cannot be performed, it returns a NULL
+   * value instead of raising an error)
+   *
+   * <p><b>Example:</b>
+   *
+   * <pre>{@code
    * SELECT TRY_TO_DATE('2020.07.23', 'YYYY.MM.DD') as valid, TRY_TO_DATE('INVALID', 'YYYY.MM.DD') as invalid);
    * +------------+---------+
    * | VALID      | INVALID |
@@ -2536,13 +2588,12 @@ public final class Functions {
    * }</pre>
    *
    * @param e The input value
-   * @param fmt The time format
+   * @param fmt The time format as String
    * @return The result Column object.
-   * @since 1.17.0
+   * @since 1.18.0
    */
-  public static Column try_to_date(Column e, Column fmt) {
-    return new Column(
-        com.snowflake.snowpark.functions.try_to_date(e.toScalaColumn(), fmt.toScalaColumn()));
+  public static Column try_to_date(Column e, String fmt) {
+    return new Column(com.snowflake.snowpark.functions.try_to_date(e.toScalaColumn(), fmt));
   }
 
   /**
