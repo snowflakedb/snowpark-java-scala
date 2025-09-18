@@ -399,7 +399,7 @@ private[snowpark] object DataTypeParser {
    */
   private def parseIntSafe(str: String, original: String): Either[ParseError, Int] =
     Try(str.toInt).toEither.left.map(_ =>
-      InvalidInteger(original, s"'$str' is not a valid integer"))
+      InvalidInteger(original, s"Cannot parse '$str' as an integer"))
 
   /**
    * Splits a string at the first top-level delimiter occurrence.
