@@ -2164,7 +2164,7 @@ object functions {
    * @group date_func
    * @since 1.18.0
    */
-  def try_to_timestamp(s: Column, fmt: String): Column = builtin("try_to_timestamp")(s, lit(fmt))
+  def try_to_timestamp(s: Column, fmt: String): Column = this.try_to_timestamp(s, lit(fmt))
 
   /**
    * Converts an input expression to a date.
@@ -2213,8 +2213,10 @@ object functions {
    *
    * ===Example===
    * {{{
-   * SELECT TRY_TO_DATE("2020-05-11", lit("YYYY.MM.DD")) as valid,
-   *        TRY_TO_DATE("invalid", lit("YYYY.MM.DD")) as invalid;
+   * df.select(
+   *     try_to_date(lit("2020-05-11"), lit("yyyy.MM.dd")).as("valid"),
+   *     try_to_date(lit("invalid"), lit("yyyy.MM.dd")).as("invalid")
+   *   ).show()
    * +------------+---------+
    * | VALID      | INVALID |
    * |------------+---------|
@@ -2240,8 +2242,10 @@ object functions {
    *
    * ===Example===
    * {{{
-   * SELECT TRY_TO_DATE("2020-05-11", "YYYY.MM.DD") as valid,
-   *        TRY_TO_DATE("invalid", "YYYY.MM.DD") as invalid;
+   * df.select(
+   *     try_to_date(lit("2020-05-11"), "yyyy.MM.dd").as("valid"),
+   *     try_to_date(lit("invalid"), "yyyy.MM.dd").as("invalid")
+   *   ).show()
    * +------------+---------+
    * | VALID      | INVALID |
    * |------------+---------|
@@ -2258,7 +2262,7 @@ object functions {
    * @group date_func
    * @since 1.18.0
    */
-  def try_to_date(e: Column, fmt: String): Column = builtin("try_to_date")(e, lit(fmt))
+  def try_to_date(e: Column, fmt: String): Column = this.try_to_date(e, lit(fmt))
 
   /**
    * Creates a date from individual numeric components that represent the year, month, and day of
