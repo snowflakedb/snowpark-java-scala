@@ -2119,13 +2119,14 @@ object functions {
    *
    * ===Example===
    * {{{
-   * SELECT TRY_TO_TIMESTAMP('04/05/2020 01:02:03', lit('mm/dd/yyyy hh24:mi:ss')) as valid,
-   *        TRY_TO_TIMESTAMP('INVALID', lit('mm/dd/yyyy hh24:mi:ss')) as invalid;
-   * +-------------------------+---------+
-   * | VALID                   | INVALID |
-   * |-------------------------+---------|
-   * | 2020-04-05 01:02:03.000 | NULL    |
-   * +-------------------------+---------+
+   * val df = session.sql("select * from (values ('04/05/2020 01:02:03'), ('invalid')) as T(a)")
+   * df.select(try_to_timestamp(col("a"), lit("mm/dd/yyyy hh24:mi:ss"))).show()
+   * ------------------------------------------------------
+   * |"TRY_TO_TIMESTAMP(""A"", 'MM/DD/YYYY HH24:MI:SS')"  |
+   * ------------------------------------------------------
+   * |2020-04-05 01:02:03.0                               |
+   * |NULL                                                |
+   * ------------------------------------------------------
    * }}}
    *
    * @param s
@@ -2146,13 +2147,14 @@ object functions {
    *
    * ===Example===
    * {{{
-   * SELECT TRY_TO_TIMESTAMP('04/05/2020 01:02:03', 'mm/dd/yyyy hh24:mi:ss') as valid,
-   *        TRY_TO_TIMESTAMP('INVALID', 'mm/dd/yyyy hh24:mi:ss') as invalid;
-   * +-------------------------+---------+
-   * | VALID                   | INVALID |
-   * |-------------------------+---------|
-   * | 2020-04-05 01:02:03.000 | NULL    |
-   * +-------------------------+---------+
+   * val df = session.sql("select * from (values ('04/05/2020 01:02:03'), ('invalid')) as T(a)")
+   * df.select(try_to_timestamp(col("a"), "mm/dd/yyyy hh24:mi:ss")).show()
+   * ------------------------------------------------------
+   * |"TRY_TO_TIMESTAMP(""A"", 'MM/DD/YYYY HH24:MI:SS')"  |
+   * ------------------------------------------------------
+   * |2020-04-05 01:02:03.0                               |
+   * |NULL                                                |
+   * ------------------------------------------------------
    * }}}
    *
    * @param s
@@ -2213,15 +2215,14 @@ object functions {
    *
    * ===Example===
    * {{{
-   * df.select(
-   *     try_to_date(lit("2020-05-11"), lit("yyyy.MM.dd")).as("valid"),
-   *     try_to_date(lit("invalid"), lit("yyyy.MM.dd")).as("invalid")
-   *   ).show()
-   * +------------+---------+
-   * | VALID      | INVALID |
-   * |------------+---------|
-   * | 2020-05-11 | NULL    |
-   * +------------+---------+
+   * val df = session.sql("select * from values('2020.07.23'),('INVALID') as T(a)")
+   * df.select(try_to_date(col("a"), lit("YYYY.MM.DD"))).show()
+   * --------------------------------------
+   * |"TRY_TO_DATE(""A"", 'YYYY.MM.DD')"  |
+   * --------------------------------------
+   * |2020-07-23                          |
+   * |NULL                                |
+   * --------------------------------------
    * }}}
    *
    * @param e
@@ -2242,15 +2243,14 @@ object functions {
    *
    * ===Example===
    * {{{
-   * df.select(
-   *     try_to_date(lit("2020-05-11"), "yyyy.MM.dd").as("valid"),
-   *     try_to_date(lit("invalid"), "yyyy.MM.dd").as("invalid")
-   *   ).show()
-   * +------------+---------+
-   * | VALID      | INVALID |
-   * |------------+---------|
-   * | 2020-05-11 | NULL    |
-   * +------------+---------+
+   * val df = session.sql("select * from values('2020.07.23'),('INVALID') as T(a)")
+   * df.select(try_to_date(col("a"), "YYYY.MM.DD")).show()
+   * --------------------------------------
+   * |"TRY_TO_DATE(""A"", 'YYYY.MM.DD')"  |
+   * --------------------------------------
+   * |2020-07-23                          |
+   * |NULL                                |
+   * --------------------------------------
    * }}}
    *
    * @param e

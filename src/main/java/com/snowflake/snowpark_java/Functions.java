@@ -2452,14 +2452,14 @@ public final class Functions {
    * <p><b>Example:</b>
    *
    * <pre>{@code
-   * df.select(
-   *     try_to_timestamp(lit("04/05/2020 01:02:03"), lit("MM/dd/yyyy HH:mm:ss")).as("valid"),
-   *     try_to_timestamp(lit("INVALID"), lit("MM/dd/yyyy HH:mm:ss")).as("invalid")
-   * +-------------------------+---------+
-   * | VALID                   | INVALID |
-   * |-------------------------+---------|
-   * | 2020-04-05 01:02:03.000 | NULL    |
-   * +-------------------------+---------+
+   * DataFrame df = session.sql("select * from (values ('04/05/2020 01:02:03'), ('invalid')) as T(a)")
+   * df.select(try_to_timestamp(col("a"), lit("mm/dd/yyyy hh24:mi:ss"))).show()
+   * ------------------------------------------------------
+   * |"TRY_TO_TIMESTAMP(""A"", 'MM/DD/YYYY HH24:MI:SS')"  |
+   * ------------------------------------------------------
+   * |2020-04-05 01:02:03.0                               |
+   * |NULL                                                |
+   * ------------------------------------------------------
    * }</pre>
    *
    * @param s The input value to be converted to timestamp
@@ -2480,14 +2480,14 @@ public final class Functions {
    * <p><b>Example:</b>
    *
    * <pre>{@code
-   * df.select(
-   *     try_to_timestamp(lit("04/05/2020 01:02:03"), "MM/dd/yyyy HH:mm:ss").as("valid"),
-   *     try_to_timestamp(lit("INVALID"), "MM/dd/yyyy HH:mm:ss").as("invalid")
-   * +-------------------------+---------+
-   * | VALID                   | INVALID |
-   * |-------------------------+---------|
-   * | 2020-04-05 01:02:03.000 | NULL    |
-   * +-------------------------+---------+
+   * DataFrame df = session.sql("select * from (values ('04/05/2020 01:02:03'), ('invalid')) as T(a)")
+   * df.select(try_to_timestamp(col("a"), "mm/dd/yyyy hh24:mi:ss")).show()
+   * ------------------------------------------------------
+   * |"TRY_TO_TIMESTAMP(""A"", 'MM/DD/YYYY HH24:MI:SS')"  |
+   * ------------------------------------------------------
+   * |2020-04-05 01:02:03.0                               |
+   * |NULL                                                |
+   * ------------------------------------------------------
    * }</pre>
    *
    * @param s The input value to be converted to timestamp
@@ -2555,12 +2555,14 @@ public final class Functions {
    * <p><b>Example:</b>
    *
    * <pre>{@code
-   * SELECT TRY_TO_DATE('2020.07.23', lit('YYYY.MM.DD')) as valid, TRY_TO_DATE('INVALID', lit('YYYY.MM.DD')) as invalid);
-   * +------------+---------+
-   * | VALID      | INVALID |
-   * +------------+---------+
-   * | 2020-07-23 | NULL    |
-   * +------------+---------+
+   * DataFrame df = session.sql("select * from values('2020.07.23'),('INVALID') as T(a)")
+   * df.select(try_to_date(col("a"), lit("YYYY.MM.DD"))).show()
+   * --------------------------------------
+   * |"TRY_TO_DATE(""A"", 'YYYY.MM.DD')"  |
+   * --------------------------------------
+   * |2020-07-23                          |
+   * |NULL                                |
+   * --------------------------------------
    * }</pre>
    *
    * @param e The input value
@@ -2581,12 +2583,14 @@ public final class Functions {
    * <p><b>Example:</b>
    *
    * <pre>{@code
-   * SELECT TRY_TO_DATE('2020.07.23', 'YYYY.MM.DD') as valid, TRY_TO_DATE('INVALID', 'YYYY.MM.DD') as invalid);
-   * +------------+---------+
-   * | VALID      | INVALID |
-   * +------------+---------+
-   * | 2020-07-23 | NULL    |
-   * +------------+---------+
+   * DataFrame df = session.sql("select * from values('2020.07.23'),('INVALID') as T(a)")
+   * df.select(try_to_date(col("a"), "YYYY.MM.DD")).show()
+   * --------------------------------------
+   * |"TRY_TO_DATE(""A"", 'YYYY.MM.DD')"  |
+   * --------------------------------------
+   * |2020-07-23                          |
+   * |NULL                                |
+   * --------------------------------------
    * }</pre>
    *
    * @param e The input value
