@@ -88,7 +88,7 @@ if [ "$PUBLISH" = true ]; then
   echo "[ACTION-REQUIRED] Please log in to Central Portal to publish artifacts: https://central.sonatype.com/"
   # TODO: alternatively automate publishing fully
 #  sbt sonaRelease
-#  echo "[SUCCESS] Released Snowpark Java-Scala v$github_version_tag to Maven."
+#  echo "[SUCCESS] Released Snowpark Java-Scala $github_version_tag to Maven."
 else
   #release to s3
   echo "[INFO] Staging signed artifacts to local ivy2 repository."
@@ -97,26 +97,34 @@ else
 
   # SBT will build FIPS version of Snowpark automatically if the environment variable exists.
   if [ "$SNOWPARK_FIPS" = true ]; then
-    S3_JENKINS_URL="s3://sfc-eng-jenkins/repository/snowparkclient-fips"
-    S3_DATA_URL="s3://sfc-eng-data/client/snowparkclient-fips/releases"
+    S3_JENKINS_URL="s3://sfc-eng-jenkins/repository/snowparkclient-fips/$github_version_tag/"
+    S3_DATA_URL="s3://sfc-eng-data/client/snowparkclient-fips/releases/$github_version_tag/"
     echo "[INFO] Uploading snowpark-fips artifacts to:"
   else
-    S3_JENKINS_URL="s3://sfc-eng-jenkins/repository/snowparkclient"
-    S3_DATA_URL="s3://sfc-eng-data/client/snowparkclient/releases"
+    S3_JENKINS_URL="s3://sfc-eng-jenkins/repository/snowparkclient/$github_version_tag/"
+    S3_DATA_URL="s3://sfc-eng-data/client/snowparkclient/releases/$github_version_tag/"
     echo "[INFO] Uploading snowpark artifacts to:"
   fi
-  echo "[INFO]   - $S3_JENKINS_URL/$github_version_tag/"
-  echo "[INFO]   - $S3_DATA_URL/$github_version_tag/"
+  echo "[INFO]   - $S3_JENKINS_URL"
+  echo "[INFO]   - $S3_DATA_URL"
+
+  # Remove release folders in s3 for current release version if they already exist due to previously failed release pipeline runs.
+  echo "[INFO] Deleting $github_version_tag release folders in s3 if they already exist."
+  aws s3 rm "$S3_JENKINS_URL" --recursive
+  echo "[INFO] $S3_JENKINS_URL folder deleted if it exists."
+  aws s3 rm "$S3_DATA_URL" --recursive
+  echo "[INFO] $S3_DATA_URL folder deleted if it exists."
 
   # Rename all produced artifacts to include version number (sbt doesn't by default when publishing to local ivy2 repository).
+  # TODO: BEFORE SNOWPARK v2.12.0, fix the regex in the sed command to not match the 2.12.x or 2.13.x named folder under ~/.ivy2/local/com.snowflake/snowpark_2.1[23]/
   find ~/.ivy2/local -type f -name '*snowpark*' | while read file; do newfile=$(echo "$file" | sed "s/\(2\.1[23]\)\([-\.]\)/\1-${github_version_tag#v}\2/"); mv "$file" "$newfile"; done
 
   # Generate sha256 checksums for all artifacts produced except .md5, .sha1, and existing .sha256 checksum files.
   find ~/.ivy2/local -type f -name '*snowpark*' ! -name '*.md5' ! -name '*.sha1' ! -name '*.sha256' -exec sh -c 'for f; do sha256sum "$f" | awk '"'"'{printf "%s", $1}'"'"' > "$f.sha256"; done' _ {} +
 
   # Copy all files, flattening the nested structure of the ivy2 repository into the expected structure on s3.
-  find ~/.ivy2/local -type f -name '*snowpark*' -exec aws s3 cp \{\} $S3_JENKINS_URL/$github_version_tag/ \;
-  find ~/.ivy2/local -type f -name '*snowpark*' -exec aws s3 cp \{\} $S3_DATA_URL/$github_version_tag/ \;
+  find ~/.ivy2/local -type f -name '*snowpark*' ! -name '*.sha1' -exec aws s3 cp \{\} $S3_JENKINS_URL \;
+  find ~/.ivy2/local -type f -name '*snowpark*' ! -name '*.sha1' -exec aws s3 cp \{\} $S3_DATA_URL \;
 
-  echo "[SUCCESS] Published Snowpark Java-Scala v$github_version_tag artifacts to S3."
+  echo "[SUCCESS] Published Snowpark Java-Scala $github_version_tag artifacts to S3."
 fi
