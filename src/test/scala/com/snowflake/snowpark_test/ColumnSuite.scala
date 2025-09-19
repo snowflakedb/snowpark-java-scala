@@ -58,60 +58,59 @@ class ColumnSuite extends TestData {
   }
 
   test("equal and not equal") {
+    val expectedEqual = Array[Row](Row(1, true, "a"))
+    assert(testData1.where(testData1("BOOL") === true).collect() sameElements expectedEqual)
     assert(
-      testData1.where(testData1("BOOL") === true).collect() sameElements Array[Row](
-        Row(1, true, "a")))
+      testData1.where(testData1("BOOL") equal_to lit(true)).collect() sameElements expectedEqual)
+    assert(testData1.where(testData1("BOOL") equal_to true).collect() sameElements expectedEqual)
+
+    val expectedNotEqual = Array[Row](Row(2, false, "b"))
+    assert(testData1.where(testData1("BOOL") =!= true).collect() sameElements expectedNotEqual)
     assert(
-      testData1.where(testData1("BOOL") equal_to lit(true)).collect() sameElements Array[Row](
-        Row(1, true, "a")))
+      testData1
+        .where(testData1("BOOL") not_equal lit(true))
+        .collect() sameElements expectedNotEqual)
     assert(
-      testData1.where(testData1("BOOL") =!= true).collect() sameElements Array[Row](
-        Row(2, false, "b")))
-    assert(
-      testData1.where(testData1("BOOL") not_equal lit(true)).collect() sameElements Array[Row](
-        Row(2, false, "b")))
+      testData1.where(testData1("BOOL") not_equal true).collect() sameElements expectedNotEqual)
   }
 
   test("gt and lt") {
-    assert(
-      testData1.where(testData1("NUM") > 1).collect() sameElements Array[Row](Row(2, false, "b")))
-    assert(
-      testData1.where(testData1("NUM") gt lit(1)).collect() sameElements Array[Row](
-        Row(2, false, "b")))
-    assert(
-      testData1.where(testData1("NUM") < 2).collect() sameElements Array[Row](Row(1, true, "a")))
-    assert(
-      testData1.where(testData1("NUM") lt lit(2)).collect() sameElements Array[Row](
-        Row(1, true, "a")))
+    val expectedGt = Array[Row](Row(2, false, "b"))
+    assert(testData1.where(testData1("NUM") > 1).collect() sameElements expectedGt)
+    assert(testData1.where(testData1("NUM") gt lit(1)).collect() sameElements expectedGt)
+    assert(testData1.where(testData1("NUM") gt 1).collect() sameElements expectedGt)
+
+    val expectedLt = Array[Row](Row(1, true, "a"))
+    assert(testData1.where(testData1("NUM") < 2).collect() sameElements expectedLt)
+    assert(testData1.where(testData1("NUM") lt lit(2)).collect() sameElements expectedLt)
+    assert(testData1.where(testData1("NUM") lt 2).collect() sameElements expectedLt)
   }
 
   test("leq and geq") {
-    assert(
-      testData1.where(testData1("NUM") >= 2).collect() sameElements Array[Row](Row(2, false, "b")))
-    assert(
-      testData1.where(testData1("NUM") geq lit(2)).collect() sameElements Array[Row](
-        Row(2, false, "b")))
-    assert(
-      testData1.where(testData1("NUM") <= 1).collect() sameElements Array[Row](Row(1, true, "a")))
-    assert(
-      testData1.where(testData1("NUM") leq lit(1)).collect() sameElements Array[Row](
-        Row(1, true, "a")))
+    val expectedGeq = Array[Row](Row(2, false, "b"))
+    assert(testData1.where(testData1("NUM") >= 2).collect() sameElements expectedGeq)
+    assert(testData1.where(testData1("NUM") geq lit(2)).collect() sameElements expectedGeq)
+    assert(testData1.where(testData1("NUM") geq 2).collect() sameElements expectedGeq)
+
+    val expectedLeq = Array[Row](Row(1, true, "a"))
+    assert(testData1.where(testData1("NUM") <= 1).collect() sameElements expectedLeq)
+    assert(testData1.where(testData1("NUM") leq lit(1)).collect() sameElements expectedLeq)
+    assert(testData1.where(testData1("NUM") leq 1).collect() sameElements expectedLeq)
+
     assert(
       testData1.where(testData1("NUM").between(lit(0), lit(1))).collect() sameElements Array[Row](
         Row(1, true, "a")))
-
   }
 
   test("null safe operators") {
     val df = session.sql("select * from values(null, 1),(2, 2),(null, null) as T(a,b)")
 
-    assert(
-      df.select(df("A") <=> df("B")).collect() sameElements
-        Array[Row](Row(false), Row(true), Row(true)))
+    val expectedEqualNull1 = Array[Row](Row(false), Row(true), Row(true))
+    assert(df.select(df("A") <=> df("B")).collect() sameElements expectedEqualNull1)
+    assert(df.select(df("A").equal_null(df("B"))).collect() sameElements expectedEqualNull1)
 
-    assert(
-      df.select(df("A").equal_null(df("B"))).collect() sameElements
-        Array[Row](Row(false), Row(true), Row(true)))
+    val expectedEqualNull2 = Array[Row](Row(true), Row(false), Row(true))
+    assert(df.select(df("A").equal_null(null)).collect() sameElements expectedEqualNull2)
   }
 
   test("NaN and Null") {
@@ -143,24 +142,35 @@ class ColumnSuite extends TestData {
   test("+ - * / %") {
     val df = session.sql("select * from values(11, 13) as T(a, b)")
 
-    assert(df.select(df("A") + df("B")).collect() sameElements Array[Row](Row(24)))
-    assert(df.select(df("A") plus df("B")).collect() sameElements Array[Row](Row(24)))
-    assert(df.select(df("A") - df("B")).collect() sameElements Array[Row](Row(-2)))
-    assert(df.select(df("A") minus df("B")).collect() sameElements Array[Row](Row(-2)))
-    assert(df.select(df("A") * df("B")).collect() sameElements Array[Row](Row(143)))
-    assert(df.select(df("A") multiply df("B")).collect() sameElements Array[Row](Row(143)))
-    assert(df.select(df("A") % df("B")).collect() sameElements Array[Row](Row(11)))
-    assert(df.select(df("A") mod df("B")).collect() sameElements Array[Row](Row(11)))
+    val expectedPlus = Array[Row](Row(24))
+    assert(df.select(df("A") + df("B")).collect() sameElements expectedPlus)
+    assert(df.select(df("A") plus df("B")).collect() sameElements expectedPlus)
+    assert(df.select(df("A") plus 13).collect() sameElements expectedPlus)
 
-    val result = df.select(df("A") / df("B")).collect()
-    assert(result.length == 1)
-    assert(result(0).length == 1)
-    assert(result(0).getDecimal(0).toString == "0.846154")
+    val expectedMinus = Array[Row](Row(-2))
+    assert(df.select(df("A") - df("B")).collect() sameElements expectedMinus)
+    assert(df.select(df("A") minus df("B")).collect() sameElements expectedMinus)
+    assert(df.select(df("A") minus 13).collect() sameElements expectedMinus)
 
-    val result1 = df.select(df("A") divide df("B")).collect()
-    assert(result1.length == 1)
-    assert(result1(0).length == 1)
-    assert(result1(0).getDecimal(0).toString == "0.846154")
+    val expectedMultiply = Array[Row](Row(143))
+    assert(df.select(df("A") * df("B")).collect() sameElements expectedMultiply)
+    assert(df.select(df("A") multiply df("B")).collect() sameElements expectedMultiply)
+    assert(df.select(df("A") multiply 13).collect() sameElements expectedMultiply)
+
+    val expectedMod = Array[Row](Row(11))
+    assert(df.select(df("A") % df("B")).collect() sameElements expectedMod)
+    assert(df.select(df("A") mod df("B")).collect() sameElements expectedMod)
+    assert(df.select(df("A") mod 13).collect() sameElements expectedMod)
+
+    val assertDivide = (result: Array[Row]) => {
+      assert(result.length == 1)
+      assert(result(0).length == 1)
+      assert(result(0).getDecimal(0).toString == "0.846154")
+    }
+
+    assertDivide(df.select(df("A") / df("B")).collect())
+    assertDivide(df.select(df("A") divide df("B")).collect())
+    assertDivide(df.select(df("A") divide 13).collect())
   }
 
   test("cast") {

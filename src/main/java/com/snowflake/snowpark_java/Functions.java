@@ -4338,7 +4338,7 @@ public final class Functions {
   public static CaseExpr when(Column condition, Object value) {
     return new CaseExpr(
         com.snowflake.snowpark.functions.when(
-            condition.toScalaColumn(), toExpr(value).toScalaColumn()));
+            condition.toScalaColumn(), JavaUtils.toJavaColumn(value).toScalaColumn()));
   }
 
   /**
@@ -6038,17 +6038,5 @@ public final class Functions {
   private static UserDefinedFunction userDefinedFunction(
       String funcName, Supplier<UserDefinedFunction> func) {
     return javaUDF("Functions", funcName, "", "", func);
-  }
-
-  /**
-   * Converts any value to an Expression. If the value is already a Column, uses its expression
-   * directly. Otherwise, wraps it with lit() to create a Column expression.
-   */
-  private static Column toExpr(Object exp) {
-    if (exp instanceof Column) {
-      return ((Column) exp);
-    }
-
-    return Functions.lit(exp);
   }
 }

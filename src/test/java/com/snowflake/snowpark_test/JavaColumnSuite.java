@@ -79,23 +79,31 @@ public class JavaColumnSuite extends TestBase {
   public void compareOps() {
     DataFrame data = getSession().sql("select * from values(1) as T(a)");
     Row[] expected = {
-      Row.create(true, false, true, false, true, false, true, true, false, true, true, false)
+      Row.create(
+          true, true, false, false, true, false, false, true, false, false, true, true, false,
+          false, true, true, false, false)
     };
     Column a = Functions.col("a");
     checkAnswer(
         data.select(
             a.equal_to(Functions.lit(1)),
+            a.equal_to(1),
             a.not_equal(Functions.lit(1)),
+            a.not_equal(1),
             a.gt(Functions.lit(0)),
             a.gt(Functions.lit(1)),
+            a.gt(1),
             a.lt(Functions.lit(2)),
             a.lt(Functions.lit(1)),
+            a.lt(1),
             a.leq(Functions.lit(2)),
             a.leq(Functions.lit(1)),
             a.leq(Functions.lit(0)),
+            a.leq(0),
             a.geq(Functions.lit(0)),
             a.geq(Functions.lit(1)),
-            a.geq(Functions.lit(2))),
+            a.geq(Functions.lit(2)),
+            a.geq(2)),
         expected);
   }
 
@@ -105,6 +113,8 @@ public class JavaColumnSuite extends TestBase {
         getSession().sql("select * from values(null, 1),(2, 2),(null, null) as T(a,b)");
     Row[] expected = {Row.create(false), Row.create(true), Row.create(true)};
     checkAnswer(data.select(data.col("a").equal_null(data.col("b"))), expected);
+    Row[] expected2 = {Row.create(true), Row.create(false), Row.create(true)};
+    checkAnswer(data.select(data.col("a").equal_null(null)), expected2);
   }
 
   @Test
@@ -161,6 +171,14 @@ public class JavaColumnSuite extends TestBase {
     Column a = data.col("a");
     Column b = data.col("b");
     checkAnswer(data.select(a.plus(b), a.minus(b), a.multiply(b), a.divide(b), a.mod(b)), expected);
+
+    Row[] expected2 = {
+      Row.create(11, -9, 10, 0.1, 1),
+      Row.create(17, -3, 70, 0.7, 7),
+      Row.create(9, -11, -10, -0.1, -1),
+    };
+    checkAnswer(
+        data.select(a.plus(10), a.minus(10), a.multiply(10), a.divide(10), a.mod(10)), expected2);
   }
 
   @Test
