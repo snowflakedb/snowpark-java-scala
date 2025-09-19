@@ -7,6 +7,7 @@ import org.scalatest.funsuite.AnyFunSuite
 
 import scala.collection.JavaConverters._
 import java.util
+import com.snowflake.snowpark_java.{Functions => JavaFunctions, Column => JavaColumn}
 
 // test UDF utils functions
 // those functions work on server side.
@@ -168,5 +169,17 @@ class JavaUtilsSuite extends AnyFunSuite {
     assert(javaMap2.get("a").asInstanceOf[String].equals("av"))
     assert(javaMap2.get("b").asInstanceOf[String].equals("bv"))
     assert(javaMap2.get("c") == null)
+  }
+
+  test("toJavaColumn returns same instance when already a Column") {
+    val column = JavaFunctions.lit(5)
+    val result = toJavaColumn(column)
+    assert(result eq column)
+  }
+
+  test("toJavaColumn wraps non-column value as literal") {
+    val result = toJavaColumn("hello")
+    assert(result.isInstanceOf[JavaColumn])
+    assert(result.toString == JavaFunctions.lit("hello").toString)
   }
 }
