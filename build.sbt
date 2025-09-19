@@ -9,6 +9,18 @@ lazy val isFipsRelease = {
   // scalastyle:on println
   result
 }
+lazy val includeFatJarsAndBundles = {
+  // When the PUBLISH environment variable is true, we assume the caller is publishing to Maven,
+  // in which case we do not want to include fat JAR, ZIP, or Tarball bundle artifacts.
+  val result = !sys.env.getOrElse("PUBLISH", "false").toBoolean
+  // scalastyle:off println
+  println(s"Including Fat JARs and Bundles in published artifacts: $result")
+  // scalastyle:on println
+  result
+}
+def isFatJarOrBundle(c: String): Boolean =
+  c.contains("with-dependencies") || c.contains("fat-test") || c.contains("bundle")
+
 lazy val snowparkName = s"snowpark${if (isFipsRelease) "-fips" else ""}"
 lazy val jdbcName = s"snowflake-jdbc${if (isFipsRelease) "-fips" else ""}"
 lazy val snowparkVersion = "1.17.0"
@@ -165,13 +177,8 @@ lazy val root = (project in file("."))
 
     // Release settings
 
-    // Release JAR including compiled test classes
-    Test / packageBin / publishArtifact := true,
-    // Also publish a test-sources JAR
-    Test / packageSrc / publishArtifact := true,
-    Test / packageSrc / artifact :=
-      (Compile / packageSrc / artifact).value.withClassifier(Some("tests-sources")),
-    addArtifact(Test / packageSrc / artifact, Test / packageSrc),
+    // Disable publishing the source files JAR
+    Compile / packageSrc / publishArtifact := false,
 
     // Fat JAR settings
     assembly / assemblyJarName :=
@@ -247,6 +254,16 @@ lazy val root = (project in file("."))
       Artifact(name = snowparkName, `type` = "bundle", extension = "tar.gz", classifier = "bundle"),
       Universal / packageZipTarball),
 
+    // Explicitly list checksum files to be generated for visibility
+    checksums := Seq("md5", "sha1"),
+
+    // Filter out bundles and fat jars if publishing to maven
+    artifacts := artifacts.value filter (
+      a => includeFatJarsAndBundles || !isFatJarOrBundle(a.classifier.getOrElse(""))),
+    packagedArtifacts := packagedArtifacts.value filter (
+      af => includeFatJarsAndBundles || !isFatJarOrBundle(af._1.classifier.getOrElse(""))),
+
+    // Signed publish settings
     credentials += Credentials(Path.userHome / ".ivy2" / ".credentials"),
     // Set up GPG key for release build from environment variable: GPG_HEX_CODE
     // Build jenkins job must have set it, otherwise, the release build will fail.
@@ -256,7 +273,6 @@ lazy val root = (project in file("."))
       Properties.envOrNone("GPG_HEX_CODE").getOrElse("Jenkins_build_not_set_GPG_HEX_CODE"),
       "ignored" // this field is ignored; passwords are supplied by pinentry
     ),
-    // usePgpKeyHex(Properties.envOrElse("GPG_SIGNATURE", "12345")),
     Global / pgpPassphrase := Properties.envOrNone("GPG_KEY_PASSPHRASE").map(_.toCharArray),
     publishMavenStyle := true,
     releaseCrossBuild := true,
