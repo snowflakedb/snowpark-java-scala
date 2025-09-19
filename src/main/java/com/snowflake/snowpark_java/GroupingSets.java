@@ -32,7 +32,7 @@ public class GroupingSets {
   public static GroupingSets create(Set<Column>... sets) {
     Set<com.snowflake.snowpark.Column>[] arr = new Set[sets.length];
     for (int i = 0; i < sets.length; i++) {
-      arr[i] = sets[i].stream().map(Column::toScalaColumn).collect(Collectors.toSet());
+      arr[i] = sets[i].stream().map(column -> column.toScalaColumn()).collect(Collectors.toSet());
     }
 
     return new GroupingSets(JavaUtils.createGroupingSets(arr));
