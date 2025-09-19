@@ -357,6 +357,29 @@ public class Column {
   }
 
   /**
+   * Casts the values in the Column to the specified data type.
+   *
+   * <p><b>Examples</b>
+   *
+   * <pre>{@code
+   * DataFrame df = session.createDataFrame(
+   *   new Row[] { Row.create(123), Row.create(456), Row.create(789) },
+   *   StructType.create(new StructField("a", DataTypes.IntegerType))
+   * );
+   * df.select(col("a").cast("string").as("casted")).schema().toString();
+   * // res: String = "StructType[StructField(CASTED, String, Nullable = false)]"
+   * }</pre>
+   *
+   * @param to A string representing the target data type.
+   * @return A new Column with values cast to the specified data type.
+   * @throws IllegalArgumentException If the provided string does not represent a valid data type.
+   * @since 1.18.0
+   */
+  public Column cast(String to) {
+    return new Column(this.scalaColumn.cast(to));
+  }
+
+  /**
    * Sorts this column in descending order.
    *
    * @return The result column object
