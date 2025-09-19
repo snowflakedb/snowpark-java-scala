@@ -4338,7 +4338,7 @@ public final class Functions {
   public static CaseExpr when(Column condition, Object value) {
     return new CaseExpr(
         com.snowflake.snowpark.functions.when(
-            condition.toScalaColumn(), JavaUtils.toJavaColumn(value).toScalaColumn()));
+            condition.toScalaColumn(), Column.toScalaColumn(value)));
   }
 
   /**
