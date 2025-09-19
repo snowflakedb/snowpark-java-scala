@@ -1,7 +1,5 @@
 package com.snowflake.snowpark_java;
 
-import com.snowflake.snowpark.internal.JavaUtils;
-
 /**
  * Represents a <a href="https://docs.snowflake.com/en/sql-reference/functions/case.html">CASE</a>
  * expression.
@@ -39,8 +37,7 @@ public class CaseExpr extends Column {
    * @since 0.12.0
    */
   public CaseExpr when(Column condition, Object value) {
-    return new CaseExpr(
-        caseExpr.when(condition.toScalaColumn(), JavaUtils.toJavaColumn(value).toScalaColumn()));
+    return new CaseExpr(caseExpr.when(condition.toScalaColumn(), Column.toScalaColumn(value)));
   }
 
   /**
@@ -61,6 +58,6 @@ public class CaseExpr extends Column {
    * @since 0.12.0
    */
   public Column otherwise(Object value) {
-    return new Column(caseExpr.otherwise(JavaUtils.toJavaColumn(value).toScalaColumn()));
+    return new Column(caseExpr.otherwise(Column.toScalaColumn(value)));
   }
 }

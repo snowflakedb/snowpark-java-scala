@@ -411,22 +411,6 @@ object JavaUtils {
     doDeserializeAndCloseInputStream(fis)
   }
 
-  /**
-   * Converts the given value into a [[JavaColumn Column]] instance.
-   *
-   * If the input value is already a [[JavaColumn Column]] instance, it returns the value as-is. For
-   * any other type of value, it wraps the value in a literal Column using `Functions.lit()`.
-   *
-   * @param value
-   *   The value to be converted into a [[JavaColumn Column]].
-   * @return
-   *   A [[JavaColumn Column]] instance representing the input value.
-   */
-  def toJavaColumn(value: AnyRef): JavaColumn = value match {
-    case c: JavaColumn => c
-    case _ => JavaFunctions.lit(value)
-  }
-
   private def doDeserializeAndCloseInputStream(inputStream: InputStream): Object = {
     var in: ObjectInputStream = null
     try {

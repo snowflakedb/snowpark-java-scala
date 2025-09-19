@@ -147,7 +147,7 @@ public class Column {
    * @since 0.9.0
    */
   public Column equal_to(Object other) {
-    return new Column(this.scalaColumn.equal_to(JavaUtils.toJavaColumn(other).scalaColumn));
+    return new Column(this.scalaColumn.equal_to(Column.toScalaColumn(other)));
   }
 
   /**
@@ -158,7 +158,7 @@ public class Column {
    * @since 0.9.0
    */
   public Column not_equal(Object other) {
-    return new Column(this.scalaColumn.not_equal(JavaUtils.toJavaColumn(other).scalaColumn));
+    return new Column(this.scalaColumn.not_equal(Column.toScalaColumn(other)));
   }
 
   /**
@@ -169,7 +169,7 @@ public class Column {
    * @since 0.9.0
    */
   public Column gt(Object other) {
-    return new Column(this.scalaColumn.gt(JavaUtils.toJavaColumn(other).scalaColumn));
+    return new Column(this.scalaColumn.gt(Column.toScalaColumn(other)));
   }
 
   /**
@@ -180,7 +180,7 @@ public class Column {
    * @since 0.9.0
    */
   public Column lt(Object other) {
-    return new Column(this.scalaColumn.lt(JavaUtils.toJavaColumn(other).scalaColumn));
+    return new Column(this.scalaColumn.lt(Column.toScalaColumn(other)));
   }
 
   /**
@@ -191,7 +191,7 @@ public class Column {
    * @since 0.9.0
    */
   public Column leq(Object other) {
-    return new Column(this.scalaColumn.leq(JavaUtils.toJavaColumn(other).scalaColumn));
+    return new Column(this.scalaColumn.leq(Column.toScalaColumn(other)));
   }
 
   /**
@@ -202,7 +202,7 @@ public class Column {
    * @since 0.9.0
    */
   public Column geq(Object other) {
-    return new Column(this.scalaColumn.geq(JavaUtils.toJavaColumn(other).scalaColumn));
+    return new Column(this.scalaColumn.geq(Column.toScalaColumn(other)));
   }
 
   /**
@@ -213,7 +213,7 @@ public class Column {
    * @since 0.9.0
    */
   public Column equal_null(Object other) {
-    return new Column(this.scalaColumn.equal_null(JavaUtils.toJavaColumn(other).scalaColumn));
+    return new Column(this.scalaColumn.equal_null(Column.toScalaColumn(other)));
   }
 
   /**
@@ -298,7 +298,7 @@ public class Column {
    * @since 0.9.0
    */
   public Column plus(Object other) {
-    return new Column(this.scalaColumn.plus(JavaUtils.toJavaColumn(other).scalaColumn));
+    return new Column(this.scalaColumn.plus(Column.toScalaColumn(other)));
   }
 
   /**
@@ -309,7 +309,7 @@ public class Column {
    * @since 0.9.0
    */
   public Column minus(Object other) {
-    return new Column(this.scalaColumn.minus(JavaUtils.toJavaColumn(other).scalaColumn));
+    return new Column(this.scalaColumn.minus(Column.toScalaColumn(other)));
   }
 
   /**
@@ -320,7 +320,7 @@ public class Column {
    * @since 0.9.0
    */
   public Column multiply(Object other) {
-    return new Column(this.scalaColumn.multiply(JavaUtils.toJavaColumn(other).scalaColumn));
+    return new Column(this.scalaColumn.multiply(Column.toScalaColumn(other)));
   }
 
   /**
@@ -331,7 +331,7 @@ public class Column {
    * @since 0.9.0
    */
   public Column divide(Object other) {
-    return new Column(this.scalaColumn.divide(JavaUtils.toJavaColumn(other).scalaColumn));
+    return new Column(this.scalaColumn.divide(Column.toScalaColumn(other)));
   }
 
   /**
@@ -342,7 +342,7 @@ public class Column {
    * @since 0.9.0
    */
   public Column mod(Object other) {
-    return new Column(this.scalaColumn.mod(JavaUtils.toJavaColumn(other).scalaColumn));
+    return new Column(this.scalaColumn.mod(Column.toScalaColumn(other)));
   }
 
   /**
@@ -601,6 +601,24 @@ public class Column {
 
   com.snowflake.snowpark.Column toScalaColumn() {
     return this.scalaColumn;
+  }
+
+  /**
+   * Internal helper that converts an input object into a Scala {@link com.snowflake.snowpark.Column
+   * Column}.
+   *
+   * <p>If {@code value} is already a Java {@link com.snowflake.snowpark_java.Column Column}, its
+   * wrapped Scala column is returned directly. Otherwise, the object is converted to a literal via
+   * {@link Functions#lit} and the literal's Scala column is returned.
+   *
+   * @param value The value to be converted into a column.
+   * @return A Scala {@link com.snowflake.snowpark.Column Column} instance.
+   */
+  static com.snowflake.snowpark.Column toScalaColumn(Object value) {
+    if (value instanceof Column) {
+      return ((Column) value).scalaColumn;
+    }
+    return Functions.lit(value).scalaColumn;
   }
 
   static com.snowflake.snowpark.Column[] toScalaColumnArray(Column[] arr) {
