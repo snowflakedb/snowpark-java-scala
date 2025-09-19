@@ -28,7 +28,6 @@ import java.io._
 import com.snowflake.snowpark.types.{Geography, Geometry, Variant}
 import com.snowflake.snowpark_java.types.InternalUtils
 import com.snowflake.snowpark_java.udtf._
-import com.snowflake.snowpark_java.{Column => JavaColumn, Functions => JavaFunctions}
 
 import scala.collection.{JavaConverters, mutable}
 import scala.collection.JavaConverters._
