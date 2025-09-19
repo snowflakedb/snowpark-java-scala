@@ -7,7 +7,6 @@ import org.scalatest.funsuite.AnyFunSuite
 
 import scala.collection.JavaConverters._
 import java.util
-import com.snowflake.snowpark_java.{Functions => JavaFunctions, Column => JavaColumn}
 
 // test UDF utils functions
 // those functions work on server side.
