@@ -761,8 +761,11 @@ trait FunctionSuite extends TestData {
       val formatDf = session.sql("select * from values('04/05/2020 01:02:03'),('INVALID') as T(a)")
       val formatDfConverted =
         formatDf.select(try_to_timestamp(col("A"), lit("mm/dd/yyyy hh24:mi:ss")))
+      val stringFormatDfConverted =
+        formatDf.select(try_to_timestamp(col("A"), "mm/dd/yyyy hh24:mi:ss"))
       val formatConvertedExpected = Seq(Row(Timestamp.valueOf("2020-04-05 01:02:03.0")), Row(null))
       checkAnswer(formatDfConverted, formatConvertedExpected)
+      checkAnswer(stringFormatDfConverted, formatConvertedExpected)
     }
   }
 
@@ -803,9 +806,9 @@ trait FunctionSuite extends TestData {
     checkAnswer(df.select(try_to_date(col("A"))), Seq(Row(new Date(120, 4, 11)), Row(null)))
 
     val df1 = session.sql("select * from values('2020.07.23'),('INVALID') as T(a)")
-    checkAnswer(
-      df1.select(try_to_date(col("A"), lit("YYYY.MM.DD"))),
-      Seq(Row(new Date(120, 6, 23)), Row(null)))
+    val expected = Seq(Row(new Date(120, 6, 23)), Row(null));
+    checkAnswer(df1.select(try_to_date(col("A"), lit("YYYY.MM.DD"))), expected)
+    checkAnswer(df1.select(try_to_date(col("A"), "YYYY.MM.DD")), expected)
   }
 
   test("date_trunc") {

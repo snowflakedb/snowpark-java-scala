@@ -2119,25 +2119,54 @@ object functions {
    *
    * ===Example===
    * {{{
-   * SELECT TRY_TO_TIMESTAMP('04/05/2020 01:02:03', 'mm/dd/yyyy hh24:mi:ss') as valid,
-   *        TRY_TO_TIMESTAMP('INVALID', 'mm/dd/yyyy hh24:mi:ss') as invalid;
-   * +-------------------------+---------+
-   * | VALID                   | INVALID |
-   * |-------------------------+---------|
-   * | 2020-04-05 01:02:03.000 | NULL    |
-   * +-------------------------+---------+
+   * val df = session.sql("select * from (values ('04/05/2020 01:02:03'), ('invalid')) as T(a)")
+   * df.select(try_to_timestamp(col("a"), lit("mm/dd/yyyy hh24:mi:ss"))).show()
+   * ------------------------------------------------------
+   * |"TRY_TO_TIMESTAMP(""A"", 'MM/DD/YYYY HH24:MI:SS')"  |
+   * ------------------------------------------------------
+   * |2020-04-05 01:02:03.0                               |
+   * |NULL                                                |
+   * ------------------------------------------------------
    * }}}
    *
    * @param s
    *   The input value to be converted to timestamp.
    * @param fmt
-   *   The time format
+   *   The time format as Column
    * @return
    *   The result column.
    * @group date_func
    * @since 1.17.0
    */
   def try_to_timestamp(s: Column, fmt: Column): Column = builtin("try_to_timestamp")(s, fmt)
+
+  /**
+   * Wrapper for Snowflake built-in try_to_timestamp function. Converts an input expression into the
+   * corresponding timestamp, but with error-handling support, if the conversion cannot be
+   * performed, it returns a NULL value instead of raising an error.
+   *
+   * ===Example===
+   * {{{
+   * val df = session.sql("select * from (values ('04/05/2020 01:02:03'), ('invalid')) as T(a)")
+   * df.select(try_to_timestamp(col("a"), "mm/dd/yyyy hh24:mi:ss")).show()
+   * ------------------------------------------------------
+   * |"TRY_TO_TIMESTAMP(""A"", 'MM/DD/YYYY HH24:MI:SS')"  |
+   * ------------------------------------------------------
+   * |2020-04-05 01:02:03.0                               |
+   * |NULL                                                |
+   * ------------------------------------------------------
+   * }}}
+   *
+   * @param s
+   *   The input value to be converted to timestamp.
+   * @param fmt
+   *   The time format as String
+   * @return
+   *   The result column.
+   * @group date_func
+   * @since 1.18.0
+   */
+  def try_to_timestamp(s: Column, fmt: String): Column = this.try_to_timestamp(s, lit(fmt))
 
   /**
    * Converts an input expression to a date.
@@ -2186,25 +2215,54 @@ object functions {
    *
    * ===Example===
    * {{{
-   * SELECT TRY_TO_DATE("2020-05-11", "YYYY.MM.DD") as valid,
-   *        TRY_TO_DATE("invalid", "YYYY.MM.DD") as invalid;
-   * +------------+---------+
-   * | VALID      | INVALID |
-   * |------------+---------|
-   * | 2020-05-11 | NULL    |
-   * +------------+---------+
+   * val df = session.sql("select * from values('2020.07.23'),('INVALID') as T(a)")
+   * df.select(try_to_date(col("a"), lit("YYYY.MM.DD"))).show()
+   * --------------------------------------
+   * |"TRY_TO_DATE(""A"", 'YYYY.MM.DD')"  |
+   * --------------------------------------
+   * |2020-07-23                          |
+   * |NULL                                |
+   * --------------------------------------
    * }}}
    *
    * @param e
    *   The input value to be converted to date.
    * @param fmt
-   *   The time format
+   *   The time format as Column
    * @return
    *   The result column.
    * @group date_func
    * @since 1.17.0
    */
   def try_to_date(e: Column, fmt: Column): Column = builtin("try_to_date")(e, fmt)
+
+  /**
+   * Wrapper for Snowflake built-in try_to_date function. Converts an input expression to a date,
+   * but with error-handling support, if the conversion cannot be performed, it returns a NULL value
+   * instead of raising an error.
+   *
+   * ===Example===
+   * {{{
+   * val df = session.sql("select * from values('2020.07.23'),('INVALID') as T(a)")
+   * df.select(try_to_date(col("a"), "YYYY.MM.DD")).show()
+   * --------------------------------------
+   * |"TRY_TO_DATE(""A"", 'YYYY.MM.DD')"  |
+   * --------------------------------------
+   * |2020-07-23                          |
+   * |NULL                                |
+   * --------------------------------------
+   * }}}
+   *
+   * @param e
+   *   The input value to be converted to date.
+   * @param fmt
+   *   The time format as String
+   * @return
+   *   The result column.
+   * @group date_func
+   * @since 1.18.0
+   */
+  def try_to_date(e: Column, fmt: String): Column = this.try_to_date(e, lit(fmt))
 
   /**
    * Creates a date from individual numeric components that represent the year, month, and day of
