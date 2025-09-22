@@ -177,8 +177,11 @@ lazy val root = (project in file("."))
 
     // Release settings
 
-    // Disable publishing the source files JAR
-    Compile / packageSrc / publishArtifact := false,
+    // Disable publishing the source files JAR unless publishing to maven.
+    Compile / packageSrc / publishArtifact := !includeFatJarsAndBundles,
+
+    // Disable publishing test source files in all scenarios.
+    Test / packageSrc / publishArtifact := false,
 
     // Fat JAR settings
     assembly / assemblyJarName :=
