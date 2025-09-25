@@ -37,7 +37,7 @@ public class CaseExpr extends Column {
    * @since 0.12.0
    */
   public CaseExpr when(Column condition, Object value) {
-    return new CaseExpr(caseExpr.when(condition.toScalaColumn(), toExpr(value).toScalaColumn()));
+    return new CaseExpr(caseExpr.when(condition.toScalaColumn(), Column.toScalaColumn(value)));
   }
 
   /**
@@ -58,18 +58,6 @@ public class CaseExpr extends Column {
    * @since 0.12.0
    */
   public Column otherwise(Object value) {
-    return new Column(caseExpr.otherwise(toExpr(value).toScalaColumn()));
-  }
-
-  /**
-   * Converts any value to an Expression. If the value is already a Column, uses its expression
-   * directly. Otherwise, wraps it with lit() to create a Column expression.
-   */
-  private Column toExpr(Object exp) {
-    if (exp instanceof Column) {
-      return ((Column) exp);
-    }
-
-    return Functions.lit(exp);
+    return new Column(caseExpr.otherwise(Column.toScalaColumn(value)));
   }
 }

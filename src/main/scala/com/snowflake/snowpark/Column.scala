@@ -283,7 +283,7 @@ case class Column private[snowpark] (private[snowpark] val expr: Expression) ext
    * @group op
    * @since 0.1.0
    */
-  def equal_to(other: Column): Column = this === other
+  def equal_to(other: Any): Column = this === other
 
   /**
    * Not equal to. Alias for [[not_equal]].
@@ -298,7 +298,7 @@ case class Column private[snowpark] (private[snowpark] val expr: Expression) ext
    * @group op
    * @since 0.1.0
    */
-  def not_equal(other: Column): Column = this =!= other
+  def not_equal(other: Any): Column = this =!= other
 
   /**
    * Greater than. Alias for [[gt]].
@@ -312,7 +312,7 @@ case class Column private[snowpark] (private[snowpark] val expr: Expression) ext
    * @group op
    * @since 0.1.0
    */
-  def gt(other: Column): Column = this > other
+  def gt(other: Any): Column = this > other
 
   /**
    * Less than. Alias for [[lt]].
@@ -326,7 +326,7 @@ case class Column private[snowpark] (private[snowpark] val expr: Expression) ext
    * @group op
    * @since 0.1.0
    */
-  def lt(other: Column): Column = this < other
+  def lt(other: Any): Column = this < other
 
   /**
    * Less than or equal to. Alias for [[leq]].
@@ -340,7 +340,7 @@ case class Column private[snowpark] (private[snowpark] val expr: Expression) ext
    * @group op
    * @since 0.1.0
    */
-  def leq(other: Column): Column = this <= other
+  def leq(other: Any): Column = this <= other
 
   /**
    * Greater than or equal to. Alias for [[geq]].
@@ -354,7 +354,7 @@ case class Column private[snowpark] (private[snowpark] val expr: Expression) ext
    * @group op
    * @since 0.1.0
    */
-  def geq(other: Column): Column = this >= other
+  def geq(other: Any): Column = this >= other
 
   /**
    * Equal to. You can use this for comparisons against a null value. Alias for [[equal_null]].
@@ -377,7 +377,7 @@ case class Column private[snowpark] (private[snowpark] val expr: Expression) ext
    * @group op
    * @since 0.1.0
    */
-  def equal_null(other: Column): Column = this <=> other
+  def equal_null(other: Any): Column = this <=> other
 
   /**
    * Is NaN.
@@ -457,7 +457,7 @@ case class Column private[snowpark] (private[snowpark] val expr: Expression) ext
    * @group op
    * @since 0.1.0
    */
-  def plus(other: Column): Column = this + other
+  def plus(other: Any): Column = this + other
 
   /**
    * Minus. Alias for [[minus]].
@@ -471,7 +471,7 @@ case class Column private[snowpark] (private[snowpark] val expr: Expression) ext
    * @group op
    * @since 0.1.0
    */
-  def minus(other: Column): Column = this - other
+  def minus(other: Any): Column = this - other
 
   /**
    * Multiply. Alias for [[multiply]].
@@ -485,7 +485,7 @@ case class Column private[snowpark] (private[snowpark] val expr: Expression) ext
    * @group op
    * @since 0.1.0
    */
-  def multiply(other: Column): Column = this * other
+  def multiply(other: Any): Column = this * other
 
   /**
    * Divide. Alias for [[divide]].
@@ -499,7 +499,7 @@ case class Column private[snowpark] (private[snowpark] val expr: Expression) ext
    * @group op
    * @since 0.1.0
    */
-  def divide(other: Column): Column = this / other
+  def divide(other: Any): Column = this / other
 
   /**
    * Remainder. Alias for [[mod]].
@@ -513,7 +513,7 @@ case class Column private[snowpark] (private[snowpark] val expr: Expression) ext
    * @group op
    * @since 0.1.0
    */
-  def mod(other: Column): Column = this % other
+  def mod(other: Any): Column = this % other
 
   /**
    * Casts the values in the Column to the specified data type.

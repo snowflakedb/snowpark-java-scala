@@ -146,8 +146,8 @@ public class Column {
    * @return The result column object
    * @since 0.9.0
    */
-  public Column equal_to(Column other) {
-    return new Column(this.scalaColumn.equal_to(other.scalaColumn));
+  public Column equal_to(Object other) {
+    return new Column(this.scalaColumn.equal_to(Column.toScalaColumn(other)));
   }
 
   /**
@@ -157,8 +157,8 @@ public class Column {
    * @return The result column object
    * @since 0.9.0
    */
-  public Column not_equal(Column other) {
-    return new Column(this.scalaColumn.not_equal(other.scalaColumn));
+  public Column not_equal(Object other) {
+    return new Column(this.scalaColumn.not_equal(Column.toScalaColumn(other)));
   }
 
   /**
@@ -168,8 +168,8 @@ public class Column {
    * @return The result column object
    * @since 0.9.0
    */
-  public Column gt(Column other) {
-    return new Column(this.scalaColumn.gt(other.scalaColumn));
+  public Column gt(Object other) {
+    return new Column(this.scalaColumn.gt(Column.toScalaColumn(other)));
   }
 
   /**
@@ -179,8 +179,8 @@ public class Column {
    * @return The result column object
    * @since 0.9.0
    */
-  public Column lt(Column other) {
-    return new Column(this.scalaColumn.lt(other.scalaColumn));
+  public Column lt(Object other) {
+    return new Column(this.scalaColumn.lt(Column.toScalaColumn(other)));
   }
 
   /**
@@ -190,8 +190,8 @@ public class Column {
    * @return The result column object
    * @since 0.9.0
    */
-  public Column leq(Column other) {
-    return new Column(this.scalaColumn.leq(other.scalaColumn));
+  public Column leq(Object other) {
+    return new Column(this.scalaColumn.leq(Column.toScalaColumn(other)));
   }
 
   /**
@@ -201,8 +201,8 @@ public class Column {
    * @return The result column object
    * @since 0.9.0
    */
-  public Column geq(Column other) {
-    return new Column(this.scalaColumn.geq(other.scalaColumn));
+  public Column geq(Object other) {
+    return new Column(this.scalaColumn.geq(Column.toScalaColumn(other)));
   }
 
   /**
@@ -212,8 +212,8 @@ public class Column {
    * @return The result column object
    * @since 0.9.0
    */
-  public Column equal_null(Column other) {
-    return new Column(this.scalaColumn.equal_null(other.scalaColumn));
+  public Column equal_null(Object other) {
+    return new Column(this.scalaColumn.equal_null(Column.toScalaColumn(other)));
   }
 
   /**
@@ -297,8 +297,8 @@ public class Column {
    * @return The result column object
    * @since 0.9.0
    */
-  public Column plus(Column other) {
-    return new Column(this.scalaColumn.plus(other.scalaColumn));
+  public Column plus(Object other) {
+    return new Column(this.scalaColumn.plus(Column.toScalaColumn(other)));
   }
 
   /**
@@ -308,8 +308,8 @@ public class Column {
    * @return The result column object
    * @since 0.9.0
    */
-  public Column minus(Column other) {
-    return new Column(this.scalaColumn.minus(other.scalaColumn));
+  public Column minus(Object other) {
+    return new Column(this.scalaColumn.minus(Column.toScalaColumn(other)));
   }
 
   /**
@@ -319,8 +319,8 @@ public class Column {
    * @return The result column object
    * @since 0.9.0
    */
-  public Column multiply(Column other) {
-    return new Column(this.scalaColumn.multiply(other.scalaColumn));
+  public Column multiply(Object other) {
+    return new Column(this.scalaColumn.multiply(Column.toScalaColumn(other)));
   }
 
   /**
@@ -330,8 +330,8 @@ public class Column {
    * @return The result column object
    * @since 0.9.0
    */
-  public Column divide(Column other) {
-    return new Column(this.scalaColumn.divide(other.scalaColumn));
+  public Column divide(Object other) {
+    return new Column(this.scalaColumn.divide(Column.toScalaColumn(other)));
   }
 
   /**
@@ -341,8 +341,8 @@ public class Column {
    * @return The result column object
    * @since 0.9.0
    */
-  public Column mod(Column other) {
-    return new Column(this.scalaColumn.mod(other.scalaColumn));
+  public Column mod(Object other) {
+    return new Column(this.scalaColumn.mod(Column.toScalaColumn(other)));
   }
 
   /**
@@ -601,6 +601,24 @@ public class Column {
 
   com.snowflake.snowpark.Column toScalaColumn() {
     return this.scalaColumn;
+  }
+
+  /**
+   * Internal helper that converts an input object into a Scala {@link com.snowflake.snowpark.Column
+   * Column}.
+   *
+   * <p>If {@code value} is already a Java {@link com.snowflake.snowpark_java.Column Column}, its
+   * wrapped Scala column is returned directly. Otherwise, the object is converted to a literal via
+   * {@link Functions#lit} and the literal's Scala column is returned.
+   *
+   * @param value The value to be converted into a column.
+   * @return A Scala {@link com.snowflake.snowpark.Column Column} instance.
+   */
+  static com.snowflake.snowpark.Column toScalaColumn(Object value) {
+    if (value instanceof Column) {
+      return ((Column) value).scalaColumn;
+    }
+    return Functions.lit(value).scalaColumn;
   }
 
   static com.snowflake.snowpark.Column[] toScalaColumnArray(Column[] arr) {
