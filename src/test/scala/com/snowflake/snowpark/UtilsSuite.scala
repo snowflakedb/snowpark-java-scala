@@ -3,6 +3,7 @@ package com.snowflake.snowpark
 import java.io.File
 import java.sql.{Date, Time, Timestamp}
 import com.snowflake.snowpark.internal.{
+  BuildInfo,
   JavaUtils,
   Logging,
   ParameterUtils,
@@ -492,7 +493,7 @@ class UtilsSuite extends SNTestBase {
   }
 
   test("Utils.version matches sbt build") {
-    assert(Utils.Version == "1.17.0-SNAPSHOT")
+    assert(Utils.Version == BuildInfo.version)
   }
 
   test("Utils.retrySleepTimeInMS") {
