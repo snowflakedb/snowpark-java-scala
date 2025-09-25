@@ -4173,6 +4173,109 @@ object functions {
   def date_add(start: Column, days: Column): Column = dateadd("day", days, start)
 
   /**
+   * Subtracts a specified number of days from a date value.
+   *
+   * '''Examples'''
+   *
+   * {{{
+   * val df = Seq(
+   *   "2023-05-15",
+   *   "2023-12-31",
+   *   "2024-02-29",
+   * ).toDF("start")
+   * df.select(
+   *   col("start"),
+   *   date_sub(col("start"), 10).as("date_sub"),
+   * ).show()
+   * ---------------------------
+   * |"START"     |"DATE_SUB"  |
+   * ---------------------------
+   * |2023-05-15  |2023-05-05  |
+   * |2023-12-31  |2023-12-21  |
+   * |2024-02-29  |2024-02-19  |
+   * ---------------------------
+   *
+   * df.select(
+   *   col("start"),
+   *   date_sub(col("start"), -5).as("date_sub"),
+   * ).show()
+   * ---------------------------
+   * |"START"     |"DATE_SUB"  |
+   * ---------------------------
+   * |2023-05-15  |2023-05-20  |
+   * |2023-12-31  |2024-01-05  |
+   * |2024-02-29  |2024-03-05  |
+   * ---------------------------
+   * }}}
+   *
+   * @param start
+   *   The date value from which days will be subtracted.
+   * @param days
+   *   The number of days to subtract from the start date. If negative, days will be added instead.
+   * @return
+   *   A Column containing the resulting date after subtraction or `null` if `start` was a string
+   *   that could not be cast to a date.
+   * @group date_func
+   * @since 1.18.0
+   */
+  def date_sub(start: Column, days: Int): Column = this.date_sub(start, lit(days))
+
+  /**
+   * Subtracts a specified number of days from a date value.
+   *
+   * '''Examples'''
+   *
+   * {{{
+   * val df = Seq(
+   *   ("2023-08-15", 7),
+   *   ("2023-12-31", 30),
+   *   ("2024-02-29", 60),
+   * ).toDF("start", "days")
+   * df.select(
+   *   col("start"),
+   *   col("days"),
+   *   date_sub(col("start"), col("days")).as("date_sub"),
+   * ).show()
+   * ------------------------------------
+   * |"START"     |"DAYS"  |"DATE_SUB"  |
+   * ------------------------------------
+   * |2023-08-15  |7       |2023-08-08  |
+   * |2023-12-31  |30      |2023-12-01  |
+   * |2024-02-29  |60      |2023-12-31  |
+   * ------------------------------------
+   *
+   * val df2 = Seq(
+   *   ("2023-01-15 10:30:00", 3),
+   *   ("2023-06-30 14:45:30", 15),
+   * ).toDF("start", "days")
+   * df2.select(
+   *   col("start"),
+   *   col("days"),
+   *   date_sub(col("start"), col("days")).as("date_sub"),
+   * ).show()
+   * ---------------------------------------------
+   * |"START"              |"DAYS"  |"DATE_SUB"  |
+   * ---------------------------------------------
+   * |2023-01-15 10:30:00  |3       |2023-01-12  |
+   * |2023-06-30 14:45:30  |15      |2023-06-15  |
+   * ---------------------------------------------
+   * }}}
+   *
+   * @param start
+   *   The date value from which days will be subtracted.
+   * @param days
+   *   The Column representing the number of days to subtract from the start date. If negative, days
+   *   will be added instead.
+   * @return
+   *   A Column containing the resulting date after subtraction or `null` if `start` was a string
+   *   that could not be cast to a date.
+   * @group date_func
+   * @since 1.18.0
+   */
+  def date_sub(start: Column, days: Column): Column =
+    this.date_add(try_to_date(start.cast(StringType)), days * -1)
+
+  /**
    * Aggregate function: returns a set of objects with duplicate elements eliminated. Returns the
    * input values, pivoted into an ARRAY. If the input is empty, an empty ARRAY is returned.
    *

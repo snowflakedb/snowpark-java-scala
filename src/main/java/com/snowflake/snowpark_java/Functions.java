@@ -4857,6 +4857,124 @@ public final class Functions {
   }
 
   /**
+   * Subtracts a specified number of days from a date value.
+   * 
+   * <p><b>Examples</b>
+   *
+   * <pre>{@code
+   * DataFrame df = session.createDataFrame(
+   *   new Row[] {
+   *     Row.create("2023-05-15"),
+   *     Row.create("2023-12-31"),
+   *     Row.create("2024-02-29"),
+   *   },
+   *   StructType.create(
+   *     new StructField("start", DataTypes.StringType)
+   *   )
+   * );
+   *
+   * df.select(
+   *   col("start"),
+   *   date_sub(col("start"), 10).as("date_sub")
+   * ).show();
+   * ---------------------------
+   * |"START"     |"DATE_SUB"  |
+   * ---------------------------
+   * |2023-05-15  |2023-05-05  |
+   * |2023-12-31  |2023-12-21  |
+   * |2024-02-29  |2024-02-19  |
+   * ---------------------------
+   *
+   * df.select(
+   *   col("start"),
+   *   date_sub(col("start"), -5).as("date_sub")
+   * ).show();
+   * ---------------------------
+   * |"START"     |"DATE_SUB"  |
+   * ---------------------------
+   * |2023-05-15  |2023-05-20  |
+   * |2023-12-31  |2024-01-05  |
+   * |2024-02-29  |2024-03-05  |
+   * ---------------------------
+   * }</pre>
+   *
+   * @param start The date value from which days will be subtracted.
+   * @param days The number of days to subtract from the start date. If negative, days will be added
+   *     instead.
+   * @return A Column containing the resulting date after subtraction or `null` if `start` was a
+   *     string that could not be cast to a date.
+   * @since 1.18.0
+   */
+  public static Column date_sub(Column start, int days) {
+    return new Column(com.snowflake.snowpark.functions.date_sub(start.toScalaColumn(), days));
+  }
+
+  /**
+   * Subtracts a specified number of days from a date value.
+   * 
+   * <p><b>Examples</b>
+   *
+   * <pre>{@code
+   * DataFrame df = session.createDataFrame(
+   *   new Row[] {
+   *     Row.create("2023-08-15", 7),
+   *     Row.create("2023-12-31", 30),
+   *     Row.create("2024-02-29", 60),
+   *   },
+   *   StructType.create(
+   *     new StructField("start", DataTypes.StringType),
+   *     new StructField("days", DataTypes.IntegerType)
+   *   )
+   * );
+   * df.select(
+   *   col("start"),
+   *   col("days"),
+   *   date_sub(col("start"), col("days")).as("date_sub")
+   * ).show();
+   * ------------------------------------
+   * |"START"     |"DAYS"  |"DATE_SUB"  |
+   * ------------------------------------
+   * |2023-08-15  |7       |2023-08-08  |
+   * |2023-12-31  |30      |2023-12-01  |
+   * |2024-02-29  |60      |2023-12-31  |
+   * ------------------------------------
+   *
+   * DataFrame df2 = getSession().createDataFrame(
+   *   new Row[] {
+   *     Row.create("2023-01-15 10:30:00", 3),
+   *     Row.create("2023-06-30 14:45:30", 15),
+   *   },
+   *   StructType.create(
+   *     new StructField("start", DataTypes.StringType),
+   *     new StructField("days", DataTypes.IntegerType)
+   *   )
+   * );
+   * df2.select(
+   *   col("start"),
+   *   col("days"),
+   *   date_sub(col("start"), col("days")).as("date_sub")
+   * ).show();
+   * ---------------------------------------------
+   * |"START"              |"DAYS"  |"DATE_SUB"  |
+   * ---------------------------------------------
+   * |2023-01-15 10:30:00  |3       |2023-01-12  |
+   * |2023-06-30 14:45:30  |15      |2023-06-15  |
+   * ---------------------------------------------
+   * }</pre>
+   *
+   * @param start The date value from which days will be subtracted.
+   * @param days The Column representing the number of days to subtract from the start date. If
+   *     negative, days will be added instead.
+   * @return A Column containing the resulting date after subtraction or `null` if `start` was a
+   *     string that could not be cast to a date.
+   * @since 1.18.0
+   */
+  public static Column date_sub(Column start, Column days) {
+    return new Column(
+        com.snowflake.snowpark.functions.date_sub(start.toScalaColumn(), days.toScalaColumn()));
+  }
+
+  /**
    * Aggregate function: returns a set of objects with duplicate elements eliminated. Returns the
    * input values, pivoted into an ARRAY. If the input is empty, an empty ARRAY is returned.
    *
