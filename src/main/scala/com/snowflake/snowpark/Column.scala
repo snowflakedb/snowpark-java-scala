@@ -1,7 +1,7 @@
 package com.snowflake.snowpark
 
 import com.snowflake.snowpark.internal.analyzer._
-import com.snowflake.snowpark.internal.{ErrorMessage, Logging}
+import com.snowflake.snowpark.internal.{DataTypeParser, ErrorMessage, Logging}
 import com.snowflake.snowpark.types.DataType
 import com.snowflake.snowpark.functions.lit
 
@@ -521,6 +521,33 @@ case class Column private[snowpark] (private[snowpark] val expr: Expression) ext
    * @since 0.1.0
    */
   def cast(to: DataType): Column = withExpr(Cast(expr, to))
+
+  /**
+   * Casts the values in the Column to the specified data type.
+   *
+   * '''Examples'''
+   *
+   * {{{
+   * val df = Seq(123, 456, 789).toDF("a")
+   * df.select(col("a").cast("string").as("casted")).schema.toString
+   * // res: String = "StructType[StructField(CASTED, String, Nullable = false)]"
+   * }}}
+   *
+   * @param to
+   *   A string representing the target data type.
+   * @return
+   *   A new Column with values cast to the specified data type.
+   * @throws IllegalArgumentException
+   *   If the provided string does not represent a valid data type.
+   * @group op
+   * @since 1.18.0
+   */
+  def cast(to: String): Column = {
+    DataTypeParser.parseDataType(to) match {
+      case Right(dataType) => this.cast(dataType)
+      case Left(error) => throw new IllegalArgumentException(error.format)
+    }
+  }
 
   /**
    * Returns a Column expression with values sorted in descending order.
