@@ -1506,6 +1506,9 @@ public class JavaFunctionSuite extends TestBase {
               df2.select(
                   Functions.try_to_timestamp(df2.col("a"), Functions.lit("mm/dd/yyyy hh24:mi:ss"))),
               expected2);
+          checkAnswer(
+              df2.select(Functions.try_to_timestamp(df2.col("a"), "mm/dd/yyyy hh24:mi:ss")),
+              expected2);
         },
         getSession());
   }
@@ -1541,6 +1544,7 @@ public class JavaFunctionSuite extends TestBase {
           checkAnswer(
               df1.select(Functions.try_to_date(df.col("a"), Functions.lit("YYYY.MM.DD"))),
               expected1);
+          checkAnswer(df1.select(Functions.try_to_date(df.col("a"), "YYYY.MM.DD")), expected1);
         },
         getSession());
   }
