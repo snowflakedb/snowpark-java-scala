@@ -25,6 +25,7 @@ import com.snowflake.snowpark.{
 }
 
 import java.io._
+import com.snowflake.snowpark.internal.Utils.SnowparkPackageName
 import com.snowflake.snowpark.types.{Geography, Geometry, Variant}
 import com.snowflake.snowpark_java.types.InternalUtils
 import com.snowflake.snowpark_java.udtf._
@@ -33,6 +34,8 @@ import scala.collection.{JavaConverters, mutable}
 import scala.collection.JavaConverters._
 
 object JavaUtils {
+  def snowparkPackageName(): String = SnowparkPackageName
+
   def session_setJavaAPI(builder: SessionBuilder): SessionBuilder =
     builder.setJavaAPI()
 
