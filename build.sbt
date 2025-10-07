@@ -138,6 +138,9 @@ lazy val root = (project in file("."))
     scalafmtOnCompile := true,
     javafmtOnCompile := true,
     Test / testOptions := Seq(Tests.Argument(TestFrameworks.JUnit, "-a", "-v", "-q")),
+    // Enable forked JVM for tests to allow environment variable modification via reflection
+    Test / fork := true,
+    Test / javaOptions := Seq("--add-opens=java.base/java.util=ALL-UNNAMED"),
     // Test Groups
     inConfig(CodeVerificationTests)(Defaults.testTasks),
     CodeVerificationTests / testOptions += Tests.Filter(isCodeVerification),
