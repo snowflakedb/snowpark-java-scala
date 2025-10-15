@@ -10,13 +10,77 @@ import java.util.Set;
 
 /** @hidden Custom Snowflake class that provides access to snowflake secrets. */
 public class SnowflakeSecrets {
-  private static final String SCLS_SPCS_SECRET_ENV_NAME = "SCLS_SPCS_SECRET_PATH";
+  protected static final String SCLS_SPCS_SECRET_ENV_NAME = "SCLS_SPCS_SECRET_PATH";
 
-  private SnowflakeSecrets() {}
+  /** Check if running in SPCS environment. */
+  private static boolean isSPCSEnvironment() {
+    String basePath = System.getenv(SCLS_SPCS_SECRET_ENV_NAME);
+    return basePath != null && !basePath.isEmpty();
+  }
+
+  protected SnowflakeSecrets() {}
 
   /** Create a new instance of SnowflakeSecrets. */
   public static SnowflakeSecrets newInstance() {
-    return new SnowflakeSecrets();
+    if (isSPCSEnvironment()) {
+      return new SnowflakeSpcsSecrets();
+    }
+    throw new UnsupportedOperationException();
+  }
+
+  /**
+   * Get the type of secret. On success, it returns a valid token type string.
+   *
+   * @param secretName name of the secret object.
+   */
+  public String getSecretType(String secretName) {
+    throw new UnsupportedOperationException();
+  }
+
+  /**
+   * Get the user name and password from the secret. On success, it returns a valid object with user
+   * name and password.
+   *
+   * @param secretName name of the secret object.
+   */
+  public UsernamePassword getUsernamePassword(String secretName) {
+    throw new UnsupportedOperationException();
+  }
+
+  /**
+   * Get the Cloud provider token from the secret. On success, it returns a valid object with access
+   * key id, secret access key and token.
+   *
+   * @param secretName name of the secret object.
+   */
+  public CloudProviderToken getCloudProviderToken(String secretName) {
+    throw new UnsupportedOperationException();
+  }
+
+  /**
+   * Get the secret generic string of the secret. On success, it returns a valid token string.
+   *
+   * @param secretName name of the secret object.
+   */
+  public String getGenericSecretString(String secretName) {
+    throw new UnsupportedOperationException();
+  }
+
+  /**
+   * Get the OAuth2 Access Token of the secret. On success, it returns a valid OAuth2 token string.
+   *
+   * @param secretName name of the secret object.
+   */
+  public String getOAuthAccessToken(String secretName) {
+    throw new UnsupportedOperationException();
+  }
+}
+
+/** SPCS-specific implementation of SnowflakeSecrets. */
+class SnowflakeSpcsSecrets extends SnowflakeSecrets {
+
+  SnowflakeSpcsSecrets() {
+    super();
   }
 
   /** Get the base path for SPCS secrets from environment variable. */
@@ -117,52 +181,24 @@ public class SnowflakeSecrets {
         "Secret directory contains unexpected files: " + files + " in " + secretDir);
   }
 
-  /**
-   * Get the type of secret. On success, it returns a valid token type string.
-   *
-   * @param secretName name of the secret object.
-   */
+  @Override
   public String getSecretType(String secretName) {
     return getSecretTypeFromSPCS(secretName);
   }
 
-  /**
-   * Get the user name and password from the secret. On success, it returns a valid object with user
-   * name and password.
-   *
-   * @param secretName name of the secret object.
-   */
+  @Override
   public UsernamePassword getUsernamePassword(String secretName) {
     String username = readSPCSSecretFile(secretName, "username");
     String password = readSPCSSecretFile(secretName, "password");
     return new UsernamePassword(username, password);
   }
 
-  /**
-   * Get the Cloud provider token from the secret. On success, it returns a valid object with access
-   * key id, secret access key and token.
-   *
-   * @param secretName name of the secret object.
-   */
-  public CloudProviderToken getCloudProviderToken(String secretName) {
-    // SPCS does not support cloud provider token secrets
-    throw new UnsupportedOperationException();
-  }
-
-  /**
-   * Get the secret generic string of the secret. On success, it returns a valid token string.
-   *
-   * @param secretName name of the secret object.
-   */
+  @Override
   public String getGenericSecretString(String secretName) {
     return readSPCSSecretFile(secretName, "secret_string");
   }
 
-  /**
-   * Get the OAuth2 Access Token of the secret. On success, it returns a valid OAuth2 token string.
-   *
-   * @param secretName name of the secret object.
-   */
+  @Override
   public String getOAuthAccessToken(String secretName) {
     return readSPCSSecretFile(secretName, "access_token");
   }
