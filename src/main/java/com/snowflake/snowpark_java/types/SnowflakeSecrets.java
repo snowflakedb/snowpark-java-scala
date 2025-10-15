@@ -10,7 +10,8 @@ import java.util.Set;
 
 /** @hidden Custom Snowflake class that provides access to snowflake secrets. */
 public class SnowflakeSecrets {
-  protected static final String SCLS_SPCS_SECRET_ENV_NAME = "SCLS_SPCS_SECRET_PATH";
+  protected static final String SCLS_SPCS_SECRET_ENV_NAME =
+      "SNOWFLAKE_CONTAINER_SERVICES_SECRET_PATH_PREFIX";
 
   /** Check if running in SPCS environment. */
   private static boolean isSPCSEnvironment() {

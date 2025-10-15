@@ -13,7 +13,8 @@ import org.junit.Before;
 import org.junit.Test;
 
 public class JavaSnowflakeSecretsSuite {
-  private static final String SCLS_SPCS_SECRET_ENV_NAME = "SCLS_SPCS_SECRET_PATH";
+  private static final String SCLS_SPCS_SECRET_ENV_NAME =
+      "SNOWFLAKE_CONTAINER_SERVICES_SECRET_PATH_PREFIX";
   private Path tempDir;
   private String originalEnv;
 
@@ -29,11 +30,7 @@ public class JavaSnowflakeSecretsSuite {
     if (tempDir != null) {
       deleteDirectory(tempDir);
     }
-    if (originalEnv != null) {
-      setEnv(SCLS_SPCS_SECRET_ENV_NAME, originalEnv);
-    } else {
-      setEnv(SCLS_SPCS_SECRET_ENV_NAME, null);
-    }
+    setEnv(SCLS_SPCS_SECRET_ENV_NAME, originalEnv);
   }
 
   @Test
