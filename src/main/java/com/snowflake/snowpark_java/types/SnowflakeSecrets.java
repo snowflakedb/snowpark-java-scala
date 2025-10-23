@@ -103,10 +103,12 @@ class SnowflakeSpcsSecrets extends SnowflakeSecrets {
     String basePath = getSPCSBasePath();
     Path secretDir = Paths.get(basePath, secretName);
     if (!Files.exists(secretDir)) {
-      throw new IllegalArgumentException("Secret directory not found: " + secretDir);
+      throw new IllegalArgumentException(
+          "Secret " + secretName + " does not exist or not authorized");
     }
     if (!Files.isDirectory(secretDir)) {
-      throw new IllegalArgumentException("Secret path is not a directory: " + secretDir);
+      throw new IllegalArgumentException(
+          "Secret " + secretName + " does not exist or not authorized");
     }
     return secretDir;
   }
@@ -121,17 +123,19 @@ class SnowflakeSpcsSecrets extends SnowflakeSecrets {
     String basePath = getSPCSBasePath();
     Path secretPath = Paths.get(basePath, secretName, filename);
     if (!Files.exists(secretPath)) {
-      throw new IllegalArgumentException("Secret file not found: " + secretPath);
+      throw new IllegalArgumentException(
+          "Secret " + secretName + " does not exist or not authorized");
     }
     if (!Files.isRegularFile(secretPath)) {
-      throw new IllegalArgumentException("Secret path is not a file: " + secretPath);
+      throw new IllegalArgumentException(
+          "Secret " + secretName + " does not exist or not authorized");
     }
 
     try {
       String content = new String(Files.readAllBytes(secretPath));
       return content.replaceAll("[\r\n]+$", "");
     } catch (IOException e) {
-      throw new RuntimeException("Failed to read secret file: " + secretPath, e);
+      throw new RuntimeException("Failed to retrieve secret " + secretName + ": " + e.getMessage());
     }
   }
 
@@ -155,11 +159,13 @@ class SnowflakeSpcsSecrets extends SnowflakeSecrets {
         }
       }
     } catch (IOException e) {
-      throw new RuntimeException("Failed to list secret directory: " + secretDir, e);
+      throw new IllegalArgumentException(
+          "Secret " + secretName + " does not exist or not authorized");
     }
 
     if (files.isEmpty()) {
-      throw new IllegalArgumentException("No secret files found in directory: " + secretDir);
+      throw new IllegalArgumentException(
+          "Secret " + secretName + " does not exist or not authorized");
     }
 
     if (files.contains("USERNAME") && files.contains("PASSWORD") && files.size() == 2) {
@@ -173,13 +179,11 @@ class SnowflakeSpcsSecrets extends SnowflakeSecrets {
       } else if ("ACCESS_TOKEN".equals(file)) {
         return "OAUTH2";
       } else {
-        throw new IllegalArgumentException(
-            "Unknown secret file type '" + file + "' in directory: " + secretDir);
+        throw new IllegalArgumentException("Unknown secret type for " + secretName);
       }
     }
 
-    throw new IllegalArgumentException(
-        "Secret directory contains unexpected files: " + files + " in " + secretDir);
+    throw new IllegalArgumentException("Unknown secret type for " + secretName);
   }
 
   @Override

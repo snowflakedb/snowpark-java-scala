@@ -83,35 +83,35 @@ public class JavaSnowflakeSecretsSuite {
       secrets.getSecretType("edge");
       assert false : "Expected IllegalArgumentException for unexpected files";
     } catch (IllegalArgumentException e) {
-      assert e.getMessage().contains("unexpected files");
+      assert e.getMessage().contains("Unknown secret type for");
     }
 
     try {
       secrets.getSecretType("nonexistent");
       assert false : "Expected IllegalArgumentException for nonexistent secret";
     } catch (IllegalArgumentException e) {
-      assert e.getMessage().contains("Secret directory not found");
+      assert e.getMessage().contains("does not exist or not authorized");
     }
 
     try {
       secrets.getGenericSecretString("empty");
       assert false : "Expected IllegalArgumentException for missing file";
     } catch (IllegalArgumentException e) {
-      assert e.getMessage().contains("Secret file not found");
+      assert e.getMessage().contains("does not exist or not authorized");
     }
 
     try {
       secrets.getSecretType("empty");
       assert false : "Expected IllegalArgumentException for empty directory";
     } catch (IllegalArgumentException e) {
-      assert e.getMessage().contains("No secret files found");
+      assert e.getMessage().contains("does not exist or not authorized");
     }
 
     try {
       secrets.getSecretType("notdir");
       assert false : "Expected IllegalArgumentException for file instead of directory";
     } catch (IllegalArgumentException e) {
-      assert e.getMessage().contains("not a directory");
+      assert e.getMessage().contains("does not exist or not authorized");
     }
   }
 
