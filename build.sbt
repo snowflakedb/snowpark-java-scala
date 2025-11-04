@@ -38,6 +38,7 @@ lazy val javadocSettings = inConfig(Javadoc)(Defaults.configSettings) ++ Seq(
         !(s.getParent.contains("internal") || s.getParent.contains("Internal"))),
   Javadoc / javacOptions := Seq(
     "--allow-script-in-comments",
+    "-use",
     "-windowtitle", s"Snowpark Java API Reference $snowparkVersion",
     "-doctitle", s"Snowpark Java API Reference $snowparkVersion",
     "-header", s"""<div style="margin-top: 14px"><strong>
