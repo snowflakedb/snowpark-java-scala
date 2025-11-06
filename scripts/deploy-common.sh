@@ -75,6 +75,9 @@ sbt version
 echo "[INFO] Checking out snowpark-java-scala @ tag: $github_version_tag."
 git checkout $github_version_tag
 
+# clean locally staged artifacts
+rm -rf ~/.ivy2/local/
+
 if [ "$PUBLISH" = true ]; then
   if [ "$SNOWPARK_FIPS" = true ]; then
     echo "[INFO] Packaging snowpark-fips @ tag: $github_version_tag."
@@ -84,15 +87,16 @@ if [ "$PUBLISH" = true ]; then
   sbt +publishSigned
   echo "[INFO] Staged packaged artifacts locally with PGP signing."
   sbt sonaUpload
-  echo "[SUCCESS] Uploaded artifacts to central portal."
-  echo "[ACTION-REQUIRED] Please log in to Central Portal to publish artifacts: https://central.sonatype.com/"
-  # TODO: alternatively automate publishing fully
-#  sbt sonaRelease
-#  echo "[SUCCESS] Released Snowpark Java-Scala $github_version_tag to Maven."
+  echo "[INFO] Uploaded artifacts to sonatype central portal."
+  sbt sonaRelease
+  if [ "$SNOWPARK_FIPS" = true ]; then
+    echo "[SUCCESS] Released snowpark-fips_2.12-$github_version_tag and snowpark-fips_2.13-$github_version_tag to Maven Central"
+  else
+    echo "[SUCCESS] Released snowpark_2.12-$github_version_tag and snowpark_2.13-$github_version_tag to Maven Central."
+  fi
 else
   #release to s3
   echo "[INFO] Staging signed artifacts to local ivy2 repository."
-  rm -rf ~/.ivy2/local/
   sbt +publishLocalSigned
 
   # SBT will build FIPS version of Snowpark automatically if the environment variable exists.
