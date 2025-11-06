@@ -1,5 +1,6 @@
 package com.snowflake.snowpark_test
 
+import com.snowflake.snowpark.internal.Utils.ScalaCompatVersion
 import com.snowflake.snowpark.types.{IntegerType, StructField, StructType}
 import com.snowflake.snowpark.udtf.UDTF0
 import com.snowflake.snowpark.{OpenTelemetryEnabled, Row, Session, TestUtils, functions}
@@ -9,6 +10,15 @@ class UdxOpenTelemetrySuite extends OpenTelemetryEnabled {
     super.beforeAll
     if (!isStoredProc(session)) {
       TestUtils.addDepsToClassPath(session)
+    }
+    if (ScalaCompatVersion == "2.13") {
+      session.sql("alter session set ENABLE_SCALA_UDF_RUNTIME_2_13=true").collect()
+    }
+  }
+
+  override def afterAll(): Unit = {
+    if (ScalaCompatVersion == "2.13") {
+      session.sql("alter session set ENABLE_SCALA_UDF_RUNTIME_2_13=false").collect()
     }
   }
 

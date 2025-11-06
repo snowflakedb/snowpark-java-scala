@@ -31,11 +31,18 @@ class UDTFSuite extends TestData {
       .toDF("c1", "c2")
       .write
       .saveAsTable(wordCountTableName)
+
+    if (Utils.ScalaCompatVersion == "2.13") {
+      session.sql("alter session set ENABLE_SCALA_UDF_RUNTIME_2_13=true").collect()
+    }
   }
 
   override def afterAll: Unit = {
     dropTable(wordCountTableName)
     dropTable(tableName)
+    if (Utils.ScalaCompatVersion == "2.13") {
+      session.sql("alter session set ENABLE_SCALA_UDF_RUNTIME_2_13=false").collect()
+    }
     super.afterAll
   }
 

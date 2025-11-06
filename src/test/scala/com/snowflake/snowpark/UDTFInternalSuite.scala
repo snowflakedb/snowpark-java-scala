@@ -1,6 +1,6 @@
 package com.snowflake.snowpark
 
-import com.snowflake.snowpark.internal.ScalaFunctions
+import com.snowflake.snowpark.internal.{ScalaFunctions, Utils}
 import com.snowflake.snowpark.types._
 import com.snowflake.snowpark.udtf._
 
@@ -13,6 +13,16 @@ class UDTFInternalSuite extends SNTestBase {
     if (!isStoredProc(session)) {
       TestUtils.addDepsToClassPath(session)
     }
+    if (Utils.ScalaCompatVersion == "2.13") {
+      session.runQuery("alter session set ENABLE_SCALA_UDF_RUNTIME_2_13=true")
+    }
+  }
+
+  override def afterAll: Unit = {
+    if (Utils.ScalaCompatVersion == "2.13") {
+      session.runQuery("alter session set ENABLE_SCALA_UDF_RUNTIME_2_13=false")
+    }
+    super.afterAll
   }
 
   test("Unit test for UDTF0") {

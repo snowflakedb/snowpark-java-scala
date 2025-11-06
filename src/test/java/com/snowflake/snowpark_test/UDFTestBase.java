@@ -1,6 +1,7 @@
 package com.snowflake.snowpark_test;
 
 import com.snowflake.snowpark.TestUtils;
+import com.snowflake.snowpark.internal.JavaUtils;
 import com.snowflake.snowpark_java.Session;
 
 public abstract class UDFTestBase extends TestFunctions {
@@ -18,7 +19,11 @@ public abstract class UDFTestBase extends TestFunctions {
   }
 
   protected Session createSession() {
-    return Session.builder().configFile(defaultProfile).create();
+    Session newSession = Session.builder().configFile(defaultProfile).create();
+    if (JavaUtils.snowparkScalaCompatVersion().equals("2.13")) {
+      newSession.sql("alter session set ENABLE_SCALA_UDF_RUNTIME_2_13=true").collect();
+    }
+    return newSession;
   }
 
   protected void runQuery(String sql) {
