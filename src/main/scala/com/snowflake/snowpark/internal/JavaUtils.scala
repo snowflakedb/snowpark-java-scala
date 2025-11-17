@@ -333,6 +333,13 @@ object JavaUtils {
       stageLocation: String): TableFunction =
     udtfRegistration.registerJavaUDTF(Option(name), javaUdtf, Option(stageLocation))
 
+  def registerJavaUDAF(
+      udafRegistration: com.snowflake.snowpark.UDAFRegistration,
+      name: String,
+      javaUdaf: com.snowflake.snowpark_java.udaf.JavaUDAF[_, _],
+      stageLocation: String): Column =
+    udafRegistration.registerJavaUDAF(Option(name), javaUdaf, Option(stageLocation))
+
   def registerJavaSProc(
       sprocRegistration: SProcRegistration,
       name: String,

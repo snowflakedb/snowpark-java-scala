@@ -241,6 +241,35 @@ class UDXRegistrationHandler(session: Session) extends Logging {
     TableFunction(udfName)
   }
 
+  // Internal function to register JavaUDAF.
+  private[snowpark] def registerJavaUDAF(
+      name: Option[String],
+      javaUdaf: com.snowflake.snowpark_java.udaf.JavaUDAF[_, _],
+      // if stageLocation is none, this udaf will be temporary udaf
+      stageLocation: Option[String] = None): Column = {
+    val udafName = getAndValidateFunctionName(name)
+    // Generate UDAF inline java code
+    val (code, funcBytesMap) = generateJavaUDAFCode(javaUdaf)
+    // upload dependencies and create UDAF
+    val needCleanupFiles = Utils.createConcurrentSet[String]()
+    withUploadFailureCleanup(stageLocation, needCleanupFiles) {
+      retryAfterFixingClassPath {
+        val (allImports, targetJarStageLocation) =
+          uploadDependencies(udafName, javaUdaf, needCleanupFiles, funcBytesMap, stageLocation)
+        // create UDAF function
+        createJavaUDAF(
+          udafName,
+          allImports.map(i => s"'$i'").mkString(","),
+          stageLocation.isEmpty,
+          code,
+          targetJarStageLocation)
+      }
+    }
+    // Return a Column that represents the UDAF function call
+    // This creates a reference to the registered UDAF that can be used in aggregations
+    Column(udafName)
+  }
+
   private def getUDFColumns(structType: JavaStructType): Seq[UdfColumn] =
     (0 until structType.size())
       .map(structType.get)
@@ -503,6 +532,73 @@ class UDXRegistrationHandler(session: Session) extends Logging {
       ""
     }
     ScalaFunctions.getUDTFClassName(udtf) + typeArgs
+  }
+
+  private def generateJavaUDAFCode(
+      udaf: com.snowflake.snowpark_java.udaf.JavaUDAF[_, _]): (String, Map[String, Array[Byte]]) = {
+    val funcBytes = JavaUtils.serialize(udaf)
+    // If the closure is big, closure needs to be uploaded as an independent file to
+    // remote and the file is included in the UDAF fat jar.
+    // For more details, refer to the comment of MAX_INLINE_CLOSURE_SIZE_BYTES
+    val (closureDefinition, funcBytesMap) =
+      if (funcBytes.length < MAX_INLINE_CLOSURE_SIZE_BYTES) {
+        (s"byte[] closure = { ${funcBytes.mkString(",")} };", Map.empty[String, Array[Byte]])
+      } else {
+        val fileName = "UDAFClosure" + Random.nextInt().abs + ".bin"
+        (s"""String closure = "$fileName";""", Map(fileName -> funcBytes))
+      }
+
+    val udafClassName = "SnowparkGeneratedUDAF"
+
+    val code = s"""
+       |import com.snowflake.snowpark.internal.JavaUtils;
+       |import com.snowflake.snowpark_java.udaf.*;
+       |import com.snowflake.snowpark_java.types.*;
+       |import java.io.Serializable;
+       |
+       |public class $udafClassName implements Serializable {
+       |  private JavaUDAF udafImpl = null;
+       |
+       |  public $udafClassName() {
+       |    $closureDefinition
+       |    udafImpl = (JavaUDAF) JavaUtils.deserialize(closure);
+       |  }
+       |
+       |  public Object initialize() {
+       |    return udafImpl.initialize();
+       |  }
+       |
+       |  public Object accumulate(Object state, Object... args) {
+       |    // Delegate to the appropriate JavaUDAF[N] accumulate method
+       |    return callAccumulate(state, args);
+       |  }
+       |
+       |  public Object merge(Object state1, Object state2) {
+       |    return udafImpl.merge(state1, state2);
+       |  }
+       |
+       |  public Object finish(Object state) {
+       |    return udafImpl.finish(state);
+       |  }
+       |
+       |  @SuppressWarnings("unchecked")
+       |  private Object callAccumulate(Object state, Object[] args) {
+       |    // Dynamically call the correct accumulate method based on argument count
+       |    if (udafImpl instanceof com.snowflake.snowpark_java.udaf.JavaUDAF0) {
+       |      return ((com.snowflake.snowpark_java.udaf.JavaUDAF0) udafImpl).accumulate(state);
+       |    } else if (udafImpl instanceof com.snowflake.snowpark_java.udaf.JavaUDAF1) {
+       |      return ((com.snowflake.snowpark_java.udaf.JavaUDAF1) udafImpl).accumulate(state, args[0]);
+       |    } else if (udafImpl instanceof com.snowflake.snowpark_java.udaf.JavaUDAF2) {
+       |      return ((com.snowflake.snowpark_java.udaf.JavaUDAF2) udafImpl).accumulate(state, args[0], args[1]);
+       |    } else {
+       |      throw new UnsupportedOperationException("UDAF with more than 2 arguments not yet supported");
+       |    }
+       |  }
+       |}
+       |""".stripMargin
+
+    logDebug(code)
+    (code, funcBytesMap)
   }
 
   private def generateJavaUDTFCode(
@@ -1009,6 +1105,42 @@ class UDXRegistrationHandler(session: Session) extends Logging {
                |------------------------
                |""".stripMargin)
     session.runQuery(createUdfQuery, isTemporary)
+  }
+
+  // Create JavaUDAF SQL function
+  private[snowpark] def createJavaUDAF(
+      udafName: String,
+      allImports: String,
+      isTemporary: Boolean,
+      code: String,
+      targetJarStageLocation: String): Unit = {
+    val udafClassName = "SnowparkGeneratedUDAF"
+
+    val tempType: TempType = session.getTempType(isTemporary, udafName.split("\\.").last)
+    session.recordTempObjectIfNecessary(TempObjectType.Function, udafName, tempType)
+
+    val packageSql = if (session.packageNames.nonEmpty) {
+      s"packages=(${session.packageNames.map(p => s"'$p'").toSet.mkString(", ")}) "
+    } else ""
+    val importSql = if (allImports.nonEmpty) {
+      s"IMPORTS = ($allImports)"
+    } else ""
+
+    // UDAF uses aggregate function syntax in Snowflake
+    // For now, we create a stub that will be enhanced based on UDAF requirements
+    val createUdafQuery = s"CREATE $tempType " +
+      s"FUNCTION $udafName(...) RETURNS ... " +
+      s"LANGUAGE JAVA $getRuntimeVersion " +
+      s"$importSql HANDLER='$udafClassName' " +
+      s"target_path='$targetJarStageLocation' " + packageSql +
+      "AS $$ \n" + code + "\n$$"
+
+    logInfo(s"""
+               |----------SNOW UDAF----------
+               |  $createUdafQuery
+               |-----------------------------
+               |""".stripMargin)
+    session.runQuery(createUdafQuery, isTemporary)
   }
 
   private[snowpark] def addClassToDependencies(funcClass: Class[_]): Option[Array[Byte]] = {

@@ -37,7 +37,7 @@ public class Session {
   private final com.snowflake.snowpark.Session session;
   private UDFRegistration udf = null;
   private UDTFRegistration udtf = null;
-
+  private UDAFRegistration udaf = null;
   private SProcRegistration sproc = null;
 
   Session(com.snowflake.snowpark.Session session) {
@@ -205,6 +205,19 @@ public class Session {
       this.udtf = new UDTFRegistration(session.udtf());
     }
     return udtf;
+  }
+
+  /**
+   * Returns a UDAFRegistration object that you can use to register UDAFs.
+   *
+   * @since 1.16.0
+   * @return A UDAFRegistration object that provides methods for registering UDAFs
+   */
+  public UDAFRegistration udaf() {
+    if (udaf == null) {
+      this.udaf = new UDAFRegistration(session.udaf());
+    }
+    return udaf;
   }
 
   /**
