@@ -1,6 +1,7 @@
 package com.snowflake.snowpark_test
 
 import com.snowflake.snowpark._
+import com.snowflake.snowpark.internal.Utils.{ScalaCompatVersion, SnowparkPackageName}
 import net.snowflake.client.jdbc.SnowflakeSQLException
 
 import java.sql.{Date, Timestamp}
@@ -15,10 +16,16 @@ class StoredProcedureSuite extends SNTestBase {
     if (!isStoredProc(session)) {
       TestUtils.addDepsToClassPath(session, Some(testStage))
     }
+    if (ScalaCompatVersion == "2.13") {
+      session.sql("alter session set ENABLE_SCALA_UDF_RUNTIME_2_13=true").collect()
+    }
   }
 
   override def afterAll: Unit = {
     dropStage(testStage)
+    if (ScalaCompatVersion == "2.13") {
+      session.sql("alter session set ENABLE_SCALA_UDF_RUNTIME_2_13=false").collect()
+    }
     super.afterAll
   }
 
@@ -29,7 +36,7 @@ class StoredProcedureSuite extends SNTestBase {
          |returns STRING
          |language scala
          |runtime_version=2.12
-         |packages=('com.snowflake:snowpark:latest')
+         |packages=('${SnowparkPackageName}:latest')
          |handler='Test.run'
          |as
          |$$$$
@@ -56,7 +63,7 @@ class StoredProcedureSuite extends SNTestBase {
          |returns STRING
          |language scala
          |runtime_version=2.12
-         |packages=('com.snowflake:snowpark:latest')
+         |packages=('${SnowparkPackageName}:latest')
          |handler='Test.run'
          |as
          |$$$$
@@ -81,7 +88,7 @@ class StoredProcedureSuite extends SNTestBase {
          |returns STRING
          |language scala
          |runtime_version=2.12
-         |packages=('com.snowflake:snowpark:latest')
+         |packages=('${SnowparkPackageName}:latest')
          |handler='Test.run'
          |as
          |$$$$

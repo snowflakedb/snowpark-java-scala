@@ -1,6 +1,7 @@
 package com.snowflake.snowpark_test
 
 import com.snowflake.snowpark._
+import com.snowflake.snowpark.internal.Utils.ScalaCompatVersion
 import com.snowflake.snowpark.functions.{col, _}
 import com.snowflake.snowpark.types.{Geography, Geometry, Variant}
 
@@ -53,6 +54,9 @@ trait UDFSuite extends TestData {
     if (!isStoredProc(session)) {
       TestUtils.addDepsToClassPath(session)
     }
+    if (ScalaCompatVersion == "2.13") {
+      session.sql("alter session set ENABLE_SCALA_UDF_RUNTIME_2_13=true").collect()
+    }
   }
 
   override def afterAll: Unit = {
@@ -63,6 +67,9 @@ trait UDFSuite extends TestData {
     dropTable(tableName)
     dropTable(semiStructuredTable)
     runQuery(s"DROP STAGE IF EXISTS $tmpStageName", session)
+    if (ScalaCompatVersion == "2.13") {
+      session.sql("alter session set ENABLE_SCALA_UDF_RUNTIME_2_13=false").collect()
+    }
     super.afterAll()
   }
 

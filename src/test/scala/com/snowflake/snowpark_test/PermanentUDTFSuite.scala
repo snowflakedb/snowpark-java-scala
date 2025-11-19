@@ -27,10 +27,16 @@ class PermanentUDTFSuite extends TestData {
       TestUtils.addDepsToClassPath(session, Some(stageName))
       TestUtils.addDepsToClassPath(newSession, Some(stageName))
     }
+    if (Utils.ScalaCompatVersion == "2.13") {
+      session.sql("alter session set ENABLE_SCALA_UDF_RUNTIME_2_13=true").collect()
+    }
   }
 
   override def afterAll: Unit = {
     dropStage(stageName)
+    if (Utils.ScalaCompatVersion == "2.13") {
+      session.sql("alter session set ENABLE_SCALA_UDF_RUNTIME_2_13=false").collect()
+    }
     super.afterAll
   }
 

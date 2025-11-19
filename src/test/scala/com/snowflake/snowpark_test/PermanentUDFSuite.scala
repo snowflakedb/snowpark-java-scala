@@ -1,6 +1,7 @@
 package com.snowflake.snowpark_test
 
 import com.snowflake.snowpark.TestUtils.{removeFile, writeFile}
+import com.snowflake.snowpark.internal.Utils.ScalaCompatVersion
 import com.snowflake.snowpark.functions._
 import com.snowflake.snowpark._
 import net.snowflake.client.jdbc.SnowflakeSQLException
@@ -30,12 +31,18 @@ class PermanentUDFSuite extends TestData {
       // In stored procs mode, there is only one session
       TestUtils.addDepsToClassPath(newSession, Some(stageName))
     }
+    if (ScalaCompatVersion == "2.13") {
+      session.sql("alter session set ENABLE_SCALA_UDF_RUNTIME_2_13=true").collect()
+    }
   }
 
   override def afterAll: Unit = {
     dropStage(stageName)
     removeFile(tempDirectory1.getAbsolutePath, session)
     removeFile(tempDirectory2.getAbsolutePath, session)
+    if (ScalaCompatVersion == "2.13") {
+      session.sql("alter session set ENABLE_SCALA_UDF_RUNTIME_2_13=false").collect()
+    }
     super.afterAll
   }
 

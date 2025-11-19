@@ -4,7 +4,7 @@ import com.snowflake.snowpark.internal.Utils.clientPackageName
 
 import java.io.{BufferedOutputStream, File, FileOutputStream}
 import java.nio.file.{Files, NoSuchFileException}
-import com.snowflake.snowpark.internal.{JavaUtils, UDFClassPath}
+import com.snowflake.snowpark.internal.{JavaUtils, UDFClassPath, Utils}
 
 import scala.reflect.internal.util.BatchSourceFile
 import scala.reflect.io.{AbstractFile, VirtualDirectory}
@@ -17,12 +17,22 @@ class UDFRegistrationSuite extends SNTestBase with FileUtils {
   private val tempStage = this.getClass.getSimpleName + Random.alphanumeric.take(5).mkString("")
   private val stagePrefix = "udfJar"
 
-  override def beforeAll(): Unit = {
+  override def beforeAll: Unit = {
     super.beforeAll()
     session.runQuery(s"create or replace temporary stage $tempStage")
     if (!isStoredProc(session)) {
       TestUtils.addDepsToClassPath(session)
     }
+    if (Utils.ScalaCompatVersion == "2.13") {
+      session.runQuery("alter session set ENABLE_SCALA_UDF_RUNTIME_2_13=true")
+    }
+  }
+
+  override def afterAll: Unit = {
+    if (Utils.ScalaCompatVersion == "2.13") {
+      session.runQuery("alter session set ENABLE_SCALA_UDF_RUNTIME_2_13=false")
+    }
+    super.afterAll
   }
 
   test("Test that jar files are uploaded to stage correctly") {
