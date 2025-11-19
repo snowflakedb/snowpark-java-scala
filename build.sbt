@@ -110,7 +110,7 @@ lazy val root = (project in file("."))
     homepage := Some(url("https://github.com/snowflakedb/snowpark-java-scala")),
     scalaVersion := sys.props.getOrElse("SCALA_VERSION", default = "2.12.20"),
     crossScalaVersions := Seq("2.12.20", "2.13.16"),
-    javaOptions ++= Seq("-source", "1.8", "-target", "1.8"),
+    javacOptions ++= Seq("-source", "1.8", "-target", "1.8"),
     libraryDependencies ++= Seq(
       "com.fasterxml.jackson.core" % "jackson-databind" % jacksonVersion,
       "com.fasterxml.jackson.core" % "jackson-core" % jacksonVersion,
@@ -362,3 +362,32 @@ def isRemainingTest(name: String): Boolean = {
     ! isJavaAPITests(name)
 }
 lazy val OtherTests = config("OtherTests") extend Test
+
+Test / javaOptions ++= {
+  val javaVersion = scala.util.Properties.javaVersion
+  val isJava8 = javaVersion.startsWith("1.8") || javaVersion.startsWith("8")
+  
+  val moduleOptions = if (isJava8) {
+    // Java 8: --add-opens is not supported
+    Seq.empty
+  } else {
+    // Java 9+: --add-opens and --add-exports are required to access module internals
+    Seq(
+      "--add-opens=java.base/java.io=ALL-UNNAMED",
+      "--add-opens=java.base/java.nio=ALL-UNNAMED",
+      "--add-opens=java.base/java.lang=ALL-UNNAMED",
+      "--add-opens=java.base/java.lang.reflect=ALL-UNNAMED",
+      "--add-opens=java.base/java.util=ALL-UNNAMED",
+      "--add-opens=java.base/sun.security.util=ALL-UNNAMED",
+      "--add-exports=java.base/sun.nio.ch=ALL-UNNAMED",
+      "--add-exports=jdk.unsupported/sun.misc=ALL-UNNAMED"
+    )
+  }
+  
+  // Pass FIPS_TEST system property from sbt JVM to forked test JVM
+  val fipsTestOption = sys.props.get("FIPS_TEST").map(v => s"-DFIPS_TEST=$v").toSeq
+  
+  moduleOptions ++ fipsTestOption
+}
+
+Test / fork := true
