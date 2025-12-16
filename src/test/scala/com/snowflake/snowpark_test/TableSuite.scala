@@ -6,6 +6,7 @@ import com.snowflake.snowpark._
 import net.snowflake.client.jdbc.SnowflakeSQLException
 
 import java.sql.Time
+import java.util.Locale
 
 class TableSuite extends TestData {
 
@@ -326,5 +327,39 @@ class TableSuite extends TestData {
     assert(session.table(tableName2).count() == 3)
     df.write.mode(SaveMode.Append).saveAsTable(tableName2)
     assert(session.table(tableName2).count() == 6)
+  }
+
+  test("saveAsTable() table types") {
+    val df = session.table(tableName)
+
+    val tempTable = randomName()
+    val temporaryTable = randomName()
+    val transientTable = randomName()
+
+    def getType(tableName: String): String =
+      session
+        .sql(s"show tables like '$tableName'")
+        .select(""""kind"""")
+        .collect()
+        .head
+        .getString(0)
+        .toUpperCase(Locale.ROOT)
+
+
+    try {
+      df.write.mode(SaveMode.Overwrite).option("tableType", "temp").saveAsTable(tempTable)
+      assert(getType(tempTable).equals("TEMPORARY"))
+
+      df.write.mode(SaveMode.Overwrite).option("tableType", "temporary").saveAsTable(temporaryTable)
+      assert(getType(temporaryTable).equals("TEMPORARY"))
+
+      df.write.mode(SaveMode.Overwrite).option("tableType", "transient").saveAsTable(transientTable)
+      assert(getType(transientTable).equals("TRANSIENT"))
+    } finally {
+      dropTable(tempTable)
+      dropTable(temporaryTable)
+      dropTable(transientTable)
+    }
+
   }
 }

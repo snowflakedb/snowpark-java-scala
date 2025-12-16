@@ -2,19 +2,23 @@ package com.snowflake.snowpark.internal.analyzer
 
 import com.snowflake.snowpark.SaveMode
 
-case class SnowflakeCreateTable(tableName: String, mode: SaveMode, query: Option[LogicalPlan])
+case class SnowflakeCreateTable(
+    tableName: String,
+    mode: SaveMode,
+    query: Option[LogicalPlan],
+    tempType: TempType = TempType.Permanent)
     extends LogicalPlan {
   override def children: Seq[LogicalPlan] = query.toSeq
 
   override protected def analyze: LogicalPlan =
-    SnowflakeCreateTable(tableName, mode, query.map(_.analyzed))
+    SnowflakeCreateTable(tableName, mode, query.map(_.analyzed), tempType)
 
   override protected val analyzer: ExpressionAnalyzer =
     ExpressionAnalyzer(query.map(_.aliasMap).getOrElse(Map.empty), dfAliasMap)
 
   override def updateChildren(func: LogicalPlan => LogicalPlan): LogicalPlan = {
     val newQuery = query.map(func)
-    if (newQuery == query) this else SnowflakeCreateTable(tableName, mode, newQuery)
+    if (newQuery == query) this else SnowflakeCreateTable(tableName, mode, newQuery, tempType)
   }
 
   lazy override val internalRenamedColumns: Map[String, String] =
@@ -22,6 +26,10 @@ case class SnowflakeCreateTable(tableName: String, mode: SaveMode, query: Option
 }
 
 object SnowflakeCreateTable {
-  def apply(tableName: String, mode: SaveMode, query: Option[LogicalPlan]): SnowflakeCreateTable =
-    new SnowflakeCreateTable(tableName, mode, query)
+  def apply(
+      tableName: String,
+      mode: SaveMode,
+      query: Option[LogicalPlan],
+      tempType: TempType = TempType.Permanent): SnowflakeCreateTable =
+    new SnowflakeCreateTable(tableName, mode, query, tempType)
 }

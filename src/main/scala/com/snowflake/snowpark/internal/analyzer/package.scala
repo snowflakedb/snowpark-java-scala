@@ -70,6 +70,7 @@ package object analyzer {
   @inline private final val _View: String = " VIEW "
   @inline private final val _Temporary: String = " TEMPORARY "
   @inline private final val _ScopedTemporary: String = " SCOPED TEMPORARY "
+  @inline private final val _Transient: String = " TRANSIENT "
   @inline private final val _If: String = " If "
   @inline private final val _Insert: String = " INSERT "
   @inline private final val _Into: String = " INTO "
@@ -142,6 +143,9 @@ package object analyzer {
     }
     case object ScopedTemporary extends TempType {
       override def toString: String = _ScopedTemporary
+    }
+    case object Transient extends TempType {
+      override def toString: String = _Transient
     }
   }
 
@@ -611,8 +615,9 @@ package object analyzer {
       tableName: String,
       child: String,
       replace: Boolean = false,
-      error: Boolean = true): String =
-    _Create + (if (replace) _Or + _Replace else _EmptyString) + _Table +
+      error: Boolean = true,
+      tempType: TempType = TempType.Permanent): String =
+    _Create + (if (replace) _Or + _Replace else _EmptyString) + tempType + _Table +
       (if (!replace && !error) _If + _Not + _Exists else _EmptyString) + tableName + _As +
       projectStatement(Seq.empty, child)
 
