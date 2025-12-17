@@ -329,7 +329,7 @@ class TableSuite extends TestData {
     assert(session.table(tableName2).count() == 6)
   }
 
-  test("saveAsTable() table types") {
+  test("saveAsTable() table types case-insensitive") {
     val df = session.table(tableName)
 
     val tempTable = randomName()
@@ -353,6 +353,38 @@ class TableSuite extends TestData {
       assert(getType(temporaryTable).equals("TEMPORARY"))
 
       df.write.mode(SaveMode.Overwrite).option("tableType", "transient").saveAsTable(transientTable)
+      assert(getType(transientTable).equals("TRANSIENT"))
+    } finally {
+      dropTable(tempTable)
+      dropTable(temporaryTable)
+      dropTable(transientTable)
+    }
+  }
+
+  test("saveAsTable() table types case-sensitive") {
+    val df = session.table(tableName)
+
+    val tempTable = randomName()
+    val temporaryTable = randomName()
+    val transientTable = randomName()
+
+    def getType(tableName: String): String =
+      session
+        .sql(s"show tables like '$tableName'")
+        .select(""""kind"""")
+        .collect()
+        .head
+        .getString(0)
+        .toUpperCase(Locale.ROOT)
+
+    try {
+      df.write.mode(SaveMode.Overwrite).option("tableType", "Temp").saveAsTable(tempTable)
+      assert(getType(tempTable).equals("TEMPORARY"))
+
+      df.write.mode(SaveMode.Overwrite).option("tableType", "TEMPORARY").saveAsTable(temporaryTable)
+      assert(getType(temporaryTable).equals("TEMPORARY"))
+
+      df.write.mode(SaveMode.Overwrite).option("tableType", "Transient").saveAsTable(transientTable)
       assert(getType(transientTable).equals("TRANSIENT"))
     } finally {
       dropTable(tempTable)
