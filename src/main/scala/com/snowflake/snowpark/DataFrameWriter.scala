@@ -311,7 +311,7 @@ class DataFrameWriter(private[snowpark] val dataFrame: DataFrame) {
 
     // decide table type in save as table function
     val tempType: com.snowflake.snowpark.internal.analyzer.TempType =
-      tableType match {
+      tableType.toLowerCase(Locale.ROOT) match {
           case "temp" | "temporary" =>
             // lets Session decide TEMPORARY vs SCOPED TEMPORARY
             dataFrame.session.getTempType(isTemp = true, tableName)
@@ -321,7 +321,7 @@ class DataFrameWriter(private[snowpark] val dataFrame: DataFrame) {
             com.snowflake.snowpark.internal.analyzer.TempType.Permanent
           case other =>
             throw ErrorMessage.DF_WRITER_INVALID_OPTION_VALUE(
-              tableType,
+              TABLE_TYPE,
               Utils.quoteForOption(other),
               "table")
         }

@@ -345,7 +345,6 @@ class TableSuite extends TestData {
         .getString(0)
         .toUpperCase(Locale.ROOT)
 
-
     try {
       df.write.mode(SaveMode.Overwrite).option("tableType", "temp").saveAsTable(tempTable)
       assert(getType(tempTable).equals("TEMPORARY"))
@@ -360,6 +359,5 @@ class TableSuite extends TestData {
       dropTable(temporaryTable)
       dropTable(transientTable)
     }
-
   }
 }
