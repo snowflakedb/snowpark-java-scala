@@ -312,19 +312,19 @@ class DataFrameWriter(private[snowpark] val dataFrame: DataFrame) {
     // decide table type in save as table function
     val tempType: com.snowflake.snowpark.internal.analyzer.TempType =
       tableType.toLowerCase(Locale.ROOT) match {
-          case "temp" | "temporary" =>
-            // lets Session decide TEMPORARY vs SCOPED TEMPORARY
-            dataFrame.session.getTempType(isTemp = true, tableName)
-          case "transient" =>
-            com.snowflake.snowpark.internal.analyzer.TempType.Transient
-          case "" =>
-            com.snowflake.snowpark.internal.analyzer.TempType.Permanent
-          case other =>
-            throw ErrorMessage.DF_WRITER_INVALID_OPTION_VALUE(
-              TABLE_TYPE,
-              Utils.quoteForOption(other),
-              "table")
-        }
+        case "temp" | "temporary" =>
+          // lets Session decide TEMPORARY vs SCOPED TEMPORARY
+          dataFrame.session.getTempType(isTemp = true, tableName)
+        case "transient" =>
+          com.snowflake.snowpark.internal.analyzer.TempType.Transient
+        case "" =>
+          com.snowflake.snowpark.internal.analyzer.TempType.Permanent
+        case other =>
+          throw ErrorMessage.DF_WRITER_INVALID_OPTION_VALUE(
+            TABLE_TYPE,
+            Utils.quoteForOption(other),
+            "table")
+      }
 
     // Add SELECT to adjust the column order if "columnOrder" is "name"
     val newDf = columnOrder match {
