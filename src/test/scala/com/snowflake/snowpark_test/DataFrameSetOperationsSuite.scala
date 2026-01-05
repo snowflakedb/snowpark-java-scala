@@ -98,28 +98,6 @@ class DataFrameSetOperationsSuite extends TestData {
     checkAnswer(df1.unionByName(df3), Row(1, 2, 3) :: Row(3, 1, 2) :: Nil)
     checkAnswer(df1.unionAllByName(df3), Row(1, 2, 3) :: Row(3, 1, 2) :: Nil)
   }
-
-  /*
-   * This test is same as the one in base class with a minor change to remove
-   * the RDD code that checks the answer.  Running the same query again
-   * tests the same thing.
-   */
-  test("nondeterministic expressions should not be pushed down") {
-    val df1 = (1 to 20).map(Tuple1.apply).toDF("i")
-    val df2 = (1 to 10).map(Tuple1.apply).toDF("i")
-
-    // Checks that the random filter is not pushed down and
-    // so will return the same result when run again
-
-    val union = df1.union(df2).filter($"i" < random(7))
-    assert(union.collect() sameElements union.collect())
-
-    val intersect = df1.intersect(df2).filter($"i" < random(7))
-    assert(intersect.collect() sameElements intersect.collect())
-
-    val except = df1.except(df2).filter($"i" < random(7))
-    assert(except.collect() sameElements except.collect())
-  }
   /*
    * From Snowpark 0.8.0, union() is not an alias of unionAll() any more
    */

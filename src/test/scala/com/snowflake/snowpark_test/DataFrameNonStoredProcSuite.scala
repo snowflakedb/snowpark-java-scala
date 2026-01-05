@@ -22,7 +22,9 @@ class DataFrameNonStoredProcSuite extends TestData {
       checkAnswer(
         string7.stat.crosstab("a", "b").sort(col("a")),
         Seq(Row(null, 0, 1), Row("str", 1, 0)))
-      checkAnswer(string7.stat.crosstab("b", "a").sort(col("b")), Seq(Row(1, 1, 0), Row(2, 0, 0)))
+      checkAnswer(
+        string7.sort(col("a")).stat.crosstab("b", "a").sort(col("b")),
+        Seq(Row(1, 1, 0), Row(2, 0, 0)))
     }
   }
 

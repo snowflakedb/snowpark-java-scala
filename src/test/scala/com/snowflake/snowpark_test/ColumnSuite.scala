@@ -860,30 +860,13 @@ class ColumnSuite extends TestData {
     checkAnswer(df2, Seq(Row(3, "b", 33, 33)))
 
     // select without NOT
-    val df3 = df.select(functions.in(Seq(col("a"), col("b")), df0).as("in_result"))
-    assert(
-      getShowString(df3, 10, 50) ==
-        """---------------
-          ||"IN_RESULT"  |
-          |---------------
-          ||true         |
-          ||true         |
-          ||false        |
-          |---------------
-          |""".stripMargin)
+    val df3 = df.sort(col("a"), col("b"))
+      .select(functions.in(Seq(col("a"), col("b")), df0).as("in_result"))
+    checkAnswer(df3, Seq(Row(true), Row(true), Row(false)))
 
     // select with NOT
     val df4 = df.select((!functions.in(Seq(col("a"), col("b")), df0)).as("in_result"))
-    assert(
-      getShowString(df4, 10, 50) ==
-        """---------------
-          ||"IN_RESULT"  |
-          |---------------
-          ||false        |
-          ||false        |
-          ||true         |
-          |---------------
-          |""".stripMargin)
+    checkAnswer(df4, Seq(Row(false), Row(false), Row(true)))
   }
 
   // Below cases are supported by snowflake SQL, but they are confusing,
