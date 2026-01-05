@@ -16,9 +16,15 @@ class DataFrameNonStoredProcSuite extends TestData {
         monthlySales.stat.crosstab("month", "empid").sort(col("month")),
         Seq(Row("APR", 2, 2), Row("FEB", 2, 2), Row("JAN", 2, 2), Row("MAR", 2, 2)))
       checkAnswer(
-        date1.stat.crosstab("a", "b").sort(col("a")),
+        date1.sort(col("b")).stat.crosstab("a", "b").sort(col("a")),
         Seq(Row(Date.valueOf("2010-12-01"), 0, 1), Row(Date.valueOf("2020-08-01"), 1, 0)))
-      checkAnswer(date1.stat.crosstab("b", "a").sort(col("b")), Seq(Row(1, 0, 1), Row(2, 1, 0)))
+      checkAnswer(
+        date1
+          .sort(col("a"))
+          .stat
+          .crosstab("b", "a")
+          .sort(col("b")),
+        Seq(Row(1, 0, 1), Row(2, 1, 0)))
       checkAnswer(
         string7.stat.crosstab("a", "b").sort(col("a")),
         Seq(Row(null, 0, 1), Row("str", 1, 0)))
