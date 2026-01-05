@@ -860,7 +860,8 @@ class ColumnSuite extends TestData {
     checkAnswer(df2, Seq(Row(3, "b", 33, 33)))
 
     // select without NOT
-    val df3 = df.sort(col("a"), col("b"))
+    val df3 = df
+      .sort(col("a"), col("b"))
       .select(functions.in(Seq(col("a"), col("b")), df0).as("in_result"))
     checkAnswer(df3, Seq(Row(true), Row(true), Row(false)))
 
