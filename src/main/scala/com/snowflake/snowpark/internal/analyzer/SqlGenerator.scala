@@ -103,8 +103,8 @@ private object SqlGenerator extends Logging {
       // table
       case UnresolvedRelation(tableName) => table(tableName)
       // SaveAsTable
-      case SnowflakeCreateTable(tableName, mode, Some(child)) =>
-        saveAsTable(tableName, mode, resolveChild(child))
+      case SnowflakeCreateTable(tableName, mode, Some(child), tempType) =>
+        saveAsTable(tableName, mode, resolveChild(child), tempType)
       case CopyIntoLocation(stagedFileWriter, child) =>
         copyIntoLocation(stagedFileWriter, resolveChild(child))
       // limits

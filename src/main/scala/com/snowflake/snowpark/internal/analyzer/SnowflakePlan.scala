@@ -466,11 +466,19 @@ class SnowflakePlanBuilder(session: Session) extends Logging {
       sourcePlan: Option[LogicalPlan]): SnowflakePlan =
     build(joinStatement(_, _, joinType, condition), left, right, sourcePlan)
 
-  def saveAsTable(tableName: String, mode: SaveMode, child: SnowflakePlan): SnowflakePlan =
+  def saveAsTable(
+      tableName: String,
+      mode: SaveMode,
+      child: SnowflakePlan,
+      tempType: TempType): SnowflakePlan =
     mode match {
       case SaveMode.Append =>
         val createTable =
-          createTableStatement(tableName, attributeToSchemaString(child.attributes), error = false)
+          createTableStatement(
+            tableName,
+            attributeToSchemaString(child.attributes),
+            error = false,
+            tempType = tempType)
         val createTableAndInsert = if (session.tableExists(tableName)) {
           Seq(Query(insertIntoStatement(tableName, child.queries.last.sql)))
         } else {
@@ -486,11 +494,17 @@ class SnowflakePlanBuilder(session: Session) extends Logging {
           None,
           child.supportAsyncMode)
       case SaveMode.Overwrite =>
-        build(createTableAsSelectStatement(tableName, _, replace = true), child, None)
+        build(
+          createTableAsSelectStatement(tableName, _, replace = true, tempType = tempType),
+          child,
+          None)
       case SaveMode.Ignore =>
-        build(createTableAsSelectStatement(tableName, _, error = false), child, None)
+        build(
+          createTableAsSelectStatement(tableName, _, error = false, tempType = tempType),
+          child,
+          None)
       case SaveMode.ErrorIfExists =>
-        build(createTableAsSelectStatement(tableName, _), child, None)
+        build(createTableAsSelectStatement(tableName, _, tempType = tempType), child, None)
     }
 
   def copyIntoLocation(stagedFileWriter: StagedFileWriter, child: SnowflakePlan): SnowflakePlan = {

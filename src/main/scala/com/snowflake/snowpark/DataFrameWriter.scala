@@ -75,6 +75,7 @@ class DataFrameWriter(private[snowpark] val dataFrame: DataFrame) {
 
   private val COLUMN_ORDER = "COLUMNORDER"
   private val writeOptions = mutable.Map[String, Any]()
+  private val TABLE_TYPE = "TABLETYPE"
   private[snowpark] def getCopyIntoLocationPlan(path: String, formatType: String): SnowflakePlan = {
     dataFrame.session.conn.telemetry.reportActionSaveAsFile(formatType)
     // The default mode for saving as a file is ErrorIfExists
@@ -297,12 +298,34 @@ class DataFrameWriter(private[snowpark] val dataFrame: DataFrame) {
     val columnOrderValidValues = Seq("'index'", "'name'")
     // By default, "columnOrder" is "index"
     val columnOrder = Utils.quoteForOption(this.writeOptions.getOrElse(COLUMN_ORDER, "index"))
+    val tableType = this.writeOptions.getOrElse(TABLE_TYPE, "").toString
+
+    val allowedKeys: Set[String] = Set(COLUMN_ORDER, TABLE_TYPE)
+
     if (!columnOrderValidValues.contains(columnOrder)) {
       throw ErrorMessage.DF_WRITER_INVALID_OPTION_VALUE(COLUMN_ORDER, columnOrder, "table")
-    } else if (this.writeOptions.keySet.count(!_.equals(COLUMN_ORDER)) > 0) {
-      val key = this.writeOptions.keySet.filter(!_.equals(COLUMN_ORDER)).head
+    } else if (this.writeOptions.keySet.count(k => !allowedKeys.contains(k)) > 0) {
+      val key = this.writeOptions.keySet.diff(allowedKeys).head
       throw ErrorMessage.DF_WRITER_INVALID_OPTION_NAME(key, "table")
     }
+
+    // decide table type in save as table function
+    val tempType: com.snowflake.snowpark.internal.analyzer.TempType =
+      tableType.toLowerCase(Locale.ROOT) match {
+        case "temp" | "temporary" =>
+          // lets Session decide TEMPORARY vs SCOPED TEMPORARY
+          dataFrame.session.getTempType(isTemp = true, tableName)
+        case "transient" =>
+          com.snowflake.snowpark.internal.analyzer.TempType.Transient
+        case "" =>
+          com.snowflake.snowpark.internal.analyzer.TempType.Permanent
+        case other =>
+          throw ErrorMessage.DF_WRITER_INVALID_OPTION_VALUE(
+            TABLE_TYPE,
+            Utils.quoteForOption(other),
+            "table")
+      }
+
     // Add SELECT to adjust the column order if "columnOrder" is "name"
     val newDf = columnOrder match {
       case "'name'" if tableSaveMode.equals(SaveMode.Append) =>
@@ -319,7 +342,7 @@ class DataFrameWriter(private[snowpark] val dataFrame: DataFrame) {
           "table")
       case _ => dataFrame
     }
-    val plan = SnowflakeCreateTable(tableName, tableSaveMode, Some(newDf.plan))
+    val plan = SnowflakeCreateTable(tableName, tableSaveMode, Some(newDf.plan), tempType)
     dataFrame.session.analyzer.resolve(plan)
   }
 
