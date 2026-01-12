@@ -13,9 +13,11 @@ import com.snowflake.snowpark._
 import com.snowflake.snowpark.internal.analyzer.TempType
 import com.snowflake.snowpark.types._
 import com.snowflake.snowpark.udtf._
+import com.snowflake.snowpark.{udaf => ScalaUdaf}
 import com.snowflake.snowpark_java.internal._
 import com.snowflake.snowpark_java.types.{StructType => JavaStructType}
 import com.snowflake.snowpark_java.udtf._
+import com.snowflake.snowpark_java.udaf._
 import com.snowflake.snowpark_java.sproc._
 import net.snowflake.client.jdbc.SnowflakeSQLException
 
@@ -35,6 +37,7 @@ object UDXRegistrationHandler {
   // Method name for generated Java code
   val methodName = "compute"
   val udtfClassName = s"SnowparkGeneratedUDTF_${Utils.ScalaUDxFSprocVersionSuffix}"
+  val udafClassName = s"SnowparkGeneratedUDAF_${Utils.ScalaUDxFSprocVersionSuffix}"
 }
 
 class UDXRegistrationHandler(session: Session) extends Logging {
@@ -239,6 +242,72 @@ class UDXRegistrationHandler(session: Session) extends Logging {
       }
     }
     TableFunction(udfName)
+  }
+
+  // Internal function to register JavaUDAF.
+  private[snowpark] def registerJavaUDAF(
+      name: Option[String],
+      javaUdaf: JavaUDAF,
+      stageLocation: Option[String] = None): UserDefinedFunction = {
+    ScalaFunctions.checkSupportedJavaUdaf(javaUdaf)
+    val udfName = getAndValidateFunctionName(name)
+    // UDAF return is nullable
+    val returnType =
+      UdfColumnSchema(
+        JavaDataTypeUtils.javaTypeToScalaType(javaUdaf.outputType()),
+        isOption = false)
+
+    val inputColumns: Seq[UdfColumn] =
+      if (javaUdtfDefaultStructType.equals(javaUdaf.inputSchema())) {
+        ScalaFunctions.getJavaUDAFInputColumns(javaUdaf)
+      } else {
+        getUDFColumns(javaUdaf.inputSchema())
+      }
+    val (code, funcBytesMap) = generateJavaUDAFCode(javaUdaf, returnType, inputColumns)
+    val needCleanupFiles = Utils.createConcurrentSet[String]()
+    withUploadFailureCleanup(stageLocation, needCleanupFiles) {
+      retryAfterFixingClassPath {
+        val (allImports, targetJarStageLocation) =
+          uploadDependencies(udfName, javaUdaf, needCleanupFiles, funcBytesMap, stageLocation)
+        createJavaUDAF(
+          returnType.dataType,
+          inputColumns,
+          udfName,
+          allImports.map(i => s"'$i'").mkString(","),
+          stageLocation.isEmpty,
+          code,
+          targetJarStageLocation)
+      }
+    }
+    UserDefinedFunction(javaUdaf, returnType, inputColumns.map(_.schema), Some(udfName))
+  }
+
+  // Internal function to register Scala UDAF.
+  private[snowpark] def registerScalaUDAF(
+      name: Option[String],
+      scalaUdaf: ScalaUdaf.UDAF,
+      stageLocation: Option[String] = None): UserDefinedFunction = {
+    ScalaFunctions.checkSupportedScalaUdaf(scalaUdaf)
+    val udfName = getAndValidateFunctionName(name)
+    val returnType = UdfColumnSchema(scalaUdaf.outputType(), isOption = false)
+    val inputColumns = scalaUdaf.inputColumns
+    val (code, funcBytesMap) = generateScalaUDAFCode(scalaUdaf, returnType, inputColumns)
+    val needCleanupFiles = Utils.createConcurrentSet[String]()
+    withUploadFailureCleanup(stageLocation, needCleanupFiles) {
+      retryAfterFixingClassPath {
+        val (allImports, targetJarStageLocation) =
+          uploadDependencies(udfName, scalaUdaf, needCleanupFiles, funcBytesMap, stageLocation)
+        createJavaUDAF(
+          returnType.dataType,
+          inputColumns,
+          udfName,
+          allImports.map(i => s"'$i'").mkString(","),
+          stageLocation.isEmpty,
+          code,
+          targetJarStageLocation)
+      }
+    }
+    UserDefinedFunction(scalaUdaf, returnType, inputColumns.map(_.schema), Some(udfName))
   }
 
   private def getUDFColumns(structType: JavaStructType): Seq[UdfColumn] =
@@ -629,6 +698,173 @@ class UDXRegistrationHandler(session: Session) extends Logging {
     (code, funcBytesMap)
   }
 
+  private def generateJavaUDAFCode(
+      udaf: JavaUDAF,
+      returnValue: UdfColumnSchema,
+      inputArgs: Seq[UdfColumn]): (String, Map[String, Array[Byte]]) = {
+    val funcBytes = JavaUtils.serialize(udaf)
+    val (closureDefinition, funcBytesMap) =
+      if (funcBytes.length < MAX_INLINE_CLOSURE_SIZE_BYTES) {
+        (s"byte[] closure = { ${funcBytes.mkString(",")} };", Map.empty[String, Array[Byte]])
+      } else {
+        val closureFileName = "Closure" + Random.nextInt().abs + ".bin"
+        (s"""String closure = "$closureFileName";""", Map(closureFileName -> funcBytes))
+      }
+
+    val udafClassSignature = ScalaFunctions.getJavaUDAFClassName(udaf)
+    val argDecls = generateFunctionInputArguments(inputArgs)
+    val arguments = getFunctionCallArguments(inputArgs, isScalaUDF = false)
+    val callArgsConverted = arguments.mkString(", ")
+
+    val returnJavaType = convertToJavaType(returnValue)
+    val termCall = s"(($returnJavaType) udaf.terminate(state))"
+    val convertedTerm = convertReturnValue(returnValue, termCall)
+
+    val code =
+      s"""
+         |import com.snowflake.snowpark.internal.JavaUtils;
+         |import com.snowflake.snowpark_java.types.Geography;
+         |import com.snowflake.snowpark_java.types.Geometry;
+         |import com.snowflake.snowpark_java.types.Variant;
+         |import com.snowflake.snowpark_java.udaf.*;
+         |import java.io.Serializable;
+         |import java.io.ByteArrayInputStream;
+         |import java.io.ObjectInputStream;
+         |
+         |public class $udafClassName {
+         |  private $udafClassSignature udaf = null;
+         |
+         |  public $udafClassName() {
+         |    $closureDefinition
+         |    try {
+         |      ObjectInputStream ois = new ObjectInputStream(new ByteArrayInputStream(closure));
+         |      udaf = ($udafClassSignature) ois.readObject();
+         |    } catch (Exception e) {
+         |      throw new RuntimeException(e);
+         |    }
+         |  }
+         |
+         |  public java.io.Serializable initialize() {
+         |    return (java.io.Serializable) udaf.initialize();
+         |  }
+         |
+         |  public java.io.Serializable accumulate(java.io.Serializable state, $argDecls) {
+         |    udaf.accumulate(state, $callArgsConverted);
+         |    return state;
+         |  }
+         |
+         |  public java.io.Serializable merge(java.io.Serializable state1, java.io.Serializable state2) {
+         |    udaf.merge(state1, state2);
+         |    return state1;
+         |  }
+         |
+         |  public ${toUDFArgumentType(
+          returnValue.dataType)} terminate(java.io.Serializable state) {
+         |    return $convertedTerm;
+         |  }
+         |
+         |  public ${toUDFArgumentType(returnValue.dataType)} finish(java.io.Serializable state) {
+         |    return $convertedTerm;
+         |  }
+         |}
+         |""".stripMargin
+    logDebug(code)
+    (code, funcBytesMap)
+  }
+
+  private[snowpark] def generateScalaUDAFClassSignature(
+      udaf: ScalaUdaf.UDAF,
+      inputColumns: Seq[UdfColumn]): String = {
+    // Use raw type (no type parameters) since UDAF classes have multiple type params
+    // (State, Output, Input0, ...) and we only know the input types. This is similar
+    // to how Java UDAF works (uses raw JavaUDAF1 type).
+    ScalaFunctions.getScalaUDAFClassName(udaf)
+  }
+
+  private def generateScalaUDAFCode(
+      udaf: ScalaUdaf.UDAF,
+      returnValue: UdfColumnSchema,
+      inputArgs: Seq[UdfColumn]): (String, Map[String, Array[Byte]]) = {
+    val funcBytes = JavaUtils.serialize(udaf)
+    val (closureDefinition, funcBytesMap) =
+      if (funcBytes.length < MAX_INLINE_CLOSURE_SIZE_BYTES) {
+        (s"byte[] closure = { ${funcBytes.mkString(",")} };", Map.empty[String, Array[Byte]])
+      } else {
+        val closureFileName = "UDAFClosure" + Random.nextInt().abs + ".bin"
+        (
+          s"""byte[] closure = readClosure("$closureFileName");""",
+          Map(closureFileName -> funcBytes))
+      }
+
+    val readClosureFileToStaticField = if (funcBytesMap.nonEmpty) {
+      s"""
+         |  private static byte[] udafBytes = null;
+         |
+         |  private static byte[] readClosure(String fileName) {
+         |    if (udafBytes == null) {
+         |      udafBytes = JavaUtils.readFileAsByteArray(fileName);
+         |    }
+         |    return udafBytes;
+         |  }
+         |""".stripMargin
+    } else {
+      ""
+    }
+
+    val udafClassSignature = generateScalaUDAFClassSignature(udaf, inputArgs)
+    val argDecls = generateFunctionInputArguments(inputArgs)
+    val arguments = getFunctionCallArguments(inputArgs, isScalaUDF = true)
+    val callArgsConverted = arguments.mkString(", ")
+
+    val returnScalaType = convertToScalaType(returnValue)
+    val termCall = s"(($returnScalaType) udaf.terminate(state))"
+    val convertedTerm = convertScalaReturnValue(returnValue, termCall)
+
+    val code =
+      s"""
+         |import com.snowflake.snowpark.internal.JavaUtils;
+         |import com.snowflake.snowpark.types.Geography;
+         |import com.snowflake.snowpark.types.Geometry;
+         |import com.snowflake.snowpark.types.Variant;
+         |import com.snowflake.snowpark.udaf.*;
+         |import scala.collection.JavaConverters;
+         |import java.io.Serializable;
+         |
+         |public class $udafClassName {
+         |  $readClosureFileToStaticField
+         |  private $udafClassSignature udaf = null;
+         |
+         |  public $udafClassName() {
+         |    $closureDefinition
+         |    this.udaf = ($udafClassSignature) JavaUtils.deserialize(closure);
+         |  }
+         |
+         |  public java.io.Serializable initialize() {
+         |    return (java.io.Serializable) udaf.initialize();
+         |  }
+         |
+         |  public java.io.Serializable accumulate(java.io.Serializable state, $argDecls) {
+         |    return (java.io.Serializable) udaf.accumulate(state, $callArgsConverted);
+         |  }
+         |
+         |  public java.io.Serializable merge(java.io.Serializable state1, java.io.Serializable state2) {
+         |    return (java.io.Serializable) udaf.merge(state1, state2);
+         |  }
+         |
+         |  public ${toUDFArgumentType(
+          returnValue.dataType)} terminate(java.io.Serializable state) {
+         |    return $convertedTerm;
+         |  }
+         |
+         |  public ${toUDFArgumentType(returnValue.dataType)} finish(java.io.Serializable state) {
+         |    return $convertedTerm;
+         |  }
+         |}
+         |""".stripMargin
+    logDebug(code)
+    (code, funcBytesMap)
+  }
+
   private[snowpark] def createJavaUDTF(
       returnDataType: Seq[UdfColumn],
       inputArgs: Seq[UdfColumn],
@@ -1001,6 +1237,43 @@ class UDXRegistrationHandler(session: Session) extends Logging {
       s"FUNCTION $udfName($sqlFunctionArgs) RETURNS " +
       s"$returnSqlType LANGUAGE JAVA $getRuntimeVersion " +
       s"$importSql HANDLER='$className.$methodName' " +
+      s"target_path='$targetJarStageLocation' " + packageSql +
+      "AS $$ \n" + code + "\n$$"
+    logDebug(s"""
+               |----------SNOW----------
+               |  $createUdfQuery
+               |------------------------
+               |""".stripMargin)
+    session.runQuery(createUdfQuery, isTemporary)
+  }
+
+  private[snowpark] def createJavaUDAF(
+      returnDataType: DataType,
+      inputArgs: Seq[UdfColumn],
+      udfName: String,
+      allImports: String,
+      isTemporary: Boolean,
+      code: String,
+      targetJarStageLocation: String): Unit = {
+    val returnSqlType = convertToSFType(returnDataType)
+    val inputSqlTypes = inputArgs.map(arg => convertToSFType(arg.schema.dataType))
+    val sqlFunctionArgs =
+      inputArgs.map(_.name).zip(inputSqlTypes).map { case (a, t) => s"$a $t" }.mkString(", ")
+
+    val tempType: TempType = session.getTempType(isTemporary, udfName.split("\\.").last)
+    val dropFunctionIdentifier = s"$udfName(${inputSqlTypes.mkString(",")})"
+    session.recordTempObjectIfNecessary(TempObjectType.Function, dropFunctionIdentifier, tempType)
+
+    val packageSql = if (session.packageNames.nonEmpty) {
+      s"packages=(${session.packageNames.map(p => s"'$p'").toSet.mkString(", ")}) "
+    } else ""
+    val importSql = if (allImports.nonEmpty) {
+      s"IMPORTS = ($allImports)"
+    } else ""
+    val createUdfQuery = s"CREATE $tempType " +
+      s"AGGREGATE FUNCTION $udfName($sqlFunctionArgs) RETURNS " +
+      s"$returnSqlType LANGUAGE JAVA $getRuntimeVersion " +
+      s"$importSql HANDLER='$udafClassName' " +
       s"target_path='$targetJarStageLocation' " + packageSql +
       "AS $$ \n" + code + "\n$$"
     logDebug(s"""
