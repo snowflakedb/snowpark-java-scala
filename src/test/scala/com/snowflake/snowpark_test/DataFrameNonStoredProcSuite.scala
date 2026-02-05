@@ -28,9 +28,16 @@ class DataFrameNonStoredProcSuite extends TestData {
       checkAnswer(
         string7.stat.crosstab("a", "b").sort(col("a")),
         Seq(Row(null, 0, 1), Row("str", 1, 0)))
-      checkAnswer(
-        string7.sort(col("a")).stat.crosstab("b", "a").sort(col("b")),
-        Seq(Row(1, 1, 0), Row(2, 0, 0)))
+      // Pivot column order is non-deterministic (depends on GROUP BY result order).
+      // Check pivot values as a sorted set to make the test order-independent.
+      val crosstabResult = string7.sort(col("a")).stat.crosstab("b", "a").sort(col("b")).collect()
+      assert(crosstabResult.length == 2)
+      // For b=1: one pivot column should be 1 (for 'str'), one should be 0 (for null)
+      assert(crosstabResult(0).getInt(0) == 1)
+      assert(crosstabResult(0).toSeq.drop(1).map(_.asInstanceOf[Long]).sorted == Seq(0L, 1L))
+      // For b=2: both pivot columns should be 0 (COUNT(null)=0, no 'str' rows)
+      assert(crosstabResult(1).getInt(0) == 2)
+      assert(crosstabResult(1).toSeq.drop(1).map(_.asInstanceOf[Long]).sorted == Seq(0L, 0L))
     }
   }
 
