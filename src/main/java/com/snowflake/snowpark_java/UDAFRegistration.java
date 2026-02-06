@@ -5,6 +5,8 @@ import com.snowflake.snowpark_java.udaf.JavaUDAF;
 /**
  * Provides methods to register a UDAF (user-defined aggregate function) in the Snowflake database.
  * {@code Session.udaf()} returns an object of this class.
+ *
+ * @since 1.19.0
  */
 public class UDAFRegistration {
   private final com.snowflake.snowpark.UDAFRegistration udafRegistration;
@@ -18,10 +20,11 @@ public class UDAFRegistration {
    * session.
    *
    * @param udaf The UDAF instance to be registered
-   * @return A UserDefinedFunction that represents the corresponding FUNCTION created in Snowflake
+   * @return An AggregateFunction that represents the corresponding FUNCTION created in Snowflake
+   * @since 1.19.0
    */
-  public UserDefinedFunction registerTemporary(JavaUDAF udaf) {
-    return new UserDefinedFunction(udafRegistration.registerTemporary(udaf));
+  public AggregateFunction registerTemporary(JavaUDAF udaf) {
+    return new AggregateFunction(udafRegistration.registerTemporary(udaf));
   }
 
   /**
@@ -29,10 +32,11 @@ public class UDAFRegistration {
    *
    * @param funcName The name that you want to use to refer to the UDAF.
    * @param udaf The UDAF instance to be registered
-   * @return A UserDefinedFunction that represents the corresponding FUNCTION created in Snowflake
+   * @return An AggregateFunction that represents the corresponding FUNCTION created in Snowflake
+   * @since 1.19.0
    */
-  public UserDefinedFunction registerTemporary(String funcName, JavaUDAF udaf) {
-    return new UserDefinedFunction(udafRegistration.registerTemporary(funcName, udaf));
+  public AggregateFunction registerTemporary(String funcName, JavaUDAF udaf) {
+    return new AggregateFunction(udafRegistration.registerTemporary(funcName, udaf));
   }
 
   /**
@@ -42,11 +46,10 @@ public class UDAFRegistration {
    * @param udaf The UDAF instance to be registered.
    * @param stageLocation Stage location where the JAR files for the UDAF and its dependencies
    *     should be uploaded
-   * @return A UserDefinedFunction that represents the corresponding FUNCTION created in Snowflake
+   * @return An AggregateFunction that represents the corresponding FUNCTION created in Snowflake
+   * @since 1.19.0
    */
-  public UserDefinedFunction registerPermanent(
-      String funcName, JavaUDAF udaf, String stageLocation) {
-    return new UserDefinedFunction(
-        udafRegistration.registerPermanent(funcName, udaf, stageLocation));
+  public AggregateFunction registerPermanent(String funcName, JavaUDAF udaf, String stageLocation) {
+    return new AggregateFunction(udafRegistration.registerPermanent(funcName, udaf, stageLocation));
   }
 }

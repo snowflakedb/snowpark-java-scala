@@ -1180,7 +1180,7 @@ class Session private (private[snowpark] val conn: ServerConnection) extends Log
 
   /**
    * Returns a [[UDAFRegistration]] object that you can use to register UDAFs.
-   * @since 1.10.0
+   * @since 1.19.0
    */
   lazy val udaf: UDAFRegistration = new UDAFRegistration(this)
 

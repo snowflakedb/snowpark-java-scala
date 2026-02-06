@@ -1,10 +1,12 @@
 package com.snowflake.snowpark_java;
 
+import static com.snowflake.snowpark.internal.OpenTelemetry.javaUDAF;
 import static com.snowflake.snowpark.internal.OpenTelemetry.javaUDF;
 
 import com.snowflake.snowpark.functions;
 import com.snowflake.snowpark.internal.JavaUtils;
 import com.snowflake.snowpark_java.types.DataType;
+import com.snowflake.snowpark_java.udaf.JavaUDAF;
 import com.snowflake.snowpark_java.udf.*;
 import java.util.List;
 import java.util.function.Supplier;
@@ -6088,6 +6090,18 @@ public final class Functions {
         "udf", () -> getActiveSession().udf().registerTemporary(func, input, output));
   }
 
+  /**
+   * Registers a Java UDAF and returns an AggregateFunction. This is a convenience function that
+   * uses the active session to register the UDAF as a temporary anonymous aggregate function.
+   *
+   * @param udafObj The JavaUDAF instance to register.
+   * @return An AggregateFunction that can be used in DataFrame operations.
+   * @since 1.19.0
+   */
+  public static AggregateFunction udaf(JavaUDAF udafObj) {
+    return aggregateFunction("udaf", () -> getActiveSession().udaf().registerTemporary(udafObj));
+  }
+
   private static Session getActiveSession() {
     return new Session(JavaUtils.getActiveSession());
   }
@@ -6095,5 +6109,10 @@ public final class Functions {
   private static UserDefinedFunction userDefinedFunction(
       String funcName, Supplier<UserDefinedFunction> func) {
     return javaUDF("Functions", funcName, "", "", func);
+  }
+
+  private static AggregateFunction aggregateFunction(
+      String funcName, Supplier<AggregateFunction> func) {
+    return javaUDAF("Functions", funcName, "", "", func);
   }
 }

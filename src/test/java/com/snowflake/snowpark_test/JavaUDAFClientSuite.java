@@ -2,11 +2,11 @@ package com.snowflake.snowpark_test;
 
 import static org.junit.Assert.assertEquals;
 
+import com.snowflake.snowpark_java.AggregateFunction;
 import com.snowflake.snowpark_java.DataFrame;
 import com.snowflake.snowpark_java.Functions;
 import com.snowflake.snowpark_java.Row;
 import com.snowflake.snowpark_java.Session;
-import com.snowflake.snowpark_java.UserDefinedFunction;
 import com.snowflake.snowpark_java.test.MySumUDAF;
 import com.snowflake.snowpark_java.types.DataTypes;
 import com.snowflake.snowpark_java.types.StructField;
@@ -20,7 +20,7 @@ public class JavaUDAFClientSuite {
     try {
       session.sql("ALTER SESSION SET ENABLE_JAVA_UDAF = TRUE").collect();
       MySumUDAF udaf = new MySumUDAF();
-      UserDefinedFunction mySum = session.udaf().registerTemporary("java_my_sum", udaf);
+      AggregateFunction mySum = session.udaf().registerTemporary("java_my_sum", udaf);
 
       DataFrame df =
           session.createDataFrame(
@@ -31,6 +31,7 @@ public class JavaUDAFClientSuite {
       assertEquals(1, result.length);
       assertEquals(6L, result[0].getLong(0));
     } finally {
+      session.sql("ALTER SESSION UNSET ENABLE_JAVA_UDAF").collect();
       session.close();
     }
   }

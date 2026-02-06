@@ -5013,6 +5013,12 @@ object functions {
     session.udf.register(None, udf)
   }
 
+  private def registerUdaf(udafObj: com.snowflake.snowpark.udaf.UDAF): AggregateFunction = {
+    val session = Session.getActiveSession
+      .getOrElse(throw ErrorMessage.UDF_NO_DEFAULT_SESSION_FOUND())
+    session.udaf.registerTemporary(udafObj)
+  }
+
   /**
    * Calls a user-defined function (UDF) by name.
    *
@@ -5700,6 +5706,54 @@ object functions {
         A22,
         RT]): UserDefinedFunction = udf("udf") {
     registerUdf(_toUdf(func))
+  }
+
+  // ======================================================================================
+  //                                UDAF REGISTRATION FUNCTIONS
+  // ======================================================================================
+
+  /**
+   * Registers a Scala UDAF (user-defined aggregate function) and returns an [[AggregateFunction]]
+   * that can be used in DataFrame operations.
+   *
+   * This is a convenience method that registers the UDAF as an anonymous temporary function scoped
+   * to the current session. For named or permanent UDAFs, use [[Session.udaf]].
+   *
+   * Example:
+   * {{{
+   *   // Define a UDAF class
+   *   class MySumUDAF extends UDAF1[Long, Long, Int] {
+   *     override def outputType(): DataType = LongType
+   *     override def initialize(): Long = 0L
+   *     override def accumulate(state: Long, input: Int): Long = state + input
+   *     override def merge(state1: Long, state2: Long): Long = state1 + state2
+   *     override def terminate(state: Long): Long = state
+   *   }
+   *
+   *   // Register and use the UDAF
+   *   val mySum = udaf(new MySumUDAF())
+   *   df.select(mySum(col("a"))).show()
+   * }}}
+   *
+   * @param udafObj
+   *   The Scala UDAF instance to register.
+   * @return
+   *   An [[AggregateFunction]] that can be used in DataFrame operations.
+   * @group udf_func
+   * @since 1.19.0
+   */
+  def udaf(udafObj: com.snowflake.snowpark.udaf.UDAF): AggregateFunction = udafInternal("udaf") {
+    registerUdaf(udafObj)
+  }
+
+  @inline protected def udafInternal(funcName: String)(
+      func: => AggregateFunction): AggregateFunction = {
+    OpenTelemetry.udx(
+      "functions",
+      funcName,
+      "",
+      s"${UDXRegistrationHandler.className}.${UDXRegistrationHandler.methodName}",
+      "")(func)
   }
 
   /**

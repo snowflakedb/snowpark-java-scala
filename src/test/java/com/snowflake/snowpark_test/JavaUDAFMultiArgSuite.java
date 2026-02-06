@@ -3,42 +3,39 @@ package com.snowflake.snowpark_test;
 import static com.snowflake.snowpark_java.Functions.*;
 import static org.junit.Assert.assertEquals;
 
+import com.snowflake.snowpark_java.AggregateFunction;
 import com.snowflake.snowpark_java.DataFrame;
 import com.snowflake.snowpark_java.Row;
 import com.snowflake.snowpark_java.Session;
-import com.snowflake.snowpark_java.UserDefinedFunction;
 import com.snowflake.snowpark_java.types.*;
 import com.snowflake.snowpark_java.udaf.*;
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
 import org.junit.Test;
 
 /** Test suite for JavaUDAF2-22 with multiple arguments. Each UDAF sums all its input arguments. */
-public class JavaUDAFMultiArgSuite {
-  private static Session session;
+public class JavaUDAFMultiArgSuite extends UDFTestBase {
+  private boolean dependencyAdded = false;
 
-  @BeforeClass
-  public static void setup() {
-    session = Session.builder().configFile("profile.properties").create();
-    session.sql("ALTER SESSION SET ENABLE_JAVA_UDAF = TRUE").collect();
-  }
-
-  @AfterClass
-  public static void cleanup() {
-    if (session != null) {
-      session.close();
+  @Override
+  public Session getSession() {
+    Session session = super.getSession();
+    if (!dependencyAdded) {
+      dependencyAdded = true;
+      addDepsToClassPath(session);
+      session.sql("ALTER SESSION SET ENABLE_JAVA_UDAF = TRUE").collect();
     }
+    return session;
   }
 
   private DataFrame createTestData() {
-    return session.createDataFrame(
-        new Row[] {Row.create(1), Row.create(2), Row.create(3)},
-        StructType.create(new StructField("a", DataTypes.IntegerType)));
+    return getSession()
+        .createDataFrame(
+            new Row[] {Row.create(1), Row.create(2), Row.create(3)},
+            StructType.create(new StructField("a", DataTypes.IntegerType)));
   }
 
   @Test
   public void testJavaUDAFOf2() {
-    UserDefinedFunction udaf = session.udaf().registerTemporary(new MyJavaUDAFOf2());
+    AggregateFunction udaf = getSession().udaf().registerTemporary(new MyJavaUDAFOf2());
     // sum of (1+2) + (2+3) + (3+4) = 3 + 5 + 7 = 15
     DataFrame df = createTestData();
     Row[] rows = df.select(udaf.apply(col("a"), col("a").plus(lit(1)))).collect();
@@ -48,7 +45,7 @@ public class JavaUDAFMultiArgSuite {
 
   @Test
   public void testJavaUDAFOf3() {
-    UserDefinedFunction udaf = session.udaf().registerTemporary(new MyJavaUDAFOf3());
+    AggregateFunction udaf = getSession().udaf().registerTemporary(new MyJavaUDAFOf3());
     // sum of (1+2+3) + (2+3+4) + (3+4+5) = 6 + 9 + 12 = 27
     DataFrame df = createTestData();
     Row[] rows =
@@ -59,7 +56,7 @@ public class JavaUDAFMultiArgSuite {
 
   @Test
   public void testJavaUDAFOf4() {
-    UserDefinedFunction udaf = session.udaf().registerTemporary(new MyJavaUDAFOf4());
+    AggregateFunction udaf = getSession().udaf().registerTemporary(new MyJavaUDAFOf4());
     DataFrame df = createTestData();
     Row[] rows =
         df.select(
@@ -72,7 +69,7 @@ public class JavaUDAFMultiArgSuite {
 
   @Test
   public void testJavaUDAFOf5() {
-    UserDefinedFunction udaf = session.udaf().registerTemporary(new MyJavaUDAFOf5());
+    AggregateFunction udaf = getSession().udaf().registerTemporary(new MyJavaUDAFOf5());
     DataFrame df = createTestData();
     Row[] rows =
         df.select(
@@ -89,7 +86,7 @@ public class JavaUDAFMultiArgSuite {
 
   @Test
   public void testJavaUDAFOf6() {
-    UserDefinedFunction udaf = session.udaf().registerTemporary(new MyJavaUDAFOf6());
+    AggregateFunction udaf = getSession().udaf().registerTemporary(new MyJavaUDAFOf6());
     DataFrame df = createTestData();
     Row[] rows =
         df.select(
@@ -107,7 +104,7 @@ public class JavaUDAFMultiArgSuite {
 
   @Test
   public void testJavaUDAFOf7() {
-    UserDefinedFunction udaf = session.udaf().registerTemporary(new MyJavaUDAFOf7());
+    AggregateFunction udaf = getSession().udaf().registerTemporary(new MyJavaUDAFOf7());
     DataFrame df = createTestData();
     Row[] rows =
         df.select(
@@ -126,7 +123,7 @@ public class JavaUDAFMultiArgSuite {
 
   @Test
   public void testJavaUDAFOf8() {
-    UserDefinedFunction udaf = session.udaf().registerTemporary(new MyJavaUDAFOf8());
+    AggregateFunction udaf = getSession().udaf().registerTemporary(new MyJavaUDAFOf8());
     DataFrame df = createTestData();
     Row[] rows =
         df.select(
@@ -146,7 +143,7 @@ public class JavaUDAFMultiArgSuite {
 
   @Test
   public void testJavaUDAFOf9() {
-    UserDefinedFunction udaf = session.udaf().registerTemporary(new MyJavaUDAFOf9());
+    AggregateFunction udaf = getSession().udaf().registerTemporary(new MyJavaUDAFOf9());
     DataFrame df = createTestData();
     Row[] rows =
         df.select(
@@ -167,7 +164,7 @@ public class JavaUDAFMultiArgSuite {
 
   @Test
   public void testJavaUDAFOf10() {
-    UserDefinedFunction udaf = session.udaf().registerTemporary(new MyJavaUDAFOf10());
+    AggregateFunction udaf = getSession().udaf().registerTemporary(new MyJavaUDAFOf10());
     DataFrame df = createTestData();
     Row[] rows =
         df.select(
@@ -189,7 +186,7 @@ public class JavaUDAFMultiArgSuite {
 
   @Test
   public void testJavaUDAFOf11() {
-    UserDefinedFunction udaf = session.udaf().registerTemporary(new MyJavaUDAFOf11());
+    AggregateFunction udaf = getSession().udaf().registerTemporary(new MyJavaUDAFOf11());
     DataFrame df = createTestData();
     Row[] rows =
         df.select(
@@ -212,7 +209,7 @@ public class JavaUDAFMultiArgSuite {
 
   @Test
   public void testJavaUDAFOf12() {
-    UserDefinedFunction udaf = session.udaf().registerTemporary(new MyJavaUDAFOf12());
+    AggregateFunction udaf = getSession().udaf().registerTemporary(new MyJavaUDAFOf12());
     DataFrame df = createTestData();
     Row[] rows =
         df.select(
@@ -236,7 +233,7 @@ public class JavaUDAFMultiArgSuite {
 
   @Test
   public void testJavaUDAFOf13() {
-    UserDefinedFunction udaf = session.udaf().registerTemporary(new MyJavaUDAFOf13());
+    AggregateFunction udaf = getSession().udaf().registerTemporary(new MyJavaUDAFOf13());
     DataFrame df = createTestData();
     Row[] rows =
         df.select(
@@ -261,7 +258,7 @@ public class JavaUDAFMultiArgSuite {
 
   @Test
   public void testJavaUDAFOf14() {
-    UserDefinedFunction udaf = session.udaf().registerTemporary(new MyJavaUDAFOf14());
+    AggregateFunction udaf = getSession().udaf().registerTemporary(new MyJavaUDAFOf14());
     DataFrame df = createTestData();
     Row[] rows =
         df.select(
@@ -287,7 +284,7 @@ public class JavaUDAFMultiArgSuite {
 
   @Test
   public void testJavaUDAFOf15() {
-    UserDefinedFunction udaf = session.udaf().registerTemporary(new MyJavaUDAFOf15());
+    AggregateFunction udaf = getSession().udaf().registerTemporary(new MyJavaUDAFOf15());
     DataFrame df = createTestData();
     Row[] rows =
         df.select(
@@ -314,7 +311,7 @@ public class JavaUDAFMultiArgSuite {
 
   @Test
   public void testJavaUDAFOf16() {
-    UserDefinedFunction udaf = session.udaf().registerTemporary(new MyJavaUDAFOf16());
+    AggregateFunction udaf = getSession().udaf().registerTemporary(new MyJavaUDAFOf16());
     DataFrame df = createTestData();
     Row[] rows =
         df.select(
@@ -342,7 +339,7 @@ public class JavaUDAFMultiArgSuite {
 
   @Test
   public void testJavaUDAFOf17() {
-    UserDefinedFunction udaf = session.udaf().registerTemporary(new MyJavaUDAFOf17());
+    AggregateFunction udaf = getSession().udaf().registerTemporary(new MyJavaUDAFOf17());
     DataFrame df = createTestData();
     Row[] rows =
         df.select(
@@ -371,7 +368,7 @@ public class JavaUDAFMultiArgSuite {
 
   @Test
   public void testJavaUDAFOf18() {
-    UserDefinedFunction udaf = session.udaf().registerTemporary(new MyJavaUDAFOf18());
+    AggregateFunction udaf = getSession().udaf().registerTemporary(new MyJavaUDAFOf18());
     DataFrame df = createTestData();
     Row[] rows =
         df.select(
@@ -401,7 +398,7 @@ public class JavaUDAFMultiArgSuite {
 
   @Test
   public void testJavaUDAFOf19() {
-    UserDefinedFunction udaf = session.udaf().registerTemporary(new MyJavaUDAFOf19());
+    AggregateFunction udaf = getSession().udaf().registerTemporary(new MyJavaUDAFOf19());
     DataFrame df = createTestData();
     Row[] rows =
         df.select(
@@ -432,7 +429,7 @@ public class JavaUDAFMultiArgSuite {
 
   @Test
   public void testJavaUDAFOf20() {
-    UserDefinedFunction udaf = session.udaf().registerTemporary(new MyJavaUDAFOf20());
+    AggregateFunction udaf = getSession().udaf().registerTemporary(new MyJavaUDAFOf20());
     DataFrame df = createTestData();
     Row[] rows =
         df.select(
@@ -464,7 +461,7 @@ public class JavaUDAFMultiArgSuite {
 
   @Test
   public void testJavaUDAFOf21() {
-    UserDefinedFunction udaf = session.udaf().registerTemporary(new MyJavaUDAFOf21());
+    AggregateFunction udaf = getSession().udaf().registerTemporary(new MyJavaUDAFOf21());
     DataFrame df = createTestData();
     Row[] rows =
         df.select(
@@ -497,7 +494,7 @@ public class JavaUDAFMultiArgSuite {
 
   @Test
   public void testJavaUDAFOf22() {
-    UserDefinedFunction udaf = session.udaf().registerTemporary(new MyJavaUDAFOf22());
+    AggregateFunction udaf = getSession().udaf().registerTemporary(new MyJavaUDAFOf22());
     DataFrame df = createTestData();
     Row[] rows =
         df.select(

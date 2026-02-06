@@ -89,6 +89,7 @@ lazy val root = (project in file("."))
   .configs(NonparallelTests)
   .configs(UDFTests)
   .configs(UDTFTests)
+  .configs(UDAFTests)
   .configs(SprocTests)
   .settings(
     organization := "com.snowflake",
@@ -156,6 +157,8 @@ lazy val root = (project in file("."))
     UDTFTests / testOptions += Tests.Filter(isUDTFTests),
     inConfig(SprocTests)(Defaults.testTasks),
     SprocTests / testOptions += Tests.Filter(isSprocTests),
+    inConfig(UDAFTests)(Defaults.testTasks),
+    UDAFTests / testOptions += Tests.Filter(isUDAFTests),
     // Build Info
     buildInfoKeys := Seq[BuildInfoKey](name, version, scalaVersion, sbtVersion),
     buildInfoPackage := "com.snowflake.snowpark.internal",
@@ -318,8 +321,13 @@ def isNonparallelTests(name: String): Boolean = {
 }
 lazy val NonparallelTests = config("NonparallelTests") extend Test
 
+def isUDAFTests(name: String): Boolean = {
+  name.contains("UDAF")
+}
+lazy val UDAFTests = config("UDAFTests") extend Test
+
 def isUDFTests(name: String): Boolean = {
-  name.contains("UDF")
+  name.contains("UDF") && !isUDAFTests(name)
 }
 lazy val UDFTests = config("UDFTests") extend Test
 
@@ -344,6 +352,7 @@ def isJavaAPITests(name: String): Boolean = {
     name.startsWith("com.snowflake.snowpark_test.Java")) &&
     !isUDFTests(name) &&
     !isUDTFTests(name) &&
+    !isUDAFTests(name) &&
     !isSprocTests(name) &&
     !isNonparallelTests(name)
 }
@@ -358,6 +367,7 @@ def isRemainingTest(name: String): Boolean = {
     ! isNonparallelTests(name) &&
     ! isUDFTests(name) &&
     ! isUDTFTests(name) &&
+    ! isUDAFTests(name) &&
     ! isSprocTests(name) &&
     ! isJavaAPITests(name)
 }

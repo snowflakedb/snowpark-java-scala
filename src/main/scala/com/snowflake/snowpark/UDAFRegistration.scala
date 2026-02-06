@@ -19,7 +19,7 @@ import com.snowflake.snowpark_java.udaf.JavaUDAF
  *
  * =Defining the UDAF Class=
  *
- * Define a class that inherits from one of the `UDAF[N]` classes (e.g. `UDAF0`, `UDAF1`, etc.),
+ * Define a class that inherits from one of the `UDAF[N]` classes (e.g. `UDAF1`, `UDAF2`, etc.),
  * where ''n'' specifies the number of input arguments for your UDAF. For example, if your UDAF
  * passes in 2 input arguments, extend the `UDAF2` class.
  *
@@ -30,6 +30,47 @@ import com.snowflake.snowpark_java.udaf.JavaUDAF
  *   - `terminate()`, which produces the final output value from the aggregation state.
  *   - `outputType()`, which returns a [[types.DataType]] object that describes the type of the
  *     returned value.
+ *
+ * =Supported Data Types=
+ *
+ * Snowflake supports the following data types for the input arguments and return value of a UDAF:
+ *
+ * | SQL Type  | Scala Type                                  | Java Type                | Notes                                                                                                                                                                                 |
+ * |:----------|:--------------------------------------------|:-------------------------|:--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+ * | NUMBER    | Short or Option[Short]                      | Short or java.lang.Short | Supported                                                                                                                                                                             |
+ * | NUMBER    | Int or Option[Int]                          | Integer                  | Supported                                                                                                                                                                             |
+ * | NUMBER    | Long or Option[Long]                        | Long or java.lang.Long   | Supported                                                                                                                                                                             |
+ * | FLOAT     | Float or Option[Float]                      | Float or java.lang.Float | Supported                                                                                                                                                                             |
+ * | DOUBLE    | Double or Option[Double]                    | Double                   | Supported                                                                                                                                                                             |
+ * | NUMBER    | java.math.BigDecimal                        | java.math.BigDecimal     | Supported                                                                                                                                                                             |
+ * | VARCHAR   | String or java.lang.String                  | java.lang.String         | Supported                                                                                                                                                                             |
+ * | BOOL      | Boolean or Option[Boolean]                  | Boolean                  | Supported                                                                                                                                                                             |
+ * | DATE      | java.sql.Date                               | java.sql.Date            | Supported                                                                                                                                                                             |
+ * | TIME      | java.sql.Time                               | java.sql.Time            | Supported                                                                                                                                                                             |
+ * | TIMESTAMP | java.sql.Timestamp                          | java.sql.Timestamp       | Supported                                                                                                                                                                             |
+ * | BINARY    | Array[Byte]                                 | byte[]                   | Supported                                                                                                                                                                             |
+ * | ARRAY     | Array[String] or Array[Variant]             | String[] or Variant[]    | Supported array of type Array[String] or Array[Variant]                                                                                                                               |
+ * | OBJECT    | Map[String, String] or Map[String, Variant] | Map                      | For Scala, supported mutable map of type scala.collection.mutable.Map[String, String] or scala.collection.mutable.Map[String, Variant]. For Java, use inputSchema() to specify types. |
+ * | VARIANT   | com.snowflake.snowpark.types.Variant        | Variant                  | Supported                                                                                                                                                                             |
+ *
+ * '''Note:''' GEOGRAPHY and GEOMETRY types are '''not supported''' for UDAF input arguments or
+ * return values.
+ *
+ * '''Note:''' Structured types (ARRAY, OBJECT, MAP with nested types) have limited support. For
+ * complex nested structures, consider using VARIANT type and performing conversion in your UDAF
+ * code.
+ *
+ * =Aggregation State Requirements=
+ *
+ * The aggregation state class must be serializable. To ensure compatibility with Kryo
+ * serialization:
+ *   - For '''best compatibility''': The state class should implement `java.io.Serializable` and
+ *     have a public no-arg constructor.
+ *   - For '''Scala case classes''' or classes without no-arg constructors: Kryo uses Objenesis to
+ *     instantiate objects without calling constructors. This works when the server has Objenesis
+ *     support enabled.
+ *   - For '''custom serialization''': Implement `java.io.Externalizable` for fine-grained control
+ *     over serialization.
  *
  * ==Example of a UDAF Class==
  *
@@ -102,10 +143,10 @@ class UDAFRegistration(session: Session) extends Logging {
    * @param udaf
    *   The Scala UDAF instance to be registered.
    * @return
-   *   A UserDefinedFunction representing the UDAF.
+   *   An AggregateFunction representing the UDAF.
    * @since 1.19.0
    */
-  def registerTemporary(udaf: UDAF): UserDefinedFunction = udf("registerTemporary") {
+  def registerTemporary(udaf: UDAF): AggregateFunction = this.udaf("registerTemporary") {
     handler.registerScalaUDAF(None, udaf, None)
   }
 
@@ -117,11 +158,11 @@ class UDAFRegistration(session: Session) extends Logging {
    * @param udaf
    *   The Scala UDAF instance to be registered.
    * @return
-   *   A UserDefinedFunction representing the UDAF.
+   *   An AggregateFunction representing the UDAF.
    * @since 1.19.0
    */
-  def registerTemporary(funcName: String, udaf: UDAF): UserDefinedFunction =
-    udf("registerTemporary", execName = funcName) {
+  def registerTemporary(funcName: String, udaf: UDAF): AggregateFunction =
+    this.udaf("registerTemporary", execName = funcName) {
       handler.registerScalaUDAF(Some(funcName), udaf, None)
     }
 
@@ -135,11 +176,11 @@ class UDAFRegistration(session: Session) extends Logging {
    * @param stageLocation
    *   The stage location to upload JARs.
    * @return
-   *   A UserDefinedFunction representing the UDAF.
+   *   An AggregateFunction representing the UDAF.
    * @since 1.19.0
    */
-  def registerPermanent(funcName: String, udaf: UDAF, stageLocation: String): UserDefinedFunction =
-    udf("registerPermanent", execName = funcName, execFilePath = stageLocation) {
+  def registerPermanent(funcName: String, udaf: UDAF, stageLocation: String): AggregateFunction =
+    this.udaf("registerPermanent", execName = funcName, execFilePath = stageLocation) {
       handler.registerScalaUDAF(Some(funcName), udaf, Some(stageLocation))
     }
 
@@ -149,10 +190,10 @@ class UDAFRegistration(session: Session) extends Logging {
    * @param udaf
    *   The Java UDAF instance.
    * @return
-   *   A UserDefinedFunction representing the UDAF.
+   *   An AggregateFunction representing the UDAF.
    * @since 1.19.0
    */
-  def registerTemporary(udaf: JavaUDAF): UserDefinedFunction = udf("registerTemporary") {
+  def registerTemporary(udaf: JavaUDAF): AggregateFunction = this.udaf("registerTemporary") {
     registerJavaUDAF(None, udaf, None)
   }
 
@@ -164,11 +205,11 @@ class UDAFRegistration(session: Session) extends Logging {
    * @param udaf
    *   The Java UDAF instance.
    * @return
-   *   A UserDefinedFunction representing the UDAF.
+   *   An AggregateFunction representing the UDAF.
    * @since 1.19.0
    */
-  def registerTemporary(funcName: String, udaf: JavaUDAF): UserDefinedFunction =
-    udf("registerTemporary", execName = funcName) {
+  def registerTemporary(funcName: String, udaf: JavaUDAF): AggregateFunction =
+    this.udaf("registerTemporary", execName = funcName) {
       registerJavaUDAF(Some(funcName), udaf, None)
     }
 
@@ -182,25 +223,25 @@ class UDAFRegistration(session: Session) extends Logging {
    * @param stageLocation
    *   The stage location to upload JARs.
    * @return
-   *   A UserDefinedFunction representing the UDAF.
+   *   An AggregateFunction representing the UDAF.
    * @since 1.19.0
    */
   def registerPermanent(
       funcName: String,
       udaf: JavaUDAF,
-      stageLocation: String): UserDefinedFunction =
-    udf("registerPermanent", execName = funcName, execFilePath = stageLocation) {
+      stageLocation: String): AggregateFunction =
+    this.udaf("registerPermanent", execName = funcName, execFilePath = stageLocation) {
       registerJavaUDAF(Some(funcName), udaf, Some(stageLocation))
     }
 
   private[snowpark] def registerJavaUDAF(
       name: Option[String],
       udaf: JavaUDAF,
-      stageLocation: Option[String]): UserDefinedFunction =
+      stageLocation: Option[String]): AggregateFunction =
     handler.registerJavaUDAF(name, udaf, stageLocation)
 
-  @inline protected def udf(funcName: String, execName: String = "", execFilePath: String = "")(
-      func: => UserDefinedFunction): UserDefinedFunction = {
+  @inline protected def udaf(funcName: String, execName: String = "", execFilePath: String = "")(
+      func: => AggregateFunction): AggregateFunction = {
     OpenTelemetry.udx(
       "UDAFRegistration",
       funcName,

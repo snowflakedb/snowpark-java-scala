@@ -17,7 +17,9 @@ sealed trait UDAF extends java.io.Serializable {
    * For example, if a UDAF returns an integer value, outputType() should return IntegerType: {{
    * override def outputType(): DataType = IntegerType }}
    *
-   * Since: 1.19.0
+   * @return
+   *   A DataType describing the output type.
+   * @since 1.19.0
    */
   def outputType(): DataType
 
@@ -25,69 +27,14 @@ sealed trait UDAF extends java.io.Serializable {
    * A StructType that describes the input schema of the aggregate function. By default, returns an
    * empty StructType.
    *
-   * Since: 1.19.0
+   * @return
+   *   A StructType describing the input schema.
+   * @since 1.19.0
    */
   def inputSchema(): StructType = StructType()
 
   // Below are internal private functions
   private[snowpark] def inputColumns: Seq[UdfColumn]
-}
-
-/**
- * The Scala UDAF (user-defined aggregate function) abstract class that has no argument.
- *
- * @tparam S
- *   The type of the aggregation state.
- * @tparam O
- *   The type of the output value.
- * @since 1.19.0
- */
-abstract class UDAF0[S, O] extends UDAF {
-
-  /**
-   * Returns the initial state of the aggregation.
-   *
-   * Since: 1.19.0
-   */
-  def initialize(): S
-
-  /**
-   * Updates the aggregation state with a new input row (no arguments).
-   *
-   * @param state
-   *   The current aggregation state.
-   *
-   * Since: 1.19.0
-   */
-  def accumulate(state: S): S
-
-  /**
-   * Merges two aggregation states into one.
-   *
-   * @param state1
-   *   The first aggregation state.
-   * @param state2
-   *   The second aggregation state.
-   * @return
-   *   The merged aggregation state.
-   *
-   * Since: 1.19.0
-   */
-  def merge(state1: S, state2: S): S
-
-  /**
-   * Produces the final output value from the aggregation state.
-   *
-   * @param state
-   *   The final aggregation state.
-   * @return
-   *   The output value.
-   *
-   * Since: 1.19.0
-   */
-  def terminate(state: S): O
-
-  override private[snowpark] def inputColumns: Seq[UdfColumn] = Seq.empty
 }
 
 // scalastyle:off
@@ -100,6 +47,7 @@ abstract class UDAF0[S, O] extends UDAF {
       val inputColumns =
         (0 until x).map(i => s"ScalaFunctions.schemaForUdfColumn[A$i](${i + 1})").mkString(", ")
       val s = if (x > 1) "s" else ""
+      val accumulateParamDocs = (0 until x).map(i => s"   * @param arg$i The input value for argument ${i + 1}.").mkString("\n           |")
       val code =
         s"""
            |/**
@@ -112,9 +60,8 @@ abstract class UDAF0[S, O] extends UDAF {
            |abstract class $className[S, O, $argTypes] extends UDAF {
            |
            |  /**
-           |   * Returns the initial state of the aggregation.
-           |   *
-           |   * Since: 1.19.0
+           |   * @return The initial state of the aggregation.
+           |   * @since 1.19.0
            |   */
            |  def initialize(): S
            |
@@ -122,8 +69,9 @@ abstract class UDAF0[S, O] extends UDAF {
            |   * Updates the aggregation state with a new input row.
            |   *
            |   * @param state The current aggregation state.
-           |   *
-           |   * Since: 1.19.0
+           |$accumulateParamDocs
+           |   * @return The updated aggregation state.
+           |   * @since 1.19.0
            |   */
            |  // scalastyle:off
            |  def accumulate(state: S, $accumulateArgs): S
@@ -135,8 +83,7 @@ abstract class UDAF0[S, O] extends UDAF {
            |   * @param state1 The first aggregation state.
            |   * @param state2 The second aggregation state.
            |   * @return The merged aggregation state.
-           |   *
-           |   * Since: 1.19.0
+           |   * @since 1.19.0
            |   */
            |  def merge(state1: S, state2: S): S
            |
@@ -145,8 +92,7 @@ abstract class UDAF0[S, O] extends UDAF {
            |   *
            |   * @param state The final aggregation state.
            |   * @return The output value.
-           |   *
-           |   * Since: 1.19.0
+           |   * @since 1.19.0
            |   */
            |  def terminate(state: S): O
            |
@@ -171,9 +117,9 @@ abstract class UDAF0[S, O] extends UDAF {
 abstract class UDAF1[S, O, A0](implicit @transient private val a0Tag: TypeTag[A0]) extends UDAF {
 
   /**
-   * Returns the initial state of the aggregation.
-   *
-   * Since: 1.19.0
+   * @return
+   *   The initial state of the aggregation.
+   * @since 1.19.0
    */
   def initialize(): S
 
@@ -182,8 +128,11 @@ abstract class UDAF1[S, O, A0](implicit @transient private val a0Tag: TypeTag[A0
    *
    * @param state
    *   The current aggregation state.
-   *
-   * Since: 1.19.0
+   * @param arg0
+   *   The input value for argument 1.
+   * @return
+   *   The updated aggregation state.
+   * @since 1.19.0
    */
   def accumulate(state: S, arg0: A0): S
 
@@ -196,8 +145,7 @@ abstract class UDAF1[S, O, A0](implicit @transient private val a0Tag: TypeTag[A0
    *   The second aggregation state.
    * @return
    *   The merged aggregation state.
-   *
-   * Since: 1.19.0
+   * @since 1.19.0
    */
   def merge(state1: S, state2: S): S
 
@@ -208,8 +156,7 @@ abstract class UDAF1[S, O, A0](implicit @transient private val a0Tag: TypeTag[A0
    *   The final aggregation state.
    * @return
    *   The output value.
-   *
-   * Since: 1.19.0
+   * @since 1.19.0
    */
   def terminate(state: S): O
 
@@ -232,9 +179,9 @@ abstract class UDAF2[S, O, A0, A1](implicit
     extends UDAF {
 
   /**
-   * Returns the initial state of the aggregation.
-   *
-   * Since: 1.19.0
+   * @return
+   *   The initial state of the aggregation.
+   * @since 1.19.0
    */
   def initialize(): S
 
@@ -243,8 +190,13 @@ abstract class UDAF2[S, O, A0, A1](implicit
    *
    * @param state
    *   The current aggregation state.
-   *
-   * Since: 1.19.0
+   * @param arg0
+   *   The input value for argument 1.
+   * @param arg1
+   *   The input value for argument 2.
+   * @return
+   *   The updated aggregation state.
+   * @since 1.19.0
    */
   def accumulate(state: S, arg0: A0, arg1: A1): S
 
@@ -257,8 +209,7 @@ abstract class UDAF2[S, O, A0, A1](implicit
    *   The second aggregation state.
    * @return
    *   The merged aggregation state.
-   *
-   * Since: 1.19.0
+   * @since 1.19.0
    */
   def merge(state1: S, state2: S): S
 
@@ -269,8 +220,7 @@ abstract class UDAF2[S, O, A0, A1](implicit
    *   The final aggregation state.
    * @return
    *   The output value.
-   *
-   * Since: 1.19.0
+   * @since 1.19.0
    */
   def terminate(state: S): O
 
@@ -296,9 +246,9 @@ abstract class UDAF3[S, O, A0, A1, A2](implicit
     extends UDAF {
 
   /**
-   * Returns the initial state of the aggregation.
-   *
-   * Since: 1.19.0
+   * @return
+   *   The initial state of the aggregation.
+   * @since 1.19.0
    */
   def initialize(): S
 
@@ -307,8 +257,15 @@ abstract class UDAF3[S, O, A0, A1, A2](implicit
    *
    * @param state
    *   The current aggregation state.
-   *
-   * Since: 1.19.0
+   * @param arg0
+   *   The input value for argument 1.
+   * @param arg1
+   *   The input value for argument 2.
+   * @param arg2
+   *   The input value for argument 3.
+   * @return
+   *   The updated aggregation state.
+   * @since 1.19.0
    */
   def accumulate(state: S, arg0: A0, arg1: A1, arg2: A2): S
 
@@ -321,8 +278,7 @@ abstract class UDAF3[S, O, A0, A1, A2](implicit
    *   The second aggregation state.
    * @return
    *   The merged aggregation state.
-   *
-   * Since: 1.19.0
+   * @since 1.19.0
    */
   def merge(state1: S, state2: S): S
 
@@ -333,8 +289,7 @@ abstract class UDAF3[S, O, A0, A1, A2](implicit
    *   The final aggregation state.
    * @return
    *   The output value.
-   *
-   * Since: 1.19.0
+   * @since 1.19.0
    */
   def terminate(state: S): O
 
@@ -362,9 +317,9 @@ abstract class UDAF4[S, O, A0, A1, A2, A3](implicit
     extends UDAF {
 
   /**
-   * Returns the initial state of the aggregation.
-   *
-   * Since: 1.19.0
+   * @return
+   *   The initial state of the aggregation.
+   * @since 1.19.0
    */
   def initialize(): S
 
@@ -373,8 +328,17 @@ abstract class UDAF4[S, O, A0, A1, A2, A3](implicit
    *
    * @param state
    *   The current aggregation state.
-   *
-   * Since: 1.19.0
+   * @param arg0
+   *   The input value for argument 1.
+   * @param arg1
+   *   The input value for argument 2.
+   * @param arg2
+   *   The input value for argument 3.
+   * @param arg3
+   *   The input value for argument 4.
+   * @return
+   *   The updated aggregation state.
+   * @since 1.19.0
    */
   def accumulate(state: S, arg0: A0, arg1: A1, arg2: A2, arg3: A3): S
 
@@ -387,8 +351,7 @@ abstract class UDAF4[S, O, A0, A1, A2, A3](implicit
    *   The second aggregation state.
    * @return
    *   The merged aggregation state.
-   *
-   * Since: 1.19.0
+   * @since 1.19.0
    */
   def merge(state1: S, state2: S): S
 
@@ -399,8 +362,7 @@ abstract class UDAF4[S, O, A0, A1, A2, A3](implicit
    *   The final aggregation state.
    * @return
    *   The output value.
-   *
-   * Since: 1.19.0
+   * @since 1.19.0
    */
   def terminate(state: S): O
 
@@ -430,9 +392,9 @@ abstract class UDAF5[S, O, A0, A1, A2, A3, A4](implicit
     extends UDAF {
 
   /**
-   * Returns the initial state of the aggregation.
-   *
-   * Since: 1.19.0
+   * @return
+   *   The initial state of the aggregation.
+   * @since 1.19.0
    */
   def initialize(): S
 
@@ -441,8 +403,19 @@ abstract class UDAF5[S, O, A0, A1, A2, A3, A4](implicit
    *
    * @param state
    *   The current aggregation state.
-   *
-   * Since: 1.19.0
+   * @param arg0
+   *   The input value for argument 1.
+   * @param arg1
+   *   The input value for argument 2.
+   * @param arg2
+   *   The input value for argument 3.
+   * @param arg3
+   *   The input value for argument 4.
+   * @param arg4
+   *   The input value for argument 5.
+   * @return
+   *   The updated aggregation state.
+   * @since 1.19.0
    */
   def accumulate(state: S, arg0: A0, arg1: A1, arg2: A2, arg3: A3, arg4: A4): S
 
@@ -455,8 +428,7 @@ abstract class UDAF5[S, O, A0, A1, A2, A3, A4](implicit
    *   The second aggregation state.
    * @return
    *   The merged aggregation state.
-   *
-   * Since: 1.19.0
+   * @since 1.19.0
    */
   def merge(state1: S, state2: S): S
 
@@ -467,8 +439,7 @@ abstract class UDAF5[S, O, A0, A1, A2, A3, A4](implicit
    *   The final aggregation state.
    * @return
    *   The output value.
-   *
-   * Since: 1.19.0
+   * @since 1.19.0
    */
   def terminate(state: S): O
 
@@ -500,9 +471,9 @@ abstract class UDAF6[S, O, A0, A1, A2, A3, A4, A5](implicit
     extends UDAF {
 
   /**
-   * Returns the initial state of the aggregation.
-   *
-   * Since: 1.19.0
+   * @return
+   *   The initial state of the aggregation.
+   * @since 1.19.0
    */
   def initialize(): S
 
@@ -511,8 +482,21 @@ abstract class UDAF6[S, O, A0, A1, A2, A3, A4, A5](implicit
    *
    * @param state
    *   The current aggregation state.
-   *
-   * Since: 1.19.0
+   * @param arg0
+   *   The input value for argument 1.
+   * @param arg1
+   *   The input value for argument 2.
+   * @param arg2
+   *   The input value for argument 3.
+   * @param arg3
+   *   The input value for argument 4.
+   * @param arg4
+   *   The input value for argument 5.
+   * @param arg5
+   *   The input value for argument 6.
+   * @return
+   *   The updated aggregation state.
+   * @since 1.19.0
    */
   def accumulate(state: S, arg0: A0, arg1: A1, arg2: A2, arg3: A3, arg4: A4, arg5: A5): S
 
@@ -525,8 +509,7 @@ abstract class UDAF6[S, O, A0, A1, A2, A3, A4, A5](implicit
    *   The second aggregation state.
    * @return
    *   The merged aggregation state.
-   *
-   * Since: 1.19.0
+   * @since 1.19.0
    */
   def merge(state1: S, state2: S): S
 
@@ -537,8 +520,7 @@ abstract class UDAF6[S, O, A0, A1, A2, A3, A4, A5](implicit
    *   The final aggregation state.
    * @return
    *   The output value.
-   *
-   * Since: 1.19.0
+   * @since 1.19.0
    */
   def terminate(state: S): O
 
@@ -572,9 +554,9 @@ abstract class UDAF7[S, O, A0, A1, A2, A3, A4, A5, A6](implicit
     extends UDAF {
 
   /**
-   * Returns the initial state of the aggregation.
-   *
-   * Since: 1.19.0
+   * @return
+   *   The initial state of the aggregation.
+   * @since 1.19.0
    */
   def initialize(): S
 
@@ -583,8 +565,23 @@ abstract class UDAF7[S, O, A0, A1, A2, A3, A4, A5, A6](implicit
    *
    * @param state
    *   The current aggregation state.
-   *
-   * Since: 1.19.0
+   * @param arg0
+   *   The input value for argument 1.
+   * @param arg1
+   *   The input value for argument 2.
+   * @param arg2
+   *   The input value for argument 3.
+   * @param arg3
+   *   The input value for argument 4.
+   * @param arg4
+   *   The input value for argument 5.
+   * @param arg5
+   *   The input value for argument 6.
+   * @param arg6
+   *   The input value for argument 7.
+   * @return
+   *   The updated aggregation state.
+   * @since 1.19.0
    */
   def accumulate(state: S, arg0: A0, arg1: A1, arg2: A2, arg3: A3, arg4: A4, arg5: A5, arg6: A6): S
 
@@ -597,8 +594,7 @@ abstract class UDAF7[S, O, A0, A1, A2, A3, A4, A5, A6](implicit
    *   The second aggregation state.
    * @return
    *   The merged aggregation state.
-   *
-   * Since: 1.19.0
+   * @since 1.19.0
    */
   def merge(state1: S, state2: S): S
 
@@ -609,8 +605,7 @@ abstract class UDAF7[S, O, A0, A1, A2, A3, A4, A5, A6](implicit
    *   The final aggregation state.
    * @return
    *   The output value.
-   *
-   * Since: 1.19.0
+   * @since 1.19.0
    */
   def terminate(state: S): O
 
@@ -646,9 +641,9 @@ abstract class UDAF8[S, O, A0, A1, A2, A3, A4, A5, A6, A7](implicit
     extends UDAF {
 
   /**
-   * Returns the initial state of the aggregation.
-   *
-   * Since: 1.19.0
+   * @return
+   *   The initial state of the aggregation.
+   * @since 1.19.0
    */
   def initialize(): S
 
@@ -657,8 +652,25 @@ abstract class UDAF8[S, O, A0, A1, A2, A3, A4, A5, A6, A7](implicit
    *
    * @param state
    *   The current aggregation state.
-   *
-   * Since: 1.19.0
+   * @param arg0
+   *   The input value for argument 1.
+   * @param arg1
+   *   The input value for argument 2.
+   * @param arg2
+   *   The input value for argument 3.
+   * @param arg3
+   *   The input value for argument 4.
+   * @param arg4
+   *   The input value for argument 5.
+   * @param arg5
+   *   The input value for argument 6.
+   * @param arg6
+   *   The input value for argument 7.
+   * @param arg7
+   *   The input value for argument 8.
+   * @return
+   *   The updated aggregation state.
+   * @since 1.19.0
    */
   def accumulate(
       state: S,
@@ -680,8 +692,7 @@ abstract class UDAF8[S, O, A0, A1, A2, A3, A4, A5, A6, A7](implicit
    *   The second aggregation state.
    * @return
    *   The merged aggregation state.
-   *
-   * Since: 1.19.0
+   * @since 1.19.0
    */
   def merge(state1: S, state2: S): S
 
@@ -692,8 +703,7 @@ abstract class UDAF8[S, O, A0, A1, A2, A3, A4, A5, A6, A7](implicit
    *   The final aggregation state.
    * @return
    *   The output value.
-   *
-   * Since: 1.19.0
+   * @since 1.19.0
    */
   def terminate(state: S): O
 
@@ -731,9 +741,9 @@ abstract class UDAF9[S, O, A0, A1, A2, A3, A4, A5, A6, A7, A8](implicit
     extends UDAF {
 
   /**
-   * Returns the initial state of the aggregation.
-   *
-   * Since: 1.19.0
+   * @return
+   *   The initial state of the aggregation.
+   * @since 1.19.0
    */
   def initialize(): S
 
@@ -742,8 +752,25 @@ abstract class UDAF9[S, O, A0, A1, A2, A3, A4, A5, A6, A7, A8](implicit
    *
    * @param state
    *   The current aggregation state.
-   *
-   * Since: 1.19.0
+   * @param arg0
+   *   The input value for argument 1.
+   * @param arg1
+   *   The input value for argument 2.
+   * @param arg2
+   *   The input value for argument 3.
+   * @param arg3
+   *   The input value for argument 4.
+   * @param arg4
+   *   The input value for argument 5.
+   * @param arg5
+   *   The input value for argument 6.
+   * @param arg6
+   *   The input value for argument 7.
+   * @param arg7
+   *   The input value for argument 8.
+   * @return
+   *   The updated aggregation state.
+   * @since 1.19.0
    */
   // scalastyle:off
   def accumulate(
@@ -768,8 +795,7 @@ abstract class UDAF9[S, O, A0, A1, A2, A3, A4, A5, A6, A7, A8](implicit
    *   The second aggregation state.
    * @return
    *   The merged aggregation state.
-   *
-   * Since: 1.19.0
+   * @since 1.19.0
    */
   def merge(state1: S, state2: S): S
 
@@ -780,8 +806,7 @@ abstract class UDAF9[S, O, A0, A1, A2, A3, A4, A5, A6, A7, A8](implicit
    *   The final aggregation state.
    * @return
    *   The output value.
-   *
-   * Since: 1.19.0
+   * @since 1.19.0
    */
   def terminate(state: S): O
 
@@ -821,9 +846,9 @@ abstract class UDAF10[S, O, A0, A1, A2, A3, A4, A5, A6, A7, A8, A9](implicit
     extends UDAF {
 
   /**
-   * Returns the initial state of the aggregation.
-   *
-   * Since: 1.19.0
+   * @return
+   *   The initial state of the aggregation.
+   * @since 1.19.0
    */
   def initialize(): S
 
@@ -832,8 +857,27 @@ abstract class UDAF10[S, O, A0, A1, A2, A3, A4, A5, A6, A7, A8, A9](implicit
    *
    * @param state
    *   The current aggregation state.
-   *
-   * Since: 1.19.0
+   * @param arg0
+   *   The input value for argument 1.
+   * @param arg1
+   *   The input value for argument 2.
+   * @param arg2
+   *   The input value for argument 3.
+   * @param arg3
+   *   The input value for argument 4.
+   * @param arg4
+   *   The input value for argument 5.
+   * @param arg5
+   *   The input value for argument 6.
+   * @param arg6
+   *   The input value for argument 7.
+   * @param arg7
+   *   The input value for argument 8.
+   * @param arg8
+   *   The input value for argument 9.
+   * @return
+   *   The updated aggregation state.
+   * @since 1.19.0
    */
   // scalastyle:off
   def accumulate(
@@ -859,8 +903,7 @@ abstract class UDAF10[S, O, A0, A1, A2, A3, A4, A5, A6, A7, A8, A9](implicit
    *   The second aggregation state.
    * @return
    *   The merged aggregation state.
-   *
-   * Since: 1.19.0
+   * @since 1.19.0
    */
   def merge(state1: S, state2: S): S
 
@@ -871,8 +914,7 @@ abstract class UDAF10[S, O, A0, A1, A2, A3, A4, A5, A6, A7, A8, A9](implicit
    *   The final aggregation state.
    * @return
    *   The output value.
-   *
-   * Since: 1.19.0
+   * @since 1.19.0
    */
   def terminate(state: S): O
 
@@ -914,9 +956,9 @@ abstract class UDAF11[S, O, A0, A1, A2, A3, A4, A5, A6, A7, A8, A9, A10](implici
     extends UDAF {
 
   /**
-   * Returns the initial state of the aggregation.
-   *
-   * Since: 1.19.0
+   * @return
+   *   The initial state of the aggregation.
+   * @since 1.19.0
    */
   def initialize(): S
 
@@ -925,8 +967,29 @@ abstract class UDAF11[S, O, A0, A1, A2, A3, A4, A5, A6, A7, A8, A9, A10](implici
    *
    * @param state
    *   The current aggregation state.
-   *
-   * Since: 1.19.0
+   * @param arg0
+   *   The input value for argument 1.
+   * @param arg1
+   *   The input value for argument 2.
+   * @param arg2
+   *   The input value for argument 3.
+   * @param arg3
+   *   The input value for argument 4.
+   * @param arg4
+   *   The input value for argument 5.
+   * @param arg5
+   *   The input value for argument 6.
+   * @param arg6
+   *   The input value for argument 7.
+   * @param arg7
+   *   The input value for argument 8.
+   * @param arg8
+   *   The input value for argument 9.
+   * @param arg9
+   *   The input value for argument 10.
+   * @return
+   *   The updated aggregation state.
+   * @since 1.19.0
    */
   // scalastyle:off
   def accumulate(
@@ -953,8 +1016,7 @@ abstract class UDAF11[S, O, A0, A1, A2, A3, A4, A5, A6, A7, A8, A9, A10](implici
    *   The second aggregation state.
    * @return
    *   The merged aggregation state.
-   *
-   * Since: 1.19.0
+   * @since 1.19.0
    */
   def merge(state1: S, state2: S): S
 
@@ -965,8 +1027,7 @@ abstract class UDAF11[S, O, A0, A1, A2, A3, A4, A5, A6, A7, A8, A9, A10](implici
    *   The final aggregation state.
    * @return
    *   The output value.
-   *
-   * Since: 1.19.0
+   * @since 1.19.0
    */
   def terminate(state: S): O
 
@@ -1010,9 +1071,9 @@ abstract class UDAF12[S, O, A0, A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11](im
     extends UDAF {
 
   /**
-   * Returns the initial state of the aggregation.
-   *
-   * Since: 1.19.0
+   * @return
+   *   The initial state of the aggregation.
+   * @since 1.19.0
    */
   def initialize(): S
 
@@ -1021,8 +1082,31 @@ abstract class UDAF12[S, O, A0, A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11](im
    *
    * @param state
    *   The current aggregation state.
-   *
-   * Since: 1.19.0
+   * @param arg0
+   *   The input value for argument 1.
+   * @param arg1
+   *   The input value for argument 2.
+   * @param arg2
+   *   The input value for argument 3.
+   * @param arg3
+   *   The input value for argument 4.
+   * @param arg4
+   *   The input value for argument 5.
+   * @param arg5
+   *   The input value for argument 6.
+   * @param arg6
+   *   The input value for argument 7.
+   * @param arg7
+   *   The input value for argument 8.
+   * @param arg8
+   *   The input value for argument 9.
+   * @param arg9
+   *   The input value for argument 10.
+   * @param arg10
+   *   The input value for argument 11.
+   * @return
+   *   The updated aggregation state.
+   * @since 1.19.0
    */
   // scalastyle:off
   def accumulate(
@@ -1050,8 +1134,7 @@ abstract class UDAF12[S, O, A0, A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11](im
    *   The second aggregation state.
    * @return
    *   The merged aggregation state.
-   *
-   * Since: 1.19.0
+   * @since 1.19.0
    */
   def merge(state1: S, state2: S): S
 
@@ -1062,8 +1145,7 @@ abstract class UDAF12[S, O, A0, A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11](im
    *   The final aggregation state.
    * @return
    *   The output value.
-   *
-   * Since: 1.19.0
+   * @since 1.19.0
    */
   def terminate(state: S): O
 
@@ -1109,9 +1191,9 @@ abstract class UDAF13[S, O, A0, A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A1
     extends UDAF {
 
   /**
-   * Returns the initial state of the aggregation.
-   *
-   * Since: 1.19.0
+   * @return
+   *   The initial state of the aggregation.
+   * @since 1.19.0
    */
   def initialize(): S
 
@@ -1120,8 +1202,33 @@ abstract class UDAF13[S, O, A0, A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A1
    *
    * @param state
    *   The current aggregation state.
-   *
-   * Since: 1.19.0
+   * @param arg0
+   *   The input value for argument 1.
+   * @param arg1
+   *   The input value for argument 2.
+   * @param arg2
+   *   The input value for argument 3.
+   * @param arg3
+   *   The input value for argument 4.
+   * @param arg4
+   *   The input value for argument 5.
+   * @param arg5
+   *   The input value for argument 6.
+   * @param arg6
+   *   The input value for argument 7.
+   * @param arg7
+   *   The input value for argument 8.
+   * @param arg8
+   *   The input value for argument 9.
+   * @param arg9
+   *   The input value for argument 10.
+   * @param arg10
+   *   The input value for argument 11.
+   * @param arg11
+   *   The input value for argument 12.
+   * @return
+   *   The updated aggregation state.
+   * @since 1.19.0
    */
   // scalastyle:off
   def accumulate(
@@ -1150,8 +1257,7 @@ abstract class UDAF13[S, O, A0, A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A1
    *   The second aggregation state.
    * @return
    *   The merged aggregation state.
-   *
-   * Since: 1.19.0
+   * @since 1.19.0
    */
   def merge(state1: S, state2: S): S
 
@@ -1162,8 +1268,7 @@ abstract class UDAF13[S, O, A0, A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A1
    *   The final aggregation state.
    * @return
    *   The output value.
-   *
-   * Since: 1.19.0
+   * @since 1.19.0
    */
   def terminate(state: S): O
 
@@ -1211,9 +1316,9 @@ abstract class UDAF14[S, O, A0, A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A1
     extends UDAF {
 
   /**
-   * Returns the initial state of the aggregation.
-   *
-   * Since: 1.19.0
+   * @return
+   *   The initial state of the aggregation.
+   * @since 1.19.0
    */
   def initialize(): S
 
@@ -1222,8 +1327,35 @@ abstract class UDAF14[S, O, A0, A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A1
    *
    * @param state
    *   The current aggregation state.
-   *
-   * Since: 1.19.0
+   * @param arg0
+   *   The input value for argument 1.
+   * @param arg1
+   *   The input value for argument 2.
+   * @param arg2
+   *   The input value for argument 3.
+   * @param arg3
+   *   The input value for argument 4.
+   * @param arg4
+   *   The input value for argument 5.
+   * @param arg5
+   *   The input value for argument 6.
+   * @param arg6
+   *   The input value for argument 7.
+   * @param arg7
+   *   The input value for argument 8.
+   * @param arg8
+   *   The input value for argument 9.
+   * @param arg9
+   *   The input value for argument 10.
+   * @param arg10
+   *   The input value for argument 11.
+   * @param arg11
+   *   The input value for argument 12.
+   * @param arg12
+   *   The input value for argument 13.
+   * @return
+   *   The updated aggregation state.
+   * @since 1.19.0
    */
   // scalastyle:off
   def accumulate(
@@ -1253,8 +1385,7 @@ abstract class UDAF14[S, O, A0, A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A1
    *   The second aggregation state.
    * @return
    *   The merged aggregation state.
-   *
-   * Since: 1.19.0
+   * @since 1.19.0
    */
   def merge(state1: S, state2: S): S
 
@@ -1265,8 +1396,7 @@ abstract class UDAF14[S, O, A0, A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A1
    *   The final aggregation state.
    * @return
    *   The output value.
-   *
-   * Since: 1.19.0
+   * @since 1.19.0
    */
   def terminate(state: S): O
 
@@ -1317,9 +1447,9 @@ abstract class UDAF15[S, O, A0, A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A1
     extends UDAF {
 
   /**
-   * Returns the initial state of the aggregation.
-   *
-   * Since: 1.19.0
+   * @return
+   *   The initial state of the aggregation.
+   * @since 1.19.0
    */
   def initialize(): S
 
@@ -1328,8 +1458,37 @@ abstract class UDAF15[S, O, A0, A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A1
    *
    * @param state
    *   The current aggregation state.
-   *
-   * Since: 1.19.0
+   * @param arg0
+   *   The input value for argument 1.
+   * @param arg1
+   *   The input value for argument 2.
+   * @param arg2
+   *   The input value for argument 3.
+   * @param arg3
+   *   The input value for argument 4.
+   * @param arg4
+   *   The input value for argument 5.
+   * @param arg5
+   *   The input value for argument 6.
+   * @param arg6
+   *   The input value for argument 7.
+   * @param arg7
+   *   The input value for argument 8.
+   * @param arg8
+   *   The input value for argument 9.
+   * @param arg9
+   *   The input value for argument 10.
+   * @param arg10
+   *   The input value for argument 11.
+   * @param arg11
+   *   The input value for argument 12.
+   * @param arg12
+   *   The input value for argument 13.
+   * @param arg13
+   *   The input value for argument 14.
+   * @return
+   *   The updated aggregation state.
+   * @since 1.19.0
    */
   // scalastyle:off
   def accumulate(
@@ -1360,8 +1519,7 @@ abstract class UDAF15[S, O, A0, A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A1
    *   The second aggregation state.
    * @return
    *   The merged aggregation state.
-   *
-   * Since: 1.19.0
+   * @since 1.19.0
    */
   def merge(state1: S, state2: S): S
 
@@ -1372,8 +1530,7 @@ abstract class UDAF15[S, O, A0, A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A1
    *   The final aggregation state.
    * @return
    *   The output value.
-   *
-   * Since: 1.19.0
+   * @since 1.19.0
    */
   def terminate(state: S): O
 
@@ -1426,9 +1583,9 @@ abstract class UDAF16[S, O, A0, A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A1
     extends UDAF {
 
   /**
-   * Returns the initial state of the aggregation.
-   *
-   * Since: 1.19.0
+   * @return
+   *   The initial state of the aggregation.
+   * @since 1.19.0
    */
   def initialize(): S
 
@@ -1437,8 +1594,39 @@ abstract class UDAF16[S, O, A0, A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A1
    *
    * @param state
    *   The current aggregation state.
-   *
-   * Since: 1.19.0
+   * @param arg0
+   *   The input value for argument 1.
+   * @param arg1
+   *   The input value for argument 2.
+   * @param arg2
+   *   The input value for argument 3.
+   * @param arg3
+   *   The input value for argument 4.
+   * @param arg4
+   *   The input value for argument 5.
+   * @param arg5
+   *   The input value for argument 6.
+   * @param arg6
+   *   The input value for argument 7.
+   * @param arg7
+   *   The input value for argument 8.
+   * @param arg8
+   *   The input value for argument 9.
+   * @param arg9
+   *   The input value for argument 10.
+   * @param arg10
+   *   The input value for argument 11.
+   * @param arg11
+   *   The input value for argument 12.
+   * @param arg12
+   *   The input value for argument 13.
+   * @param arg13
+   *   The input value for argument 14.
+   * @param arg14
+   *   The input value for argument 15.
+   * @return
+   *   The updated aggregation state.
+   * @since 1.19.0
    */
   // scalastyle:off
   def accumulate(
@@ -1470,8 +1658,7 @@ abstract class UDAF16[S, O, A0, A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A1
    *   The second aggregation state.
    * @return
    *   The merged aggregation state.
-   *
-   * Since: 1.19.0
+   * @since 1.19.0
    */
   def merge(state1: S, state2: S): S
 
@@ -1482,8 +1669,7 @@ abstract class UDAF16[S, O, A0, A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A1
    *   The final aggregation state.
    * @return
    *   The output value.
-   *
-   * Since: 1.19.0
+   * @since 1.19.0
    */
   def terminate(state: S): O
 
@@ -1556,9 +1742,9 @@ abstract class UDAF17[
     extends UDAF {
 
   /**
-   * Returns the initial state of the aggregation.
-   *
-   * Since: 1.19.0
+   * @return
+   *   The initial state of the aggregation.
+   * @since 1.19.0
    */
   def initialize(): S
 
@@ -1567,8 +1753,41 @@ abstract class UDAF17[
    *
    * @param state
    *   The current aggregation state.
-   *
-   * Since: 1.19.0
+   * @param arg0
+   *   The input value for argument 1.
+   * @param arg1
+   *   The input value for argument 2.
+   * @param arg2
+   *   The input value for argument 3.
+   * @param arg3
+   *   The input value for argument 4.
+   * @param arg4
+   *   The input value for argument 5.
+   * @param arg5
+   *   The input value for argument 6.
+   * @param arg6
+   *   The input value for argument 7.
+   * @param arg7
+   *   The input value for argument 8.
+   * @param arg8
+   *   The input value for argument 9.
+   * @param arg9
+   *   The input value for argument 10.
+   * @param arg10
+   *   The input value for argument 11.
+   * @param arg11
+   *   The input value for argument 12.
+   * @param arg12
+   *   The input value for argument 13.
+   * @param arg13
+   *   The input value for argument 14.
+   * @param arg14
+   *   The input value for argument 15.
+   * @param arg15
+   *   The input value for argument 16.
+   * @return
+   *   The updated aggregation state.
+   * @since 1.19.0
    */
   // scalastyle:off
   def accumulate(
@@ -1601,8 +1820,7 @@ abstract class UDAF17[
    *   The second aggregation state.
    * @return
    *   The merged aggregation state.
-   *
-   * Since: 1.19.0
+   * @since 1.19.0
    */
   def merge(state1: S, state2: S): S
 
@@ -1613,8 +1831,7 @@ abstract class UDAF17[
    *   The final aggregation state.
    * @return
    *   The output value.
-   *
-   * Since: 1.19.0
+   * @since 1.19.0
    */
   def terminate(state: S): O
 
@@ -1690,9 +1907,9 @@ abstract class UDAF18[
     extends UDAF {
 
   /**
-   * Returns the initial state of the aggregation.
-   *
-   * Since: 1.19.0
+   * @return
+   *   The initial state of the aggregation.
+   * @since 1.19.0
    */
   def initialize(): S
 
@@ -1701,8 +1918,43 @@ abstract class UDAF18[
    *
    * @param state
    *   The current aggregation state.
-   *
-   * Since: 1.19.0
+   * @param arg0
+   *   The input value for argument 1.
+   * @param arg1
+   *   The input value for argument 2.
+   * @param arg2
+   *   The input value for argument 3.
+   * @param arg3
+   *   The input value for argument 4.
+   * @param arg4
+   *   The input value for argument 5.
+   * @param arg5
+   *   The input value for argument 6.
+   * @param arg6
+   *   The input value for argument 7.
+   * @param arg7
+   *   The input value for argument 8.
+   * @param arg8
+   *   The input value for argument 9.
+   * @param arg9
+   *   The input value for argument 10.
+   * @param arg10
+   *   The input value for argument 11.
+   * @param arg11
+   *   The input value for argument 12.
+   * @param arg12
+   *   The input value for argument 13.
+   * @param arg13
+   *   The input value for argument 14.
+   * @param arg14
+   *   The input value for argument 15.
+   * @param arg15
+   *   The input value for argument 16.
+   * @param arg16
+   *   The input value for argument 17.
+   * @return
+   *   The updated aggregation state.
+   * @since 1.19.0
    */
   // scalastyle:off
   def accumulate(
@@ -1736,8 +1988,7 @@ abstract class UDAF18[
    *   The second aggregation state.
    * @return
    *   The merged aggregation state.
-   *
-   * Since: 1.19.0
+   * @since 1.19.0
    */
   def merge(state1: S, state2: S): S
 
@@ -1748,8 +1999,7 @@ abstract class UDAF18[
    *   The final aggregation state.
    * @return
    *   The output value.
-   *
-   * Since: 1.19.0
+   * @since 1.19.0
    */
   def terminate(state: S): O
 
@@ -1828,9 +2078,9 @@ abstract class UDAF19[
     extends UDAF {
 
   /**
-   * Returns the initial state of the aggregation.
-   *
-   * Since: 1.19.0
+   * @return
+   *   The initial state of the aggregation.
+   * @since 1.19.0
    */
   def initialize(): S
 
@@ -1839,8 +2089,45 @@ abstract class UDAF19[
    *
    * @param state
    *   The current aggregation state.
-   *
-   * Since: 1.19.0
+   * @param arg0
+   *   The input value for argument 1.
+   * @param arg1
+   *   The input value for argument 2.
+   * @param arg2
+   *   The input value for argument 3.
+   * @param arg3
+   *   The input value for argument 4.
+   * @param arg4
+   *   The input value for argument 5.
+   * @param arg5
+   *   The input value for argument 6.
+   * @param arg6
+   *   The input value for argument 7.
+   * @param arg7
+   *   The input value for argument 8.
+   * @param arg8
+   *   The input value for argument 9.
+   * @param arg9
+   *   The input value for argument 10.
+   * @param arg10
+   *   The input value for argument 11.
+   * @param arg11
+   *   The input value for argument 12.
+   * @param arg12
+   *   The input value for argument 13.
+   * @param arg13
+   *   The input value for argument 14.
+   * @param arg14
+   *   The input value for argument 15.
+   * @param arg15
+   *   The input value for argument 16.
+   * @param arg16
+   *   The input value for argument 17.
+   * @param arg17
+   *   The input value for argument 18.
+   * @return
+   *   The updated aggregation state.
+   * @since 1.19.0
    */
   // scalastyle:off
   def accumulate(
@@ -1875,8 +2162,7 @@ abstract class UDAF19[
    *   The second aggregation state.
    * @return
    *   The merged aggregation state.
-   *
-   * Since: 1.19.0
+   * @since 1.19.0
    */
   def merge(state1: S, state2: S): S
 
@@ -1887,8 +2173,7 @@ abstract class UDAF19[
    *   The final aggregation state.
    * @return
    *   The output value.
-   *
-   * Since: 1.19.0
+   * @since 1.19.0
    */
   def terminate(state: S): O
 
@@ -1970,9 +2255,9 @@ abstract class UDAF20[
     extends UDAF {
 
   /**
-   * Returns the initial state of the aggregation.
-   *
-   * Since: 1.19.0
+   * @return
+   *   The initial state of the aggregation.
+   * @since 1.19.0
    */
   def initialize(): S
 
@@ -1981,8 +2266,47 @@ abstract class UDAF20[
    *
    * @param state
    *   The current aggregation state.
-   *
-   * Since: 1.19.0
+   * @param arg0
+   *   The input value for argument 1.
+   * @param arg1
+   *   The input value for argument 2.
+   * @param arg2
+   *   The input value for argument 3.
+   * @param arg3
+   *   The input value for argument 4.
+   * @param arg4
+   *   The input value for argument 5.
+   * @param arg5
+   *   The input value for argument 6.
+   * @param arg6
+   *   The input value for argument 7.
+   * @param arg7
+   *   The input value for argument 8.
+   * @param arg8
+   *   The input value for argument 9.
+   * @param arg9
+   *   The input value for argument 10.
+   * @param arg10
+   *   The input value for argument 11.
+   * @param arg11
+   *   The input value for argument 12.
+   * @param arg12
+   *   The input value for argument 13.
+   * @param arg13
+   *   The input value for argument 14.
+   * @param arg14
+   *   The input value for argument 15.
+   * @param arg15
+   *   The input value for argument 16.
+   * @param arg16
+   *   The input value for argument 17.
+   * @param arg17
+   *   The input value for argument 18.
+   * @param arg18
+   *   The input value for argument 19.
+   * @return
+   *   The updated aggregation state.
+   * @since 1.19.0
    */
   // scalastyle:off
   def accumulate(
@@ -2018,8 +2342,7 @@ abstract class UDAF20[
    *   The second aggregation state.
    * @return
    *   The merged aggregation state.
-   *
-   * Since: 1.19.0
+   * @since 1.19.0
    */
   def merge(state1: S, state2: S): S
 
@@ -2030,8 +2353,7 @@ abstract class UDAF20[
    *   The final aggregation state.
    * @return
    *   The output value.
-   *
-   * Since: 1.19.0
+   * @since 1.19.0
    */
   def terminate(state: S): O
 
@@ -2116,9 +2438,9 @@ abstract class UDAF21[
     extends UDAF {
 
   /**
-   * Returns the initial state of the aggregation.
-   *
-   * Since: 1.19.0
+   * @return
+   *   The initial state of the aggregation.
+   * @since 1.19.0
    */
   def initialize(): S
 
@@ -2127,8 +2449,49 @@ abstract class UDAF21[
    *
    * @param state
    *   The current aggregation state.
-   *
-   * Since: 1.19.0
+   * @param arg0
+   *   The input value for argument 1.
+   * @param arg1
+   *   The input value for argument 2.
+   * @param arg2
+   *   The input value for argument 3.
+   * @param arg3
+   *   The input value for argument 4.
+   * @param arg4
+   *   The input value for argument 5.
+   * @param arg5
+   *   The input value for argument 6.
+   * @param arg6
+   *   The input value for argument 7.
+   * @param arg7
+   *   The input value for argument 8.
+   * @param arg8
+   *   The input value for argument 9.
+   * @param arg9
+   *   The input value for argument 10.
+   * @param arg10
+   *   The input value for argument 11.
+   * @param arg11
+   *   The input value for argument 12.
+   * @param arg12
+   *   The input value for argument 13.
+   * @param arg13
+   *   The input value for argument 14.
+   * @param arg14
+   *   The input value for argument 15.
+   * @param arg15
+   *   The input value for argument 16.
+   * @param arg16
+   *   The input value for argument 17.
+   * @param arg17
+   *   The input value for argument 18.
+   * @param arg18
+   *   The input value for argument 19.
+   * @param arg19
+   *   The input value for argument 20.
+   * @return
+   *   The updated aggregation state.
+   * @since 1.19.0
    */
   // scalastyle:off
   def accumulate(
@@ -2165,8 +2528,7 @@ abstract class UDAF21[
    *   The second aggregation state.
    * @return
    *   The merged aggregation state.
-   *
-   * Since: 1.19.0
+   * @since 1.19.0
    */
   def merge(state1: S, state2: S): S
 
@@ -2177,8 +2539,7 @@ abstract class UDAF21[
    *   The final aggregation state.
    * @return
    *   The output value.
-   *
-   * Since: 1.19.0
+   * @since 1.19.0
    */
   def terminate(state: S): O
 
@@ -2266,9 +2627,9 @@ abstract class UDAF22[
     extends UDAF {
 
   /**
-   * Returns the initial state of the aggregation.
-   *
-   * Since: 1.19.0
+   * @return
+   *   The initial state of the aggregation.
+   * @since 1.19.0
    */
   def initialize(): S
 
@@ -2277,8 +2638,51 @@ abstract class UDAF22[
    *
    * @param state
    *   The current aggregation state.
-   *
-   * Since: 1.19.0
+   * @param arg0
+   *   The input value for argument 1.
+   * @param arg1
+   *   The input value for argument 2.
+   * @param arg2
+   *   The input value for argument 3.
+   * @param arg3
+   *   The input value for argument 4.
+   * @param arg4
+   *   The input value for argument 5.
+   * @param arg5
+   *   The input value for argument 6.
+   * @param arg6
+   *   The input value for argument 7.
+   * @param arg7
+   *   The input value for argument 8.
+   * @param arg8
+   *   The input value for argument 9.
+   * @param arg9
+   *   The input value for argument 10.
+   * @param arg10
+   *   The input value for argument 11.
+   * @param arg11
+   *   The input value for argument 12.
+   * @param arg12
+   *   The input value for argument 13.
+   * @param arg13
+   *   The input value for argument 14.
+   * @param arg14
+   *   The input value for argument 15.
+   * @param arg15
+   *   The input value for argument 16.
+   * @param arg16
+   *   The input value for argument 17.
+   * @param arg17
+   *   The input value for argument 18.
+   * @param arg18
+   *   The input value for argument 19.
+   * @param arg19
+   *   The input value for argument 20.
+   * @param arg20
+   *   The input value for argument 21.
+   * @return
+   *   The updated aggregation state.
+   * @since 1.19.0
    */
   // scalastyle:off
   def accumulate(
@@ -2316,8 +2720,7 @@ abstract class UDAF22[
    *   The second aggregation state.
    * @return
    *   The merged aggregation state.
-   *
-   * Since: 1.19.0
+   * @since 1.19.0
    */
   def merge(state1: S, state2: S): S
 
@@ -2328,8 +2731,7 @@ abstract class UDAF22[
    *   The final aggregation state.
    * @return
    *   The output value.
-   *
-   * Since: 1.19.0
+   * @since 1.19.0
    */
   def terminate(state: S): O
 

@@ -3,7 +3,7 @@ package com.snowflake.snowpark.internal
 import com.snowflake.snowpark.{Session, StoredProcedure, UserDefinedFunction}
 import com.snowflake.snowpark.types._
 import com.snowflake.snowpark.udtf._
-import com.snowflake.snowpark.{udaf => udaf}
+import com.snowflake.snowpark.udaf
 import com.snowflake.snowpark_java.udf._
 import com.snowflake.snowpark_java.udtf._
 import com.snowflake.snowpark_java.udaf._
@@ -2601,7 +2601,6 @@ object ScalaFunctions {
 
   private[snowpark] def getJavaUDAFClassName(javaUdaf: JavaUDAF): String = {
     javaUdaf match {
-      case _: JavaUDAF0[_, _] => "com.snowflake.snowpark_java.udaf.JavaUDAF0"
       case _: JavaUDAF1[_, _, _] => "com.snowflake.snowpark_java.udaf.JavaUDAF1"
       case _: JavaUDAF2[_, _, _, _] => "com.snowflake.snowpark_java.udaf.JavaUDAF2"
       case _: JavaUDAF3[_, _, _, _, _] => "com.snowflake.snowpark_java.udaf.JavaUDAF3"
@@ -2651,7 +2650,6 @@ object ScalaFunctions {
 
   private[snowpark] def getScalaUDAFClassName(scalaUdaf: udaf.UDAF): String = {
     scalaUdaf match {
-      case _: udaf.UDAF0[_, _] => "com.snowflake.snowpark.udaf.UDAF0"
       case _: udaf.UDAF1[_, _, _] => "com.snowflake.snowpark.udaf.UDAF1"
       case _: udaf.UDAF2[_, _, _, _] => "com.snowflake.snowpark.udaf.UDAF2"
       case _: udaf.UDAF3[_, _, _, _, _] => "com.snowflake.snowpark.udaf.UDAF3"
@@ -2702,7 +2700,6 @@ object ScalaFunctions {
 
   private[snowpark] def getJavaUDAFInputColumns(javaUdaf: JavaUDAF): Array[UdfColumn] = {
     javaUdaf match {
-      case _: JavaUDAF0[_, _] => getUDAFColumns(javaUdaf, 0)
       case _: JavaUDAF1[_, _, _] => getUDAFColumns(javaUdaf, 1)
       case _: JavaUDAF2[_, _, _, _] => getUDAFColumns(javaUdaf, 2)
       case _: JavaUDAF3[_, _, _, _, _] => getUDAFColumns(javaUdaf, 3)
@@ -2742,7 +2739,7 @@ object ScalaFunctions {
   }
 
   private def getUDAFColumns(udaf: JavaUDAF, argCount: Int): Array[UdfColumn] = {
-    val argNames = (1 to argCount).map(i => s"arg$$$i")
+    val argNames = (1 to argCount).map(i => s"arg$i")
     getAccumulateMethod(udaf, argCount).getParameters
       .drop(1)
       .map(_.getType)
@@ -2751,6 +2748,10 @@ object ScalaFunctions {
       .map(entry => UdfColumn(UdfColumnSchema(entry._1), entry._2))
   }
 
+  // For JavaUDAF, use reflection to load the accumulate() function.
+  // Because JavaUDAFx is a generic interface, there may be 2 accumulate() methods:
+  // One with all parameters as Object (bridge method), the other with real parameter types.
+  // This function loads the accumulate() with real parameter types.
   private def getAccumulateMethod(udaf: JavaUDAF, argCount: Int): Method = {
     val funcName = "accumulate"
     val expectedCount = argCount + 1
@@ -2760,9 +2761,15 @@ object ScalaFunctions {
           .map(_.getCanonicalName)
           .exists(!_.equals("java.lang.Object"))))
     if (methods.length != 1) {
+      // When a class implements a generic interface (e.g., JavaUDAF1<State, Input>),
+      // the Java compiler generates a "bridge method" with Object parameters to maintain
+      // binary compatibility. For example, both methods exist:
+      //   - accumulate(MyState, String)  <- real method we want
+      //   - accumulate(Object, Object)   <- bridge method (synthetic)
+      // Filter out bridge methods to find the real implementation.
       val nonBridge = methods.filter(!_.isBridge)
       if (nonBridge.length == 1) nonBridge.head
-      else throw ErrorMessage.UDF_CANNOT_INFER_MULTIPLE_PROCESS(argCount)
+      else throw ErrorMessage.UDAF_CANNOT_INFER_MULTIPLE_ACCUMULATE(argCount)
     } else {
       methods.head
     }

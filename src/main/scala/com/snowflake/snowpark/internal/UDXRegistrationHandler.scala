@@ -44,7 +44,7 @@ class UDXRegistrationHandler(session: Session) extends Logging {
 
   private val jarBuilder = new FatJarBuilder()
 
-  private val javaUdtfDefaultStructType =
+  private val javaDefaultInputSchema =
     com.snowflake.snowpark_java.types.StructType.create()
 
   private[snowpark] def addSnowparkJarToDeps(): Unit = {
@@ -216,7 +216,7 @@ class UDXRegistrationHandler(session: Session) extends Logging {
     val udfName = getAndValidateFunctionName(name)
     val returnColumns = getUDFColumns(javaUdtf.outputSchema())
     val inputColumns: Seq[UdfColumn] =
-      if (javaUdtfDefaultStructType.equals(javaUdtf.inputSchema())) {
+      if (javaDefaultInputSchema.equals(javaUdtf.inputSchema())) {
         // Infer the input schema if user doesn't specify one,
         ScalaFunctions.getJavaUTFInputColumns(javaUdtf)
       } else {
@@ -245,10 +245,11 @@ class UDXRegistrationHandler(session: Session) extends Logging {
   }
 
   // Internal function to register JavaUDAF.
+  // If stageLocation is None, this UDAF will be a temporary UDAF.
   private[snowpark] def registerJavaUDAF(
       name: Option[String],
       javaUdaf: JavaUDAF,
-      stageLocation: Option[String] = None): UserDefinedFunction = {
+      stageLocation: Option[String] = None): AggregateFunction = {
     ScalaFunctions.checkSupportedJavaUdaf(javaUdaf)
     val udfName = getAndValidateFunctionName(name)
     // UDAF return is nullable
@@ -258,10 +259,10 @@ class UDXRegistrationHandler(session: Session) extends Logging {
         isOption = false)
 
     val inputColumns: Seq[UdfColumn] =
-      if (javaUdtfDefaultStructType.equals(javaUdaf.inputSchema())) {
+      if (javaDefaultInputSchema.equals(javaUdaf.inputSchema())) {
         ScalaFunctions.getJavaUDAFInputColumns(javaUdaf)
       } else {
-        getUDFColumns(javaUdaf.inputSchema())
+        getUDAFColumns(javaUdaf.inputSchema())
       }
     val (code, funcBytesMap) = generateJavaUDAFCode(javaUdaf, returnType, inputColumns)
     val needCleanupFiles = Utils.createConcurrentSet[String]()
@@ -279,14 +280,15 @@ class UDXRegistrationHandler(session: Session) extends Logging {
           targetJarStageLocation)
       }
     }
-    UserDefinedFunction(javaUdaf, returnType, inputColumns.map(_.schema), Some(udfName))
+    AggregateFunction(javaUdaf, returnType, inputColumns.map(_.schema), Some(udfName))
   }
 
   // Internal function to register Scala UDAF.
+  // If stageLocation is None, this UDAF will be a temporary UDAF.
   private[snowpark] def registerScalaUDAF(
       name: Option[String],
       scalaUdaf: ScalaUdaf.UDAF,
-      stageLocation: Option[String] = None): UserDefinedFunction = {
+      stageLocation: Option[String] = None): AggregateFunction = {
     ScalaFunctions.checkSupportedScalaUdaf(scalaUdaf)
     val udfName = getAndValidateFunctionName(name)
     val returnType = UdfColumnSchema(scalaUdaf.outputType(), isOption = false)
@@ -307,7 +309,7 @@ class UDXRegistrationHandler(session: Session) extends Logging {
           targetJarStageLocation)
       }
     }
-    UserDefinedFunction(scalaUdaf, returnType, inputColumns.map(_.schema), Some(udfName))
+    AggregateFunction(scalaUdaf, returnType, inputColumns.map(_.schema), Some(udfName))
   }
 
   private def getUDFColumns(structType: JavaStructType): Seq[UdfColumn] =
@@ -317,6 +319,10 @@ class UDXRegistrationHandler(session: Session) extends Logging {
         UdfColumn(
           UdfColumnSchema(JavaDataTypeUtils.javaTypeToScalaType(field.dataType)),
           field.name))
+
+  // Alias for UDAF context
+  private def getUDAFColumns(structType: JavaStructType): Seq[UdfColumn] =
+    getUDFColumns(structType)
 
   // Clean uploaded jar files if necessary
   private def withUploadFailureCleanup[T](

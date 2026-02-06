@@ -8,7 +8,8 @@ import scala.util.DynamicVariable
 import com.snowflake.snowpark_java.{
   UserDefinedFunction => JavaUDF,
   TableFunction => JavaTableFunction,
-  StoredProcedure => JavaSProc
+  StoredProcedure => JavaSProc,
+  AggregateFunction => JavaAggregateFunction
 }
 
 object OpenTelemetry extends Logging {
@@ -45,6 +46,20 @@ object OpenTelemetry extends Logging {
       execName: String,
       execFilePath: String,
       func: Supplier[JavaSProc]): JavaSProc = {
+    udx(
+      className,
+      funcName,
+      execName,
+      s"${UDXRegistrationHandler.className}.${UDXRegistrationHandler.methodName}",
+      execFilePath)(func.get())
+  }
+
+  def javaUDAF(
+      className: String,
+      funcName: String,
+      execName: String,
+      execFilePath: String,
+      func: Supplier[JavaAggregateFunction]): JavaAggregateFunction = {
     udx(
       className,
       funcName,
