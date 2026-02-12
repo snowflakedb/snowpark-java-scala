@@ -45,7 +45,9 @@ class JavaScalaAPISuite extends AnyFunSuite {
           "column", // Java API has "col", Scala API has both "col" and "column"
           "callBuiltin", // Java API has "callUDF", Scala API has both "callBuiltin" and "callUDF"
           "typedLit", // Scala API only, Java API has lit
-          "builtin"),
+          "builtin",
+          "udaf"
+        ), // Scala API only, Java API uses session.udaf() instead
         class1To2NameMap = Map("chr" -> "char")))
   }
 

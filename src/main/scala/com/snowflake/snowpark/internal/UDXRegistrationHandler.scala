@@ -252,7 +252,7 @@ class UDXRegistrationHandler(session: Session) extends Logging {
       stageLocation: Option[String] = None): AggregateFunction = {
     ScalaFunctions.checkSupportedJavaUdaf(javaUdaf)
     val udfName = getAndValidateFunctionName(name)
-    // UDAF return is nullable
+    // UDAF return type is not wrapped in Option; nullability is handled at the SQL level.
     val returnType =
       UdfColumnSchema(
         JavaDataTypeUtils.javaTypeToScalaType(javaUdaf.outputType()),
@@ -713,9 +713,32 @@ class UDXRegistrationHandler(session: Session) extends Logging {
       if (funcBytes.length < MAX_INLINE_CLOSURE_SIZE_BYTES) {
         (s"byte[] closure = { ${funcBytes.mkString(",")} };", Map.empty[String, Array[Byte]])
       } else {
-        val closureFileName = "Closure" + Random.nextInt().abs + ".bin"
-        (s"""String closure = "$closureFileName";""", Map(closureFileName -> funcBytes))
+        val fileName = "UDAFClosure" + Random.nextInt().abs + ".bin"
+        (s"""byte[] closure = readClosure("$fileName");""", Map(fileName -> funcBytes))
       }
+
+    val readClosureFileToStaticField = if (funcBytesMap.nonEmpty) {
+      s"""
+         |  private static byte[] udafBytes = null;
+         |
+         |  private static byte[] readClosure(String fileName) {
+         |    if (udafBytes == null) {
+         |      try {
+         |        java.io.InputStream is = $udafClassName.class.getResourceAsStream("/" + fileName);
+         |        java.io.ByteArrayOutputStream bos = new java.io.ByteArrayOutputStream();
+         |        byte[] buf = new byte[4096];
+         |        int n;
+         |        while ((n = is.read(buf)) != -1) { bos.write(buf, 0, n); }
+         |        is.close();
+         |        udafBytes = bos.toByteArray();
+         |      } catch (Exception e) { throw new RuntimeException(e); }
+         |    }
+         |    return udafBytes;
+         |  }
+         |""".stripMargin
+    } else {
+      ""
+    }
 
     val udafClassSignature = ScalaFunctions.getJavaUDAFClassName(udaf)
     val argDecls = generateFunctionInputArguments(inputArgs)
@@ -723,31 +746,29 @@ class UDXRegistrationHandler(session: Session) extends Logging {
     val callArgsConverted = arguments.mkString(", ")
 
     val returnJavaType = convertToJavaType(returnValue)
+    val returnArgType = toUDFArgumentType(returnValue.dataType)
     val termCall = s"(($returnJavaType) udaf.terminate(state))"
     val convertedTerm = convertReturnValue(returnValue, termCall)
 
     val code =
       s"""
-         |import com.snowflake.snowpark.internal.JavaUtils;
          |import com.snowflake.snowpark_java.types.Geography;
          |import com.snowflake.snowpark_java.types.Geometry;
          |import com.snowflake.snowpark_java.types.Variant;
          |import com.snowflake.snowpark_java.udaf.*;
          |import java.io.Serializable;
-         |import java.io.ByteArrayInputStream;
-         |import java.io.ObjectInputStream;
          |
          |public class $udafClassName {
+         |  $readClosureFileToStaticField
          |  private $udafClassSignature udaf = null;
          |
          |  public $udafClassName() {
          |    $closureDefinition
          |    try {
-         |      ObjectInputStream ois = new ObjectInputStream(new ByteArrayInputStream(closure));
-         |      udaf = ($udafClassSignature) ois.readObject();
-         |    } catch (Exception e) {
-         |      throw new RuntimeException(e);
-         |    }
+         |      java.io.ObjectInputStream ois = new java.io.ObjectInputStream(new java.io.ByteArrayInputStream(closure));
+         |      this.udaf = ($udafClassSignature) ois.readObject();
+         |      ois.close();
+         |    } catch (Exception e) { throw new RuntimeException(e); }
          |  }
          |
          |  public java.io.Serializable initialize() {
@@ -755,21 +776,18 @@ class UDXRegistrationHandler(session: Session) extends Logging {
          |  }
          |
          |  public java.io.Serializable accumulate(java.io.Serializable state, $argDecls) {
-         |    udaf.accumulate(state, $callArgsConverted);
-         |    return state;
+         |    return (java.io.Serializable) udaf.accumulate(state, $callArgsConverted);
          |  }
          |
          |  public java.io.Serializable merge(java.io.Serializable state1, java.io.Serializable state2) {
-         |    udaf.merge(state1, state2);
-         |    return state1;
+         |    return (java.io.Serializable) udaf.merge(state1, state2);
          |  }
          |
-         |  public ${toUDFArgumentType(
-          returnValue.dataType)} terminate(java.io.Serializable state) {
+         |  public $returnArgType terminate(java.io.Serializable state) {
          |    return $convertedTerm;
          |  }
          |
-         |  public ${toUDFArgumentType(returnValue.dataType)} finish(java.io.Serializable state) {
+         |  public $returnArgType finish(java.io.Serializable state) {
          |    return $convertedTerm;
          |  }
          |}
@@ -808,7 +826,15 @@ class UDXRegistrationHandler(session: Session) extends Logging {
          |
          |  private static byte[] readClosure(String fileName) {
          |    if (udafBytes == null) {
-         |      udafBytes = JavaUtils.readFileAsByteArray(fileName);
+         |      try {
+         |        java.io.InputStream is = $udafClassName.class.getResourceAsStream("/" + fileName);
+         |        java.io.ByteArrayOutputStream bos = new java.io.ByteArrayOutputStream();
+         |        byte[] buf = new byte[4096];
+         |        int n;
+         |        while ((n = is.read(buf)) != -1) { bos.write(buf, 0, n); }
+         |        is.close();
+         |        udafBytes = bos.toByteArray();
+         |      } catch (Exception e) { throw new RuntimeException(e); }
          |    }
          |    return udafBytes;
          |  }
@@ -823,12 +849,12 @@ class UDXRegistrationHandler(session: Session) extends Logging {
     val callArgsConverted = arguments.mkString(", ")
 
     val returnScalaType = convertToScalaType(returnValue)
+    val returnArgType = toUDFArgumentType(returnValue.dataType)
     val termCall = s"(($returnScalaType) udaf.terminate(state))"
     val convertedTerm = convertScalaReturnValue(returnValue, termCall)
 
     val code =
       s"""
-         |import com.snowflake.snowpark.internal.JavaUtils;
          |import com.snowflake.snowpark.types.Geography;
          |import com.snowflake.snowpark.types.Geometry;
          |import com.snowflake.snowpark.types.Variant;
@@ -842,7 +868,11 @@ class UDXRegistrationHandler(session: Session) extends Logging {
          |
          |  public $udafClassName() {
          |    $closureDefinition
-         |    this.udaf = ($udafClassSignature) JavaUtils.deserialize(closure);
+         |    try {
+         |      java.io.ObjectInputStream ois = new java.io.ObjectInputStream(new java.io.ByteArrayInputStream(closure));
+         |      this.udaf = ($udafClassSignature) ois.readObject();
+         |      ois.close();
+         |    } catch (Exception e) { throw new RuntimeException(e); }
          |  }
          |
          |  public java.io.Serializable initialize() {
@@ -857,12 +887,11 @@ class UDXRegistrationHandler(session: Session) extends Logging {
          |    return (java.io.Serializable) udaf.merge(state1, state2);
          |  }
          |
-         |  public ${toUDFArgumentType(
-          returnValue.dataType)} terminate(java.io.Serializable state) {
+         |  public $returnArgType terminate(java.io.Serializable state) {
          |    return $convertedTerm;
          |  }
          |
-         |  public ${toUDFArgumentType(returnValue.dataType)} finish(java.io.Serializable state) {
+         |  public $returnArgType finish(java.io.Serializable state) {
          |    return $convertedTerm;
          |  }
          |}

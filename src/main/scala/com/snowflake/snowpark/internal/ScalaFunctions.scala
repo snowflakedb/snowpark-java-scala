@@ -3,7 +3,7 @@ package com.snowflake.snowpark.internal
 import com.snowflake.snowpark.{Session, StoredProcedure, UserDefinedFunction}
 import com.snowflake.snowpark.types._
 import com.snowflake.snowpark.udtf._
-import com.snowflake.snowpark.udaf
+import com.snowflake.snowpark.udaf._
 import com.snowflake.snowpark_java.udf._
 import com.snowflake.snowpark_java.udtf._
 import com.snowflake.snowpark_java.udaf._
@@ -2644,46 +2644,46 @@ object ScalaFunctions {
     }
   }
 
-  private[snowpark] def checkSupportedScalaUdaf(scalaUdaf: udaf.UDAF): Unit = {
+  private[snowpark] def checkSupportedScalaUdaf(scalaUdaf: UDAF): Unit = {
     getScalaUDAFClassName(scalaUdaf)
   }
 
-  private[snowpark] def getScalaUDAFClassName(scalaUdaf: udaf.UDAF): String = {
+  private[snowpark] def getScalaUDAFClassName(scalaUdaf: UDAF): String = {
     scalaUdaf match {
-      case _: udaf.UDAF1[_, _, _] => "com.snowflake.snowpark.udaf.UDAF1"
-      case _: udaf.UDAF2[_, _, _, _] => "com.snowflake.snowpark.udaf.UDAF2"
-      case _: udaf.UDAF3[_, _, _, _, _] => "com.snowflake.snowpark.udaf.UDAF3"
-      case _: udaf.UDAF4[_, _, _, _, _, _] => "com.snowflake.snowpark.udaf.UDAF4"
-      case _: udaf.UDAF5[_, _, _, _, _, _, _] => "com.snowflake.snowpark.udaf.UDAF5"
-      case _: udaf.UDAF6[_, _, _, _, _, _, _, _] => "com.snowflake.snowpark.udaf.UDAF6"
-      case _: udaf.UDAF7[_, _, _, _, _, _, _, _, _] => "com.snowflake.snowpark.udaf.UDAF7"
-      case _: udaf.UDAF8[_, _, _, _, _, _, _, _, _, _] => "com.snowflake.snowpark.udaf.UDAF8"
-      case _: udaf.UDAF9[_, _, _, _, _, _, _, _, _, _, _] => "com.snowflake.snowpark.udaf.UDAF9"
-      case _: udaf.UDAF10[_, _, _, _, _, _, _, _, _, _, _, _] =>
+      case _: UDAF1[_, _, _] => "com.snowflake.snowpark.udaf.UDAF1"
+      case _: UDAF2[_, _, _, _] => "com.snowflake.snowpark.udaf.UDAF2"
+      case _: UDAF3[_, _, _, _, _] => "com.snowflake.snowpark.udaf.UDAF3"
+      case _: UDAF4[_, _, _, _, _, _] => "com.snowflake.snowpark.udaf.UDAF4"
+      case _: UDAF5[_, _, _, _, _, _, _] => "com.snowflake.snowpark.udaf.UDAF5"
+      case _: UDAF6[_, _, _, _, _, _, _, _] => "com.snowflake.snowpark.udaf.UDAF6"
+      case _: UDAF7[_, _, _, _, _, _, _, _, _] => "com.snowflake.snowpark.udaf.UDAF7"
+      case _: UDAF8[_, _, _, _, _, _, _, _, _, _] => "com.snowflake.snowpark.udaf.UDAF8"
+      case _: UDAF9[_, _, _, _, _, _, _, _, _, _, _] => "com.snowflake.snowpark.udaf.UDAF9"
+      case _: UDAF10[_, _, _, _, _, _, _, _, _, _, _, _] =>
         "com.snowflake.snowpark.udaf.UDAF10"
-      case _: udaf.UDAF11[_, _, _, _, _, _, _, _, _, _, _, _, _] =>
+      case _: UDAF11[_, _, _, _, _, _, _, _, _, _, _, _, _] =>
         "com.snowflake.snowpark.udaf.UDAF11"
-      case _: udaf.UDAF12[_, _, _, _, _, _, _, _, _, _, _, _, _, _] =>
+      case _: UDAF12[_, _, _, _, _, _, _, _, _, _, _, _, _, _] =>
         "com.snowflake.snowpark.udaf.UDAF12"
-      case _: udaf.UDAF13[_, _, _, _, _, _, _, _, _, _, _, _, _, _, _] =>
+      case _: UDAF13[_, _, _, _, _, _, _, _, _, _, _, _, _, _, _] =>
         "com.snowflake.snowpark.udaf.UDAF13"
-      case _: udaf.UDAF14[_, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _] =>
+      case _: UDAF14[_, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _] =>
         "com.snowflake.snowpark.udaf.UDAF14"
-      case _: udaf.UDAF15[_, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _] =>
+      case _: UDAF15[_, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _] =>
         "com.snowflake.snowpark.udaf.UDAF15"
-      case _: udaf.UDAF16[_, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _] =>
+      case _: UDAF16[_, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _] =>
         "com.snowflake.snowpark.udaf.UDAF16"
-      case _: udaf.UDAF17[_, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _] =>
+      case _: UDAF17[_, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _] =>
         "com.snowflake.snowpark.udaf.UDAF17"
-      case _: udaf.UDAF18[_, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _] =>
+      case _: UDAF18[_, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _] =>
         "com.snowflake.snowpark.udaf.UDAF18"
-      case _: udaf.UDAF19[_, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _] =>
+      case _: UDAF19[_, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _] =>
         "com.snowflake.snowpark.udaf.UDAF19"
-      case _: udaf.UDAF20[_, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _] =>
+      case _: UDAF20[_, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _] =>
         "com.snowflake.snowpark.udaf.UDAF20"
-      case _: udaf.UDAF21[_, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _] =>
+      case _: UDAF21[_, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _] =>
         "com.snowflake.snowpark.udaf.UDAF21"
-      case _: udaf.UDAF22[_, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _] =>
+      case _: UDAF22[_, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _] =>
         "com.snowflake.snowpark.udaf.UDAF22"
       case _ =>
         throw new UnsupportedOperationException(
@@ -2693,7 +2693,7 @@ object ScalaFunctions {
 
   private[snowpark] def getUDAFClassName(udafObj: Any): String = {
     udafObj match {
-      case su: udaf.UDAF => getScalaUDAFClassName(su)
+      case su: UDAF => getScalaUDAFClassName(su)
       case ju: JavaUDAF => getJavaUDAFClassName(ju)
     }
   }

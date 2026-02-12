@@ -80,7 +80,6 @@ run_test_suites() {
     '++ 2.13.16 UDFTests:testOnly * -- -l SampleDataTest' \
     '++ 2.12.20 UDTFTests:testOnly * -- -l SampleDataTest' \
     '++ 2.13.16 UDTFTests:testOnly * -- -l SampleDataTest -l com.snowflake.snowpark.UDFPackageTest' \
-    '++ 2.12.20 UDAFTests:test' \
-    '++ 2.13.16 UDAFTests:test' \
+    +UDAFTests:test \
     +SprocTests:test
 }

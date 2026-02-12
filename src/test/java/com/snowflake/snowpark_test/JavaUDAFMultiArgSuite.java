@@ -6,7 +6,6 @@ import static org.junit.Assert.assertEquals;
 import com.snowflake.snowpark_java.AggregateFunction;
 import com.snowflake.snowpark_java.DataFrame;
 import com.snowflake.snowpark_java.Row;
-import com.snowflake.snowpark_java.Session;
 import com.snowflake.snowpark_java.types.*;
 import com.snowflake.snowpark_java.udaf.*;
 import org.junit.Test;
@@ -15,15 +14,11 @@ import org.junit.Test;
 public class JavaUDAFMultiArgSuite extends UDFTestBase {
   private boolean dependencyAdded = false;
 
-  @Override
-  public Session getSession() {
-    Session session = super.getSession();
+  private void ensureDependencies() {
     if (!dependencyAdded) {
       dependencyAdded = true;
-      addDepsToClassPath(session);
-      session.sql("ALTER SESSION SET ENABLE_JAVA_UDAF = TRUE").collect();
+      addDepsToClassPath(getSession());
     }
-    return session;
   }
 
   private DataFrame createTestData() {
@@ -35,499 +30,646 @@ public class JavaUDAFMultiArgSuite extends UDFTestBase {
 
   @Test
   public void testJavaUDAFOf2() {
-    AggregateFunction udaf = getSession().udaf().registerTemporary(new MyJavaUDAFOf2());
-    // sum of (1+2) + (2+3) + (3+4) = 3 + 5 + 7 = 15
-    DataFrame df = createTestData();
-    Row[] rows = df.select(udaf.apply(col("a"), col("a").plus(lit(1)))).collect();
-    assertEquals(1, rows.length);
-    assertEquals(15L, rows[0].getLong(0));
+    ensureDependencies();
+    udafTest(
+        () -> {
+          AggregateFunction udaf = getSession().udaf().registerTemporary(new MyJavaUDAFOf2());
+          // sum of (1+2) + (2+3) + (3+4) = 3 + 5 + 7 = 15
+          DataFrame df = createTestData();
+          Row[] rows = df.select(udaf.apply(col("a"), col("a").plus(lit(1)))).collect();
+          assertEquals(1, rows.length);
+          assertEquals(15L, rows[0].getLong(0));
+        },
+        getSession());
   }
 
   @Test
   public void testJavaUDAFOf3() {
-    AggregateFunction udaf = getSession().udaf().registerTemporary(new MyJavaUDAFOf3());
-    // sum of (1+2+3) + (2+3+4) + (3+4+5) = 6 + 9 + 12 = 27
-    DataFrame df = createTestData();
-    Row[] rows =
-        df.select(udaf.apply(col("a"), col("a").plus(lit(1)), col("a").plus(lit(2)))).collect();
-    assertEquals(1, rows.length);
-    assertEquals(27L, rows[0].getLong(0));
+    ensureDependencies();
+    udafTest(
+        () -> {
+          AggregateFunction udaf = getSession().udaf().registerTemporary(new MyJavaUDAFOf3());
+          // sum of (1+2+3) + (2+3+4) + (3+4+5) = 6 + 9 + 12 = 27
+          DataFrame df = createTestData();
+          Row[] rows =
+              df.select(udaf.apply(col("a"), col("a").plus(lit(1)), col("a").plus(lit(2))))
+                  .collect();
+          assertEquals(1, rows.length);
+          assertEquals(27L, rows[0].getLong(0));
+        },
+        getSession());
   }
 
   @Test
   public void testJavaUDAFOf4() {
-    AggregateFunction udaf = getSession().udaf().registerTemporary(new MyJavaUDAFOf4());
-    DataFrame df = createTestData();
-    Row[] rows =
-        df.select(
-                udaf.apply(
-                    col("a"), col("a").plus(lit(1)), col("a").plus(lit(2)), col("a").plus(lit(3))))
-            .collect();
-    assertEquals(1, rows.length);
-    assertEquals(42L, rows[0].getLong(0));
+    ensureDependencies();
+    udafTest(
+        () -> {
+          AggregateFunction udaf = getSession().udaf().registerTemporary(new MyJavaUDAFOf4());
+          DataFrame df = createTestData();
+          Row[] rows =
+              df.select(
+                      udaf.apply(
+                          col("a"),
+                          col("a").plus(lit(1)),
+                          col("a").plus(lit(2)),
+                          col("a").plus(lit(3))))
+                  .collect();
+          assertEquals(1, rows.length);
+          assertEquals(42L, rows[0].getLong(0));
+        },
+        getSession());
   }
 
   @Test
   public void testJavaUDAFOf5() {
-    AggregateFunction udaf = getSession().udaf().registerTemporary(new MyJavaUDAFOf5());
-    DataFrame df = createTestData();
-    Row[] rows =
-        df.select(
-                udaf.apply(
-                    col("a"),
-                    col("a").plus(lit(1)),
-                    col("a").plus(lit(2)),
-                    col("a").plus(lit(3)),
-                    col("a").plus(lit(4))))
-            .collect();
-    assertEquals(1, rows.length);
-    assertEquals(60L, rows[0].getLong(0));
+    ensureDependencies();
+    udafTest(
+        () -> {
+          AggregateFunction udaf = getSession().udaf().registerTemporary(new MyJavaUDAFOf5());
+          DataFrame df = createTestData();
+          Row[] rows =
+              df.select(
+                      udaf.apply(
+                          col("a"),
+                          col("a").plus(lit(1)),
+                          col("a").plus(lit(2)),
+                          col("a").plus(lit(3)),
+                          col("a").plus(lit(4))))
+                  .collect();
+          assertEquals(1, rows.length);
+          assertEquals(60L, rows[0].getLong(0));
+        },
+        getSession());
   }
 
   @Test
   public void testJavaUDAFOf6() {
-    AggregateFunction udaf = getSession().udaf().registerTemporary(new MyJavaUDAFOf6());
-    DataFrame df = createTestData();
-    Row[] rows =
-        df.select(
-                udaf.apply(
-                    col("a"),
-                    col("a").plus(lit(1)),
-                    col("a").plus(lit(2)),
-                    col("a").plus(lit(3)),
-                    col("a").plus(lit(4)),
-                    col("a").plus(lit(5))))
-            .collect();
-    assertEquals(1, rows.length);
-    assertEquals(81L, rows[0].getLong(0));
+    ensureDependencies();
+    udafTest(
+        () -> {
+          AggregateFunction udaf = getSession().udaf().registerTemporary(new MyJavaUDAFOf6());
+          DataFrame df = createTestData();
+          Row[] rows =
+              df.select(
+                      udaf.apply(
+                          col("a"),
+                          col("a").plus(lit(1)),
+                          col("a").plus(lit(2)),
+                          col("a").plus(lit(3)),
+                          col("a").plus(lit(4)),
+                          col("a").plus(lit(5))))
+                  .collect();
+          assertEquals(1, rows.length);
+          assertEquals(81L, rows[0].getLong(0));
+        },
+        getSession());
   }
 
   @Test
   public void testJavaUDAFOf7() {
-    AggregateFunction udaf = getSession().udaf().registerTemporary(new MyJavaUDAFOf7());
-    DataFrame df = createTestData();
-    Row[] rows =
-        df.select(
-                udaf.apply(
-                    col("a"),
-                    col("a").plus(lit(1)),
-                    col("a").plus(lit(2)),
-                    col("a").plus(lit(3)),
-                    col("a").plus(lit(4)),
-                    col("a").plus(lit(5)),
-                    col("a").plus(lit(6))))
-            .collect();
-    assertEquals(1, rows.length);
-    assertEquals(105L, rows[0].getLong(0));
+    ensureDependencies();
+    udafTest(
+        () -> {
+          AggregateFunction udaf = getSession().udaf().registerTemporary(new MyJavaUDAFOf7());
+          DataFrame df = createTestData();
+          Row[] rows =
+              df.select(
+                      udaf.apply(
+                          col("a"),
+                          col("a").plus(lit(1)),
+                          col("a").plus(lit(2)),
+                          col("a").plus(lit(3)),
+                          col("a").plus(lit(4)),
+                          col("a").plus(lit(5)),
+                          col("a").plus(lit(6))))
+                  .collect();
+          assertEquals(1, rows.length);
+          assertEquals(105L, rows[0].getLong(0));
+        },
+        getSession());
   }
 
   @Test
   public void testJavaUDAFOf8() {
-    AggregateFunction udaf = getSession().udaf().registerTemporary(new MyJavaUDAFOf8());
-    DataFrame df = createTestData();
-    Row[] rows =
-        df.select(
-                udaf.apply(
-                    col("a"),
-                    col("a").plus(lit(1)),
-                    col("a").plus(lit(2)),
-                    col("a").plus(lit(3)),
-                    col("a").plus(lit(4)),
-                    col("a").plus(lit(5)),
-                    col("a").plus(lit(6)),
-                    col("a").plus(lit(7))))
-            .collect();
-    assertEquals(1, rows.length);
-    assertEquals(132L, rows[0].getLong(0));
+    ensureDependencies();
+    udafTest(
+        () -> {
+          AggregateFunction udaf = getSession().udaf().registerTemporary(new MyJavaUDAFOf8());
+          DataFrame df = createTestData();
+          Row[] rows =
+              df.select(
+                      udaf.apply(
+                          col("a"),
+                          col("a").plus(lit(1)),
+                          col("a").plus(lit(2)),
+                          col("a").plus(lit(3)),
+                          col("a").plus(lit(4)),
+                          col("a").plus(lit(5)),
+                          col("a").plus(lit(6)),
+                          col("a").plus(lit(7))))
+                  .collect();
+          assertEquals(1, rows.length);
+          assertEquals(132L, rows[0].getLong(0));
+        },
+        getSession());
   }
 
   @Test
   public void testJavaUDAFOf9() {
-    AggregateFunction udaf = getSession().udaf().registerTemporary(new MyJavaUDAFOf9());
-    DataFrame df = createTestData();
-    Row[] rows =
-        df.select(
-                udaf.apply(
-                    col("a"),
-                    col("a").plus(lit(1)),
-                    col("a").plus(lit(2)),
-                    col("a").plus(lit(3)),
-                    col("a").plus(lit(4)),
-                    col("a").plus(lit(5)),
-                    col("a").plus(lit(6)),
-                    col("a").plus(lit(7)),
-                    col("a").plus(lit(8))))
-            .collect();
-    assertEquals(1, rows.length);
-    assertEquals(162L, rows[0].getLong(0));
+    ensureDependencies();
+    udafTest(
+        () -> {
+          AggregateFunction udaf = getSession().udaf().registerTemporary(new MyJavaUDAFOf9());
+          DataFrame df = createTestData();
+          Row[] rows =
+              df.select(
+                      udaf.apply(
+                          col("a"),
+                          col("a").plus(lit(1)),
+                          col("a").plus(lit(2)),
+                          col("a").plus(lit(3)),
+                          col("a").plus(lit(4)),
+                          col("a").plus(lit(5)),
+                          col("a").plus(lit(6)),
+                          col("a").plus(lit(7)),
+                          col("a").plus(lit(8))))
+                  .collect();
+          assertEquals(1, rows.length);
+          assertEquals(162L, rows[0].getLong(0));
+        },
+        getSession());
   }
 
   @Test
   public void testJavaUDAFOf10() {
-    AggregateFunction udaf = getSession().udaf().registerTemporary(new MyJavaUDAFOf10());
-    DataFrame df = createTestData();
-    Row[] rows =
-        df.select(
-                udaf.apply(
-                    col("a"),
-                    col("a").plus(lit(1)),
-                    col("a").plus(lit(2)),
-                    col("a").plus(lit(3)),
-                    col("a").plus(lit(4)),
-                    col("a").plus(lit(5)),
-                    col("a").plus(lit(6)),
-                    col("a").plus(lit(7)),
-                    col("a").plus(lit(8)),
-                    col("a").plus(lit(9))))
-            .collect();
-    assertEquals(1, rows.length);
-    assertEquals(195L, rows[0].getLong(0));
+    ensureDependencies();
+    udafTest(
+        () -> {
+          AggregateFunction udaf = getSession().udaf().registerTemporary(new MyJavaUDAFOf10());
+          DataFrame df = createTestData();
+          Row[] rows =
+              df.select(
+                      udaf.apply(
+                          col("a"),
+                          col("a").plus(lit(1)),
+                          col("a").plus(lit(2)),
+                          col("a").plus(lit(3)),
+                          col("a").plus(lit(4)),
+                          col("a").plus(lit(5)),
+                          col("a").plus(lit(6)),
+                          col("a").plus(lit(7)),
+                          col("a").plus(lit(8)),
+                          col("a").plus(lit(9))))
+                  .collect();
+          assertEquals(1, rows.length);
+          assertEquals(195L, rows[0].getLong(0));
+        },
+        getSession());
   }
 
   @Test
   public void testJavaUDAFOf11() {
-    AggregateFunction udaf = getSession().udaf().registerTemporary(new MyJavaUDAFOf11());
-    DataFrame df = createTestData();
-    Row[] rows =
-        df.select(
-                udaf.apply(
-                    col("a"),
-                    col("a").plus(lit(1)),
-                    col("a").plus(lit(2)),
-                    col("a").plus(lit(3)),
-                    col("a").plus(lit(4)),
-                    col("a").plus(lit(5)),
-                    col("a").plus(lit(6)),
-                    col("a").plus(lit(7)),
-                    col("a").plus(lit(8)),
-                    col("a").plus(lit(9)),
-                    col("a").plus(lit(10))))
-            .collect();
-    assertEquals(1, rows.length);
-    assertEquals(231L, rows[0].getLong(0));
+    ensureDependencies();
+    udafTest(
+        () -> {
+          AggregateFunction udaf = getSession().udaf().registerTemporary(new MyJavaUDAFOf11());
+          DataFrame df = createTestData();
+          Row[] rows =
+              df.select(
+                      udaf.apply(
+                          col("a"),
+                          col("a").plus(lit(1)),
+                          col("a").plus(lit(2)),
+                          col("a").plus(lit(3)),
+                          col("a").plus(lit(4)),
+                          col("a").plus(lit(5)),
+                          col("a").plus(lit(6)),
+                          col("a").plus(lit(7)),
+                          col("a").plus(lit(8)),
+                          col("a").plus(lit(9)),
+                          col("a").plus(lit(10))))
+                  .collect();
+          assertEquals(1, rows.length);
+          assertEquals(231L, rows[0].getLong(0));
+        },
+        getSession());
   }
 
   @Test
   public void testJavaUDAFOf12() {
-    AggregateFunction udaf = getSession().udaf().registerTemporary(new MyJavaUDAFOf12());
-    DataFrame df = createTestData();
-    Row[] rows =
-        df.select(
-                udaf.apply(
-                    col("a"),
-                    col("a").plus(lit(1)),
-                    col("a").plus(lit(2)),
-                    col("a").plus(lit(3)),
-                    col("a").plus(lit(4)),
-                    col("a").plus(lit(5)),
-                    col("a").plus(lit(6)),
-                    col("a").plus(lit(7)),
-                    col("a").plus(lit(8)),
-                    col("a").plus(lit(9)),
-                    col("a").plus(lit(10)),
-                    col("a").plus(lit(11))))
-            .collect();
-    assertEquals(1, rows.length);
-    assertEquals(270L, rows[0].getLong(0));
+    ensureDependencies();
+    udafTest(
+        () -> {
+          AggregateFunction udaf = getSession().udaf().registerTemporary(new MyJavaUDAFOf12());
+          DataFrame df = createTestData();
+          Row[] rows =
+              df.select(
+                      udaf.apply(
+                          col("a"),
+                          col("a").plus(lit(1)),
+                          col("a").plus(lit(2)),
+                          col("a").plus(lit(3)),
+                          col("a").plus(lit(4)),
+                          col("a").plus(lit(5)),
+                          col("a").plus(lit(6)),
+                          col("a").plus(lit(7)),
+                          col("a").plus(lit(8)),
+                          col("a").plus(lit(9)),
+                          col("a").plus(lit(10)),
+                          col("a").plus(lit(11))))
+                  .collect();
+          assertEquals(1, rows.length);
+          assertEquals(270L, rows[0].getLong(0));
+        },
+        getSession());
   }
 
   @Test
   public void testJavaUDAFOf13() {
-    AggregateFunction udaf = getSession().udaf().registerTemporary(new MyJavaUDAFOf13());
-    DataFrame df = createTestData();
-    Row[] rows =
-        df.select(
-                udaf.apply(
-                    col("a"),
-                    col("a").plus(lit(1)),
-                    col("a").plus(lit(2)),
-                    col("a").plus(lit(3)),
-                    col("a").plus(lit(4)),
-                    col("a").plus(lit(5)),
-                    col("a").plus(lit(6)),
-                    col("a").plus(lit(7)),
-                    col("a").plus(lit(8)),
-                    col("a").plus(lit(9)),
-                    col("a").plus(lit(10)),
-                    col("a").plus(lit(11)),
-                    col("a").plus(lit(12))))
-            .collect();
-    assertEquals(1, rows.length);
-    assertEquals(312L, rows[0].getLong(0));
+    ensureDependencies();
+    udafTest(
+        () -> {
+          AggregateFunction udaf = getSession().udaf().registerTemporary(new MyJavaUDAFOf13());
+          DataFrame df = createTestData();
+          Row[] rows =
+              df.select(
+                      udaf.apply(
+                          col("a"),
+                          col("a").plus(lit(1)),
+                          col("a").plus(lit(2)),
+                          col("a").plus(lit(3)),
+                          col("a").plus(lit(4)),
+                          col("a").plus(lit(5)),
+                          col("a").plus(lit(6)),
+                          col("a").plus(lit(7)),
+                          col("a").plus(lit(8)),
+                          col("a").plus(lit(9)),
+                          col("a").plus(lit(10)),
+                          col("a").plus(lit(11)),
+                          col("a").plus(lit(12))))
+                  .collect();
+          assertEquals(1, rows.length);
+          assertEquals(312L, rows[0].getLong(0));
+        },
+        getSession());
   }
 
   @Test
   public void testJavaUDAFOf14() {
-    AggregateFunction udaf = getSession().udaf().registerTemporary(new MyJavaUDAFOf14());
-    DataFrame df = createTestData();
-    Row[] rows =
-        df.select(
-                udaf.apply(
-                    col("a"),
-                    col("a").plus(lit(1)),
-                    col("a").plus(lit(2)),
-                    col("a").plus(lit(3)),
-                    col("a").plus(lit(4)),
-                    col("a").plus(lit(5)),
-                    col("a").plus(lit(6)),
-                    col("a").plus(lit(7)),
-                    col("a").plus(lit(8)),
-                    col("a").plus(lit(9)),
-                    col("a").plus(lit(10)),
-                    col("a").plus(lit(11)),
-                    col("a").plus(lit(12)),
-                    col("a").plus(lit(13))))
-            .collect();
-    assertEquals(1, rows.length);
-    assertEquals(357L, rows[0].getLong(0));
+    ensureDependencies();
+    udafTest(
+        () -> {
+          AggregateFunction udaf = getSession().udaf().registerTemporary(new MyJavaUDAFOf14());
+          DataFrame df = createTestData();
+          Row[] rows =
+              df.select(
+                      udaf.apply(
+                          col("a"),
+                          col("a").plus(lit(1)),
+                          col("a").plus(lit(2)),
+                          col("a").plus(lit(3)),
+                          col("a").plus(lit(4)),
+                          col("a").plus(lit(5)),
+                          col("a").plus(lit(6)),
+                          col("a").plus(lit(7)),
+                          col("a").plus(lit(8)),
+                          col("a").plus(lit(9)),
+                          col("a").plus(lit(10)),
+                          col("a").plus(lit(11)),
+                          col("a").plus(lit(12)),
+                          col("a").plus(lit(13))))
+                  .collect();
+          assertEquals(1, rows.length);
+          assertEquals(357L, rows[0].getLong(0));
+        },
+        getSession());
   }
 
   @Test
   public void testJavaUDAFOf15() {
-    AggregateFunction udaf = getSession().udaf().registerTemporary(new MyJavaUDAFOf15());
-    DataFrame df = createTestData();
-    Row[] rows =
-        df.select(
-                udaf.apply(
-                    col("a"),
-                    col("a").plus(lit(1)),
-                    col("a").plus(lit(2)),
-                    col("a").plus(lit(3)),
-                    col("a").plus(lit(4)),
-                    col("a").plus(lit(5)),
-                    col("a").plus(lit(6)),
-                    col("a").plus(lit(7)),
-                    col("a").plus(lit(8)),
-                    col("a").plus(lit(9)),
-                    col("a").plus(lit(10)),
-                    col("a").plus(lit(11)),
-                    col("a").plus(lit(12)),
-                    col("a").plus(lit(13)),
-                    col("a").plus(lit(14))))
-            .collect();
-    assertEquals(1, rows.length);
-    assertEquals(405L, rows[0].getLong(0));
+    ensureDependencies();
+    udafTest(
+        () -> {
+          AggregateFunction udaf = getSession().udaf().registerTemporary(new MyJavaUDAFOf15());
+          DataFrame df = createTestData();
+          Row[] rows =
+              df.select(
+                      udaf.apply(
+                          col("a"),
+                          col("a").plus(lit(1)),
+                          col("a").plus(lit(2)),
+                          col("a").plus(lit(3)),
+                          col("a").plus(lit(4)),
+                          col("a").plus(lit(5)),
+                          col("a").plus(lit(6)),
+                          col("a").plus(lit(7)),
+                          col("a").plus(lit(8)),
+                          col("a").plus(lit(9)),
+                          col("a").plus(lit(10)),
+                          col("a").plus(lit(11)),
+                          col("a").plus(lit(12)),
+                          col("a").plus(lit(13)),
+                          col("a").plus(lit(14))))
+                  .collect();
+          assertEquals(1, rows.length);
+          assertEquals(405L, rows[0].getLong(0));
+        },
+        getSession());
   }
 
   @Test
   public void testJavaUDAFOf16() {
-    AggregateFunction udaf = getSession().udaf().registerTemporary(new MyJavaUDAFOf16());
-    DataFrame df = createTestData();
-    Row[] rows =
-        df.select(
-                udaf.apply(
-                    col("a"),
-                    col("a").plus(lit(1)),
-                    col("a").plus(lit(2)),
-                    col("a").plus(lit(3)),
-                    col("a").plus(lit(4)),
-                    col("a").plus(lit(5)),
-                    col("a").plus(lit(6)),
-                    col("a").plus(lit(7)),
-                    col("a").plus(lit(8)),
-                    col("a").plus(lit(9)),
-                    col("a").plus(lit(10)),
-                    col("a").plus(lit(11)),
-                    col("a").plus(lit(12)),
-                    col("a").plus(lit(13)),
-                    col("a").plus(lit(14)),
-                    col("a").plus(lit(15))))
-            .collect();
-    assertEquals(1, rows.length);
-    assertEquals(456L, rows[0].getLong(0));
+    ensureDependencies();
+    udafTest(
+        () -> {
+          AggregateFunction udaf = getSession().udaf().registerTemporary(new MyJavaUDAFOf16());
+          DataFrame df = createTestData();
+          Row[] rows =
+              df.select(
+                      udaf.apply(
+                          col("a"),
+                          col("a").plus(lit(1)),
+                          col("a").plus(lit(2)),
+                          col("a").plus(lit(3)),
+                          col("a").plus(lit(4)),
+                          col("a").plus(lit(5)),
+                          col("a").plus(lit(6)),
+                          col("a").plus(lit(7)),
+                          col("a").plus(lit(8)),
+                          col("a").plus(lit(9)),
+                          col("a").plus(lit(10)),
+                          col("a").plus(lit(11)),
+                          col("a").plus(lit(12)),
+                          col("a").plus(lit(13)),
+                          col("a").plus(lit(14)),
+                          col("a").plus(lit(15))))
+                  .collect();
+          assertEquals(1, rows.length);
+          assertEquals(456L, rows[0].getLong(0));
+        },
+        getSession());
   }
 
   @Test
   public void testJavaUDAFOf17() {
-    AggregateFunction udaf = getSession().udaf().registerTemporary(new MyJavaUDAFOf17());
-    DataFrame df = createTestData();
-    Row[] rows =
-        df.select(
-                udaf.apply(
-                    col("a"),
-                    col("a").plus(lit(1)),
-                    col("a").plus(lit(2)),
-                    col("a").plus(lit(3)),
-                    col("a").plus(lit(4)),
-                    col("a").plus(lit(5)),
-                    col("a").plus(lit(6)),
-                    col("a").plus(lit(7)),
-                    col("a").plus(lit(8)),
-                    col("a").plus(lit(9)),
-                    col("a").plus(lit(10)),
-                    col("a").plus(lit(11)),
-                    col("a").plus(lit(12)),
-                    col("a").plus(lit(13)),
-                    col("a").plus(lit(14)),
-                    col("a").plus(lit(15)),
-                    col("a").plus(lit(16))))
-            .collect();
-    assertEquals(1, rows.length);
-    assertEquals(510L, rows[0].getLong(0));
+    ensureDependencies();
+    udafTest(
+        () -> {
+          AggregateFunction udaf = getSession().udaf().registerTemporary(new MyJavaUDAFOf17());
+          DataFrame df = createTestData();
+          Row[] rows =
+              df.select(
+                      udaf.apply(
+                          col("a"),
+                          col("a").plus(lit(1)),
+                          col("a").plus(lit(2)),
+                          col("a").plus(lit(3)),
+                          col("a").plus(lit(4)),
+                          col("a").plus(lit(5)),
+                          col("a").plus(lit(6)),
+                          col("a").plus(lit(7)),
+                          col("a").plus(lit(8)),
+                          col("a").plus(lit(9)),
+                          col("a").plus(lit(10)),
+                          col("a").plus(lit(11)),
+                          col("a").plus(lit(12)),
+                          col("a").plus(lit(13)),
+                          col("a").plus(lit(14)),
+                          col("a").plus(lit(15)),
+                          col("a").plus(lit(16))))
+                  .collect();
+          assertEquals(1, rows.length);
+          assertEquals(510L, rows[0].getLong(0));
+        },
+        getSession());
   }
 
   @Test
   public void testJavaUDAFOf18() {
-    AggregateFunction udaf = getSession().udaf().registerTemporary(new MyJavaUDAFOf18());
-    DataFrame df = createTestData();
-    Row[] rows =
-        df.select(
-                udaf.apply(
-                    col("a"),
-                    col("a").plus(lit(1)),
-                    col("a").plus(lit(2)),
-                    col("a").plus(lit(3)),
-                    col("a").plus(lit(4)),
-                    col("a").plus(lit(5)),
-                    col("a").plus(lit(6)),
-                    col("a").plus(lit(7)),
-                    col("a").plus(lit(8)),
-                    col("a").plus(lit(9)),
-                    col("a").plus(lit(10)),
-                    col("a").plus(lit(11)),
-                    col("a").plus(lit(12)),
-                    col("a").plus(lit(13)),
-                    col("a").plus(lit(14)),
-                    col("a").plus(lit(15)),
-                    col("a").plus(lit(16)),
-                    col("a").plus(lit(17))))
-            .collect();
-    assertEquals(1, rows.length);
-    assertEquals(567L, rows[0].getLong(0));
+    ensureDependencies();
+    udafTest(
+        () -> {
+          AggregateFunction udaf = getSession().udaf().registerTemporary(new MyJavaUDAFOf18());
+          DataFrame df = createTestData();
+          Row[] rows =
+              df.select(
+                      udaf.apply(
+                          col("a"),
+                          col("a").plus(lit(1)),
+                          col("a").plus(lit(2)),
+                          col("a").plus(lit(3)),
+                          col("a").plus(lit(4)),
+                          col("a").plus(lit(5)),
+                          col("a").plus(lit(6)),
+                          col("a").plus(lit(7)),
+                          col("a").plus(lit(8)),
+                          col("a").plus(lit(9)),
+                          col("a").plus(lit(10)),
+                          col("a").plus(lit(11)),
+                          col("a").plus(lit(12)),
+                          col("a").plus(lit(13)),
+                          col("a").plus(lit(14)),
+                          col("a").plus(lit(15)),
+                          col("a").plus(lit(16)),
+                          col("a").plus(lit(17))))
+                  .collect();
+          assertEquals(1, rows.length);
+          assertEquals(567L, rows[0].getLong(0));
+        },
+        getSession());
   }
 
   @Test
   public void testJavaUDAFOf19() {
-    AggregateFunction udaf = getSession().udaf().registerTemporary(new MyJavaUDAFOf19());
-    DataFrame df = createTestData();
-    Row[] rows =
-        df.select(
-                udaf.apply(
-                    col("a"),
-                    col("a").plus(lit(1)),
-                    col("a").plus(lit(2)),
-                    col("a").plus(lit(3)),
-                    col("a").plus(lit(4)),
-                    col("a").plus(lit(5)),
-                    col("a").plus(lit(6)),
-                    col("a").plus(lit(7)),
-                    col("a").plus(lit(8)),
-                    col("a").plus(lit(9)),
-                    col("a").plus(lit(10)),
-                    col("a").plus(lit(11)),
-                    col("a").plus(lit(12)),
-                    col("a").plus(lit(13)),
-                    col("a").plus(lit(14)),
-                    col("a").plus(lit(15)),
-                    col("a").plus(lit(16)),
-                    col("a").plus(lit(17)),
-                    col("a").plus(lit(18))))
-            .collect();
-    assertEquals(1, rows.length);
-    assertEquals(627L, rows[0].getLong(0));
+    ensureDependencies();
+    udafTest(
+        () -> {
+          AggregateFunction udaf = getSession().udaf().registerTemporary(new MyJavaUDAFOf19());
+          DataFrame df = createTestData();
+          Row[] rows =
+              df.select(
+                      udaf.apply(
+                          col("a"),
+                          col("a").plus(lit(1)),
+                          col("a").plus(lit(2)),
+                          col("a").plus(lit(3)),
+                          col("a").plus(lit(4)),
+                          col("a").plus(lit(5)),
+                          col("a").plus(lit(6)),
+                          col("a").plus(lit(7)),
+                          col("a").plus(lit(8)),
+                          col("a").plus(lit(9)),
+                          col("a").plus(lit(10)),
+                          col("a").plus(lit(11)),
+                          col("a").plus(lit(12)),
+                          col("a").plus(lit(13)),
+                          col("a").plus(lit(14)),
+                          col("a").plus(lit(15)),
+                          col("a").plus(lit(16)),
+                          col("a").plus(lit(17)),
+                          col("a").plus(lit(18))))
+                  .collect();
+          assertEquals(1, rows.length);
+          assertEquals(627L, rows[0].getLong(0));
+        },
+        getSession());
   }
 
   @Test
   public void testJavaUDAFOf20() {
-    AggregateFunction udaf = getSession().udaf().registerTemporary(new MyJavaUDAFOf20());
-    DataFrame df = createTestData();
-    Row[] rows =
-        df.select(
-                udaf.apply(
-                    col("a"),
-                    col("a").plus(lit(1)),
-                    col("a").plus(lit(2)),
-                    col("a").plus(lit(3)),
-                    col("a").plus(lit(4)),
-                    col("a").plus(lit(5)),
-                    col("a").plus(lit(6)),
-                    col("a").plus(lit(7)),
-                    col("a").plus(lit(8)),
-                    col("a").plus(lit(9)),
-                    col("a").plus(lit(10)),
-                    col("a").plus(lit(11)),
-                    col("a").plus(lit(12)),
-                    col("a").plus(lit(13)),
-                    col("a").plus(lit(14)),
-                    col("a").plus(lit(15)),
-                    col("a").plus(lit(16)),
-                    col("a").plus(lit(17)),
-                    col("a").plus(lit(18)),
-                    col("a").plus(lit(19))))
-            .collect();
-    assertEquals(1, rows.length);
-    assertEquals(690L, rows[0].getLong(0));
+    ensureDependencies();
+    udafTest(
+        () -> {
+          AggregateFunction udaf = getSession().udaf().registerTemporary(new MyJavaUDAFOf20());
+          DataFrame df = createTestData();
+          Row[] rows =
+              df.select(
+                      udaf.apply(
+                          col("a"),
+                          col("a").plus(lit(1)),
+                          col("a").plus(lit(2)),
+                          col("a").plus(lit(3)),
+                          col("a").plus(lit(4)),
+                          col("a").plus(lit(5)),
+                          col("a").plus(lit(6)),
+                          col("a").plus(lit(7)),
+                          col("a").plus(lit(8)),
+                          col("a").plus(lit(9)),
+                          col("a").plus(lit(10)),
+                          col("a").plus(lit(11)),
+                          col("a").plus(lit(12)),
+                          col("a").plus(lit(13)),
+                          col("a").plus(lit(14)),
+                          col("a").plus(lit(15)),
+                          col("a").plus(lit(16)),
+                          col("a").plus(lit(17)),
+                          col("a").plus(lit(18)),
+                          col("a").plus(lit(19))))
+                  .collect();
+          assertEquals(1, rows.length);
+          assertEquals(690L, rows[0].getLong(0));
+        },
+        getSession());
   }
 
   @Test
   public void testJavaUDAFOf21() {
-    AggregateFunction udaf = getSession().udaf().registerTemporary(new MyJavaUDAFOf21());
-    DataFrame df = createTestData();
-    Row[] rows =
-        df.select(
-                udaf.apply(
-                    col("a"),
-                    col("a").plus(lit(1)),
-                    col("a").plus(lit(2)),
-                    col("a").plus(lit(3)),
-                    col("a").plus(lit(4)),
-                    col("a").plus(lit(5)),
-                    col("a").plus(lit(6)),
-                    col("a").plus(lit(7)),
-                    col("a").plus(lit(8)),
-                    col("a").plus(lit(9)),
-                    col("a").plus(lit(10)),
-                    col("a").plus(lit(11)),
-                    col("a").plus(lit(12)),
-                    col("a").plus(lit(13)),
-                    col("a").plus(lit(14)),
-                    col("a").plus(lit(15)),
-                    col("a").plus(lit(16)),
-                    col("a").plus(lit(17)),
-                    col("a").plus(lit(18)),
-                    col("a").plus(lit(19)),
-                    col("a").plus(lit(20))))
-            .collect();
-    assertEquals(1, rows.length);
-    assertEquals(756L, rows[0].getLong(0));
+    ensureDependencies();
+    udafTest(
+        () -> {
+          AggregateFunction udaf = getSession().udaf().registerTemporary(new MyJavaUDAFOf21());
+          DataFrame df = createTestData();
+          Row[] rows =
+              df.select(
+                      udaf.apply(
+                          col("a"),
+                          col("a").plus(lit(1)),
+                          col("a").plus(lit(2)),
+                          col("a").plus(lit(3)),
+                          col("a").plus(lit(4)),
+                          col("a").plus(lit(5)),
+                          col("a").plus(lit(6)),
+                          col("a").plus(lit(7)),
+                          col("a").plus(lit(8)),
+                          col("a").plus(lit(9)),
+                          col("a").plus(lit(10)),
+                          col("a").plus(lit(11)),
+                          col("a").plus(lit(12)),
+                          col("a").plus(lit(13)),
+                          col("a").plus(lit(14)),
+                          col("a").plus(lit(15)),
+                          col("a").plus(lit(16)),
+                          col("a").plus(lit(17)),
+                          col("a").plus(lit(18)),
+                          col("a").plus(lit(19)),
+                          col("a").plus(lit(20))))
+                  .collect();
+          assertEquals(1, rows.length);
+          assertEquals(756L, rows[0].getLong(0));
+        },
+        getSession());
   }
 
   @Test
   public void testJavaUDAFOf22() {
-    AggregateFunction udaf = getSession().udaf().registerTemporary(new MyJavaUDAFOf22());
-    DataFrame df = createTestData();
-    Row[] rows =
-        df.select(
-                udaf.apply(
-                    col("a"),
-                    col("a").plus(lit(1)),
-                    col("a").plus(lit(2)),
-                    col("a").plus(lit(3)),
-                    col("a").plus(lit(4)),
-                    col("a").plus(lit(5)),
-                    col("a").plus(lit(6)),
-                    col("a").plus(lit(7)),
-                    col("a").plus(lit(8)),
-                    col("a").plus(lit(9)),
-                    col("a").plus(lit(10)),
-                    col("a").plus(lit(11)),
-                    col("a").plus(lit(12)),
-                    col("a").plus(lit(13)),
-                    col("a").plus(lit(14)),
-                    col("a").plus(lit(15)),
-                    col("a").plus(lit(16)),
-                    col("a").plus(lit(17)),
-                    col("a").plus(lit(18)),
-                    col("a").plus(lit(19)),
-                    col("a").plus(lit(20)),
-                    col("a").plus(lit(21))))
-            .collect();
-    assertEquals(1, rows.length);
-    assertEquals(825L, rows[0].getLong(0));
+    ensureDependencies();
+    udafTest(
+        () -> {
+          AggregateFunction udaf = getSession().udaf().registerTemporary(new MyJavaUDAFOf22());
+          DataFrame df = createTestData();
+          Row[] rows =
+              df.select(
+                      udaf.apply(
+                          col("a"),
+                          col("a").plus(lit(1)),
+                          col("a").plus(lit(2)),
+                          col("a").plus(lit(3)),
+                          col("a").plus(lit(4)),
+                          col("a").plus(lit(5)),
+                          col("a").plus(lit(6)),
+                          col("a").plus(lit(7)),
+                          col("a").plus(lit(8)),
+                          col("a").plus(lit(9)),
+                          col("a").plus(lit(10)),
+                          col("a").plus(lit(11)),
+                          col("a").plus(lit(12)),
+                          col("a").plus(lit(13)),
+                          col("a").plus(lit(14)),
+                          col("a").plus(lit(15)),
+                          col("a").plus(lit(16)),
+                          col("a").plus(lit(17)),
+                          col("a").plus(lit(18)),
+                          col("a").plus(lit(19)),
+                          col("a").plus(lit(20)),
+                          col("a").plus(lit(21))))
+                  .collect();
+          assertEquals(1, rows.length);
+          assertEquals(825L, rows[0].getLong(0));
+        },
+        getSession());
   }
 }
 
 // ==================== UDAF Implementations ====================
+//
+// Code to generate test methods, UDAF implementations, and expected values:
+// (2 to 22).foreach { x =>
+//   val cols = (0 until x).map(i => if (i == 0) "col(\"a\")" else
+// s"col(\"a\").plus(lit($i))").mkString(", ")
+//   val expected = (1 to 3).map(a => (0 until x).map(i => a + i).sum).sum
+//   val typeParams = (0 until x).map(_ => "Integer").mkString(", ")
+//   val accArgs = (0 until x).map(i => s"Integer i$i").mkString(", ")
+//   val accBody = (0 until x).map(i => s"    if (i$i != null) state[0] += i$i;").mkString("\n")
+//   println(s"""
+//     |  @Test
+//     |  public void testJavaUDAFOf$x() {
+//     |    ensureDependencies();
+//     |    udafTest(
+//     |        () -> {
+//     |          AggregateFunction udaf = getSession().udaf().registerTemporary(new
+// MyJavaUDAFOf$x());
+//     |          DataFrame df = createTestData();
+//     |          Row[] rows = df.select(udaf.apply($cols)).collect();
+//     |          assertEquals(1, rows.length);
+//     |          assertEquals(${expected}L, rows[0].getLong(0));
+//     |        },
+//     |        getSession());
+//     |  }""".stripMargin)
+//   println(s"""
+//     |class MyJavaUDAFOf$x implements JavaUDAF$x<long[], Long, $typeParams> {
+//     |  @Override public DataType outputType() { return DataTypes.LongType; }
+//     |  @Override public long[] initialize() { return new long[] {0L}; }
+//     |  @Override public long[] accumulate(long[] state, $accArgs) {
+//     |$accBody
+//     |    return state;
+//     |  }
+//     |  @Override public long[] merge(long[] state1, long[] state2) {
+//     |    state1[0] += state2[0]; return state1;
+//     |  }
+//     |  @Override public Long terminate(long[] state) { return state[0]; }
+//     |}""".stripMargin)
+// }
 
 class MyJavaUDAFOf2 implements JavaUDAF2<long[], Long, Integer, Integer> {
   @Override

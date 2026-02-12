@@ -202,34 +202,7 @@ jobs:
           TZ: "America/Los_Angeles"
           DISABLE_REDIRECT_STDERR: ""
 
-  # All UDAF associated test suites.
-  test-udafs:
-    name: UDAF Tests - Scala ${{ matrix.scala }}
-    needs: test-code-verification
-    runs-on: ubuntu-22.04
-    strategy:
-      matrix:
-        scala: [ 2.12.20, 2.13.16 ]
-      fail-fast: false
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-      - name: Setup JDK
-        uses: actions/setup-java@v4
-        with:
-          distribution: temurin
-          java-version: 8
-      - name: Decrypt profile.properties
-        run: .github/scripts/decrypt_profile.sh
-        env:
-          PROFILE_PASSWORD: ${{ secrets.PROFILE_PASSWORD }}
-      - name: Run tests
-        run: sbt "++ ${{ matrix.scala }} UDAFTests:test"
-        env:
-          TZ: "America/Los_Angeles"
-          DISABLE_REDIRECT_STDERR: ""
-
-  # Run UDTFSuite, AlwaysCleanUDFSuite, and StoredProcedureSuite with multiple JDKs.
+   # Run UDTFSuite, AlwaysCleanUDFSuite, and StoredProcedureSuite with multiple JDKs.
   test-udf-udtf-sproc-with-multiple-jdk:
     name: UDF, UDTF, and Sproc Tests - Scala ${{ matrix.scala }}, Java ${{ matrix.java }}
     needs: [ test-udfs, test-udtfs, test-sprocs ]
@@ -261,7 +234,7 @@ jobs:
   # Run UDAF tests with multiple JDKs.
   test-udaf-with-multiple-jdk:
     name: UDAF Tests - Scala ${{ matrix.scala }}, Java ${{ matrix.java }}
-    needs: [ test-udafs ]
+    needs: test-code-verification
     runs-on: ubuntu-22.04
     strategy:
       matrix:

@@ -121,6 +121,620 @@ class ScalaCustomClassAvgUDAF extends UDAF1[AvgState, Double, Int] {
   }
 }
 
+// ==================== Multi-arg Scala UDAF definitions (UDAF3-22) ====================
+
+class ScalaSumUDAF3 extends UDAF3[Long, Long, Int, Int, Int] {
+  override def outputType(): DataType = LongType
+  override def initialize(): Long = 0L
+  override def accumulate(state: Long, a0: Int, a1: Int, a2: Int): Long = state + a0 + a1 + a2
+  override def merge(state1: Long, state2: Long): Long = state1 + state2
+  override def terminate(state: Long): Long = state
+}
+
+class ScalaSumUDAF4 extends UDAF4[Long, Long, Int, Int, Int, Int] {
+  override def outputType(): DataType = LongType
+  override def initialize(): Long = 0L
+  override def accumulate(state: Long, a0: Int, a1: Int, a2: Int, a3: Int): Long =
+    state + a0 + a1 + a2 + a3
+  override def merge(state1: Long, state2: Long): Long = state1 + state2
+  override def terminate(state: Long): Long = state
+}
+
+class ScalaSumUDAF5 extends UDAF5[Long, Long, Int, Int, Int, Int, Int] {
+  override def outputType(): DataType = LongType
+  override def initialize(): Long = 0L
+  override def accumulate(state: Long, a0: Int, a1: Int, a2: Int, a3: Int, a4: Int): Long =
+    state + a0 + a1 + a2 + a3 + a4
+  override def merge(state1: Long, state2: Long): Long = state1 + state2
+  override def terminate(state: Long): Long = state
+}
+
+class ScalaSumUDAF6 extends UDAF6[Long, Long, Int, Int, Int, Int, Int, Int] {
+  override def outputType(): DataType = LongType
+  override def initialize(): Long = 0L
+  override def accumulate(state: Long, a0: Int, a1: Int, a2: Int, a3: Int, a4: Int, a5: Int): Long =
+    state + a0 + a1 + a2 + a3 + a4 + a5
+  override def merge(state1: Long, state2: Long): Long = state1 + state2
+  override def terminate(state: Long): Long = state
+}
+
+class ScalaSumUDAF7 extends UDAF7[Long, Long, Int, Int, Int, Int, Int, Int, Int] {
+  override def outputType(): DataType = LongType
+  override def initialize(): Long = 0L
+  override def accumulate(
+      state: Long,
+      a0: Int,
+      a1: Int,
+      a2: Int,
+      a3: Int,
+      a4: Int,
+      a5: Int,
+      a6: Int): Long = state + a0 + a1 + a2 + a3 + a4 + a5 + a6
+  override def merge(state1: Long, state2: Long): Long = state1 + state2
+  override def terminate(state: Long): Long = state
+}
+
+class ScalaSumUDAF8 extends UDAF8[Long, Long, Int, Int, Int, Int, Int, Int, Int, Int] {
+  override def outputType(): DataType = LongType
+  override def initialize(): Long = 0L
+  override def accumulate(
+      state: Long,
+      a0: Int,
+      a1: Int,
+      a2: Int,
+      a3: Int,
+      a4: Int,
+      a5: Int,
+      a6: Int,
+      a7: Int): Long = state + a0 + a1 + a2 + a3 + a4 + a5 + a6 + a7
+  override def merge(state1: Long, state2: Long): Long = state1 + state2
+  override def terminate(state: Long): Long = state
+}
+
+class ScalaSumUDAF9 extends UDAF9[Long, Long, Int, Int, Int, Int, Int, Int, Int, Int, Int] {
+  override def outputType(): DataType = LongType
+  override def initialize(): Long = 0L
+  override def accumulate(
+      state: Long,
+      a0: Int,
+      a1: Int,
+      a2: Int,
+      a3: Int,
+      a4: Int,
+      a5: Int,
+      a6: Int,
+      a7: Int,
+      a8: Int): Long = state + a0 + a1 + a2 + a3 + a4 + a5 + a6 + a7 + a8
+  override def merge(state1: Long, state2: Long): Long = state1 + state2
+  override def terminate(state: Long): Long = state
+}
+
+class ScalaSumUDAF10 extends UDAF10[Long, Long, Int, Int, Int, Int, Int, Int, Int, Int, Int, Int] {
+  override def outputType(): DataType = LongType
+  override def initialize(): Long = 0L
+  override def accumulate(
+      state: Long,
+      a0: Int,
+      a1: Int,
+      a2: Int,
+      a3: Int,
+      a4: Int,
+      a5: Int,
+      a6: Int,
+      a7: Int,
+      a8: Int,
+      a9: Int): Long = state + a0 + a1 + a2 + a3 + a4 + a5 + a6 + a7 + a8 + a9
+  override def merge(state1: Long, state2: Long): Long = state1 + state2
+  override def terminate(state: Long): Long = state
+}
+
+class ScalaSumUDAF11
+    extends UDAF11[Long, Long, Int, Int, Int, Int, Int, Int, Int, Int, Int, Int, Int] {
+  override def outputType(): DataType = LongType
+  override def initialize(): Long = 0L
+  override def accumulate(
+      state: Long,
+      a0: Int,
+      a1: Int,
+      a2: Int,
+      a3: Int,
+      a4: Int,
+      a5: Int,
+      a6: Int,
+      a7: Int,
+      a8: Int,
+      a9: Int,
+      a10: Int): Long = state + a0 + a1 + a2 + a3 + a4 + a5 + a6 + a7 + a8 + a9 + a10
+  override def merge(state1: Long, state2: Long): Long = state1 + state2
+  override def terminate(state: Long): Long = state
+}
+
+class ScalaSumUDAF12
+    extends UDAF12[Long, Long, Int, Int, Int, Int, Int, Int, Int, Int, Int, Int, Int, Int] {
+  override def outputType(): DataType = LongType
+  override def initialize(): Long = 0L
+  override def accumulate(
+      state: Long,
+      a0: Int,
+      a1: Int,
+      a2: Int,
+      a3: Int,
+      a4: Int,
+      a5: Int,
+      a6: Int,
+      a7: Int,
+      a8: Int,
+      a9: Int,
+      a10: Int,
+      a11: Int): Long = state + a0 + a1 + a2 + a3 + a4 + a5 + a6 + a7 + a8 + a9 + a10 + a11
+  override def merge(state1: Long, state2: Long): Long = state1 + state2
+  override def terminate(state: Long): Long = state
+}
+
+class ScalaSumUDAF13
+    extends UDAF13[Long, Long, Int, Int, Int, Int, Int, Int, Int, Int, Int, Int, Int, Int, Int] {
+  override def outputType(): DataType = LongType
+  override def initialize(): Long = 0L
+  override def accumulate(
+      state: Long,
+      a0: Int,
+      a1: Int,
+      a2: Int,
+      a3: Int,
+      a4: Int,
+      a5: Int,
+      a6: Int,
+      a7: Int,
+      a8: Int,
+      a9: Int,
+      a10: Int,
+      a11: Int,
+      a12: Int): Long = state + a0 + a1 + a2 + a3 + a4 + a5 + a6 + a7 + a8 + a9 + a10 + a11 + a12
+  override def merge(state1: Long, state2: Long): Long = state1 + state2
+  override def terminate(state: Long): Long = state
+}
+
+class ScalaSumUDAF14
+    extends UDAF14[
+      Long,
+      Long,
+      Int,
+      Int,
+      Int,
+      Int,
+      Int,
+      Int,
+      Int,
+      Int,
+      Int,
+      Int,
+      Int,
+      Int,
+      Int,
+      Int] {
+  override def outputType(): DataType = LongType
+  override def initialize(): Long = 0L
+  override def accumulate(
+      state: Long,
+      a0: Int,
+      a1: Int,
+      a2: Int,
+      a3: Int,
+      a4: Int,
+      a5: Int,
+      a6: Int,
+      a7: Int,
+      a8: Int,
+      a9: Int,
+      a10: Int,
+      a11: Int,
+      a12: Int,
+      a13: Int): Long =
+    state + a0 + a1 + a2 + a3 + a4 + a5 + a6 + a7 + a8 + a9 + a10 + a11 + a12 + a13
+  override def merge(state1: Long, state2: Long): Long = state1 + state2
+  override def terminate(state: Long): Long = state
+}
+
+class ScalaSumUDAF15
+    extends UDAF15[
+      Long,
+      Long,
+      Int,
+      Int,
+      Int,
+      Int,
+      Int,
+      Int,
+      Int,
+      Int,
+      Int,
+      Int,
+      Int,
+      Int,
+      Int,
+      Int,
+      Int] {
+  override def outputType(): DataType = LongType
+  override def initialize(): Long = 0L
+  override def accumulate(
+      state: Long,
+      a0: Int,
+      a1: Int,
+      a2: Int,
+      a3: Int,
+      a4: Int,
+      a5: Int,
+      a6: Int,
+      a7: Int,
+      a8: Int,
+      a9: Int,
+      a10: Int,
+      a11: Int,
+      a12: Int,
+      a13: Int,
+      a14: Int): Long =
+    state + a0 + a1 + a2 + a3 + a4 + a5 + a6 + a7 + a8 + a9 + a10 + a11 + a12 + a13 + a14
+  override def merge(state1: Long, state2: Long): Long = state1 + state2
+  override def terminate(state: Long): Long = state
+}
+
+class ScalaSumUDAF16
+    extends UDAF16[
+      Long,
+      Long,
+      Int,
+      Int,
+      Int,
+      Int,
+      Int,
+      Int,
+      Int,
+      Int,
+      Int,
+      Int,
+      Int,
+      Int,
+      Int,
+      Int,
+      Int,
+      Int] {
+  override def outputType(): DataType = LongType
+  override def initialize(): Long = 0L
+  override def accumulate(
+      state: Long,
+      a0: Int,
+      a1: Int,
+      a2: Int,
+      a3: Int,
+      a4: Int,
+      a5: Int,
+      a6: Int,
+      a7: Int,
+      a8: Int,
+      a9: Int,
+      a10: Int,
+      a11: Int,
+      a12: Int,
+      a13: Int,
+      a14: Int,
+      a15: Int): Long =
+    state + a0 + a1 + a2 + a3 + a4 + a5 + a6 + a7 + a8 + a9 + a10 + a11 + a12 + a13 + a14 + a15
+  override def merge(state1: Long, state2: Long): Long = state1 + state2
+  override def terminate(state: Long): Long = state
+}
+
+class ScalaSumUDAF17
+    extends UDAF17[
+      Long,
+      Long,
+      Int,
+      Int,
+      Int,
+      Int,
+      Int,
+      Int,
+      Int,
+      Int,
+      Int,
+      Int,
+      Int,
+      Int,
+      Int,
+      Int,
+      Int,
+      Int,
+      Int] {
+  override def outputType(): DataType = LongType
+  override def initialize(): Long = 0L
+  override def accumulate(
+      state: Long,
+      a0: Int,
+      a1: Int,
+      a2: Int,
+      a3: Int,
+      a4: Int,
+      a5: Int,
+      a6: Int,
+      a7: Int,
+      a8: Int,
+      a9: Int,
+      a10: Int,
+      a11: Int,
+      a12: Int,
+      a13: Int,
+      a14: Int,
+      a15: Int,
+      a16: Int): Long =
+    state + a0 + a1 + a2 + a3 + a4 + a5 + a6 + a7 + a8 + a9 + a10 + a11 + a12 + a13 + a14 + a15 + a16
+  override def merge(state1: Long, state2: Long): Long = state1 + state2
+  override def terminate(state: Long): Long = state
+}
+
+class ScalaSumUDAF18
+    extends UDAF18[
+      Long,
+      Long,
+      Int,
+      Int,
+      Int,
+      Int,
+      Int,
+      Int,
+      Int,
+      Int,
+      Int,
+      Int,
+      Int,
+      Int,
+      Int,
+      Int,
+      Int,
+      Int,
+      Int,
+      Int] {
+  override def outputType(): DataType = LongType
+  override def initialize(): Long = 0L
+  override def accumulate(
+      state: Long,
+      a0: Int,
+      a1: Int,
+      a2: Int,
+      a3: Int,
+      a4: Int,
+      a5: Int,
+      a6: Int,
+      a7: Int,
+      a8: Int,
+      a9: Int,
+      a10: Int,
+      a11: Int,
+      a12: Int,
+      a13: Int,
+      a14: Int,
+      a15: Int,
+      a16: Int,
+      a17: Int): Long =
+    state + a0 + a1 + a2 + a3 + a4 + a5 + a6 + a7 + a8 + a9 + a10 + a11 + a12 + a13 + a14 + a15 + a16 + a17
+  override def merge(state1: Long, state2: Long): Long = state1 + state2
+  override def terminate(state: Long): Long = state
+}
+
+class ScalaSumUDAF19
+    extends UDAF19[
+      Long,
+      Long,
+      Int,
+      Int,
+      Int,
+      Int,
+      Int,
+      Int,
+      Int,
+      Int,
+      Int,
+      Int,
+      Int,
+      Int,
+      Int,
+      Int,
+      Int,
+      Int,
+      Int,
+      Int,
+      Int] {
+  override def outputType(): DataType = LongType
+  override def initialize(): Long = 0L
+  override def accumulate(
+      state: Long,
+      a0: Int,
+      a1: Int,
+      a2: Int,
+      a3: Int,
+      a4: Int,
+      a5: Int,
+      a6: Int,
+      a7: Int,
+      a8: Int,
+      a9: Int,
+      a10: Int,
+      a11: Int,
+      a12: Int,
+      a13: Int,
+      a14: Int,
+      a15: Int,
+      a16: Int,
+      a17: Int,
+      a18: Int): Long =
+    state + a0 + a1 + a2 + a3 + a4 + a5 + a6 + a7 + a8 + a9 + a10 + a11 + a12 + a13 + a14 + a15 + a16 + a17 + a18
+  override def merge(state1: Long, state2: Long): Long = state1 + state2
+  override def terminate(state: Long): Long = state
+}
+
+class ScalaSumUDAF20
+    extends UDAF20[
+      Long,
+      Long,
+      Int,
+      Int,
+      Int,
+      Int,
+      Int,
+      Int,
+      Int,
+      Int,
+      Int,
+      Int,
+      Int,
+      Int,
+      Int,
+      Int,
+      Int,
+      Int,
+      Int,
+      Int,
+      Int,
+      Int] {
+  override def outputType(): DataType = LongType
+  override def initialize(): Long = 0L
+  override def accumulate(
+      state: Long,
+      a0: Int,
+      a1: Int,
+      a2: Int,
+      a3: Int,
+      a4: Int,
+      a5: Int,
+      a6: Int,
+      a7: Int,
+      a8: Int,
+      a9: Int,
+      a10: Int,
+      a11: Int,
+      a12: Int,
+      a13: Int,
+      a14: Int,
+      a15: Int,
+      a16: Int,
+      a17: Int,
+      a18: Int,
+      a19: Int): Long =
+    state + a0 + a1 + a2 + a3 + a4 + a5 + a6 + a7 + a8 + a9 + a10 + a11 + a12 + a13 + a14 + a15 + a16 + a17 + a18 + a19
+  override def merge(state1: Long, state2: Long): Long = state1 + state2
+  override def terminate(state: Long): Long = state
+}
+
+class ScalaSumUDAF21
+    extends UDAF21[
+      Long,
+      Long,
+      Int,
+      Int,
+      Int,
+      Int,
+      Int,
+      Int,
+      Int,
+      Int,
+      Int,
+      Int,
+      Int,
+      Int,
+      Int,
+      Int,
+      Int,
+      Int,
+      Int,
+      Int,
+      Int,
+      Int,
+      Int] {
+  override def outputType(): DataType = LongType
+  override def initialize(): Long = 0L
+  override def accumulate(
+      state: Long,
+      a0: Int,
+      a1: Int,
+      a2: Int,
+      a3: Int,
+      a4: Int,
+      a5: Int,
+      a6: Int,
+      a7: Int,
+      a8: Int,
+      a9: Int,
+      a10: Int,
+      a11: Int,
+      a12: Int,
+      a13: Int,
+      a14: Int,
+      a15: Int,
+      a16: Int,
+      a17: Int,
+      a18: Int,
+      a19: Int,
+      a20: Int): Long =
+    state + a0 + a1 + a2 + a3 + a4 + a5 + a6 + a7 + a8 + a9 + a10 + a11 + a12 + a13 + a14 + a15 + a16 + a17 + a18 + a19 + a20
+  override def merge(state1: Long, state2: Long): Long = state1 + state2
+  override def terminate(state: Long): Long = state
+}
+
+class ScalaSumUDAF22
+    extends UDAF22[
+      Long,
+      Long,
+      Int,
+      Int,
+      Int,
+      Int,
+      Int,
+      Int,
+      Int,
+      Int,
+      Int,
+      Int,
+      Int,
+      Int,
+      Int,
+      Int,
+      Int,
+      Int,
+      Int,
+      Int,
+      Int,
+      Int,
+      Int,
+      Int] {
+  override def outputType(): DataType = LongType
+  override def initialize(): Long = 0L
+  override def accumulate(
+      state: Long,
+      a0: Int,
+      a1: Int,
+      a2: Int,
+      a3: Int,
+      a4: Int,
+      a5: Int,
+      a6: Int,
+      a7: Int,
+      a8: Int,
+      a9: Int,
+      a10: Int,
+      a11: Int,
+      a12: Int,
+      a13: Int,
+      a14: Int,
+      a15: Int,
+      a16: Int,
+      a17: Int,
+      a18: Int,
+      a19: Int,
+      a20: Int,
+      a21: Int): Long =
+    state + a0 + a1 + a2 + a3 + a4 + a5 + a6 + a7 + a8 + a9 + a10 + a11 + a12 + a13 + a14 + a15 + a16 + a17 + a18 + a19 + a20 + a21
+  override def merge(state1: Long, state2: Long): Long = state1 + state2
+  override def terminate(state: Long): Long = state
+}
+
 class UDAFSuite extends TestData {
   import session.implicits._
 
@@ -280,10 +894,10 @@ class UDAFSuite extends TestData {
     assert(result(0).getDouble(0) == 30.0)
   }
 
-  // ==================== functions.udaf() convenience method tests ====================
+  // ==================== session.udaf.registerTemporary() convenience method tests ====================
 
-  test("test functions.udaf() with ScalaSumUDAF") {
-    val mySum = udaf(new ScalaSumUDAF())
+  test("test session.udaf.registerTemporary() with ScalaSumUDAF") {
+    val mySum = session.udaf.registerTemporary(new ScalaSumUDAF())
 
     val df = session.createDataFrame(Seq(1, 2, 3, 4, 5)).toDF("a")
     val result = df.select(mySum(col("a"))).collect()
@@ -292,8 +906,8 @@ class UDAFSuite extends TestData {
     assert(result(0).getLong(0) == 15)
   }
 
-  test("test functions.udaf() with ScalaAvgUDAF") {
-    val myAvg = udaf(new ScalaAvgUDAF())
+  test("test session.udaf.registerTemporary() with ScalaAvgUDAF") {
+    val myAvg = session.udaf.registerTemporary(new ScalaAvgUDAF())
 
     val df = session.createDataFrame(Seq(10, 20, 30, 40)).toDF("a")
     val result = df.select(myAvg(col("a"))).collect()
@@ -302,8 +916,8 @@ class UDAFSuite extends TestData {
     assert(result(0).getDouble(0) == 25.0)
   }
 
-  test("test functions.udaf() with UDAF2") {
-    val mySumProduct = udaf(new ScalaSumProductUDAF())
+  test("test session.udaf.registerTemporary() with UDAF2") {
+    val mySumProduct = session.udaf.registerTemporary(new ScalaSumProductUDAF())
 
     val df = session.createDataFrame(Seq((2, 3), (4, 5), (6, 7))).toDF("a", "b")
     // 2*3 + 4*5 + 6*7 = 6 + 20 + 42 = 68
@@ -312,8 +926,8 @@ class UDAFSuite extends TestData {
     assert(result(0).getLong(0) == 68)
   }
 
-  test("test functions.udaf() with group by") {
-    val mySum = udaf(new ScalaSumUDAF())
+  test("test session.udaf.registerTemporary() with group by") {
+    val mySum = session.udaf.registerTemporary(new ScalaSumUDAF())
 
     val df =
       session.createDataFrame(Seq(("x", 10), ("x", 20), ("y", 30), ("y", 40))).toDF("grp", "val")
@@ -326,8 +940,8 @@ class UDAFSuite extends TestData {
     assert(result(1).getLong(1) == 70) // 30 + 40
   }
 
-  test("test functions.udaf() with case class state") {
-    val myAvg = udaf(new ScalaCaseClassAvgUDAF())
+  test("test session.udaf.registerTemporary() with case class state") {
+    val myAvg = session.udaf.registerTemporary(new ScalaCaseClassAvgUDAF())
 
     val df = session.createDataFrame(Seq(100, 200, 300)).toDF("a")
     val result = df.select(myAvg(col("a"))).collect()
@@ -336,8 +950,8 @@ class UDAFSuite extends TestData {
     assert(result(0).getDouble(0) == 200.0)
   }
 
-  test("test functions.udaf() with single row") {
-    val mySum = udaf(new ScalaSumUDAF())
+  test("test session.udaf.registerTemporary() with single row") {
+    val mySum = session.udaf.registerTemporary(new ScalaSumUDAF())
 
     val df = session.createDataFrame(Seq(42)).toDF("a")
     val result = df.select(mySum(col("a"))).collect()
@@ -345,9 +959,9 @@ class UDAFSuite extends TestData {
     assert(result(0).getLong(0) == 42)
   }
 
-  test("test functions.udaf() with multiple UDAFs in same query") {
-    val mySum = udaf(new ScalaSumUDAF())
-    val myAvg = udaf(new ScalaAvgUDAF())
+  test("test session.udaf.registerTemporary() with multiple UDAFs in same query") {
+    val mySum = session.udaf.registerTemporary(new ScalaSumUDAF())
+    val myAvg = session.udaf.registerTemporary(new ScalaAvgUDAF())
 
     val df = session.createDataFrame(Seq(10, 20, 30)).toDF("a")
     val result = df.select(mySum(col("a")), myAvg(col("a"))).collect()
@@ -356,8 +970,8 @@ class UDAFSuite extends TestData {
     assert(result(0).getDouble(1) == 20.0) // avg: 60 / 3 = 20.0
   }
 
-  test("test functions.udaf() with filter") {
-    val mySum = udaf(new ScalaSumUDAF())
+  test("test session.udaf.registerTemporary() with filter") {
+    val mySum = session.udaf.registerTemporary(new ScalaSumUDAF())
 
     val df = session.createDataFrame(Seq(1, 2, 3, 4, 5, 6)).toDF("a")
     // Filter for even numbers only
@@ -367,8 +981,8 @@ class UDAFSuite extends TestData {
     assert(result(0).getLong(0) == 12)
   }
 
-  test("test functions.udaf() reuse same UDAF instance") {
-    val mySum = udaf(new ScalaSumUDAF())
+  test("test session.udaf.registerTemporary() reuse same UDAF instance") {
+    val mySum = session.udaf.registerTemporary(new ScalaSumUDAF())
 
     val df1 = session.createDataFrame(Seq(1, 2, 3)).toDF("a")
     val df2 = session.createDataFrame(Seq(10, 20, 30)).toDF("b")
@@ -380,8 +994,8 @@ class UDAFSuite extends TestData {
     assert(result2(0).getLong(0) == 60) // 10 + 20 + 30
   }
 
-  test("test functions.udaf() with multiple groups") {
-    val mySum = udaf(new ScalaSumUDAF())
+  test("test session.udaf.registerTemporary() with multiple groups") {
+    val mySum = session.udaf.registerTemporary(new ScalaSumUDAF())
 
     val df = session
       .createDataFrame(
@@ -408,8 +1022,8 @@ class UDAFSuite extends TestData {
     assert(result(2).getLong(1) == 18) // 3 + 6 + 9
   }
 
-  test("test functions.udaf() with large numbers") {
-    val mySum = udaf(new ScalaSumUDAF())
+  test("test session.udaf.registerTemporary() with large numbers") {
+    val mySum = session.udaf.registerTemporary(new ScalaSumUDAF())
 
     val df = session.createDataFrame(Seq(Int.MaxValue - 1, 1, 1)).toDF("a")
     val result = df.select(mySum(col("a"))).collect()
@@ -418,8 +1032,8 @@ class UDAFSuite extends TestData {
     assert(result(0).getLong(0) == Int.MaxValue.toLong + 1)
   }
 
-  test("test functions.udaf() with negative numbers") {
-    val mySum = udaf(new ScalaSumUDAF())
+  test("test session.udaf.registerTemporary() with negative numbers") {
+    val mySum = session.udaf.registerTemporary(new ScalaSumUDAF())
 
     val df = session.createDataFrame(Seq(-10, 20, -30, 40)).toDF("a")
     val result = df.select(mySum(col("a"))).collect()
@@ -428,8 +1042,8 @@ class UDAFSuite extends TestData {
     assert(result(0).getLong(0) == 20)
   }
 
-  test("test functions.udaf() chained with other DataFrame operations") {
-    val mySum = udaf(new ScalaSumUDAF())
+  test("test session.udaf.registerTemporary() chained with other DataFrame operations") {
+    val mySum = session.udaf.registerTemporary(new ScalaSumUDAF())
 
     val df = session
       .createDataFrame(Seq(("a", 1), ("a", 2), ("b", 3), ("b", 4), ("c", 5)))
@@ -445,8 +1059,8 @@ class UDAFSuite extends TestData {
     assert(result(0).getLong(1) == 7) // 3 + 4
   }
 
-  test("test functions.udaf() with UDAF2 and group by") {
-    val mySumProduct = udaf(new ScalaSumProductUDAF())
+  test("test session.udaf.registerTemporary() with UDAF2 and group by") {
+    val mySumProduct = session.udaf.registerTemporary(new ScalaSumProductUDAF())
 
     val df = session
       .createDataFrame(Seq(("x", 1, 2), ("x", 3, 4), ("y", 5, 6), ("y", 7, 8)))
@@ -460,5 +1074,466 @@ class UDAFSuite extends TestData {
     assert(result(0).getLong(1) == 14) // 1*2 + 3*4 = 2 + 12 = 14
     assert(result(1).getString(0) == "y")
     assert(result(1).getLong(1) == 86) // 5*6 + 7*8 = 30 + 56 = 86
+  }
+
+  // ==================== Multi-arg Scala UDAF tests (UDAF3-22) ====================
+
+  test("test Scala UDAF3 multi-arg sum") {
+    val mySum = session.udaf.registerTemporary(new ScalaSumUDAF3())
+    val df = session.createDataFrame(Seq(1, 2, 3)).toDF("a")
+    val result = df.select(mySum(col("a"), col("a").plus(lit(1)), col("a").plus(lit(2)))).collect()
+    assert(result.length == 1)
+    assert(result(0).getLong(0) == 27L)
+  }
+
+  test("test Scala UDAF4 multi-arg sum") {
+    val mySum = session.udaf.registerTemporary(new ScalaSumUDAF4())
+    val df = session.createDataFrame(Seq(1, 2, 3)).toDF("a")
+    val result = df
+      .select(mySum(col("a"), col("a").plus(lit(1)), col("a").plus(lit(2)), col("a").plus(lit(3))))
+      .collect()
+    assert(result.length == 1)
+    assert(result(0).getLong(0) == 42L)
+  }
+
+  test("test Scala UDAF5 multi-arg sum") {
+    val mySum = session.udaf.registerTemporary(new ScalaSumUDAF5())
+    val df = session.createDataFrame(Seq(1, 2, 3)).toDF("a")
+    val result = df
+      .select(
+        mySum(
+          col("a"),
+          col("a").plus(lit(1)),
+          col("a").plus(lit(2)),
+          col("a").plus(lit(3)),
+          col("a").plus(lit(4))))
+      .collect()
+    assert(result.length == 1)
+    assert(result(0).getLong(0) == 60L)
+  }
+
+  test("test Scala UDAF6 multi-arg sum") {
+    val mySum = session.udaf.registerTemporary(new ScalaSumUDAF6())
+    val df = session.createDataFrame(Seq(1, 2, 3)).toDF("a")
+    val result = df
+      .select(
+        mySum(
+          col("a"),
+          col("a").plus(lit(1)),
+          col("a").plus(lit(2)),
+          col("a").plus(lit(3)),
+          col("a").plus(lit(4)),
+          col("a").plus(lit(5))))
+      .collect()
+    assert(result.length == 1)
+    assert(result(0).getLong(0) == 81L)
+  }
+
+  test("test Scala UDAF7 multi-arg sum") {
+    val mySum = session.udaf.registerTemporary(new ScalaSumUDAF7())
+    val df = session.createDataFrame(Seq(1, 2, 3)).toDF("a")
+    val result = df
+      .select(
+        mySum(
+          col("a"),
+          col("a").plus(lit(1)),
+          col("a").plus(lit(2)),
+          col("a").plus(lit(3)),
+          col("a").plus(lit(4)),
+          col("a").plus(lit(5)),
+          col("a").plus(lit(6))))
+      .collect()
+    assert(result.length == 1)
+    assert(result(0).getLong(0) == 105L)
+  }
+
+  test("test Scala UDAF8 multi-arg sum") {
+    val mySum = session.udaf.registerTemporary(new ScalaSumUDAF8())
+    val df = session.createDataFrame(Seq(1, 2, 3)).toDF("a")
+    val result = df
+      .select(
+        mySum(
+          col("a"),
+          col("a").plus(lit(1)),
+          col("a").plus(lit(2)),
+          col("a").plus(lit(3)),
+          col("a").plus(lit(4)),
+          col("a").plus(lit(5)),
+          col("a").plus(lit(6)),
+          col("a").plus(lit(7))))
+      .collect()
+    assert(result.length == 1)
+    assert(result(0).getLong(0) == 132L)
+  }
+
+  test("test Scala UDAF9 multi-arg sum") {
+    val mySum = session.udaf.registerTemporary(new ScalaSumUDAF9())
+    val df = session.createDataFrame(Seq(1, 2, 3)).toDF("a")
+    val result = df
+      .select(
+        mySum(
+          col("a"),
+          col("a").plus(lit(1)),
+          col("a").plus(lit(2)),
+          col("a").plus(lit(3)),
+          col("a").plus(lit(4)),
+          col("a").plus(lit(5)),
+          col("a").plus(lit(6)),
+          col("a").plus(lit(7)),
+          col("a").plus(lit(8))))
+      .collect()
+    assert(result.length == 1)
+    assert(result(0).getLong(0) == 162L)
+  }
+
+  test("test Scala UDAF10 multi-arg sum") {
+    val mySum = session.udaf.registerTemporary(new ScalaSumUDAF10())
+    val df = session.createDataFrame(Seq(1, 2, 3)).toDF("a")
+    val result = df
+      .select(
+        mySum(
+          col("a"),
+          col("a").plus(lit(1)),
+          col("a").plus(lit(2)),
+          col("a").plus(lit(3)),
+          col("a").plus(lit(4)),
+          col("a").plus(lit(5)),
+          col("a").plus(lit(6)),
+          col("a").plus(lit(7)),
+          col("a").plus(lit(8)),
+          col("a").plus(lit(9))))
+      .collect()
+    assert(result.length == 1)
+    assert(result(0).getLong(0) == 195L)
+  }
+
+  test("test Scala UDAF11 multi-arg sum") {
+    val mySum = session.udaf.registerTemporary(new ScalaSumUDAF11())
+    val df = session.createDataFrame(Seq(1, 2, 3)).toDF("a")
+    val result = df
+      .select(
+        mySum(
+          col("a"),
+          col("a").plus(lit(1)),
+          col("a").plus(lit(2)),
+          col("a").plus(lit(3)),
+          col("a").plus(lit(4)),
+          col("a").plus(lit(5)),
+          col("a").plus(lit(6)),
+          col("a").plus(lit(7)),
+          col("a").plus(lit(8)),
+          col("a").plus(lit(9)),
+          col("a").plus(lit(10))))
+      .collect()
+    assert(result.length == 1)
+    assert(result(0).getLong(0) == 231L)
+  }
+
+  test("test Scala UDAF12 multi-arg sum") {
+    val mySum = session.udaf.registerTemporary(new ScalaSumUDAF12())
+    val df = session.createDataFrame(Seq(1, 2, 3)).toDF("a")
+    val result = df
+      .select(
+        mySum(
+          col("a"),
+          col("a").plus(lit(1)),
+          col("a").plus(lit(2)),
+          col("a").plus(lit(3)),
+          col("a").plus(lit(4)),
+          col("a").plus(lit(5)),
+          col("a").plus(lit(6)),
+          col("a").plus(lit(7)),
+          col("a").plus(lit(8)),
+          col("a").plus(lit(9)),
+          col("a").plus(lit(10)),
+          col("a").plus(lit(11))))
+      .collect()
+    assert(result.length == 1)
+    assert(result(0).getLong(0) == 270L)
+  }
+
+  test("test Scala UDAF13 multi-arg sum") {
+    val mySum = session.udaf.registerTemporary(new ScalaSumUDAF13())
+    val df = session.createDataFrame(Seq(1, 2, 3)).toDF("a")
+    val result = df
+      .select(
+        mySum(
+          col("a"),
+          col("a").plus(lit(1)),
+          col("a").plus(lit(2)),
+          col("a").plus(lit(3)),
+          col("a").plus(lit(4)),
+          col("a").plus(lit(5)),
+          col("a").plus(lit(6)),
+          col("a").plus(lit(7)),
+          col("a").plus(lit(8)),
+          col("a").plus(lit(9)),
+          col("a").plus(lit(10)),
+          col("a").plus(lit(11)),
+          col("a").plus(lit(12))))
+      .collect()
+    assert(result.length == 1)
+    assert(result(0).getLong(0) == 312L)
+  }
+
+  test("test Scala UDAF14 multi-arg sum") {
+    val mySum = session.udaf.registerTemporary(new ScalaSumUDAF14())
+    val df = session.createDataFrame(Seq(1, 2, 3)).toDF("a")
+    val result = df
+      .select(
+        mySum(
+          col("a"),
+          col("a").plus(lit(1)),
+          col("a").plus(lit(2)),
+          col("a").plus(lit(3)),
+          col("a").plus(lit(4)),
+          col("a").plus(lit(5)),
+          col("a").plus(lit(6)),
+          col("a").plus(lit(7)),
+          col("a").plus(lit(8)),
+          col("a").plus(lit(9)),
+          col("a").plus(lit(10)),
+          col("a").plus(lit(11)),
+          col("a").plus(lit(12)),
+          col("a").plus(lit(13))))
+      .collect()
+    assert(result.length == 1)
+    assert(result(0).getLong(0) == 357L)
+  }
+
+  test("test Scala UDAF15 multi-arg sum") {
+    val mySum = session.udaf.registerTemporary(new ScalaSumUDAF15())
+    val df = session.createDataFrame(Seq(1, 2, 3)).toDF("a")
+    val result = df
+      .select(
+        mySum(
+          col("a"),
+          col("a").plus(lit(1)),
+          col("a").plus(lit(2)),
+          col("a").plus(lit(3)),
+          col("a").plus(lit(4)),
+          col("a").plus(lit(5)),
+          col("a").plus(lit(6)),
+          col("a").plus(lit(7)),
+          col("a").plus(lit(8)),
+          col("a").plus(lit(9)),
+          col("a").plus(lit(10)),
+          col("a").plus(lit(11)),
+          col("a").plus(lit(12)),
+          col("a").plus(lit(13)),
+          col("a").plus(lit(14))))
+      .collect()
+    assert(result.length == 1)
+    assert(result(0).getLong(0) == 405L)
+  }
+
+  test("test Scala UDAF16 multi-arg sum") {
+    val mySum = session.udaf.registerTemporary(new ScalaSumUDAF16())
+    val df = session.createDataFrame(Seq(1, 2, 3)).toDF("a")
+    val result = df
+      .select(
+        mySum(
+          col("a"),
+          col("a").plus(lit(1)),
+          col("a").plus(lit(2)),
+          col("a").plus(lit(3)),
+          col("a").plus(lit(4)),
+          col("a").plus(lit(5)),
+          col("a").plus(lit(6)),
+          col("a").plus(lit(7)),
+          col("a").plus(lit(8)),
+          col("a").plus(lit(9)),
+          col("a").plus(lit(10)),
+          col("a").plus(lit(11)),
+          col("a").plus(lit(12)),
+          col("a").plus(lit(13)),
+          col("a").plus(lit(14)),
+          col("a").plus(lit(15))))
+      .collect()
+    assert(result.length == 1)
+    assert(result(0).getLong(0) == 456L)
+  }
+
+  test("test Scala UDAF17 multi-arg sum") {
+    val mySum = session.udaf.registerTemporary(new ScalaSumUDAF17())
+    val df = session.createDataFrame(Seq(1, 2, 3)).toDF("a")
+    val result = df
+      .select(
+        mySum(
+          col("a"),
+          col("a").plus(lit(1)),
+          col("a").plus(lit(2)),
+          col("a").plus(lit(3)),
+          col("a").plus(lit(4)),
+          col("a").plus(lit(5)),
+          col("a").plus(lit(6)),
+          col("a").plus(lit(7)),
+          col("a").plus(lit(8)),
+          col("a").plus(lit(9)),
+          col("a").plus(lit(10)),
+          col("a").plus(lit(11)),
+          col("a").plus(lit(12)),
+          col("a").plus(lit(13)),
+          col("a").plus(lit(14)),
+          col("a").plus(lit(15)),
+          col("a").plus(lit(16))))
+      .collect()
+    assert(result.length == 1)
+    assert(result(0).getLong(0) == 510L)
+  }
+
+  test("test Scala UDAF18 multi-arg sum") {
+    val mySum = session.udaf.registerTemporary(new ScalaSumUDAF18())
+    val df = session.createDataFrame(Seq(1, 2, 3)).toDF("a")
+    val result = df
+      .select(
+        mySum(
+          col("a"),
+          col("a").plus(lit(1)),
+          col("a").plus(lit(2)),
+          col("a").plus(lit(3)),
+          col("a").plus(lit(4)),
+          col("a").plus(lit(5)),
+          col("a").plus(lit(6)),
+          col("a").plus(lit(7)),
+          col("a").plus(lit(8)),
+          col("a").plus(lit(9)),
+          col("a").plus(lit(10)),
+          col("a").plus(lit(11)),
+          col("a").plus(lit(12)),
+          col("a").plus(lit(13)),
+          col("a").plus(lit(14)),
+          col("a").plus(lit(15)),
+          col("a").plus(lit(16)),
+          col("a").plus(lit(17))))
+      .collect()
+    assert(result.length == 1)
+    assert(result(0).getLong(0) == 567L)
+  }
+
+  test("test Scala UDAF19 multi-arg sum") {
+    val mySum = session.udaf.registerTemporary(new ScalaSumUDAF19())
+    val df = session.createDataFrame(Seq(1, 2, 3)).toDF("a")
+    val result = df
+      .select(
+        mySum(
+          col("a"),
+          col("a").plus(lit(1)),
+          col("a").plus(lit(2)),
+          col("a").plus(lit(3)),
+          col("a").plus(lit(4)),
+          col("a").plus(lit(5)),
+          col("a").plus(lit(6)),
+          col("a").plus(lit(7)),
+          col("a").plus(lit(8)),
+          col("a").plus(lit(9)),
+          col("a").plus(lit(10)),
+          col("a").plus(lit(11)),
+          col("a").plus(lit(12)),
+          col("a").plus(lit(13)),
+          col("a").plus(lit(14)),
+          col("a").plus(lit(15)),
+          col("a").plus(lit(16)),
+          col("a").plus(lit(17)),
+          col("a").plus(lit(18))))
+      .collect()
+    assert(result.length == 1)
+    assert(result(0).getLong(0) == 627L)
+  }
+
+  test("test Scala UDAF20 multi-arg sum") {
+    val mySum = session.udaf.registerTemporary(new ScalaSumUDAF20())
+    val df = session.createDataFrame(Seq(1, 2, 3)).toDF("a")
+    val result = df
+      .select(
+        mySum(
+          col("a"),
+          col("a").plus(lit(1)),
+          col("a").plus(lit(2)),
+          col("a").plus(lit(3)),
+          col("a").plus(lit(4)),
+          col("a").plus(lit(5)),
+          col("a").plus(lit(6)),
+          col("a").plus(lit(7)),
+          col("a").plus(lit(8)),
+          col("a").plus(lit(9)),
+          col("a").plus(lit(10)),
+          col("a").plus(lit(11)),
+          col("a").plus(lit(12)),
+          col("a").plus(lit(13)),
+          col("a").plus(lit(14)),
+          col("a").plus(lit(15)),
+          col("a").plus(lit(16)),
+          col("a").plus(lit(17)),
+          col("a").plus(lit(18)),
+          col("a").plus(lit(19))))
+      .collect()
+    assert(result.length == 1)
+    assert(result(0).getLong(0) == 690L)
+  }
+
+  test("test Scala UDAF21 multi-arg sum") {
+    val mySum = session.udaf.registerTemporary(new ScalaSumUDAF21())
+    val df = session.createDataFrame(Seq(1, 2, 3)).toDF("a")
+    val result = df
+      .select(
+        mySum(
+          col("a"),
+          col("a").plus(lit(1)),
+          col("a").plus(lit(2)),
+          col("a").plus(lit(3)),
+          col("a").plus(lit(4)),
+          col("a").plus(lit(5)),
+          col("a").plus(lit(6)),
+          col("a").plus(lit(7)),
+          col("a").plus(lit(8)),
+          col("a").plus(lit(9)),
+          col("a").plus(lit(10)),
+          col("a").plus(lit(11)),
+          col("a").plus(lit(12)),
+          col("a").plus(lit(13)),
+          col("a").plus(lit(14)),
+          col("a").plus(lit(15)),
+          col("a").plus(lit(16)),
+          col("a").plus(lit(17)),
+          col("a").plus(lit(18)),
+          col("a").plus(lit(19)),
+          col("a").plus(lit(20))))
+      .collect()
+    assert(result.length == 1)
+    assert(result(0).getLong(0) == 756L)
+  }
+
+  test("test Scala UDAF22 multi-arg sum") {
+    val mySum = session.udaf.registerTemporary(new ScalaSumUDAF22())
+    val df = session.createDataFrame(Seq(1, 2, 3)).toDF("a")
+    val result = df
+      .select(
+        mySum(
+          col("a"),
+          col("a").plus(lit(1)),
+          col("a").plus(lit(2)),
+          col("a").plus(lit(3)),
+          col("a").plus(lit(4)),
+          col("a").plus(lit(5)),
+          col("a").plus(lit(6)),
+          col("a").plus(lit(7)),
+          col("a").plus(lit(8)),
+          col("a").plus(lit(9)),
+          col("a").plus(lit(10)),
+          col("a").plus(lit(11)),
+          col("a").plus(lit(12)),
+          col("a").plus(lit(13)),
+          col("a").plus(lit(14)),
+          col("a").plus(lit(15)),
+          col("a").plus(lit(16)),
+          col("a").plus(lit(17)),
+          col("a").plus(lit(18)),
+          col("a").plus(lit(19)),
+          col("a").plus(lit(20)),
+          col("a").plus(lit(21))))
+      .collect()
+    assert(result.length == 1)
+    assert(result(0).getLong(0) == 825L)
   }
 }
