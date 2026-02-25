@@ -28,6 +28,7 @@ object Utils extends Logging {
   // because it fails to read the property file in some environment such as
   // VSCode worksheet.
   val ScalaCompatVersion: String = BuildInfo.scalaVersion.split("\\.").take(2).mkString(".")
+  val ScalaUDxFSprocVersionSuffix: String = ScalaCompatVersion.replace('.', '_')
   // Package name of snowpark on server side
   val SnowparkPackageName = s"com.snowflake:snowpark_$ScalaCompatVersion"
   val PackageNameDelimiter = ":"
@@ -70,7 +71,10 @@ object Utils extends Logging {
   lazy private[snowpark] val isWindows: Boolean =
     OSName.toLowerCase(Locale.ENGLISH).contains("win")
 
-  // Scala runtime version
+  /**
+   * Scala runtime version - use only as a Session-specific version indicator, NOT for UDxF/SProc
+   * code generation.
+   */
   lazy val ScalaVersion: String = util.Properties.versionNumberString
 
   lazy val JavaVersion: String = System.getProperty("java.version")
