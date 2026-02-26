@@ -1,5 +1,6 @@
 package com.snowflake.snowpark_test;
 
+import com.snowflake.snowpark.internal.JavaUtils;
 import com.snowflake.snowpark_java.Functions;
 import com.snowflake.snowpark_java.Session;
 import com.snowflake.snowpark_java.sproc.JavaSProc0;
@@ -101,7 +102,7 @@ public class JavaUDXOpenTelemetrySuite extends JavaUDXOpenTelemetryEnabled {
         "JavaUDXOpenTelemetrySuite.java",
         file.getLineNumber() - 1,
         execName,
-        "SnowUDF.compute",
+        "SnowUDF_" + JavaUtils.snowparkScalaUDxFSprocVersionSuffix() + ".compute",
         execFilePath);
   }
 
@@ -115,7 +116,7 @@ public class JavaUDXOpenTelemetrySuite extends JavaUDXOpenTelemetryEnabled {
         "JavaUDXOpenTelemetrySuite.java",
         file.getLineNumber() - 1,
         execName,
-        "SnowparkGeneratedUDTF",
+        "SnowparkGeneratedUDTF_" + JavaUtils.snowparkScalaUDxFSprocVersionSuffix(),
         execFilePath);
   }
 }
