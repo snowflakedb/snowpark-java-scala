@@ -21,10 +21,12 @@ class UDFInternalSuite extends TestData {
       TestUtils.addDepsToClassPath(session, Some(stageName))
       TestUtils.addDepsToClassPath(newSession, Some(stageName))
     }
+    enableScala213UdxfSprocParams(session)
   }
 
   override def afterAll: Unit = {
     dropStage(stageName)
+    disableScala213UdxfSprocParams(session)
     super.afterAll
   }
 
@@ -46,7 +48,7 @@ class UDFInternalSuite extends TestData {
       verify(mockSession, times(1)).addDependency(path)
     }
     verify(mockSession, times(1)).removeDependency(path)
-    verify(mockSession, times(1)).addPackage("com.snowflake:snowpark:latest")
+    verify(mockSession, times(1)).addPackage(s"${Utils.SnowparkPackageName}:latest")
   }
 
   test("Test permanent udf not failing back to upload jar", JavaStoredProcExclude) {
@@ -80,7 +82,7 @@ class UDFInternalSuite extends TestData {
       verify(mockSession, times(1)).addDependency(path)
     }
     verify(mockSession, times(1)).removeDependency(path)
-    verify(mockSession, times(1)).addPackage("com.snowflake:snowpark:latest")
+    verify(mockSession, times(1)).addPackage(s"${Utils.SnowparkPackageName}:latest")
   }
 
   test("Test add version logic", JavaStoredProcExclude) {
@@ -189,7 +191,7 @@ class PackageUDFSuite extends UDFSuite {
     val snClassDir = UDFClassPath.getPathForClass(classOf[Session]).get
     session.removeDependency(snClassDir.replace("scoverage-", ""))
     session.removePackage(Utils.clientPackageName)
-    session.addPackage("com.snowflake:snowpark:latest")
+    session.addPackage(s"${Utils.SnowparkPackageName}:latest")
   }
 
   override def afterAll: Unit = {
@@ -207,7 +209,7 @@ class PackageUDTFSuite extends UDTFSuite {
     val snClassDir = UDFClassPath.getPathForClass(classOf[Session]).get
     session.removeDependency(snClassDir.replace("scoverage-", ""))
     session.removePackage(Utils.clientPackageName)
-    session.addPackage("com.snowflake:snowpark:latest")
+    session.addPackage(s"${Utils.SnowparkPackageName}:latest")
   }
 
   override def afterAll: Unit = {

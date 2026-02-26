@@ -23,7 +23,7 @@ def isFatJarOrBundle(c: String): Boolean =
 
 lazy val snowparkName = s"snowpark${if (isFipsRelease) "-fips" else ""}"
 lazy val jdbcName = s"snowflake-jdbc${if (isFipsRelease) "-fips" else ""}"
-lazy val snowparkVersion = "1.17.0"
+lazy val snowparkVersion = "1.17.1"
 
 lazy val Javadoc = config("genjavadoc") extend Compile
 
