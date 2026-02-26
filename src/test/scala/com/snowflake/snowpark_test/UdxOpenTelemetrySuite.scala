@@ -3,6 +3,7 @@ package com.snowflake.snowpark_test
 import com.snowflake.snowpark.types.{IntegerType, StructField, StructType}
 import com.snowflake.snowpark.udtf.UDTF0
 import com.snowflake.snowpark.{OpenTelemetryEnabled, Row, Session, TestUtils, functions}
+import com.snowflake.snowpark.internal.Utils.ScalaUDxFSprocVersionSuffix
 
 class UdxOpenTelemetrySuite extends OpenTelemetryEnabled {
   override def beforeAll: Unit = {
@@ -10,6 +11,12 @@ class UdxOpenTelemetrySuite extends OpenTelemetryEnabled {
     if (!isStoredProc(session)) {
       TestUtils.addDepsToClassPath(session)
     }
+    enableScala213UdxfSprocParams(session)
+  }
+
+  override def afterAll: Unit = {
+    disableScala213UdxfSprocParams(session)
+    super.afterAll
   }
 
   test("udf") {
@@ -94,7 +101,7 @@ class UdxOpenTelemetrySuite extends OpenTelemetryEnabled {
       "UdxOpenTelemetrySuite.scala",
       file.getLineNumber - 1,
       execName,
-      "SnowUDF.compute",
+      s"SnowUDF_$ScalaUDxFSprocVersionSuffix.compute",
       execFilePath)
   }
 
@@ -111,7 +118,7 @@ class UdxOpenTelemetrySuite extends OpenTelemetryEnabled {
       "UdxOpenTelemetrySuite.scala",
       file.getLineNumber - 1,
       execName,
-      "SnowparkGeneratedUDTF",
+      s"SnowparkGeneratedUDTF_$ScalaUDxFSprocVersionSuffix",
       execFilePath)
   }
 }
