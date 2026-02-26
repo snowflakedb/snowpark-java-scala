@@ -31,10 +31,10 @@ import UDXRegistrationHandler._
 
 object UDXRegistrationHandler {
   // Class name for generated Java code
-  val className = "SnowUDF"
+  val className = s"SnowUDF_${Utils.ScalaUDxFSprocVersionSuffix}"
   // Method name for generated Java code
   val methodName = "compute"
-  val udtfClassName = "SnowparkGeneratedUDTF"
+  val udtfClassName = s"SnowparkGeneratedUDTF_${Utils.ScalaUDxFSprocVersionSuffix}"
 }
 
 class UDXRegistrationHandler(session: Session) extends Logging {
