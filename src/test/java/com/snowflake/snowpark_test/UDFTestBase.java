@@ -3,6 +3,8 @@ package com.snowflake.snowpark_test;
 import com.snowflake.snowpark.TestUtils;
 import com.snowflake.snowpark.internal.JavaUtils;
 import com.snowflake.snowpark_java.Session;
+import java.util.HashMap;
+import java.util.Map;
 
 public abstract class UDFTestBase extends TestFunctions {
   protected String defaultProfile = TestUtils.defaultProfile();
@@ -50,5 +52,17 @@ public abstract class UDFTestBase extends TestFunctions {
 
   protected void addDepsToClassPath(Session session, String stageName) {
     TestUtils.addDepsToClassPathJava(session, stageName);
+  }
+
+  protected void udafTest(TestMethod thunk, Session session) {
+    Map<String, String> params = new HashMap<>();
+    params.put("ENABLE_JAVA_UDAF", "TRUE");
+    try {
+      params.forEach(
+          (name, value) -> session.sql("alter session set " + name + " = " + value).collect());
+      thunk.run();
+    } finally {
+      params.forEach((name, value) -> session.sql("alter session unset " + name).collect());
+    }
   }
 }

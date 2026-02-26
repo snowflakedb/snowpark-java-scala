@@ -87,6 +87,7 @@ private[snowpark] object ErrorMessage {
     "0211" -> "Incorrect number of arguments passed to the SProc: Expected: %d, Found: %d",
     "0212" -> "Session.tableFunction does not support columns from more than one dataframe as input. Join these dataframes before using the function",
     "0213" -> "Dataframe resulting from table function has an unexpected column order. Source DataFrame columns did not come first.",
+    "0214" -> "Cannot determine the input types because the accumulate() method has multiple signatures with %d arguments. In your JavaUDAF class, implement the inputSchema() method to describe the input types.",
     // Begin to define Snowflake plan analysis & execution related messages
     "0300" -> "Internal error: the execution for the last query in the snowflake plan doesn't return a ResultSet.",
     "0301" -> "Invalid identifier %s",
@@ -284,6 +285,8 @@ private[snowpark] object ErrorMessage {
     createException("0211", expected, actual)
   def UDF_CANNOT_ACCEPT_MANY_DF_COLS(): SnowparkClientException = createException("0212")
   def UDF_UNEXPECTED_COLUMN_ORDER(): SnowparkClientException = createException("0213")
+  def UDAF_CANNOT_INFER_MULTIPLE_ACCUMULATE(count: Int): SnowparkClientException =
+    createException("0214", count)
   /*
    * 3NN: Plan analysis and execution error code
    */

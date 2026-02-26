@@ -3,8 +3,10 @@ package com.snowflake.snowpark.internal
 import com.snowflake.snowpark.{Session, StoredProcedure, UserDefinedFunction}
 import com.snowflake.snowpark.types._
 import com.snowflake.snowpark.udtf._
+import com.snowflake.snowpark.udaf._
 import com.snowflake.snowpark_java.udf._
 import com.snowflake.snowpark_java.udtf._
+import com.snowflake.snowpark_java.udaf._
 import com.snowflake.snowpark_java.sproc._
 
 import java.lang.reflect.Method
@@ -2591,5 +2593,185 @@ object ScalaFunctions {
       throw ErrorMessage.UDF_CANNOT_INFER_MULTIPLE_PROCESS(argCount)
     }
     methods.head
+  }
+
+  private[snowpark] def checkSupportedJavaUdaf(javaUdaf: JavaUDAF): Unit = {
+    getJavaUDAFClassName(javaUdaf)
+  }
+
+  private[snowpark] def getJavaUDAFClassName(javaUdaf: JavaUDAF): String = {
+    javaUdaf match {
+      case _: JavaUDAF1[_, _, _] => "com.snowflake.snowpark_java.udaf.JavaUDAF1"
+      case _: JavaUDAF2[_, _, _, _] => "com.snowflake.snowpark_java.udaf.JavaUDAF2"
+      case _: JavaUDAF3[_, _, _, _, _] => "com.snowflake.snowpark_java.udaf.JavaUDAF3"
+      case _: JavaUDAF4[_, _, _, _, _, _] => "com.snowflake.snowpark_java.udaf.JavaUDAF4"
+      case _: JavaUDAF5[_, _, _, _, _, _, _] => "com.snowflake.snowpark_java.udaf.JavaUDAF5"
+      case _: JavaUDAF6[_, _, _, _, _, _, _, _] => "com.snowflake.snowpark_java.udaf.JavaUDAF6"
+      case _: JavaUDAF7[_, _, _, _, _, _, _, _, _] => "com.snowflake.snowpark_java.udaf.JavaUDAF7"
+      case _: JavaUDAF8[_, _, _, _, _, _, _, _, _, _] =>
+        "com.snowflake.snowpark_java.udaf.JavaUDAF8"
+      case _: JavaUDAF9[_, _, _, _, _, _, _, _, _, _, _] =>
+        "com.snowflake.snowpark_java.udaf.JavaUDAF9"
+      case _: JavaUDAF10[_, _, _, _, _, _, _, _, _, _, _, _] =>
+        "com.snowflake.snowpark_java.udaf.JavaUDAF10"
+      case _: JavaUDAF11[_, _, _, _, _, _, _, _, _, _, _, _, _] =>
+        "com.snowflake.snowpark_java.udaf.JavaUDAF11"
+      case _: JavaUDAF12[_, _, _, _, _, _, _, _, _, _, _, _, _, _] =>
+        "com.snowflake.snowpark_java.udaf.JavaUDAF12"
+      case _: JavaUDAF13[_, _, _, _, _, _, _, _, _, _, _, _, _, _, _] =>
+        "com.snowflake.snowpark_java.udaf.JavaUDAF13"
+      case _: JavaUDAF14[_, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _] =>
+        "com.snowflake.snowpark_java.udaf.JavaUDAF14"
+      case _: JavaUDAF15[_, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _] =>
+        "com.snowflake.snowpark_java.udaf.JavaUDAF15"
+      case _: JavaUDAF16[_, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _] =>
+        "com.snowflake.snowpark_java.udaf.JavaUDAF16"
+      case _: JavaUDAF17[_, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _] =>
+        "com.snowflake.snowpark_java.udaf.JavaUDAF17"
+      case _: JavaUDAF18[_, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _] =>
+        "com.snowflake.snowpark_java.udaf.JavaUDAF18"
+      case _: JavaUDAF19[_, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _] =>
+        "com.snowflake.snowpark_java.udaf.JavaUDAF19"
+      case _: JavaUDAF20[_, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _] =>
+        "com.snowflake.snowpark_java.udaf.JavaUDAF20"
+      case _: JavaUDAF21[_, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _] =>
+        "com.snowflake.snowpark_java.udaf.JavaUDAF21"
+      case _: JavaUDAF22[_, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _] =>
+        "com.snowflake.snowpark_java.udaf.JavaUDAF22"
+      case _ =>
+        throw new UnsupportedOperationException(
+          "internal error: Java UDAF doesn't inherit from JavaUDAFX")
+    }
+  }
+
+  private[snowpark] def checkSupportedScalaUdaf(scalaUdaf: UDAF): Unit = {
+    getScalaUDAFClassName(scalaUdaf)
+  }
+
+  private[snowpark] def getScalaUDAFClassName(scalaUdaf: UDAF): String = {
+    scalaUdaf match {
+      case _: UDAF1[_, _, _] => "com.snowflake.snowpark.udaf.UDAF1"
+      case _: UDAF2[_, _, _, _] => "com.snowflake.snowpark.udaf.UDAF2"
+      case _: UDAF3[_, _, _, _, _] => "com.snowflake.snowpark.udaf.UDAF3"
+      case _: UDAF4[_, _, _, _, _, _] => "com.snowflake.snowpark.udaf.UDAF4"
+      case _: UDAF5[_, _, _, _, _, _, _] => "com.snowflake.snowpark.udaf.UDAF5"
+      case _: UDAF6[_, _, _, _, _, _, _, _] => "com.snowflake.snowpark.udaf.UDAF6"
+      case _: UDAF7[_, _, _, _, _, _, _, _, _] => "com.snowflake.snowpark.udaf.UDAF7"
+      case _: UDAF8[_, _, _, _, _, _, _, _, _, _] => "com.snowflake.snowpark.udaf.UDAF8"
+      case _: UDAF9[_, _, _, _, _, _, _, _, _, _, _] => "com.snowflake.snowpark.udaf.UDAF9"
+      case _: UDAF10[_, _, _, _, _, _, _, _, _, _, _, _] =>
+        "com.snowflake.snowpark.udaf.UDAF10"
+      case _: UDAF11[_, _, _, _, _, _, _, _, _, _, _, _, _] =>
+        "com.snowflake.snowpark.udaf.UDAF11"
+      case _: UDAF12[_, _, _, _, _, _, _, _, _, _, _, _, _, _] =>
+        "com.snowflake.snowpark.udaf.UDAF12"
+      case _: UDAF13[_, _, _, _, _, _, _, _, _, _, _, _, _, _, _] =>
+        "com.snowflake.snowpark.udaf.UDAF13"
+      case _: UDAF14[_, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _] =>
+        "com.snowflake.snowpark.udaf.UDAF14"
+      case _: UDAF15[_, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _] =>
+        "com.snowflake.snowpark.udaf.UDAF15"
+      case _: UDAF16[_, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _] =>
+        "com.snowflake.snowpark.udaf.UDAF16"
+      case _: UDAF17[_, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _] =>
+        "com.snowflake.snowpark.udaf.UDAF17"
+      case _: UDAF18[_, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _] =>
+        "com.snowflake.snowpark.udaf.UDAF18"
+      case _: UDAF19[_, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _] =>
+        "com.snowflake.snowpark.udaf.UDAF19"
+      case _: UDAF20[_, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _] =>
+        "com.snowflake.snowpark.udaf.UDAF20"
+      case _: UDAF21[_, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _] =>
+        "com.snowflake.snowpark.udaf.UDAF21"
+      case _: UDAF22[_, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _] =>
+        "com.snowflake.snowpark.udaf.UDAF22"
+      case _ =>
+        throw new UnsupportedOperationException(
+          "internal error: Scala UDAF doesn't inherit from UDAFX")
+    }
+  }
+
+  private[snowpark] def getUDAFClassName(udafObj: Any): String = {
+    udafObj match {
+      case su: UDAF => getScalaUDAFClassName(su)
+      case ju: JavaUDAF => getJavaUDAFClassName(ju)
+    }
+  }
+
+  private[snowpark] def getJavaUDAFInputColumns(javaUdaf: JavaUDAF): Array[UdfColumn] = {
+    javaUdaf match {
+      case _: JavaUDAF1[_, _, _] => getUDAFColumns(javaUdaf, 1)
+      case _: JavaUDAF2[_, _, _, _] => getUDAFColumns(javaUdaf, 2)
+      case _: JavaUDAF3[_, _, _, _, _] => getUDAFColumns(javaUdaf, 3)
+      case _: JavaUDAF4[_, _, _, _, _, _] => getUDAFColumns(javaUdaf, 4)
+      case _: JavaUDAF5[_, _, _, _, _, _, _] => getUDAFColumns(javaUdaf, 5)
+      case _: JavaUDAF6[_, _, _, _, _, _, _, _] => getUDAFColumns(javaUdaf, 6)
+      case _: JavaUDAF7[_, _, _, _, _, _, _, _, _] => getUDAFColumns(javaUdaf, 7)
+      case _: JavaUDAF8[_, _, _, _, _, _, _, _, _, _] => getUDAFColumns(javaUdaf, 8)
+      case _: JavaUDAF9[_, _, _, _, _, _, _, _, _, _, _] => getUDAFColumns(javaUdaf, 9)
+      case _: JavaUDAF10[_, _, _, _, _, _, _, _, _, _, _, _] => getUDAFColumns(javaUdaf, 10)
+      case _: JavaUDAF11[_, _, _, _, _, _, _, _, _, _, _, _, _] => getUDAFColumns(javaUdaf, 11)
+      case _: JavaUDAF12[_, _, _, _, _, _, _, _, _, _, _, _, _, _] => getUDAFColumns(javaUdaf, 12)
+      case _: JavaUDAF13[_, _, _, _, _, _, _, _, _, _, _, _, _, _, _] =>
+        getUDAFColumns(javaUdaf, 13)
+      case _: JavaUDAF14[_, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _] =>
+        getUDAFColumns(javaUdaf, 14)
+      case _: JavaUDAF15[_, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _] =>
+        getUDAFColumns(javaUdaf, 15)
+      case _: JavaUDAF16[_, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _] =>
+        getUDAFColumns(javaUdaf, 16)
+      case _: JavaUDAF17[_, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _] =>
+        getUDAFColumns(javaUdaf, 17)
+      case _: JavaUDAF18[_, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _] =>
+        getUDAFColumns(javaUdaf, 18)
+      case _: JavaUDAF19[_, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _] =>
+        getUDAFColumns(javaUdaf, 19)
+      case _: JavaUDAF20[_, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _] =>
+        getUDAFColumns(javaUdaf, 20)
+      case _: JavaUDAF21[_, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _] =>
+        getUDAFColumns(javaUdaf, 21)
+      case _: JavaUDAF22[_, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _] =>
+        getUDAFColumns(javaUdaf, 22)
+      case _ =>
+        throw new UnsupportedOperationException(
+          "internal error: Java UDAF doesn't inherit from JavaUDAFX")
+    }
+  }
+
+  private def getUDAFColumns(udaf: JavaUDAF, argCount: Int): Array[UdfColumn] = {
+    val argNames = (1 to argCount).map(i => s"arg$i")
+    getAccumulateMethod(udaf, argCount).getParameters
+      .drop(1)
+      .map(_.getType)
+      .map(javaTypeToDataType)
+      .zip(argNames)
+      .map(entry => UdfColumn(UdfColumnSchema(entry._1), entry._2))
+  }
+
+  // For JavaUDAF, use reflection to load the accumulate() function.
+  // Because JavaUDAFx is a generic interface, there may be 2 accumulate() methods:
+  // One with all parameters as Object (bridge method), the other with real parameter types.
+  // This function loads the accumulate() with real parameter types.
+  private def getAccumulateMethod(udaf: JavaUDAF, argCount: Int): Method = {
+    val funcName = "accumulate"
+    val expectedCount = argCount + 1
+    val methods = udaf.getClass.getDeclaredMethods.filter(m =>
+      m.getName.equals(funcName) && m.getParameterCount == expectedCount &&
+        (argCount == 0 || m.getParameterTypes
+          .map(_.getCanonicalName)
+          .exists(!_.equals("java.lang.Object"))))
+    if (methods.length != 1) {
+      // When a class implements a generic interface (e.g., JavaUDAF1<State, Input>),
+      // the Java compiler generates a "bridge method" with Object parameters to maintain
+      // binary compatibility. For example, both methods exist:
+      //   - accumulate(MyState, String)  <- real method we want
+      //   - accumulate(Object, Object)   <- bridge method (synthetic)
+      // Filter out bridge methods to find the real implementation.
+      val nonBridge = methods.filter(!_.isBridge)
+      if (nonBridge.length == 1) nonBridge.head
+      else throw ErrorMessage.UDAF_CANNOT_INFER_MULTIPLE_ACCUMULATE(argCount)
+    } else {
+      methods.head
+    }
   }
 }

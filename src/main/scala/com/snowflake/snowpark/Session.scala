@@ -1179,6 +1179,12 @@ class Session private (private[snowpark] val conn: ServerConnection) extends Log
   lazy val udtf: UDTFRegistration = new UDTFRegistration(this)
 
   /**
+   * Returns a [[UDAFRegistration]] object that you can use to register UDAFs.
+   * @since 1.19.0
+   */
+  lazy val udaf: UDAFRegistration = new UDAFRegistration(this)
+
+  /**
    * Returns a [[SProcRegistration]] object that you can use to register Stored Procedures. For
    * example:
    * {{{

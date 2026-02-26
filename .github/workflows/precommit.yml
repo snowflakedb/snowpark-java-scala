@@ -202,7 +202,7 @@ jobs:
           TZ: "America/Los_Angeles"
           DISABLE_REDIRECT_STDERR: ""
 
-  # Run UDTFSuite, AlwaysCleanUDFSuite, and StoredProcedureSuite with multiple JDKs.
+   # Run UDTFSuite, AlwaysCleanUDFSuite, and StoredProcedureSuite with multiple JDKs.
   test-udf-udtf-sproc-with-multiple-jdk:
     name: UDF, UDTF, and Sproc Tests - Scala ${{ matrix.scala }}, Java ${{ matrix.java }}
     needs: [ test-udfs, test-udtfs, test-sprocs ]
@@ -226,6 +226,35 @@ jobs:
           PROFILE_PASSWORD: ${{ secrets.PROFILE_PASSWORD }}
       - name: Run test
         run: sbt "++ ${{ matrix.scala }} testOnly com.snowflake.snowpark_test.UDTFSuite com.snowflake.snowpark_test.AlwaysCleanUDFSuite com.snowflake.snowpark_test.StoredProcedureSuite"
+        env:
+          TZ: "America/Los_Angeles"
+          DISABLE_REDIRECT_STDERR: ""
+          JAVA_OPTS: "--add-opens=java.base/java.io=ALL-UNNAMED --add-opens=java.base/java.nio=org.apache.arrow.memory.core,ALL-UNNAMED --add-opens=java.base/java.lang=ALL-UNNAMED --add-opens=java.base/java.lang.reflect=ALL-UNNAMED --add-opens=java.base/java.util=ALL-UNNAMED --add-exports=java.base/sun.nio.ch=ALL-UNNAMED --add-exports=jdk.unsupported/sun.misc=ALL-UNNAMED --add-opens=java.base/sun.security.util=ALL-UNNAMED"
+
+  # Run UDAF tests with multiple JDKs.
+  test-udaf-with-multiple-jdk:
+    name: UDAF Tests - Scala ${{ matrix.scala }}, Java ${{ matrix.java }}
+    needs: test-code-verification
+    runs-on: ubuntu-22.04
+    strategy:
+      matrix:
+        java: [ 11, 17 ]
+        scala: [ 2.12.20, 2.13.16 ]
+      fail-fast: false
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+      - name: Install Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: ${{ matrix.java }}
+      - name: Decrypt profile.properties
+        run: .github/scripts/decrypt_profile.sh
+        env:
+          PROFILE_PASSWORD: ${{ secrets.PROFILE_PASSWORD }}
+      - name: Run test
+        run: sbt "++ ${{ matrix.scala }} UDAFTests:test"
         env:
           TZ: "America/Los_Angeles"
           DISABLE_REDIRECT_STDERR: ""
@@ -289,7 +318,7 @@ jobs:
   # Test publishing to local ivy2 repository (includes generating docs, fat jars, and bundles)
   publish-ivy2:
     name: Publish Locally (ivy2)
-    needs: [ test-java-apis, test-nonparallel, test-udf-udtf-sproc-with-multiple-jdk, test-fips ]
+    needs: [ test-java-apis, test-nonparallel, test-udf-udtf-sproc-with-multiple-jdk, test-udaf-with-multiple-jdk, test-fips ]
     runs-on: ubuntu-22.04
     strategy:
       matrix:
@@ -313,7 +342,7 @@ jobs:
   # Test publishing to local maven repository (includes generating docs, fat jars, and bundles)
   publish-maven:
     name: Publish Locally (maven)
-    needs: [ test-java-apis, test-nonparallel, test-udf-udtf-sproc-with-multiple-jdk, test-fips ]
+    needs: [ test-java-apis, test-nonparallel, test-udf-udtf-sproc-with-multiple-jdk, test-udaf-with-multiple-jdk, test-fips ]
     runs-on: ubuntu-22.04
     strategy:
       matrix:
