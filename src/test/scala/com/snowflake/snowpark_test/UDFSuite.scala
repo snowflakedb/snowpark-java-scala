@@ -53,6 +53,7 @@ trait UDFSuite extends TestData {
     if (!isStoredProc(session)) {
       TestUtils.addDepsToClassPath(session)
     }
+    enableScala213UdxfSprocParams(session)
   }
 
   override def afterAll: Unit = {
@@ -63,6 +64,7 @@ trait UDFSuite extends TestData {
     dropTable(tableName)
     dropTable(semiStructuredTable)
     runQuery(s"DROP STAGE IF EXISTS $tmpStageName", session)
+    disableScala213UdxfSprocParams(session)
     super.afterAll()
   }
 
