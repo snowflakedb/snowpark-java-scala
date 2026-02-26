@@ -33,19 +33,23 @@ lazy val javadocSettings = inConfig(Javadoc)(Defaults.configSettings) ++ Seq(
   scalacOptions += s"-P:genjavadoc:out=${target.value}/javaDoc",
   Javadoc / apiURL := Some(
     url("https://docs.snowflake.com/developer-guide/snowpark/reference/java/index.html")),
-  Javadoc / sources := (Compile / sources).value.filter(
-    s => s.getName.endsWith(".java") &&
-        !(s.getParent.contains("internal") || s.getParent.contains("Internal"))),
+  Javadoc / sources := (Compile / sources).value.filter(s =>
+    s.getName.endsWith(".java") &&
+      !(s.getParent.contains("internal") || s.getParent.contains("Internal"))),
   Javadoc / javacOptions := Seq(
     "--allow-script-in-comments",
     "-use",
-    "-windowtitle", s"Snowpark Java API Reference $snowparkVersion",
-    "-doctitle", s"Snowpark Java API Reference $snowparkVersion",
-    "-header", s"""<div style="margin-top: 14px"><strong>
+    "-windowtitle",
+    s"Snowpark Java API Reference $snowparkVersion",
+    "-doctitle",
+    s"Snowpark Java API Reference $snowparkVersion",
+    "-header",
+    s"""<div style="margin-top: 14px"><strong>
                   |  Snowpark Java API Reference $snowparkVersion <br/>
                   |  <a style="text-transform: none" href="https://docs.snowflake.com/en/developer-guide/snowpark/java/index.html" target="_top">[Snowpark Developer Guide for Java]</a>
                   |</strong></div>""".stripMargin,
-    "-bottom", s"""&#169; ${Year.now.getValue} Snowflake Inc. All Rights Reserved
+    "-bottom",
+    s"""&#169; ${Year.now.getValue} Snowflake Inc. All Rights Reserved
                    |<!-- Google Analytics Code -->
                    |<script>
                    |  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
@@ -72,8 +76,7 @@ lazy val javadocSettings = inConfig(Javadoc)(Defaults.configSettings) ++ Seq(
                    |}
                    |</script>""".stripMargin),
   Javadoc / packageDoc / artifactName := ((sv, mod, art) =>
-    "" + mod.name + "_" + sv.binary + "-" + mod.revision + "-javadoc.jar"),
-)
+    "" + mod.name + "_" + sv.binary + "-" + mod.revision + "-javadoc.jar"))
 
 val jdbcVersion = "3.24.2"
 val jacksonVersion = "2.18.0"
@@ -82,7 +85,8 @@ val slf4jVersion = "2.0.16"
 
 lazy val root = (project in file("."))
   .enablePlugins(BuildInfoPlugin, UniversalPlugin)
-  .configs(Javadoc).settings(javadocSettings: _*)
+  .configs(Javadoc)
+  .settings(javadocSettings: _*)
   .configs(CodeVerificationTests)
   .configs(JavaAPITests)
   .configs(OtherTests)
@@ -99,15 +103,18 @@ lazy val root = (project in file("."))
     version := snowparkVersion,
     description := "Snowflake's DataFrame API",
     // scalastyle:off
-    apiURL := Some(url("https://docs.snowflake.com/developer-guide/snowpark/reference/scala/com/snowflake/snowpark/index.html")),
+    apiURL := Some(url(
+      "https://docs.snowflake.com/developer-guide/snowpark/reference/scala/com/snowflake/snowpark/index.html")),
     // scalastyle:on
     startYear := Some(2018),
-    licenses := Seq("The Apache Software License, Version 2.0" ->
-      url("http://www.apache.org/licenses/LICENSE-2.0.txt")),
+    licenses := Seq(
+      "The Apache Software License, Version 2.0" ->
+        url("http://www.apache.org/licenses/LICENSE-2.0.txt")),
     maintainer := "snowflake-java@snowflake.net",
-    scmInfo := Some(ScmInfo(
-      browseUrl = url("https://github.com/snowflakedb/snowpark-java-scala/tree/main"),
-      connection = "scm:git:git://github.com/snowflakedb/snowpark-java-scala")),
+    scmInfo := Some(
+      ScmInfo(
+        browseUrl = url("https://github.com/snowflakedb/snowpark-java-scala/tree/main"),
+        connection = "scm:git:git://github.com/snowflakedb/snowpark-java-scala")),
     homepage := Some(url("https://github.com/snowflakedb/snowpark-java-scala")),
     scalaVersion := sys.props.getOrElse("SCALA_VERSION", default = "2.12.20"),
     crossScalaVersions := Seq("2.12.20", "2.13.16"),
@@ -132,8 +139,7 @@ lazy val root = (project in file("."))
       "io.opentelemetry" % "opentelemetry-exporters-inmemory" % "0.9.1" % Test,
       "com.github.sbt" % "junit-interface" % "0.13.3" % Test,
       "org.mockito" % "mockito-core" % "2.23.0" % Test,
-      "org.scalatest" %% "scalatest" % "3.2.19" % Test,
-    ),
+      "org.scalatest" %% "scalatest" % "3.2.19" % Test),
     // Allow local Maven repository use for dependencies.
     // Enables testing against latest Snowflake JDBC version install locally in CI.
     resolvers += Resolver.mavenLocal,
@@ -164,11 +170,14 @@ lazy val root = (project in file("."))
     buildInfoPackage := "com.snowflake.snowpark.internal",
     // doc settings
     Compile / doc / scalacOptions ++= Seq(
-      "-doc-title", "Snowpark Scala API Reference",
-      "-doc-version", snowparkVersion,
-      "-doc-footer", s"© ${Year.now.getValue} Snowflake Inc. All Rights Reserved",
-      "-skip-packages", "com.snowflake.snowpark_java::com.snowflake.snowpark.internal",
-    ),
+      "-doc-title",
+      "Snowpark Scala API Reference",
+      "-doc-version",
+      snowparkVersion,
+      "-doc-footer",
+      s"© ${Year.now.getValue} Snowflake Inc. All Rights Reserved",
+      "-skip-packages",
+      "com.snowflake.snowpark_java::com.snowflake.snowpark.internal"),
     Compile / packageDoc / artifact := {
       val base = (Compile / packageDoc / artifact).value
       base.withClassifier(Some("scaladoc"))
@@ -189,9 +198,7 @@ lazy val root = (project in file("."))
 
     // Fat JAR settings
     assembly / assemblyJarName :=
-      s"${snowparkName}_${
-        scalaVersion.value.split("\\.").take(2).mkString(".")
-      }-$snowparkVersion-with-dependencies.jar",
+      s"${snowparkName}_${scalaVersion.value.split("\\.").take(2).mkString(".")}-$snowparkVersion-with-dependencies.jar",
     assembly / assemblyMergeStrategy := {
       case PathList("META-INF", xs @ _*) => MergeStrategy.discard
       case _ => MergeStrategy.preferProject
@@ -235,14 +242,10 @@ lazy val root = (project in file("."))
 
     // Define snowpark client bundles
     Universal / mappings ++= Seq(
-      (Compile / packageBin).value -> s"${snowparkName}_${
-        scalaVersion.value.split("\\.").take(2).mkString(".")}-$snowparkVersion.jar",
-      assembly.value -> s"${snowparkName}_${
-        scalaVersion.value.split("\\.").take(2).mkString(".")
-      }-$snowparkVersion-with-dependencies.jar",
+      (Compile / packageBin).value -> s"${snowparkName}_${scalaVersion.value.split("\\.").take(2).mkString(".")}-$snowparkVersion.jar",
+      assembly.value -> s"${snowparkName}_${scalaVersion.value.split("\\.").take(2).mkString(".")}-$snowparkVersion-with-dependencies.jar",
       file("preview-tarball/preload.scala") -> "preload.scala",
-      file("preview-tarball/run.sh") -> "run.sh",
-    ),
+      file("preview-tarball/run.sh") -> "run.sh"),
     Universal / mappings ++= (Compile / dependencyClasspath).value.map { f =>
       file(f.data.getPath) -> s"lib/${f.data.getName}"
     },
@@ -265,10 +268,10 @@ lazy val root = (project in file("."))
     checksums := Seq("md5", "sha1"),
 
     // Filter out bundles and fat jars if publishing to maven
-    artifacts := artifacts.value filter (
-      a => includeFatJarsAndBundles || !isFatJarOrBundle(a.classifier.getOrElse(""))),
-    packagedArtifacts := packagedArtifacts.value filter (
-      af => includeFatJarsAndBundles || !isFatJarOrBundle(af._1.classifier.getOrElse(""))),
+    artifacts := artifacts.value filter (a =>
+      includeFatJarsAndBundles || !isFatJarOrBundle(a.classifier.getOrElse(""))),
+    packagedArtifacts := packagedArtifacts.value filter (af =>
+      includeFatJarsAndBundles || !isFatJarOrBundle(af._1.classifier.getOrElse(""))),
 
     // Signed publish settings
     credentials += Credentials(Path.userHome / ".ivy2" / ".credentials"),
@@ -301,8 +304,7 @@ lazy val root = (project in file("."))
           <organization>Snowflake Computing</organization>
           <organizationUrl>https://www.snowflake.com</organizationUrl>
         </developer>
-      </developers>
-  )
+      </developers>)
 
 // Test Groups
 // Code Verification
@@ -311,10 +313,7 @@ def isCodeVerification(name: String): Boolean = {
 }
 lazy val CodeVerificationTests = config("CodeVerificationTests") extend Test
 
-lazy val nonParallelTestsList = Seq(
-  "OpenTelemetry",
-  "AsyncJob"
-)
+lazy val nonParallelTestsList = Seq("OpenTelemetry", "AsyncJob")
 // Tests can't be parallely processed
 def isNonparallelTests(name: String): Boolean = {
   nonParallelTestsList.exists(name.contains)
@@ -339,8 +338,7 @@ lazy val UDTFTests = config("UDTFTests") extend Test
 lazy val sprocNames: Seq[String] = Seq(
   "JavaStoredProcedureSuite",
   "snowpark_test.StoredProcedureSuite",
-  "JavaSProcNonStoredProcSuite"
-)
+  "JavaSProcNonStoredProcSuite")
 def isSprocTests(name: String): Boolean = {
   sprocNames.exists(name.endsWith)
 }
@@ -350,33 +348,32 @@ lazy val SprocTests = config("SprocTests") extend Test
 def isJavaAPITests(name: String): Boolean = {
   (name.startsWith("com.snowflake.snowpark.Java") ||
     name.startsWith("com.snowflake.snowpark_test.Java")) &&
-    !isUDFTests(name) &&
-    !isUDTFTests(name) &&
-    !isUDAFTests(name) &&
-    !isSprocTests(name) &&
-    !isNonparallelTests(name)
+  !isUDFTests(name) &&
+  !isUDTFTests(name) &&
+  !isUDAFTests(name) &&
+  !isSprocTests(name) &&
+  !isNonparallelTests(name)
 }
 lazy val JavaAPITests = config("JavaAPITests") extend Test
 
 // FIPS Tests
 
-
 // other Tests
 def isRemainingTest(name: String): Boolean = {
-  ! isCodeVerification(name) &&
-    ! isNonparallelTests(name) &&
-    ! isUDFTests(name) &&
-    ! isUDTFTests(name) &&
-    ! isUDAFTests(name) &&
-    ! isSprocTests(name) &&
-    ! isJavaAPITests(name)
+  !isCodeVerification(name) &&
+  !isNonparallelTests(name) &&
+  !isUDFTests(name) &&
+  !isUDTFTests(name) &&
+  !isUDAFTests(name) &&
+  !isSprocTests(name) &&
+  !isJavaAPITests(name)
 }
 lazy val OtherTests = config("OtherTests") extend Test
 
 Test / javaOptions ++= {
   val javaVersion = scala.util.Properties.javaVersion
   val isJava8 = javaVersion.startsWith("1.8") || javaVersion.startsWith("8")
-  
+
   val moduleOptions = if (isJava8) {
     // Java 8: --add-opens is not supported
     Seq.empty
@@ -390,13 +387,12 @@ Test / javaOptions ++= {
       "--add-opens=java.base/java.util=ALL-UNNAMED",
       "--add-opens=java.base/sun.security.util=ALL-UNNAMED",
       "--add-exports=java.base/sun.nio.ch=ALL-UNNAMED",
-      "--add-exports=jdk.unsupported/sun.misc=ALL-UNNAMED"
-    )
+      "--add-exports=jdk.unsupported/sun.misc=ALL-UNNAMED")
   }
-  
+
   // Pass FIPS_TEST system property from sbt JVM to forked test JVM
   val fipsTestOption = sys.props.get("FIPS_TEST").map(v => s"-DFIPS_TEST=$v").toSeq
-  
+
   moduleOptions ++ fipsTestOption
 }
 

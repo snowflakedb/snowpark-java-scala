@@ -1,6 +1,5 @@
 ThisBuild / libraryDependencySchemes ++= Seq(
-  "org.scala-lang.modules" %% "scala-xml" % VersionScheme.Always
-)
+  "org.scala-lang.modules" %% "scala-xml" % VersionScheme.Always)
 ThisBuild / evictionErrorLevel := Level.Info
 
 addSbtPlugin("com.github.sbt" % "sbt-pgp" % "2.3.1")
