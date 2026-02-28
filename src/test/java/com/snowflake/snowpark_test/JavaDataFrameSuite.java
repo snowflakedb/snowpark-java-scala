@@ -117,6 +117,12 @@ public class JavaDataFrameSuite extends TestBase {
   }
 
   @Test
+  public void offset() {
+    DataFrame df = getSession().sql("select * from values(1), (2), (3), (4), (5) as t(a)");
+    checkAnswer(df.offset(3), new Row[] {Row.create(4), Row.create(5)});
+  }
+
+  @Test
   public void union() {
     DataFrame df = getSession().sql("select * from values(1), (2), (3), (2), (1) as t(a)");
     checkAnswer(df.union(df), new Row[] {Row.create(1), Row.create(2), Row.create(3)});

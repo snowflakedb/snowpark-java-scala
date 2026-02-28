@@ -52,6 +52,7 @@ package object analyzer {
   @inline private final val _From: String = " FROM "
   @inline private final val _Where: String = " WHERE "
   @inline private final val _Limit: String = " LIMIT "
+  @inline private final val _Offset: String = " OFFSET "
   @inline private final val _Pivot: String = " PIVOT "
   @inline private final val _For: String = " FOR "
   @inline private final val _On: String = " ON "
@@ -629,6 +630,9 @@ package object analyzer {
 
   private[analyzer] def limitStatement(rowCount: String, child: String): String =
     projectStatement(Seq.empty, child) + _Limit + rowCount
+
+  private[analyzer] def offsetStatement(offsetCount: String, child: String): String =
+    projectStatement(Seq.empty, child) + _Offset + offsetCount
 
   private[analyzer] def schemaCastSeq(schema: Seq[Attribute]): Seq[String] = {
     schema.zipWithIndex.map { case (attr, index) =>

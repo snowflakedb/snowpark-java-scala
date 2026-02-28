@@ -172,6 +172,23 @@ public class JavaDataFrameAggregateSuite extends TestBase {
   }
 
   @Test
+  public void offset() {
+    DataFrame df =
+        getSession()
+            .createDataFrame(
+                new Row[] {
+                  Row.create("a", 1), Row.create("b", 2), Row.create("c", 1), Row.create("d", 5)
+                },
+                StructType.create(
+                    new StructField("id", DataTypes.StringType),
+                    new StructField("value", DataTypes.IntegerType)));
+    DataFrame offset2DF = df.offset(2);
+    checkAnswer(
+        offset2DF.groupBy("id").count().select(offset2DF.col("id")),
+        offset2DF.select(offset2DF.col("id")));
+  }
+
+  @Test
   public void builtin() {
     DataFrame df =
         getSession()

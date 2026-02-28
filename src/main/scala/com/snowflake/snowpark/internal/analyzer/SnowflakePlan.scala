@@ -535,6 +535,12 @@ class SnowflakePlanBuilder(session: Session) extends Logging {
       sourcePlan: Option[LogicalPlan]): SnowflakePlan =
     build(limitStatement(limitExpr, _), child, sourcePlan)
 
+  def offset(
+      offsetExpr: String,
+      child: SnowflakePlan,
+      sourcePlan: Option[LogicalPlan]): SnowflakePlan =
+    build(offsetStatement(offsetExpr, _), child, sourcePlan)
+
   def pivot(
       pivotColumn: String,
       pivotValues: Seq[String],
