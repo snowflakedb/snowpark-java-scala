@@ -811,6 +811,47 @@ trait FunctionSuite extends TestData {
     checkAnswer(df1.select(try_to_date(col("A"), "YYYY.MM.DD")), expected)
   }
 
+  test("to_number single parameter") {
+    val df = session.sql("select * from values('123'),('456') as T(a)")
+    checkAnswer(df.select(to_number(col("A"))), Seq(Row(123L), Row(456L)))
+  }
+
+  test("to_number") {
+    val df = session.sql("select * from values('$123.45'),('$67.89') as T(a)")
+    checkAnswer(
+      df.select(to_number(col("A"), lit("$999.99"))),
+      Seq(Row(BigDecimal("123.45000000").bigDecimal), Row(BigDecimal("67.89000000").bigDecimal)))
+  }
+
+  test("to_number with precision and scale") {
+    val df = session.sql("select * from values('$123.45'),('$67.89') as T(a)")
+    checkAnswer(
+      df.select(to_number(col("A"), lit("$999.99"), 5, 2)),
+      Seq(Row(BigDecimal("123.45").bigDecimal), Row(BigDecimal("67.89").bigDecimal)))
+  }
+
+  test("try_to_number single parameter") {
+    val df = session.sql("select * from values('123'),('INVALID') as T(a)")
+    checkAnswer(df.select(try_to_number(col("A"))), Seq(Row(123L), Row(null)))
+  }
+
+  test("try_to_number") {
+    val df = session.sql("select * from values('$123.45'),('INVALID') as T(a)")
+    checkAnswer(
+      df.select(try_to_number(col("A"), lit("$999.99"))),
+      Seq(Row(BigDecimal("123.45000000").bigDecimal), Row(null)))
+    checkAnswer(
+      df.select(try_to_number(col("A"), "$999.99")),
+      Seq(Row(BigDecimal("123.45000000").bigDecimal), Row(null)))
+  }
+
+  test("try_to_number with precision and scale") {
+    val df = session.sql("select * from values('$123.45'),('INVALID') as T(a)")
+    checkAnswer(
+      df.select(try_to_number(col("A"), lit("$999.99"), 5, 2)),
+      Seq(Row(BigDecimal("123.45").bigDecimal), Row(null)))
+  }
+
   test("date_trunc") {
     testWithTimezone() {
       checkAnswer(
