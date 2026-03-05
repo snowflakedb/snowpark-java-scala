@@ -832,7 +832,7 @@ trait FunctionSuite extends TestData {
       Seq(Row("test1a"), Row("test2b"), Row("test3c")))
   }
 
-  test("split") {
+  test("split2") {
     assert(
       string5
         .select(split(col("A"), lit(",")))
