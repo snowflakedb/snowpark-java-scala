@@ -533,8 +533,8 @@ class AsyncJobSuite extends TestData with BeforeAndAfterEach {
       createTable(sourceTable, "c1 int, c2 string")
       runQuery(s"insert into $sourceTable values (1, 'one'), (2, 'two')", session)
 
-      val cteDf = session.sql(
-        s"with products as (select c1, c2 from $sourceTable) select * from products")
+      val cteDf =
+        session.sql(s"with products as (select c1, c2 from $sourceTable) select * from products")
       cteDf.write.mode(SaveMode.Overwrite).async.saveAsTable(targetTable).getResult()
       checkAnswer(session.table(targetTable), Seq(Row(1, "one"), Row(2, "two")))
     } finally {
