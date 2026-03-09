@@ -11,7 +11,7 @@ class QueryTagSuite extends SNTestBase {
 
   test("Test that query tag is not set if it is already set") {
     // Have to create a new session, else the lazy val `queryTagIsSet` is reused
-    val newSession = Session.builder.configFile(defaultProfile).create
+    val newSession = getBaseSession()
 
     val someTag = randomName()
     super.runQuery(s"alter session set query_tag ='$someTag'", newSession)

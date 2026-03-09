@@ -21,7 +21,7 @@ class AsyncJobSuite extends TestData with BeforeAndAfterEach {
     Seq(StructField("a", IntegerType), StructField("b", StringType), StructField("c", DoubleType)))
 
   // session to verify permanent udf
-  lazy private val newSession = Session.builder.configFile(defaultProfile).create
+  lazy private val newSession = getBaseSession()
 
   override def beforeAll: Unit = {
     super.beforeAll
@@ -205,7 +205,7 @@ class AsyncJobSuite extends TestData with BeforeAndAfterEach {
   }
 
   test("test AsyncJob isRunning() and cancel()") {
-    val session2 = Session.builder.configFile(defaultProfile).create
+    val session2 = getBaseSession()
     try {
       // positive test
       val asyncJob = session.sql("select SYSTEM$WAIT(3)").async.collect()
@@ -312,7 +312,7 @@ class AsyncJobSuite extends TestData with BeforeAndAfterEach {
   }
 
   test("session.createAsyncJob(queryID)") {
-    val session2 = Session.builder.configFile(defaultProfile).create
+    val session2 = getBaseSession()
     try {
       // positive test
       val queryID = session.range(5).async.collect().getQueryId()

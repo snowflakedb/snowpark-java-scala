@@ -14,7 +14,7 @@ class PermanentUDTFSuite extends TestData {
   import session.implicits._
 
   // session to verify permanent udf
-  lazy private val newSession = Session.builder.configFile(defaultProfile).create
+  lazy private val newSession = getBaseSession()
   lazy private val stageName: String = randomStageName()
   val wordCountTableName = randomTableName()
 
