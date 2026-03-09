@@ -14,7 +14,7 @@ import java.util.jar.JarOutputStream
 class PermanentUDFSuite extends TestData {
 
   // session to verify permanent udf
-  lazy private val newSession = Session.builder.configFile(defaultProfile).create
+  lazy private val newSession = getBaseSession()
   lazy private val stageName: String = randomName()
 
   // create test target directory

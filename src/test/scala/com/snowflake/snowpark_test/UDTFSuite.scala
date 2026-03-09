@@ -2043,7 +2043,7 @@ class UDTFSuite extends TestData {
         StructType(StructField("word", StringType), StructField("count", IntegerType))
     }
 
-    var newSession = Session.builder.configFile(defaultProfile).create
+    var newSession = getBaseSession()
     try {
       // Use UDTF and then UDF
       TestUtils.addDepsToClassPath(newSession)
@@ -2056,7 +2056,7 @@ class UDTFSuite extends TestData {
       newSession.close()
 
       // Use UDF and then UDTF
-      newSession = Session.builder.configFile(defaultProfile).create
+      newSession = getBaseSession()
       TestUtils.addDepsToClassPath(newSession)
       val udf2 = newSession.udf.registerTemporary((x: Int) => x + x)
       val df4 = newSession.sql(s"select ${udf2.name.get}(20)")
