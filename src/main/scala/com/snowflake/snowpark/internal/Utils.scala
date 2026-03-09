@@ -50,8 +50,14 @@ object Utils extends Logging {
     "^SNOWPARK_TEMP_(TABLE|VIEW|STAGE|FUNCTION|TABLE_FUNCTION|FILE_FORMAT|PROCEDURE)_[0-9A-Z]+$"
 
   val SnowflakePathPrefixes: List[String] = List("@", "snow://", "/")
+
+  // regex to identify select and CTE
+  // (https://docs.snowflake.com/en/sql-reference/constructs/with.html)
+  // are select statements in Snowflake.
   private val SnowflakeSelectSqlPrefixPattern: Pattern =
     Pattern.compile("^(\\s|\\()*(select|with)", Pattern.CASE_INSENSITIVE)
+  // regex to identify Anonymous stored procedures:
+  // https://docs.snowflake.com/en/sql-reference/sql/call-with
   private val SnowflakeAnonymousCallWithPattern: Pattern =
     Pattern.compile("^\\s*with\\s+\\w+\\s+as\\s+procedure", Pattern.CASE_INSENSITIVE)
 
