@@ -92,6 +92,9 @@ trait SNTestBase extends AnyFunSuite with BeforeAndAfterAll with SFTestUtils wit
     // trigger this lazy parameter to make some tests more stable
     // e.g. count queries
     session.conn.hideInternalAlias
+    runQuery(
+      "alter session set ENABLE_FIX_SNOW_3011194_SCALA_VERSIONED_HANDLER_NAMES=true",
+      session)
     session
   }
 
@@ -321,16 +324,12 @@ trait SNTestBase extends AnyFunSuite with BeforeAndAfterAll with SFTestUtils wit
   def enableScala213UdxfSprocParams(session: Session): Unit = {
     if (ScalaCompatVersion.contentEquals("2.13")) {
       runQuery("alter session set ENABLE_SCALA_UDF_RUNTIME_2_13=true", session)
-      runQuery("alter session set ENABLE_FIX_SNOW_3011194_SCALA_VERSIONED_HANDLER_NAMES=true",
-               session)
     }
   }
 
   def disableScala213UdxfSprocParams(session: Session): Unit = {
     if (ScalaCompatVersion.contentEquals("2.13")) {
       runQuery("alter session set ENABLE_SCALA_UDF_RUNTIME_2_13=false", session)
-      runQuery("alter session set ENABLE_FIX_SNOW_3011194_SCALA_VERSIONED_HANDLER_NAMES=false",
-               session)
     }
   }
 }
@@ -349,37 +348,57 @@ trait SnowTestFiles {
 }
 
 trait LazySession extends SNTestBase {
-  implicit override lazy val session: Session =
-    Session.builder
+  implicit override lazy val session: Session = {
+    val session = Session.builder
       .configFile(defaultProfile)
       .config(SnowparkLazyAnalysis, "true")
       .create
+    runQuery(
+      "alter session set ENABLE_FIX_SNOW_3011194_SCALA_VERSIONED_HANDLER_NAMES=true",
+      session)
+    session
+  }
 }
 
 trait EagerSession extends SNTestBase {
-  implicit override lazy val session: Session =
-    Session.builder
+  implicit override lazy val session: Session = {
+    val session = Session.builder
       .configFile(defaultProfile)
       .config(SnowparkLazyAnalysis, "false")
       .create
+    runQuery(
+      "alter session set ENABLE_FIX_SNOW_3011194_SCALA_VERSIONED_HANDLER_NAMES=true",
+      session)
+    session
+  }
 }
 
 trait AlwaysCleanSession extends SNTestBase {
-  implicit override lazy val session: Session =
-    Session.builder
+  implicit override lazy val session: Session = {
+    val session = Session.builder
       .configFile(defaultProfile)
       .config(ParameterUtils.SnowparkEnableClosureCleaner, "always")
       .create
+    runQuery(
+      "alter session set ENABLE_FIX_SNOW_3011194_SCALA_VERSIONED_HANDLER_NAMES=true",
+      session)
+    session
+  }
 }
 
 // No need to add trait 'repl_only', because in Intellij's test, 'repl_only' is
 // equivalent with 'never'
 trait NeverCleanSession extends SNTestBase {
-  implicit override lazy val session: Session =
-    Session.builder
+  implicit override lazy val session: Session = {
+    val session = Session.builder
       .configFile(defaultProfile)
       .config(ParameterUtils.SnowparkEnableClosureCleaner, "never")
       .create
+    runQuery(
+      "alter session set ENABLE_FIX_SNOW_3011194_SCALA_VERSIONED_HANDLER_NAMES=true",
+      session)
+    session
+  }
 }
 
 trait UploadTimeoutSession extends SNTestBase {
