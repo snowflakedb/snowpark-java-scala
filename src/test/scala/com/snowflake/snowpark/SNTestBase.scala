@@ -321,12 +321,16 @@ trait SNTestBase extends AnyFunSuite with BeforeAndAfterAll with SFTestUtils wit
   def enableScala213UdxfSprocParams(session: Session): Unit = {
     if (ScalaCompatVersion.contentEquals("2.13")) {
       runQuery("alter session set ENABLE_SCALA_UDF_RUNTIME_2_13=true", session)
+      runQuery("alter session set ENABLE_FIX_SNOW_3011194_SCALA_VERSIONED_HANDLER_NAMES=true",
+               session)
     }
   }
 
   def disableScala213UdxfSprocParams(session: Session): Unit = {
     if (ScalaCompatVersion.contentEquals("2.13")) {
       runQuery("alter session set ENABLE_SCALA_UDF_RUNTIME_2_13=false", session)
+      runQuery("alter session set ENABLE_FIX_SNOW_3011194_SCALA_VERSIONED_HANDLER_NAMES=false",
+               session)
     }
   }
 }
