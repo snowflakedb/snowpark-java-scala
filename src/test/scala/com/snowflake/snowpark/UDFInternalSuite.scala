@@ -12,7 +12,7 @@ import java.sql.SQLException
 class UDFInternalSuite extends TestData {
 
   lazy private val stageName: String = randomName()
-  lazy private val newSession = Session.builder.configFile(defaultProfile).create
+  lazy private val newSession = getBaseSession()
 
   override def beforeAll: Unit = {
     super.beforeAll
@@ -31,7 +31,7 @@ class UDFInternalSuite extends TestData {
   }
 
   test("Test temp udf not failing back to upload jar", JavaStoredProcExclude) {
-    val newSession = Session.builder.configFile(defaultProfile).create
+    val newSession = getBaseSession()
     val mockSession = spy(newSession)
     TestUtils.addDepsToClassPath(mockSession, None, usePackages = true)
     val path = UDFClassPath.getPathForClass(classOf[com.snowflake.snowpark.Session]).get
@@ -52,7 +52,7 @@ class UDFInternalSuite extends TestData {
   }
 
   test("Test permanent udf not failing back to upload jar", JavaStoredProcExclude) {
-    val newSession = Session.builder.configFile(defaultProfile).create
+    val newSession = getBaseSession()
     val mockSession = spy(newSession)
     TestUtils.addDepsToClassPath(mockSession, None, usePackages = true)
     val path = UDFClassPath.getPathForClass(classOf[com.snowflake.snowpark.Session]).get
@@ -86,7 +86,7 @@ class UDFInternalSuite extends TestData {
   }
 
   test("Test add version logic", JavaStoredProcExclude) {
-    val newSession = Session.builder.configFile(defaultProfile).create
+    val newSession = getBaseSession()
     val mockSession = spy(newSession)
     TestUtils.addTestDepsToClassPath(mockSession, None)
     when(mockSession.isVersionSupportedByServerPackages).thenReturn(true)

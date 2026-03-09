@@ -33,14 +33,14 @@ class SessionSuite extends SNTestBase {
   test("Test for create with multiple threads") {
     val t1 = new Thread {
       override def run {
-        val t1Session = Session.builder.configFile(defaultProfile).create
+        val t1Session = getBaseSession()
         assert(t1Session != session)
       }
     }
 
     val t2 = new Thread {
       override def run {
-        val t2Session = Session.builder.configFile(defaultProfile).create
+        val t2Session = getBaseSession()
         assert(t2Session != session)
       }
     }
@@ -160,7 +160,7 @@ class SessionSuite extends SNTestBase {
   }
 
   test("DataFrame created before session close are not usable after closing the session") {
-    val newSession = Session.builder.configFile(defaultProfile).create
+    val newSession = getBaseSession()
     val df = newSession.range(10)
     val read = newSession.read
     newSession.close()
@@ -325,7 +325,7 @@ class SessionSuite extends SNTestBase {
   }
 
   test("The app name is not defined") {
-    val newSession = Session.builder.configFile(defaultProfile).create
+    val newSession = getBaseSession()
     assert(getParameterValue("query_tag", newSession) == "")
   }
 

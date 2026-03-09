@@ -1472,7 +1472,7 @@ trait DataFrameSuite extends TestData with BeforeAndAfterEach {
       checkAnswer(session.table(quoteName(viewName2)), Seq(Row(1), Row(2), Row(3)))
 
       // check if it is session temporary
-      val newSession = Session.builder.configFile(defaultProfile).create
+      val newSession = getBaseSession()
       val msg = intercept[SnowflakeSQLException](newSession.table(viewName).show())
       assert(msg.getMessage.contains("does not exist or not authorized"))
     } finally {

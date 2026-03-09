@@ -1027,7 +1027,7 @@ class StoredProcedureSuite extends SNTestBase {
   test("permanent is permanent") {
     val spName = randomName()
     val stageName = randomName()
-    val newSession = Session.builder.configFile(defaultProfile).create
+    val newSession = getBaseSession()
     try {
       createStage(stageName, isTemporary = false)
       session.sproc.registerPermanent(
@@ -2206,7 +2206,7 @@ println(s"""
     assert(session.sql(s"show procedures like '$name1'").collect().length == 1)
     assert(session.sql(s"show procedures like '$name2'").collect().length == 1)
 
-    val newSession = Session.builder.configFile(defaultProfile).create
+    val newSession = getBaseSession()
     // SPs don't exist in other sessions
     assert(newSession.sql(s"show procedures like '$name1'").collect().isEmpty)
     assert(newSession.sql(s"show procedures like '$name2'").collect().isEmpty)
