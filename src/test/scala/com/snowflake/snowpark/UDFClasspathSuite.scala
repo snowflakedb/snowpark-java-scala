@@ -95,7 +95,7 @@ class UDFClasspathSuite extends SNTestBase {
   test(
     "Test that snowpark jar is automatically added" +
       " if there is classNotFound error in first attempt") {
-    val newSession = Session.builder.configFile(defaultProfile).create
+    val newSession = getBaseSession()
     TestUtils.addDepsToClassPath(newSession)
     val udfR = spy(new UDXRegistrationHandler(newSession))
     val path = UDFClassPath.getPathForClass(classOf[com.snowflake.snowpark.Session]).get

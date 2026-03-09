@@ -319,7 +319,7 @@ class APIInternalSuite extends TestData {
   }
 
   test("close session") {
-    val newSession = Session.builder.configFile(defaultProfile).create
+    val newSession = getBaseSession()
     assert(Session.getActiveSession.nonEmpty)
     newSession.close()
     assert(
