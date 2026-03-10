@@ -84,11 +84,20 @@ trait SNTestBase extends AnyFunSuite with BeforeAndAfterAll with SFTestUtils wit
     TypeMap("geography", "geography", Types.VARCHAR, GeographyType),
     TypeMap("geometry", "geometry", Types.VARCHAR, GeometryType))
 
-  implicit lazy val session: Session = {
-    TestUtils.tryToLoadFipsProvider()
+  protected def getBaseSession(configs: (String, String)*): Session = {
     val session = Session.builder
       .configFile(defaultProfile)
+      .configs(configs.toMap)
       .create
+    runQuery(
+      "alter session set ENABLE_FIX_SNOW_3011194_SCALA_VERSIONED_HANDLER_NAMES=true",
+      session)
+    session
+  }
+
+  implicit lazy val session: Session = {
+    TestUtils.tryToLoadFipsProvider()
+    val session = getBaseSession()
     // trigger this lazy parameter to make some tests more stable
     // e.g. count queries
     session.conn.hideInternalAlias
@@ -346,36 +355,24 @@ trait SnowTestFiles {
 
 trait LazySession extends SNTestBase {
   implicit override lazy val session: Session =
-    Session.builder
-      .configFile(defaultProfile)
-      .config(SnowparkLazyAnalysis, "true")
-      .create
+    getBaseSession((SnowparkLazyAnalysis, "true"))
 }
 
 trait EagerSession extends SNTestBase {
   implicit override lazy val session: Session =
-    Session.builder
-      .configFile(defaultProfile)
-      .config(SnowparkLazyAnalysis, "false")
-      .create
+    getBaseSession((SnowparkLazyAnalysis, "false"))
 }
 
 trait AlwaysCleanSession extends SNTestBase {
   implicit override lazy val session: Session =
-    Session.builder
-      .configFile(defaultProfile)
-      .config(ParameterUtils.SnowparkEnableClosureCleaner, "always")
-      .create
+    getBaseSession((ParameterUtils.SnowparkEnableClosureCleaner, "always"))
 }
 
 // No need to add trait 'repl_only', because in Intellij's test, 'repl_only' is
 // equivalent with 'never'
 trait NeverCleanSession extends SNTestBase {
   implicit override lazy val session: Session =
-    Session.builder
-      .configFile(defaultProfile)
-      .config(ParameterUtils.SnowparkEnableClosureCleaner, "never")
-      .create
+    getBaseSession((ParameterUtils.SnowparkEnableClosureCleaner, "never"))
 }
 
 trait UploadTimeoutSession extends SNTestBase {
