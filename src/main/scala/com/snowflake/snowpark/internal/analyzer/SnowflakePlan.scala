@@ -12,7 +12,11 @@ import com.snowflake.snowpark.internal.{
 import com.snowflake.snowpark.internal.analyzer.SnowflakePlan.wrapException
 import com.snowflake.snowpark.{DataFrame, Row, SaveMode, Session}
 import com.snowflake.snowpark.FileOperationCommand._
-import com.snowflake.snowpark.internal.Utils.{TempObjectType, randomNameForTempObject}
+import com.snowflake.snowpark.internal.Utils.{
+  TempObjectType,
+  isSqlSelectStatement,
+  randomNameForTempObject
+}
 import com.snowflake.snowpark.types.StructType
 import net.snowflake.client.jdbc.SnowflakeSQLException
 
@@ -748,9 +752,7 @@ class SnowflakePlanBuilder(session: Session) extends Logging {
     plan.sourcePlan match {
       case Some(_: SetOperation) => plan
       case Some(_: MultiChildrenNode) => plan
-      // scalastyle:off
-      case _ if plan.queries.last.sql.trim.toLowerCase.startsWith("select") => plan
-      // scalastyle:on
+      case _ if isSqlSelectStatement(plan.queries.last.sql) => plan
       case _ =>
         val newQueries =
           plan.queries :+ Query(resultScanStatement(plan.queries.last.queryIdPlaceHolder))
