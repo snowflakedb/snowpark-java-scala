@@ -59,7 +59,7 @@ object Utils extends Logging {
   // regex to identify Anonymous stored procedures:
   // https://docs.snowflake.com/en/sql-reference/sql/call-with
   private val SnowflakeAnonymousCallWithPattern: Pattern =
-    Pattern.compile("^\\s*with\\s+\\w+\\s+as\\s+procedure", Pattern.CASE_INSENSITIVE)
+    Pattern.compile("^\\s*with\\s+\\w+\\s+as\\s+procedure\\b", Pattern.CASE_INSENSITIVE)
 
   // Temp object name generation
   val randomGenerator = new Random(System.nanoTime())
