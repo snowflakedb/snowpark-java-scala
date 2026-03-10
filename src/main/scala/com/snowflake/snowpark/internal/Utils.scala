@@ -14,6 +14,7 @@ import java.io.{File, FileInputStream}
 import java.lang.invoke.SerializedLambda
 import java.security.{DigestInputStream, MessageDigest}
 import java.util.Locale
+import java.util.regex.Pattern
 import com.snowflake.snowpark.udtf.UDTF
 import net.snowflake.client.jdbc.SnowflakeSQLException
 
@@ -50,6 +51,16 @@ object Utils extends Logging {
     "^SNOWPARK_TEMP_(TABLE|VIEW|STAGE|FUNCTION|TABLE_FUNCTION|FILE_FORMAT|PROCEDURE)_[0-9A-Z]+$"
 
   val SnowflakePathPrefixes: List[String] = List("@", "snow://", "/")
+
+  // regex to identify select and CTE
+  // (https://docs.snowflake.com/en/sql-reference/constructs/with.html)
+  // are select statements in Snowflake.
+  private val SnowflakeSelectSqlPrefixPattern: Pattern =
+    Pattern.compile("^(\\s|\\()*(select|with)", Pattern.CASE_INSENSITIVE)
+  // regex to identify Anonymous stored procedures:
+  // https://docs.snowflake.com/en/sql-reference/sql/call-with
+  private val SnowflakeAnonymousCallWithPattern: Pattern =
+    Pattern.compile("^\\s*with\\s+\\w+\\s+as\\s+procedure\\b", Pattern.CASE_INSENSITIVE)
 
   // Temp object name generation
   val randomGenerator = new Random(System.nanoTime())
@@ -413,6 +424,11 @@ object Utils extends Logging {
     } else {
       false
     }
+
+  private[snowpark] def isSqlSelectStatement(sql: String): Boolean =
+    sql != null &&
+      SnowflakeSelectSqlPrefixPattern.matcher(sql).find() &&
+      !SnowflakeAnonymousCallWithPattern.matcher(sql).find()
 
   private[snowpark] def isStringEmpty(str: String): Boolean = str == null || str.isEmpty
 

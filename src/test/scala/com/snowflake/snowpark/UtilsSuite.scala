@@ -609,6 +609,19 @@ class UtilsSuite extends SNTestBase {
     assert(!Utils.isPutOrGetCommand("show table "))
   }
 
+  test("Utils.isSqlSelectStatement") {
+    // positive test
+    assert(Utils.isSqlSelectStatement("select 1"))
+    assert(Utils.isSqlSelectStatement("  ( select 1 )"))
+    assert(Utils.isSqlSelectStatement("with t as (select 1) select * from t"))
+
+    // negative test
+    assert(!Utils.isSqlSelectStatement(null))
+    assert(!Utils.isSqlSelectStatement(""))
+    assert(!Utils.isSqlSelectStatement("show tables"))
+    assert(!Utils.isSqlSelectStatement("with p as procedure() returns string language sql as $$"))
+  }
+
   test("Utils.isStringEmpty") {
     assert(Utils.isStringEmpty(null))
     assert(Utils.isStringEmpty(""))
