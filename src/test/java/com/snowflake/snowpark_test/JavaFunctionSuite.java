@@ -742,6 +742,62 @@ public class JavaFunctionSuite extends TestBase {
   }
 
   @Test
+  public void to_number_single_parameter() {
+    DataFrame df = getSession().sql("select * from values('123'),('456') as T(a)");
+    Row[] expected = {Row.create(123L), Row.create(456L)};
+    checkAnswer(df.select(Functions.to_number(df.col("a"))), expected);
+  }
+
+  @Test
+  public void to_number() {
+    DataFrame df = getSession().sql("select * from values('$123.45'),('$67.89') as T(a)");
+    Row[] expected = {
+      Row.create(new java.math.BigDecimal("123.45000000")),
+      Row.create(new java.math.BigDecimal("67.89000000"))
+    };
+    checkAnswer(df.select(Functions.to_number(df.col("a"), Functions.lit("$999.99"))), expected);
+    checkAnswer(df.select(Functions.to_number(df.col("a"), "$999.99")), expected);
+  }
+
+  @Test
+  public void to_number_with_precision_and_scale() {
+    DataFrame df = getSession().sql("select * from values('$123.45'),('$67.89') as T(a)");
+    Row[] expected = {
+      Row.create(new java.math.BigDecimal("123.45")), Row.create(new java.math.BigDecimal("67.89"))
+    };
+    checkAnswer(
+        df.select(Functions.to_number(df.col("a"), Functions.lit("$999.99"), 5, 2)), expected);
+    checkAnswer(df.select(Functions.to_number(df.col("a"), "$999.99", 5, 2)), expected);
+  }
+
+  @Test
+  public void try_to_number_single_parameter() {
+    DataFrame df = getSession().sql("select * from values('123'),('INVALID') as T(a)");
+    Row[] expected = {Row.create(123L), Row.create((Object) null)};
+    checkAnswer(df.select(Functions.try_to_number(df.col("a"))), expected);
+  }
+
+  @Test
+  public void try_to_number() {
+    DataFrame df = getSession().sql("select * from values('$123.45'),('INVALID') as T(a)");
+    Row[] expected = {
+      Row.create(new java.math.BigDecimal("123.45000000")), Row.create((Object) null)
+    };
+    checkAnswer(
+        df.select(Functions.try_to_number(df.col("a"), Functions.lit("$999.99"))), expected);
+    checkAnswer(df.select(Functions.try_to_number(df.col("a"), "$999.99")), expected);
+  }
+
+  @Test
+  public void try_to_number_with_precision_and_scale() {
+    DataFrame df = getSession().sql("select * from values('$123.45'),('INVALID') as T(a)");
+    Row[] expected = {Row.create(new java.math.BigDecimal("123.45")), Row.create((Object) null)};
+    checkAnswer(
+        df.select(Functions.try_to_number(df.col("a"), Functions.lit("$999.99"), 5, 2)), expected);
+    checkAnswer(df.select(Functions.try_to_number(df.col("a"), "$999.99", 5, 2)), expected);
+  }
+
+  @Test
   public void div0() {
     DataFrame df = getSession().sql("select * from values(0) as T(a)");
     Row[] expected = {Row.create(0.0, 2.0)};

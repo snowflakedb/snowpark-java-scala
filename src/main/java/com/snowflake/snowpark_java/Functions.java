@@ -825,6 +825,171 @@ public final class Functions {
   }
 
   /**
+   * Converts an input expression to a NUMBER value.
+   *
+   * <p>Uses default precision (38) and scale (0).
+   *
+   * @since 1.19.0
+   * @param e The input expression to convert
+   * @return The result column with the numeric value
+   */
+  public static Column to_number(Column e) {
+    return new Column(com.snowflake.snowpark.functions.to_number(e.toScalaColumn()));
+  }
+
+  /**
+   * Converts string 'e' to a number based on the string format 'format'.
+   *
+   * <p>Precision and scale are automatically derived from the format string.
+   *
+   * @since 1.19.0
+   * @param e The input expression to convert
+   * @param format The format to use to convert numeric values
+   * @return The result column with the numeric value
+   */
+  public static Column to_number(Column e, Column format) {
+    return new Column(
+        com.snowflake.snowpark.functions.to_number(e.toScalaColumn(), format.toScalaColumn()));
+  }
+
+  /**
+   * Converts string 'e' to a number based on the string format 'format'.
+   *
+   * <p>Precision and scale are automatically derived from the format string.
+   *
+   * <p>This overload accepts the format as a {@link String} and wraps it as a literal column
+   * internally for convenience.
+   *
+   * @since 1.19.0
+   * @param e The input expression to convert
+   * @param format The format string to use to convert numeric values
+   * @return The result column with the numeric value
+   */
+  public static Column to_number(Column e, String format) {
+    return to_number(e, lit(format));
+  }
+
+  /**
+   * Converts string 'e' to a number based on the string format 'format' with specified precision
+   * and scale.
+   *
+   * @since 1.19.0
+   * @param e The input expression to convert
+   * @param format The format to use to convert numeric values
+   * @param precision The precision (total number of digits)
+   * @param scale The scale (number of digits after the decimal point)
+   * @return The result column with the numeric value
+   */
+  public static Column to_number(Column e, Column format, int precision, int scale) {
+    return new Column(
+        com.snowflake.snowpark.functions.to_number(
+            e.toScalaColumn(), format.toScalaColumn(), precision, scale));
+  }
+
+  /**
+   * Converts string 'e' to a number based on the string format 'format' with specified precision
+   * and scale.
+   *
+   * <p>This overload accepts the format as a {@link String} and wraps it as a literal column
+   * internally for convenience.
+   *
+   * @since 1.19.0
+   * @param e The input expression to convert
+   * @param format The format string to use to convert numeric values
+   * @param precision The precision (total number of digits)
+   * @param scale The scale (number of digits after the decimal point)
+   * @return The result column with the numeric value
+   */
+  public static Column to_number(Column e, String format, int precision, int scale) {
+    return to_number(e, lit(format), precision, scale);
+  }
+
+  /**
+   * Converts an input expression to a NUMBER value, with error-handling support. If the conversion
+   * cannot be performed, it returns NULL instead of raising an error.
+   *
+   * <p>Uses default precision (38) and scale (0).
+   *
+   * @since 1.19.0
+   * @param e The input expression to convert
+   * @return The result column with the numeric value, or NULL if conversion fails
+   */
+  public static Column try_to_number(Column e) {
+    return new Column(com.snowflake.snowpark.functions.try_to_number(e.toScalaColumn()));
+  }
+
+  /**
+   * Converts string 'e' to a number based on the string format 'format', with error-handling
+   * support. If the conversion cannot be performed, it returns NULL instead of raising an error.
+   *
+   * <p>Precision and scale are automatically derived from the format string.
+   *
+   * @since 1.19.0
+   * @param e The input expression to convert
+   * @param format The format to use to convert numeric values
+   * @return The result column with the numeric value, or NULL if conversion fails
+   */
+  public static Column try_to_number(Column e, Column format) {
+    return new Column(
+        com.snowflake.snowpark.functions.try_to_number(e.toScalaColumn(), format.toScalaColumn()));
+  }
+
+  /**
+   * Converts string 'e' to a number based on the string format 'format', with error-handling
+   * support. If the conversion cannot be performed, it returns NULL instead of raising an error.
+   *
+   * <p>Precision and scale are automatically derived from the format string.
+   *
+   * <p>This overload accepts the format as a {@link String} and wraps it as a literal column
+   * internally for convenience.
+   *
+   * @since 1.19.0
+   * @param e The input expression to convert
+   * @param format The format string to use to convert numeric values
+   * @return The result column with the numeric value, or NULL if conversion fails
+   */
+  public static Column try_to_number(Column e, String format) {
+    return try_to_number(e, lit(format));
+  }
+
+  /**
+   * Converts string 'e' to a number based on the string format 'format' with specified precision
+   * and scale, with error-handling support. If the conversion cannot be performed, it returns NULL
+   * instead of raising an error.
+   *
+   * @since 1.19.0
+   * @param e The input expression to convert
+   * @param format The format to use to convert numeric values
+   * @param precision The precision (total number of digits)
+   * @param scale The scale (number of digits after the decimal point)
+   * @return The result column with the numeric value, or NULL if conversion fails
+   */
+  public static Column try_to_number(Column e, Column format, int precision, int scale) {
+    return new Column(
+        com.snowflake.snowpark.functions.try_to_number(
+            e.toScalaColumn(), format.toScalaColumn(), precision, scale));
+  }
+
+  /**
+   * Converts string 'e' to a number based on the string format 'format' with specified precision
+   * and scale, with error-handling support. If the conversion cannot be performed, it returns NULL
+   * instead of raising an error.
+   *
+   * <p>This overload accepts the format as a {@link String} and wraps it as a literal column
+   * internally for convenience.
+   *
+   * @since 1.19.0
+   * @param e The input expression to convert
+   * @param format The format string to use to convert numeric values
+   * @param precision The precision (total number of digits)
+   * @param scale The scale (number of digits after the decimal point)
+   * @return The result column with the numeric value, or NULL if conversion fails
+   */
+  public static Column try_to_number(Column e, String format, int precision, int scale) {
+    return try_to_number(e, lit(format), precision, scale);
+  }
+
+  /**
    * Performs division like the division operator (/), but returns 0 when the divisor is 0 (rather
    * than reporting an error).
    *

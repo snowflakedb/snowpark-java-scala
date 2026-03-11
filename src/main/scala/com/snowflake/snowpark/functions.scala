@@ -737,6 +737,182 @@ object functions {
   }
 
   /**
+   * Converts an input expression to a NUMBER value.
+   *
+   * Uses default precision (38) and scale (0).
+   *
+   * @param e
+   *   The input expression to convert.
+   * @return
+   *   A Column with the numeric value.
+   * @group num_func
+   * @since 1.19.0
+   */
+  def to_number(e: Column): Column = {
+    builtin("to_number")(e)
+  }
+
+  /**
+   * Converts string 'e' to a number based on the string format 'format'.
+   *
+   * Precision and scale are automatically derived from the format string.
+   *
+   * @param e
+   *   The input expression to convert.
+   * @param format
+   *   The format to use to convert numeric values.
+   * @return
+   *   A Column with the numeric value.
+   * @group num_func
+   * @since 1.19.0
+   */
+  def to_number(e: Column, format: Column): Column = {
+    val (precision, scale) = resolveToNumberPrecisionAndScale(format)
+    to_number(e, format, precision, scale)
+  }
+
+  /**
+   * Converts string 'e' to a number based on the string format 'format' with specified precision
+   * and scale.
+   *
+   * @param e
+   *   The input expression to convert.
+   * @param format
+   *   The format to use to convert numeric values.
+   * @param precision
+   *   The precision (total number of digits).
+   * @param scale
+   *   The scale (number of digits after the decimal point).
+   * @return
+   *   A Column with the numeric value.
+   * @group num_func
+   * @since 1.19.0
+   */
+  def to_number(e: Column, format: Column, precision: Int, scale: Int): Column = {
+    builtin("to_number")(e, format, sqlExpr(precision.toString), sqlExpr(scale.toString))
+  }
+
+  /**
+   * Converts an input expression to a NUMBER value, with error-handling support. If the conversion
+   * cannot be performed, it returns NULL instead of raising an error.
+   *
+   * Uses default precision (38) and scale (0).
+   *
+   * @param e
+   *   The input expression to convert.
+   * @return
+   *   A Column with the numeric value, or NULL if conversion fails.
+   * @group num_func
+   * @since 1.19.0
+   */
+  def try_to_number(e: Column): Column = {
+    builtin("try_to_number")(e)
+  }
+
+  /**
+   * Converts string 'e' to a number based on the string format 'format', with error-handling
+   * support. If the conversion cannot be performed, it returns NULL instead of raising an error.
+   *
+   * Precision and scale are automatically derived from the format string.
+   *
+   * @param e
+   *   The input expression to convert.
+   * @param format
+   *   The format to use to convert numeric values.
+   * @return
+   *   A Column with the numeric value, or NULL if conversion fails.
+   * @group num_func
+   * @since 1.19.0
+   */
+  def try_to_number(e: Column, format: Column): Column = {
+    val (precision, scale) = resolveToNumberPrecisionAndScale(format)
+    try_to_number(e, format, precision, scale)
+  }
+
+  /**
+   * Converts string 'e' to a number based on the string format 'format' with specified precision
+   * and scale, with error-handling support. If the conversion cannot be performed, it returns NULL
+   * instead of raising an error.
+   *
+   * @param e
+   *   The input expression to convert.
+   * @param format
+   *   The format to use to convert numeric values.
+   * @param precision
+   *   The precision (total number of digits).
+   * @param scale
+   *   The scale (number of digits after the decimal point).
+   * @return
+   *   A Column with the numeric value, or NULL if conversion fails.
+   * @group num_func
+   * @since 1.19.0
+   */
+  def try_to_number(e: Column, format: Column, precision: Int, scale: Int): Column = {
+    builtin("try_to_number")(e, format, sqlExpr(precision.toString), sqlExpr(scale.toString))
+  }
+
+  /**
+   * Resolves the precision and scale from a Column containing a numeric format string literal.
+   *
+   * Extracts the literal string value from the Column and delegates to the String version.
+   *
+   * @param format
+   *   A Column containing a string literal with the numeric format (e.g., lit("$999.99")).
+   * @return
+   *   A tuple containing (precision, scale).
+   * @throws IllegalArgumentException
+   *   if the Column does not contain a string literal.
+   */
+  private[snowpark] def resolveToNumberPrecisionAndScale(format: Column): (Int, Int) = {
+    format.expr match {
+      case Literal(value: String, _) =>
+        resolveToNumberPrecisionAndScale(value)
+      case _ =>
+        throw new IllegalArgumentException(
+          "format must be a string literal Column to derive precision and scale")
+    }
+  }
+
+  /**
+   * Resolves the precision and scale from a numeric format string.
+   *
+   * The precision is the total count of '9' and '0' characters in the format. The scale is the
+   * count of '9' and '0' characters after the decimal point ('.' or 'D').
+   *
+   * @param format
+   *   The numeric format string (e.g., "$999.99", "9999D99").
+   * @return
+   *   A tuple containing (precision, scale).
+   */
+  private[snowpark] def resolveToNumberPrecisionAndScale(format: String): (Int, Int) = {
+    import scala.util.matching.Regex
+    val pattern: Regex = """^(.*?)[.D](.*)$""".r
+    val precision = format.count(c => c == '9' || c == '0')
+    var scale = 0
+    format match {
+      case pattern(_, decimalPart) =>
+        scale = decimalPart.count(c => c == '9' || c == '0')
+      case _ =>
+        scale = 0
+    }
+
+    (precision, scale)
+  }
+
+  /**
+   * Convenience overload of `try_to_number` that accepts a String format and wraps it with `lit`.
+   *
+   * @param e
+   *   The input expression to convert.
+   * @param format
+   *   The format string to use to convert numeric values.
+   * @return
+   *   A Column with the numeric value, or NULL if conversion fails.
+   * @group num_func
+   */
+  def try_to_number(e: Column, format: String): Column = try_to_number(e, lit(format))
+
+  /**
    * Performs division like the division operator (/), but returns 0 when the divisor is 0 (rather
    * than reporting an error).
    *
