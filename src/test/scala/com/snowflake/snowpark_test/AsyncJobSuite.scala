@@ -526,6 +526,46 @@ class AsyncJobSuite extends TestData with BeforeAndAfterEach {
     }
   }
 
+  test("async saveAsTable from CTE query") {
+    val sourceTable = randomName()
+    val targetTable = randomName()
+    try {
+      createTable(sourceTable, "c1 int, c2 string")
+      runQuery(s"insert into $sourceTable values (1, 'one'), (2, 'two')", session)
+
+      val cteDf =
+        session.sql(s"with products as (select c1, c2 from $sourceTable) select * from products")
+      cteDf.write.mode(SaveMode.Overwrite).async.saveAsTable(targetTable).getResult()
+      checkAnswer(session.table(targetTable), Seq(Row(1, "one"), Row(2, "two")))
+    } finally {
+      dropTable(sourceTable)
+      dropTable(targetTable)
+    }
+  }
+
+  test("async: write JSON files from CTE query") {
+    val sourceTable = randomName()
+    val path = s"@$targetStageName/cte_json_${Random.nextInt().abs}"
+    try {
+      createTable(sourceTable, "c1 int, c2 string")
+      runQuery(s"insert into $sourceTable values (1, 'one'), (2, 'two')", session)
+      val cteDf = session.sql(
+        s"with products as (select c1, c2 from $sourceTable) select c1, c2 from products")
+      val jsonDf = cteDf.select(array_construct(col("C1"), col("C2")))
+
+      val writeResult = jsonDf.write.mode(SaveMode.Overwrite).async.json(path).getResult()
+      assert(writeResult.rows.length == 1 && writeResult.rows.head.getInt(0) == 2)
+
+      val resultFiles = session.sql(s"ls $path").collect()
+      assert(resultFiles.length == 1 && resultFiles(0).getString(0).endsWith(".json.gz"))
+      checkAnswer(
+        session.read.json(path),
+        Seq(Row("[\n  1,\n  \"one\"\n]"), Row("[\n  2,\n  \"two\"\n]")))
+    } finally {
+      dropTable(sourceTable)
+    }
+  }
+
   // Copy UpdatableSuite.test("update rows in table") and
   // modify it to run update() in async mode
   test("update rows in table (async)") {
