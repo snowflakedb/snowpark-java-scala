@@ -26,12 +26,12 @@ fi
 
 THIS_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
-MVN_OSSRH_DEPLOY_SETTINGS_XML="$THIS_DIR/mvn_settings_ossrh_deploy.xml"
+MVN_CENTRAL_DEPLOY_SETTINGS_XML="$THIS_DIR/mvn_settings_central_deploy.xml"
 OSSRH_DEPLOY_SETTINGS_XML="$THIS_DIR/settings_ossrh_deploy.xml"
 MVN_REPOSITORY_ID=ossrh
 
-# For uploading to Maven
-cat > $MVN_OSSRH_DEPLOY_SETTINGS_XML << MVNSETTINGS.XML
+# For uploading to Maven Central via Central Publisher Portal
+cat > $MVN_CENTRAL_DEPLOY_SETTINGS_XML << MVNSETTINGS.XML
 <?xml version="1.0" encoding="UTF-8"?>
 <settings xmlns="http://maven.apache.org/SETTINGS/1.0.0"
      xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
@@ -46,11 +46,8 @@ cat > $MVN_OSSRH_DEPLOY_SETTINGS_XML << MVNSETTINGS.XML
 </settings>
 MVNSETTINGS.XML
 
-# re-enable if want to release to maven repo
-# mvn --settings $OSSRH_DEPLOY_SETTINGS_XML -DskipTests clean deploy
-
 MVN_OPTIONS+=(
-  "--settings" "$MVN_OSSRH_DEPLOY_SETTINGS_XML"
+  "--settings" "$MVN_CENTRAL_DEPLOY_SETTINGS_XML"
   "--batch-mode"
 )
 
@@ -84,8 +81,18 @@ cat > $OSSRH_DEPLOY_SETTINGS_XML << SETTINGS.XML
 SETTINGS.XML
 
 if [ "$PUBLISH" = true ]; then
-  echo "[Info] Sign package and deploy to staging area"
-  mvn deploy ${MVN_OPTIONS[@]} -Dossrh-deploy -DskipTests
+  echo "[Info] Deploy to Central Publisher Portal"
+  # Allow disabling auto-publish via environment variable (default: true)
+  AUTO_PUBLISH=${AUTO_PUBLISH:-true}
+  mvn deploy ${MVN_OPTIONS[@]} -Dcentral-deploy -DskipTests -Dauto.publish.central=$AUTO_PUBLISH
+
+  echo "[INFO] Publishing to Maven Central via Central Publisher Portal"
+  if [ "$AUTO_PUBLISH" = "true" ]; then
+    echo "[INFO] The central-publishing-maven-plugin handles publishing automatically"
+  else
+    echo "[INFO] Auto-publish is disabled. Please check https://central.sonatype.org/account to manually publish"
+  fi
+  echo "[INFO] Check https://central.sonatype.org/account for publication status"
 
 else
   # generate java doc before release
@@ -104,7 +111,7 @@ else
   aws s3 cp . s3://sfc-eng-jenkins/repository/snowparkclient/$github_version_tag/ --recursive --exclude "*" --include "snowpark-*.jar"
   aws s3 cp . s3://sfc-eng-jenkins/repository/snowparkclient/$github_version_tag/ --recursive --exclude "*" --include "fat-snowpark-*.jar"
   aws s3 cp . s3://sfc-eng-jenkins/repository/snowparkclient/$github_version_tag/ --recursive --exclude "*" --include "fat-test-snowpark-*.jar"
-  
+
   aws s3 cp . s3://sfc-eng-data/client/snowparkclient/releases/$github_version_tag/ --recursive --exclude "*" --include "*.asc"
   aws s3 cp . s3://sfc-eng-data/client/snowparkclient/releases/$github_version_tag/ --recursive --exclude "*" --include "*.md5"
   aws s3 cp . s3://sfc-eng-data/client/snowparkclient/releases/$github_version_tag/ --recursive --exclude "*" --include "*.sha256"

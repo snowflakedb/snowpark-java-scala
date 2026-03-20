@@ -403,7 +403,7 @@
                          will be replaced multiple times, resulting some jars not tracked by Maven anymore.
                          Details here: https://stackoverflow.com/questions/38482839/maven-assembly-plugin-how-to-use-appendassemblyid
                     -->
-                    <!-- NOTE!!! Please also modify profile ossrh-deploy after changing anything here -->
+                    <!-- NOTE!!! Please also modify profile central-deploy after changing anything here -->
                     <execution>
                         <id>with-udf-dependency</id>
                         <phase>package</phase>
@@ -460,7 +460,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-gpg-plugin</artifactId>
-                <version>1.6</version>
+                <version>3.2.8</version>
                 <executions>
                     <execution>
                         <id>sign-deploy-artifacts</id>
@@ -493,7 +493,7 @@
 
         </plugins>
 
-        <!-- disable default maven deploy plugin since we are using gpg:sign-and-deploy-file -->
+        <!-- disable default maven deploy plugin since we are using central-publishing-maven-plugin -->
         <pluginManagement>
             <plugins>
                 <plugin>
@@ -514,10 +514,10 @@
             </properties>
         </profile>
         <profile>
-            <id>ossrh-deploy</id>
+            <id>central-deploy</id>
             <activation>
                 <property>
-                    <name>ossrh-deploy</name>
+                    <name>central-deploy</name>
                 </property>
             </activation>
             <build>
@@ -561,29 +561,34 @@
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-gpg-plugin</artifactId>
-                        <version>1.6</version>
+                        <version>3.2.8</version>
                         <executions>
                             <execution>
                                 <id>sign-deploy-artifacts</id>
                                 <phase>none</phase>
                             </execution>
                             <execution>
-                                <id>sign-and-deploy-file</id>
-                                <phase>deploy</phase>
+                                <id>sign-artifacts</id>
+                                <phase>verify</phase>
                                 <goals>
-                                    <goal>sign-and-deploy-file</goal>
+                                    <goal>sign</goal>
                                 </goals>
                                 <configuration>
-                                    <file>target/${project.artifactId}-${project.version}.jar</file>
-                                    <repositoryId>ossrh</repositoryId>
-                                    <url>https://oss.sonatype.org/service/local/staging/deploy/maven2</url>
-                                    <pomFile>fips-pom.xml</pomFile>
-                                    <javadoc>target/${project.artifactId}-${project.version}-javadoc.jar</javadoc>
                                     <keyname>${env.GPG_KEY_ID}</keyname>
                                     <passphrase>${env.GPG_KEY_PASSPHRASE}</passphrase>
                                 </configuration>
                             </execution>
                         </executions>
+                    </plugin>
+                    <plugin>
+                        <groupId>org.sonatype.central</groupId>
+                        <artifactId>central-publishing-maven-plugin</artifactId>
+                        <version>0.8.0</version>
+                        <extensions>true</extensions>
+                        <configuration>
+                            <publishingServerId>ossrh</publishingServerId>
+                            <autoPublish>${auto.publish.central}</autoPublish>
+                        </configuration>
                     </plugin>
                 </plugins>
             </build>
