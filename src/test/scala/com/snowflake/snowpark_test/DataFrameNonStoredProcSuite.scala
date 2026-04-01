@@ -35,7 +35,10 @@ class DataFrameNonStoredProcSuite extends TestData {
       assert(
         dateReverseCrosstabResult(1).toSeq.drop(1).map(_.asInstanceOf[Long]).sorted == Seq(0L, 1L))
       checkAnswer(
-        string7.stat.crosstab("a", "b").sort(col("a")),
+        string7.stat
+          .crosstab("a", "b")
+          .select(col("a"), col("CAST(1 AS NUMBER(38,0))"), col("CAST(2 AS NUMBER(38,0))"))
+          .sort(col("a")),
         Seq(Row(null, 0, 1), Row("str", 1, 0)))
       // Pivot column order is non-deterministic (depends on GROUP BY result order).
       // Check pivot values as a sorted set to make the test order-independent.
