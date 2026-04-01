@@ -595,4 +595,27 @@ class DataFrameWriterSuite extends TestData {
         Row("{\n  \"_COL_0\": 1,\n  \"_COL_1\": \"one\"\n}"),
         Row("{\n  \"_COL_0\": 2,\n  \"_COL_1\": \"two\"\n}")))
   }
+
+  test("csv with || string concatenation in SQL") {
+    val df = session.sql("""SELECT 'John'
+        || ' '
+        || 'Doe' as FULLNAME""")
+    val path = s"@$targetStageName/pipe_csv_${Random.nextInt().abs}"
+    val writeResult = df.write.csv(path)
+    assert(writeResult.rows.head.getLong(0) == 1) // 1 row unloaded
+    val readSchema = StructType(Seq(StructField("FULLNAME", StringType)))
+    val readDf = session.read.schema(readSchema).csv(path)
+    checkAnswer(readDf, Seq(Row("John Doe")))
+  }
+
+  test("json with || string concatenation in SQL") {
+    val df = session.sql("""SELECT TO_VARIANT('John'
+        || ' '
+        || 'Doe') as FULLNAME""")
+    val path = s"@$targetStageName/pipe_json_${Random.nextInt().abs}"
+    val writeResult = df.write.json(path)
+    assert(writeResult.rows.head.getLong(0) == 1) // 1 row unloaded
+    val readDf = session.read.json(path)
+    checkAnswer(readDf, Seq(Row("\"John Doe\"")))
+  }
 }
