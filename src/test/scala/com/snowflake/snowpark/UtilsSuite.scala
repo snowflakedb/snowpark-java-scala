@@ -240,6 +240,8 @@ class UtilsSuite extends SNTestBase {
     assert(Utils.normalizeStageLocation(name3).equals(name3))
     val name4 = "/some/file.txt"
     assert(Utils.normalizeStageLocation(name4).equals(name4))
+    val name5 = "'@my_stage/path/to/file with spaces.txt'"
+    assert(Utils.normalizeStageLocation(name5).equals(name5))
   }
 
   test("normalizeLocalFile") {
