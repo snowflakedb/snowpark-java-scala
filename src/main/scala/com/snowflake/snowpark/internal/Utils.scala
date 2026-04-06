@@ -167,7 +167,8 @@ object Utils extends Logging {
 
   def normalizeStageLocation(name: String): String = {
     val trimName = name.trim
-    if (SnowflakePathPrefixes.exists(trimName.startsWith(_))) trimName else s"@$trimName"
+    if (SnowflakePathPrefixes.exists(trimName.startsWith(_)) || isSingleQuoted(trimName)) trimName
+    else s"@$trimName"
   }
 
   private def isSingleQuoted(name: String): Boolean =
