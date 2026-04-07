@@ -8,11 +8,17 @@ trait TestData extends SNTestBase {
   val sysTimeZone = System.getProperty("user.timezone", "")
   val defaultTimezone = TimeZone.getDefault
   val oldSfTimeZone =
-    session.sql("SHOW PARAMETERS LIKE 'TIMEZONE' IN SESSION").collect().head.getString(1)
+    if (isStoredProc(session)) {
+      session.sql("select CURRENT_TIMEZONE()").collect().head.getString(0)
+    } else {
+      session.sql("SHOW PARAMETERS LIKE 'TIMEZONE' IN SESSION").collect().head.getString(1)
+    }
 
   System.setProperty("user.timezone", "America/Los_Angeles")
   TimeZone.setDefault(TimeZone.getTimeZone("America/Los_Angeles"))
-  session.runQuery(s"alter session set TIMEZONE = 'America/Los_Angeles'")
+  if (!isStoredProc(session)) {
+    session.runQuery(s"alter session set TIMEZONE = 'America/Los_Angeles'")
+  }
 
   val variant1: DataFrame =
     session.sql(
@@ -77,7 +83,9 @@ trait TestData extends SNTestBase {
 
   System.setProperty("user.timezone", sysTimeZone)
   TimeZone.setDefault(defaultTimezone)
-  session.runQuery(s"alter session set TIMEZONE = '$oldSfTimeZone'")
+  if (!isStoredProc(session)) {
+    session.runQuery(s"alter session set TIMEZONE = '$oldSfTimeZone'")
+  }
 
   lazy val testData1: DataFrame =
     session.createDataFrame(Seq(Data(1, true, "a"), Data(2, false, "b")))

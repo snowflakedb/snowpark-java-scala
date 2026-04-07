@@ -199,16 +199,24 @@ trait SNTestBase extends AnyFunSuite with BeforeAndAfterAll with SFTestUtils wit
     val sysTimeZone = System.getProperty("user.timezone", "")
     val defaultTimezone = TimeZone.getDefault
     val oldSfTimeZone =
-      session.sql("SHOW PARAMETERS LIKE 'TIMEZONE' IN SESSION").collect().head.getString(1)
+      if (isStoredProc(session)) {
+        session.sql("select CURRENT_TIMEZONE()").collect().head.getString(0)
+      } else {
+        session.sql("SHOW PARAMETERS LIKE 'TIMEZONE' IN SESSION").collect().head.getString(1)
+      }
     try {
       System.setProperty("user.timezone", timezone)
       TimeZone.setDefault(TimeZone.getTimeZone(timezone))
-      session.runQuery(s"alter session set TIMEZONE = '$timezone'")
+      if (!isStoredProc(session)) {
+        session.runQuery(s"alter session set TIMEZONE = '$timezone'")
+      }
       thunk
     } finally {
       System.setProperty("user.timezone", sysTimeZone)
       TimeZone.setDefault(defaultTimezone)
-      session.runQuery(s"alter session set TIMEZONE = '$oldSfTimeZone'")
+      if (!isStoredProc(session)) {
+        session.runQuery(s"alter session set TIMEZONE = '$oldSfTimeZone'")
+      }
     }
   }
 
