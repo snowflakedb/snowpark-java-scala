@@ -227,10 +227,23 @@ lazy val root = (project in file("."))
       case _ => MergeStrategy.preferProject
     },
     Test / assembly / assemblyOption ~= { _.withCacheOutput(false) },
-    Test / assemblyPackageScala / assembleArtifact := false, // exclude scala libraries
-    Test / assembly / assemblyExcludedJars := { // exclude snowflake jdbc from the fat jar
+    // For Scala 2.12 test fat JARs, include scala-xml required by ScalaTest runtime.
+    // Explicitly keep core Scala jars excluded to avoid large JAR size growth.
+    Test / assemblyPackageScala / assembleArtifact := scalaBinaryVersion.value == "2.12",
+    Test / assembly / assemblyExcludedJars := {
       val cp = (Test / assembly / fullClasspath).value
-      cp filter { _.data.getName == s"$jdbcName-$jdbcVersion.jar" }
+      val baseExcluded = cp filter { _.data.getName == s"$jdbcName-$jdbcVersion.jar" }
+      val scalaCoreExcluded =
+        if (scalaBinaryVersion.value == "2.12") {
+          val scalaV = scalaVersion.value
+          cp filter { att =>
+            Set(
+              s"scala-library-$scalaV.jar",
+              s"scala-reflect-$scalaV.jar",
+              s"scala-compiler-$scalaV.jar").contains(att.data.getName)
+          }
+        } else Nil
+      baseExcluded ++ scalaCoreExcluded
     },
     Test / assembly / fullClasspath ++= (Test / fullClasspath).value,
     // Publish the fat test JAR alongside normal artifacts
