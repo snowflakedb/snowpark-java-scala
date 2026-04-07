@@ -227,8 +227,11 @@ lazy val root = (project in file("."))
       case _ => MergeStrategy.preferProject
     },
     Test / assembly / assemblyOption ~= { _.withCacheOutput(false) },
-    // For Scala 2.12 test fat JARs, include scala-xml required by ScalaTest runtime.
-    // Explicitly keep core Scala jars excluded to avoid large JAR size growth.
+    // For Scala 2.12, sbt-assembly's isScalaLibraryFile treats scala-xml as a core
+    // Scala library and strips it when assemblyPackageScala is false. For 2.13 this
+    // was fixed (scala-xml is no longer part of the 2.13 standard distribution).
+    // ScalaTest 3.2.19 needs scala-xml at runtime, so for 2.12 we enable
+    // assemblyPackageScala and manually exclude only the core JARs we don't want.
     Test / assemblyPackageScala / assembleArtifact := scalaBinaryVersion.value == "2.12",
     Test / assembly / assemblyExcludedJars := {
       val cp = (Test / assembly / fullClasspath).value
