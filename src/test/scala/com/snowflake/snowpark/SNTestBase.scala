@@ -204,11 +204,12 @@ trait SNTestBase extends AnyFunSuite with BeforeAndAfterAll with SFTestUtils wit
       } else {
         session.sql("SHOW PARAMETERS LIKE 'TIMEZONE' IN SESSION").collect().head.getString(1)
       }
+    val testTimezone = if (isStoredProc(session)) oldSfTimeZone else timezone
     try {
-      System.setProperty("user.timezone", timezone)
-      TimeZone.setDefault(TimeZone.getTimeZone(timezone))
+      System.setProperty("user.timezone", testTimezone)
+      TimeZone.setDefault(TimeZone.getTimeZone(testTimezone))
       if (!isStoredProc(session)) {
-        session.runQuery(s"alter session set TIMEZONE = '$timezone'")
+        session.runQuery(s"alter session set TIMEZONE = '$testTimezone'")
       }
       thunk
     } finally {

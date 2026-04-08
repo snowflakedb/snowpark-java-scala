@@ -21,11 +21,12 @@ public abstract class TestFunctions {
         isStoredProc
             ? session.sql("select CURRENT_TIMEZONE()").collect()[0].getString(0)
             : session.sql("SHOW PARAMETERS LIKE 'TIMEZONE' IN SESSION").collect()[0].getString(1);
+    String testTimezone = isStoredProc ? oldSfTimezone : "America/Los_Angeles";
     try {
-      System.setProperty("user.timezone", "America/Los_Angeles");
-      TimeZone.setDefault(TimeZone.getTimeZone("America/Los_Angeles"));
+      System.setProperty("user.timezone", testTimezone);
+      TimeZone.setDefault(TimeZone.getTimeZone(testTimezone));
       if(!isStoredProc)
-        session.sql("alter session set TIMEZONE = 'America/Los_Angeles'").collect();
+        session.sql(String.format("alter session set TIMEZONE = '%s'", testTimezone)).collect();
       thunk.run();
     } finally {
       System.setProperty("user.timezone", sysTimeZone);

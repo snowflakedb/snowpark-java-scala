@@ -13,11 +13,11 @@ trait TestData extends SNTestBase {
     } else {
       session.sql("SHOW PARAMETERS LIKE 'TIMEZONE' IN SESSION").collect().head.getString(1)
     }
-
-  System.setProperty("user.timezone", "America/Los_Angeles")
-  TimeZone.setDefault(TimeZone.getTimeZone("America/Los_Angeles"))
+  val testTimezone = if (isStoredProc(session)) oldSfTimeZone else "America/Los_Angeles"
+  System.setProperty("user.timezone", testTimezone)
+  TimeZone.setDefault(TimeZone.getTimeZone(testTimezone))
   if (!isStoredProc(session)) {
-    session.runQuery(s"alter session set TIMEZONE = 'America/Los_Angeles'")
+    session.runQuery(s"alter session set TIMEZONE = '$testTimezone'")
   }
 
   val variant1: DataFrame =
