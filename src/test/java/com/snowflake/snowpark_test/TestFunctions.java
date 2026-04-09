@@ -25,13 +25,13 @@ public abstract class TestFunctions {
     try {
       System.setProperty("user.timezone", testTimezone);
       TimeZone.setDefault(TimeZone.getTimeZone(testTimezone));
-      if(!isStoredProc)
+      if (!isStoredProc)
         session.sql(String.format("alter session set TIMEZONE = '%s'", testTimezone)).collect();
       thunk.run();
     } finally {
       System.setProperty("user.timezone", sysTimeZone);
       TimeZone.setDefault(oldTimeZone);
-      if(!isStoredProc)
+      if (!isStoredProc)
         session.sql("alter session set TIMEZONE = '" + oldSfTimezone + "'").collect();
     }
   }
