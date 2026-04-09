@@ -227,10 +227,26 @@ lazy val root = (project in file("."))
       case _ => MergeStrategy.preferProject
     },
     Test / assembly / assemblyOption ~= { _.withCacheOutput(false) },
-    Test / assemblyPackageScala / assembleArtifact := false, // exclude scala libraries
-    Test / assembly / assemblyExcludedJars := { // exclude snowflake jdbc from the fat jar
+    // For Scala 2.12, sbt-assembly's isScalaLibraryFile treats scala-xml as a core
+    // Scala library and strips it when assemblyPackageScala is false. For 2.13 this
+    // was fixed (scala-xml is no longer part of the 2.13 standard distribution).
+    // ScalaTest 3.2.19 needs scala-xml at runtime, so for 2.12 we enable
+    // assemblyPackageScala and manually exclude only the core JARs we don't want.
+    Test / assemblyPackageScala / assembleArtifact := scalaBinaryVersion.value == "2.12",
+    Test / assembly / assemblyExcludedJars := {
       val cp = (Test / assembly / fullClasspath).value
-      cp filter { _.data.getName == s"$jdbcName-$jdbcVersion.jar" }
+      val baseExcluded = cp filter { _.data.getName == s"$jdbcName-$jdbcVersion.jar" }
+      val scalaCoreExcluded =
+        if (scalaBinaryVersion.value == "2.12") {
+          val scalaV = scalaVersion.value
+          cp filter { att =>
+            Set(
+              s"scala-library-$scalaV.jar",
+              s"scala-reflect-$scalaV.jar",
+              s"scala-compiler-$scalaV.jar").contains(att.data.getName)
+          }
+        } else Nil
+      baseExcluded ++ scalaCoreExcluded
     },
     Test / assembly / fullClasspath ++= (Test / fullClasspath).value,
     // Publish the fat test JAR alongside normal artifacts

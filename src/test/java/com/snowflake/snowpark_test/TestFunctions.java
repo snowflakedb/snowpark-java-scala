@@ -15,17 +15,24 @@ public abstract class TestFunctions {
   protected void withTimeZoneTest(TestMethod thunk, Session session) {
     String sysTimeZone = System.getProperty("user.timezone", "");
     TimeZone oldTimeZone = TimeZone.getDefault();
+    boolean isStoredProc =
+        (Boolean) JavaToScalaConvertor.javaToScalaSession(session).conn().isStoredProc();
     String oldSfTimezone =
-        session.sql("SHOW PARAMETERS LIKE 'TIMEZONE' IN SESSION").collect()[0].getString(1);
+        isStoredProc
+            ? session.sql("select CURRENT_TIMEZONE()").collect()[0].getString(0)
+            : session.sql("SHOW PARAMETERS LIKE 'TIMEZONE' IN SESSION").collect()[0].getString(1);
+    String testTimezone = isStoredProc ? oldSfTimezone : "America/Los_Angeles";
     try {
-      System.setProperty("user.timezone", "America/Los_Angeles");
-      TimeZone.setDefault(TimeZone.getTimeZone("America/Los_Angeles"));
-      session.sql("alter session set TIMEZONE = 'America/Los_Angeles'").collect();
+      System.setProperty("user.timezone", testTimezone);
+      TimeZone.setDefault(TimeZone.getTimeZone(testTimezone));
+      if (!isStoredProc)
+        session.sql(String.format("alter session set TIMEZONE = '%s'", testTimezone)).collect();
       thunk.run();
     } finally {
       System.setProperty("user.timezone", sysTimeZone);
       TimeZone.setDefault(oldTimeZone);
-      session.sql("alter session set TIMEZONE = '" + oldSfTimezone + "'").collect();
+      if (!isStoredProc)
+        session.sql("alter session set TIMEZONE = '" + oldSfTimezone + "'").collect();
     }
   }
 
