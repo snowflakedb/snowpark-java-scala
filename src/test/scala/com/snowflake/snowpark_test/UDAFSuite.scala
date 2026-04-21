@@ -738,16 +738,6 @@ class ScalaSumUDAF22
 class UDAFSuite extends TestData {
   import session.implicits._
 
-  override def beforeAll(): Unit = {
-    super.beforeAll()
-    session.sql("ALTER SESSION SET ENABLE_JAVA_UDAF = TRUE").collect()
-  }
-
-  override def afterAll(): Unit = {
-    session.sql("ALTER SESSION UNSET ENABLE_JAVA_UDAF").collect()
-    super.afterAll()
-  }
-
   // ==================== Java UDAF Tests ====================
 
   test("testTemporaryJavaUDAF") {

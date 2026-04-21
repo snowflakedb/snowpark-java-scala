@@ -18,22 +18,18 @@ import org.junit.Test;
 public class JavaUDAFClientSuite extends UDFTestBase {
   @Test
   public void testJavaTemporaryUDAF() {
-    udafTest(
-        () -> {
-          MySumUDAF udaf = new MySumUDAF();
-          AggregateFunction mySum = getSession().udaf().registerTemporary("java_my_sum", udaf);
+    MySumUDAF udaf = new MySumUDAF();
+    AggregateFunction mySum = getSession().udaf().registerTemporary("java_my_sum", udaf);
 
-          DataFrame df =
-              getSession()
-                  .createDataFrame(
-                      new Row[] {Row.create(1), Row.create(2), Row.create(3)},
-                      StructType.create(new StructField("a", DataTypes.IntegerType)));
+    DataFrame df =
+        getSession()
+            .createDataFrame(
+                new Row[] {Row.create(1), Row.create(2), Row.create(3)},
+                StructType.create(new StructField("a", DataTypes.IntegerType)));
 
-          Row[] result = df.select(mySum.apply(Functions.col("a"))).collect();
-          assertEquals(1, result.length);
-          assertEquals(6L, result[0].getLong(0));
-        },
-        getSession());
+    Row[] result = df.select(mySum.apply(Functions.col("a"))).collect();
+    assertEquals(1, result.length);
+    assertEquals(6L, result[0].getLong(0));
   }
 
   /**
@@ -43,22 +39,18 @@ public class JavaUDAFClientSuite extends UDFTestBase {
    */
   @Test
   public void testJavaUDAFWithImmutableState() {
-    udafTest(
-        () -> {
-          AggregateFunction mySum =
-              getSession().udaf().registerTemporary("java_immutable_sum", new MyImmutableSumUDAF());
+    AggregateFunction mySum =
+        getSession().udaf().registerTemporary("java_immutable_sum", new MyImmutableSumUDAF());
 
-          DataFrame df =
-              getSession()
-                  .createDataFrame(
-                      new Row[] {Row.create(1), Row.create(2), Row.create(3)},
-                      StructType.create(new StructField("a", DataTypes.IntegerType)));
+    DataFrame df =
+        getSession()
+            .createDataFrame(
+                new Row[] {Row.create(1), Row.create(2), Row.create(3)},
+                StructType.create(new StructField("a", DataTypes.IntegerType)));
 
-          Row[] result = df.select(mySum.apply(Functions.col("a"))).collect();
-          assertEquals(1, result.length);
-          assertEquals(6L, result[0].getLong(0));
-        },
-        getSession());
+    Row[] result = df.select(mySum.apply(Functions.col("a"))).collect();
+    assertEquals(1, result.length);
+    assertEquals(6L, result[0].getLong(0));
   }
 
   /**
@@ -67,25 +59,20 @@ public class JavaUDAFClientSuite extends UDFTestBase {
    */
   @Test
   public void testJavaUDAFWithLargeClosure() {
-    udafTest(
-        () -> {
-          MyLargeClosureUDAF udaf = new MyLargeClosureUDAF(1024);
-          assert JavaUtils.serialize(udaf).length > 8192
-              : "Serialized UDAF should exceed 8KB to test the large closure path";
+    MyLargeClosureUDAF udaf = new MyLargeClosureUDAF(1024);
+    assert JavaUtils.serialize(udaf).length > 8192
+        : "Serialized UDAF should exceed 8KB to test the large closure path";
 
-          AggregateFunction mySum =
-              getSession().udaf().registerTemporary("java_large_closure_sum", udaf);
+    AggregateFunction mySum = getSession().udaf().registerTemporary("java_large_closure_sum", udaf);
 
-          DataFrame df =
-              getSession()
-                  .createDataFrame(
-                      new Row[] {Row.create(1), Row.create(2), Row.create(3)},
-                      StructType.create(new StructField("a", DataTypes.IntegerType)));
+    DataFrame df =
+        getSession()
+            .createDataFrame(
+                new Row[] {Row.create(1), Row.create(2), Row.create(3)},
+                StructType.create(new StructField("a", DataTypes.IntegerType)));
 
-          Row[] result = df.select(mySum.apply(Functions.col("a"))).collect();
-          assertEquals(1, result.length);
-          assertEquals(6L, result[0].getLong(0));
-        },
-        getSession());
+    Row[] result = df.select(mySum.apply(Functions.col("a"))).collect();
+    assertEquals(1, result.length);
+    assertEquals(6L, result[0].getLong(0));
   }
 }
