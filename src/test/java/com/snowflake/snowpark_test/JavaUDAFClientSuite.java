@@ -19,7 +19,7 @@ public class JavaUDAFClientSuite extends UDFTestBase {
   @Test
   public void testJavaTemporaryUDAF() {
     MySumUDAF udaf = new MySumUDAF();
-    AggregateFunction mySum = getSession().udaf().registerTemporary("java_my_sum", udaf);
+    AggregateFunction mySum = getSession().udaf().registerTemporary(udaf);
 
     DataFrame df =
         getSession()
@@ -39,8 +39,7 @@ public class JavaUDAFClientSuite extends UDFTestBase {
    */
   @Test
   public void testJavaUDAFWithImmutableState() {
-    AggregateFunction mySum =
-        getSession().udaf().registerTemporary("java_immutable_sum", new MyImmutableSumUDAF());
+    AggregateFunction mySum = getSession().udaf().registerTemporary(new MyImmutableSumUDAF());
 
     DataFrame df =
         getSession()
@@ -63,7 +62,7 @@ public class JavaUDAFClientSuite extends UDFTestBase {
     assert JavaUtils.serialize(udaf).length > 8192
         : "Serialized UDAF should exceed 8KB to test the large closure path";
 
-    AggregateFunction mySum = getSession().udaf().registerTemporary("java_large_closure_sum", udaf);
+    AggregateFunction mySum = getSession().udaf().registerTemporary(udaf);
 
     DataFrame df =
         getSession()
