@@ -19,7 +19,7 @@ public abstract class TestFunctions {
         (Boolean) JavaToScalaConvertor.javaToScalaSession(session).conn().isStoredProc();
     String oldSfTimezone =
         isStoredProc
-            ? session.sql("select CURRENT_TIMEZONE()").collect()[0].getString(0)
+            ? TimeZone.getDefault().getID()
             : session.sql("SHOW PARAMETERS LIKE 'TIMEZONE' IN SESSION").collect()[0].getString(1);
     String testTimezone = isStoredProc ? oldSfTimezone : "America/Los_Angeles";
     try {
