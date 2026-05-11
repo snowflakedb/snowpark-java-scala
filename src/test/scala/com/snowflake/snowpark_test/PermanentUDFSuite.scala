@@ -29,16 +29,12 @@ class PermanentUDFSuite extends TestData {
       // In stored procs mode, there is only one session
       TestUtils.addDepsToClassPath(newSession, Some(stageName))
     }
-    enableScala213UdxfSprocParams(session)
-    enableScala213UdxfSprocParams(newSession)
   }
 
   override def afterAll: Unit = {
     dropStage(stageName)
     removeFile(tempDirectory1.getAbsolutePath, session)
     removeFile(tempDirectory2.getAbsolutePath, session)
-    disableScala213UdxfSprocParams(session)
-    disableScala213UdxfSprocParams(newSession)
     super.afterAll
   }
 

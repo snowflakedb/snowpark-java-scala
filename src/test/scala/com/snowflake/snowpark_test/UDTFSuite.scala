@@ -28,14 +28,11 @@ class UDTFSuite extends TestData {
       .toDF("c1", "c2")
       .write
       .saveAsTable(wordCountTableName)
-
-    enableScala213UdxfSprocParams(session)
   }
 
   override def afterAll: Unit = {
     dropTable(wordCountTableName)
     dropTable(tableName)
-    disableScala213UdxfSprocParams(session)
     super.afterAll
   }
 
