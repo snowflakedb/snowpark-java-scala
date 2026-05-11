@@ -335,18 +335,6 @@ trait SNTestBase extends AnyFunSuite with BeforeAndAfterAll with SFTestUtils wit
       skipPreprod = true)(thunk)
     // disable these tests on preprod daily tests until these parameters are enabled by default.
   }
-
-  def enableScala213UdxfSprocParams(session: Session): Unit = {
-    if (ScalaCompatVersion.contentEquals("2.13")) {
-      runQuery("alter session set ENABLE_SCALA_UDF_RUNTIME_2_13=true", session)
-    }
-  }
-
-  def disableScala213UdxfSprocParams(session: Session): Unit = {
-    if (ScalaCompatVersion.contentEquals("2.13")) {
-      runQuery("alter session set ENABLE_SCALA_UDF_RUNTIME_2_13=false", session)
-    }
-  }
 }
 
 trait SnowTestFiles {

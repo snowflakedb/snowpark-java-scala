@@ -17,12 +17,6 @@ class UDFClasspathSuite extends SNTestBase {
   override def beforeAll: Unit = {
     super.beforeAll
     TestUtils.addDepsToClassPath(session)
-    enableScala213UdxfSprocParams(session)
-  }
-
-  override def afterAll: Unit = {
-    disableScala213UdxfSprocParams(session)
-    super.afterAll
   }
 
   test("Test that jars uploaded to different stages") {

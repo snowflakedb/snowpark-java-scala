@@ -13,12 +13,6 @@ class UDTFInternalSuite extends SNTestBase {
     if (!isStoredProc(session)) {
       TestUtils.addDepsToClassPath(session)
     }
-    enableScala213UdxfSprocParams(session)
-  }
-
-  override def afterAll: Unit = {
-    disableScala213UdxfSprocParams(session)
-    super.afterAll
   }
 
   test("Unit test for UDTF0") {

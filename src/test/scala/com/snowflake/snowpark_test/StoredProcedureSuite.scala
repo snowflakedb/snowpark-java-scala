@@ -16,12 +16,10 @@ class StoredProcedureSuite extends SNTestBase {
     if (!isStoredProc(session)) {
       TestUtils.addDepsToClassPath(session, Some(testStage))
     }
-    enableScala213UdxfSprocParams(session)
   }
 
   override def afterAll: Unit = {
     dropStage(testStage)
-    disableScala213UdxfSprocParams(session)
     super.afterAll
   }
 

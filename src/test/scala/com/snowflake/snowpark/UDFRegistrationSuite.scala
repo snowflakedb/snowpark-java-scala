@@ -19,12 +19,6 @@ class UDFRegistrationSuite extends SNTestBase with FileUtils {
     if (!isStoredProc(session)) {
       TestUtils.addDepsToClassPath(session)
     }
-    enableScala213UdxfSprocParams(session)
-  }
-
-  override def afterAll: Unit = {
-    disableScala213UdxfSprocParams(session)
-    super.afterAll
   }
 
   test("Test that jar files are uploaded to stage correctly") {
