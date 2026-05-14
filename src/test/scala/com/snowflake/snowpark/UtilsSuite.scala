@@ -244,6 +244,45 @@ class UtilsSuite extends SNTestBase {
     assert(Utils.normalizeStageLocation(name5).equals(name5))
   }
 
+  test("quoteStageRefForSqlIfNeeded leaves plain ASCII stage refs unchanged") {
+    assert(Utils.quoteStageRefForSqlIfNeeded("@stage") == "@stage")
+    assert(Utils.quoteStageRefForSqlIfNeeded("@stage/dir/file.csv") == "@stage/dir/file.csv")
+    assert(Utils.quoteStageRefForSqlIfNeeded("@~/dir/file.csv") == "@~/dir/file.csv")
+    val asciiMultipart = """@"DB"."SCHEMA"."STAGE""""
+    assert(Utils.quoteStageRefForSqlIfNeeded(asciiMultipart) == asciiMultipart)
+    val tableStage = """@db.schema.%table/dir"""
+    assert(Utils.quoteStageRefForSqlIfNeeded(tableStage) == tableStage)
+  }
+
+  test("quoteStageRefForSqlIfNeeded single-quotes refs containing non-ASCII identifiers") {
+    val stageRef = """@"DEMO_DB"."日本語".SNOWPARK_TEMP_STAGE_xxx"""
+    assert(Utils.quoteStageRefForSqlIfNeeded(stageRef) == s"'$stageRef'")
+  }
+
+  test("quoteStageRefForSqlIfNeeded single-quotes refs containing spaces") {
+    val stageRef = """@"my stage"/path/file.csv"""
+    assert(Utils.quoteStageRefForSqlIfNeeded(stageRef) == s"'$stageRef'")
+  }
+
+  test("quoteStageRefForSqlIfNeeded leaves already-single-quoted refs unchanged") {
+    val stageRef = """'@"DB"."日本語".STAGE'"""
+    assert(Utils.quoteStageRefForSqlIfNeeded(stageRef) == stageRef)
+    val withSpaces = "'@my_stage/path/to/file with spaces.txt'"
+    assert(Utils.quoteStageRefForSqlIfNeeded(withSpaces) == withSpaces)
+  }
+
+  test("quoteStageRefForSqlIfNeeded handles compositions with normalizeStageLocation") {
+    val rawJp = """"DEMO_DB"."日本語".STAGE"""
+    val normalizedJp = Utils.normalizeStageLocation(rawJp)
+    assert(normalizedJp == s"@$rawJp")
+    assert(Utils.quoteStageRefForSqlIfNeeded(normalizedJp) == s"'@$rawJp'")
+
+    val rawAscii = "stage"
+    val normalizedAscii = Utils.normalizeStageLocation(rawAscii)
+    assert(normalizedAscii == "@stage")
+    assert(Utils.quoteStageRefForSqlIfNeeded(normalizedAscii) == "@stage")
+  }
+
   test("normalizeLocalFile") {
     val name1 = "/tmp/absolute/path/file1.csv"
     assert(Utils.normalizeLocalFile(" " + name1 + " ").equals(s"file://$name1"))
