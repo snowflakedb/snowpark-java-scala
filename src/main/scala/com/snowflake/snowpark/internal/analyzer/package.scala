@@ -206,8 +206,19 @@ package object analyzer {
   private[analyzer] def inExpression(column: String, values: Seq[String]): String =
     column + _In + blockExpression(values)
 
-  private[analyzer] def subfieldExpression(expr: String, field: String): String =
-    expr + _LeftBracket + _SingleQuote + field + _SingleQuote + _RightBracket
+  /**
+   * Emits a Snowflake `expr['field']` subfield access. The documented API contract for
+   * `Column.subField(String)` is that callers escape embedded single quotes themselves (by doubling
+   * them) before passing the field name in — see the comment in `ColumnSuite.subfield`. We respect
+   * that: an already-well-formed escaped body (every `'` doubled) is embedded verbatim, otherwise
+   * we double the embedded `'`s ourselves before wrapping. The latter branch is what closes the
+   * SNOW-3511808 injection: a payload such as `x'] || (SELECT …) || ['y` is unescaped, so its `'`s
+   * get doubled and the entire payload stays contained in one well-formed SQL string literal.
+   */
+  private[analyzer] def subfieldExpression(expr: String, field: String): String = {
+    val safeField = if (hasOnlyEscapedQuotes(field)) field else escapeSingleQuotes(field)
+    expr + _LeftBracket + _SingleQuote + safeField + _SingleQuote + _RightBracket
+  }
 
   private[analyzer] def subfieldExpression(expr: String, field: Int): String =
     expr + _LeftBracket + field + _RightBracket
@@ -778,13 +789,61 @@ package object analyzer {
         .map(window => _Over + _LeftParenthesis + window + _RightParenthesis)
         .getOrElse(_EmptyString) + _RightParenthesis
 
-  def singleQuote(value: String): String = {
-    if (value.startsWith(_SingleQuote) && value.endsWith(_SingleQuote)) {
-      value
-    } else {
-      _SingleQuote + value + _SingleQuote
+  /**
+   * Wraps a value in single quotes for use as a Snowflake SQL string literal.
+   *
+   * Pre-quoted inputs (values that already form a well-formed SQL string literal — i.e. start and
+   * end with `'`, with every internal `'` doubled) are passed through unchanged. This preserves the
+   * long-standing API contract that callers may supply either a bare value or a pre-formatted
+   * literal (e.g. `FIELD_DELIMITER -> "'aa'"` in `DataFrameWriter.options`). Inputs that are not
+   * well-formed literals are wrapped, with any embedded single quotes doubled via
+   * [[escapeSingleQuotes]].
+   *
+   * SECURITY (SNOW-3511808): the earlier implementation pass-through trusted any string that merely
+   * started and ended with `'`, which made payloads such as `'a'; DROP TABLE x; --'` (well-bounded
+   * but containing an unescaped interior quote that breaks out of the literal scope) appear safe.
+   * The stricter [[isProperlyQuoted]] check below rejects those, and the wrapping branch now
+   * consistently escapes embedded quotes.
+   */
+  def singleQuote(value: String): String =
+    if (isProperlyQuoted(value)) value
+    else _SingleQuote + escapeSingleQuotes(value) + _SingleQuote
+
+  /**
+   * True iff `value` is a well-formed Snowflake single-quoted SQL string literal: it starts and
+   * ends with `'`, and every single quote in the interior is doubled (`''`). An empty literal
+   * (`"''"`) is considered well-formed. See [[singleQuote]] for the security rationale.
+   */
+  private[analyzer] def isProperlyQuoted(value: String): Boolean =
+    value.length >= 2 &&
+      value.startsWith(_SingleQuote) &&
+      value.endsWith(_SingleQuote) &&
+      hasOnlyEscapedQuotes(value.substring(1, value.length - 1))
+
+  private def hasOnlyEscapedQuotes(body: String): Boolean = {
+    var i = 0
+    var ok = true
+    while (ok && i < body.length) {
+      if (body.charAt(i) == '\'') {
+        if (i + 1 < body.length && body.charAt(i + 1) == '\'') {
+          i += 2
+        } else {
+          ok = false
+        }
+      } else {
+        i += 1
+      }
     }
+    ok
   }
+
+  /**
+   * Doubles single quotes inside a value so it is safe to embed inside a Snowflake single-quoted
+   * SQL string literal. Used by [[singleQuote]] and [[subfieldExpression]] to defend against SQL
+   * injection (SNOW-3511808).
+   */
+  private[analyzer] def escapeSingleQuotes(value: String): String =
+    value.replace(_SingleQuote, _SingleQuote + _SingleQuote)
 
   /**
    * Use this function to normalize all user input and client generated names
