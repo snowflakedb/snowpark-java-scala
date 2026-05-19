@@ -200,7 +200,8 @@ final class FileOperation(session: Session) extends Logging {
 
   private def stageFileExists(stageLocation: String): Boolean = {
     val normalizedLocation = Utils.normalizeStageLocation(stageLocation)
-    session.sql(s"ls $normalizedLocation").collect().nonEmpty
+    val stageRefForSql = Utils.quoteStageRefForSqlIfNeeded(normalizedLocation)
+    session.sql(s"ls $stageRefForSql").collect().nonEmpty
   }
 
 }

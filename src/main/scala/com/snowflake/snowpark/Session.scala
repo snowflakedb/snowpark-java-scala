@@ -482,9 +482,10 @@ class Session private (private[snowpark] val conn: ServerConnection) extends Log
    */
   private[snowpark] def listFilesInStage(stageLocation: String): Set[String] = {
     val normalized = Utils.normalizeStageLocation(stageLocation)
+    val stageRefForSql = Utils.quoteStageRefForSqlIfNeeded(normalized)
 
     // Leverage server to check whether the stage location is valid
-    val fileList = sql(s"ls $normalized").select(""""name"""").collect()
+    val fileList = sql(s"ls $stageRefForSql").select(""""name"""").collect()
 
     val prefixLength = Utils.stageFilePrefixLength(normalized)
 
