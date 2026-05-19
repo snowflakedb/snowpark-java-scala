@@ -207,24 +207,10 @@ package object analyzer {
     column + _In + blockExpression(values)
 
   /**
-   * Emits a Snowflake `expr['field']` subfield access. There are two paths:
-   *
-   *   1. Pass-through (backward-compat with the historical single-quote API contract): if the
-   *      caller-supplied `field` is already a well-formed escaped body (every embedded `'` is
-   *      doubled — the contract documented in `ColumnSuite.subfield`), it is wrapped verbatim
-   *      between single quotes. This preserves the exact SQL previously emitted for such inputs. 2.
-   *      Otherwise (the common case): the field is wrapped using [[dollarQuoteOrEscape]] —
-   *      Snowflake's dollar-quoted string syntax (`$$…$$`), which is not subject to any internal
-   *      escape interpretation. This closes the SNOW-3511808 injection family (the original `x'] ||
-   *      (SELECT …) || ['y` payload and the `\'; DROP TABLE x; --` backslash bypass identified
-   *      during PR review) without our having to enumerate Snowflake's lexer escape table — `$$`
-   *      simply doesn't have one.
-   *
-   * Edge case: a `field` of exactly `"''"` is, by the contract above, a well-formed escaped body
-   * representing the one-character field name `'`. It therefore takes path (1) and is emitted as
-   * `expr['''']`. A caller that actually wants the two-character field name `''` must double both
-   * quotes themselves and pass `"''''"`, producing `expr['''''']`. Both are covered in
-   * `SqlInjectionSuite`.
+   * Emits `expr['field']` for variant/struct/map subfield access (SNOW-3511808). Field names that
+   * are already well-formed escaped bodies (per the `ColumnSuite.subfield` contract: every interior
+   * `'` doubled) are wrapped verbatim in single quotes; everything else flows through
+   * [[dollarQuoteOrEscape]].
    */
   private[analyzer] def subfieldExpression(expr: String, field: String): String = {
     val literal =
@@ -233,9 +219,6 @@ package object analyzer {
     expr + _LeftBracket + literal + _RightBracket
   }
 
-  // The Int overload needs no escaping: an integer cannot break out of the surrounding
-  // `[...]` syntax or carry an unescaped quote, so it is emitted directly between the
-  // brackets without single-quote wrapping (subfield access by ordinal, not by name).
   private[analyzer] def subfieldExpression(expr: String, field: Int): String =
     expr + _LeftBracket + field + _RightBracket
 
@@ -806,33 +789,15 @@ package object analyzer {
         .getOrElse(_EmptyString) + _RightParenthesis
 
   /**
-   * Wraps a value as a Snowflake SQL string literal. Three paths, ordered to minimise textual SQL
-   * churn vs the pre-fix output:
+   * Wraps a value as a Snowflake SQL string literal (SNOW-3511808). Three paths, ordered to
+   * minimise textual SQL churn vs the pre-fix output:
    *
-   *   1. Pass-through (backward-compat with the historical single-quote API contract): if the
-   *      caller-supplied `value` is already a well-formed single-quoted SQL string literal — i.e.
-   *      starts and ends with `'`, with every interior `'` doubled — it is returned unchanged. This
-   *      preserves the long-standing contract that callers may supply either a bare value or a
-   *      pre-formatted literal (e.g. `FIELD_DELIMITER -> "'aa'"` in `DataFrameWriter.options`). 2.
-   *      Bare single-quote wrap (the common case): if the value contains neither `'` nor `\`, plain
-   *      `'value'` wrapping is already safe — no `'` means no way to break out of the literal, no
-   *      `\` means no way to trigger Snowflake's `\'` alternative-quote escape. We keep emitting
-   *      the textually-unchanged `'value'` form so downstream consumers that do string-equality
-   *      comparisons against the canonical single-quoted form (e.g. `DataFrameWriter`'s
-   *      `columnOrder` validator, which checks against `Set("'index'", "'name'")` and
-   *      pattern-matches on `case "'name'"` a few lines below) keep working unchanged. 3. Otherwise
-   *      (value contains `'` and/or `\` — the SNOW-3511808 vector): the value is wrapped using
-   *      [[dollarQuoteOrEscape]], which uses Snowflake's dollar-quoted string syntax (`$$…$$`).
-   *      Dollar-quoted literals perform NO internal escape interpretation, so neither the
-   *      `'`-closing bypass (`x'; DROP TABLE …`) nor the `\'`-escape bypass (`\'; DROP TABLE …`,
-   *      identified in PR #281 review) is reachable.
-   *
-   * SECURITY (SNOW-3511808): the earlier implementation pass-through trusted any string that merely
-   * started and ended with `'`, which made payloads such as `'a'; DROP TABLE x; --'` (well-bounded
-   * but containing an unescaped interior quote that breaks out of the literal scope) appear safe.
-   * The stricter [[isProperlyQuoted]] check rejects those, and any input that contains `'` or `\`
-   * is routed through dollar-quoting — the escape-table-free alternative — so neither `'`-only nor
-   * `\'`-based bypasses survive.
+   *   1. If `value` is already a well-formed pre-quoted literal (per [[isProperlyQuoted]]), pass it
+   *      through unchanged. 2. If `value` contains neither `'` nor `\`, emit bare `'value'` —
+   *      textually identical to the pre-fix output, which downstream string-equality checks rely on
+   *      (e.g. `DataFrameWriter`'s `columnOrder` validator on `Set("'index'", "'name'")`). 3.
+   *      Otherwise (the attack surface, including the PR #281 `\'` bypass), wrap via
+   *      [[dollarQuoteOrEscape]].
    */
   def singleQuote(value: String): String =
     if (isProperlyQuoted(value)) value
@@ -868,23 +833,11 @@ package object analyzer {
   }
 
   /**
-   * Wraps a value as a Snowflake string literal using dollar-quoting (`$$…$$`) whenever that is
-   * safe, falling back to a fully-escaped single-quoted literal in the rare case the value cannot
-   * be dollar-quoted.
-   *
-   * Why dollar-quoting is the primary path: inside `$$…$$`, Snowflake performs NO escape
-   * interpretation. Backslashes and single quotes are ordinary characters; the only thing that
-   * terminates the string is the closing `$$` (see
-   * https://docs.snowflake.com/en/sql-reference/data-types-text — "Dollar-quoted string
-   * constants"). That means we do not need to enumerate the lexer's escape table, and we are
-   * resilient to future escape-sequence additions — the SNOW-3511808 fix becomes structural rather
-   * than character-by-character.
-   *
-   * Dollar-quoting is NOT safe when the value either contains `$$` (the embedded `$$` would close
-   * the literal early) or ends with `$` (concatenating `$$` after a trailing `$` produces `$$$`,
-   * which the lexer reads as a closing `$$` followed by an extraneous `$`). In either case we fall
-   * back to a single-quoted literal with both backslashes and single quotes escaped via
-   * [[escapeForSingleQuotedLiteral]] — still safe, just less elegant.
+   * Wraps a value as a Snowflake string literal using dollar-quoting (`$$…$$`), which performs no
+   * internal escape interpretation (the structural defence against SNOW-3511808). Falls back to a
+   * fully-escaped single-quoted literal via [[escapeForSingleQuotedLiteral]] when dollar-quoting is
+   * unsafe: either the value contains `$$` (which would close the literal early) or it ends with
+   * `$` (which would combine with our trailing `$$` into a malformed `$$$`).
    */
   private[analyzer] def dollarQuoteOrEscape(value: String): String =
     if (value.contains("$$") || value.endsWith("$"))
@@ -893,22 +846,10 @@ package object analyzer {
       "$$" + value + "$$"
 
   /**
-   * Escapes a value so it is safe to embed inside a Snowflake single-quoted SQL string literal.
-   * Used by [[dollarQuoteOrEscape]] in the fallback path when dollar-quoting is unsafe.
-   *
-   * Both backslashes and single quotes must be escaped, in that order, because Snowflake's
-   * single-quoted string lexer interprets backslash as an escape character — for example `\'` is an
-   * alternative encoding of `'` and `\b` is BACKSPACE (see
-   * https://docs.snowflake.com/en/sql-reference/data-types-text — "Escape sequences in
-   * single-quoted string constants"). Without backslash-doubling, a payload like `\'; DROP TABLE x;
-   * --` would survive `'`-only escaping (the doubled `''` is still preceded by an unescaped `\`, so
-   * the lexer reads `\'` as a single `'` inside the literal, the next `'` closes the literal, and
-   * the trailing `;` terminates the statement). Doubling backslashes first turns `\\` into `\\\\`,
-   * which Snowflake re-reads as a single literal `\\`, so the following `''` is unambiguously a
-   * doubled-quote escape.
-   *
-   * Order (backslashes before single quotes) does not affect correctness — neither operation
-   * introduces the other character — but the convention is "escape the escape character first".
+   * Doubles backslashes then single quotes so the value is safe to embed in a Snowflake
+   * single-quoted SQL string literal. Both are necessary because Snowflake's lexer treats `\` as an
+   * escape character (e.g. `\'` is an alternative encoding of `'`), so a quotes-only strategy is
+   * bypassable (SNOW-3511808 PR #281).
    */
   private[analyzer] def escapeForSingleQuotedLiteral(value: String): String =
     value
