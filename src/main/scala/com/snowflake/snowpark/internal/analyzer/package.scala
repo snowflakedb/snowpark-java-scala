@@ -214,12 +214,21 @@ package object analyzer {
    * we double the embedded `'`s ourselves before wrapping. The latter branch is what closes the
    * SNOW-3511808 injection: a payload such as `x'] || (SELECT …) || ['y` is unescaped, so its `'`s
    * get doubled and the entire payload stays contained in one well-formed SQL string literal.
+   *
+   * Edge case: a `field` of exactly `"''"` is, by the contract above, a well-formed escaped body
+   * representing the one-character field name `'`. It therefore passes through verbatim, producing
+   * `expr['''']`. A caller that actually wants the two-character field name `''` must double both
+   * quotes themselves and pass `"''''"`, producing `expr['''''']`. Both are covered in
+   * `SqlInjectionSuite`.
    */
   private[analyzer] def subfieldExpression(expr: String, field: String): String = {
     val safeField = if (hasOnlyEscapedQuotes(field)) field else escapeSingleQuotes(field)
     expr + _LeftBracket + _SingleQuote + safeField + _SingleQuote + _RightBracket
   }
 
+  // The Int overload needs no escaping: an integer cannot break out of the surrounding
+  // `[...]` syntax or carry an unescaped quote, so it is emitted directly between the
+  // brackets without single-quote wrapping (subfield access by ordinal, not by name).
   private[analyzer] def subfieldExpression(expr: String, field: Int): String =
     expr + _LeftBracket + field + _RightBracket
 
@@ -840,7 +849,9 @@ package object analyzer {
   /**
    * Doubles single quotes inside a value so it is safe to embed inside a Snowflake single-quoted
    * SQL string literal. Used by [[singleQuote]] and [[subfieldExpression]] to defend against SQL
-   * injection (SNOW-3511808).
+   * injection (SNOW-3511808). `String.replace(CharSequence, CharSequence)` replaces every
+   * occurrence (not just the first — that would be `replaceFirst` on the regex-based API), which is
+   * exactly the all-quotes-must-be-doubled semantics SQL requires.
    */
   private[analyzer] def escapeSingleQuotes(value: String): String =
     value.replace(_SingleQuote, _SingleQuote + _SingleQuote)

@@ -163,4 +163,81 @@ class SqlInjectionSuite extends AnyFunSuite {
     assert(escapeSingleQuotes("a'b") == "a''b")
     assert(escapeSingleQuotes("don't") == "don''t")
   }
+
+  // ---- boundary tests requested in PR review (SNOW-3511808) ----------------
+
+  test("singleQuote: empty literal '' passes through unchanged") {
+    // Boundary case: the two-character input `''` is a well-formed empty SQL
+    // string literal. `isProperlyQuoted` accepts it, so it round-trips as-is.
+    // Without this guarantee, a caller that explicitly passed the empty
+    // literal would see it re-wrapped to `''''` (a literal containing one
+    // single quote), changing its semantics.
+    assert(singleQuote("''") == "''")
+  }
+
+  test("subfieldExpression: Int overload needs no escaping") {
+    // The `(expr: String, field: Int)` overload addresses array/struct fields
+    // by ordinal. Integers cannot carry quote characters and cannot escape
+    // the surrounding `[...]` syntax, so this overload deliberately bypasses
+    // the string-quoting path and emits the integer directly. This test is
+    // here so a future reader of `SqlInjectionSuite` does not wonder whether
+    // the overload was accidentally left unprotected.
+    assert(subfieldExpression("data", 0) == "data[0]")
+    assert(subfieldExpression("data", 42) == "data[42]")
+    assert(subfieldExpression("data", -1) == "data[-1]")
+  }
+
+  // ---- call-site coverage: confirm callers of singleQuote are protected ----
+  //
+  // The fix to `singleQuote` defends every call site that funnels user input
+  // through it. We assert this end-to-end for each known call site in
+  // `package.scala`: `collateExpression`, `selectFromPathWithFormatStatement`,
+  // and `copyIntoTable`. Each test uses an adversarial input that would
+  // previously have terminated the literal early and injected SQL; the fix
+  // contains the entire payload inside a single well-formed string literal.
+
+  test("collateExpression escapes an injected collation spec (SNOW-3511808 side-fix)") {
+    // collationSpec flows from `Column.collate(String)` — a public API. Pre-fix
+    // `singleQuote` would have passed `"en_US'; DROP TABLE x; --"` through with
+    // only the bare wrap, embedding raw `'` characters into the emitted SQL
+    // and breaking out of the literal scope on the second `'`.
+    val sql = collateExpression("col", "en_US'; DROP TABLE x; --")
+    assert(sql == "col COLLATE 'en_US''; DROP TABLE x; --'")
+  }
+
+  test("selectFromPathWithFormatStatement escapes injected formatName and pattern") {
+    val sql = selectFromPathWithFormatStatement(
+      project = Seq.empty,
+      path = "@stage",
+      formatName = Some("MY_FMT'; DROP TABLE x; --"),
+      pattern = Some(".*csv'; DROP TABLE y; --"))
+    // Asserting the exact emitted string is brittle (the surrounding builder
+    // is dense with spaces); the security property is that both option values
+    // were funneled through `singleQuote`, doubled their interior `'`, and
+    // landed in the SQL as well-formed single-quoted literals.
+    assert(sql.contains("'MY_FMT''; DROP TABLE x; --'"))
+    assert(sql.contains("'.*csv''; DROP TABLE y; --'"))
+    // And nothing got past with a raw, unescaped quote in the payload region.
+    assert(!sql.contains("'MY_FMT';"))
+    assert(!sql.contains("'.*csv';"))
+  }
+
+  test("copyIntoTable escapes an injected COPY INTO pattern") {
+    val sql = copyIntoTable(
+      tableName = "T",
+      filePath = "@stage",
+      format = "CSV",
+      formatTypeOptions = Map.empty,
+      copyOptions = Map.empty,
+      pattern = Some(".*csv'; DROP TABLE x; --"),
+      columnNames = Seq.empty,
+      transformations = Seq.empty)
+    // The injected `'` inside the pattern is doubled, so the payload stays
+    // contained inside a single well-formed SQL string literal.
+    assert(sql.contains("'.*csv''; DROP TABLE x; --'"))
+    // Same property as above: the unescaped `'.*csv';` substring (which
+    // would indicate the literal was terminated early at the injection
+    // point) must not appear anywhere in the emitted SQL.
+    assert(!sql.contains("'.*csv';"))
+  }
 }
