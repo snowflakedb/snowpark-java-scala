@@ -271,6 +271,13 @@ class UtilsSuite extends SNTestBase {
     assert(Utils.quoteStageRefForSqlIfNeeded(withSpaces) == withSpaces)
   }
 
+  test("quoteStageRefForSqlIfNeeded escapes embedded single quotes when wrapping") {
+    assert(Utils.quoteStageRefForSqlIfNeeded("@stage_O'Brien") == "'@stage_O''Brien'")
+    assert(
+      Utils.quoteStageRefForSqlIfNeeded("""@"sch'ema".STAGE""")
+        == """'@"sch''ema".STAGE'""")
+  }
+
   test("quoteStageRefForSqlIfNeeded handles compositions with normalizeStageLocation") {
     val rawJp = """"DEMO_DB"."日本語".STAGE"""
     val normalizedJp = Utils.normalizeStageLocation(rawJp)
