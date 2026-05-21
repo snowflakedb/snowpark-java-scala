@@ -67,6 +67,7 @@ class SqlInjectionSuite extends AnyFunSuite {
     assert(singleQuote("'aa'") == "'aa'")
     assert(singleQuote("'hello world'") == "'hello world'")
     assert(singleQuote("'O''Brien'") == "'O''Brien'")
+    assert(singleQuote("'O\\'Brien'") == "'O\\'Brien'")
   }
 
   test("singleQuote: empty literal '' passes through unchanged") {
@@ -91,6 +92,8 @@ class SqlInjectionSuite extends AnyFunSuite {
     assert(isStringLiteralProperlySingleQuoted("'O''Brien'"))
     assert(isStringLiteralProperlySingleQuoted("'a''b''c'"))
     assert(isStringLiteralProperlySingleQuoted("''''"))
+    assert(isStringLiteralProperlySingleQuoted("'O\\'Brien'"))
+    assert(isStringLiteralProperlySingleQuoted("'a\\'b\\'c'"))
   }
 
   test("isStringLiteralProperlySingleQuoted rejects malformed literals") {

@@ -802,8 +802,9 @@ package object analyzer {
 
   /**
    * True iff `value` is a well-formed Snowflake single-quoted SQL string literal: it starts and
-   * ends with `'`, and every single quote in the interior is doubled (`''`). An empty literal
-   * (`"''"`) is considered well-formed.
+   * ends with `'`, and every interior single quote is either doubled (`''`) or backslash-escaped
+   * (`\'`) -- Snowflake accepts both forms inside `'...'` literals. An empty literal (`"''"`) is
+   * considered well-formed.
    */
   private[analyzer] def isStringLiteralProperlySingleQuoted(value: String): Boolean =
     value.length >= 2 &&
@@ -821,6 +822,9 @@ package object analyzer {
         } else {
           ok = false
         }
+      } else if (body.charAt(i) == '\\' && i + 1 < body.length &&
+        body.charAt(i + 1) == '\'') {
+        i += 2
       } else {
         i += 1
       }
