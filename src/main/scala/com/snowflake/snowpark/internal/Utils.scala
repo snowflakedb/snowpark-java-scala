@@ -174,6 +174,41 @@ object Utils extends Logging {
   private def isSingleQuoted(name: String): Boolean =
     name.startsWith("'") && name.endsWith("'")
 
+  // Characters that may safely appear in a stage reference embedded in
+  // LIST/GET/PUT/REMOVE SQL without single-quote wrapping.
+  // Includes ASCII identifier characters, Snowflake stage syntax characters
+  // (`@`, `~`, `%`, `.`, `/`, `"`), and a couple of characters that commonly
+  // appear inside double-quoted identifiers (`-`, `:`, `$`).
+  // `"` is intentionally included: a fully-qualified ASCII stage reference
+  // such as @"DB"."SCHEMA".STAGE is idiomatic, valid bare SQL, and should be
+  // emitted unchanged. Anything else (spaces, non-ASCII, `\`, `*`, `?`, etc.)
+  // triggers single-quoting.
+  private def isSafeUnquotedStageChar(c: Char): Boolean =
+    (c >= 'A' && c <= 'Z') ||
+      (c >= 'a' && c <= 'z') ||
+      (c >= '0' && c <= '9') ||
+      "_$./@~%\"-:".indexOf(c.toInt) >= 0
+
+  /**
+   * Returns a stage reference that is safe to embed directly into Snowflake file-operation SQL such
+   * as LIST, GET, PUT, and REMOVE. If the reference contains characters that Snowflake requires to
+   * be enclosed in single quotes (per the LIST docs:
+   * https://docs.snowflake.com/en/sql-reference/sql/list ) — for example, spaces or non-ASCII
+   * characters in an identifier — the returned string is wrapped in single quotes, with any
+   * embedded single quotes doubled so the result is a single well-formed SQL string literal.
+   * References that are already single-quoted, or that contain only safe characters, are returned
+   * unchanged.
+   *
+   * Note: this function does not normalize the stage location (e.g. add the `@` prefix). Call
+   * [[normalizeStageLocation]] first.
+   */
+  private[snowpark] def quoteStageRefForSqlIfNeeded(stageRef: String): String =
+    if (isSingleQuoted(stageRef) || stageRef.forall(isSafeUnquotedStageChar)) {
+      stageRef
+    } else {
+      "'" + stageRef.replace("'", "''") + "'"
+    }
+
   def normalizeLocalFile(file: String): String = {
     val trimFile = file.trim
     // For PUT/GET commands, if there are any special characters including spaces in
