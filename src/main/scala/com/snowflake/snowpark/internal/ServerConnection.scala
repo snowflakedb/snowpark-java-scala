@@ -943,12 +943,15 @@ private[snowpark] class ServerConnection(
       if (totalWaitTime - lastLogTime > 60 * 1000 || lastLogTime == 0) {
         logWarning(
           s"Checking the query status for $queryID at ${LocalDateTime.now()}," +
-            s" the current status is $qs.")
+            s" the current status is ${qs.getStatus}.")
         lastLogTime = totalWaitTime
       }
     }
     if (qs.isStillRunning()) {
-      throw ErrorMessage.PLAN_QUERY_IS_STILL_RUNNING(queryID, qs.toString, totalWaitTime / 1000)
+      throw ErrorMessage.PLAN_QUERY_IS_STILL_RUNNING(
+        queryID,
+        qs.getStatus.toString,
+        totalWaitTime / 1000)
     }
     qs
   }
