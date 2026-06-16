@@ -19,7 +19,7 @@ import com.snowflake.snowpark_java.types.{StructType => JavaStructType}
 import com.snowflake.snowpark_java.udtf._
 import com.snowflake.snowpark_java.udaf._
 import com.snowflake.snowpark_java.sproc._
-import net.snowflake.client.jdbc.SnowflakeSQLException
+import net.snowflake.client.api.exception.SnowflakeSQLException
 
 import scala.collection.mutable
 import scala.collection.mutable.ArrayBuffer

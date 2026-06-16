@@ -2,7 +2,7 @@ package com.snowflake.snowpark_test
 
 import com.snowflake.snowpark.TestUtils._
 import com.snowflake.snowpark.{SNTestBase, SnowparkClientException, TestUtils}
-import net.snowflake.client.jdbc.SnowflakeSQLException
+import net.snowflake.client.api.exception.SnowflakeSQLException
 import org.apache.commons.io._
 
 import java.io._

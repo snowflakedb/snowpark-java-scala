@@ -7,7 +7,7 @@ import java.util.TimeZone
 import com.snowflake.snowpark.functions._
 import com.snowflake.snowpark.types._
 import com.snowflake.snowpark._
-import net.snowflake.client.jdbc.SnowflakeSQLException
+import net.snowflake.client.api.exception.SnowflakeSQLException
 
 import scala.collection.mutable.ArrayBuffer
 import scala.util.Random

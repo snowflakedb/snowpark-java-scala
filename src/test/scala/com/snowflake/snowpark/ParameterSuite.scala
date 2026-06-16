@@ -1,7 +1,7 @@
 package com.snowflake.snowpark
 
 import com.snowflake.snowpark.internal.{ParameterUtils, ServerConnection}
-import net.snowflake.client.core.SFSessionProperty
+import net.snowflake.client.internal.core.SFSessionProperty
 
 import java.security.KeyPairGenerator
 import java.security.spec.PKCS8EncodedKeySpec

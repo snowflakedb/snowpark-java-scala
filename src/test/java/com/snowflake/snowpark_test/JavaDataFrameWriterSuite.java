@@ -10,7 +10,7 @@ import com.snowflake.snowpark_java.types.StructField;
 import com.snowflake.snowpark_java.types.StructType;
 import java.util.HashMap;
 import java.util.Map;
-import net.snowflake.client.jdbc.SnowflakeSQLException;
+import net.snowflake.client.api.exception.SnowflakeSQLException;
 import org.junit.Test;
 
 public class JavaDataFrameWriterSuite extends TestBase {

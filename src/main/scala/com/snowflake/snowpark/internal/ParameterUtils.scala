@@ -1,6 +1,6 @@
 package com.snowflake.snowpark.internal
 
-import net.snowflake.client.core.SFSessionProperty
+import net.snowflake.client.internal.core.SFSessionProperty
 
 import java.security.spec.{PKCS8EncodedKeySpec, RSAPrivateCrtKeySpec}
 import java.security.{GeneralSecurityException, KeyFactory, PrivateKey}

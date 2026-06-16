@@ -18,7 +18,7 @@ import com.snowflake.snowpark.internal.Utils.{
   randomNameForTempObject
 }
 import com.snowflake.snowpark.types.StructType
-import net.snowflake.client.jdbc.SnowflakeSQLException
+import net.snowflake.client.api.exception.SnowflakeSQLException
 
 import scala.collection.immutable.HashSet
 import scala.collection.mutable
