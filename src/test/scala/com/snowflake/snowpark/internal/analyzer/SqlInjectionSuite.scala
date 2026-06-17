@@ -4,10 +4,11 @@ import org.scalatest.funsuite.AnyFunSuite
 
 /**
  * Regression tests for the SQL injection class introduced by unescaped `'` in `subfieldExpression`
- * and an over-permissive pre-quoted pass-through in `singleQuote`. The fix doubles embedded single
- * quotes before wrapping; pre-quoted well-formed literals pass through verbatim so the
- * long-standing file-format-option contract (and downstream string-equality checks in
- * `DataFrameWriter`) keeps working.
+ * and an over-permissive pre-quoted pass-through in `singleQuote`. The fix escapes backslashes and
+ * doubles embedded single quotes before wrapping, and the well-formedness check models Snowflake's
+ * backslash escaping (so the `\\` desync can no longer slip a closing quote through). Pre-quoted
+ * well-formed literals still pass through verbatim so the long-standing file-format-option contract
+ * (and downstream string-equality checks in `DataFrameWriter`) keeps working.
  */
 class SqlInjectionSuite extends AnyFunSuite {
 
@@ -44,6 +45,23 @@ class SqlInjectionSuite extends AnyFunSuite {
     assert(subfieldExpression("data", 0) == "data[0]")
     assert(subfieldExpression("data", 42) == "data[42]")
     assert(subfieldExpression("data", -1) == "data[-1]")
+  }
+
+  test("subfieldExpression neutralises the backslash closing-quote desync payload") {
+    // Pre-fix, `hasOnlyEscapedSingleQuotes` mis-parsed `\\` and passed this through verbatim,
+    // letting Snowflake read `\\` as a backslash and `'` as a real closing quote -> the embedded
+    // scalar subquery executed. The field must now take the escape branch (not verbatim).
+    val field = "\\\\'||(SELECT c FROM secret)||''"
+    val sql = subfieldExpression("data", field)
+    assert(sql == "data['" + escapeSingleQuotesForSingleQuotedLiteral(field) + "']")
+    assert(sql != "data['" + field + "']") // proves the verbatim pass-through was rejected
+  }
+
+  test("subfieldExpression escapes lone and trailing backslashes") {
+    // A trailing/dangling backslash would otherwise escape the wrapper's closing quote, so these
+    // are rejected by the well-formedness check and routed through the escape branch.
+    assert(subfieldExpression("data", "x\\") == "data['x\\\\']")
+    assert(subfieldExpression("data", "\\") == "data['\\\\']")
   }
 
   // ---- singleQuote ---------------------------------------------------------
@@ -83,6 +101,14 @@ class SqlInjectionSuite extends AnyFunSuite {
     assert(singleQuote("'); DROP TABLE users; --") == "'''); DROP TABLE users; --'")
   }
 
+  test("singleQuote escapes backslashes so they cannot escape the wrapper quote") {
+    // A lone backslash would otherwise turn the closing wrapper `'` into an escaped quote.
+    assert(singleQuote("\\") == "'\\\\'")
+    // Non-well-formed inputs go through the escape branch; assert they are fully escaped.
+    val payload = "\\' || (SELECT c FROM no_such) || '"
+    assert(singleQuote(payload) == "'" + escapeSingleQuotesForSingleQuotedLiteral(payload) + "'")
+  }
+
   // ---- isStringLiteralProperlySingleQuoted (singleQuote pass-through gate) ----
 
   test("isStringLiteralProperlySingleQuoted accepts well-formed literals") {
@@ -106,6 +132,14 @@ class SqlInjectionSuite extends AnyFunSuite {
     assert(!isStringLiteralProperlySingleQuoted("'a'; DROP TABLE x; --'"))
   }
 
+  test("isStringLiteralProperlySingleQuoted models Snowflake backslash escaping") {
+    // `'\'` ends in a dangling backslash that escapes the closing quote -> not well-formed.
+    // Pre-fix this was accepted because `\` was only treated as an escape when followed by `'`.
+    assert(!isStringLiteralProperlySingleQuoted("'\\'"))
+    // `'\\'` is a genuine, closed backslash literal -> well-formed.
+    assert(isStringLiteralProperlySingleQuoted("'\\\\'"))
+  }
+
   // ---- escapeSingleQuotesForSingleQuotedLiteral (primitive) ---------------
 
   test("escapeSingleQuotesForSingleQuotedLiteral doubles every single quote") {
@@ -115,6 +149,13 @@ class SqlInjectionSuite extends AnyFunSuite {
     assert(escapeSingleQuotesForSingleQuotedLiteral("''") == "''''")
     assert(escapeSingleQuotesForSingleQuotedLiteral("a'b") == "a''b")
     assert(escapeSingleQuotesForSingleQuotedLiteral("don't") == "don''t")
+  }
+
+  test("escapeSingleQuotesForSingleQuotedLiteral doubles backslashes before quotes") {
+    assert(escapeSingleQuotesForSingleQuotedLiteral("\\") == "\\\\")
+    assert(escapeSingleQuotesForSingleQuotedLiteral("a\\b") == "a\\\\b")
+    // backslash then quote: backslash doubled first, then the quote doubled.
+    assert(escapeSingleQuotesForSingleQuotedLiteral("\\'") == "\\\\''")
   }
 
   // ---- call-site coverage --------------------------------------------------
