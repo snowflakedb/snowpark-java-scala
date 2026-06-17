@@ -1,5 +1,6 @@
 package com.snowflake.snowpark.internal.analyzer
 
+import com.snowflake.snowpark.types.IntegerType
 import org.scalatest.funsuite.AnyFunSuite
 
 /**
@@ -335,15 +336,32 @@ class SqlInjectionSuite extends AnyFunSuite {
     val str = "a'b"
     val negResult = substring_index(str, ",", -1)
     val posResult = substring_index(str, ",", 1)
+
     def containsLiteralWithValue(e: Expression, value: String): Boolean = e match {
       case Literal(v, _) => v == value
       case _ => e.children.exists(containsLiteralWithValue(_, value))
     }
+
     assert(
       containsLiteralWithValue(negResult.expr, str),
       "negative count path must wrap str in Literal")
     assert(
       containsLiteralWithValue(posResult.expr, str),
       "positive count path must wrap str in Literal")
+  }
+  // ---- DataTypeMapper.toSql IntegerType injection (regression) ---------------
+
+  test("toSql rejects non-Int value in IntegerType column (injection payload)") {
+    val payload = "0 :: int) AS T(\"A\")) UNION ALL SELECT CURRENT_ROLE()) --"
+    intercept[UnsupportedOperationException] {
+      DataTypeMapper.toSql(payload, Some(IntegerType))
+    }
+  }
+
+  test("toSql renders legitimate Int values for IntegerType unchanged") {
+    assert(DataTypeMapper.toSql(42, Some(IntegerType)) == "42 :: int")
+    assert(DataTypeMapper.toSql(0, Some(IntegerType)) == "0 :: int")
+    assert(DataTypeMapper.toSql(-1, Some(IntegerType)) == "-1 :: int")
+    assert(DataTypeMapper.toSql(Int.MaxValue, Some(IntegerType)) == s"${Int.MaxValue} :: int")
   }
 }
