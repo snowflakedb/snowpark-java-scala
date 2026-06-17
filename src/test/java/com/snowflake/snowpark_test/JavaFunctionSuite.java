@@ -3298,6 +3298,26 @@ public class JavaFunctionSuite extends TestBase {
   }
 
   @Test
+  public void substring_index_negative_count() {
+    DataFrame df = getSession().sql("select * from values ('one,two,three') as T(a)");
+    checkAnswer(
+        df.select(Functions.substring_index("one,two,three", ",", -1)),
+        new Row[] {Row.create("wo,three")});
+    checkAnswer(
+        df.select(Functions.substring_index("one,two,three", ",", -2)),
+        new Row[] {Row.create("hree")});
+  }
+
+  @Test
+  public void substring_index_injection_safe() {
+    DataFrame df = getSession().sql("select * from values ('dummy') as T(a)");
+    String payload = "x')||(SELECT 'injected')||('y";
+    checkAnswer(
+        df.select(Functions.substring_index(payload, ",", -1)),
+        new Row[] {Row.create("x')||(SELECT 'injected')||('y")});
+  }
+
+  @Test
   public void test_asc() {
     DataFrame df = getSession().sql("select * from values(3),(1),(2) as t(a)");
     Row[] expected = {Row.create(1), Row.create(2), Row.create(3)};

@@ -2353,6 +2353,20 @@ trait FunctionSuite extends TestData {
       Seq(Row("It was ")))
   }
 
+  test("substring_index with negative count") {
+    val df = Seq("one,two,three").toDF("a")
+    checkAnswer(df.select(substring_index("one,two,three", ",", -1)), Seq(Row("wo,three")))
+    checkAnswer(df.select(substring_index("one,two,three", ",", -2)), Seq(Row("hree")))
+  }
+
+  test("substring_index with single quotes in str does not cause SQL injection") {
+    val df = Seq("dummy").toDF("a")
+    val payload = "x')||(SELECT 'injected')||('y"
+    checkAnswer(
+      df.select(substring_index(payload, ",", -1)),
+      Seq(Row("x')||(SELECT 'injected')||('y")))
+  }
+
   test("desc column order") {
     val input = Seq(1, 2, 3).toDF("data")
     val expected = Seq(3, 2, 1).toDF("data")

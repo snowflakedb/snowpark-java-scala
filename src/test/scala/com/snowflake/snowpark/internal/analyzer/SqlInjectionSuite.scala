@@ -314,5 +314,36 @@ class SqlInjectionSuite extends AnyFunSuite {
     assert(
       sql.startsWith("""COPY INTO @"DB"."SCHEMA".STAGE"""),
       s"COPY INTO location should not single-quote ASCII stageLocation, got: $sql")
+
+  // ---- substring_index SQL injection (regression) ---------------
+
+  test("substring_index does not emit UnresolvedAttribute with raw SQL for injection payload") {
+    import com.snowflake.snowpark.functions.substring_index
+    val payload = "x')||(SELECT LISTAGG(secret,',') FROM secrets)||('y"
+    val result = substring_index(payload, ",", -1)
+    def containsUnsafeUnresolved(e: Expression): Boolean = e match {
+      case UnresolvedAttribute(name) => name.contains("reverse(")
+      case _ => e.children.exists(containsUnsafeUnresolved)
+    }
+    assert(
+      !containsUnsafeUnresolved(result.expr),
+      "substring_index must not interpolate str into raw SQL via UnresolvedAttribute")
+  }
+
+  test("substring_index wraps str in Literal for both positive and negative count") {
+    import com.snowflake.snowpark.functions.substring_index
+    val str = "a'b"
+    val negResult = substring_index(str, ",", -1)
+    val posResult = substring_index(str, ",", 1)
+    def containsLiteralWithValue(e: Expression, value: String): Boolean = e match {
+      case Literal(v, _) => v == value
+      case _ => e.children.exists(containsLiteralWithValue(_, value))
+    }
+    assert(
+      containsLiteralWithValue(negResult.expr, str),
+      "negative count path must wrap str in Literal")
+    assert(
+      containsLiteralWithValue(posResult.expr, str),
+      "positive count path must wrap str in Literal")
   }
 }
