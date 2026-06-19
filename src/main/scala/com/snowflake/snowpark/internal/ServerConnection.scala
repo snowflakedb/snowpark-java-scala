@@ -430,12 +430,20 @@ private[snowpark] class ServerConnection(
       inputStream: InputStream,
       destFileName: String,
       compressData: Boolean): Unit = withValidConnection {
-    connection.uploadStream(stageName, destPrefix, inputStream, destFileName, compressData)
+    connection.uploadStream(
+      Utils.quoteStageRefForSqlIfNeeded(stageName),
+      destPrefix,
+      inputStream,
+      destFileName,
+      compressData)
   }
 
   def downloadStream(stageName: String, sourceFileName: String, decompress: Boolean): InputStream =
     withValidConnection {
-      connection.downloadStream(stageName, sourceFileName, decompress)
+      connection.downloadStream(
+        Utils.quoteStageRefForSqlIfNeeded(stageName),
+        sourceFileName,
+        decompress)
     }
 
   // Run the query and return the queryID when the caller doesn't need the ResultSet

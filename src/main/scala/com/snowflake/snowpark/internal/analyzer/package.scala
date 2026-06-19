@@ -663,15 +663,17 @@ package object analyzer {
       command: FileOperationCommand,
       fileName: String,
       stageLocation: String,
-      options: Map[String, String]): String =
+      options: Map[String, String]): String = {
+    val quotedStage = Utils.quoteStageRefForSqlIfNeeded(stageLocation)
     command match {
       case PutCommand =>
-        _Put + fileName + _Space + stageLocation + _Space + getOptionsStatement(options)
+        _Put + fileName + _Space + quotedStage + _Space + getOptionsStatement(options)
       case GetCommand =>
-        _Get + stageLocation + _Space + fileName + _Space + getOptionsStatement(options)
+        _Get + quotedStage + _Space + fileName + _Space + getOptionsStatement(options)
       case _ =>
         throw ErrorMessage.PLAN_UNSUPPORTED_FILE_OPERATION_TYPE()
     }
+  }
 
   private def getOptionsStatement(options: Map[String, String]): String =
     options
@@ -687,8 +689,9 @@ package object analyzer {
       path: String,
       formatName: Option[String],
       pattern: Option[String]): String = {
+    val quotedPath = Utils.quoteStageRefForSqlIfNeeded(path)
     val selectStatement = _Select +
-      (if (project.isEmpty) _Star else project.mkString(_Comma)) + _From + path
+      (if (project.isEmpty) _Star else project.mkString(_Comma)) + _From + quotedPath
     val formatStatement = formatName.map(name => _FileFormat + _RightArrow + singleQuote(name))
     val patternStatement = pattern.map(expr => _Pattern + _RightArrow + singleQuote(expr))
     selectStatement +
@@ -727,6 +730,7 @@ package object analyzer {
       pattern: Option[String],
       columnNames: Seq[String],
       transformations: Seq[String]): String = {
+    val quotedFilePath = Utils.quoteStageRefForSqlIfNeeded(filePath)
     _Copy + _Into + tableName +
       (if (columnNames.nonEmpty) {
          columnNames.mkString(_LeftParenthesis, _Comma, _RightParenthesis)
@@ -735,9 +739,9 @@ package object analyzer {
        }) + _From +
       (if (transformations.nonEmpty) {
          _LeftParenthesis + _Select + transformations.mkString(_Comma) +
-           _From + filePath + _RightParenthesis
+           _From + quotedFilePath + _RightParenthesis
        } else {
-         filePath
+         quotedFilePath
        }) +
       pattern.map(expr => _Pattern + _Equals + singleQuote(expr)).getOrElse(_EmptyString) +
       _FileFormat + _Equals + _LeftParenthesis + _Type + _Equals + format +

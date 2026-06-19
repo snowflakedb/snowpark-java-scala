@@ -516,4 +516,59 @@ class FileOperationSuite extends SNTestBase {
         .equals(fileContent))
   }
 
+  // SNOW-3632537: PUT/GET/LIST with unicode schema names
+  test("PUT, GET, and LIST with stage in unicode-named schema") {
+    val unicodeSchema = "\"日本語テスト_" + TestUtils.randomString(5) + "\""
+    val database = session.getCurrentDatabase.get
+    val oldSchema = session.getCurrentSchema.get
+    val stageName = randomStageName().toLowerCase(Locale.ENGLISH)
+    val qualifiedStage = s"$database.$unicodeSchema.$stageName"
+
+    try {
+      runQuery(s"CREATE SCHEMA IF NOT EXISTS $database.$unicodeSchema", session)
+      runQuery(s"CREATE TEMPORARY STAGE $qualifiedStage", session)
+
+      val stagePrefix = "prefix_" + TestUtils.randomString(5)
+      val stageWithPrefix = s"@$qualifiedStage/$stagePrefix/"
+
+      val putResult = session.file.put(s"file://$path1", stageWithPrefix)
+      assert(putResult.length == 1)
+      assert(putResult.head.status.equalsIgnoreCase("UPLOADED"))
+
+      val targetDir = Files.createTempDirectory("snowpark_unicode_get_").toFile
+      try {
+        val getResult =
+          session.file.get(stageWithPrefix, s"file://${escapePath(targetDir.getCanonicalPath)}")
+        assert(getResult.length == 1)
+        assert(getResult.head.status.equalsIgnoreCase("DOWNLOADED"))
+      } finally {
+        removeFile(escapePath(targetDir.getCanonicalPath), session)
+      }
+    } finally {
+      runQuery(s"DROP STAGE IF EXISTS $qualifiedStage", session)
+      runQuery(s"DROP SCHEMA IF EXISTS $database.$unicodeSchema", session)
+      runQuery(s"USE SCHEMA $oldSchema", session)
+    }
+  }
+
+  test("uploadStream and downloadStream with stage in unicode-named schema") {
+    val unicodeSchema = "\"日本語テスト_" + TestUtils.randomString(5) + "\""
+    val database = session.getCurrentDatabase.get
+    val oldSchema = session.getCurrentSchema.get
+    val stageName = randomStageName().toLowerCase(Locale.ENGLISH)
+    val qualifiedStage = s"$database.$unicodeSchema.$stageName"
+
+    try {
+      runQuery(s"CREATE SCHEMA IF NOT EXISTS $database.$unicodeSchema", session)
+      runQuery(s"CREATE TEMPORARY STAGE $qualifiedStage", session)
+
+      val fileName = s"streamFile_${TestUtils.randomString(5)}.csv"
+      testStreamRoundTrip(s"$qualifiedStage/$fileName", s"$qualifiedStage/$fileName", false)
+    } finally {
+      runQuery(s"DROP STAGE IF EXISTS $qualifiedStage", session)
+      runQuery(s"DROP SCHEMA IF EXISTS $database.$unicodeSchema", session)
+      runQuery(s"USE SCHEMA $oldSchema", session)
+    }
+  }
+
 }
