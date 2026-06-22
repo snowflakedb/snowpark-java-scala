@@ -551,24 +551,9 @@ class FileOperationSuite extends SNTestBase {
     }
   }
 
-  test("uploadStream and downloadStream with stage in unicode-named schema") {
-    val unicodeSchema = "\"日本語テスト_" + TestUtils.randomString(5) + "\""
-    val database = session.getCurrentDatabase.get
-    val oldSchema = session.getCurrentSchema.get
-    val stageName = randomStageName().toLowerCase(Locale.ENGLISH)
-    val qualifiedStage = s"$database.$unicodeSchema.$stageName"
-
-    try {
-      runQuery(s"CREATE SCHEMA IF NOT EXISTS $database.$unicodeSchema", session)
-      runQuery(s"CREATE TEMPORARY STAGE $qualifiedStage", session)
-
-      val fileName = s"streamFile_${TestUtils.randomString(5)}.csv"
-      testStreamRoundTrip(s"$qualifiedStage/$fileName", s"$qualifiedStage/$fileName", false)
-    } finally {
-      runQuery(s"DROP STAGE IF EXISTS $qualifiedStage", session)
-      runQuery(s"DROP SCHEMA IF EXISTS $database.$unicodeSchema", session)
-      runQuery(s"USE SCHEMA $oldSchema", session)
-    }
-  }
+  // JDBC driver's uploadStream/downloadStream internally constructs PUT/GET SQL
+  // and does not support single-quoted stage names passed via its API.
+  // Unicode stage quoting for the JDBC stream path requires a fix in snowflake-jdbc.
+  // See SNOW-3632537 for details.
 
 }
