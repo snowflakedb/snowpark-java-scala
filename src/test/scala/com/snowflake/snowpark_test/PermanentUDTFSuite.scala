@@ -25,14 +25,10 @@ class PermanentUDTFSuite extends TestData {
       TestUtils.addDepsToClassPath(session, Some(stageName))
       TestUtils.addDepsToClassPath(newSession, Some(stageName))
     }
-    enableScala213UdxfSprocParams(session)
-    enableScala213UdxfSprocParams(newSession)
   }
 
   override def afterAll: Unit = {
     dropStage(stageName)
-    disableScala213UdxfSprocParams(session)
-    disableScala213UdxfSprocParams(newSession)
     super.afterAll
   }
 

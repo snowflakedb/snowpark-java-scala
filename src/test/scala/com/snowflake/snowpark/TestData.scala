@@ -9,7 +9,7 @@ trait TestData extends SNTestBase {
   val defaultTimezone = TimeZone.getDefault
   val oldSfTimeZone =
     if (isStoredProc(session)) {
-      session.sql("select CURRENT_TIMEZONE()").collect().head.getString(0)
+      TimeZone.getDefault.getID
     } else {
       session.sql("SHOW PARAMETERS LIKE 'TIMEZONE' IN SESSION").collect().head.getString(1)
     }

@@ -200,7 +200,7 @@ trait SNTestBase extends AnyFunSuite with BeforeAndAfterAll with SFTestUtils wit
     val defaultTimezone = TimeZone.getDefault
     val oldSfTimeZone =
       if (isStoredProc(session)) {
-        session.sql("select CURRENT_TIMEZONE()").collect().head.getString(0)
+        TimeZone.getDefault.getID
       } else {
         session.sql("SHOW PARAMETERS LIKE 'TIMEZONE' IN SESSION").collect().head.getString(1)
       }
@@ -334,18 +334,6 @@ trait SNTestBase extends AnyFunSuite with BeforeAndAfterAll with SFTestUtils wit
       currentSession,
       skipPreprod = true)(thunk)
     // disable these tests on preprod daily tests until these parameters are enabled by default.
-  }
-
-  def enableScala213UdxfSprocParams(session: Session): Unit = {
-    if (ScalaCompatVersion.contentEquals("2.13")) {
-      runQuery("alter session set ENABLE_SCALA_UDF_RUNTIME_2_13=true", session)
-    }
-  }
-
-  def disableScala213UdxfSprocParams(session: Session): Unit = {
-    if (ScalaCompatVersion.contentEquals("2.13")) {
-      runQuery("alter session set ENABLE_SCALA_UDF_RUNTIME_2_13=false", session)
-    }
   }
 }
 

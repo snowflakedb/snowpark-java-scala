@@ -38,8 +38,6 @@ class AsyncJobSuite extends TestData with BeforeAndAfterEach {
       // In stored procs mode, there is only one session
       TestUtils.addDepsToClassPath(newSession, Some(tmpStageName))
     }
-    enableScala213UdxfSprocParams(session)
-    enableScala213UdxfSprocParams(newSession)
   }
 
   override def afterAll: Unit = {
@@ -51,8 +49,6 @@ class AsyncJobSuite extends TestData with BeforeAndAfterEach {
     dropTable(tableName)
     dropTable(tableName1)
     dropTable(tableName2)
-    disableScala213UdxfSprocParams(session)
-    disableScala213UdxfSprocParams(newSession)
     super.afterAll
   }
 

@@ -21,12 +21,10 @@ class UDFInternalSuite extends TestData {
       TestUtils.addDepsToClassPath(session, Some(stageName))
       TestUtils.addDepsToClassPath(newSession, Some(stageName))
     }
-    enableScala213UdxfSprocParams(session)
   }
 
   override def afterAll: Unit = {
     dropStage(stageName)
-    disableScala213UdxfSprocParams(session)
     super.afterAll
   }
 
