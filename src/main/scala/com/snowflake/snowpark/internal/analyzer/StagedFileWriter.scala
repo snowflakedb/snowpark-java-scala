@@ -107,7 +107,7 @@ private[snowpark] class StagedFileWriter(val dataframeWriter: DataFrameWriter) e
     //                    TYPE = { CSV | JSON | PARQUET } [ formatTypeOptions ] } ) ]
     // [ copyOptions ]
     // [ HEADER ]
-    "COPY INTO " + stageLocation +
+    "COPY INTO " + Utils.quoteStageRefForSqlIfNeeded(stageLocation) +
       " FROM ( " + query + " ) " +
       getPartitionByClause() + getFileFormatClause(formatType) +
       " " + getCopyOptionClause() +

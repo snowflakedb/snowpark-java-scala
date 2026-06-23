@@ -146,4 +146,132 @@ class SqlInjectionSuite extends AnyFunSuite {
       transformations = Seq.empty)
     assert(sql.contains("'.*csv''; DROP TABLE x; --'"))
   }
+
+  // ---- unicode stage quoting (SNOW-3632537) ---------------------------------
+
+  test("fileOperationStatement quotes PUT stage ref containing non-ASCII") {
+    import com.snowflake.snowpark.FileOperationCommand._
+    val unicodeStage = """@"DQ"."自動化専用_変更禁止".SNOWPARK_TEMP_STAGE_XYZ"""
+    val sql = fileOperationStatement(PutCommand, "file:///tmp/file.csv", unicodeStage, Map.empty)
+    assert(
+      sql.contains(s"'$unicodeStage'"),
+      s"PUT should single-quote non-ASCII stage ref, got: $sql")
+  }
+
+  test("fileOperationStatement quotes GET stage ref containing non-ASCII") {
+    import com.snowflake.snowpark.FileOperationCommand._
+    val unicodeStage = """@"DQ"."自動化専用_変更禁止".SNOWPARK_TEMP_STAGE_XYZ/file.csv"""
+    val sql = fileOperationStatement(GetCommand, "file:///tmp/", unicodeStage, Map.empty)
+    assert(
+      sql.contains(s"'$unicodeStage'"),
+      s"GET should single-quote non-ASCII stage ref, got: $sql")
+  }
+
+  test("fileOperationStatement leaves ASCII stage ref unchanged") {
+    import com.snowflake.snowpark.FileOperationCommand._
+    val asciiStage = """@"DB"."SCHEMA".STAGE"""
+    val sql = fileOperationStatement(
+      PutCommand,
+      "file:///tmp/file.csv",
+      asciiStage,
+      Map("OVERWRITE" -> "TRUE"))
+    assert(
+      !sql.contains(s"'$asciiStage"),
+      s"PUT should not single-quote ASCII-only stage ref, got: $sql")
+    assert(sql.contains(asciiStage))
+  }
+
+  test("selectFromPathWithFormatStatement quotes path containing non-ASCII") {
+    val unicodePath = """@"DB"."日本語".STAGE/dir"""
+    val sql = selectFromPathWithFormatStatement(
+      project = Seq.empty,
+      path = unicodePath,
+      formatName = None,
+      pattern = None)
+    assert(
+      sql.contains(s"'$unicodePath'"),
+      s"SELECT FROM should single-quote non-ASCII path, got: $sql")
+  }
+
+  test("selectFromPathWithFormatStatement leaves ASCII path unchanged") {
+    val asciiPath = "@stage/dir/file.csv"
+    val sql = selectFromPathWithFormatStatement(
+      project = Seq.empty,
+      path = asciiPath,
+      formatName = None,
+      pattern = None)
+    assert(
+      !sql.contains(s"'$asciiPath"),
+      s"SELECT FROM should not single-quote ASCII-only path, got: $sql")
+    assert(sql.contains(asciiPath))
+  }
+
+  test("copyIntoTable quotes filePath containing non-ASCII") {
+    val unicodePath = """@"DB"."日本語テスト".STAGE"""
+    val sql = copyIntoTable(
+      tableName = "T",
+      filePath = unicodePath,
+      format = "CSV",
+      formatTypeOptions = Map.empty,
+      copyOptions = Map.empty,
+      pattern = None,
+      columnNames = Seq.empty,
+      transformations = Seq.empty)
+    assert(
+      sql.contains(s"'$unicodePath'"),
+      s"COPY INTO should single-quote non-ASCII filePath, got: $sql")
+  }
+
+  test("copyIntoTable quotes filePath in SELECT transform clause with non-ASCII") {
+    val unicodePath = """@"DB"."日本語テスト".STAGE"""
+    val sql = copyIntoTable(
+      tableName = "T",
+      filePath = unicodePath,
+      format = "CSV",
+      formatTypeOptions = Map.empty,
+      copyOptions = Map.empty,
+      pattern = None,
+      columnNames = Seq.empty,
+      transformations = Seq("$1", "$2"))
+    assert(
+      sql.contains(s"'$unicodePath'"),
+      s"COPY INTO with transformations should single-quote non-ASCII filePath, got: $sql")
+  }
+
+  test("copyIntoTable leaves ASCII filePath unchanged") {
+    val asciiPath = "@stage/dir"
+    val sql = copyIntoTable(
+      tableName = "T",
+      filePath = asciiPath,
+      format = "CSV",
+      formatTypeOptions = Map.empty,
+      copyOptions = Map.empty,
+      pattern = None,
+      columnNames = Seq.empty,
+      transformations = Seq.empty)
+    assert(
+      !sql.contains(s"'$asciiPath"),
+      s"COPY INTO should not single-quote ASCII-only filePath, got: $sql")
+    assert(sql.contains(asciiPath))
+  }
+
+  test("StagedFileWriter.getCopyIntoLocationQuery quotes non-ASCII stageLocation") {
+    val writer = new StagedFileWriter(null)
+    writer.stageLocation = """@"DB"."日本語".STAGE"""
+    writer.formatType = "CSV"
+    val sql = writer.getCopyIntoLocationQuery("SELECT * FROM T")
+    assert(
+      sql.startsWith("COPY INTO '@\"DB\".\"日本語\".STAGE'"),
+      s"COPY INTO location should single-quote non-ASCII stageLocation, got: $sql")
+  }
+
+  test("StagedFileWriter.getCopyIntoLocationQuery leaves ASCII stageLocation unchanged") {
+    val writer = new StagedFileWriter(null)
+    writer.stageLocation = """@"DB"."SCHEMA".STAGE"""
+    writer.formatType = "CSV"
+    val sql = writer.getCopyIntoLocationQuery("SELECT * FROM T")
+    assert(
+      sql.startsWith("""COPY INTO @"DB"."SCHEMA".STAGE"""),
+      s"COPY INTO location should not single-quote ASCII stageLocation, got: $sql")
+  }
 }
