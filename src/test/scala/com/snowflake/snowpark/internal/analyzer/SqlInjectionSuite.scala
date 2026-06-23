@@ -315,7 +315,60 @@ class SqlInjectionSuite extends AnyFunSuite {
     assert(
       sql.startsWith("""COPY INTO @"DB"."SCHEMA".STAGE"""),
       s"COPY INTO location should not single-quote ASCII stageLocation, got: $sql")
+  }
 
+  // ---- flattenExpression --------------------------------------------------
+
+  test("flattenExpression neutralises the LATERAL injection payload from exploit narrative") {
+    // Exact payload from the security report: breaks out of PATH literal to inject LATERAL subquery
+    val payload = "', OUTER => TRUE, RECURSIVE => FALSE, MODE => 'BOTH'), " +
+      "LATERAL (SELECT password_hash AS leaked FROM PROD.APP.USERS) -- "
+    val sql = flattenExpression("\"RAW\"", payload, outer = false, recursive = false, "BOTH")
+    // The single quotes in the payload must be doubled so the literal never closes early.
+    // Pre-fix, the output would contain an unescaped closing quote followed by real SQL clauses.
+    // Post-fix, all embedded quotes are doubled and the entire payload stays inside one literal.
+    val escapedPath = escapeSingleQuotesForSingleQuotedLiteral(payload)
+    assert(sql.contains("'" + escapedPath + "'"))
+    // The output must be a single FLATTEN(...) call — verify balanced structure
+    assert(sql.trim.startsWith("FLATTEN"))
+    // The path's embedded quotes are doubled (key security property):
+    // original payload starts with ' which becomes '' after escaping
+    assert(escapedPath.contains("''"))
+    // The escaped path differs from the raw payload (escaping happened)
+    assert(escapedPath != payload)
+  }
+
+  test("flattenExpression preserves normal JSON paths unchanged (BCR)") {
+    // These paths have no special characters — escaping is a no-op, output is identical
+    val normalPaths = Seq("", "a.b", "data[0].name", "events", "x.y.z[1].w")
+    for (p <- normalPaths) {
+      val sql = flattenExpression("col", p, outer = false, recursive = false, "BOTH")
+      assert(sql.contains("'" + p + "'"), s"Failed for path: $p")
+    }
+  }
+
+  test("flattenExpression doubles embedded single quotes in path") {
+    val sql = flattenExpression("col", "O'Brien.field", outer = false, recursive = false, "BOTH")
+    assert(sql.contains("'O''Brien.field'"))
+  }
+
+  test("flattenExpression escapes backslash-quote combo in path") {
+    val path = "\\'injection"
+    val sql = flattenExpression("col", path, outer = false, recursive = false, "BOTH")
+    val expected = escapeSingleQuotesForSingleQuotedLiteral(path)
+    assert(sql.contains("'" + expected + "'"))
+  }
+
+  test("flattenExpression: Session.flatten UNION injection payload is neutralised") {
+    // Payload targeting Session.flatten which wraps in TABLE(FLATTEN(...))
+    val payload = "') ) ) UNION ALL SELECT 1,2,3,4,5,6 FROM PROD.APP.SECRETS -- "
+    val sql = flattenExpression("col", payload, outer = false, recursive = false, "BOTH")
+    // The embedded quotes are doubled so the literal stays closed
+    val escapedPath = escapeSingleQuotesForSingleQuotedLiteral(payload)
+    assert(sql.contains("'" + escapedPath + "'"))
+    // Verify the quote-doubling actually happened
+    assert(escapedPath.contains("''"))
+  }
   // ---- substring_index SQL injection (regression) ---------------
 
   test("substring_index does not emit UnresolvedAttribute with raw SQL for injection payload") {

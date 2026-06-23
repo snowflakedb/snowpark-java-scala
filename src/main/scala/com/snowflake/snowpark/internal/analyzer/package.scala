@@ -157,8 +157,10 @@ package object analyzer {
       mode: String): String = {
     // flatten(input => , path => , outer => , recursive => , mode =>)
     _Flatten + _LeftParenthesis + _Input + _RightArrow + input + _Comma + _Path +
-      _RightArrow + _SingleQuote + path + _SingleQuote + _Comma + _Outer +
+      _RightArrow + _SingleQuote + escapeSingleQuotesForSingleQuotedLiteral(path) +
+      _SingleQuote + _Comma + _Outer +
       _RightArrow + outer.toString + _Comma + _Recursive + _RightArrow +
+      // mode is allow-listed upstream to OBJECT/ARRAY/BOTH; no escaping needed.
       recursive.toString + _Comma + _Mode + _RightArrow + _SingleQuote + mode +
       _SingleQuote + _RightParenthesis
   }
