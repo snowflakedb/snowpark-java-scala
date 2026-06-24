@@ -35,6 +35,8 @@ build_and_use_latest_jdbc() {
 }
 
 decrypt_profile_properties_gpg() {
+  # disable xtrace so GPG_KEY passphrase is not echoed to logs
+  set +x
   if [ -z "$GPG_KEY" ]; then
     echo '[ERROR] GPG_KEY was not defined!'
     exit 1
@@ -46,6 +48,8 @@ decrypt_profile_properties_gpg() {
   else
     echo "[ERROR] GPG encrypted profile.properties file not found at: $1"
   fi
+  # re-enable xtrace now that the passphrase is no longer referenced
+  set -x
 }
 
 run_test_suites() {

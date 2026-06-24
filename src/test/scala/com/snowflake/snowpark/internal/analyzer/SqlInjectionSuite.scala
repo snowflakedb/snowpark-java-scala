@@ -1,13 +1,15 @@
 package com.snowflake.snowpark.internal.analyzer
 
+import com.snowflake.snowpark.types.IntegerType
 import org.scalatest.funsuite.AnyFunSuite
 
 /**
  * Regression tests for the SQL injection class introduced by unescaped `'` in `subfieldExpression`
- * and an over-permissive pre-quoted pass-through in `singleQuote`. The fix doubles embedded single
- * quotes before wrapping; pre-quoted well-formed literals pass through verbatim so the
- * long-standing file-format-option contract (and downstream string-equality checks in
- * `DataFrameWriter`) keeps working.
+ * and an over-permissive pre-quoted pass-through in `singleQuote`. The fix escapes backslashes and
+ * doubles embedded single quotes before wrapping, and the well-formedness check models Snowflake's
+ * backslash escaping (so the `\\` desync can no longer slip a closing quote through). Pre-quoted
+ * well-formed literals still pass through verbatim so the long-standing file-format-option contract
+ * (and downstream string-equality checks in `DataFrameWriter`) keeps working.
  */
 class SqlInjectionSuite extends AnyFunSuite {
 
@@ -44,6 +46,23 @@ class SqlInjectionSuite extends AnyFunSuite {
     assert(subfieldExpression("data", 0) == "data[0]")
     assert(subfieldExpression("data", 42) == "data[42]")
     assert(subfieldExpression("data", -1) == "data[-1]")
+  }
+
+  test("subfieldExpression neutralises the backslash closing-quote desync payload") {
+    // Pre-fix, `hasOnlyEscapedSingleQuotes` mis-parsed `\\` and passed this through verbatim,
+    // letting Snowflake read `\\` as a backslash and `'` as a real closing quote -> the embedded
+    // scalar subquery executed. The field must now take the escape branch (not verbatim).
+    val field = "\\\\'||(SELECT c FROM secret)||''"
+    val sql = subfieldExpression("data", field)
+    assert(sql == "data['" + escapeSingleQuotesForSingleQuotedLiteral(field) + "']")
+    assert(sql != "data['" + field + "']") // proves the verbatim pass-through was rejected
+  }
+
+  test("subfieldExpression escapes lone and trailing backslashes") {
+    // A trailing/dangling backslash would otherwise escape the wrapper's closing quote, so these
+    // are rejected by the well-formedness check and routed through the escape branch.
+    assert(subfieldExpression("data", "x\\") == "data['x\\\\']")
+    assert(subfieldExpression("data", "\\") == "data['\\\\']")
   }
 
   // ---- singleQuote ---------------------------------------------------------
@@ -83,6 +102,14 @@ class SqlInjectionSuite extends AnyFunSuite {
     assert(singleQuote("'); DROP TABLE users; --") == "'''); DROP TABLE users; --'")
   }
 
+  test("singleQuote escapes backslashes so they cannot escape the wrapper quote") {
+    // A lone backslash would otherwise turn the closing wrapper `'` into an escaped quote.
+    assert(singleQuote("\\") == "'\\\\'")
+    // Non-well-formed inputs go through the escape branch; assert they are fully escaped.
+    val payload = "\\' || (SELECT c FROM no_such) || '"
+    assert(singleQuote(payload) == "'" + escapeSingleQuotesForSingleQuotedLiteral(payload) + "'")
+  }
+
   // ---- isStringLiteralProperlySingleQuoted (singleQuote pass-through gate) ----
 
   test("isStringLiteralProperlySingleQuoted accepts well-formed literals") {
@@ -106,6 +133,14 @@ class SqlInjectionSuite extends AnyFunSuite {
     assert(!isStringLiteralProperlySingleQuoted("'a'; DROP TABLE x; --'"))
   }
 
+  test("isStringLiteralProperlySingleQuoted models Snowflake backslash escaping") {
+    // `'\'` ends in a dangling backslash that escapes the closing quote -> not well-formed.
+    // Pre-fix this was accepted because `\` was only treated as an escape when followed by `'`.
+    assert(!isStringLiteralProperlySingleQuoted("'\\'"))
+    // `'\\'` is a genuine, closed backslash literal -> well-formed.
+    assert(isStringLiteralProperlySingleQuoted("'\\\\'"))
+  }
+
   // ---- escapeSingleQuotesForSingleQuotedLiteral (primitive) ---------------
 
   test("escapeSingleQuotesForSingleQuotedLiteral doubles every single quote") {
@@ -115,6 +150,13 @@ class SqlInjectionSuite extends AnyFunSuite {
     assert(escapeSingleQuotesForSingleQuotedLiteral("''") == "''''")
     assert(escapeSingleQuotesForSingleQuotedLiteral("a'b") == "a''b")
     assert(escapeSingleQuotesForSingleQuotedLiteral("don't") == "don''t")
+  }
+
+  test("escapeSingleQuotesForSingleQuotedLiteral doubles backslashes before quotes") {
+    assert(escapeSingleQuotesForSingleQuotedLiteral("\\") == "\\\\")
+    assert(escapeSingleQuotesForSingleQuotedLiteral("a\\b") == "a\\\\b")
+    // backslash then quote: backslash doubled first, then the quote doubled.
+    assert(escapeSingleQuotesForSingleQuotedLiteral("\\'") == "\\\\''")
   }
 
   // ---- call-site coverage --------------------------------------------------
@@ -273,5 +315,106 @@ class SqlInjectionSuite extends AnyFunSuite {
     assert(
       sql.startsWith("""COPY INTO @"DB"."SCHEMA".STAGE"""),
       s"COPY INTO location should not single-quote ASCII stageLocation, got: $sql")
+  }
+
+  // ---- flattenExpression --------------------------------------------------
+
+  test("flattenExpression neutralises the LATERAL injection payload from exploit narrative") {
+    // Exact payload from the security report: breaks out of PATH literal to inject LATERAL subquery
+    val payload = "', OUTER => TRUE, RECURSIVE => FALSE, MODE => 'BOTH'), " +
+      "LATERAL (SELECT password_hash AS leaked FROM PROD.APP.USERS) -- "
+    val sql = flattenExpression("\"RAW\"", payload, outer = false, recursive = false, "BOTH")
+    // The single quotes in the payload must be doubled so the literal never closes early.
+    // Pre-fix, the output would contain an unescaped closing quote followed by real SQL clauses.
+    // Post-fix, all embedded quotes are doubled and the entire payload stays inside one literal.
+    val escapedPath = escapeSingleQuotesForSingleQuotedLiteral(payload)
+    assert(sql.contains("'" + escapedPath + "'"))
+    // The output must be a single FLATTEN(...) call — verify balanced structure
+    assert(sql.trim.startsWith("FLATTEN"))
+    // The path's embedded quotes are doubled (key security property):
+    // original payload starts with ' which becomes '' after escaping
+    assert(escapedPath.contains("''"))
+    // The escaped path differs from the raw payload (escaping happened)
+    assert(escapedPath != payload)
+  }
+
+  test("flattenExpression preserves normal JSON paths unchanged (BCR)") {
+    // These paths have no special characters — escaping is a no-op, output is identical
+    val normalPaths = Seq("", "a.b", "data[0].name", "events", "x.y.z[1].w")
+    for (p <- normalPaths) {
+      val sql = flattenExpression("col", p, outer = false, recursive = false, "BOTH")
+      assert(sql.contains("'" + p + "'"), s"Failed for path: $p")
+    }
+  }
+
+  test("flattenExpression doubles embedded single quotes in path") {
+    val sql = flattenExpression("col", "O'Brien.field", outer = false, recursive = false, "BOTH")
+    assert(sql.contains("'O''Brien.field'"))
+  }
+
+  test("flattenExpression escapes backslash-quote combo in path") {
+    val path = "\\'injection"
+    val sql = flattenExpression("col", path, outer = false, recursive = false, "BOTH")
+    val expected = escapeSingleQuotesForSingleQuotedLiteral(path)
+    assert(sql.contains("'" + expected + "'"))
+  }
+
+  test("flattenExpression: Session.flatten UNION injection payload is neutralised") {
+    // Payload targeting Session.flatten which wraps in TABLE(FLATTEN(...))
+    val payload = "') ) ) UNION ALL SELECT 1,2,3,4,5,6 FROM PROD.APP.SECRETS -- "
+    val sql = flattenExpression("col", payload, outer = false, recursive = false, "BOTH")
+    // The embedded quotes are doubled so the literal stays closed
+    val escapedPath = escapeSingleQuotesForSingleQuotedLiteral(payload)
+    assert(sql.contains("'" + escapedPath + "'"))
+    // Verify the quote-doubling actually happened
+    assert(escapedPath.contains("''"))
+  }
+  // ---- substring_index SQL injection (regression) ---------------
+
+  test("substring_index does not emit UnresolvedAttribute with raw SQL for injection payload") {
+    import com.snowflake.snowpark.functions.substring_index
+    val payload = "x')||(SELECT LISTAGG(secret,',') FROM secrets)||('y"
+    val result = substring_index(payload, ",", -1)
+    def containsUnsafeUnresolved(e: Expression): Boolean = e match {
+      case UnresolvedAttribute(name) => name.contains("reverse(")
+      case _ => e.children.exists(containsUnsafeUnresolved)
+    }
+    assert(
+      !containsUnsafeUnresolved(result.expr),
+      "substring_index must not interpolate str into raw SQL via UnresolvedAttribute")
+  }
+
+  test("substring_index wraps str in Literal for both positive and negative count") {
+    import com.snowflake.snowpark.functions.substring_index
+    val str = "a'b"
+    val negResult = substring_index(str, ",", -1)
+    val posResult = substring_index(str, ",", 1)
+
+    def containsLiteralWithValue(e: Expression, value: String): Boolean = e match {
+      case Literal(v, _) => v == value
+      case _ => e.children.exists(containsLiteralWithValue(_, value))
+    }
+
+    assert(
+      containsLiteralWithValue(negResult.expr, str),
+      "negative count path must wrap str in Literal")
+    assert(
+      containsLiteralWithValue(posResult.expr, str),
+      "positive count path must wrap str in Literal")
+  }
+  // ---- DataTypeMapper.toSql IntegerType injection (regression) ---------------
+
+  test("toSql rejects non-Int value in IntegerType column (injection payload)") {
+    val payload = "0 :: int) AS T(\"A\")) UNION ALL SELECT CURRENT_ROLE()) --"
+    intercept[UnsupportedOperationException] {
+      DataTypeMapper.toSql(payload, Some(IntegerType))
+    }
+  }
+
+  test("toSql renders legitimate Int values for IntegerType unchanged") {
+    assert(DataTypeMapper.toSql(42, Some(IntegerType)) == "42 :: int")
+    assert(DataTypeMapper.toSql(0, Some(IntegerType)) == "0 :: int")
+    assert(DataTypeMapper.toSql(-1, Some(IntegerType)) == "-1 :: int")
+    assert(DataTypeMapper.toSql(Int.MaxValue, Some(IntegerType)) == s"${Int.MaxValue} :: int")
   }
 }

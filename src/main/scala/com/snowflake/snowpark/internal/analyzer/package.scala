@@ -157,8 +157,10 @@ package object analyzer {
       mode: String): String = {
     // flatten(input => , path => , outer => , recursive => , mode =>)
     _Flatten + _LeftParenthesis + _Input + _RightArrow + input + _Comma + _Path +
-      _RightArrow + _SingleQuote + path + _SingleQuote + _Comma + _Outer +
+      _RightArrow + _SingleQuote + escapeSingleQuotesForSingleQuotedLiteral(path) +
+      _SingleQuote + _Comma + _Outer +
       _RightArrow + outer.toString + _Comma + _Recursive + _RightArrow +
+      // mode is allow-listed upstream to OBJECT/ARRAY/BOTH; no escaping needed.
       recursive.toString + _Comma + _Mode + _RightArrow + _SingleQuote + mode +
       _SingleQuote + _RightParenthesis
   }
@@ -208,9 +210,10 @@ package object analyzer {
 
   /**
    * Emits `expr['field']` for variant/struct/map subfield access. Field names that already form a
-   * well-formed single-quoted body (per the `ColumnSuite.subfield` contract: every `'` doubled) are
-   * wrapped verbatim; otherwise we escape embedded single quotes ourselves before wrapping. The
-   * latter branch closes the closing-quote injection (e.g. `x'] || (SELECT ...) || ['y`).
+   * well-formed single-quoted body (per the `ColumnSuite.subfield` contract: every `'` doubled and
+   * every `\` balanced as a Snowflake escape) are wrapped verbatim; otherwise we escape backslashes
+   * and embedded single quotes ourselves before wrapping. The latter branch closes the
+   * closing-quote injection (e.g. `x'] || (SELECT ...) || ['y` and the `\\` backslash-desync).
    */
   private[analyzer] def subfieldExpression(expr: String, field: String): String = {
     val body =
@@ -820,15 +823,22 @@ package object analyzer {
     var i = 0
     var ok = true
     while (ok && i < body.length) {
-      if (body.charAt(i) == '\'') {
+      val c = body.charAt(i)
+      if (c == '\'') {
+        // A single quote is well-formed only as a doubled (`''`) escape.
         if (i + 1 < body.length && body.charAt(i + 1) == '\'') {
           i += 2
         } else {
-          ok = false
+          ok = false // a lone `'` closes the literal -> not well-formed
         }
-      } else if (body.charAt(i) == '\\' && i + 1 < body.length &&
-        body.charAt(i + 1) == '\'') {
-        i += 2
+      } else if (c == '\\') {
+        // Snowflake treats backslash as an escape character inside single-quoted
+        // literals, so a backslash consumes the following char (covers `\\` and `\'`).
+        if (i + 1 < body.length) {
+          i += 2
+        } else {
+          ok = false // a dangling backslash would escape the wrapper's closing quote
+        }
       } else {
         i += 1
       }
@@ -837,12 +847,15 @@ package object analyzer {
   }
 
   /**
-   * Doubles every single quote so the value is safe to embed inside a Snowflake single-quoted SQL
-   * string literal. Defends against the closing-quote injection class without altering any other
-   * character in `value`.
+   * Escapes a value so it is safe to embed inside a Snowflake single-quoted SQL string literal.
+   * Backslashes are doubled first (Snowflake treats `\` as an escape character inside `'...'`),
+   * then every single quote is doubled. The order matters so the backslashes introduced by the
+   * first pass are not re-escaped. Defends against the closing-quote injection class.
    */
   private[analyzer] def escapeSingleQuotesForSingleQuotedLiteral(value: String): String =
-    value.replace(_SingleQuote, _SingleQuote + _SingleQuote)
+    value
+      .replace("\\", "\\\\")
+      .replace(_SingleQuote, _SingleQuote + _SingleQuote)
 
   /**
    * Use this function to normalize all user input and client generated names

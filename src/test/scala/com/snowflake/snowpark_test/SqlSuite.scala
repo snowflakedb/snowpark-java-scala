@@ -49,12 +49,12 @@ trait SqlSuite extends SNTestBase {
   }
 
   test("non select queries") {
-    val result = session.sql(s"show stages like '$stageName'").collect()
+    val result = session.sql(s"show stages like '$stageName' limit 100").collect()
     assert(result.length == 1)
     // verify result is not empty
     assert(result(0).toString.contains(stageName))
 
-    val result1 = session.sql(s"show tables like '$tableName1'").collect()
+    val result1 = session.sql(s"show tables like '$tableName1' limit 100").collect()
     assert(result1.length == 1)
     // verify result is not empty
     assert(result1(0).toString.contains(tableName1))

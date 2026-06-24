@@ -5,6 +5,9 @@
 # after setting or unsetting `SNOWPARK_FIPS` environment variable.
 #
 
+# disable xtrace so credentials are not echoed to logs
+set +x
+
 if [ -z "$GPG_KEY_ID" ]; then
   export GPG_KEY_ID="Snowflake Computing"
   echo "[WARN] GPG key ID not specified, using default: $GPG_KEY_ID."
@@ -56,6 +59,9 @@ if [ ! -z "$GPG_PRIVATE_KEY" ] && [ -f "$GPG_PRIVATE_KEY" ]; then
     gpg --allow-secret-key-import --import "$GPG_PRIVATE_KEY"
   fi
 fi
+
+# re-enable xtrace now that credential handling is done
+set -x
 
 which sbt
 if [ $? -ne 0 ]

@@ -46,7 +46,8 @@ object DataTypeMapper {
           case (v: String, StringType) => stringToSql(v)
           case (v: Byte, ByteType) => v + s" :: tinyint"
           case (v: Short, ShortType) => v + s" :: smallint"
-          case (v: Any, IntegerType) => v + s" :: int"
+          // SNOW-3649401: must match v: Int (not v: Any) to prevent SQL injection
+          case (v: Int, IntegerType) => v + s" :: int"
           case (v: Long, LongType) => v + s" :: bigint"
           case (v: Boolean, BooleanType) => s"$v :: boolean"
           // Float type doesn't have a suffix
