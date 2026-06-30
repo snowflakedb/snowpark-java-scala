@@ -140,9 +140,6 @@ lazy val root = (project in file("."))
       "com.github.sbt" % "junit-interface" % "0.13.3" % Test,
       "org.mockito" % "mockito-core" % "2.23.0" % Test,
       "org.scalatest" %% "scalatest" % "3.2.19" % Test),
-    // Allow local Maven repository use for dependencies.
-    // Enables testing against latest Snowflake JDBC version install locally in CI.
-    resolvers += Resolver.mavenLocal,
     scalafmtOnCompile := true,
     javafmtOnCompile := true,
     Test / testOptions := Seq(Tests.Argument(TestFrameworks.JUnit, "-a", "-v", "-q")),
