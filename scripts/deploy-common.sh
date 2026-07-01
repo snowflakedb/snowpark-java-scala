@@ -43,6 +43,26 @@ if [ -z "$github_version_tag" ]; then
   exit 1
 fi
 
+# Restrict the release ref to an immutable vMAJOR.MINOR.PATCH tag. This rejects
+# branches, raw commit hashes, HEAD, and option-like values, and (together with
+# quoting below) neutralizes word-splitting/globbing on $github_version_tag.
+if ! [[ "$github_version_tag" =~ ^v[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+  echo "[ERROR] 'github_version_tag' must match vMAJOR.MINOR.PATCH (got: $github_version_tag)"
+  exit 1
+fi
+
+# Fetch, verify, and check out the release tag BEFORE any release secrets are
+# loaded, so a malicious/poisoned build.sbt can never be evaluated while the
+# Sonatype credentials and GPG signing key are present in the environment.
+echo "[INFO] Fetching and verifying tag: $github_version_tag."
+git fetch --tags --force origin "refs/tags/${github_version_tag}:refs/tags/${github_version_tag}"
+if ! git rev-parse --verify --quiet "refs/tags/${github_version_tag}^{commit}" >/dev/null; then
+  echo "[ERROR] tag refs/tags/${github_version_tag} not found"
+  exit 1
+fi
+echo "[INFO] Checking out snowpark-java-scala @ tag: $github_version_tag."
+git -c advice.detachedHead=false checkout --detach "refs/tags/${github_version_tag}"
+
 mkdir -p ~/.ivy2
 
 STR=$'host=central.sonatype.com
@@ -76,10 +96,9 @@ else
    echo "[INFO] Using system installed sbt."
 fi
 which sbt
+# Safe: the release tag was already checked out above, so this evaluates the
+# verified tree (not the pre-checkout workspace HEAD).
 sbt version
-
-echo "[INFO] Checking out snowpark-java-scala @ tag: $github_version_tag."
-git checkout $github_version_tag
 
 # clean locally staged artifacts
 rm -rf ~/.ivy2/local/
