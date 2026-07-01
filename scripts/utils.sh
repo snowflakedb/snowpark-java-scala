@@ -8,32 +8,6 @@ cleanup() {
 
 trap cleanup SIGINT SIGTERM ERR EXIT
 
-build_and_use_latest_jdbc() {
-  git clone git@github.com:snowflakedb/snowflake-jdbc.git
-  cd snowflake-jdbc
-  echo '[INFO] Building jdbc ...'
-  ./mvnw clean verify >& jdbc.build.out
-  tail jdbc.build.out
-  ./mvnw org.apache.maven.plugins:maven-install-plugin:3.1.1:install-file -Dfile=target/snowflake-jdbc.jar -DpomFile=./public_pom.xml
-  cd ..
-  ls snowflake-jdbc/target/snowflake-jdbc*.jar
-  # snowflake-jdbc/target/snowflake-jdbc.jar is the compiled jar file
-  JDBC_SEMVER_PATTERN='val jdbcVersion = "([0-9]+\.[0-9]+\.[0-9]+)"'
-  if grep -E -q "$JDBC_SEMVER_PATTERN" build.sbt; then
-    # The sed command on mac is different, below is the command on mac
-    if [ "$(uname)" == 'Darwin' ]; then
-      sed -E -i '' "s/$JDBC_SEMVER_PATTERN/val jdbcVersion = \"1.0-SNAPSHOT\"/" build.sbt
-    else
-      sed -E -i "s/$JDBC_SEMVER_PATTERN/val jdbcVersion = \"1.0-SNAPSHOT\"/" build.sbt
-    fi
-  else
-    echo "[ERROR] Could not find JDBC version specification in build.sbt: $JDBC_SEMVER_PATTERN"
-    exit 1
-  fi
-  echo '[INFO] Replaced Maven library dependency in build.sbt with dependency on locally built jar.'
-  rm -rf snowflake-jdbc
-}
-
 decrypt_profile_properties_gpg() {
   # disable xtrace so GPG_KEY passphrase is not echoed to logs
   set +x
