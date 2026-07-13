@@ -7,6 +7,7 @@ import com.snowflake.snowpark.types.{
   ByteType,
   DataType,
   DateType,
+  DayTimeIntervalType,
   DecimalType,
   DoubleType,
   FloatType,
@@ -19,7 +20,8 @@ import com.snowflake.snowpark.types.{
   StringType,
   TimeType,
   TimestampType,
-  VariantType
+  VariantType,
+  YearMonthIntervalType
 }
 
 import java.util.Locale
@@ -154,6 +156,21 @@ private[snowpark] object DataTypeParser {
     "date" -> DateType,
     "time" -> TimeType,
     "timestamp" -> TimestampType,
+
+    // Interval types — all sub-qualifiers of each family map to the same SDK type
+    "interval day to second" -> DayTimeIntervalType,
+    "interval day to minute" -> DayTimeIntervalType,
+    "interval day to hour" -> DayTimeIntervalType,
+    "interval day" -> DayTimeIntervalType,
+    "interval hour to second" -> DayTimeIntervalType,
+    "interval hour to minute" -> DayTimeIntervalType,
+    "interval hour" -> DayTimeIntervalType,
+    "interval minute to second" -> DayTimeIntervalType,
+    "interval minute" -> DayTimeIntervalType,
+    "interval second" -> DayTimeIntervalType,
+    "interval year to month" -> YearMonthIntervalType,
+    "interval year" -> YearMonthIntervalType,
+    "interval month" -> YearMonthIntervalType,
 
     // Semi-structured types
     "variant" -> VariantType,

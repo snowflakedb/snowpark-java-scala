@@ -29,6 +29,8 @@ package object types {
       case GeographyType => "Geography"
       case GeometryType => "Geometry"
       case VariantType => "Variant"
+      case DayTimeIntervalType => classOf[java.time.Duration].getCanonicalName
+      case YearMonthIntervalType => classOf[java.time.Period].getCanonicalName
       // StructType is only used for defining schema
       // case StructType(_) => // Not Supported
       case _ =>
@@ -81,6 +83,8 @@ package object types {
       case VariantType => "VARIANT"
       case GeographyType => "GEOGRAPHY"
       case GeometryType => "GEOMETRY"
+      case DayTimeIntervalType => "INTERVAL DAY TO SECOND"
+      case YearMonthIntervalType => "INTERVAL YEAR TO MONTH"
       case StructType(_) => "OBJECT"
       case _ =>
         throw new UnsupportedOperationException(s"Unsupported data type: ${dataType.typeName}")
@@ -105,6 +109,8 @@ package object types {
       case "com.snowflake.snowpark_java.types.Variant" => VariantType
       case "java.lang.String[]" => ArrayType(StringType)
       case "com.snowflake.snowpark_java.types.Variant[]" => ArrayType(VariantType)
+      case "java.time.Duration" => DayTimeIntervalType
+      case "java.time.Period" => YearMonthIntervalType
       case "java.util.Map" => throw ErrorMessage.UDF_CANNOT_INFER_MAP_TYPES()
       case _ => throw new UnsupportedOperationException(s"Unsupported data type: $className")
     }

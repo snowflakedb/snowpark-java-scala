@@ -6,6 +6,7 @@ import com.snowflake.snowpark.types._
 import scala.reflect.runtime.universe.{MethodSymbol, Type, TypeTag, typeOf}
 import java.math.{BigDecimal => JavaBigDecimal}
 import java.sql.{Date, Time, Timestamp}
+import java.time.{Duration, Period}
 import java.lang.{
   Boolean => JavaBoolean,
   Byte => JavaByte,
@@ -87,6 +88,8 @@ object TypeToSchemaConverter {
       case t if t =:= typeOf[Date] => (DateType, true)
       case t if t =:= typeOf[Timestamp] => (TimestampType, true)
       case t if t =:= typeOf[Time] => (TimeType, true)
+      case t if t =:= typeOf[Duration] => (DayTimeIntervalType, true)
+      case t if t =:= typeOf[Period] => (YearMonthIntervalType, true)
       case t if t =:= typeOf[Boolean] => (BooleanType, false)
       case t if t =:= typeOf[JavaBoolean] => (BooleanType, true)
       case t if t =:= typeOf[Byte] => (ByteType, false)

@@ -116,6 +116,22 @@ public final class DataTypes {
   public static final VariantType VariantType = new VariantType();
 
   /**
+   * Retrieves the DayTimeIntervalType object. This maps to INTERVAL DAY TO SECOND in Snowflake.
+   * Java UDF/sproc handlers receive and return {@link java.time.Duration} for this type.
+   *
+   * @since 1.14.0
+   */
+  public static final DayTimeIntervalType DayTimeIntervalType = new DayTimeIntervalType();
+
+  /**
+   * Retrieves the YearMonthIntervalType object. This maps to INTERVAL YEAR TO MONTH in Snowflake.
+   * Java UDF/sproc handlers receive and return {@link java.time.Period} for this type.
+   *
+   * @since 1.14.0
+   */
+  public static final YearMonthIntervalType YearMonthIntervalType = new YearMonthIntervalType();
+
+  /**
    * Creates a new DecimalType object.
    *
    * @param precision An int number representing the precision
