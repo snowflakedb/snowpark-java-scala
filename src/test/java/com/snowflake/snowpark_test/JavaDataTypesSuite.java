@@ -42,6 +42,10 @@ public class JavaDataTypesSuite {
         .equals(com.snowflake.snowpark.types.TimeType$.MODULE$);
     assert JavaDataTypeUtils.javaTypeToScalaType(DataTypes.VariantType)
         .equals(com.snowflake.snowpark.types.VariantType$.MODULE$);
+    assert JavaDataTypeUtils.javaTypeToScalaType(DataTypes.DayTimeIntervalType)
+        .equals(com.snowflake.snowpark.types.DayTimeIntervalType$.MODULE$);
+    assert JavaDataTypeUtils.javaTypeToScalaType(DataTypes.YearMonthIntervalType)
+        .equals(com.snowflake.snowpark.types.YearMonthIntervalType$.MODULE$);
 
     assert JavaDataTypeUtils.javaTypeToScalaType(
             DataTypes.createDecimalType(DecimalType.MAX_PRECISION, DecimalType.MAX_SCALE))

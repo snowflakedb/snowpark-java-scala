@@ -8,6 +8,7 @@ import com.snowflake.snowpark.types.{
   ByteType,
   DataType,
   DateType,
+  DayTimeIntervalType,
   DecimalType,
   DoubleType,
   FloatType,
@@ -20,7 +21,8 @@ import com.snowflake.snowpark.types.{
   StringType,
   TimeType,
   TimestampType,
-  VariantType
+  VariantType,
+  YearMonthIntervalType
 }
 import com.snowflake.snowpark.internal.DataTypeParser.{
   EmptyInput,
@@ -82,7 +84,22 @@ class DataTypeParserSuite extends AnyFunSuite with TableDrivenPropertyChecks {
       ("object", MapType(StringType, VariantType)),
       ("boolean", BooleanType),
       ("geography", GeographyType),
-      ("geometry", GeometryType))
+      ("geometry", GeometryType),
+      // Interval types — all day-time sub-qualifiers
+      ("interval day to second", DayTimeIntervalType),
+      ("interval day to minute", DayTimeIntervalType),
+      ("interval day to hour", DayTimeIntervalType),
+      ("interval day", DayTimeIntervalType),
+      ("interval hour to second", DayTimeIntervalType),
+      ("interval hour to minute", DayTimeIntervalType),
+      ("interval hour", DayTimeIntervalType),
+      ("interval minute to second", DayTimeIntervalType),
+      ("interval minute", DayTimeIntervalType),
+      ("interval second", DayTimeIntervalType),
+      // Interval types — all year-month sub-qualifiers
+      ("interval year to month", YearMonthIntervalType),
+      ("interval year", YearMonthIntervalType),
+      ("interval month", YearMonthIntervalType))
 
     forAll(simpleTypes) { (input: String, expected: DataType) =>
       expectRight(input, expected)
