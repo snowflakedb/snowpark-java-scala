@@ -118,7 +118,8 @@ lazy val root = (project in file("."))
     homepage := Some(url("https://github.com/snowflakedb/snowpark-java-scala")),
     scalaVersion := sys.props.getOrElse("SCALA_VERSION", default = "2.12.20"),
     crossScalaVersions := Seq("2.12.20", "2.13.16"),
-    javacOptions ++= Seq("-source", "1.8", "-target", "1.8"),
+    // Compile to Java 8 bytecode so published artifacts run on JDK 8 through 21+.
+    javacOptions ++= Seq("--release", "8"),
     libraryDependencies ++= Seq(
       "com.fasterxml.jackson.core" % "jackson-databind" % jacksonVersion,
       "com.fasterxml.jackson.core" % "jackson-core" % jacksonVersion,

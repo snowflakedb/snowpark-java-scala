@@ -2798,7 +2798,7 @@ trait UDFSuite extends TestData {
 
 @UDFTest
 class AlwaysCleanUDFSuite extends UDFSuite with AlwaysCleanSession {
-  // todo: closure cleaner doesn't work with Java 17, fix in SNOW-991144
+  // todo: closure cleaner doesn't work with Java 17 and later (e.g. 21), fix in SNOW-991144
   ignore("Test with closure cleaner enabled") {
     val myDf = session.sql("select 'Raymond' NAME")
     val readFileUdf = udf(TestClassWithoutFieldAccess.run)
