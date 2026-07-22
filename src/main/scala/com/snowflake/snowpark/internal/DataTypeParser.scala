@@ -171,6 +171,12 @@ private[snowpark] object DataTypeParser {
     "interval year to month" -> YearMonthIntervalType,
     "interval year" -> YearMonthIntervalType,
     "interval month" -> YearMonthIntervalType,
+    // typeName round-trip aliases
+    "daytimeinterval" -> DayTimeIntervalType,
+    "yearmonthinterval" -> YearMonthIntervalType,
+    // JDBC column type names
+    "interval_day_time" -> DayTimeIntervalType,
+    "interval_year_month" -> YearMonthIntervalType,
 
     // Semi-structured types
     "variant" -> VariantType,

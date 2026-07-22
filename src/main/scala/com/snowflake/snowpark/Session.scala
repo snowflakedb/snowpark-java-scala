@@ -3,6 +3,7 @@ package com.snowflake.snowpark
 import java.io.{File, FileInputStream, FileNotFoundException}
 import java.net.URI
 import java.sql.{Connection, Date, Time, Timestamp}
+import java.time.{Duration, Period}
 import java.util.{Properties, Map => JMap, Set => JSet}
 import java.util.concurrent.{ConcurrentHashMap, ForkJoinPool, ForkJoinWorkerThread}
 import com.snowflake.snowpark.internal.analyzer._
@@ -844,7 +845,7 @@ class Session private (private[snowpark] val conn: ServerConnection) extends Log
       {
         val sfType = field.dataType match {
           case _ @(VariantType | _: ArrayType | _: MapType | GeographyType | GeometryType |
-              TimeType | DateType | TimestampType) =>
+              TimeType | DateType | TimestampType | DayTimeIntervalType | YearMonthIntervalType) =>
             StringType
           case other => other
         }
@@ -871,6 +872,8 @@ class Session private (private[snowpark] val conn: ServerConnection) extends Log
         case (value: Time, TimeType) => value.toString
         case (value: Date, DateType) => value.toString
         case (value: Timestamp, TimestampType) => value.toString
+        case (value: Duration, DayTimeIntervalType) => DataTypeMapper.formatDuration(value)
+        case (value: Period, YearMonthIntervalType) => DataTypeMapper.formatPeriod(value)
         case (value, _: AtomicType) => value
         case (value: Variant, VariantType) => value.asJsonString()
         case (value: Geography, GeographyType) => value.asGeoJSON()
@@ -893,6 +896,8 @@ class Session private (private[snowpark] val conn: ServerConnection) extends Log
         case TimeType => callUDF("to_time", column(field.name)).as(field.name)
         case DateType => callUDF("to_date", column(field.name)).as(field.name)
         case TimestampType => callUDF("to_timestamp", column(field.name)).as(field.name)
+        case DayTimeIntervalType => column(field.name).cast(DayTimeIntervalType).as(field.name)
+        case YearMonthIntervalType => column(field.name).cast(YearMonthIntervalType).as(field.name)
         case VariantType => to_variant(parse_json(column(field.name))).as(field.name)
         case GeographyType => callUDF("to_geography", column(field.name)).as(field.name)
         case GeometryType => callUDF("to_geometry", column(field.name)).as(field.name)

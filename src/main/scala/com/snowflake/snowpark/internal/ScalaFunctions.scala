@@ -51,6 +51,8 @@ object ScalaFunctions {
     case t if t =:= typeOf[java.sql.Date] => true
     case t if t =:= typeOf[java.sql.Time] => true
     case t if t =:= typeOf[java.sql.Timestamp] => true
+    case t if t =:= typeOf[java.time.Duration] => true
+    case t if t =:= typeOf[java.time.Period] => true
     case t if t =:= typeOf[Array[Byte]] => true
     case t if t =:= typeOf[Array[String]] => true
     case t if t =:= typeOf[Array[Variant]] => true

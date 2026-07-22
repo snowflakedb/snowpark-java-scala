@@ -99,7 +99,12 @@ class DataTypeParserSuite extends AnyFunSuite with TableDrivenPropertyChecks {
       // Interval types — all year-month sub-qualifiers
       ("interval year to month", YearMonthIntervalType),
       ("interval year", YearMonthIntervalType),
-      ("interval month", YearMonthIntervalType))
+      ("interval month", YearMonthIntervalType),
+      // typeName / JDBC aliases
+      ("DayTimeInterval", DayTimeIntervalType),
+      ("YearMonthInterval", YearMonthIntervalType),
+      ("INTERVAL_DAY_TIME", DayTimeIntervalType),
+      ("INTERVAL_YEAR_MONTH", YearMonthIntervalType))
 
     forAll(simpleTypes) { (input: String, expected: DataType) =>
       expectRight(input, expected)

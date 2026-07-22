@@ -118,6 +118,12 @@ public class JavaDataTypesSuite {
         .equals(DataTypes.TimeType);
     assert JavaDataTypeUtils.scalaTypeToJavaType(com.snowflake.snowpark.types.VariantType$.MODULE$)
         .equals(DataTypes.VariantType);
+    assert JavaDataTypeUtils.scalaTypeToJavaType(
+            com.snowflake.snowpark.types.DayTimeIntervalType$.MODULE$)
+        .equals(DataTypes.DayTimeIntervalType);
+    assert JavaDataTypeUtils.scalaTypeToJavaType(
+            com.snowflake.snowpark.types.YearMonthIntervalType$.MODULE$)
+        .equals(DataTypes.YearMonthIntervalType);
 
     assert JavaDataTypeUtils.scalaTypeToJavaType(
             new com.snowflake.snowpark.types.DecimalType(38, 38))
@@ -170,6 +176,8 @@ public class JavaDataTypesSuite {
     assert DataTypes.TimestampType.typeName().equals("TimestampType");
     assert DataTypes.TimeType.typeName().equals("TimeType");
     assert DataTypes.VariantType.typeName().equals("VariantType");
+    assert DataTypes.DayTimeIntervalType.typeName().equals("DayTimeIntervalType");
+    assert DataTypes.YearMonthIntervalType.typeName().equals("YearMonthIntervalType");
     assert DataTypes.createArrayType(DataTypes.IntegerType).typeName().equals("ArrayType");
     assert DataTypes.createMapType(DataTypes.StringType, DataTypes.DoubleType)
         .typeName()
@@ -193,6 +201,10 @@ public class JavaDataTypesSuite {
     assert DataTypes.TimestampType.typeName().equals(DataTypes.TimestampType.toString());
     assert DataTypes.TimeType.typeName().equals(DataTypes.TimeType.toString());
     assert DataTypes.VariantType.typeName().equals(DataTypes.VariantType.toString());
+    assert DataTypes.DayTimeIntervalType.typeName()
+        .equals(DataTypes.DayTimeIntervalType.toString());
+    assert DataTypes.YearMonthIntervalType.typeName()
+        .equals(DataTypes.YearMonthIntervalType.toString());
     assert DataTypes.createDecimalType(20, 10).toString().equals("Decimal(20, 10)");
     assert DataTypes.createArrayType(DataTypes.IntegerType)
         .toString()
