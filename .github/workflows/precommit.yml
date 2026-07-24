@@ -30,6 +30,25 @@ jobs:
       - name: Build and Check Format
         run: scripts/format_checker.sh ${{ matrix.scala }}
 
+  # Smoke-test that the library and tests compile on JDK 21.
+  test-compile-jdk21:
+    name: Compile on JDK 21 - Scala ${{ matrix.scala }}
+    runs-on: ubuntu-22.04
+    strategy:
+      matrix:
+        scala: [ 2.12.20, 2.13.16 ]
+      fail-fast: false
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Setup JDK
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 21
+      - name: Compile
+        run: sbt "++ ${{ matrix.scala }} compile" "++ ${{ matrix.scala }} Test/compile"
+
   # Ensures Snowpark Scala and Java clients share the same APIs.
   test-code-verification:
     name: Code Verification Tests - Scala ${{ matrix.scala }}
@@ -209,7 +228,7 @@ jobs:
     runs-on: ubuntu-22.04
     strategy:
       matrix:
-        java: [ 11, 17 ]
+        java: [ 11, 17, 21 ]
         scala: [ 2.12.20, 2.13.16 ]
       fail-fast: false
     steps:
@@ -238,7 +257,7 @@ jobs:
     runs-on: ubuntu-22.04
     strategy:
       matrix:
-        java: [ 11, 17 ]
+        java: [ 11, 17, 21 ]
         scala: [ 2.12.20, 2.13.16 ]
       fail-fast: false
     steps:

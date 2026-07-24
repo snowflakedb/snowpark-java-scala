@@ -38,6 +38,19 @@ object UDXRegistrationHandler {
   val methodName = "compute"
   val udtfClassName = s"SnowparkGeneratedUDTF_${Utils.ScalaUDxFSprocVersionSuffix}"
   val udafClassName = s"SnowparkGeneratedUDAF_${Utils.ScalaUDxFSprocVersionSuffix}"
+
+  // Maps the local JVM version to the RUNTIME_VERSION clause used when creating
+  // Java UDFs/UDTFs/UDAFs/Sprocs, so server-side objects run on a JDK matching the
+  // client. Versions without an explicit mapping fall back to the server default
+  // (currently Java 11) by returning an empty string.
+  private[snowpark] def runtimeVersionFor(javaVersion: String): String =
+    if (javaVersion.startsWith("21")) {
+      "runtime_version = '21'"
+    } else if (javaVersion.startsWith("17")) {
+      "runtime_version = '17'"
+    } else {
+      ""
+    }
 }
 
 class UDXRegistrationHandler(session: Session) extends Logging {
@@ -1481,14 +1494,5 @@ class UDXRegistrationHandler(session: Session) extends Logging {
     }
   }
 
-  private def getRuntimeVersion: String = {
-    val version = Utils.JavaVersion
-    if (version.startsWith("17")) {
-      "runtime_version = '17'"
-    } else {
-      // for any other version of JVM, let's use the default jvm, which is java 11.
-      // it is current behavior.
-      ""
-    }
-  }
+  private def getRuntimeVersion: String = runtimeVersionFor(Utils.JavaVersion)
 }

@@ -45,6 +45,21 @@ class UtilsSuite extends SNTestBase {
 
   }
 
+  test("runtimeVersionFor maps JVM version to RUNTIME_VERSION clause") {
+    import com.snowflake.snowpark.internal.UDXRegistrationHandler.runtimeVersionFor
+    // Java 17 and 21 have explicit server runtimes.
+    Seq("17", "17.0.12", "17.0.12+7").foreach { v =>
+      assert(runtimeVersionFor(v) == "runtime_version = '17'")
+    }
+    Seq("21", "21.0.4", "21.0.4+7").foreach { v =>
+      assert(runtimeVersionFor(v) == "runtime_version = '21'")
+    }
+    // Everything else falls back to the server default (empty clause).
+    Seq("1.8.0_292", "8", "11", "11.0.24", "25").foreach { v =>
+      assert(runtimeVersionFor(v) == "")
+    }
+  }
+
   test("Logging") {
     LoggingTester.test()
   }
