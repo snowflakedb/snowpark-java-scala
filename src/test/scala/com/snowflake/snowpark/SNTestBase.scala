@@ -89,9 +89,6 @@ trait SNTestBase extends AnyFunSuite with BeforeAndAfterAll with SFTestUtils wit
       .configFile(defaultProfile)
       .configs(configs.toMap)
       .create
-    runQuery(
-      "alter session set ENABLE_FIX_SNOW_3011194_SCALA_VERSIONED_HANDLER_NAMES=true",
-      session)
     session
   }
 
