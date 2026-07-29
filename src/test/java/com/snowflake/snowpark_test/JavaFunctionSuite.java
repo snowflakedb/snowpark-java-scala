@@ -9,6 +9,8 @@ import com.snowflake.snowpark_java.types.StructType;
 import java.sql.Date;
 import java.sql.Time;
 import java.sql.Timestamp;
+import java.time.Duration;
+import java.time.Period;
 import java.util.Arrays;
 import net.snowflake.client.jdbc.SnowflakeSQLException;
 import org.junit.Assert;
@@ -3627,6 +3629,27 @@ public class JavaFunctionSuite extends TestBase {
           checkAnswer(df.select(Functions.from_utc_timestamp(df.col("a"))), expected);
         },
         getSession());
+  }
+
+  @Test
+  public void litIntervalTypes() {
+    // Duration: INTERVAL '...' DAY TO SECOND round-trip
+    checkAnswer(
+        getSession().sql("SELECT 1").select(Functions.lit(Duration.ofDays(5))),
+        new Row[] {Row.create(Duration.ofDays(5))});
+    checkAnswer(
+        getSession()
+            .sql("SELECT 1")
+            .select(
+                Functions.lit(Duration.ofDays(2).plusHours(12).plusMinutes(30).plusSeconds(45))),
+        new Row[] {Row.create(Duration.ofDays(2).plusHours(12).plusMinutes(30).plusSeconds(45))});
+    // Period: INTERVAL '...' YEAR TO MONTH round-trip; ofMonths(14) normalizes to 1-2
+    checkAnswer(
+        getSession().sql("SELECT 1").select(Functions.lit(Period.of(1, 6, 0))),
+        new Row[] {Row.create(Period.of(1, 6, 0))});
+    checkAnswer(
+        getSession().sql("SELECT 1").select(Functions.lit(Period.ofMonths(14))),
+        new Row[] {Row.create(Period.of(1, 2, 0))});
   }
 
   @Test

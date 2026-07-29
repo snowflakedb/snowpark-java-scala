@@ -9,7 +9,6 @@ import java.time.{Duration, Period}
  * End-to-end UDF tests for native INTERVAL types.
  *
  * Prerequisites:
- *   - Account/session parameter ENABLE_INTERVAL_TYPES_IN_UDF = TRUE
  *   - JDBC 3.27.0+ (typed Duration/Period ResultSet reads)
  *
  * Mirrors snowpark-python tests/integ/test_interval_udf_e2e.py
@@ -17,18 +16,8 @@ import java.time.{Duration, Period}
 @UDFTest
 class IntervalUDFSuite extends TestData {
 
-  private def withIntervalUdfEnabled(body: => Unit): Unit = {
-    // ACCOUNT_LINEAGE | XP_WORKER — not session-settable. Temptest often requires a
-    // parameter_comment on ALTER ACCOUNT, so we require the flag already enabled.
-    val rows =
-      session.sql("SHOW PARAMETERS LIKE 'ENABLE_INTERVAL_TYPES_IN_UDF' IN ACCOUNT").collect()
-    val enabled = rows.exists(r => Option(r.getString(1)).exists(_.equalsIgnoreCase("true")))
-    assert(
-      enabled,
-      "ENABLE_INTERVAL_TYPES_IN_UDF must be TRUE at account level " +
-        "(ALTER ACCOUNT SET ... with a valid parameter_comment on temptest)")
-    body
-  }
+  private def withIntervalUdfEnabled(body: => Unit): Unit =
+    withSessionParameters(Seq(("ENABLE_INTERVAL_TYPES_IN_UDF", "true")), session)(body)
 
   override def beforeAll: Unit = {
     super.beforeAll()
