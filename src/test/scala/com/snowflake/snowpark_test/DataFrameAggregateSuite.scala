@@ -2,7 +2,7 @@ package com.snowflake.snowpark_test
 
 import com.snowflake.snowpark.functions._
 import com.snowflake.snowpark._
-import net.snowflake.client.jdbc.SnowflakeSQLException
+import net.snowflake.client.api.exception.SnowflakeSQLException
 
 import java.sql.ResultSet
 

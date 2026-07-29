@@ -5,7 +5,7 @@ import com.fasterxml.jackson.databind.node.ArrayNode
 import com.snowflake.snowpark._
 import com.snowflake.snowpark.functions._
 import com.snowflake.snowpark.types._
-import net.snowflake.client.jdbc.SnowflakeSQLException
+import net.snowflake.client.api.exception.SnowflakeSQLException
 
 import java.sql.{Date, Time, Timestamp}
 

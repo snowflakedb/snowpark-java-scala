@@ -2,7 +2,7 @@ package com.snowflake.snowpark.internal
 
 import com.snowflake.snowpark.SnowparkClientException
 import net.snowflake.client.jdbc.internal.fasterxml.jackson.databind.{JsonNode, ObjectMapper}
-import net.snowflake.client.jdbc.telemetry.TelemetryUtil
+import net.snowflake.client.internal.jdbc.telemetry.TelemetryUtil
 import Telemetry._
 
 final class Telemetry(conn: ServerConnection) extends Logging {
