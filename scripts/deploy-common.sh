@@ -54,8 +54,13 @@ fi
 # Fetch, verify, and check out the release tag BEFORE any release secrets are
 # loaded, so a malicious/poisoned build.sbt can never be evaluated while the
 # Sonatype credentials and GPG signing key are present in the environment.
-echo "[INFO] Fetching and verifying tag: $github_version_tag."
-git fetch --tags --force origin "refs/tags/${github_version_tag}:refs/tags/${github_version_tag}"
+# Fetch the tag from the canonical upstream by explicit URL rather than a named
+# remote: the Jenkins workspace does not reliably configure an "origin" remote,
+# and pinning the URL guarantees the tag comes from the known upstream repo
+# regardless of local remote configuration. Overridable via GITHUB_REPO_URL.
+GITHUB_REPO_URL="${GITHUB_REPO_URL:-https://github.com/snowflakedb/snowpark-java-scala.git}"
+echo "[INFO] Fetching and verifying tag: $github_version_tag from $GITHUB_REPO_URL."
+git fetch --tags --force "$GITHUB_REPO_URL" "refs/tags/${github_version_tag}:refs/tags/${github_version_tag}"
 if ! git rev-parse --verify --quiet "refs/tags/${github_version_tag}^{commit}" >/dev/null; then
   echo "[ERROR] tag refs/tags/${github_version_tag} not found"
   exit 1
