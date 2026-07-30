@@ -4,7 +4,7 @@ import com.snowflake.snowpark._
 import com.snowflake.snowpark.functions._
 import com.snowflake.snowpark.internal.analyzer.quoteName
 import com.snowflake.snowpark.types._
-import net.snowflake.client.jdbc.SnowflakeSQLException
+import net.snowflake.client.api.exception.SnowflakeSQLException
 
 import java.sql.{Date, Time}
 import scala.util.Random

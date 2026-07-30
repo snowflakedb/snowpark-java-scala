@@ -6,7 +6,7 @@ import com.snowflake.snowpark_java.*;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 import java.util.Optional;
-import net.snowflake.client.jdbc.SnowflakeSQLException;
+import net.snowflake.client.api.exception.SnowflakeSQLException;
 import org.junit.Test;
 
 public class JavaDataFrameSuite extends TestBase {

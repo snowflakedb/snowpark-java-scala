@@ -5,7 +5,7 @@ import com.snowflake.snowpark.functions._
 import com.snowflake.snowpark._
 import com.snowflake.snowpark.types._
 import com.snowflake.snowpark.udtf._
-import net.snowflake.client.jdbc.SnowflakeSQLException
+import net.snowflake.client.api.exception.SnowflakeSQLException
 
 import scala.collection.mutable
 

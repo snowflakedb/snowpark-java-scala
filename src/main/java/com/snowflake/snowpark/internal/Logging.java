@@ -2,7 +2,7 @@ package com.snowflake.snowpark.internal;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;
-import net.snowflake.client.util.SecretDetector;
+import net.snowflake.client.internal.util.SecretDetector;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

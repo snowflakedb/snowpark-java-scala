@@ -15,8 +15,8 @@ import com.snowflake.snowpark.internal.analyzer.{
   schemaValueStatement
 }
 import com.snowflake.snowpark.types._
-import net.snowflake.client.core.SFSessionProperty
-import net.snowflake.client.jdbc.SnowflakeSQLException
+import net.snowflake.client.internal.core.SFSessionProperty
+import net.snowflake.client.api.exception.SnowflakeSQLException
 
 import java.nio.file.Files
 import java.sql.{Date, Timestamp}

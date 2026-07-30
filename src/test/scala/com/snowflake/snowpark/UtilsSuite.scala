@@ -23,7 +23,7 @@ import java.lang.{
   Long => JavaLong,
   Short => JavaShort
 }
-import net.snowflake.client.jdbc.SnowflakeSQLException
+import net.snowflake.client.api.exception.SnowflakeSQLException
 
 import java.util
 import scala.collection.mutable.ArrayBuffer
@@ -584,12 +584,16 @@ class UtilsSuite extends SNTestBase {
 
   test("Utils.isRetryable") {
     // positive test
-    assert(Utils.isRetryable(new SnowflakeSQLException("JDBC driver internal error", "state_1")))
-    assert(Utils.isRetryable(new SnowflakeSQLException("JDBC driver internal error", "state_2")))
+    assert(
+      Utils.isRetryable(
+        new SnowflakeSQLException(null: String, "JDBC driver internal error", "state_1")))
+    assert(
+      Utils.isRetryable(
+        new SnowflakeSQLException(null: String, "JDBC driver internal error", "state_2")))
     // negative test
     assert(!Utils.isRetryable(new Exception("test error")))
     assert(!Utils.isRetryable(new Exception("JDBC driver internal error")))
-    assert(!Utils.isRetryable(new SnowflakeSQLException("test error", "state_1")))
+    assert(!Utils.isRetryable(new SnowflakeSQLException(null: String, "test error", "state_1")))
   }
 
   test("Utils.withRetry") {
@@ -600,7 +604,7 @@ class UtilsSuite extends SNTestBase {
     Utils.withRetry(3, "test_A") {
       result.append(1)
       if (result.size < 2) {
-        throw new SnowflakeSQLException("JDBC driver internal error", "state_1")
+        throw new SnowflakeSQLException(null: String, "JDBC driver internal error", "state_1")
       }
     }
     assert(result.size == 2)
@@ -610,7 +614,7 @@ class UtilsSuite extends SNTestBase {
     Utils.withRetry(4, "test_A") {
       result.append(1)
       if (result.size < 3) {
-        throw new SnowflakeSQLException("JDBC driver internal error", "state_1")
+        throw new SnowflakeSQLException(null: String, "JDBC driver internal error", "state_1")
       }
     }
     assert(result.size == 3)
@@ -620,7 +624,7 @@ class UtilsSuite extends SNTestBase {
     var ex = intercept[SnowflakeSQLException] {
       Utils.withRetry(3, "test_A") {
         result.append(1)
-        throw new SnowflakeSQLException("JDBC driver internal error", "state_1")
+        throw new SnowflakeSQLException(null: String, "JDBC driver internal error", "state_1")
       }
     }
     assert(ex.getMessage.contains("JDBC driver internal error"))
@@ -631,7 +635,7 @@ class UtilsSuite extends SNTestBase {
     ex = intercept[SnowflakeSQLException] {
       Utils.withRetry(3, "test_A") {
         result.append(1)
-        throw new SnowflakeSQLException("User error", "state_1")
+        throw new SnowflakeSQLException(null: String, "User error", "state_1")
       }
     }
     assert(ex.getMessage.contains("User error"))
