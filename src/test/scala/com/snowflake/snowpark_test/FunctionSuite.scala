@@ -32,6 +32,13 @@ trait FunctionSuite extends TestData {
         .sql("SELECT 1")
         .select(lit(Duration.ofDays(2).plusHours(12).plusMinutes(30).plusSeconds(45))),
       Seq(Row(Duration.ofDays(2).plusHours(12).plusMinutes(30).plusSeconds(45))))
+    // overflow: hours > 23 and minutes > 59 exercise the carry/remainder logic in formatDuration
+    checkAnswer(
+      session.sql("SELECT 1").select(lit(Duration.ofHours(25))),
+      Seq(Row(Duration.ofHours(25))))
+    checkAnswer(
+      session.sql("SELECT 1").select(lit(Duration.ofMinutes(90))),
+      Seq(Row(Duration.ofMinutes(90))))
     // Period: INTERVAL '...' YEAR TO MONTH round-trip; ofMonths(14) normalizes to 1-2
     checkAnswer(
       session.sql("SELECT 1").select(lit(Period.of(1, 6, 0))),

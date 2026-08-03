@@ -1172,7 +1172,15 @@ private[snowflake] class SnowflakeResultSetExt(data: SnowflakeResultSetV1) {
         }
       case "DOUBLE" | "BOOLEAN" | "BINARY" | "NUMBER" => value
       case "VARCHAR" | "VARIANT" => value.toString // Text to String
-      case "INTERVAL_DAY_TIME" | "INTERVAL_YEAR_MONTH" => value
+      case "INTERVAL_DAY_TIME" =>
+        val nanos = value.asInstanceOf[Long]
+        val sign = java.lang.Long.signum(nanos)
+        val abs = Math.abs(nanos)
+        val d = java.time.Duration.ofSeconds(abs / 1000000000L, abs % 1000000000L)
+        if (sign < 0) d.negated() else d
+      case "INTERVAL_YEAR_MONTH" =>
+        val months = value.asInstanceOf[Number].intValue()
+        java.time.Period.of(months / 12, months % 12, 0)
       case "DATE" =>
         arrowResultSet.convertToDate(value, null)
       case "TIME" =>

@@ -3643,6 +3643,13 @@ public class JavaFunctionSuite extends TestBase {
             .select(
                 Functions.lit(Duration.ofDays(2).plusHours(12).plusMinutes(30).plusSeconds(45))),
         new Row[] {Row.create(Duration.ofDays(2).plusHours(12).plusMinutes(30).plusSeconds(45))});
+    // overflow: hours > 23 and minutes > 59 exercise the carry/remainder logic in formatDuration
+    checkAnswer(
+        getSession().sql("SELECT 1").select(Functions.lit(Duration.ofHours(25))),
+        new Row[] {Row.create(Duration.ofHours(25))});
+    checkAnswer(
+        getSession().sql("SELECT 1").select(Functions.lit(Duration.ofMinutes(90))),
+        new Row[] {Row.create(Duration.ofMinutes(90))});
     // Period: INTERVAL '...' YEAR TO MONTH round-trip; ofMonths(14) normalizes to 1-2
     checkAnswer(
         getSession().sql("SELECT 1").select(Functions.lit(Period.of(1, 6, 0))),
