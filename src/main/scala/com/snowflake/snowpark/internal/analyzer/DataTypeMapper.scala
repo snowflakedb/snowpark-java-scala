@@ -172,22 +172,12 @@ object DataTypeMapper {
       }
     }
 
+  // Only called from toSqlAvoidOffset which guards on IntegralType, so interval types never reach
+  // this path. Interval literals go through toSql -> durationToSql / periodToSql instead.
   private[analyzer] def toSqlWithoutCast(value: Any, dataType: DataType): String =
     dataType match {
       case _ if value == null => "NULL"
       case StringType => s"""'$value'"""
-      case DayTimeIntervalType =>
-        value match {
-          case d: Duration => durationToSql(d)
-          case s: String => s
-          case other => other.toString
-        }
-      case YearMonthIntervalType =>
-        value match {
-          case p: Period => periodToSql(p)
-          case s: String => s
-          case other => other.toString
-        }
       case _ => value.toString
     }
 }

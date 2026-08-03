@@ -46,6 +46,13 @@ trait FunctionSuite extends TestData {
     checkAnswer(
       session.sql("SELECT 1").select(lit(Period.ofMonths(14))),
       Seq(Row(Period.of(1, 2, 0))))
+    // negative year-month
+    checkAnswer(
+      session.sql("SELECT 1").select(lit(Period.of(-1, -6, 0))),
+      Seq(Row(Period.of(-1, -6, 0))))
+    checkAnswer(
+      session.sql("SELECT 1").select(lit(Period.ofMonths(-14))),
+      Seq(Row(Period.of(-1, -2, 0))))
   }
 
   test("approx count distinct") {

@@ -3657,6 +3657,13 @@ public class JavaFunctionSuite extends TestBase {
     checkAnswer(
         getSession().sql("SELECT 1").select(Functions.lit(Period.ofMonths(14))),
         new Row[] {Row.create(Period.of(1, 2, 0))});
+    // negative year-month
+    checkAnswer(
+        getSession().sql("SELECT 1").select(Functions.lit(Period.of(-1, -6, 0))),
+        new Row[] {Row.create(Period.of(-1, -6, 0))});
+    checkAnswer(
+        getSession().sql("SELECT 1").select(Functions.lit(Period.ofMonths(-14))),
+        new Row[] {Row.create(Period.of(-1, -2, 0))});
   }
 
   @Test
