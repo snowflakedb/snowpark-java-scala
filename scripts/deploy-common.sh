@@ -105,24 +105,112 @@ which sbt
 # verified tree (not the pre-checkout workspace HEAD).
 sbt version
 
+# Absolute path to the verified release checkout; used to anchor sbt staging
+# paths so they cannot drift with the working directory.
+REPO_ROOT="$(git rev-parse --show-toplevel)"
+
 # clean locally staged artifacts
+#   ~/.ivy2/local       - used by the PUBLISH=false (S3) path below
+#   target/sona-staging - the Maven-layout tree that becomes the bundle
+#   target/sona-bundle  - the zip built from that tree (sbt sonaBundle)
+#
+# sbt 1.11's Central Portal support publishes into target/sona-staging
+# and `sonaRelease` zips that entire tree -- it never cleans it. deploy.sh
+# and deploy-fips.sh run back-to-back as two steps of one Jenkins freestyle
+# job (same workspace, no cleanup between them), so a dirty staging tree
+# from the previous step silently adds already-published coordinates to the
+# next bundle. Central rejects the deployment as a unit, discarding the FIPS
+# artifacts along with it. The globs also cover any variant-scoped
+# directories added by a future build.sbt stagingDirectory override.
 rm -rf ~/.ivy2/local/
+rm -rf "$REPO_ROOT"/target/sona-staging* "$REPO_ROOT"/target/sona-bundle*
+
+# ---------------------------------------------------------------------------
+# central_pom_status <artifact_id> <version>
+#
+# Echoes the HTTP status of the released .pom for one fully-qualified
+# artifactId on Maven Central. "000" means the request itself failed.
+# ---------------------------------------------------------------------------
+central_pom_status() {
+  local artifact_id="$1"  # e.g. snowpark-fips_2.12
+  local version="$2"      # e.g. 1.21.0, no leading "v"
+  local url="https://repo1.maven.org/maven2/com/snowflake/${artifact_id}/${version}/${artifact_id}-${version}.pom"
+  local code
+  code="$(curl -sS -I --max-time 30 --retry 3 --retry-delay 5 \
+            -o /dev/null -w '%{http_code}' "$url" 2>/dev/null)" || code=000
+  echo "${code:-000}"
+}
+
+# ---------------------------------------------------------------------------
+# maven_central_has_release <artifact_base> <version>
+#
+#   returns 0 -> variant is already live on Maven Central; caller must skip
+#   returns 1 -> coordinates are free; caller must publish
+#   exits   1 -> indeterminate; a human has to look
+#
+# The two Scala cross-versions ship in one Central deployment and are accepted
+# or rejected atomically, so _2.12 alone is decisive. _2.13 is probed only to
+# detect a partial publish (which re-running will never fix).
+# ---------------------------------------------------------------------------
+maven_central_has_release() {
+  local artifact_base="$1"  # "snowpark" or "snowpark-fips"
+  local version="$2"        # e.g. 1.21.0, no leading "v"
+  local code_212 code_213
+
+  code_212="$(central_pom_status "${artifact_base}_2.12" "$version")"
+  case "$code_212" in
+    200|404) ;;
+    *)
+      echo "[ERROR] Could not determine whether ${artifact_base}_2.12:${version} is"
+      echo "[ERROR] already on Maven Central (HTTP $code_212)."
+      echo "[ERROR] Refusing to guess: publishing over a live coordinate is a hard"
+      echo "[ERROR] failure, and skipping a real release would ship nothing."
+      echo "[ERROR] Re-run the build once repo1.maven.org is reachable."
+      exit 1
+      ;;
+  esac
+
+  code_213="$(central_pom_status "${artifact_base}_2.13" "$version")"
+  if [ "$code_212" != "$code_213" ]; then
+    echo "[ERROR] ${artifact_base}_2.12:${version} -> HTTP $code_212 but"
+    echo "[ERROR] ${artifact_base}_2.13:${version} -> HTTP $code_213."
+    echo "[ERROR] The Scala cross-versions are published atomically, so this is a"
+    echo "[ERROR] partial publish. Inspect the deployment history at"
+    echo "[ERROR] https://central.sonatype.com/publishing/deployments before retrying."
+    exit 1
+  fi
+
+  [ "$code_212" = 200 ]
+}
+
+if [ "$SNOWPARK_FIPS" = true ]; then
+  ARTIFACT_BASE="snowpark-fips"
+else
+  ARTIFACT_BASE="snowpark"
+fi
+RELEASE_VERSION="${github_version_tag#v}"
 
 if [ "$PUBLISH" = true ]; then
-  if [ "$SNOWPARK_FIPS" = true ]; then
-    echo "[INFO] Packaging snowpark-fips @ tag: $github_version_tag."
-  else
-    echo "[INFO] Packaging snowpark @ tag: $github_version_tag."
+  # Idempotency guard. Maven Central coordinates are immutable, so a variant
+  # that is already released must not be uploaded again. Skipping (rather than
+  # failing) is what makes re-runs and the 1.19.0-1.21.0 FIPS backfill work
+  # through the ordinary job: deploy.sh declines, deploy-fips.sh publishes.
+  if maven_central_has_release "$ARTIFACT_BASE" "$RELEASE_VERSION"; then
+    echo "[INFO] ${ARTIFACT_BASE}_2.12:${RELEASE_VERSION} and ${ARTIFACT_BASE}_2.13:${RELEASE_VERSION}"
+    echo "[INFO] are already published on Maven Central. Published coordinates are"
+    echo "[INFO] immutable, so there is nothing to do."
+    echo "[SUCCESS] Skipped $ARTIFACT_BASE @ $github_version_tag (already released)."
+    exit 0
   fi
+
+  echo "[INFO] Packaging $ARTIFACT_BASE @ tag: $github_version_tag."
   sbt +publishSigned
   echo "[INFO] Staged packaged artifacts locally with PGP signing."
-  sbt sonaUpload
-  echo "[INFO] Uploaded artifacts to sonatype central portal."
   sbt sonaRelease
   if [ "$SNOWPARK_FIPS" = true ]; then
-    echo "[SUCCESS] Released snowpark-fips_2.12-$github_version_tag and snowpark-fips_2.13-$github_version_tag to Maven Central"
+    echo "[SUCCESS] Released snowpark-fips_2.12-${RELEASE_VERSION} and snowpark-fips_2.13-${RELEASE_VERSION} to Maven Central."
   else
-    echo "[SUCCESS] Released snowpark_2.12-$github_version_tag and snowpark_2.13-$github_version_tag to Maven Central."
+    echo "[SUCCESS] Released snowpark_2.12-${RELEASE_VERSION} and snowpark_2.13-${RELEASE_VERSION} to Maven Central."
   fi
 else
   #release to s3
