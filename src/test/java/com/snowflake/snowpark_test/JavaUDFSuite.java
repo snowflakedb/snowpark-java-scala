@@ -215,42 +215,26 @@ public class JavaUDFSuite extends UDFTestBase {
 
   @Test
   public void udfOfDuration() {
-    withIntervalUdfEnabled(
-        () -> {
-          DataFrame df = getSession().sql("SELECT INTERVAL '5' DAY AS d");
-          UserDefinedFunction udf =
-              Functions.udf(
-                  (java.time.Duration d) -> d.plusDays(1),
-                  DataTypes.DayTimeIntervalType,
-                  DataTypes.DayTimeIntervalType);
-          checkAnswer(
-              df.select(udf.apply(df.col("d"))),
-              new Row[] {Row.create(java.time.Duration.ofDays(6))});
-        });
+    DataFrame df = getSession().sql("SELECT INTERVAL '5' DAY AS d");
+    UserDefinedFunction udf =
+        Functions.udf(
+            (java.time.Duration d) -> d.plusDays(1),
+            DataTypes.DayTimeIntervalType,
+            DataTypes.DayTimeIntervalType);
+    checkAnswer(
+        df.select(udf.apply(df.col("d"))), new Row[] {Row.create(java.time.Duration.ofDays(6))});
   }
 
   @Test
   public void udfOfPeriod() {
-    withIntervalUdfEnabled(
-        () -> {
-          DataFrame df = getSession().sql("SELECT INTERVAL '1-2' YEAR TO MONTH AS m");
-          UserDefinedFunction udf =
-              Functions.udf(
-                  (java.time.Period p) -> p.plusYears(1),
-                  DataTypes.YearMonthIntervalType,
-                  DataTypes.YearMonthIntervalType);
-          checkAnswer(
-              df.select(udf.apply(df.col("m"))),
-              new Row[] {Row.create(java.time.Period.of(2, 2, 0))});
-        });
-  }
-
-  private void withIntervalUdfEnabled(Runnable body) {
-    getSession().sql("alter session set ENABLE_INTERVAL_TYPES_IN_UDF = true").collect();
-    try {
-      body.run();
-    } finally {
-      getSession().sql("alter session unset ENABLE_INTERVAL_TYPES_IN_UDF").collect();
-    }
+    DataFrame df = getSession().sql("SELECT INTERVAL '1-2' YEAR TO MONTH AS m");
+    UserDefinedFunction udf =
+        Functions.udf(
+            (java.time.Period p) -> p.plusYears(1),
+            DataTypes.YearMonthIntervalType,
+            DataTypes.YearMonthIntervalType);
+    checkAnswer(
+        df.select(udf.apply(df.col("m"))),
+        new Row[] {Row.create(java.time.Period.of(2, 2, 0))});
   }
 }
