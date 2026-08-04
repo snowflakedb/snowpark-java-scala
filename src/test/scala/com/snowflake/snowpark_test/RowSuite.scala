@@ -4,7 +4,7 @@ import com.snowflake.snowpark.types._
 import com.snowflake.snowpark.{Row, SNTestBase, SnowparkClientException}
 
 import java.sql.{Date, Time, Timestamp}
-import java.time.{Instant, LocalDate}
+import java.time.{Duration, Instant, LocalDate, Period}
 import java.util
 
 class RowSuite extends SNTestBase {
@@ -383,6 +383,22 @@ class RowSuite extends SNTestBase {
         val array4 = row.getAs[Array[Object]](3)
         assert(array4 sameElements Array("[\n  1,\n  2\n]"))
       }
+    }
+  }
+
+  test("getAs with structured interval fields") {
+    structuredTypeTest {
+      val query =
+        """SELECT
+          |  [INTERVAL '5' DAY]::ARRAY(INTERVAL DAY TO SECOND) AS arr,
+          |  {'m': INTERVAL '1-2' YEAR TO MONTH}::MAP(VARCHAR, INTERVAL YEAR TO MONTH) AS mp
+          |""".stripMargin
+      val df = session.sql(query)
+      val row = df.collect()(0)
+      val arr = row.getAs[Array[Object]](0)
+      assert(arr(0) == Duration.ofDays(5))
+      val mp = row.getAs[Map[String, Object]](1)
+      assert(mp("m") == Period.of(1, 2, 0))
     }
   }
 

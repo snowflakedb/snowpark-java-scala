@@ -234,7 +234,6 @@ public class JavaUDFSuite extends UDFTestBase {
             DataTypes.YearMonthIntervalType,
             DataTypes.YearMonthIntervalType);
     checkAnswer(
-        df.select(udf.apply(df.col("m"))),
-        new Row[] {Row.create(java.time.Period.of(2, 2, 0))});
+        df.select(udf.apply(df.col("m"))), new Row[] {Row.create(java.time.Period.of(2, 2, 0))});
   }
 }
