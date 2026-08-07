@@ -212,4 +212,28 @@ public class JavaUDFSuite extends UDFTestBase {
     Row[] result = {Row.create(100), Row.create((Object) null), Row.create(9)};
     checkAnswer(df.select(udf.apply(df.col("col1"), df.col("col2"))), result);
   }
+
+  @Test
+  public void udfOfDuration() {
+    DataFrame df = getSession().sql("SELECT INTERVAL '5' DAY AS d");
+    UserDefinedFunction udf =
+        Functions.udf(
+            (java.time.Duration d) -> d.plusDays(1),
+            DataTypes.DayTimeIntervalType,
+            DataTypes.DayTimeIntervalType);
+    checkAnswer(
+        df.select(udf.apply(df.col("d"))), new Row[] {Row.create(java.time.Duration.ofDays(6))});
+  }
+
+  @Test
+  public void udfOfPeriod() {
+    DataFrame df = getSession().sql("SELECT INTERVAL '1-2' YEAR TO MONTH AS m");
+    UserDefinedFunction udf =
+        Functions.udf(
+            (java.time.Period p) -> p.plusYears(1),
+            DataTypes.YearMonthIntervalType,
+            DataTypes.YearMonthIntervalType);
+    checkAnswer(
+        df.select(udf.apply(df.col("m"))), new Row[] {Row.create(java.time.Period.of(2, 2, 0))});
+  }
 }

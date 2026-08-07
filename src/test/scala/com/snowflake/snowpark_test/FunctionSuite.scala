@@ -8,6 +8,7 @@ import com.snowflake.snowpark.types._
 import net.snowflake.client.jdbc.SnowflakeSQLException
 
 import java.sql.{Date, Time, Timestamp}
+import java.time.{Duration, Period}
 
 trait FunctionSuite extends TestData {
   import session.implicits._
@@ -19,6 +20,39 @@ trait FunctionSuite extends TestData {
 
   test("lit") {
     checkAnswer(testData1.select(lit(1)), Seq(Row(1), Row(1)))
+  }
+
+  test("lit - interval types") {
+    // Duration: INTERVAL '...' DAY TO SECOND round-trip
+    checkAnswer(
+      session.sql("SELECT 1").select(lit(Duration.ofDays(5))),
+      Seq(Row(Duration.ofDays(5))))
+    checkAnswer(
+      session
+        .sql("SELECT 1")
+        .select(lit(Duration.ofDays(2).plusHours(12).plusMinutes(30).plusSeconds(45))),
+      Seq(Row(Duration.ofDays(2).plusHours(12).plusMinutes(30).plusSeconds(45))))
+    // overflow: hours > 23 and minutes > 59 exercise the carry/remainder logic in formatDuration
+    checkAnswer(
+      session.sql("SELECT 1").select(lit(Duration.ofHours(25))),
+      Seq(Row(Duration.ofHours(25))))
+    checkAnswer(
+      session.sql("SELECT 1").select(lit(Duration.ofMinutes(90))),
+      Seq(Row(Duration.ofMinutes(90))))
+    // Period: INTERVAL '...' YEAR TO MONTH round-trip; ofMonths(14) normalizes to 1-2
+    checkAnswer(
+      session.sql("SELECT 1").select(lit(Period.of(1, 6, 0))),
+      Seq(Row(Period.of(1, 6, 0))))
+    checkAnswer(
+      session.sql("SELECT 1").select(lit(Period.ofMonths(14))),
+      Seq(Row(Period.of(1, 2, 0))))
+    // negative year-month
+    checkAnswer(
+      session.sql("SELECT 1").select(lit(Period.of(-1, -6, 0))),
+      Seq(Row(Period.of(-1, -6, 0))))
+    checkAnswer(
+      session.sql("SELECT 1").select(lit(Period.ofMonths(-14))),
+      Seq(Row(Period.of(-1, -2, 0))))
   }
 
   test("approx count distinct") {

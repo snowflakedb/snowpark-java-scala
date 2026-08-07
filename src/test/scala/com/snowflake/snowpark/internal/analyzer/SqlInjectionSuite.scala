@@ -417,4 +417,56 @@ class SqlInjectionSuite extends AnyFunSuite {
     assert(DataTypeMapper.toSql(-1, Some(IntegerType)) == "-1 :: int")
     assert(DataTypeMapper.toSql(Int.MaxValue, Some(IntegerType)) == s"${Int.MaxValue} :: int")
   }
+
+  test("toSql renders Duration as INTERVAL DAY TO SECOND") {
+    import java.time.Duration
+    import com.snowflake.snowpark.types.DayTimeIntervalType
+    assert(
+      DataTypeMapper.toSql(Duration.ofDays(5), Some(DayTimeIntervalType)) ==
+        "INTERVAL '5 00:00:00.000000000' DAY TO SECOND")
+    assert(
+      DataTypeMapper.toSql(Duration.ofDays(2).plusHours(12), Some(DayTimeIntervalType)) ==
+        "INTERVAL '2 12:00:00.000000000' DAY TO SECOND")
+    assert(
+      DataTypeMapper.toSql(Duration.ofDays(-3), Some(DayTimeIntervalType)) ==
+        "INTERVAL '-3 00:00:00.000000000' DAY TO SECOND")
+    assert(
+      DataTypeMapper.toSql(null, Some(DayTimeIntervalType)) == "NULL :: INTERVAL DAY TO SECOND")
+  }
+
+  test("toSql renders Period as INTERVAL YEAR TO MONTH") {
+    import java.time.Period
+    import com.snowflake.snowpark.types.YearMonthIntervalType
+    assert(
+      DataTypeMapper.toSql(Period.of(1, 2, 0), Some(YearMonthIntervalType)) ==
+        "INTERVAL '1-2' YEAR TO MONTH")
+    assert(
+      DataTypeMapper.toSql(Period.ofMonths(14), Some(YearMonthIntervalType)) ==
+        "INTERVAL '1-2' YEAR TO MONTH")
+    assert(
+      DataTypeMapper.toSql(Period.of(0, -3, 0), Some(YearMonthIntervalType)) ==
+        "INTERVAL '-0-3' YEAR TO MONTH")
+    assert(
+      DataTypeMapper.toSql(null, Some(YearMonthIntervalType)) ==
+        "NULL :: INTERVAL YEAR TO MONTH")
+    intercept[UnsupportedOperationException] {
+      DataTypeMapper.toSql(Period.of(1, 0, 5), Some(YearMonthIntervalType))
+    }
+  }
+
+  test("schemaExpression for interval types") {
+    import com.snowflake.snowpark.types.{DayTimeIntervalType, YearMonthIntervalType}
+    assert(
+      DataTypeMapper.schemaExpression(DayTimeIntervalType, isNullable = true) ==
+        "NULL :: INTERVAL DAY TO SECOND")
+    assert(
+      DataTypeMapper.schemaExpression(YearMonthIntervalType, isNullable = true) ==
+        "NULL :: INTERVAL YEAR TO MONTH")
+    assert(
+      DataTypeMapper.schemaExpression(DayTimeIntervalType, isNullable = false) ==
+        "INTERVAL '1 01:01:01.0001' DAY TO SECOND")
+    assert(
+      DataTypeMapper.schemaExpression(YearMonthIntervalType, isNullable = false) ==
+        "INTERVAL '1-0' YEAR TO MONTH")
+  }
 }

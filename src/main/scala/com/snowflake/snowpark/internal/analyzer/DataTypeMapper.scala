@@ -2,6 +2,7 @@ package com.snowflake.snowpark.internal.analyzer
 import com.snowflake.snowpark.internal.Utils
 
 import java.sql.{Date, Timestamp}
+import java.time.{Duration, Period}
 import java.util.TimeZone
 import java.math.{BigDecimal => JBigDecimal}
 
@@ -21,6 +22,55 @@ object DataTypeMapper {
       .replaceAll("\\\\", "\\\\\\\\")
       .replaceAll("'", "''")
       .replaceAll("\n", "\\\\n") + "'"
+
+  /**
+   * Format a [[Duration]] as a Snowflake day-time interval string (without the INTERVAL keyword),
+   * suitable for CAST(... AS INTERVAL DAY TO SECOND).
+   *
+   * Uses explicit day/h/m/s/nano breakdown because the library still targets Java 8
+   * ([[Duration.toHoursPart]] and related APIs are Java 9+).
+   */
+  private[snowpark] def formatDuration(duration: Duration): String = {
+    val negative = duration.isNegative
+    val abs = duration.abs()
+    val days = abs.toDays
+    val remSeconds = abs.minusDays(days).getSeconds
+    val hours = remSeconds / 3600
+    val minutes = (remSeconds % 3600) / 60
+    val seconds = remSeconds % 60
+    val nanos = abs.getNano
+    val sign = if (negative) "-" else ""
+    f"$sign$days $hours%02d:$minutes%02d:$seconds%02d.$nanos%09d"
+  }
+
+  /**
+   * Convert a [[Duration]] to a Snowflake INTERVAL DAY TO SECOND SQL literal.
+   */
+  private[analyzer] def durationToSql(duration: Duration): String =
+    s"INTERVAL '${formatDuration(duration)}' DAY TO SECOND"
+
+  /**
+   * Format a [[Period]] as a Snowflake year-month interval string (without the INTERVAL keyword).
+   * Days must be zero — year-month intervals do not carry a day component.
+   */
+  private[snowpark] def formatPeriod(period: Period): String = {
+    if (period.getDays != 0) {
+      throw new UnsupportedOperationException(
+        s"Year-month interval Period must have days=0, got: $period")
+    }
+    // normalized() folds months into years (|months| < 12) with a consistent sign.
+    val normalized = period.normalized()
+    val negative = normalized.isNegative
+    val abs = if (negative) normalized.negated() else normalized
+    val sign = if (negative) "-" else ""
+    s"$sign${abs.getYears}-${abs.getMonths}"
+  }
+
+  /**
+   * Convert a [[Period]] to a Snowflake INTERVAL YEAR TO MONTH SQL literal.
+   */
+  private[analyzer] def periodToSql(period: Period): String =
+    s"INTERVAL '${formatPeriod(period)}' YEAR TO MONTH"
 
   /*
    * Convert a value with DataType to a snowflake compatible sql
@@ -42,6 +92,8 @@ object DataTypeMapper {
           case (_, DoubleType) if value == null => "NULL :: double"
           case (_, BooleanType) if value == null => "NULL :: boolean"
           case (_, BinaryType) if value == null => "NULL :: binary"
+          case (_, DayTimeIntervalType) if value == null => "NULL :: INTERVAL DAY TO SECOND"
+          case (_, YearMonthIntervalType) if value == null => "NULL :: INTERVAL YEAR TO MONTH"
           case _ if value == null => "NULL"
           case (v: String, StringType) => stringToSql(v)
           case (v: Byte, ByteType) => v + s" :: tinyint"
@@ -78,6 +130,12 @@ object DataTypeMapper {
                 .format(new Timestamp(v / MICROS_PER_MILLIS), TimeZone.getDefault, 3)}'"
           case (v: Array[Byte], BinaryType) =>
             s"'${DatatypeConverter.printHexBinary(v)}' :: binary"
+          case (v: Duration, DayTimeIntervalType) => durationToSql(v)
+          case (v: Period, YearMonthIntervalType) => periodToSql(v)
+          case (v: String, DayTimeIntervalType) =>
+            s"${stringToSql(v)} :: INTERVAL DAY TO SECOND"
+          case (v: String, YearMonthIntervalType) =>
+            s"${stringToSql(v)} :: INTERVAL YEAR TO MONTH"
           case _ =>
             throw new UnsupportedOperationException(
               s"Unsupported datatype by ToSql: ${value.getClass.getName} => $dataType")
@@ -102,6 +160,8 @@ object DataTypeMapper {
         case DateType => "date('2020-9-16')"
         case TimeType => "to_time('04:15:29.999')"
         case TimestampType => "to_timestamp_ntz('2020-09-16 06:30:00')"
+        case DayTimeIntervalType => "INTERVAL '1 01:01:01.0001' DAY TO SECOND"
+        case YearMonthIntervalType => "INTERVAL '1-0' YEAR TO MONTH"
         case _: ArrayType => "[]::" + convertToSFType(dataType)
         case _: MapType => "{}::" + convertToSFType(dataType)
         case VariantType => "to_variant(0)"
@@ -112,6 +172,8 @@ object DataTypeMapper {
       }
     }
 
+  // Only called from toSqlAvoidOffset which guards on IntegralType, so interval types never reach
+  // this path. Interval literals go through toSql -> durationToSql / periodToSql instead.
   private[analyzer] def toSqlWithoutCast(value: Any, dataType: DataType): String =
     dataType match {
       case _ if value == null => "NULL"

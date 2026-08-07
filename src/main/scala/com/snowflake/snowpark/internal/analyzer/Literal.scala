@@ -4,7 +4,7 @@ import com.snowflake.snowpark.internal.ErrorMessage
 import com.snowflake.snowpark.types._
 import java.math.{BigDecimal => JavaBigDecimal}
 import java.sql.{Date, Timestamp}
-import java.time.{Instant, LocalDate}
+import java.time.{Duration, Instant, LocalDate, Period}
 
 import scala.math.BigDecimal
 
@@ -37,6 +37,8 @@ private[snowpark] object Literal {
     case ld: LocalDate => Literal(DateTimeUtils.localDateToDays(ld), Option(DateType))
     case d: Date => Literal(DateTimeUtils.javaDateToDays(d), Option(DateType))
     case a: Array[Byte] => Literal(a, Option(BinaryType))
+    case d: Duration => Literal(d, Option(DayTimeIntervalType))
+    case p: Period => Literal(p, Option(YearMonthIntervalType))
     case null => Literal(null, None)
     case v: Literal => v
     case _ =>

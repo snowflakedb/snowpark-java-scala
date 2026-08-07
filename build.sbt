@@ -78,7 +78,8 @@ lazy val javadocSettings = inConfig(Javadoc)(Defaults.configSettings) ++ Seq(
   Javadoc / packageDoc / artifactName := ((sv, mod, art) =>
     "" + mod.name + "_" + sv.binary + "-" + mod.revision + "-javadoc.jar"))
 
-val jdbcVersion = "3.24.2"
+// 3.27.0+ required for native INTERVAL → java.time.Duration / Period ResultSet reads
+val jdbcVersion = "3.27.1"
 val jacksonVersion = "2.18.0"
 val openTelemetryVersion = "1.39.0"
 val slf4jVersion = "2.0.16"

@@ -51,6 +51,8 @@ object ScalaFunctions {
     case t if t =:= typeOf[java.sql.Date] => true
     case t if t =:= typeOf[java.sql.Time] => true
     case t if t =:= typeOf[java.sql.Timestamp] => true
+    case t if t =:= typeOf[java.time.Duration] => true
+    case t if t =:= typeOf[java.time.Period] => true
     case t if t =:= typeOf[Array[Byte]] => true
     case t if t =:= typeOf[Array[String]] => true
     case t if t =:= typeOf[Array[Variant]] => true
@@ -92,6 +94,8 @@ object ScalaFunctions {
     case t if t =:= typeOf[java.sql.Date] => UdfColumnSchema(DateType)
     case t if t =:= typeOf[java.sql.Time] => UdfColumnSchema(TimeType)
     case t if t =:= typeOf[java.sql.Timestamp] => UdfColumnSchema(TimestampType)
+    case t if t =:= typeOf[java.time.Duration] => UdfColumnSchema(DayTimeIntervalType)
+    case t if t =:= typeOf[java.time.Period] => UdfColumnSchema(YearMonthIntervalType)
     case t if t =:= typeOf[Array[Byte]] => UdfColumnSchema(BinaryType)
     case t if t =:= typeOf[Array[String]] => UdfColumnSchema(ArrayType(StringType))
     case t if t =:= typeOf[Array[Variant]] => UdfColumnSchema(ArrayType(VariantType))

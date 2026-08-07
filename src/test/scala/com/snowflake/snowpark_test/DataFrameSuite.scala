@@ -7,6 +7,7 @@ import com.snowflake.snowpark.types._
 import net.snowflake.client.jdbc.SnowflakeSQLException
 import org.scalatest.BeforeAndAfterEach
 import java.sql.{Date, Time, Timestamp}
+import java.time.{Duration, Period}
 import scala.util.Random
 
 trait DataFrameSuite extends TestData with BeforeAndAfterEach {
@@ -1406,6 +1407,14 @@ trait DataFrameSuite extends TestData with BeforeAndAfterEach {
               |}""".stripMargin)),
         Row(null, null, null, null, null))
     checkAnswer(df, expected)
+  }
+
+  test("createDataFrame with given schema: interval types") {
+    val schema = StructType(
+      Seq(StructField("dt", DayTimeIntervalType), StructField("ym", YearMonthIntervalType)))
+    val data = Seq(Row(Duration.ofDays(5).plusHours(12), Period.of(1, 6, 0)), Row(null, null))
+    val df = session.createDataFrame(data, schema)
+    checkAnswer(df, data)
   }
 
   test("variant in array and map") {
