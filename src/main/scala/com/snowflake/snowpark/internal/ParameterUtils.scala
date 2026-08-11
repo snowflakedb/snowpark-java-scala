@@ -30,6 +30,19 @@ private[snowpark] object ParameterUtils extends Logging {
     registerParameter("snowpark_max_file_download_retry_count")
   private[snowpark] val SnowparkHideInternalAlias: String = "snowpark_hide_internal_alias"
 
+  // SNOW-3894042 optimization toggles (client-side, default off).
+  private[snowpark] val SnowparkCteOptimizationEnabled: String =
+    registerParameter("snowpark_cte_optimization_enabled")
+  private[snowpark] val SnowparkLargeQueryBreakdownEnabled: String =
+    registerParameter("snowpark_large_query_breakdown_enabled")
+  private[snowpark] val SnowparkParallelPlanExecution: String =
+    registerParameter("snowpark_parallel_plan_execution")
+  private[snowpark] val SnowparkCrossStatementReuse: String =
+    registerParameter("snowpark_cross_statement_reuse")
+  // Complexity bound (approx node count) above which large query breakdown materializes a subtree.
+  private[snowpark] val SnowparkLargeQueryBreakdownBound: String =
+    registerParameter("snowpark_large_query_breakdown_bound")
+
   // client parameter values
   @inline private[snowpark] val DEFAULT_REQUEST_TIMEOUT_IN_SECONDS: String = "86400" // 24 hours
   @inline private[snowpark] val MAX_REQUEST_TIMEOUT_IN_SECONDS: Int = 604800 // 7 days

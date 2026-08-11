@@ -244,17 +244,47 @@ class DataFrame private[snowpark] (
    *
    * @since 0.4.0
    * @group actions
+   * @param async
+   *   When `true` (and the `snowpark_parallel_plan_execution` parameter is enabled), the backing
+   *   `CREATE TEMPORARY TABLE AS` is submitted asynchronously (non-blocking) and its completion is
+   *   deferred until the next statement that consumes it is executed. This lets independent
+   *   `cacheResult` materializations run concurrently server-side (SNOW-3894042 RC4). The default
+   *   `false` preserves the original synchronous behavior exactly. When the parallel parameter is
+   *   off, `async = true` degrades safely to the synchronous path.
    * @return
    *   A [[HasCachedResult]]
    */
-  def cacheResult(): HasCachedResult = action("cacheResult") {
-    val tempTableName = randomNameForTempObject(TempObjectType.Table)
-    val createTempTable =
-      session.plans.createTempTable(tempTableName, snowflakePlan)
-    session.conn.execute(createTempTable)
-    val newPlan = session.table(tempTableName).plan
-    session.conn.telemetry.reportActionCacheResult()
-    new HasCachedResult(session, newPlan, Seq())
+  def cacheResult(async: Boolean = false): HasCachedResult = action("cacheResult") {
+    // SNOW-3894042 RC4: async materialization. Submit the CTAS without blocking and defer its
+    // completion to execution time, so independent branches materialize concurrently.
+    if (async && session.conn.parallelPlanExecution) {
+      session.cacheResultAsync(this)
+    } else if (session.conn.crossStatementReuse) {
+      // SNOW-3894042 Fix D: cross-statement reuse. If an identical plan was already materialized in
+      // this session, reuse that temp table instead of re-computing/re-materializing it.
+      val key = snowflakePlan.queries.last.sql
+      session.cacheResultReuse.synchronized {
+        session.cacheResultReuse.get(key) match {
+          case Some(existing) =>
+            session.conn.telemetry.reportActionCacheResult()
+            new HasCachedResult(session, session.table(existing).plan, Seq())
+          case None =>
+            val tempTableName = randomNameForTempObject(TempObjectType.Table)
+            session.conn.execute(session.plans.createTempTable(tempTableName, snowflakePlan))
+            session.cacheResultReuse.put(key, tempTableName)
+            session.conn.telemetry.reportActionCacheResult()
+            new HasCachedResult(session, session.table(tempTableName).plan, Seq())
+        }
+      }
+    } else {
+      val tempTableName = randomNameForTempObject(TempObjectType.Table)
+      val createTempTable =
+        session.plans.createTempTable(tempTableName, snowflakePlan)
+      session.conn.execute(createTempTable)
+      val newPlan = session.table(tempTableName).plan
+      session.conn.telemetry.reportActionCacheResult()
+      new HasCachedResult(session, newPlan, Seq())
+    }
   }
 
   /**
@@ -3362,7 +3392,7 @@ class HasCachedResult private[snowpark] (
    * @return
    *   A [[HasCachedResult]]
    */
-  override def cacheResult(): HasCachedResult = action("cacheResult") {
+  override def cacheResult(async: Boolean = false): HasCachedResult = action("cacheResult") {
     // cacheResult function of HashCachedResult returns a clone of this
     // HashCachedResult DataFrame instead of to cache this DataFrame again.
     new HasCachedResult(session, snowflakePlan.clone, Seq())

@@ -710,6 +710,29 @@ private[snowpark] class ServerConnection(
   lazy val closureCleanerMode: ClosureCleanerMode.Value = ParameterUtils.parseClosureCleanerParam(
     lowerCaseParameters.getOrElse(ParameterUtils.SnowparkEnableClosureCleaner, "repl_only"))
 
+  // SNOW-3894042 optimization toggles (client-side, default off).
+  lazy val cteOptimizationEnabled: Boolean =
+    ParameterUtils.parseBoolean(
+      lowerCaseParameters.getOrElse(ParameterUtils.SnowparkCteOptimizationEnabled, "false"))
+
+  lazy val largeQueryBreakdownEnabled: Boolean =
+    ParameterUtils.parseBoolean(
+      lowerCaseParameters.getOrElse(ParameterUtils.SnowparkLargeQueryBreakdownEnabled, "false"))
+
+  lazy val parallelPlanExecution: Boolean =
+    ParameterUtils.parseBoolean(
+      lowerCaseParameters.getOrElse(ParameterUtils.SnowparkParallelPlanExecution, "false"))
+
+  lazy val crossStatementReuse: Boolean =
+    ParameterUtils.parseBoolean(
+      lowerCaseParameters.getOrElse(ParameterUtils.SnowparkCrossStatementReuse, "false"))
+
+  lazy val largeQueryBreakdownBound: Int =
+    lowerCaseParameters
+      .get(ParameterUtils.SnowparkLargeQueryBreakdownBound)
+      .flatMap(v => scala.util.Try(v.trim.toInt).toOption)
+      .getOrElse(120)
+
   lazy val requestTimeoutInSeconds: Int = {
     val timeout = readRequestTimeoutSecond
     // Timeout should be greater than 0 and less than 7 days
@@ -810,6 +833,75 @@ private[snowpark] class ServerConnection(
       (queryResult.rows.get, queryResult.attributes)
     }
 
+  // SNOW-3894042 Fix C: run the prerequisite queries. When parallel plan execution is enabled and
+  // the prerequisites are placeholder-independent (e.g. large-query-breakdown temp-table CREATEs),
+  // run them in dependency-ordered parallel waves; otherwise run serially (original behavior).
+  private def runPrerequisites(
+      plan: SnowflakePlan,
+      actionID: Long,
+      placeholders: mutable.HashMap[String, String],
+      params: Map[String, Any]): Unit = {
+    val pre = plan.queries.dropRight(1)
+    def cancelCheck(): Unit =
+      if (actionID <= plan.session.getLastCanceledID) {
+        throw ErrorMessage.MISC_QUERY_IS_CANCELLED()
+      }
+    def serial(): Unit = pre.foreach { q =>
+      cancelCheck()
+      q.runQuery(this, placeholders, params)
+    }
+
+    if (!parallelPlanExecution || pre.size < 2) {
+      serial()
+    } else {
+      // Safety: only parallelize when no query references another query's id placeholder.
+      val phIds = pre.map(_.queryIdPlaceHolder).toSet
+      val crossPlaceholderDep =
+        pre.exists(q => phIds.exists(ph => ph != q.queryIdPlaceHolder && q.sql.contains(ph)))
+      if (crossPlaceholderDep) {
+        serial()
+      } else {
+        val n = pre.size
+        // Temp-table name created by each query (if any), for building the dependency graph.
+        val nameRe = "(?is)\\bTABLE\\s+([A-Za-z0-9_\\.\"]+)\\s+AS\\b".r
+        val created: Array[Option[String]] =
+          pre.map(q => nameRe.findFirstMatchIn(q.sql).map(_.group(1))).toArray
+        // deps(i) = set of j such that pre(i) reads a table created by pre(j).
+        val deps = Array.fill(n)(scala.collection.mutable.Set.empty[Int])
+        for (i <- 0 until n; j <- 0 until n if i != j) {
+          created(j).foreach(nm => if (nm.nonEmpty && pre(i).sql.contains(nm)) deps(i) += j)
+        }
+        val done = Array.fill(n)(false)
+        var remaining = n
+        val pool = java.util.concurrent.Executors.newFixedThreadPool(math.min(8, n))
+        implicit val ec: scala.concurrent.ExecutionContext =
+          scala.concurrent.ExecutionContext.fromExecutor(pool)
+        try {
+          while (remaining > 0) {
+            cancelCheck()
+            val wave = (0 until n).filter(i => !done(i) && deps(i).forall(done)).toSeq
+            val toRun = if (wave.isEmpty) (0 until n).filter(!done(_)).toSeq else wave
+            val futures = toRun.map { i =>
+              scala.concurrent.Future {
+                cancelCheck()
+                // Each query is placeholder-independent; give it a local map, then merge safely.
+                val local = mutable.HashMap.empty[String, String]
+                pre(i).runQuery(this, local, params)
+                placeholders.synchronized { placeholders ++= local }
+              }
+            }
+            futures.foreach(f =>
+              scala.concurrent.Await.result(f, scala.concurrent.duration.Duration.Inf))
+            toRun.foreach(i => done(i) = true)
+            remaining -= toRun.size
+          }
+        } finally {
+          pool.shutdown()
+        }
+      }
+    }
+  }
+
   private def executePlanInternal(
       plan: SnowflakePlan,
       returnIterator: Boolean,
@@ -817,29 +909,28 @@ private[snowpark] class ServerConnection(
       useStatementParametersForLastQueryOnly: Boolean = false): QueryResult =
     withValidConnection {
       SnowflakePlan.wrapException(plan) {
+        // SNOW-3894042: execution-time large-query-breakdown / CTE rewrite (flag-gated, once).
+        val execPlan =
+          com.snowflake.snowpark.internal.analyzer.PlanOptimizer.optimize(plan, plan.session)
         val actionID = plan.session.generateNewActionID
         val statementsParameterForLastQuery = statementParameters
         val statementParametersForOthers: Map[String, Any] =
           if (useStatementParametersForLastQueryOnly) Map.empty else statementParameters
         logDebug(s"""
                   |----------SNOW-----------
-                  |$plan
+                  |$execPlan
                   |-------------------------
                   |""".stripMargin)
 
         // use try finally to ensure postActions is always run
         try {
+          // SNOW-3894042 Fix RC4: ensure all async cacheResult materializations submitted for this
+          // session have completed before running a statement that may consume them.
+          plan.session.drainPendingAsyncCache()
           val placeholders = mutable.HashMap.empty[String, String]
-          // prerequisites
-          plan.queries
-            .dropRight(1)
-            .foreach(query => {
-              if (actionID <= plan.session.getLastCanceledID) {
-                throw ErrorMessage.MISC_QUERY_IS_CANCELLED()
-              }
-              query.runQuery(this, placeholders, statementParametersForOthers)
-            })
-          val result = plan.queries.last.runQueryGetResult(
+          // prerequisites (SNOW-3894042 Fix C: run independent stages in parallel when enabled)
+          runPrerequisites(execPlan, actionID, placeholders, statementParametersForOthers)
+          val result = execPlan.queries.last.runQueryGetResult(
             this,
             placeholders,
             returnIterator,
@@ -849,7 +940,7 @@ private[snowpark] class ServerConnection(
         } finally {
           // delete created tmp object
           val placeholders = mutable.HashMap.empty[String, String]
-          plan.postActions.foreach(_.runQuery(this, placeholders, statementParametersForOthers))
+          execPlan.postActions.foreach(_.runQuery(this, placeholders, statementParametersForOthers))
         }
       }
     }
@@ -898,6 +989,21 @@ private[snowpark] class ServerConnection(
         } finally {
           statement.close()
         }
+      }
+    }
+
+  // SNOW-3894042 Fix RC4: submit a CREATE TEMPORARY TABLE AS <select> asynchronously (non-blocking)
+  // and return its query id. Submitting many of these before awaiting lets independent
+  // materializations run concurrently server-side (parallel `cacheResult`).
+  private[snowpark] def submitCreateTempTableAsync(tableName: String, selectSql: String): String =
+    withValidConnection {
+      val ctas = s"CREATE OR REPLACE TEMPORARY TABLE $tableName AS $selectSql"
+      val statement = connection.prepareStatement(ctas)
+      try {
+        val rs = statement.asInstanceOf[SnowflakePreparedStatement].executeAsyncQuery()
+        rs.asInstanceOf[SnowflakeResultSet].getQueryID
+      } finally {
+        statement.close()
       }
     }
 

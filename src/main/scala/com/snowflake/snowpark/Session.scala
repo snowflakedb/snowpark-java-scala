@@ -183,6 +183,68 @@ class Session private (private[snowpark] val conn: ServerConnection) extends Log
 
   private[snowpark] val analyzer: Analyzer = new Analyzer(this)
 
+  // SNOW-3894042 Fix D: session-scoped cross-statement reuse cache (last-query SQL -> temp table).
+  private[snowpark] val cacheResultReuse =
+    new scala.collection.mutable.HashMap[String, String]()
+
+  // SNOW-3894042 Fix RC4: registry of in-flight async cacheResult materializations submitted via
+  // DataFrame.cacheResult(async = true). Each entry is (asyncQueryId, tempTableName, planKey).
+  // Drained (awaited) at the execution choke point before any statement that consumes them runs,
+  // so correctness is identical to synchronous caching - only the submission is parallelized.
+  private[snowpark] val pendingAsyncCache =
+    scala.collection.mutable.ListBuffer.empty[(String, String, String)]
+
+  // SNOW-3894042 Fix RC4: materialize a DataFrame CONCURRENTLY with its siblings. Submits the
+  // CREATE TEMPORARY TABLE AS as a non-blocking async query and returns immediately with a
+  // HasCachedResult whose plan reads the (not-yet-populated) temp table with a SEEDED schema
+  // (from the source plan's already-known attributes), so no eager DESCRIBE fires against the
+  // temp before it exists. The async query is awaited later by drainPendingAsyncCache().
+  private[snowpark] def cacheResultAsync(df: DataFrame): HasCachedResult = {
+    val key = df.snowflakePlan.queries.last.sql
+    val output = df.snowflakePlan.attributes // resolved from the SOURCE plan, not the temp table
+    cacheResultReuse.synchronized(cacheResultReuse.get(key)) match {
+      case Some(tmp) =>
+        conn.telemetry.reportActionCacheResult()
+        new HasCachedResult(this, seededTablePlan(tmp, output), Seq())
+      case None =>
+        val tmp = com.snowflake.snowpark.internal.Utils
+          .randomNameForTempObject(com.snowflake.snowpark.internal.Utils.TempObjectType.Table)
+        val qid = conn.submitCreateTempTableAsync(tmp, key)
+        pendingAsyncCache.synchronized(pendingAsyncCache += ((qid, tmp, key)))
+        conn.telemetry.reportActionCacheResult()
+        new HasCachedResult(this, seededTablePlan(tmp, output), Seq())
+    }
+  }
+
+  // Build a SnowflakePlan that reads `SELECT * FROM tableName` but carries a known (seeded) schema
+  // so its attributes are available without a DESCRIBE against the table (which may not exist yet).
+  private def seededTablePlan(tableName: String, output: Seq[Attribute]): SnowflakePlan =
+    SnowflakePlan(
+      Seq(Query(s"SELECT * FROM $tableName")),
+      schemaValueStatement(output),
+      Seq.empty,
+      this,
+      None,
+      supportAsyncMode = true)
+
+  // SNOW-3894042 Fix RC4: await all in-flight async cacheResult materializations and record them in
+  // the reuse cache. Called at the execution choke point before a consuming statement runs.
+  // Idempotent: clears the buffer, safe to call repeatedly and when empty.
+  private[snowpark] def drainPendingAsyncCache(): Unit = {
+    val pending = pendingAsyncCache.synchronized {
+      if (pendingAsyncCache.isEmpty) Seq.empty
+      else {
+        val snapshot = pendingAsyncCache.toList
+        pendingAsyncCache.clear()
+        snapshot
+      }
+    }
+    pending.foreach { case (qid, tmp, key) =>
+      conn.waitForQueryDone(qid, conn.requestTimeoutInSeconds.toLong)
+      cacheResultReuse.synchronized(cacheResultReuse.put(key, tmp))
+    }
+  }
+
   private[snowpark] def explainQuery(query: String): Option[String] = {
     try {
       val rows = conn.runQueryGetRows(s"explain using text $query")

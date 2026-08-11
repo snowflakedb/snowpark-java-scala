@@ -407,7 +407,15 @@ Test / javaOptions ++= {
   // Pass FIPS_TEST system property from sbt JVM to forked test JVM
   val fipsTestOption = sys.props.get("FIPS_TEST").map(v => s"-DFIPS_TEST=$v").toSeq
 
-  moduleOptions ++ fipsTestOption
+  // SNOW-3894042: forward perf/bench flags to the forked test JVM
+  val perfTestOptions =
+    Seq(
+      "PERF_TEST", "LGDCCF_SCALE", "LGDCCF_BENCH", "LGDCCF_WH_SIZE", "LGDCCF_VARIANTS",
+      "LGDCCF_PIPELINES", "LGDCCF_TIMEOUT", "LGDCCF_CUST", "LGDCCF_MONTHS", "LGDCCF_ACCTS",
+      "LGDCCF_HORIZONS", "LGDCCF_JOINS", "LGDCCF_DEBUG", "LGDCCF_K")
+      .flatMap(k => sys.props.get(k).map(v => s"-D$k=$v"))
+
+  moduleOptions ++ fipsTestOption ++ perfTestOptions
 }
 
 Test / fork := true

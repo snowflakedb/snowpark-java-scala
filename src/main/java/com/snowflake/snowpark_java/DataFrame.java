@@ -48,7 +48,24 @@ public class DataFrame extends Logging implements Cloneable {
    * @return A HasCachedResult
    */
   public HasCachedResult cacheResult() {
-    return new HasCachedResult(df.cacheResult());
+    return new HasCachedResult(df.cacheResult(false));
+  }
+
+  /**
+   * Caches the content of this DataFrame to create a new cached DataFrame.
+   *
+   * <p>All subsequent operations on the returned cached DataFrame are performed on the cached data
+   * and have no effect on the original DataFrame.
+   *
+   * @param async When {@code true} (and the {@code snowpark_parallel_plan_execution} parameter is
+   *     enabled), the backing materialization is submitted asynchronously so independent
+   *     cacheResult materializations run concurrently (SNOW-3894042). {@code false} preserves the
+   *     original synchronous behavior.
+   * @since 1.16.0
+   * @return A HasCachedResult
+   */
+  public HasCachedResult cacheResult(boolean async) {
+    return new HasCachedResult(df.cacheResult(async));
   }
 
   /**
