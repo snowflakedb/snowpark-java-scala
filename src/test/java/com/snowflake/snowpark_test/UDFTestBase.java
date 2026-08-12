@@ -20,6 +20,11 @@ public abstract class UDFTestBase extends TestFunctions {
 
   protected Session createSession() {
     Session newSession = Session.builder().configFile(defaultProfile).create();
+    try {
+      newSession
+          .sql("alter session set ENABLE_FIX_SNOW_3011194_SCALA_VERSIONED_HANDLER_NAMES=true")
+          .collect();
+    } catch (Exception ignored) {}
     if (JavaUtils.snowparkScalaCompatVersion().equals("2.13")) {
       newSession.sql("alter session set ENABLE_SCALA_UDF_RUNTIME_2_13=true").collect();
     }
