@@ -154,6 +154,8 @@ private[snowpark] object ServerConnection {
         }
       case "GEOGRAPHY" => GeographyType
       case "GEOMETRY" => GeometryType
+      case "INTERVAL_DAY_TIME" => DayTimeIntervalType
+      case "INTERVAL_YEAR_MONTH" => YearMonthIntervalType
       case _ => getTypeFromJDBCType(sqlType, precision, scale, signed)
     }
   }
@@ -378,6 +380,10 @@ private[snowpark] class ServerConnection(
                     case LongType => data.getLong(resultIndex)
                     case TimestampType => data.getTimestamp(resultIndex)
                     case ShortType => data.getShort(resultIndex)
+                    case DayTimeIntervalType =>
+                      data.getObject(resultIndex, classOf[java.time.Duration])
+                    case YearMonthIntervalType =>
+                      data.getObject(resultIndex, classOf[java.time.Period])
                     case GeographyType =>
                       geographyOutputFormat match {
                         case "GeoJSON" => Geography.fromGeoJSON(data.getString(resultIndex))
@@ -1166,6 +1172,15 @@ private[snowflake] class SnowflakeResultSetExt(data: SnowflakeResultSetV1) {
         }
       case "DOUBLE" | "BOOLEAN" | "BINARY" | "NUMBER" => value
       case "VARCHAR" | "VARIANT" => value.toString // Text to String
+      case "INTERVAL_DAY_TIME" =>
+        val nanos = value.asInstanceOf[Long]
+        val sign = java.lang.Long.signum(nanos)
+        val abs = Math.abs(nanos)
+        val d = java.time.Duration.ofSeconds(abs / 1000000000L, abs % 1000000000L)
+        if (sign < 0) d.negated() else d
+      case "INTERVAL_YEAR_MONTH" =>
+        val months = value.asInstanceOf[Number].intValue()
+        java.time.Period.of(months / 12, months % 12, 0)
       case "DATE" =>
         arrowResultSet.convertToDate(value, null)
       case "TIME" =>

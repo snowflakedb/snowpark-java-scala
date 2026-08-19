@@ -571,6 +571,22 @@ class DataTypeSuite extends SNTestBase {
     }
   }
 
+  test("DayTimeIntervalType") {
+    assert(DayTimeIntervalType.isInstanceOf[DataType])
+    assert(TestUtils.isAtomicType(DayTimeIntervalType))
+    assert(DayTimeIntervalType.typeName == DayTimeIntervalType.toString)
+    assert(DayTimeIntervalType.typeName == "DayTimeInterval")
+    assert(convertToSFType(DayTimeIntervalType) == "INTERVAL DAY TO SECOND")
+  }
+
+  test("YearMonthIntervalType") {
+    assert(YearMonthIntervalType.isInstanceOf[DataType])
+    assert(TestUtils.isAtomicType(YearMonthIntervalType))
+    assert(YearMonthIntervalType.typeName == YearMonthIntervalType.toString)
+    assert(YearMonthIntervalType.typeName == "YearMonthInterval")
+    assert(convertToSFType(YearMonthIntervalType) == "INTERVAL YEAR TO MONTH")
+  }
+
   test("Variant containing word null in the text") {
     import session.implicits._
     var variant = new Variant("null string starts with null")

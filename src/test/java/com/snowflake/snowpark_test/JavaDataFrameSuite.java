@@ -3,6 +3,11 @@ package com.snowflake.snowpark_test;
 import static org.junit.Assert.assertThrows;
 
 import com.snowflake.snowpark_java.*;
+import com.snowflake.snowpark_java.types.DataTypes;
+import com.snowflake.snowpark_java.types.StructField;
+import com.snowflake.snowpark_java.types.StructType;
+import java.time.Duration;
+import java.time.Period;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 import java.util.Optional;
@@ -412,5 +417,18 @@ public class JavaDataFrameSuite extends TestBase {
 
     // Negative test: column doesn't exist
     assertThrows(SnowflakeSQLException.class, () -> df.sort("non_existent_column").collect());
+  }
+
+  @Test
+  public void createDataFrameWithIntervalSchema() {
+    StructType schema =
+        StructType.create(
+            new StructField("dt", DataTypes.DayTimeIntervalType),
+            new StructField("ym", DataTypes.YearMonthIntervalType));
+    Row[] data = {
+      Row.create(Duration.ofDays(5).plusHours(12), Period.of(1, 6, 0)), Row.create(null, null)
+    };
+    DataFrame df = getSession().createDataFrame(data, schema);
+    checkAnswer(df, data);
   }
 }

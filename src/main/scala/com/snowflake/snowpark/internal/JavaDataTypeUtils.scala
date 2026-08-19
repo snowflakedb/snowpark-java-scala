@@ -9,6 +9,7 @@ import com.snowflake.snowpark_java.types.{
   DataType => JDataType,
   DataTypes => JDataTypes,
   DateType => JDateType,
+  DayTimeIntervalType => JDayTimeIntervalType,
   DecimalType => JDecimalType,
   DoubleType => JDoubleType,
   FloatType => JFloatType,
@@ -21,7 +22,8 @@ import com.snowflake.snowpark_java.types.{
   StringType => JStringType,
   TimestampType => JTimestampType,
   TimeType => JTimeType,
-  VariantType => JVariantType
+  VariantType => JVariantType,
+  YearMonthIntervalType => JYearMonthIntervalType
 }
 
 object JavaDataTypeUtils {
@@ -47,6 +49,8 @@ object JavaDataTypeUtils {
       case TimestampType => JDataTypes.TimestampType
       case TimeType => JDataTypes.TimeType
       case VariantType => JDataTypes.VariantType
+      case DayTimeIntervalType => JDataTypes.DayTimeIntervalType
+      case YearMonthIntervalType => JDataTypes.YearMonthIntervalType
       case st: StructType =>
         com.snowflake.snowpark_java.types.InternalUtils.createStructType(st)
     }
@@ -72,5 +76,7 @@ object JavaDataTypeUtils {
       case _: JTimestampType => TimestampType
       case _: JTimeType => TimeType
       case _: JVariantType => VariantType
+      case _: JDayTimeIntervalType => DayTimeIntervalType
+      case _: JYearMonthIntervalType => YearMonthIntervalType
     }
 }
