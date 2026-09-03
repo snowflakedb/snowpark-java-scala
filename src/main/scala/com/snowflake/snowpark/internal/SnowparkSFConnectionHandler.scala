@@ -2,7 +2,7 @@ package com.snowflake.snowpark.internal
 
 import com.snowflake.snowpark.internal.SnowparkSFConnectionHandler.extractValidVersionNumber
 import net.snowflake.client.jdbc.internal.snowflake.common.core.LoginInfoDTO
-import net.snowflake.client.jdbc.{DefaultSFConnectionHandler, SnowflakeConnectString}
+import net.snowflake.client.internal.jdbc.{DefaultSFConnectionHandler, SnowflakeConnectString}
 
 import java.util.Properties
 

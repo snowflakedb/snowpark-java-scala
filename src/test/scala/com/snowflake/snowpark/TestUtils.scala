@@ -23,11 +23,8 @@ import java.util.{Locale, Properties}
 import com.snowflake.snowpark.Session.loadConfFromFile
 import com.snowflake.snowpark.internal.ParameterUtils.ClosureCleanerMode
 import com.snowflake.snowpark.internal.Utils.TempObjectType
-import net.snowflake.client.jdbc.{
-  DefaultSFConnectionHandler,
-  SnowflakeConnectString,
-  SnowflakeConnectionV1
-}
+import net.snowflake.client.internal.api.implementation.connection.SnowflakeConnectionImpl
+import net.snowflake.client.internal.jdbc.{DefaultSFConnectionHandler, SnowflakeConnectString}
 import org.scalatest.funsuite.AnyFunSuite
 
 import java.security.Provider
@@ -362,7 +359,7 @@ object TestUtils extends Logging {
     }
   }
 
-  private[snowpark] def createJDBCConnection(propertyFile: String): SnowflakeConnectionV1 = {
+  private[snowpark] def createJDBCConnection(propertyFile: String): SnowflakeConnectionImpl = {
     val options = loadConfFromFile(propertyFile).map { case (key, value) =>
       key.toLowerCase(Locale.ENGLISH) -> value
     }
@@ -370,7 +367,7 @@ object TestUtils extends Logging {
     val connURL = ServerConnection.connectionString(options)
     val connParam = ParameterUtils.jdbcConfig(options, isScalaAPI = true)
     val connStr = SnowflakeConnectString.parse(connURL, connParam)
-    new SnowflakeConnectionV1(new DefaultSFConnectionHandler(connStr), connURL, connParam)
+    new SnowflakeConnectionImpl(new DefaultSFConnectionHandler(connStr), connURL, connParam)
   }
 
   // Snowflake JDBC FIPS requires client manually load bouncy-castle fips provider
