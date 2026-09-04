@@ -25,28 +25,34 @@ import com.snowflake.snowpark.internal.ParameterUtils.{
 }
 import com.snowflake.snowpark.internal.Utils.PackageNameDelimiter
 import com.snowflake.snowpark.internal.analyzer.{Attribute, Query, SnowflakePlan}
-import net.snowflake.client.jdbc.{
+import net.snowflake.client.api.exception.SnowflakeSQLException
+import net.snowflake.client.api.resultset.{
   FieldMetadata,
-  SnowflakeBaseResultSet,
-  SnowflakeConnectString,
-  SnowflakeConnectionV1,
-  SnowflakePreparedStatement,
-  SnowflakeReauthenticationRequest,
+  QueryStatus,
   SnowflakeResultSet,
-  SnowflakeResultSetMetaData,
-  SnowflakeResultSetV1,
-  SnowflakeStatement,
-  SnowflakeUtil
+  SnowflakeResultSetMetaData
 }
-import com.snowflake.snowpark.types._
-import net.snowflake.client.core.arrow.StructObjectWrapper
-import net.snowflake.client.core.{
+import net.snowflake.client.api.statement.{SnowflakePreparedStatement, SnowflakeStatement}
+import net.snowflake.client.internal.api.implementation.connection.SnowflakeConnectionImpl
+import net.snowflake.client.internal.api.implementation.resultset.{
+  FieldMetadataImpl,
+  SnowflakeBaseResultSet
+}
+import net.snowflake.client.internal.core.{
   ArrowSqlInput,
   ColumnTypeHelper,
-  QueryStatus,
   SFArrowResultSet,
   SFBaseResultSet
 }
+import net.snowflake.client.internal.core.arrow.StructObjectWrapper
+import net.snowflake.client.api.connection.{DownloadStreamConfig, UploadStreamConfig}
+import net.snowflake.client.internal.jdbc.{
+  SnowflakeConnectString,
+  SnowflakeReauthenticationRequest,
+  SnowflakeResultSetV1,
+  SnowflakeUtil
+}
+import com.snowflake.snowpark.types._
 import net.snowflake.client.jdbc.internal.apache.arrow.vector.util.{
   JsonStringArrayList,
   JsonStringHashMap
@@ -222,7 +228,7 @@ private[snowpark] object ServerConnection {
 private[snowpark] class ServerConnection(
     options: Map[String, String],
     val isScalaAPI: Boolean,
-    private val jdbcConn: Option[SnowflakeConnectionV1])
+    private val jdbcConn: Option[SnowflakeConnectionImpl])
     extends Logging {
 
   val isStoredProc = jdbcConn.isDefined
@@ -233,7 +239,7 @@ private[snowpark] class ServerConnection(
     // scalastyle:on
   }
 
-  val connection: SnowflakeConnectionV1 = jdbcConn.getOrElse {
+  val connection: SnowflakeConnectionImpl = jdbcConn.getOrElse {
     val connURL = ServerConnection.connectionString(lowerCaseParameters)
     val connParam = ParameterUtils.jdbcConfig(lowerCaseParameters, isScalaAPI)
     val connStr = SnowflakeConnectString.parse(connURL, connParam)
@@ -241,7 +247,7 @@ private[snowpark] class ServerConnection(
       throw ErrorMessage.MISC_INVALID_CONNECTION_STRING(s"$connStr")
     }
     // Identify the client type as Snowpark instead of JDBC.
-    new SnowflakeConnectionV1(new SnowparkSFConnectionHandler(connStr), connURL, connParam)
+    new SnowflakeConnectionImpl(new SnowparkSFConnectionHandler(connStr), connURL, connParam)
   }
 
   private[snowpark] def close(): Unit =
@@ -436,12 +442,23 @@ private[snowpark] class ServerConnection(
       inputStream: InputStream,
       destFileName: String,
       compressData: Boolean): Unit = withValidConnection {
-    connection.uploadStream(stageName, destPrefix, inputStream, destFileName, compressData)
+    connection.uploadStream(
+      stageName,
+      destFileName,
+      inputStream,
+      UploadStreamConfig
+        .builder()
+        .setDestPrefix(destPrefix)
+        .setCompressData(compressData)
+        .build())
   }
 
   def downloadStream(stageName: String, sourceFileName: String, decompress: Boolean): InputStream =
     withValidConnection {
-      connection.downloadStream(stageName, sourceFileName, decompress)
+      connection.downloadStream(
+        stageName,
+        sourceFileName,
+        DownloadStreamConfig.builder().setDecompress(decompress).build())
     }
 
   // Run the query and return the queryID when the caller doesn't need the ResultSet
@@ -908,7 +925,7 @@ private[snowpark] class ServerConnection(
     }
 
   private[snowpark] def isDone(queryID: String): Boolean =
-    !QueryStatus.isStillRunning(connection.getSFBaseSession.getQueryStatus(queryID))
+    !connection.getSFBaseSession.getQueryStatus(queryID).isStillRunning
 
   private[snowpark] def waitForQueryDone(
       queryID: String,
@@ -924,7 +941,7 @@ private[snowpark] class ServerConnection(
     var retry = 0
     var lastLogTime = 0
     var totalWaitTime = 0
-    while (QueryStatus.isStillRunning(qs) &&
+    while (qs.isStillRunning &&
       totalWaitTime + getSeepTime(retry + 1) < maxWaitTimeInSeconds * 1000) {
       Thread.sleep(getSeepTime(retry))
       totalWaitTime = totalWaitTime + getSeepTime(retry)
@@ -937,7 +954,7 @@ private[snowpark] class ServerConnection(
         lastLogTime = totalWaitTime
       }
     }
-    if (QueryStatus.isStillRunning(qs)) {
+    if (qs.isStillRunning) {
       throw ErrorMessage.PLAN_QUERY_IS_STILL_RUNNING(queryID, qs.toString, totalWaitTime / 1000)
     }
     qs
@@ -1075,7 +1092,7 @@ private[snowflake] class SnowflakeResultSetExt(data: SnowflakeResultSetV1) {
   def getObject(index: Int): Any = {
     val meta = data.getMetaData
     // convert meta to field meta
-    val field = new FieldMetadata(
+    val field = new FieldMetadataImpl(
       meta.getColumnName(index),
       meta.getColumnTypeName(index),
       meta.getColumnType(index),

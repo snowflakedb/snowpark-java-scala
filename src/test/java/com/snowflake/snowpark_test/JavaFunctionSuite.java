@@ -12,7 +12,7 @@ import java.sql.Timestamp;
 import java.time.Duration;
 import java.time.Period;
 import java.util.Arrays;
-import net.snowflake.client.jdbc.SnowflakeSQLException;
+import net.snowflake.client.api.exception.SnowflakeSQLException;
 import org.junit.Assert;
 import org.junit.Test;
 

@@ -23,7 +23,15 @@ def isFatJarOrBundle(c: String): Boolean =
 
 lazy val snowparkName = s"snowpark${if (isFipsRelease) "-fips" else ""}"
 lazy val jdbcName = s"snowflake-jdbc${if (isFipsRelease) "-fips" else ""}"
-lazy val snowparkVersion = "1.22.0-SNAPSHOT"
+
+// POC build properties: both must be supplied together via -Dsproc.jdbc.version and
+// -Dsproc.snowpark.version.  When absent the build behaves identically to the stock build.
+val pocJdbcVersion: Option[String] = sys.props.get("sproc.jdbc.version")
+val jdbcVersion: String = pocJdbcVersion.getOrElse("3.27.1")
+val isPocJdbc4Build: Boolean = pocJdbcVersion.isDefined
+
+// Allow the synthetic Snowpark version to be overridden by -Dsproc.snowpark.version.
+lazy val snowparkVersion: String = sys.props.getOrElse("sproc.snowpark.version", "1.22.0-SNAPSHOT")
 
 lazy val Javadoc = config("genjavadoc") extend Compile
 
@@ -79,7 +87,7 @@ lazy val javadocSettings = inConfig(Javadoc)(Defaults.configSettings) ++ Seq(
     "" + mod.name + "_" + sv.binary + "-" + mod.revision + "-javadoc.jar"))
 
 // 3.27.0+ required for native INTERVAL → java.time.Duration / Period ResultSet reads
-val jdbcVersion = "3.27.1"
+// jdbcVersion and isPocJdbc4Build are defined above, keyed off -Dsproc.jdbc.version.
 val jacksonVersion = "2.18.0"
 val openTelemetryVersion = "1.39.0"
 val slf4jVersion = "2.0.16"
@@ -121,6 +129,11 @@ lazy val root = (project in file("."))
     crossScalaVersions := Seq("2.12.20", "2.13.16"),
     // Compile to Java 8 bytecode so published artifacts run on JDK 8 through 21+.
     javacOptions ++= Seq("-source", "1.8", "-target", "1.8"),
+    // mavenLocal resolver and exact-version pin – only active for the JDBC 4.x POC build.
+    resolvers ++= (if (isPocJdbc4Build) Seq(Resolver.mavenLocal) else Nil),
+    dependencyOverrides ++= (if (isPocJdbc4Build)
+      Seq("net.snowflake" % jdbcName % jdbcVersion)
+    else Nil),
     libraryDependencies ++= Seq(
       "com.fasterxml.jackson.core" % "jackson-databind" % jacksonVersion,
       "com.fasterxml.jackson.core" % "jackson-core" % jacksonVersion,
