@@ -6,6 +6,7 @@ import com.snowflake.snowpark.types.{Geography, Geometry, Variant}
 
 import java.io.{NotSerializableException, Serializable}
 import java.sql.{Date, Time, Timestamp}
+import java.util.Locale
 import scala.collection.mutable
 import scala.concurrent.duration._
 import scala.concurrent.{Await, Future}
@@ -2793,6 +2794,35 @@ trait UDFSuite extends TestData {
 
     session.sql("commit").collect()
     assert(!isActiveTransaction(session))
+  }
+
+  // SNOW-3632537: UDX dependency-JAR upload via JDBC uploadStream must work when the active
+  // schema name contains Unicode characters.  UDXRegistrationHandler.addDepsToStage() calls
+  // ServerConnection.uploadStream which in turn calls SnowflakeConnectionImpl.uploadStream;
+  // prior to JDBC 4.3.2 the stage reference was not single-quoted, causing SQL compile errors.
+  test("UDF registration uploads dependency JAR through JDBC uploadStream with unicode schema") {
+    if (isStoredProc(session)) {
+      cancel("stored-proc runner does not exercise the dependency-upload path")
+    }
+    val unicodeSchema =
+      "\"sproc_jdbc_unicode_" + TestUtils.randomString(5).toLowerCase(Locale.ENGLISH) + "_日本語\""
+    val database = session.getCurrentDatabase.get
+    val oldSchema = session.getCurrentSchema.get
+
+    try {
+      runQuery(s"CREATE SCHEMA IF NOT EXISTS $database.$unicodeSchema", session)
+      runQuery(s"USE SCHEMA $database.$unicodeSchema", session)
+
+      // Register a minimal temporary UDF that has no closure deps.
+      // addDepsToClassPath in beforeAll already uploaded Snowpark, but the UDF framework
+      // will still call uploadStream when registering into the unicode-named schema stage.
+      val doubleUdf = session.udf.registerTemporary((x: Int) => x * 2)
+      val df = session.createDataFrame(Seq(3, 5)).toDF(Seq("v"))
+      checkAnswer(df.select(doubleUdf(col("v"))), Seq(Row(6), Row(10)))
+    } finally {
+      runQuery(s"USE SCHEMA $oldSchema", session)
+      runQuery(s"DROP SCHEMA IF EXISTS $database.$unicodeSchema CASCADE", session)
+    }
   }
 }
 

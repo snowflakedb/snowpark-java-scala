@@ -16,7 +16,7 @@ import java.security.{DigestInputStream, MessageDigest}
 import java.util.Locale
 import java.util.regex.Pattern
 import com.snowflake.snowpark.udtf.UDTF
-import net.snowflake.client.jdbc.SnowflakeSQLException
+import net.snowflake.client.api.exception.SnowflakeSQLException
 
 import scala.collection.JavaConverters.{asScalaIteratorConverter, mapAsScalaMapConverter}
 import scala.collection.mutable

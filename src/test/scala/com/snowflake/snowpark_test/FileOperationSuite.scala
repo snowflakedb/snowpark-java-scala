@@ -2,7 +2,7 @@ package com.snowflake.snowpark_test
 
 import com.snowflake.snowpark.TestUtils._
 import com.snowflake.snowpark.{SNTestBase, SnowparkClientException, TestUtils}
-import net.snowflake.client.jdbc.SnowflakeSQLException
+import net.snowflake.client.api.exception.SnowflakeSQLException
 import org.apache.commons.io._
 
 import java.io._
@@ -551,9 +551,31 @@ class FileOperationSuite extends SNTestBase {
     }
   }
 
-  // JDBC driver's uploadStream/downloadStream internally constructs PUT/GET SQL
-  // and does not support single-quoted stage names passed via its API.
-  // Unicode stage quoting for the JDBC stream path requires a fix in snowflake-jdbc.
-  // See SNOW-3632537 for details.
+  // SNOW-3632537: uploadStream/downloadStream with Unicode schema name (JDBC 4.3.2 fix).
+  // This exercises the JDBC-internal PUT/GET SQL that must single-quote stage refs containing
+  // non-ASCII characters. The fix (quoteStageRefIfNeeded in SnowflakeConnectionImpl) shipped
+  // in snowflake-jdbc 4.3.2 via SNOW-3713887.
+  test("uploadStream and downloadStream with stage in unicode-named schema") {
+    val unicodeSchema = "\"日本語テスト_" + TestUtils.randomString(5) + "\""
+    val database = session.getCurrentDatabase.get
+    val oldSchema = session.getCurrentSchema.get
+    val stageName = randomStageName().toLowerCase(Locale.ENGLISH)
+    val qualifiedStage = s"$database.$unicodeSchema.$stageName"
+
+    try {
+      runQuery(s"CREATE SCHEMA IF NOT EXISTS $database.$unicodeSchema", session)
+      runQuery(s"CREATE TEMPORARY STAGE $qualifiedStage", session)
+
+      val fileName = s"unicodeStreamFile_${TestUtils.randomString(5)}.csv"
+      val stageWithFile = s"@$qualifiedStage/$fileName"
+
+      // uploadStream builds an internal PUT command; quoting is required for non-ASCII schema names.
+      testStreamRoundTrip(stageWithFile, stageWithFile, compress = false)
+    } finally {
+      runQuery(s"DROP STAGE IF EXISTS $qualifiedStage", session)
+      runQuery(s"DROP SCHEMA IF EXISTS $database.$unicodeSchema", session)
+      runQuery(s"USE SCHEMA $oldSchema", session)
+    }
+  }
 
 }

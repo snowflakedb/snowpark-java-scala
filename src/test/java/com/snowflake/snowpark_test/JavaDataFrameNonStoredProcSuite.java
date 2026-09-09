@@ -1,7 +1,7 @@
 package com.snowflake.snowpark_test;
 
 import com.snowflake.snowpark_java.*;
-import net.snowflake.client.jdbc.SnowflakeSQLException;
+import net.snowflake.client.api.exception.SnowflakeSQLException;
 import org.junit.Test;
 
 public class JavaDataFrameNonStoredProcSuite extends TestBase {

@@ -22,7 +22,9 @@ import com.snowflake.snowpark.internal.Utils.{
   getTableFunctionExpression,
   randomNameForTempObject
 }
-import net.snowflake.client.jdbc.{SnowflakeConnectionV1, SnowflakeDriver, SnowflakeSQLException}
+import net.snowflake.client.api.driver.SnowflakeDriver
+import net.snowflake.client.api.exception.SnowflakeSQLException
+import net.snowflake.client.internal.api.implementation.connection.SnowflakeConnectionImpl
 
 import scala.concurrent.{ExecutionContext, Future}
 import scala.collection.JavaConverters._
@@ -87,7 +89,7 @@ class Session private (private[snowpark] val conn: ServerConnection) extends Log
        | "scala.version" : "${Utils.ScalaVersion}",
        | "jdbc.session.id" : "$sessionId",
        | "os.name" : "${Utils.OSName}",
-       | "jdbc.version" : "${SnowflakeDriver.implementVersion}",
+       | "jdbc.version" : "${SnowflakeDriver.getImplementationVersion()}",
        | "snowpark.library" : "${Utils.escapePath(
         UDFClassPath.snowparkJar.location.getOrElse("snowpark library not found"))}",
        | "scala.library" : "${Utils.escapePath(
@@ -96,7 +98,7 @@ class Session private (private[snowpark] val conn: ServerConnection) extends Log
           .getOrElse("Scala library not found"))}",
        | "jdbc.library" : "${Utils.escapePath(
         UDFClassPath
-          .getPathForClass(classOf[net.snowflake.client.jdbc.SnowflakeDriver])
+          .getPathForClass(classOf[net.snowflake.client.api.driver.SnowflakeDriver])
           .getOrElse("JDBC library not found"))}"
        |}""".stripMargin
 
@@ -1482,7 +1484,7 @@ object Session extends Logging {
    * @return
    *   [[Session]]
    */
-  private[snowpark] def apply(connection: SnowflakeConnectionV1): Session = {
+  private[snowpark] def apply(connection: SnowflakeConnectionImpl): Session = {
     Session.builder.createInternal(Some(connection))
   }
 
@@ -1697,7 +1699,7 @@ object Session extends Logging {
       Session.getActiveSession.getOrElse(create)
     }
 
-    private[snowpark] def createInternal(conn: Option[SnowflakeConnectionV1]): Session = {
+    private[snowpark] def createInternal(conn: Option[SnowflakeConnectionImpl]): Session = {
       conn match {
         case Some(_) =>
           setActiveSession(new Session(new ServerConnection(Map.empty, isScalaAPI, conn)))

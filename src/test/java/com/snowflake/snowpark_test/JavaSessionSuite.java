@@ -7,7 +7,7 @@ import com.snowflake.snowpark_java.types.DataTypes;
 import com.snowflake.snowpark_java.types.StructField;
 import com.snowflake.snowpark_java.types.StructType;
 import java.sql.Connection;
-import net.snowflake.client.jdbc.SnowflakeConnection;
+import net.snowflake.client.api.connection.SnowflakeConnection;
 import org.junit.Test;
 
 public class JavaSessionSuite extends TestBase {
