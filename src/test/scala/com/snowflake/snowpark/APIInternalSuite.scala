@@ -15,9 +15,8 @@ import com.snowflake.snowpark.internal.analyzer.{
   schemaValueStatement
 }
 import com.snowflake.snowpark.types._
-import net.snowflake.client.internal.api.implementation.connection.SnowflakeConnectionImpl
-import net.snowflake.client.internal.core.SFSessionProperty
-import net.snowflake.client.api.exception.SnowflakeSQLException
+import net.snowflake.client.core.SFSessionProperty
+import net.snowflake.client.jdbc.{SnowflakeConnectionV1, SnowflakeSQLException}
 
 import java.nio.file.Files
 import java.sql.{Date, Timestamp}
@@ -298,10 +297,8 @@ class APIInternalSuite extends TestData {
    */
   test("Test that all params are correctly propagated to JDBC session") {
     val session2 = Session.builder.configFile(defaultProfile).config("ROLE", "PUBLIC").create
-    // connection is now java.sql.Connection; unwrap to impl for this non-sproc integration test
-    val jdbcSession = session2.conn.connection
-      .unwrap(classOf[SnowflakeConnectionImpl])
-      .getSFBaseSession
+    val jdbcSession =
+      session2.conn.connection.unwrap(classOf[SnowflakeConnectionV1]).getSFBaseSession
     val propertySet = jdbcSession.getConnectionPropertiesMap.keySet()
     assert(propertySet.contains(SFSessionProperty.DATABASE))
     assert(propertySet.contains(SFSessionProperty.SCHEMA))

@@ -1,8 +1,8 @@
 package com.snowflake.snowpark.internal;
 
+import com.snowflake.snowpark.internal.jdbc.JdbcRuntime;
 import java.io.PrintWriter;
 import java.io.StringWriter;
-import net.snowflake.client.internal.util.SecretDetector;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -89,7 +89,7 @@ public abstract class Logging {
 
   public static String maskSecrets(String msg) {
     if (msg != null) {
-      return SecretDetector.maskSecrets(msg);
+      return JdbcRuntime.maskSecrets(msg);
     }
     return null;
   }

@@ -4,9 +4,7 @@ import com.snowflake.snowpark.internal.analyzer.quoteName
 import com.snowflake.snowpark.internal.{SnowparkSFConnectionHandler, Utils}
 import com.snowflake.snowpark.types._
 import com.snowflake.snowpark._
-import net.snowflake.client.api.driver.SnowflakeDriver
-import net.snowflake.client.api.exception.SnowflakeSQLException
-import net.snowflake.client.internal.api.implementation.connection.SnowflakeConnectionImpl
+import net.snowflake.client.jdbc.{SnowflakeConnectionV1, SnowflakeDriver, SnowflakeSQLException}
 import com.snowflake.snowpark.functions._
 import java.io.File
 
@@ -364,13 +362,9 @@ class SessionSuite extends SNTestBase {
       jsonSessionInfo
         .get("jdbc.session.id")
         .asText()
-        .equals(session.jdbcConnection.asInstanceOf[SnowflakeConnectionImpl].getSessionID))
+        .equals(session.jdbcConnection.asInstanceOf[SnowflakeConnectionV1].getSessionID))
     assert(jsonSessionInfo.get("os.name").asText().equals(Utils.OSName))
-    assert(
-      jsonSessionInfo
-        .get("jdbc.version")
-        .asText()
-        .equals(SnowflakeDriver.getImplementationVersion()))
+    assert(jsonSessionInfo.get("jdbc.version").asText().equals(SnowflakeDriver.implementVersion))
     assert(jsonSessionInfo.get("snowpark.library").asText().nonEmpty)
     assert(jsonSessionInfo.get("scala.library").asText().nonEmpty)
     assert(jsonSessionInfo.get("jdbc.library").asText().nonEmpty)

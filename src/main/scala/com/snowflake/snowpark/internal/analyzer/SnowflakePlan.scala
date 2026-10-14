@@ -18,7 +18,7 @@ import com.snowflake.snowpark.internal.Utils.{
   randomNameForTempObject
 }
 import com.snowflake.snowpark.types.StructType
-import net.snowflake.client.api.exception.SnowflakeSQLException
+import com.snowflake.snowpark.internal.jdbc.JdbcExceptions.SnowflakeSQLException
 
 import scala.collection.immutable.HashSet
 import scala.collection.mutable
@@ -164,7 +164,7 @@ object SnowflakePlan extends Logging {
     } catch {
       // If an aliased column is used in an expression, this results in a cryptic compilation
       // error.
-      case ex: SnowflakeSQLException
+      case SnowflakeSQLException(ex)
           if ex.getMessage.toLowerCase(Locale.ROOT).contains(s"unexpected 'as'") =>
         val newEx = ErrorMessage.PLAN_JDBC_REPORT_UNEXPECTED_ALIAS()
         newEx.initCause(ex)
@@ -173,7 +173,7 @@ object SnowflakePlan extends Logging {
       // Because we generate column names automatically for joins, we want to make the
       // invalid identifier error messages more useful, because the invalid identifiers may
       // be auto-generated columns the user has no idea about.
-      case ex: SnowflakeSQLException
+      case SnowflakeSQLException(ex)
           if (ex.getSQLState() == "42000" && ex.getMessage.contains("invalid identifier")) =>
         // Parse out the actual invalid identifier from the message.
         val ColPattern = """(?s).*invalid identifier '"?([^'"]*)"?'.*""".r

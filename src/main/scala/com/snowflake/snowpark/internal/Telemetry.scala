@@ -4,20 +4,6 @@ import com.snowflake.snowpark.SnowparkClientException
 import net.snowflake.client.jdbc.internal.fasterxml.jackson.databind.{JsonNode, ObjectMapper}
 import Telemetry._
 
-/**
- * Snowpark telemetry wrapper.
- *
- * Telemetry events are submitted via [[ServerConnection.sfConn]].submitTelemetry, which delegates
- * to the stable [[net.snowflake.client.api.connection.SnowflakeConnection]] public interface. This
- * replaces the previous pattern of calling
- * {{{conn.connection.getSFBaseSession.getTelemetryClient}}} and therefore removes the dependency on
- * the internal {@code SFBaseSession} and the internal {@code TelemetryUtil} classes from the
- * stored-procedure connection path.
- *
- * The implementation is best-effort and fire-and-forget: failures are logged but not propagated.
- * Whether an event is actually sent is decided by the session's telemetry client; JDBC drops the
- * event when telemetry is disabled.
- */
 final class Telemetry(conn: ServerConnection) extends Logging {
 
   private def send(telemetryType: String, data: JsonNode): Unit = {
@@ -35,8 +21,7 @@ final class Telemetry(conn: ServerConnection) extends Logging {
       msg.put(CLIENT_LANGUAGE, JAVA)
     }
     try {
-      // submitTelemetry() is the stable SnowflakeConnection public-interface seam.
-      conn.sfConn.submitTelemetry(msg.toString)
+      conn.jdbc.submitTelemetry(msg)
       logDebug(s"sending telemetry data: ${data.toString}")
     } catch {
       case e: Exception =>

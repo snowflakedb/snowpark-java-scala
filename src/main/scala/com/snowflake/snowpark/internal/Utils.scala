@@ -16,7 +16,7 @@ import java.security.{DigestInputStream, MessageDigest}
 import java.util.Locale
 import java.util.regex.Pattern
 import com.snowflake.snowpark.udtf.UDTF
-import net.snowflake.client.api.exception.SnowflakeSQLException
+import com.snowflake.snowpark.internal.jdbc.JdbcExceptions.SnowflakeSQLException
 
 import scala.collection.JavaConverters.{asScalaIteratorConverter, mapAsScalaMapConverter}
 import scala.collection.mutable
@@ -405,7 +405,7 @@ object Utils extends Logging {
   }
 
   private[snowpark] def isRetryable(t: Throwable): Boolean = t match {
-    case e: SnowflakeSQLException
+    case SnowflakeSQLException(e)
         if e.getMessage.contains("JDBC driver internal error") ||
           e.getMessage.contains("JDBC driver encountered IO error") =>
       true

@@ -22,8 +22,8 @@ import com.snowflake.snowpark.internal.Utils.{
   getTableFunctionExpression,
   randomNameForTempObject
 }
-import net.snowflake.client.api.driver.SnowflakeDriver
-import net.snowflake.client.api.exception.SnowflakeSQLException
+import com.snowflake.snowpark.internal.jdbc.{JdbcExceptions, JdbcRuntime}
+import net.snowflake.client.jdbc.SnowflakeConnectionV1
 
 import scala.concurrent.{ExecutionContext, Future}
 import scala.collection.JavaConverters._
@@ -88,7 +88,7 @@ class Session private (private[snowpark] val conn: ServerConnection) extends Log
        | "scala.version" : "${Utils.ScalaVersion}",
        | "jdbc.session.id" : "$sessionId",
        | "os.name" : "${Utils.OSName}",
-       | "jdbc.version" : "${SnowflakeDriver.getImplementationVersion()}",
+       | "jdbc.version" : "${JdbcRuntime.driverVersion}",
        | "snowpark.library" : "${Utils.escapePath(
         UDFClassPath.snowparkJar.location.getOrElse("snowpark library not found"))}",
        | "scala.library" : "${Utils.escapePath(
@@ -96,8 +96,8 @@ class Session private (private[snowpark] val conn: ServerConnection) extends Log
           .getPathForClass(classOf[scala.Product])
           .getOrElse("Scala library not found"))}",
        | "jdbc.library" : "${Utils.escapePath(
-        UDFClassPath
-          .getPathForClass(classOf[net.snowflake.client.api.driver.SnowflakeDriver])
+        JdbcRuntime.snowflakeDriverClass
+          .flatMap(UDFClassPath.getPathForClass)
           .getOrElse("JDBC library not found"))}"
        |}""".stripMargin
 
@@ -1429,7 +1429,7 @@ class Session private (private[snowpark] val conn: ServerConnection) extends Log
       conn.runQuery(s"DESCRIBE TABLE $tableName")
       true
     } catch {
-      case _: SnowflakeSQLException => false
+      case JdbcExceptions.SnowflakeSQLException(_) => false
     }
   }
 
@@ -1478,24 +1478,22 @@ object Session extends Logging {
   }
 
   /**
-   * JDBC 4.x stored-procedure entry point. The JNI descriptor uses [[java.sql.Connection]]
-   * exclusively, making it stable across JDBC major versions and independent of any concrete JDBC
-   * implementation class name.
+   * This api is for Stored Procedure internal usage only. Do not create a Session with this api.
    *
-   * <p>No cast to a concrete class is performed here. The [[ServerConnection]] constructor unwraps
-   * the connection to [[net.snowflake.client.api.connection.SnowflakeConnection]] via
-   * {@code connection.unwrap(classOf[SnowflakeConnection])} exactly once at the boundary.
-   *
-   * <p>JNI descriptor: {@code (Ljava/sql/Connection;)Lcom/snowflake/snowpark/Session;}
-   *
-   * @param connection
-   *   Non-null [[java.sql.Connection]] that wraps a live Snowflake session; must be a wrapper for
-   *   [[net.snowflake.client.api.connection.SnowflakeConnection]].
    * @return
-   *   A fully initialised stored-procedure [[Session]].
+   *   [[Session]]
    */
-  private[snowpark] def apply(connection: java.sql.Connection): Session = {
-    require(connection != null, "connection must not be null")
+  private[snowpark] def apply(connection: SnowflakeConnectionV1): Session = {
+    Session.builder.createInternal(Some(connection))
+  }
+
+  /**
+   * Stored procedure entry point for JDBC 4.x connections. Do not create a Session with this api.
+   *
+   * @return
+   *   [[Session]]
+   */
+  private[snowpark] def fromJdbcConnection(connection: java.sql.Connection): Session = {
     Session.builder.createInternal(Some(connection))
   }
 

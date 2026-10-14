@@ -1,7 +1,5 @@
 package com.snowflake.snowpark.internal
 
-import net.snowflake.client.internal.core.SFSessionProperty
-
 import java.security.spec.{PKCS8EncodedKeySpec, RSAPrivateCrtKeySpec}
 import java.security.{GeneralSecurityException, KeyFactory, PrivateKey}
 import java.util.Properties
@@ -9,6 +7,9 @@ import org.apache.commons.codec.binary.Base64
 import sun.security.util.DerInputStream
 
 private[snowpark] object ParameterUtils extends Logging {
+
+  // SFSessionProperty.CLIENT_INFO, whose class moved between JDBC major versions.
+  private val ClientInfoPropertyKey = "snowflakeClientInfo"
 
   private var snowparkSpecificParameters: Set[String] = Set.empty
 
@@ -74,7 +75,7 @@ private[snowpark] object ParameterUtils extends Logging {
     config.put("CLIENT_SESSION_KEEP_ALIVE", true.asInstanceOf[Object])
 
     config.put(
-      SFSessionProperty.CLIENT_INFO.getPropertyKey,
+      ClientInfoPropertyKey,
       s"""{"client_language": "${if (isScalaAPI) "Scala" else "Java"}"}""".stripMargin)
 
     // log JDBC memory limit

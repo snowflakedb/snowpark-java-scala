@@ -5,7 +5,7 @@ import java.util.Locale
 import com.snowflake.snowpark._
 import com.snowflake.snowpark.types._
 import com.snowflake.snowpark.functions._
-import net.snowflake.client.api.exception.SnowflakeSQLException
+import net.snowflake.client.jdbc.SnowflakeSQLException
 
 class CopyableDataFrameSuite extends SNTestBase {
   val tmpStageName: String = randomStageName()
