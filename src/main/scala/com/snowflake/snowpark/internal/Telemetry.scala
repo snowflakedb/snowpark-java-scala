@@ -15,8 +15,8 @@ import Telemetry._
  * stored-procedure connection path.
  *
  * The implementation is best-effort and fire-and-forget: failures are logged but not propagated.
- * For Java stored procedures the JDBC runtime returns a NoOpTelemetryClient behind
- * {@code submitTelemetry} , so this class is safely no-op in that context.
+ * Whether an event is actually sent is decided by the session's telemetry client; JDBC drops the
+ * event when telemetry is disabled.
  */
 final class Telemetry(conn: ServerConnection) extends Logging {
 
@@ -36,7 +36,6 @@ final class Telemetry(conn: ServerConnection) extends Logging {
     }
     try {
       // submitTelemetry() is the stable SnowflakeConnection public-interface seam.
-      // It is a no-op for stored-procedure connections (NoOpTelemetryClient on the server side).
       conn.sfConn.submitTelemetry(msg.toString)
       logDebug(s"sending telemetry data: ${data.toString}")
     } catch {

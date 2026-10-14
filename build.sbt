@@ -26,7 +26,7 @@ lazy val jdbcName = s"snowflake-jdbc${if (isFipsRelease) "-fips" else ""}"
 
 // This is a Snowpark release-build setting, not an end-user runtime option. Builds that do not
 // provide the POC override must continue to resolve a deterministic stock JDBC version.
-// TODO: After snowflake-jdbc PR #19 is released, update this default to "4.3.4".
+// TODO: After snowflake-jdbc PR #19 is released, update this default to "4.4.1".
 val defaultJdbcVersion = "3.27.1"
 
 // POC build properties: both must be supplied together via -Dsproc.jdbc.version and
