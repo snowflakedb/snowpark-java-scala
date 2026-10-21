@@ -126,6 +126,9 @@ private[snowpark] object Jdbc3Bridge {
 }
 
 private class Jdbc3StructuredResultReader(data: ResultSet) extends StructuredResultReader {
+  // TODO(SNOW-4191069): Replace this sfBaseResultSet reflection, and the remaining internal JDBC
+  // APIs used here and in Jdbc4Bridge (SFBaseResultSet, SFArrowResultSet, ArrowSqlInput, ...),
+  // with supported public JDBC APIs.
   // the baseResultSet is not always SFArrowResultSet
   private lazy val baseResultSet: SFBaseResultSet = {
     val sfResultSet = data.asInstanceOf[SnowflakeBaseResultSet]

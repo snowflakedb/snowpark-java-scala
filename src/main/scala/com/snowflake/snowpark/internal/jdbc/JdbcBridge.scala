@@ -24,6 +24,9 @@ private[snowpark] trait JdbcBridge {
 
   /** Returns the value of a session parameter known to the driver, or null when absent. */
   def sessionParameter(name: String): String
+  // TODO(SNOW-4191069): Remove shaded JDBC Arrow/Jackson types (this ObjectNode, Telemetry's
+  // ObjectMapper/JsonNode, and the Arrow JsonStringArrayList/JsonStringHashMap in
+  // ServerConnection) from shared Snowpark code, and make this bridge boundary driver-neutral.
   def submitTelemetry(message: ObjectNode): Unit
 
   def uploadStream(

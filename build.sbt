@@ -32,6 +32,9 @@ val jdbcVersion = "3.27.1"
 // exact-runtime stored-procedure bundle). -Dsproc.jdbc4.version selects a locally installed
 // build, resolved from the local Maven repository.
 val jdbc4VersionOverride: Option[String] = sys.props.get("sproc.jdbc4.version")
+// TODO(SNOW-4191069): Before production qualification, run the full compatibility suite against
+// every supported JDBC version/line (3.x and 4.x); only a single 4.x version is built and tested
+// here.
 val jdbc4Version: String = jdbc4VersionOverride.getOrElse("4.4.0")
 
 // Allow the synthetic Snowpark version to be overridden by -Dsproc.snowpark.version.
@@ -337,6 +340,9 @@ lazy val root: Project = (project in file("."))
 
 // Compiled against JDBC 4.x and loaded reflectively by JdbcBridge, so the root project and its
 // published POM keep depending on JDBC 3.x only.
+// TODO(SNOW-4191069): Add a build/lint guard (e.g. scalastyle/scalafix or an sbt check) that fails
+// on new net.snowflake.client.* imports outside this module and the JDBC 3.x bridge/legacy
+// compatibility code (internal/jdbc).
 lazy val jdbc4Bridge: Project = (project in file("jdbc4-bridge"))
   .dependsOn(root)
   .settings(
