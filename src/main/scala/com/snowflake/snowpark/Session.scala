@@ -1478,7 +1478,17 @@ object Session extends Logging {
   }
 
   /**
-   * This api is for Stored Procedure internal usage only. Do not create a Session with this api.
+   * Stored procedure entry point for <b>JDBC 3.x connections only</b>. Do not create a Session
+   * with this api.
+   *
+   * <p>This method (and the {@code SnowflakeConnectionV1} import in this file) intentionally
+   * targets JDBC 3.x: the main Snowpark module is compiled against {@code snowflake-jdbc:3.27.1},
+   * where {@code SnowflakeConnectionV1} lives. In the JDBC 4.x exact-runtime stored-procedure
+   * bundle, this path is never invoked — callers use
+   * {@link StoredProcSessionFactory#fromJdbcConnection} instead, which routes to the
+   * {@code jdbc4-bridge} submodule compiled against JDBC 4.x. The JVM resolves
+   * {@code SnowflakeConnectionV1} lazily, so its absence from the JDBC 4.x classpath does not
+   * cause a {@code NoClassDefFoundError} as long as this method is never called in that context.
    *
    * @return
    *   [[Session]]

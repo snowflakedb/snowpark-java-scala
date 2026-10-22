@@ -196,12 +196,33 @@ private object Jdbc4Bridge {
 
 private class Jdbc4StructuredResultReader(data: ResultSet) extends StructuredResultReader {
   // the baseResultSet is not always SFArrowResultSet
+  //
+  // We access the protected field `sfBaseResultSet` reflectively because
+  // `SnowflakeBaseResultSet` does not yet expose a public or package-visible accessor.
+  // TODO (SNOW-4191069): Request a `getSFBaseResultSet()` accessor in the JDBC repo so that
+  //   this reflection can be replaced with a direct call.  The accessor would live in
+  //   SnowflakeBaseResultSet and be visible at least within `net.snowflake.client.**`.
   private lazy val baseResultSet: SFBaseResultSet = {
     val sfResultSet = data.asInstanceOf[SnowflakeBaseResultSet]
-    val baseResultSetField =
-      classOf[SnowflakeBaseResultSet].getDeclaredField("sfBaseResultSet")
-    baseResultSetField.setAccessible(true)
-    baseResultSetField.get(sfResultSet).asInstanceOf[SFBaseResultSet]
+    val field =
+      try {
+        val f = classOf[SnowflakeBaseResultSet].getDeclaredField("sfBaseResultSet")
+        f.setAccessible(true)
+        f
+      } catch {
+        case e: NoSuchFieldException =>
+          // The field name changed or was removed in the bundled JDBC version.
+          // Update `sfBaseResultSet` to match the current field name in
+          // SnowflakeBaseResultSet (net.snowflake:snowflake-jdbc bundled version).
+          throw new IllegalStateException(
+            "Jdbc4Bridge: could not locate 'sfBaseResultSet' on " +
+              classOf[SnowflakeBaseResultSet].getName +
+              ". The bundled JDBC driver may have renamed or removed this internal field. " +
+              "Update Jdbc4Bridge to match the current field name, or request a public " +
+              "accessor via SNOW-4191069.",
+            e)
+      }
+    field.get(sfResultSet).asInstanceOf[SFBaseResultSet]
   }
 
   private lazy val arrowResultSet: SFArrowResultSet =
