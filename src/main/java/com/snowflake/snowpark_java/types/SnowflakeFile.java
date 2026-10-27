@@ -1,5 +1,6 @@
 package com.snowflake.snowpark_java.types;
 
+import java.io.IOException;
 import java.io.InputStream;
 
 /**
@@ -59,6 +60,24 @@ public class SnowflakeFile {
    */
   @Deprecated
   public static native SnowflakeFile newInstanceFromOwnerFileUrl(String url);
+
+  /**
+   * Move the read position of the file to the given byte offset, so that the next read from the
+   * input stream starts there without downloading the bytes before it. Both forward and backward
+   * seeks are supported. Seeking past the end of the file is allowed; a subsequent read then
+   * reports end of file.
+   *
+   * <p>This method requires a Snowflake server version that supports seek. Otherwise, it throws
+   * UnsupportedOperationException when called inside a UDF.
+   *
+   * @param pos byte offset from the start of the file (0-indexed, non-negative).
+   * @throws IllegalArgumentException if pos is negative.
+   * @throws IOException if the input stream of the file has already been closed.
+   * @since 1.22.0
+   */
+  public synchronized void seek(long pos) throws IOException {
+    throw new UnsupportedOperationException();
+  }
 
   /**
    * Obtain and return the input stream for the file. Successive calls do not create a new input
