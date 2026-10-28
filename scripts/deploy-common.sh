@@ -162,3 +162,17 @@ else
 
   echo "[SUCCESS] Published Snowpark Java-Scala $github_version_tag artifacts to S3."
 fi
+
+# NOTE: This script publishes ONLY the Snowpark Java/Scala release itself
+# (Maven Central or the sfc-eng-jenkins/sfc-eng-data S3 layout above). It
+# does not publish, and must never publish, the JDBC stored-procedure
+# adapter JAR. Adapter publication is handled separately by adapter build CI
+# in the snowflake repo (ExecPlatform/src/coprocessor/java/libraries/
+# jdbc-stored-proc-jdbc4-adapter), which is the sole producer of the adapter
+# JAR, .sha256 sidecar, and artifact.manifest at the adapter-version S3 prefix.
+if [[ -n "${ADAPTER_JAR_PATH:-}" || -n "${ARTIFACT_MANIFEST_PATH:-}" || -n "${JDBC_COMPATIBILITY_SET_PATH:-}" || -n "${JDBC_COMPATIBILITY_SET_SHA256:-}" ]]; then
+  echo "[ERROR] ADAPTER_JAR_PATH/ARTIFACT_MANIFEST_PATH/JDBC_COMPATIBILITY_SET_PATH/JDBC_COMPATIBILITY_SET_SHA256 are no longer supported by this script."
+  echo "[ERROR] The Snowpark release pipeline does not publish the JDBC stored-procedure adapter JAR."
+  echo "[ERROR] Adapter publication is owned exclusively by adapter build CI in the snowflake repo."
+  exit 1
+fi

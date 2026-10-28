@@ -23,7 +23,22 @@ def isFatJarOrBundle(c: String): Boolean =
 
 lazy val snowparkName = s"snowpark${if (isFipsRelease) "-fips" else ""}"
 lazy val jdbcName = s"snowflake-jdbc${if (isFipsRelease) "-fips" else ""}"
-lazy val snowparkVersion = "1.22.0-SNAPSHOT"
+
+// 3.27.0+ required for native INTERVAL → java.time.Duration / Period ResultSet reads
+val jdbcVersion = "3.27.1"
+
+// JDBC 4.x compile-only dependency of the jdbc4-bridge module. Users keep the JDBC 3.x dependency
+// above; the JDBC 4.x code path only runs when a JDBC 4.x driver supplies the connection (the
+// exact-runtime stored-procedure bundle). -Dsproc.jdbc4.version selects a locally installed
+// build, resolved from the local Maven repository.
+val jdbc4VersionOverride: Option[String] = sys.props.get("sproc.jdbc4.version")
+// TODO(SNOW-4191069): Before production qualification, run the full compatibility suite against
+// every supported JDBC version/line (3.x and 4.x); only a single 4.x version is built and tested
+// here.
+val jdbc4Version: String = jdbc4VersionOverride.getOrElse("4.4.0")
+
+// Allow the synthetic Snowpark version to be overridden by -Dsproc.snowpark.version.
+lazy val snowparkVersion: String = sys.props.getOrElse("sproc.snowpark.version", "1.22.0-SNAPSHOT")
 
 lazy val Javadoc = config("genjavadoc") extend Compile
 
@@ -78,13 +93,11 @@ lazy val javadocSettings = inConfig(Javadoc)(Defaults.configSettings) ++ Seq(
   Javadoc / packageDoc / artifactName := ((sv, mod, art) =>
     "" + mod.name + "_" + sv.binary + "-" + mod.revision + "-javadoc.jar"))
 
-// 3.27.0+ required for native INTERVAL → java.time.Duration / Period ResultSet reads
-val jdbcVersion = "3.27.1"
 val jacksonVersion = "2.18.0"
 val openTelemetryVersion = "1.39.0"
 val slf4jVersion = "2.0.16"
 
-lazy val root = (project in file("."))
+lazy val root: Project = (project in file("."))
   .enablePlugins(BuildInfoPlugin, UniversalPlugin)
   .configs(Javadoc)
   .settings(javadocSettings: _*)
@@ -187,6 +200,9 @@ lazy val root = (project in file("."))
     },
     addArtifact(Javadoc / packageDoc / artifact, Javadoc / packageDoc),
 
+    // The JDBC 4.x bridge ships inside the Snowpark jar; it is not a separate artifact.
+    Compile / packageBin / mappings ++= (LocalProject("jdbc4Bridge") / Compile / packageBin / mappings).value,
+
     // Release settings
 
     // Disable publishing the source files JAR unless publishing to maven.
@@ -209,6 +225,7 @@ lazy val root = (project in file("."))
       cp filter { _.data.getName == s"$jdbcName-$jdbcVersion.jar" }
     },
     // Release fat JAR including all dependencies except those excluded above
+    assembly / fullClasspath ++= (LocalProject("jdbc4Bridge") / Compile / exportedProducts).value,
     assembly / artifact := {
       val base = (Compile / packageBin / artifact).value
       base.withClassifier(Some("with-dependencies"))
@@ -320,6 +337,30 @@ lazy val root = (project in file("."))
           <organizationUrl>https://www.snowflake.com</organizationUrl>
         </developer>
       </developers>)
+
+// Compiled against JDBC 4.x and loaded reflectively by JdbcBridge, so the root project and its
+// published POM keep depending on JDBC 3.x only.
+// TODO(SNOW-4191069): Add a build/lint guard (e.g. scalastyle/scalafix or an sbt check) that fails
+// on new net.snowflake.client.* imports outside this module and the JDBC 3.x bridge/legacy
+// compatibility code (internal/jdbc).
+lazy val jdbc4Bridge: Project = (project in file("jdbc4-bridge"))
+  .dependsOn(root)
+  .settings(
+    name := "snowpark-jdbc4-bridge",
+    version := snowparkVersion,
+    scalaVersion := (root / scalaVersion).value,
+    crossScalaVersions := (root / crossScalaVersions).value,
+    javacOptions ++= Seq("-source", "1.8", "-target", "1.8"),
+    resolvers ++= jdbc4VersionOverride.map(_ => Resolver.mavenLocal).toSeq,
+    excludeDependencies += ExclusionRule("net.snowflake", "snowflake-jdbc-fips"),
+    dependencyOverrides += "net.snowflake" % "snowflake-jdbc" % jdbc4Version,
+    libraryDependencies ++= Seq(
+      "net.snowflake" % "snowflake-jdbc" % jdbc4Version % Provided,
+      "org.mockito" % "mockito-core" % "2.23.0" % Test,
+      "org.scalatest" %% "scalatest" % "3.2.19" % Test),
+    scalafmtOnCompile := true,
+    publish / skip := true,
+    Test / fork := true)
 
 // Test Groups
 // Code Verification

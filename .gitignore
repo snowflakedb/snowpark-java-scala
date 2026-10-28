@@ -20,3 +20,8 @@ snowpark-fips.iml
 snowpark-java.iml
 .bsp/
 project/target/
+
+# POC assembly artifacts (binary JARs are not committed)
+poc-artifacts/*.jar
+# Generated runtime sidecar; publish with the artifact rather than source control.
+poc-artifacts/artifact.manifest

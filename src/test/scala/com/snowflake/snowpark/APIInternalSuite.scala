@@ -16,7 +16,7 @@ import com.snowflake.snowpark.internal.analyzer.{
 }
 import com.snowflake.snowpark.types._
 import net.snowflake.client.core.SFSessionProperty
-import net.snowflake.client.jdbc.SnowflakeSQLException
+import net.snowflake.client.jdbc.{SnowflakeConnectionV1, SnowflakeSQLException}
 
 import java.nio.file.Files
 import java.sql.{Date, Timestamp}
@@ -297,7 +297,8 @@ class APIInternalSuite extends TestData {
    */
   test("Test that all params are correctly propagated to JDBC session") {
     val session2 = Session.builder.configFile(defaultProfile).config("ROLE", "PUBLIC").create
-    val jdbcSession = session2.conn.connection.getSFBaseSession
+    val jdbcSession =
+      session2.conn.connection.unwrap(classOf[SnowflakeConnectionV1]).getSFBaseSession
     val propertySet = jdbcSession.getConnectionPropertiesMap.keySet()
     assert(propertySet.contains(SFSessionProperty.DATABASE))
     assert(propertySet.contains(SFSessionProperty.SCHEMA))

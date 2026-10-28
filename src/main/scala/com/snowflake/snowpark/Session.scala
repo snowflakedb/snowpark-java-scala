@@ -22,7 +22,8 @@ import com.snowflake.snowpark.internal.Utils.{
   getTableFunctionExpression,
   randomNameForTempObject
 }
-import net.snowflake.client.jdbc.{SnowflakeConnectionV1, SnowflakeDriver, SnowflakeSQLException}
+import com.snowflake.snowpark.internal.jdbc.{JdbcExceptions, JdbcRuntime}
+import net.snowflake.client.jdbc.SnowflakeConnectionV1
 
 import scala.concurrent.{ExecutionContext, Future}
 import scala.collection.JavaConverters._
@@ -87,7 +88,7 @@ class Session private (private[snowpark] val conn: ServerConnection) extends Log
        | "scala.version" : "${Utils.ScalaVersion}",
        | "jdbc.session.id" : "$sessionId",
        | "os.name" : "${Utils.OSName}",
-       | "jdbc.version" : "${SnowflakeDriver.implementVersion}",
+       | "jdbc.version" : "${JdbcRuntime.driverVersion}",
        | "snowpark.library" : "${Utils.escapePath(
         UDFClassPath.snowparkJar.location.getOrElse("snowpark library not found"))}",
        | "scala.library" : "${Utils.escapePath(
@@ -95,8 +96,8 @@ class Session private (private[snowpark] val conn: ServerConnection) extends Log
           .getPathForClass(classOf[scala.Product])
           .getOrElse("Scala library not found"))}",
        | "jdbc.library" : "${Utils.escapePath(
-        UDFClassPath
-          .getPathForClass(classOf[net.snowflake.client.jdbc.SnowflakeDriver])
+        JdbcRuntime.snowflakeDriverClass
+          .flatMap(UDFClassPath.getPathForClass)
           .getOrElse("JDBC library not found"))}"
        |}""".stripMargin
 
@@ -1428,7 +1429,7 @@ class Session private (private[snowpark] val conn: ServerConnection) extends Log
       conn.runQuery(s"DESCRIBE TABLE $tableName")
       true
     } catch {
-      case _: SnowflakeSQLException => false
+      case JdbcExceptions.SnowflakeSQLException(_) => false
     }
   }
 
@@ -1477,12 +1478,32 @@ object Session extends Logging {
   }
 
   /**
-   * This api is for Stored Procedure internal usage only. Do not create a Session with this api.
+   * Stored procedure entry point for <b>JDBC 3.x connections only</b>. Do not create a Session
+   * with this api.
+   *
+   * <p>This method (and the {@code SnowflakeConnectionV1} import in this file) intentionally
+   * targets JDBC 3.x: the main Snowpark module is compiled against {@code snowflake-jdbc:3.27.1},
+   * where {@code SnowflakeConnectionV1} lives. In the JDBC 4.x exact-runtime stored-procedure
+   * bundle, this path is never invoked — callers use
+   * {@link StoredProcSessionFactory#fromJdbcConnection} instead, which routes to the
+   * {@code jdbc4-bridge} submodule compiled against JDBC 4.x. The JVM resolves
+   * {@code SnowflakeConnectionV1} lazily, so its absence from the JDBC 4.x classpath does not
+   * cause a {@code NoClassDefFoundError} as long as this method is never called in that context.
    *
    * @return
    *   [[Session]]
    */
   private[snowpark] def apply(connection: SnowflakeConnectionV1): Session = {
+    Session.builder.createInternal(Some(connection))
+  }
+
+  /**
+   * Stored procedure entry point for JDBC 4.x connections. Do not create a Session with this api.
+   *
+   * @return
+   *   [[Session]]
+   */
+  private[snowpark] def fromJdbcConnection(connection: java.sql.Connection): Session = {
     Session.builder.createInternal(Some(connection))
   }
 
@@ -1697,7 +1718,7 @@ object Session extends Logging {
       Session.getActiveSession.getOrElse(create)
     }
 
-    private[snowpark] def createInternal(conn: Option[SnowflakeConnectionV1]): Session = {
+    private[snowpark] def createInternal(conn: Option[java.sql.Connection]): Session = {
       conn match {
         case Some(_) =>
           setActiveSession(new Session(new ServerConnection(Map.empty, isScalaAPI, conn)))
