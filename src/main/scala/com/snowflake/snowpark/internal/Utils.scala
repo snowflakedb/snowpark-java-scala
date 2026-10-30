@@ -37,12 +37,6 @@ object Utils extends Logging {
   // Minimum GS version for us to identify as Snowpark client
   val MinimumGSVersionForSnowparkClientType: String = "5.20.0"
 
-  // Define the toString format for java.sql.Date and java.sql.Timestamp
-  // Need to define those types because SnowflakeDateTimeFormat does not have these as variable
-  // Auto does not work as SqlFormat for class SnowflakeDateTimeFormat
-  val DateInputFormat: String = "YYYY-MM-DD"
-  val TimestampInputFormat: String = "YYYY-MM-DD HH24:MI:SS.FF"
-
   // Copied from GS parameter SP_TEMP_OBJECT_NAME_REGEX.
   // No need to read this parameter from server, because we cannot really change this parameter.
   // Otherwise older Snowpark clients will be broken.
