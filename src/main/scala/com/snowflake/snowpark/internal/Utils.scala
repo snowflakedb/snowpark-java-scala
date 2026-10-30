@@ -16,7 +16,6 @@ import java.security.{DigestInputStream, MessageDigest}
 import java.util.Locale
 import java.util.regex.Pattern
 import com.snowflake.snowpark.udtf.UDTF
-import com.snowflake.snowpark.internal.jdbc.JdbcExceptions.SnowflakeSQLException
 
 import scala.collection.JavaConverters.{asScalaIteratorConverter, mapAsScalaMapConverter}
 import scala.collection.mutable
@@ -33,6 +32,14 @@ object Utils extends Logging {
   // Package name of snowpark on server side
   val SnowparkPackageName = s"com.snowflake:snowpark_$ScalaCompatVersion"
   val PackageNameDelimiter = ":"
+
+  // Version format copied from GS ClientVersionUtils.java
+  private val VersionFormatPattern = "[0-9]+\\.[0-9]+\\.[0-9]+(?:\\.[0-9]+)?".r
+
+  def extractValidVersionNumber(version: String): String =
+    VersionFormatPattern
+      .findFirstIn(version)
+      .getOrElse(throw ErrorMessage.MISC_INVALID_CLIENT_VERSION(version))
 
   // Minimum GS version for us to identify as Snowpark client
   val MinimumGSVersionForSnowparkClientType: String = "5.20.0"
@@ -398,15 +405,15 @@ object Utils extends Logging {
     expectedTime
   }
 
-  private[snowpark] def isRetryable(t: Throwable): Boolean = t match {
-    case SnowflakeSQLException(e)
-        if e.getMessage.contains("JDBC driver internal error") ||
-          e.getMessage.contains("JDBC driver encountered IO error") =>
-      true
-    case _ => false
-  }
+  private[snowpark] def isRetryable(t: Throwable, isSnowflakeError: Throwable => Boolean): Boolean =
+    isSnowflakeError(t) &&
+      (t.getMessage.contains("JDBC driver internal error") ||
+        t.getMessage.contains("JDBC driver encountered IO error"))
 
-  private[snowpark] def withRetry[T](maxRetry: Int, logPrefix: String)(thunk: => T): Unit = {
+  private[snowpark] def withRetry[T](
+      maxRetry: Int,
+      logPrefix: String,
+      isSnowflakeError: Throwable => Boolean)(thunk: => T): Unit = {
     var retry = 0
     var done = false
     var lastError: Option[Throwable] = None
@@ -415,7 +422,7 @@ object Utils extends Logging {
         thunk
         done = true
       } catch {
-        case t: Throwable if isRetryable(t) =>
+        case t: Throwable if isRetryable(t, isSnowflakeError) =>
           logError(
             s"withRetry() failed: $logPrefix, sleep ${retrySleepTimeInMS(retry)} ms" +
               s" and retry: $retry error message: ${t.getMessage}")
@@ -450,8 +457,7 @@ object Utils extends Logging {
   private[snowpark] def isStringEmpty(str: String): Boolean = str == null || str.isEmpty
 
   private[snowpark] lazy val clientPackageName: String =
-    SnowparkPackageName + PackageNameDelimiter + SnowparkSFConnectionHandler
-      .extractValidVersionNumber(Utils.Version)
+    SnowparkPackageName + PackageNameDelimiter + extractValidVersionNumber(Utils.Version)
 
   /*
    * Snowflake SQL syntax for option values requires some value types to be singleQuoted:

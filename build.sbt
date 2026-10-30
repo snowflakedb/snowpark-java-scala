@@ -37,6 +37,10 @@ val jdbc4VersionOverride: Option[String] = sys.props.get("sproc.jdbc4.version")
 // here.
 val jdbc4Version: String = jdbc4VersionOverride.getOrElse("4.4.0")
 
+// Driver-neutral session interface (com.snowflake.session.api). Until it is published, it is
+// resolved from the local Maven repository.
+val sessionApi = "com.snowflake" % "snowflake-session-api" % "0.1.0-SNAPSHOT"
+
 // Allow the synthetic Snowpark version to be overridden by -Dsproc.snowpark.version.
 lazy val snowparkVersion: String = sys.props.getOrElse("sproc.snowpark.version", "1.22.0-SNAPSHOT")
 
@@ -145,6 +149,7 @@ lazy val root: Project = (project in file("."))
       "io.opentelemetry" % "opentelemetry-api" % openTelemetryVersion,
       "javax.xml.bind" % "jaxb-api" % "2.3.1",
       "net.snowflake" % jdbcName % jdbcVersion,
+      sessionApi,
       "org.scala-lang" % "scala-library" % scalaVersion.value,
       "org.scala-lang" % "scala-compiler" % scalaVersion.value,
       "org.slf4j" % "slf4j-api" % slf4jVersion,
@@ -200,8 +205,7 @@ lazy val root: Project = (project in file("."))
     },
     addArtifact(Javadoc / packageDoc / artifact, Javadoc / packageDoc),
 
-    // The JDBC 4.x bridge ships inside the Snowpark jar; it is not a separate artifact.
-    Compile / packageBin / mappings ++= (LocalProject("jdbc4Bridge") / Compile / packageBin / mappings).value,
+    resolvers += Resolver.mavenLocal,
 
     // Release settings
 
@@ -225,7 +229,6 @@ lazy val root: Project = (project in file("."))
       cp filter { _.data.getName == s"$jdbcName-$jdbcVersion.jar" }
     },
     // Release fat JAR including all dependencies except those excluded above
-    assembly / fullClasspath ++= (LocalProject("jdbc4Bridge") / Compile / exportedProducts).value,
     assembly / artifact := {
       val base = (Compile / packageBin / artifact).value
       base.withClassifier(Some("with-dependencies"))
@@ -338,24 +341,23 @@ lazy val root: Project = (project in file("."))
         </developer>
       </developers>)
 
-// Compiled against JDBC 4.x and loaded reflectively by JdbcBridge, so the root project and its
-// published POM keep depending on JDBC 3.x only.
-// TODO(SNOW-4191069): Add a build/lint guard (e.g. scalastyle/scalafix or an sbt check) that fails
-// on new net.snowflake.client.* imports outside this module and the JDBC 3.x bridge/legacy
-// compatibility code (internal/jdbc).
+// Reference JDBC 4.x implementation of the session interface, standing in for the implementation
+// the JDBC 4.x driver will ship. It depends only on the session interface and JDBC 4.x, not on
+// Snowpark; Snowpark discovers it through ServiceLoader.
 lazy val jdbc4Bridge: Project = (project in file("jdbc4-bridge"))
-  .dependsOn(root)
+  .dependsOn(root % "test->test")
   .settings(
     name := "snowpark-jdbc4-bridge",
     version := snowparkVersion,
     scalaVersion := (root / scalaVersion).value,
     crossScalaVersions := (root / crossScalaVersions).value,
     javacOptions ++= Seq("-source", "1.8", "-target", "1.8"),
-    resolvers ++= jdbc4VersionOverride.map(_ => Resolver.mavenLocal).toSeq,
+    resolvers += Resolver.mavenLocal,
     excludeDependencies += ExclusionRule("net.snowflake", "snowflake-jdbc-fips"),
     dependencyOverrides += "net.snowflake" % "snowflake-jdbc" % jdbc4Version,
     libraryDependencies ++= Seq(
       "net.snowflake" % "snowflake-jdbc" % jdbc4Version % Provided,
+      sessionApi % Provided,
       "org.mockito" % "mockito-core" % "2.23.0" % Test,
       "org.scalatest" %% "scalatest" % "3.2.19" % Test),
     scalafmtOnCompile := true,

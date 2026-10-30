@@ -1,7 +1,7 @@
 package com.snowflake.snowpark.internal
 
 import com.snowflake.snowpark.SnowparkClientException
-import net.snowflake.client.jdbc.internal.fasterxml.jackson.databind.{JsonNode, ObjectMapper}
+import com.fasterxml.jackson.databind.{JsonNode, ObjectMapper}
 import Telemetry._
 
 final class Telemetry(conn: ServerConnection) extends Logging {
@@ -21,7 +21,7 @@ final class Telemetry(conn: ServerConnection) extends Logging {
       msg.put(CLIENT_LANGUAGE, JAVA)
     }
     try {
-      conn.jdbc.submitTelemetry(msg)
+      conn.sfSession.submitTelemetry(msg.toString)
       logDebug(s"sending telemetry data: ${data.toString}")
     } catch {
       case e: Exception =>

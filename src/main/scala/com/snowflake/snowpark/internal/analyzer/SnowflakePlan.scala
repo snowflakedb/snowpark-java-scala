@@ -18,7 +18,6 @@ import com.snowflake.snowpark.internal.Utils.{
   randomNameForTempObject
 }
 import com.snowflake.snowpark.types.StructType
-import com.snowflake.snowpark.internal.jdbc.JdbcExceptions.SnowflakeSQLException
 
 import scala.collection.immutable.HashSet
 import scala.collection.mutable
@@ -44,7 +43,7 @@ class SnowflakePlan(
     output
   }
 
-  private[snowpark] def analyzeIfneeded(): Unit = wrapException(this) {
+  private[snowpark] def analyzeIfneeded(): Unit = wrapException(session.conn, this) {
     if (!session.isLazyAnalysis) {
       attributes
     }
@@ -54,37 +53,38 @@ class SnowflakePlan(
   // DataFrame, but delay the input query verification.
   analyzeIfneeded()
 
-  def withSubqueries(subqueryPlans: Array[SnowflakePlan]): SnowflakePlan = wrapException(this) {
-    val preQueries = ArrayBuffer(queries.dropRight(1): _*)
-    var newSchemaQuery = schemaQuery
-    val newPostActions = ArrayBuffer(postActions: _*)
-    subqueryPlans.foreach { plan =>
-      // Add preceding queries with de-duplication
-      plan.queries
-        .dropRight(1)
-        .foreach { query =>
-          if (!preQueries.contains(query)) {
-            preQueries.append(query)
+  def withSubqueries(subqueryPlans: Array[SnowflakePlan]): SnowflakePlan =
+    wrapException(session.conn, this) {
+      val preQueries = ArrayBuffer(queries.dropRight(1): _*)
+      var newSchemaQuery = schemaQuery
+      val newPostActions = ArrayBuffer(postActions: _*)
+      subqueryPlans.foreach { plan =>
+        // Add preceding queries with de-duplication
+        plan.queries
+          .dropRight(1)
+          .foreach { query =>
+            if (!preQueries.contains(query)) {
+              preQueries.append(query)
+            }
+          }
+        // Replace schema query
+        newSchemaQuery = newSchemaQuery.replace(plan.queries.last.sql, plan.schemaQuery)
+        // Append post actions
+        plan.postActions.foreach { action =>
+          if (!newPostActions.contains(action)) {
+            newPostActions.append(action)
           }
         }
-      // Replace schema query
-      newSchemaQuery = newSchemaQuery.replace(plan.queries.last.sql, plan.schemaQuery)
-      // Append post actions
-      plan.postActions.foreach { action =>
-        if (!newPostActions.contains(action)) {
-          newPostActions.append(action)
-        }
       }
+      val supportAsyncMode = subqueryPlans.forall(_.supportAsyncMode)
+      SnowflakePlan(
+        preQueries.toSeq :+ queries.last,
+        newSchemaQuery,
+        newPostActions.toSeq,
+        session,
+        sourcePlan,
+        supportAsyncMode)
     }
-    val supportAsyncMode = subqueryPlans.forall(_.supportAsyncMode)
-    SnowflakePlan(
-      preQueries.toSeq :+ queries.last,
-      newSchemaQuery,
-      newPostActions.toSeq,
-      session,
-      sourcePlan,
-      supportAsyncMode)
-  }
 
   def schemaQuery: String = {
     require(_schemaQuery.nonEmpty, "Schema query can't be empty")
@@ -158,7 +158,8 @@ object SnowflakePlan extends Logging {
       supportAsyncMode: Boolean): SnowflakePlan =
     new SnowflakePlan(queries, schemaQuery, postActions, session, sourcePlan, supportAsyncMode)
 
-  def wrapException[T](children: LogicalPlan*)(thunk: => T): T = {
+  def wrapException[T](conn: ServerConnection, children: LogicalPlan*)(thunk: => T): T = {
+    val SnowflakeSQLException = conn.SnowflakeError
     try {
       thunk
     } catch {
@@ -268,7 +269,7 @@ class SnowflakePlanBuilder(session: Session) extends Logging {
       child: SnowflakePlan,
       sourcePlan: Option[LogicalPlan],
       schemaQuery: Option[String],
-      isDDLOnTempObject: Boolean): SnowflakePlan = wrapException(child) {
+      isDDLOnTempObject: Boolean): SnowflakePlan = wrapException(session.conn, child) {
     val selectChild = addResultScanIfNotSelect(child)
     val lastQuery = selectChild.queries.last
     val queries: Seq[Query] = selectChild.queries.slice(0, selectChild.queries.length - 1) ++
@@ -287,7 +288,7 @@ class SnowflakePlanBuilder(session: Session) extends Logging {
       sqlGenerator: (String, String) => String,
       left: SnowflakePlan,
       right: SnowflakePlan,
-      sourcePlan: Option[LogicalPlan]): SnowflakePlan = wrapException(left, right) {
+      sourcePlan: Option[LogicalPlan]): SnowflakePlan = wrapException(session.conn, left, right) {
     val selectLeft = addResultScanIfNotSelect(left)
     val lastQueryLeft = selectLeft.queries.last
     val selectRight = addResultScanIfNotSelect(right)
@@ -314,7 +315,7 @@ class SnowflakePlanBuilder(session: Session) extends Logging {
   private def buildGroup(
       sqlGenerator: Seq[String] => String,
       children: Seq[SnowflakePlan],
-      sourcePlan: Option[LogicalPlan]): SnowflakePlan = wrapException(children: _*) {
+      sourcePlan: Option[LogicalPlan]): SnowflakePlan = wrapException(session.conn, children: _*) {
     val selectChildren = children.map(addResultScanIfNotSelect)
     val params: Seq[Any] = selectChildren.map(_.queries.last.params).flatten
     val queries: Seq[Query] =

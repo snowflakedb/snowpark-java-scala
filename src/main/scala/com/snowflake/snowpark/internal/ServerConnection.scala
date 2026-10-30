@@ -25,18 +25,9 @@ import com.snowflake.snowpark.internal.ParameterUtils.{
 }
 import com.snowflake.snowpark.internal.Utils.PackageNameDelimiter
 import com.snowflake.snowpark.internal.analyzer.{Attribute, Query, SnowflakePlan}
-import com.snowflake.snowpark.internal.jdbc.{
-  FieldInfo,
-  JdbcBridge,
-  JdbcExceptions,
-  QueryState,
-  StructuredResultReader
-}
+import com.snowflake.session.api.{FieldMetadata, QueryStatus, SnowflakeSession}
+import com.snowflake.snowpark.internal.jdbc.{SnowflakeErrorExtractor, SnowflakeSessions}
 import com.snowflake.snowpark.types._
-import net.snowflake.client.jdbc.internal.apache.arrow.vector.util.{
-  JsonStringArrayList,
-  JsonStringHashMap
-}
 
 import java.util
 import scala.collection.mutable
@@ -57,9 +48,11 @@ private[snowpark] object ServerConnection {
     new ServerConnection(options, isScalaAPI, None)
   }
 
-  def convertResultMetaToAttribute(meta: ResultSetMetaData, jdbc: JdbcBridge): Seq[Attribute] =
+  def convertResultMetaToAttribute(
+      meta: ResultSetMetaData,
+      session: SnowflakeSession): Seq[Attribute] =
     (1 to meta.getColumnCount).map(index => {
-      val fieldMetadata = jdbc.columnFields(meta, index)
+      val fieldMetadata = session.getColumnFields(meta, index).asScala.toList
       val columnName = analyzer.quoteNameWithoutUpperCasing(meta.getColumnLabel(index))
       val dataType = meta.getColumnType(index)
       val fieldSize = meta.getPrecision(index)
@@ -81,7 +74,7 @@ private[snowpark] object ServerConnection {
       precision: Int,
       scale: Int,
       signed: Boolean,
-      field: List[FieldInfo] = List.empty): DataType = {
+      field: List[FieldMetadata] = List.empty): DataType = {
     columnTypeName match {
       case "ARRAY" =>
         if (field.isEmpty) {
@@ -89,44 +82,50 @@ private[snowpark] object ServerConnection {
         } else {
           StructuredArrayType(
             getDataType(
-              field.head.sqlType,
-              field.head.typeName,
-              field.head.precision,
-              field.head.scale,
+              field.head.getSqlType,
+              field.head.getTypeName,
+              field.head.getPrecision,
+              field.head.getScale,
               signed = true, // no sign info in the fields
-              field.head.fields),
-            field.head.nullable)
+              field.head.getFields.asScala.toList),
+            field.head.isNullable)
         }
       case "VARIANT" => VariantType
       case "OBJECT" =>
         if (field.isEmpty) {
           MapType(StringType, StringType)
-        } else if (field.size == 2 && field.head.name.isEmpty) {
+        } else if (field.size == 2 && field.head.getName.isEmpty) {
           // Map
           StructuredMapType(
             getDataType(
-              field.head.sqlType,
-              field.head.typeName,
-              field.head.precision,
-              field.head.scale,
+              field.head.getSqlType,
+              field.head.getTypeName,
+              field.head.getPrecision,
+              field.head.getScale,
               signed = true,
-              field.head.fields),
+              field.head.getFields.asScala.toList),
             getDataType(
-              field(1).sqlType,
-              field(1).typeName,
-              field(1).precision,
-              field(1).scale,
+              field(1).getSqlType,
+              field(1).getTypeName,
+              field(1).getPrecision,
+              field(1).getScale,
               signed = true,
-              field(1).fields),
-            field(1).nullable)
+              field(1).getFields.asScala.toList),
+            field(1).isNullable)
         } else {
           // object
           StructType(
             field.map(f =>
               StructField(
-                f.name,
-                getDataType(f.sqlType, f.typeName, f.precision, f.scale, signed = true, f.fields),
-                f.nullable)))
+                f.getName,
+                getDataType(
+                  f.getSqlType,
+                  f.getTypeName,
+                  f.getPrecision,
+                  f.getScale,
+                  signed = true,
+                  f.getFields.asScala.toList),
+                f.isNullable)))
         }
       case "GEOGRAPHY" => GeographyType
       case "GEOMETRY" => GeometryType
@@ -192,18 +191,15 @@ private[snowpark] object ServerConnection {
   }
 }
 /*
- * A JDBC connection is created automatically with the options Map,
- *  or, alternatively, a JDBC Connection can be passed in jdbcConn.
- *  Snowflake-specific operations go through `jdbc`, which matches the JDBC driver major version
- *  of the connection.
+ * A client session is created automatically with the options Map,
+ *  or, alternatively, a session can be passed in, for example by a stored procedure.
+ *  Snowflake-specific operations go through `sfSession`.
  */
 private[snowpark] class ServerConnection(
     options: Map[String, String],
     val isScalaAPI: Boolean,
-    private val jdbcConn: Option[java.sql.Connection])
+    providedSession: Option[SnowflakeSession])
     extends Logging {
-
-  val isStoredProc = jdbcConn.isDefined
   // convert all parameter keys to lower case, and only use lower case keys internally.
   private val lowerCaseParameters: Map[String, String] = options.map {
     // scalastyle:off
@@ -211,13 +207,18 @@ private[snowpark] class ServerConnection(
     // scalastyle:on
   }
 
-  val connection: java.sql.Connection = jdbcConn.getOrElse {
+  private[snowpark] val sfSession: SnowflakeSession = providedSession.getOrElse {
     val connURL = ServerConnection.connectionString(lowerCaseParameters)
     val connParam = ParameterUtils.jdbcConfig(lowerCaseParameters, isScalaAPI)
-    JdbcBridge.createClientConnection(connURL, connParam)
+    SnowflakeSessions.createClientSession(connURL, connParam)
   }
 
-  private[snowpark] val jdbc: JdbcBridge = JdbcBridge.forConnection(connection)
+  val isStoredProc: Boolean = sfSession.isStoredProcedure
+
+  val connection: java.sql.Connection = sfSession.getConnection
+
+  /** Matches errors raised by Snowflake, as opposed to by the client. */
+  private[snowpark] val SnowflakeError = new SnowflakeErrorExtractor(sfSession)
 
   private[snowpark] def close(): Unit =
     if (connection != null) {
@@ -280,7 +281,7 @@ private[snowpark] class ServerConnection(
       statement: Statement,
       parameters: Map[String, Any]): Unit =
     parameters.foreach { entry =>
-      jdbc.setStatementParameter(statement, entry._1, entry._2)
+      sfSession.setStatementParameter(statement, entry._1, entry._2)
     }
 
   private[snowpark] def isClosed(): Boolean = connection.isClosed
@@ -288,7 +289,7 @@ private[snowpark] class ServerConnection(
   lazy private[snowpark] val telemetry: Telemetry = withValidConnection { new Telemetry(this) }
 
   def getJDBCSessionID: String = withValidConnection {
-    jdbc.sessionId
+    sfSession.getSessionId
   }
 
   private[snowpark] def getStringDatum(query: String): String = withValidConnection {
@@ -314,11 +315,13 @@ private[snowpark] class ServerConnection(
     withValidConnection {
       val data = statement.getResultSet
 
-      val schema = ServerConnection.convertResultMetaToAttribute(data.getMetaData, jdbc)
+      val schema = ServerConnection.convertResultMetaToAttribute(data.getMetaData, sfSession)
       val schemaOption = Some(StructType.fromAttributes(schema))
 
       lazy val geographyOutputFormat = getParameterValue(ParameterUtils.GeographyOutputFormat)
       lazy val geometryOutputFormat = getParameterValue(ParameterUtils.GeometryOutputFormat)
+
+      val resultSetExt = new SnowflakeResultSetExt(data, sfSession)
 
       val iterator = new CloseableIterator[Row] {
         private var _currentRow: Row = _
@@ -332,51 +335,60 @@ private[snowpark] class ServerConnection(
             Row.fromSeqWithSchema(
               schema.zipWithIndex.map { case (attribute, index) =>
                 val resultIndex: Int = index + 1
-                val resultSetExt = SnowflakeResultSetExt(data, jdbc)
-                if (resultSetExt.isNull(resultIndex)) {
-                  null
-                } else {
-                  attribute.dataType match {
-                    case VariantType => data.getString(resultIndex)
-                    case _: StructuredArrayType | _: StructuredMapType | _: StructType =>
-                      resultSetExt.getObject(resultIndex)
-                    case ArrayType(StringType) => data.getString(resultIndex)
-                    case MapType(StringType, StringType) => data.getString(resultIndex)
-                    case StringType => data.getString(resultIndex)
-                    case _: DecimalType => data.getBigDecimal(resultIndex)
-                    case DoubleType => data.getDouble(resultIndex)
-                    case FloatType => data.getFloat(resultIndex)
-                    case BooleanType => data.getBoolean(resultIndex)
-                    case BinaryType => data.getBytes(resultIndex)
-                    case DateType => data.getDate(resultIndex)
-                    case TimeType => data.getTime(resultIndex)
-                    case ByteType => data.getByte(resultIndex)
-                    case IntegerType => data.getInt(resultIndex)
-                    case LongType => data.getLong(resultIndex)
-                    case TimestampType => data.getTimestamp(resultIndex)
-                    case ShortType => data.getShort(resultIndex)
-                    case DayTimeIntervalType =>
-                      data.getObject(resultIndex, classOf[java.time.Duration])
-                    case YearMonthIntervalType =>
-                      data.getObject(resultIndex, classOf[java.time.Period])
-                    case GeographyType =>
+                attribute.dataType match {
+                  case _: StructuredArrayType | _: StructuredMapType | _: StructType =>
+                    resultSetExt.getObject(resultIndex)
+                  case GeographyType =>
+                    val geoJson = data.getString(resultIndex)
+                    if (geoJson == null) {
+                      null
+                    } else {
                       geographyOutputFormat match {
-                        case "GeoJSON" => Geography.fromGeoJSON(data.getString(resultIndex))
+                        case "GeoJSON" => Geography.fromGeoJSON(geoJson)
                         case _ =>
                           throw ErrorMessage.MISC_UNSUPPORTED_GEOGRAPHY_FORMAT(
                             geographyOutputFormat)
                       }
-                    case GeometryType =>
+                    }
+                  case GeometryType =>
+                    val geoJson = data.getString(resultIndex)
+                    if (geoJson == null) {
+                      null
+                    } else {
                       geometryOutputFormat match {
-                        case "GeoJSON" => Geometry.fromGeoJSON(data.getString(resultIndex))
+                        case "GeoJSON" => Geometry.fromGeoJSON(geoJson)
                         case _ =>
                           throw ErrorMessage.MISC_UNSUPPORTED_GEOMETRY_FORMAT(geometryOutputFormat)
                       }
-                    case _ =>
-                      // ArrayType, StructType, MapType
-                      throw new UnsupportedOperationException(
-                        s"Unsupported type: ${attribute.dataType}")
-                  }
+                    }
+                  case dataType =>
+                    val value: Any = dataType match {
+                      case VariantType => data.getString(resultIndex)
+                      case ArrayType(StringType) => data.getString(resultIndex)
+                      case MapType(StringType, StringType) => data.getString(resultIndex)
+                      case StringType => data.getString(resultIndex)
+                      case _: DecimalType => data.getBigDecimal(resultIndex)
+                      case DoubleType => data.getDouble(resultIndex)
+                      case FloatType => data.getFloat(resultIndex)
+                      case BooleanType => data.getBoolean(resultIndex)
+                      case BinaryType => data.getBytes(resultIndex)
+                      case DateType => data.getDate(resultIndex)
+                      case TimeType => data.getTime(resultIndex)
+                      case ByteType => data.getByte(resultIndex)
+                      case IntegerType => data.getInt(resultIndex)
+                      case LongType => data.getLong(resultIndex)
+                      case TimestampType => data.getTimestamp(resultIndex)
+                      case ShortType => data.getShort(resultIndex)
+                      case DayTimeIntervalType =>
+                        data.getObject(resultIndex, classOf[java.time.Duration])
+                      case YearMonthIntervalType =>
+                        data.getObject(resultIndex, classOf[java.time.Period])
+                      case _ =>
+                        // ArrayType, StructType, MapType
+                        throw new UnsupportedOperationException(
+                          s"Unsupported type: ${attribute.dataType}")
+                    }
+                    if (data.wasNull()) null else value
                 }
               },
               schemaOption)
@@ -411,12 +423,12 @@ private[snowpark] class ServerConnection(
       inputStream: InputStream,
       destFileName: String,
       compressData: Boolean): Unit = withValidConnection {
-    jdbc.uploadStream(stageName, destPrefix, inputStream, destFileName, compressData)
+    sfSession.uploadStream(stageName, destPrefix, inputStream, destFileName, compressData)
   }
 
   def downloadStream(stageName: String, sourceFileName: String, decompress: Boolean): InputStream =
     withValidConnection {
-      jdbc.downloadStream(stageName, sourceFileName, decompress)
+      sfSession.downloadStream(stageName, sourceFileName, decompress)
     }
 
   // Run the query and return the queryID when the caller doesn't need the ResultSet
@@ -463,9 +475,9 @@ private[snowpark] class ServerConnection(
         setBindingParameters(statement, params)
         setStatementParameters(statement, statementParameters)
         val rs = statement.executeQuery()
-        val queryID = jdbc.resultSetQueryId(rs)
+        val queryID = sfSession.getQueryId(rs)
         logInfo(s"Execute query [queryID: $queryID] $query")
-        val meta = ServerConnection.convertResultMetaToAttribute(rs.getMetaData, jdbc)
+        val meta = ServerConnection.convertResultMetaToAttribute(rs.getMetaData, sfSession)
         if (returnIterator) {
           QueryResult(None, Some(resultSetToIterator(statement)._1), meta, queryID)
         } else if (returnRows) {
@@ -572,7 +584,7 @@ private[snowpark] class ServerConnection(
           preparedStatement.addBatch()
         }
         preparedStatement.executeBatch()
-        val queryId = jdbc.statementQueryId(preparedStatement)
+        val queryId = sfSession.getQueryId(preparedStatement)
         logInfo(s"Execute query [queryID: $queryId] $query")
         queryId
       } finally {
@@ -604,7 +616,7 @@ private[snowpark] class ServerConnection(
       var statement: PreparedStatement = null
       try {
         statement = connection.prepareStatement(query)
-        ServerConnection.convertResultMetaToAttribute(statement.getMetaData, jdbc)
+        ServerConnection.convertResultMetaToAttribute(statement.getMetaData, sfSession)
       } catch {
         case e: Exception =>
           logError(s"Failed to analyze schema of query:\n$query")
@@ -630,28 +642,28 @@ private[snowpark] class ServerConnection(
   // to quote the name because JDBC may return the name without quotation,
   // the letter's case needs to be respected.
   def getCurrentDatabase: Option[String] = withValidConnection {
-    val databaseName = if (Utils.isStringEmpty(jdbc.database)) {
+    val databaseName = if (Utils.isStringEmpty(sfSession.getDatabase)) {
       val currentDatabaseName = getStringDatum("SELECT CURRENT_DATABASE()")
       if (Utils.isStringEmpty(currentDatabaseName)) {
         throw ErrorMessage.MISC_CANNOT_FIND_CURRENT_DB_OR_SCHEMA("DB", "DB", "DB")
       }
       currentDatabaseName
     } else {
-      jdbc.database
+      sfSession.getDatabase
     }
 
     Option(databaseName).map(analyzer.quoteNameWithoutUpperCasing)
   }
 
   def getCurrentSchema: Option[String] = withValidConnection {
-    val schemaName = if (Utils.isStringEmpty(jdbc.schema)) {
+    val schemaName = if (Utils.isStringEmpty(sfSession.getSchema)) {
       val currentSchema = getStringDatum("SELECT CURRENT_SCHEMA()")
       if (Utils.isStringEmpty(currentSchema)) {
         throw ErrorMessage.MISC_CANNOT_FIND_CURRENT_DB_OR_SCHEMA("SCHEMA", "SCHEMA", "SCHEMA")
       }
       currentSchema
     } else {
-      jdbc.schema
+      sfSession.getSchema
     }
     Option(schemaName).map(analyzer.quoteNameWithoutUpperCasing)
   }
@@ -797,7 +809,7 @@ private[snowpark] class ServerConnection(
       statementParameters: Map[String, Any] = Map.empty,
       useStatementParametersForLastQueryOnly: Boolean = false): QueryResult =
     withValidConnection {
-      SnowflakePlan.wrapException(plan) {
+      SnowflakePlan.wrapException(this, plan) {
         val actionID = plan.session.generateNewActionID
         val statementsParameterForLastQuery = statementParameters
         val statementParametersForOthers: Map[String, Any] =
@@ -839,7 +851,7 @@ private[snowpark] class ServerConnection(
       plan: SnowflakePlan,
       mergeBuilder: Option[MergeBuilder] = None): TypedAsyncJob[T] =
     withValidConnection {
-      SnowflakePlan.wrapException(plan) {
+      SnowflakePlan.wrapException(this, plan) {
         if (!plan.supportAsyncMode) {
           throw ErrorMessage.PLAN_CANNOT_EXECUTE_IN_ASYNC_MODE(plan.toString)
         }
@@ -865,8 +877,8 @@ private[snowpark] class ServerConnection(
             ("MULTI_STATEMENT_COUNT" -> plan.queries.size)
           setBindingParameters(statement, bindingParameters)
           setStatementParameters(statement, statementParameters)
-          val rs = jdbc.executeAsyncQuery(statement)
-          val queryID = jdbc.resultSetQueryId(rs)
+          val rs = sfSession.executeAsyncQuery(statement)
+          val queryID = sfSession.getQueryId(rs)
           if (actionID <= plan.session.getLastCanceledID) {
             throw ErrorMessage.MISC_QUERY_IS_CANCELLED()
           }
@@ -883,18 +895,18 @@ private[snowpark] class ServerConnection(
     }
 
   private[snowpark] def isDone(queryID: String): Boolean =
-    !jdbc.queryState(queryID).isStillRunning
+    !sfSession.getQueryStatus(queryID).isStillRunning
 
   private[snowpark] def waitForQueryDone(
       queryID: String,
-      maxWaitTimeInSeconds: Long): QueryState = {
+      maxWaitTimeInSeconds: Long): QueryStatus = {
     // This function needs to check query status in a loop.
     // Sleep for an amount before trying again. Exponential backoff up to 5 seconds
     // implemented. The sleep backoff strategy comes from JDBC Async query.
     val retryPattern = Array(1, 1, 2, 3, 4, 8, 10)
     def getSeepTime(retry: Int) = retryPattern(retry.min(retryPattern.length - 1)) * 500
 
-    var qs = jdbc.queryState(queryID)
+    var qs = sfSession.getQueryStatus(queryID)
     var retry = 0
     var lastLogTime = 0
     var totalWaitTime = 0
@@ -902,17 +914,17 @@ private[snowpark] class ServerConnection(
       totalWaitTime + getSeepTime(retry + 1) < maxWaitTimeInSeconds * 1000) {
       Thread.sleep(getSeepTime(retry))
       totalWaitTime = totalWaitTime + getSeepTime(retry)
-      qs = jdbc.queryState(queryID)
+      qs = sfSession.getQueryStatus(queryID)
       retry = retry + 1
       if (totalWaitTime - lastLogTime > 60 * 1000 || lastLogTime == 0) {
         logWarning(
           s"Checking the query status for $queryID at ${LocalDateTime.now()}," +
-            s" the current status is $qs.")
+            s" the current status is ${qs.getName}.")
         lastLogTime = totalWaitTime
       }
     }
     if (qs.isStillRunning) {
-      throw ErrorMessage.PLAN_QUERY_IS_STILL_RUNNING(queryID, qs.toString, totalWaitTime / 1000)
+      throw ErrorMessage.PLAN_QUERY_IS_STILL_RUNNING(queryID, qs.getName, totalWaitTime / 1000)
     }
     qs
   }
@@ -922,14 +934,14 @@ private[snowpark] class ServerConnection(
       maxWaitTimeInSecond: Long,
       plan: Option[SnowflakePlan]): (Iterator[Row], StructType) =
     withValidConnection {
-      SnowflakePlan.wrapException(plan.toSeq: _*) {
+      SnowflakePlan.wrapException(this, plan.toSeq: _*) {
         val statement = connection.createStatement()
         setStatementParameters(statement, getStatementParameters())
         // get last result set
         try {
           // Wait for the query done.
           waitForQueryDone(queryID, maxWaitTimeInSecond)
-          val queryIDs = jdbc.childQueryIds(queryID)
+          val queryIDs = sfSession.getChildQueryIds(queryID).asScala
           val lastQueryId = queryIDs.last
           statement.executeQuery(Query.resultScanQuery(lastQueryId).sql)
           val placeholders = mutable.HashMap.empty[String, String]
@@ -956,7 +968,7 @@ private[snowpark] class ServerConnection(
       skipActiveRead: Boolean = false,
       defaultValue: Option[String] = None): String = withValidConnection {
     // Step 1:
-    var result: String = jdbc.sessionParameter(parameterName.toUpperCase())
+    var result: String = sfSession.getSessionParameter(parameterName.toUpperCase())
     if (result == null && !skipActiveRead) {
       // Step 2:
       // This rarely happens and usually indicates bug during parameter reading, so logging an info.
@@ -1002,7 +1014,7 @@ private[snowpark] class ServerConnection(
       try {
         thunk
       } catch {
-        case e: Exception if JdbcExceptions.isReauthenticationRequest(e) =>
+        case e: Exception if sfSession.isReauthenticationRequest(e) =>
           // can't report via telemetry since no connection
           throw ErrorMessage.MISC_SESSION_EXPIRED(e.getMessage)
         case e: Exception =>
@@ -1012,135 +1024,78 @@ private[snowpark] class ServerConnection(
     }
 }
 
-private[snowflake] object SnowflakeResultSetExt {
-  def apply(data: ResultSet, jdbc: JdbcBridge): SnowflakeResultSetExt =
-    new SnowflakeResultSetExt(data, jdbc)
-}
-// Reads structured values through the driver-specific reader of the connection's JDBC version
-private[snowflake] class SnowflakeResultSetExt(data: ResultSet, jdbc: JdbcBridge) {
-  private lazy val reader: StructuredResultReader = jdbc.structuredResult(data)
-
-  def isNull(index: Int): Boolean =
-    reader.rawObject(index) == null
+// Converts structured values, read through the session as JDK types, to Snowpark values
+private[snowflake] class SnowflakeResultSetExt(data: ResultSet, session: SnowflakeSession) {
 
   def getObject(index: Int): Any = {
     val meta = data.getMetaData
-    // convert meta to field meta
-    val field = FieldInfo(
+    val field = new FieldMetadata(
       meta.getColumnName(index),
       meta.getColumnTypeName(index),
       meta.getColumnType(index),
       0,
       0,
       true,
-      jdbc.columnFields(meta, index))
-    convertToSnowparkValue(reader.rawObject(index), field)
+      session.getColumnFields(meta, index))
+    convertToSnowparkValue(session.getStructuredObject(data, index), field)
   }
 
-  private def convertToSnowparkValue(value: Any, meta: FieldInfo): Any = {
-    meta.typeName match {
-      // semi structured
-      case "ARRAY" if meta.fields.isEmpty => value.toString
-      // structured array
-      case "ARRAY" if meta.fields.size == 1 =>
-        value match {
-          case arr: util.ArrayList[_] => // for JDBC older than 3.20.0
-            arr.toArray
-              .map(v => convertToSnowparkValue(v, meta.fields.head))
-          case arr if reader.unwrapStructuredObject(arr).isDefined => // for JDBC 3.21.0+
-            reader
-              .unwrapStructuredObject(arr)
-              .get
-              .asInstanceOf[JsonStringArrayList[_]]
+  private def convertToSnowparkValue(value: Any, meta: FieldMetadata): Any = {
+    lazy val fields = meta.getFields.asScala
+    if (value == null) {
+      null
+    } else {
+      meta.getTypeName match {
+        // semi structured
+        case "ARRAY" | "OBJECT" if fields.isEmpty => value.toString
+        // structured array
+        case "ARRAY" =>
+          value.asInstanceOf[java.util.List[_]].asScala.map(convertToSnowparkValue(_, fields.head))
+        // structured map, Map type has two fields, and both field names are empty
+        case "OBJECT" if fields.size == 2 && fields.head.getName.isEmpty =>
+          value
+            .asInstanceOf[java.util.Map[_, _]]
+            .asScala
+            .map { case (key, value) =>
+              convertToSnowparkValue(key, fields.head) -> convertToSnowparkValue(value, fields(1))
+            }
+            .toMap
+        // object, object's field name can't be empty
+        case "OBJECT" =>
+          Row.fromMap(
+            value
+              .asInstanceOf[java.util.Map[String, _]]
               .asScala
-              .map(v => convertToSnowparkValue(v, meta.fields.head))
-          case _ =>
-            throw new IllegalArgumentException(
-              s"Unsupported Structured Array Type: ${value.getClass.getSimpleName}");
-        }
-
-      // semi-structured
-      case "OBJECT" if meta.fields.isEmpty => value.toString
-      // structured map, Map type has two fields, and both field names are empty
-      case "OBJECT" if meta.fields.size == 2 && meta.fields.head.name.isEmpty =>
-        value match {
-          // nested structured maps are JsonStringArrayValues
-          case subMap: JsonStringArrayList[_] =>
-            subMap.asScala.map { case mapValue: JsonStringHashMap[_, _] =>
-              convertToSnowparkValue(mapValue.get("key"), meta.fields.head) ->
-                convertToSnowparkValue(mapValue.get("value"), meta.fields(1))
-            }.toMap
-          case map: util.HashMap[_, _] =>
-            map.asScala.map { case (key, value) =>
-              convertToSnowparkValue(key, meta.fields.head) ->
-                convertToSnowparkValue(value, meta.fields(1))
-            }.toMap
-          case map if reader.unwrapStructuredObject(map).isDefined => // for JDBC 3.21.0 +
-            reader
-              .unwrapStructuredObject(map)
-              .get
-              .asInstanceOf[util.HashMap[_, _]]
-              .asScala
-              .map { case (key, value) =>
-                convertToSnowparkValue(key, meta.fields.head) ->
-                  convertToSnowparkValue(value, meta.fields(1))
+              .toList
+              .zip(fields)
+              .map { case ((key, value), metadata) =>
+                key -> convertToSnowparkValue(value, metadata)
               }
-              .toMap
-        }
-      // object, object's field name can't be empty
-      case "OBJECT" if reader.unwrapStructuredObject(value).isDefined =>
-        reader.unwrapStructuredObject(value).get match {
-          case arrowSqlInput if reader.unwrapSqlInput(arrowSqlInput).isDefined =>
-            convertToSnowparkValue(reader.unwrapSqlInput(arrowSqlInput).get, meta)
-          case map: java.util.Map[String, _] =>
-            Row.fromMap(
-              map.asScala.toList
-                .zip(meta.fields)
-                .map { case ((key, value), metadata) =>
-                  key -> convertToSnowparkValue(value, metadata)
-                }
-                .toMap)
-        }
-      case "OBJECT" => // JDBC older than 3.20.0
-        value match {
-          case arrowSqlInput if reader.unwrapSqlInput(arrowSqlInput).isDefined =>
-            convertToSnowparkValue(reader.unwrapSqlInput(arrowSqlInput).get, meta)
-          case map: java.util.Map[String, _] =>
-            Row.fromMap(
-              map.asScala.toList
-                .zip(meta.fields)
-                .map { case ((key, value), metadata) =>
-                  key -> convertToSnowparkValue(value, metadata)
-                }
-                .toMap)
-        }
-
-      case "NUMBER" if meta.sqlType == java.sql.Types.BIGINT =>
-        value match {
-          case str: String => str.toLong // number key in structured map
-          case bd: java.math.BigDecimal => bd.toBigInteger.longValue()
-        }
-      case "DOUBLE" | "BOOLEAN" | "BINARY" | "NUMBER" => value
-      case "VARCHAR" | "VARIANT" => value.toString // Text to String
-      case "INTERVAL_DAY_TIME" =>
-        val nanos = value.asInstanceOf[Long]
-        val sign = java.lang.Long.signum(nanos)
-        val abs = Math.abs(nanos)
-        val d = java.time.Duration.ofSeconds(abs / 1000000000L, abs % 1000000000L)
-        if (sign < 0) d.negated() else d
-      case "INTERVAL_YEAR_MONTH" =>
-        val months = value.asInstanceOf[Number].intValue()
-        java.time.Period.of(months / 12, months % 12, 0)
-      case "DATE" =>
-        reader.toDate(value)
-      case "TIME" =>
-        reader.toTime(value, meta.scale)
-      case _
-          if meta.sqlType == java.sql.Types.TIMESTAMP ||
-            meta.sqlType == java.sql.Types.TIMESTAMP_WITH_TIMEZONE =>
-        reader.toTimestamp(value, meta.sqlType, meta.scale)
-      case _ =>
-        throw new UnsupportedOperationException(s"Unsupported type: ${meta.typeName}")
+              .toMap)
+        case "NUMBER" if meta.getSqlType == java.sql.Types.BIGINT =>
+          value match {
+            case str: String => str.toLong // number key in structured map
+            case bd: java.math.BigDecimal => bd.toBigInteger.longValue()
+          }
+        case "DOUBLE" | "BOOLEAN" | "BINARY" | "NUMBER" => value
+        case "VARCHAR" | "VARIANT" => value.toString
+        case "INTERVAL_DAY_TIME" =>
+          val nanos = value.asInstanceOf[Long]
+          val sign = java.lang.Long.signum(nanos)
+          val abs = Math.abs(nanos)
+          val d = java.time.Duration.ofSeconds(abs / 1000000000L, abs % 1000000000L)
+          if (sign < 0) d.negated() else d
+        case "INTERVAL_YEAR_MONTH" =>
+          val months = value.asInstanceOf[Number].intValue()
+          java.time.Period.of(months / 12, months % 12, 0)
+        case "DATE" | "TIME" => value
+        case _
+            if meta.getSqlType == java.sql.Types.TIMESTAMP ||
+              meta.getSqlType == java.sql.Types.TIMESTAMP_WITH_TIMEZONE =>
+          value
+        case _ =>
+          throw new UnsupportedOperationException(s"Unsupported type: ${meta.getTypeName}")
+      }
     }
   }
 }

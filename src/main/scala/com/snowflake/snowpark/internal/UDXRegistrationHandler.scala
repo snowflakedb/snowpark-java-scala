@@ -19,7 +19,6 @@ import com.snowflake.snowpark_java.types.{StructType => JavaStructType}
 import com.snowflake.snowpark_java.udtf._
 import com.snowflake.snowpark_java.udaf._
 import com.snowflake.snowpark_java.sproc._
-import com.snowflake.snowpark.internal.jdbc.JdbcExceptions.SnowflakeSQLException
 
 import scala.collection.mutable
 import scala.collection.mutable.ArrayBuffer
@@ -90,7 +89,7 @@ class UDXRegistrationHandler(session: Session) extends Logging {
     try {
       func
     } catch {
-      case SnowflakeSQLException(e) =>
+      case session.conn.SnowflakeError(e) =>
         val msg = e.getMessage
         if (msg.contains("NoClassDefFoundError: com/snowflake/snowpark/") ||
           msg.contains("error: package com.snowflake.snowpark.internal does not exist")) {
@@ -1419,7 +1418,8 @@ class UDXRegistrationHandler(session: Session) extends Logging {
       funcBytesMap: Map[String, Array[Byte]]): Unit =
     Utils.withRetry(
       session.maxFileUploadRetryCount,
-      s"Uploading UDF jar: $destPrefix $jarFileName $stageName $classDirs") {
+      s"Uploading UDF jar: $destPrefix $jarFileName $stageName $classDirs",
+      session.conn.sfSession.isSnowflakeError) {
       createAndUploadJarToStageInternal(classDirs, stageName, destPrefix, jarFileName, funcBytesMap)
     }
 

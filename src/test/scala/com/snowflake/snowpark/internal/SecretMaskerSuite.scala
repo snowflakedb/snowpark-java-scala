@@ -7,7 +7,11 @@ import org.scalatest.funsuite.AnyFunSuite
 // the same way. The behavior that only JDBC 4.x has is covered separately with fixed expectations.
 class SecretMaskerSuite extends AnyFunSuite {
 
-  private val privateKeyBody = "MIIEvQIBADANBgkqhkiG9w0BAQEFAASCBKcwggSjAgEAAoIBAQC7VJTUt9Us8cKj" // pragma: allowlist secret
+  private val privateKeyBody =
+    "MIIEvQIBADANBgkqhkiG9w0BAQEFAASCBKcwggSjAgEAAoIBAQC7VJTUt9Us8cKj" // pragma: allowlist secret
+
+  private val accessTokenJson =
+    """ {"accessToken":"abcdefghijklmnopqrstuvwxyz0123456789ABCD"}""" // pragma: allowlist secret
 
   private val sameAsDriver: Seq[(String, String)] = Seq(
     "aws key id" ->
@@ -58,7 +62,7 @@ class SecretMaskerSuite extends AnyFunSuite {
     "secret at 100000 chars boundary" -> ("x" * 99990 + " password=secret123"),
     "secret before 100000 chars" -> ("password=secret123 " + "x" * 100010),
     "access token after 100000 chars" ->
-      ("x" * 100001 + """ {"accessToken":"abcdefghijklmnopqrstuvwxyz0123456789ABCD"}""")) // pragma: allowlist secret
+      ("x" * 100001 + accessTokenJson))
 
   sameAsDriver.foreach { case (name, input) =>
     test(s"same output as JDBC 3.x SecretDetector: $name") {
