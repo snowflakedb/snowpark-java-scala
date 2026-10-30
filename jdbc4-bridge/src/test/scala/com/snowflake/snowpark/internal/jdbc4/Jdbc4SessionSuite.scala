@@ -1,11 +1,18 @@
 package com.snowflake.snowpark.internal.jdbc4
 
 import java.sql.Connection
+import java.util.Properties
 
-import com.snowflake.session.api.SnowflakeSessionLoader
+import com.snowflake.session.api.{FieldMetadata, SnowflakeSessionLoader}
+import com.snowflake.snowpark.SnowparkClientException
+import com.snowflake.snowpark.internal.jdbc.SnowflakeSessions
 import com.snowflake.snowpark.internal.sproc.StoredProcSessionFactory
 import net.snowflake.client.api.connection.SnowflakeConnection
 import net.snowflake.client.api.exception.{ErrorCode, SnowflakeSQLException}
+import net.snowflake.client.internal.api.implementation.resultset.SnowflakeBaseResultSet
+import net.snowflake.client.internal.core.SFBaseResultSet
+import net.snowflake.client.internal.core.arrow.StructObjectWrapper
+import net.snowflake.client.jdbc.internal.apache.arrow.vector.util.JsonStringArrayList
 import org.mockito.Mockito
 import org.scalatest.funsuite.AnyFunSuite
 
@@ -35,6 +42,25 @@ class Jdbc4SessionSuite extends AnyFunSuite {
   test("Snowpark discovers the JDBC 4.x client session factory") {
     val factory = SnowflakeSessionLoader.loadClientSessionFactory(getClass.getClassLoader)
     assert(factory.get.isInstanceOf[Jdbc4ClientSessionFactory])
+  }
+
+  test("an invalid connect string is an IllegalArgumentException from the factory") {
+    val factory = SnowflakeSessionLoader.loadClientSessionFactory(getClass.getClassLoader).get
+    val ex = intercept[IllegalArgumentException](
+      factory.createSession("not-a-snowflake-url", new Properties(), "Snowpark", "1.0.0"))
+    assert(ex.getMessage != null && ex.getMessage.nonEmpty)
+  }
+
+  test("an invalid connect string is a SnowparkClientException from createClientSession") {
+    val factory = SnowflakeSessionLoader.loadClientSessionFactory(getClass.getClassLoader).get
+    val description = intercept[IllegalArgumentException](
+      factory
+        .createSession("not-a-snowflake-url", new Properties(), "Snowpark", "1.0.0")).getMessage
+    val ex = intercept[SnowparkClientException](
+      SnowflakeSessions.createClientSession("not-a-snowflake-url", new Properties()))
+    assert(ex.errorCode == "0405")
+    assert(ex.message.contains("Invalid connection string"))
+    assert(ex.message.contains(description))
   }
 
   test("session parameter is read through SnowflakeConnection.getSessionParameter") {
@@ -88,5 +114,48 @@ class Jdbc4SessionSuite extends AnyFunSuite {
       StoredProcSessionFactory.fromSnowflakeSession(new Jdbc4Session(conn, storedProcedure = true))
     assert(session.conn.isStoredProc)
     assert(session.conn.connection eq conn)
+  }
+
+  private def decodeArray(raw: AnyRef): AnyRef = {
+    val sfBase = Mockito.mock(classOf[SFBaseResultSet])
+    Mockito.when(sfBase.getObject(1)).thenReturn(raw, Nil: _*)
+    val rs = Mockito.mock(classOf[SnowflakeBaseResultSet])
+    val base = classOf[SnowflakeBaseResultSet].getDeclaredField("sfBaseResultSet")
+    base.setAccessible(true)
+    base.set(rs, sfBase)
+    val number = new FieldMetadata(
+      "",
+      "NUMBER",
+      java.sql.Types.INTEGER,
+      10,
+      0,
+      true,
+      java.util.Collections.emptyList[FieldMetadata]())
+    val array = new FieldMetadata(
+      "c",
+      "ARRAY",
+      java.sql.Types.ARRAY,
+      0,
+      0,
+      true,
+      java.util.Arrays.asList(number))
+    new Jdbc4StructuredDecoder(rs).decode(1, array)
+  }
+
+  test("decoder returns Object[] for nested raw JsonStringArrayList values") {
+    val raw = new JsonStringArrayList[AnyRef]()
+    raw.add(java.math.BigDecimal.ONE)
+    raw.add(null)
+    val decoded = decodeArray(raw)
+    assert(decoded.getClass == classOf[Array[AnyRef]])
+    assert(decoded.asInstanceOf[Array[AnyRef]].toSeq == Seq(java.math.BigDecimal.ONE, null))
+  }
+
+  test("decoder returns a plain list for the StructObjectWrapper path") {
+    val inner = new JsonStringArrayList[AnyRef]()
+    inner.add(java.math.BigDecimal.ONE)
+    val decoded = decodeArray(new StructObjectWrapper(null, inner))
+    assert(decoded.getClass == classOf[java.util.ArrayList[_]])
+    assert(decoded == java.util.Arrays.asList(java.math.BigDecimal.ONE))
   }
 }

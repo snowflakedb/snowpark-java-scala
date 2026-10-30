@@ -211,7 +211,11 @@ private class Jdbc3StructuredDecoder(data: ResultSet) {
               throw new IllegalArgumentException(
                 s"Unsupported Structured Array Type: ${value.getClass.getSimpleName}")
           }
-          new java.util.ArrayList[AnyRef](elements.map(decode(_, fields.head)).asJava)
+          val decoded = elements.map(decode(_, fields.head))
+          value match {
+            case _: java.util.ArrayList[_] => decoded.toArray[AnyRef]
+            case _ => new java.util.ArrayList[AnyRef](decoded.asJava)
+          }
         // structured map, Map type has two fields, and both field names are empty
         case "OBJECT" if fields.size == 2 && fields.head.getName.isEmpty =>
           val entries: Iterable[(Any, Any)] = value match {

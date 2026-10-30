@@ -338,57 +338,53 @@ private[snowpark] class ServerConnection(
                 attribute.dataType match {
                   case _: StructuredArrayType | _: StructuredMapType | _: StructType =>
                     resultSetExt.getObject(resultIndex)
-                  case GeographyType =>
-                    val geoJson = data.getString(resultIndex)
-                    if (geoJson == null) {
-                      null
-                    } else {
-                      geographyOutputFormat match {
-                        case "GeoJSON" => Geography.fromGeoJSON(geoJson)
-                        case _ =>
-                          throw ErrorMessage.MISC_UNSUPPORTED_GEOGRAPHY_FORMAT(
-                            geographyOutputFormat)
-                      }
-                    }
-                  case GeometryType =>
-                    val geoJson = data.getString(resultIndex)
-                    if (geoJson == null) {
-                      null
-                    } else {
-                      geometryOutputFormat match {
-                        case "GeoJSON" => Geometry.fromGeoJSON(geoJson)
-                        case _ =>
-                          throw ErrorMessage.MISC_UNSUPPORTED_GEOMETRY_FORMAT(geometryOutputFormat)
-                      }
-                    }
                   case dataType =>
-                    val value: Any = dataType match {
-                      case VariantType => data.getString(resultIndex)
-                      case ArrayType(StringType) => data.getString(resultIndex)
-                      case MapType(StringType, StringType) => data.getString(resultIndex)
-                      case StringType => data.getString(resultIndex)
-                      case _: DecimalType => data.getBigDecimal(resultIndex)
-                      case DoubleType => data.getDouble(resultIndex)
-                      case FloatType => data.getFloat(resultIndex)
-                      case BooleanType => data.getBoolean(resultIndex)
-                      case BinaryType => data.getBytes(resultIndex)
-                      case DateType => data.getDate(resultIndex)
-                      case TimeType => data.getTime(resultIndex)
-                      case ByteType => data.getByte(resultIndex)
-                      case IntegerType => data.getInt(resultIndex)
-                      case LongType => data.getLong(resultIndex)
-                      case TimestampType => data.getTimestamp(resultIndex)
-                      case ShortType => data.getShort(resultIndex)
-                      case DayTimeIntervalType =>
-                        data.getObject(resultIndex, classOf[java.time.Duration])
-                      case YearMonthIntervalType =>
-                        data.getObject(resultIndex, classOf[java.time.Period])
-                      case _ =>
-                        // ArrayType, StructType, MapType
-                        throw new UnsupportedOperationException(
-                          s"Unsupported type: ${attribute.dataType}")
+                    // check the raw value before the typed getter, which would turn a null
+                    // into a default value such as 0 or false
+                    if (data.getObject(resultIndex) == null) {
+                      null
+                    } else {
+                      dataType match {
+                        case VariantType => data.getString(resultIndex)
+                        case ArrayType(StringType) => data.getString(resultIndex)
+                        case MapType(StringType, StringType) => data.getString(resultIndex)
+                        case StringType => data.getString(resultIndex)
+                        case _: DecimalType => data.getBigDecimal(resultIndex)
+                        case DoubleType => data.getDouble(resultIndex)
+                        case FloatType => data.getFloat(resultIndex)
+                        case BooleanType => data.getBoolean(resultIndex)
+                        case BinaryType => data.getBytes(resultIndex)
+                        case DateType => data.getDate(resultIndex)
+                        case TimeType => data.getTime(resultIndex)
+                        case ByteType => data.getByte(resultIndex)
+                        case IntegerType => data.getInt(resultIndex)
+                        case LongType => data.getLong(resultIndex)
+                        case TimestampType => data.getTimestamp(resultIndex)
+                        case ShortType => data.getShort(resultIndex)
+                        case DayTimeIntervalType =>
+                          data.getObject(resultIndex, classOf[java.time.Duration])
+                        case YearMonthIntervalType =>
+                          data.getObject(resultIndex, classOf[java.time.Period])
+                        case GeographyType =>
+                          geographyOutputFormat match {
+                            case "GeoJSON" => Geography.fromGeoJSON(data.getString(resultIndex))
+                            case _ =>
+                              throw ErrorMessage.MISC_UNSUPPORTED_GEOGRAPHY_FORMAT(
+                                geographyOutputFormat)
+                          }
+                        case GeometryType =>
+                          geometryOutputFormat match {
+                            case "GeoJSON" => Geometry.fromGeoJSON(data.getString(resultIndex))
+                            case _ =>
+                              throw ErrorMessage.MISC_UNSUPPORTED_GEOMETRY_FORMAT(
+                                geometryOutputFormat)
+                          }
+                        case _ =>
+                          // ArrayType, StructType, MapType
+                          throw new UnsupportedOperationException(
+                            s"Unsupported type: ${attribute.dataType}")
+                      }
                     }
-                    if (data.wasNull()) null else value
                 }
               },
               schemaOption)
@@ -1050,7 +1046,12 @@ private[snowflake] class SnowflakeResultSetExt(data: ResultSet, session: Snowfla
         case "ARRAY" | "OBJECT" if fields.isEmpty => value.toString
         // structured array
         case "ARRAY" =>
-          value.asInstanceOf[java.util.List[_]].asScala.map(convertToSnowparkValue(_, fields.head))
+          value match {
+            case arr: Array[AnyRef] =>
+              arr.map(convertToSnowparkValue(_, fields.head))
+            case list: java.util.List[_] =>
+              list.asScala.map(convertToSnowparkValue(_, fields.head))
+          }
         // structured map, Map type has two fields, and both field names are empty
         case "OBJECT" if fields.size == 2 && fields.head.getName.isEmpty =>
           value

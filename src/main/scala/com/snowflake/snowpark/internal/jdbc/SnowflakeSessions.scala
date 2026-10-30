@@ -4,7 +4,7 @@ import java.sql.SQLException
 import java.util.Properties
 
 import com.snowflake.session.api.{SnowflakeSession, SnowflakeSessionLoader}
-import com.snowflake.snowpark.internal.Utils
+import com.snowflake.snowpark.internal.{ErrorMessage, Utils}
 import com.snowflake.snowpark.internal.jdbc3.Jdbc3Session
 
 private[snowpark] object SnowflakeSessions {
@@ -17,11 +17,18 @@ private[snowpark] object SnowflakeSessions {
   def createClientSession(connURL: String, connParam: Properties): SnowflakeSession = {
     val factory = SnowflakeSessionLoader.loadClientSessionFactory(getClass.getClassLoader)
     if (factory.isPresent) {
-      factory.get.createSession(
-        connURL,
-        connParam,
-        ClientAppId,
-        Utils.extractValidVersionNumber(Utils.Version))
+      try {
+        factory.get.createSession(
+          connURL,
+          connParam,
+          ClientAppId,
+          Utils.extractValidVersionNumber(Utils.Version))
+      } catch {
+        // the factory contract: IllegalArgumentException when url/properties are not a valid
+        // Snowflake connect string, with the connect string description as the message
+        case e: IllegalArgumentException =>
+          throw ErrorMessage.MISC_INVALID_CONNECTION_STRING(e.getMessage)
+      }
     } else {
       Jdbc3Session.createClientSession(connURL, connParam)
     }

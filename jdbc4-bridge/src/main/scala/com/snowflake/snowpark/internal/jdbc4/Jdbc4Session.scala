@@ -7,7 +7,6 @@ import java.sql.{
   PreparedStatement,
   ResultSet,
   ResultSetMetaData,
-  SQLException,
   SQLFeatureNotSupportedException,
   Statement
 }
@@ -67,7 +66,7 @@ class Jdbc4ClientSessionFactory extends SnowflakeClientSessionFactory {
       clientAppVersion: String): SnowflakeSession = {
     val connStr = SnowflakeConnectString.parse(url, properties)
     if (!connStr.isValid) {
-      throw new SQLException(s"Invalid connection string: $connStr")
+      throw new IllegalArgumentException(connStr.toString)
     }
     val handler = new ClientAppConnectionHandler(connStr, clientAppId, clientAppVersion)
     new Jdbc4Session(new SnowflakeConnectionImpl(handler, url, properties), storedProcedure = false)
@@ -270,7 +269,11 @@ private class Jdbc4StructuredDecoder(data: ResultSet) {
               throw new IllegalArgumentException(
                 s"Unsupported Structured Array Type: ${value.getClass.getSimpleName}")
           }
-          new java.util.ArrayList[AnyRef](elements.map(decode(_, fields.head)).asJava)
+          val decoded = elements.map(decode(_, fields.head))
+          value match {
+            case _: java.util.ArrayList[_] => decoded.toArray[AnyRef]
+            case _ => new java.util.ArrayList[AnyRef](decoded.asJava)
+          }
         // structured map, Map type has two fields, and both field names are empty
         case "OBJECT" if fields.size == 2 && fields.head.getName.isEmpty =>
           val entries: Seq[(Any, Any)] = value match {

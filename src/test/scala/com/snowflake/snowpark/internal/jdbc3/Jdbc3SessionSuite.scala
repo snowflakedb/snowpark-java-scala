@@ -1,16 +1,22 @@
 package com.snowflake.snowpark.internal.jdbc3
 
-import java.sql.SQLException
+import java.sql.{Connection, ResultSet, ResultSetMetaData, SQLException, Statement}
 
-import com.snowflake.session.api.SnowflakeSessionLoader
+import com.snowflake.session.api.{FieldMetadata, SnowflakeSession, SnowflakeSessionLoader}
+import com.snowflake.snowpark.Row
+import com.snowflake.snowpark.internal.{ServerConnection, SnowflakeResultSetExt}
 import com.snowflake.snowpark.internal.sproc.StoredProcSessionFactory
-import net.snowflake.client.core.{SFException, SFSessionProperty}
+import net.snowflake.client.core.{SFBaseResultSet, SFException, SFSessionProperty}
 import net.snowflake.client.jdbc.{
   ErrorCode,
+  SnowflakeBaseResultSet,
   SnowflakeConnectionV1,
   SnowflakeReauthenticationRequest,
   SnowflakeSQLException
 }
+import net.snowflake.client.core.arrow.StructObjectWrapper
+import net.snowflake.client.jdbc.internal.apache.arrow.vector.util.JsonStringArrayList
+import org.mockito.ArgumentMatchers.{any, anyInt}
 import org.mockito.Mockito
 import org.scalatest.funsuite.AnyFunSuite
 
@@ -74,5 +80,175 @@ class Jdbc3SessionSuite extends AnyFunSuite {
 
   test("client info property key agrees with JDBC 3.x") {
     assert(SFSessionProperty.CLIENT_INFO.getPropertyKey == "snowflakeClientInfo")
+  }
+
+  // ---- structured ARRAY values: Scala Array for java.util.ArrayList, Buffer otherwise ----
+
+  private def numberField(): FieldMetadata =
+    new FieldMetadata(
+      "",
+      "NUMBER",
+      java.sql.Types.INTEGER,
+      10,
+      0,
+      true,
+      java.util.Collections.emptyList[FieldMetadata]())
+
+  private def arrayField(): java.util.List[FieldMetadata] =
+    java.util.Arrays.asList(numberField())
+
+  // a SnowflakeBaseResultSet whose underlying sfBaseResultSet returns `raw` for column 1
+  private def resultSetReturning(raw: AnyRef): ResultSet = {
+    val sfBase = Mockito.mock(classOf[SFBaseResultSet])
+    Mockito.when(sfBase.getObject(1)).thenReturn(raw, Nil: _*)
+    val rs = Mockito.mock(classOf[SnowflakeBaseResultSet])
+    val field = classOf[SnowflakeBaseResultSet].getDeclaredField("sfBaseResultSet")
+    field.setAccessible(true)
+    field.set(rs, sfBase)
+    rs
+  }
+
+  private def decodeArray(raw: AnyRef): AnyRef = {
+    val field = new FieldMetadata("c", "ARRAY", java.sql.Types.ARRAY, 0, 0, true, arrayField())
+    new Jdbc3StructuredDecoder(resultSetReturning(raw)).decode(1, field)
+  }
+
+  private def numberValue(i: Int): AnyRef = java.math.BigDecimal.valueOf(i.toLong)
+
+  private def convertArray(decoded: AnyRef): Any = {
+    val rs = Mockito.mock(classOf[ResultSet])
+    val meta = Mockito.mock(classOf[ResultSetMetaData])
+    Mockito.when(rs.getMetaData).thenReturn(meta)
+    Mockito.when(meta.getColumnName(1)).thenReturn("c")
+    Mockito.when(meta.getColumnTypeName(1)).thenReturn("ARRAY")
+    Mockito.when(meta.getColumnType(1)).thenReturn(java.sql.Types.ARRAY)
+    val session = Mockito.mock(classOf[SnowflakeSession])
+    Mockito.when(session.getColumnFields(meta, 1)).thenReturn(arrayField())
+    Mockito.when(session.getStructuredObject(rs, 1)).thenReturn(decoded, Nil: _*)
+    new SnowflakeResultSetExt(rs, session).getObject(1)
+  }
+
+  test("decoder returns Object[] for values read as java.util.ArrayList (JDBC < 3.20 style)") {
+    val raw = new java.util.ArrayList[AnyRef]()
+    raw.add(numberValue(1))
+    raw.add(null)
+    val decoded = decodeArray(raw)
+    assert(decoded.getClass == classOf[Array[AnyRef]])
+    assert(decoded.asInstanceOf[Array[AnyRef]].toSeq == Seq(numberValue(1), null))
+  }
+
+  test("decoder returns Object[] for nested raw JsonStringArrayList values too") {
+    val raw = new JsonStringArrayList[AnyRef]()
+    raw.add(numberValue(1))
+    assert(decodeArray(raw).getClass == classOf[Array[AnyRef]])
+  }
+
+  test("decoder returns a plain list for the StructObjectWrapper path") {
+    val inner = new JsonStringArrayList[AnyRef]()
+    inner.add(numberValue(1))
+    val decoded = decodeArray(new StructObjectWrapper(null, inner))
+    assert(decoded.getClass == classOf[java.util.ArrayList[_]])
+    assert(decoded == java.util.Arrays.asList(numberValue(1)))
+  }
+
+  test("SnowflakeResultSetExt converts Object[] to a Scala Array") {
+    val converted = convertArray(Array[AnyRef](numberValue(1), null))
+    assert(converted.isInstanceOf[Array[_]])
+    assert(converted.asInstanceOf[Array[Any]].toSeq == Seq(numberValue(1), null))
+  }
+
+  test("SnowflakeResultSetExt converts any other list to a Buffer") {
+    val converted =
+      convertArray(new java.util.ArrayList[AnyRef](java.util.Arrays.asList(numberValue(1))))
+    assert(converted.isInstanceOf[scala.collection.mutable.Buffer[_]])
+    assert(
+      converted.asInstanceOf[scala.collection.mutable.Buffer[Any]].toSeq == Seq(numberValue(1)))
+    val linked =
+      convertArray(new java.util.LinkedList[AnyRef](java.util.Arrays.asList(numberValue(2))))
+    assert(linked.isInstanceOf[scala.collection.mutable.Buffer[_]])
+  }
+
+  test("end to end: decoded ArrayList value becomes Array, wrapper value becomes Buffer") {
+    val raw = new java.util.ArrayList[AnyRef]()
+    raw.add(numberValue(7))
+    assert(convertArray(decodeArray(raw)).isInstanceOf[Array[_]])
+    val inner = new JsonStringArrayList[AnyRef]()
+    inner.add(numberValue(7))
+    val viaWrapper = convertArray(decodeArray(new StructObjectWrapper(null, inner)))
+    assert(viaWrapper.isInstanceOf[scala.collection.mutable.Buffer[_]])
+  }
+
+  // ---- null cells are detected before the typed getter is read ----
+
+  test("row iterator returns null for null cells without consulting the typed getter") {
+    val types = Seq(
+      ("INTEGER", java.sql.Types.INTEGER),
+      ("BOOLEAN", java.sql.Types.BOOLEAN),
+      ("DOUBLE", java.sql.Types.DOUBLE),
+      ("VARCHAR", java.sql.Types.VARCHAR))
+    val session = Mockito.mock(classOf[SnowflakeSession])
+    val conn = Mockito.mock(classOf[Connection])
+    Mockito.when(conn.isClosed).thenReturn(false)
+    Mockito.when(session.getConnection).thenReturn(conn)
+    val rs = Mockito.mock(classOf[ResultSet])
+    val meta = Mockito.mock(classOf[ResultSetMetaData])
+    Mockito.when(rs.getMetaData).thenReturn(meta)
+    Mockito.when(meta.getColumnCount).thenReturn(types.size)
+    types.zipWithIndex.foreach { case ((name, sqlType), i) =>
+      Mockito.when(meta.getColumnLabel(i + 1)).thenReturn(s"C$i")
+      Mockito.when(meta.getColumnTypeName(i + 1)).thenReturn(name)
+      Mockito.when(meta.getColumnType(i + 1)).thenReturn(sqlType)
+      Mockito.when(meta.isSigned(i + 1)).thenReturn(true)
+      Mockito.when(meta.isNullable(i + 1)).thenReturn(ResultSetMetaData.columnNullable)
+    }
+    Mockito
+      .when(session.getColumnFields(any(), anyInt()))
+      .thenReturn(java.util.Collections.emptyList[FieldMetadata]())
+    // first row: all null; the typed getters would return defaults (0 / false) if consulted
+    Mockito.when(rs.next()).thenReturn(true, false)
+    Mockito.when(rs.getObject(anyInt())).thenReturn(null, Nil: _*)
+    Mockito.when(rs.getInt(anyInt())).thenReturn(0)
+    Mockito.when(rs.getBoolean(anyInt())).thenReturn(false)
+    Mockito.when(rs.getDouble(anyInt())).thenReturn(0.0)
+    val statement = Mockito.mock(classOf[Statement])
+    Mockito.when(statement.getResultSet).thenReturn(rs)
+
+    val server = new ServerConnection(Map.empty, true, Some(session))
+    val (iterator, _) = server.resultSetToIterator(statement)
+    assert(iterator.hasNext)
+    val row = iterator.next()
+    assert(row == Row(null, null, null, null))
+    (1 to types.size).foreach(i => assert(row.isNullAt(i - 1)))
+    Mockito.verify(rs, Mockito.never()).getInt(anyInt())
+    Mockito.verify(rs, Mockito.never()).getBoolean(anyInt())
+    Mockito.verify(rs, Mockito.never()).getDouble(anyInt())
+    Mockito.verify(rs, Mockito.never()).getString(anyInt())
+    Mockito.verify(rs, Mockito.never()).wasNull()
+  }
+
+  test("row iterator reads the typed getter for non-null cells") {
+    val session = Mockito.mock(classOf[SnowflakeSession])
+    val conn = Mockito.mock(classOf[Connection])
+    Mockito.when(conn.isClosed).thenReturn(false)
+    Mockito.when(session.getConnection).thenReturn(conn)
+    val rs = Mockito.mock(classOf[ResultSet])
+    val meta = Mockito.mock(classOf[ResultSetMetaData])
+    Mockito.when(rs.getMetaData).thenReturn(meta)
+    Mockito.when(meta.getColumnCount).thenReturn(1)
+    Mockito.when(meta.getColumnLabel(1)).thenReturn("C0")
+    Mockito.when(meta.getColumnTypeName(1)).thenReturn("INTEGER")
+    Mockito.when(meta.getColumnType(1)).thenReturn(java.sql.Types.INTEGER)
+    Mockito.when(meta.isSigned(1)).thenReturn(true)
+    Mockito
+      .when(session.getColumnFields(any(), anyInt()))
+      .thenReturn(java.util.Collections.emptyList[FieldMetadata]())
+    Mockito.when(rs.next()).thenReturn(true, false)
+    Mockito.when(rs.getObject(1)).thenReturn(Integer.valueOf(5), Nil: _*)
+    Mockito.when(rs.getInt(1)).thenReturn(5)
+    val statement = Mockito.mock(classOf[Statement])
+    Mockito.when(statement.getResultSet).thenReturn(rs)
+    val (iterator, _) = new ServerConnection(Map.empty, true, Some(session))
+      .resultSetToIterator(statement)
+    assert(iterator.next() == Row(5))
   }
 }
