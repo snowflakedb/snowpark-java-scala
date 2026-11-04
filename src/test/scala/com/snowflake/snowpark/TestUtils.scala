@@ -130,6 +130,9 @@ object TestUtils extends Logging {
       // Replace scoverage classes in classpath because they are instrumented.
       sess.addDependency(snClassDir.replace("scoverage-", ""))
     }
+    UDFClassPath
+      .getPathForClass(classOf[com.snowflake.session.api.SnowflakeSession])
+      .foreach(p => sess.addDependency(p))
 
     addTestDepsToClassPath(sess, stageName)
   }
@@ -171,6 +174,9 @@ object TestUtils extends Logging {
     val snClassDir = UDFClassPath.getPathForClass(classOf[Session]).get
     sess.removeDependency(snClassDir)
     sess.addDependency(snClassDir.replace("scoverage-", ""))
+    UDFClassPath
+      .getPathForClass(classOf[com.snowflake.session.api.SnowflakeSession])
+      .foreach(p => sess.addDependency(p))
 
     List(
       classOf[BeforeAndAfterAll], // scala test jar

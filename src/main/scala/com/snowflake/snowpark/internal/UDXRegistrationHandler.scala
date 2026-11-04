@@ -67,7 +67,7 @@ class UDXRegistrationHandler(session: Session) extends Logging {
         logInfo(s"Automatically added $path to session dependencies.")
       case _ =>
     }
-    for (jar <- UDFClassPath.jacksonJarSeq) {
+    for (jar <- UDFClassPath.sessionApiJar +: UDFClassPath.jacksonJarSeq) {
       jar.location match {
         case Some(path) =>
           session.addDependency(path)
@@ -91,8 +91,13 @@ class UDXRegistrationHandler(session: Session) extends Logging {
     } catch {
       case session.conn.SnowflakeError(e) =>
         val msg = e.getMessage
+        // With the session API jar on the classpath but Snowpark missing, javac reports
+        // "cannot find symbol" for the Snowpark import instead of "package ... does not exist".
         if (msg.contains("NoClassDefFoundError: com/snowflake/snowpark/") ||
-          msg.contains("error: package com.snowflake.snowpark.internal does not exist")) {
+          msg.contains("NoClassDefFoundError: com/snowflake/session/api/") ||
+          msg.contains("error: package com.snowflake.snowpark.internal does not exist") ||
+          (msg.contains("error: cannot find symbol") &&
+            msg.contains("import com.snowflake.snowpark.internal."))) {
           logInfo("Snowpark jar is missing in imports, Retrying after uploading the jar")
           addSnowparkJarToDeps()
           func
