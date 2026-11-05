@@ -9,6 +9,9 @@ gpg --quiet --batch --yes --decrypt --passphrase="$GPG_KEY" --output snowhouse.p
 # re-enable xtrace now that the passphrase is no longer referenced
 set -x
 
+# TEMPORARY: build the unpublished session API into ~/.m2 (see ci/snowflake-session-api).
+scripts/install_session_api.sh
+
 sbt clean +compile
 sbt -J-DargLine="-DPERF_TEST=true -Xss1G" "+testOnly com.snowflake.snowpark.PerfTest"
 export JAVA_OPTS="-Xss1G"
