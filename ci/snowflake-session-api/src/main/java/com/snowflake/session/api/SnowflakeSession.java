@@ -19,8 +19,8 @@ import java.util.List;
  *   <li>a client implementation, shipped with the Snowflake JDBC 4.x driver;
  *   <li>a stored-procedure implementation, shipped with the stored-procedure JDBC runtime adapter,
  *       which reuses the driver's implementation on the procedure's connection;
- *   <li>a JDBC 3.x implementation, shipped with Snowpark, for JDBC 3.x clients and the legacy
- *       stored-procedure path.
+ *   <li>a JDBC 3.x implementation, shipped with Snowpark, for clients and stored procedures that
+ *       run on JDBC 3.x.
  * </ul>
  *
  * <p>Sessions are created by {@link SnowflakeClientSessionFactory} or {@link
