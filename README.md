@@ -18,11 +18,13 @@ If you don't have a Snowflake account yet, you can [sign up for a 30-day free tr
 
 ### Prepare your local environment
 
-Java 11 or Scala 2.12 is required. You can download Java 11 from [the Eclipse foundation](https://adoptium.net/temurin/releases/?version=11) (formerly AdoptOpenJDK), and you can download Scala 2.11 from [the Scala website](https://www.scala-lang.org/download/2.12.17.html).
+Snowpark supports Java 11, 17 and 21, and Scala 2.12 and 2.13. You can download Java from [the Eclipse foundation](https://adoptium.net/temurin/releases/) (formerly AdoptOpenJDK), and Scala from [the Scala website](https://www.scala-lang.org/download/).
 
-Note that Java 17, Scala 2.13 and 3.x are currently not supported.
+Scala 3 is not supported.
 
 ### Install the library
+
+Starting with version 1.17.0, Snowpark is published separately for each Scala version, as `snowpark_2.12` and `snowpark_2.13`. Java projects can use either one. Versions 1.16.x and earlier are published as `snowpark` and support Scala 2.12 only.
 
 Add the Snowpark SDK to your build file:
 
@@ -31,21 +33,21 @@ Add the Snowpark SDK to your build file:
     ```xml
     <dependency>
         <groupId>com.snowflake</groupId>
-        <artifactId>snowpark</artifactId>
-        <version>1.16.0</version>
+        <artifactId>snowpark_2.12</artifactId>
+        <version>1.21.0</version>
     </dependency>
     ```
 
 - Gradle
 
     ```groovy
-    implementation 'com.snowflake:snowpark:1.16.0'
+    implementation 'com.snowflake:snowpark_2.12:1.21.0'
     ```
 
-- sbt
+- sbt (`%%` picks `snowpark_2.12` or `snowpark_2.13` from your `scalaVersion`)
 
     ```scala
-    libraryDependencies += "com.snowflake" % "snowpark" % "1.16.0"
+    libraryDependencies += "com.snowflake" %% "snowpark" % "1.21.0"
     ```
 
 ### Create a session and start querying
