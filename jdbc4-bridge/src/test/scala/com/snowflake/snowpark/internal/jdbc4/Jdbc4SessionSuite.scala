@@ -123,32 +123,23 @@ class Jdbc4SessionSuite extends AnyFunSuite {
     val base = classOf[SnowflakeBaseResultSet].getDeclaredField("sfBaseResultSet")
     base.setAccessible(true)
     base.set(rs, sfBase)
-    val number = new FieldMetadata(
-      "",
-      "NUMBER",
-      java.sql.Types.INTEGER,
-      10,
-      0,
-      true,
-      java.util.Collections.emptyList[FieldMetadata]())
-    val array = new FieldMetadata(
-      "c",
-      "ARRAY",
-      java.sql.Types.ARRAY,
-      0,
-      0,
-      true,
-      java.util.Arrays.asList(number))
+    val number =
+      FieldMetadata.builder("NUMBER", java.sql.Types.INTEGER).name("").precision(10).build()
+    val array = FieldMetadata
+      .builder("ARRAY", java.sql.Types.ARRAY)
+      .name("c")
+      .fields(java.util.Arrays.asList(number))
+      .build()
     new Jdbc4StructuredDecoder(rs).decode(1, array)
   }
 
-  test("decoder returns Object[] for nested raw JsonStringArrayList values") {
+  test("decoder returns a plain list for nested raw JsonStringArrayList values") {
     val raw = new JsonStringArrayList[AnyRef]()
     raw.add(java.math.BigDecimal.ONE)
     raw.add(null)
     val decoded = decodeArray(raw)
-    assert(decoded.getClass == classOf[Array[AnyRef]])
-    assert(decoded.asInstanceOf[Array[AnyRef]].toSeq == Seq(java.math.BigDecimal.ONE, null))
+    assert(decoded.getClass == classOf[java.util.ArrayList[_]])
+    assert(decoded == java.util.Arrays.asList(java.math.BigDecimal.ONE, null))
   }
 
   test("decoder returns a plain list for the StructObjectWrapper path") {

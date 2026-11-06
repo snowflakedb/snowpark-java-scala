@@ -8,6 +8,11 @@ import java.util.Objects;
 /**
  * A column, or a field nested in a structured column, as described by {@link
  * SnowflakeSession#getColumnFields}.
+ *
+ * <p>Implementations create instances and Snowpark reads them, and the two are released
+ * independently, so instances are only created through {@link #builder}. After the first release, a
+ * new property is added as a new {@link Builder} method with a default, which keeps an
+ * implementation built against an older version linking.
  */
 public final class FieldMetadata {
 
@@ -19,21 +24,23 @@ public final class FieldMetadata {
   private final boolean nullable;
   private final List<FieldMetadata> fields;
 
-  public FieldMetadata(
-      String name,
-      String typeName,
-      int sqlType,
-      int precision,
-      int scale,
-      boolean nullable,
-      List<FieldMetadata> fields) {
-    this.name = name;
-    this.typeName = Objects.requireNonNull(typeName, "typeName");
-    this.sqlType = sqlType;
-    this.precision = precision;
-    this.scale = scale;
-    this.nullable = nullable;
-    this.fields = Collections.unmodifiableList(new ArrayList<>(fields));
+  private FieldMetadata(Builder builder) {
+    this.name = builder.name;
+    this.typeName = builder.typeName;
+    this.sqlType = builder.sqlType;
+    this.precision = builder.precision;
+    this.scale = builder.scale;
+    this.nullable = builder.nullable;
+    this.fields = Collections.unmodifiableList(new ArrayList<>(builder.fields));
+  }
+
+  /**
+   * Starts a field of Snowflake type {@code typeName} and {@link java.sql.Types} code {@code
+   * sqlType}. The other properties default to no name, precision and scale 0, nullable, and no
+   * nested fields.
+   */
+  public static Builder builder(String typeName, int sqlType) {
+    return new Builder(typeName, sqlType);
   }
 
   /** The field name; {@code null} for an ARRAY element or a MAP key or value. */
@@ -105,5 +112,55 @@ public final class FieldMetadata {
         + (nullable ? "" : " NOT NULL")
         + (fields.isEmpty() ? "" : " " + fields)
         + "}";
+  }
+
+  /** Builds a {@link FieldMetadata}. */
+  public static final class Builder {
+
+    private final String typeName;
+    private final int sqlType;
+
+    @SuppressWarnings("NullAway.Init")
+    private String name;
+
+    private int precision;
+    private int scale;
+    private boolean nullable = true;
+    private List<FieldMetadata> fields = Collections.emptyList();
+
+    private Builder(String typeName, int sqlType) {
+      this.typeName = Objects.requireNonNull(typeName, "typeName");
+      this.sqlType = sqlType;
+    }
+
+    public Builder name(String name) {
+      this.name = name;
+      return this;
+    }
+
+    public Builder precision(int precision) {
+      this.precision = precision;
+      return this;
+    }
+
+    public Builder scale(int scale) {
+      this.scale = scale;
+      return this;
+    }
+
+    public Builder nullable(boolean nullable) {
+      this.nullable = nullable;
+      return this;
+    }
+
+    /** The nested fields; the list is copied when the field is built. */
+    public Builder fields(List<FieldMetadata> fields) {
+      this.fields = Objects.requireNonNull(fields, "fields");
+      return this;
+    }
+
+    public FieldMetadata build() {
+      return new FieldMetadata(this);
+    }
   }
 }

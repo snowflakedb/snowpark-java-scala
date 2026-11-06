@@ -74,7 +74,10 @@ private[snowpark] class Jdbc3Session private (
 
   override def getQueryStatus(queryId: String): QueryStatus = {
     val status = connection.getSFBaseSession.getQueryStatus(queryId)
-    new QueryStatus(String.valueOf(status), SFQueryStatus.isStillRunning(status))
+    QueryStatus
+      .builder(String.valueOf(status))
+      .stillRunning(SFQueryStatus.isStillRunning(status))
+      .build()
   }
 
   override def getChildQueryIds(queryId: String): JList[String] =
@@ -118,14 +121,11 @@ private[snowpark] class Jdbc3Session private (
 
   override def getStructuredObject(resultSet: ResultSet, column: Int): AnyRef = {
     val meta = resultSet.getMetaData
-    val field = new FieldMetadata(
-      meta.getColumnName(column),
-      meta.getColumnTypeName(column),
-      meta.getColumnType(column),
-      0,
-      0,
-      true,
-      getColumnFields(meta, column))
+    val field = FieldMetadata
+      .builder(meta.getColumnTypeName(column), meta.getColumnType(column))
+      .name(meta.getColumnName(column))
+      .fields(getColumnFields(meta, column))
+      .build()
     new Jdbc3StructuredDecoder(resultSet).decode(column, field)
   }
 
@@ -169,14 +169,14 @@ private[snowpark] object Jdbc3Session {
     } else {
       fields.asScala
         .map(f =>
-          new FieldMetadata(
-            f.getName,
-            f.getTypeName,
-            f.getType,
-            f.getPrecision,
-            f.getScale,
-            f.isNullable,
-            toFieldMetadata(f.getFields)))
+          FieldMetadata
+            .builder(f.getTypeName, f.getType)
+            .name(f.getName)
+            .precision(f.getPrecision)
+            .scale(f.getScale)
+            .nullable(f.isNullable)
+            .fields(toFieldMetadata(f.getFields))
+            .build())
         .asJava
     }
 }
@@ -205,17 +205,13 @@ private class Jdbc3StructuredDecoder(data: ResultSet) {
         case "ARRAY" | "OBJECT" if fields.isEmpty => value.toString
         case "ARRAY" =>
           val elements = value match {
-            case arr: java.util.ArrayList[_] => arr.asScala // JDBC older than 3.20.0
+            case arr: java.util.ArrayList[_] => arr.asScala // nested, or JDBC older than 3.21.0
             case w: StructObjectWrapper => w.getObject.asInstanceOf[JsonStringArrayList[_]].asScala
             case _ =>
               throw new IllegalArgumentException(
                 s"Unsupported Structured Array Type: ${value.getClass.getSimpleName}")
           }
-          val decoded = elements.map(decode(_, fields.head))
-          value match {
-            case _: java.util.ArrayList[_] => decoded.toArray[AnyRef]
-            case _ => new java.util.ArrayList[AnyRef](decoded.asJava)
-          }
+          new java.util.ArrayList[AnyRef](elements.map(decode(_, fields.head)).asJava)
         // structured map, Map type has two fields, and both field names are empty
         case "OBJECT" if fields.size == 2 && fields.head.getName.isEmpty =>
           val entries: Iterable[(Any, Any)] = value match {

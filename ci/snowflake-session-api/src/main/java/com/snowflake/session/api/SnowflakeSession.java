@@ -27,7 +27,8 @@ import java.util.List;
  * SnowflakeStoredProcSessionFactory}; creation and teardown are not part of this interface.
  *
  * <p>Signatures use JDK types only. Methods added after the first release must be {@code default}
- * methods so that an older implementation keeps working with a newer Snowpark.
+ * methods so that an older implementation keeps working with a newer Snowpark. The value classes
+ * {@link FieldMetadata} and {@link QueryStatus} are created through builders for the same reason.
  */
 public interface SnowflakeSession {
 
@@ -89,13 +90,10 @@ public interface SnowflakeSession {
 
   /**
    * Returns the value of structured column {@code column} (1-based) of the current row as JDK
-   * types: ARRAY as {@code Object[]} when the driver delivers it as a {@link java.util.ArrayList}
-   * (nested arrays, and every array before JDBC 3.20) and as {@link List} otherwise, MAP as {@link
-   * java.util.Map}, OBJECT as {@link java.util.Map} from field name to value in field order.
-   * Snowpark surfaces {@code Object[]} as a Scala {@code Array} and {@link List} as a {@code
-   * Buffer}, so the choice is part of its public behavior. Nested DATE, TIME and TIMESTAMP values
-   * are converted to {@link java.sql.Date}, {@link java.sql.Time} and {@link java.sql.Timestamp}.
-   * Returns {@code null} for SQL NULL.
+   * types: ARRAY as {@link List}, MAP as {@link java.util.Map}, and OBJECT as {@link java.util.Map}
+   * from field name to value in field order, at every nesting level. Nested DATE, TIME and
+   * TIMESTAMP values are converted to {@link java.sql.Date}, {@link java.sql.Time} and {@link
+   * java.sql.Timestamp}. Returns {@code null} for SQL NULL.
    */
   Object getStructuredObject(ResultSet resultSet, int column) throws SQLException;
 

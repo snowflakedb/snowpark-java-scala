@@ -217,6 +217,14 @@ private[snowpark] class ServerConnection(
 
   val connection: java.sql.Connection = sfSession.getConnection
 
+  // JDBC older than 3.21 delivers top-level structured arrays as java.util.ArrayList, which
+  // Snowpark has always returned as a Scala Array rather than a Buffer
+  private lazy val legacyStructuredArrays: Boolean = {
+    val meta = connection.getMetaData
+    val major = meta.getDriverMajorVersion
+    major < 3 || (major == 3 && meta.getDriverMinorVersion < 21)
+  }
+
   /** Matches errors raised by Snowflake, as opposed to by the client. */
   private[snowpark] val SnowflakeError = new SnowflakeErrorExtractor(sfSession)
 
@@ -321,7 +329,7 @@ private[snowpark] class ServerConnection(
       lazy val geographyOutputFormat = getParameterValue(ParameterUtils.GeographyOutputFormat)
       lazy val geometryOutputFormat = getParameterValue(ParameterUtils.GeometryOutputFormat)
 
-      val resultSetExt = new SnowflakeResultSetExt(data, sfSession)
+      lazy val resultSetExt = new SnowflakeResultSetExt(data, sfSession, legacyStructuredArrays)
 
       val iterator = new CloseableIterator[Row] {
         private var _currentRow: Row = _
@@ -1020,23 +1028,25 @@ private[snowpark] class ServerConnection(
     }
 }
 
-// Converts structured values, read through the session as JDK types, to Snowpark values
-private[snowflake] class SnowflakeResultSetExt(data: ResultSet, session: SnowflakeSession) {
+// Converts structured values, read through the session as JDK types, to Snowpark values.
+// Arrays become Scala Arrays when nested, and top-level arrays only when `legacyArrays`
+// (JDBC older than 3.21); other top-level arrays become Buffers.
+private[snowflake] class SnowflakeResultSetExt(
+    data: ResultSet,
+    session: SnowflakeSession,
+    legacyArrays: Boolean) {
 
   def getObject(index: Int): Any = {
     val meta = data.getMetaData
-    val field = new FieldMetadata(
-      meta.getColumnName(index),
-      meta.getColumnTypeName(index),
-      meta.getColumnType(index),
-      0,
-      0,
-      true,
-      session.getColumnFields(meta, index))
-    convertToSnowparkValue(session.getStructuredObject(data, index), field)
+    val field = FieldMetadata
+      .builder(meta.getColumnTypeName(index), meta.getColumnType(index))
+      .name(meta.getColumnName(index))
+      .fields(session.getColumnFields(meta, index))
+      .build()
+    convertToSnowparkValue(session.getStructuredObject(data, index), field, nested = false)
   }
 
-  private def convertToSnowparkValue(value: Any, meta: FieldMetadata): Any = {
+  private def convertToSnowparkValue(value: Any, meta: FieldMetadata, nested: Boolean): Any = {
     lazy val fields = meta.getFields.asScala
     if (value == null) {
       null
@@ -1046,19 +1056,19 @@ private[snowflake] class SnowflakeResultSetExt(data: ResultSet, session: Snowfla
         case "ARRAY" | "OBJECT" if fields.isEmpty => value.toString
         // structured array
         case "ARRAY" =>
-          value match {
-            case arr: Array[AnyRef] =>
-              arr.map(convertToSnowparkValue(_, fields.head))
-            case list: java.util.List[_] =>
-              list.asScala.map(convertToSnowparkValue(_, fields.head))
-          }
+          val elements = value
+            .asInstanceOf[java.util.List[_]]
+            .asScala
+            .map(convertToSnowparkValue(_, fields.head, nested = true))
+          if (nested || legacyArrays) elements.toArray else elements
         // structured map, Map type has two fields, and both field names are empty
         case "OBJECT" if fields.size == 2 && fields.head.getName.isEmpty =>
           value
             .asInstanceOf[java.util.Map[_, _]]
             .asScala
             .map { case (key, value) =>
-              convertToSnowparkValue(key, fields.head) -> convertToSnowparkValue(value, fields(1))
+              convertToSnowparkValue(key, fields.head, nested = true) ->
+                convertToSnowparkValue(value, fields(1), nested = true)
             }
             .toMap
         // object, object's field name can't be empty
@@ -1070,7 +1080,7 @@ private[snowflake] class SnowflakeResultSetExt(data: ResultSet, session: Snowfla
               .toList
               .zip(fields)
               .map { case ((key, value), metadata) =>
-                key -> convertToSnowparkValue(value, metadata)
+                key -> convertToSnowparkValue(value, metadata, nested = true)
               }
               .toMap)
         case "NUMBER" if meta.getSqlType == java.sql.Types.BIGINT =>

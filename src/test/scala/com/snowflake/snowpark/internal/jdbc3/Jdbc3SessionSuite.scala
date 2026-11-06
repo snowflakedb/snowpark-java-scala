@@ -20,6 +20,8 @@ import org.mockito.ArgumentMatchers.{any, anyInt}
 import org.mockito.Mockito
 import org.scalatest.funsuite.AnyFunSuite
 
+import scala.collection.JavaConverters._
+
 // Runs with the default JDBC 3.x dependency, i.e. the client and legacy stored-procedure path.
 class Jdbc3SessionSuite extends AnyFunSuite {
 
@@ -82,20 +84,20 @@ class Jdbc3SessionSuite extends AnyFunSuite {
     assert(SFSessionProperty.CLIENT_INFO.getPropertyKey == "snowflakeClientInfo")
   }
 
-  // ---- structured ARRAY values: Scala Array for java.util.ArrayList, Buffer otherwise ----
+  // ---- structured ARRAY values ----
+
+  private def field(
+      typeName: String,
+      sqlType: Int,
+      name: String = "",
+      fields: Seq[FieldMetadata] = Nil): FieldMetadata =
+    FieldMetadata.builder(typeName, sqlType).name(name).fields(fields.asJava).build()
 
   private def numberField(): FieldMetadata =
-    new FieldMetadata(
-      "",
-      "NUMBER",
-      java.sql.Types.INTEGER,
-      10,
-      0,
-      true,
-      java.util.Collections.emptyList[FieldMetadata]())
+    FieldMetadata.builder("NUMBER", java.sql.Types.INTEGER).name("").precision(10).build()
 
-  private def arrayField(): java.util.List[FieldMetadata] =
-    java.util.Arrays.asList(numberField())
+  private def arrayField(element: FieldMetadata = numberField()): FieldMetadata =
+    field("ARRAY", java.sql.Types.ARRAY, fields = Seq(element))
 
   // a SnowflakeBaseResultSet whose underlying sfBaseResultSet returns `raw` for column 1
   private def resultSetReturning(raw: AnyRef): ResultSet = {
@@ -108,74 +110,133 @@ class Jdbc3SessionSuite extends AnyFunSuite {
     rs
   }
 
-  private def decodeArray(raw: AnyRef): AnyRef = {
-    val field = new FieldMetadata("c", "ARRAY", java.sql.Types.ARRAY, 0, 0, true, arrayField())
-    new Jdbc3StructuredDecoder(resultSetReturning(raw)).decode(1, field)
-  }
+  private def decodeArray(raw: AnyRef): AnyRef =
+    new Jdbc3StructuredDecoder(resultSetReturning(raw)).decode(1, arrayField())
 
   private def numberValue(i: Int): AnyRef = java.math.BigDecimal.valueOf(i.toLong)
 
-  private def convertArray(decoded: AnyRef): Any = {
+  private def list(values: AnyRef*): java.util.List[AnyRef] =
+    new java.util.ArrayList[AnyRef](values.asJava)
+
+  // converts `decoded` as the value of a column of type `column`
+  private def convert(decoded: AnyRef, column: FieldMetadata, legacyArrays: Boolean): Any = {
     val rs = Mockito.mock(classOf[ResultSet])
     val meta = Mockito.mock(classOf[ResultSetMetaData])
     Mockito.when(rs.getMetaData).thenReturn(meta)
     Mockito.when(meta.getColumnName(1)).thenReturn("c")
-    Mockito.when(meta.getColumnTypeName(1)).thenReturn("ARRAY")
-    Mockito.when(meta.getColumnType(1)).thenReturn(java.sql.Types.ARRAY)
+    Mockito.when(meta.getColumnTypeName(1)).thenReturn(column.getTypeName)
+    Mockito.when(meta.getColumnType(1)).thenReturn(column.getSqlType)
     val session = Mockito.mock(classOf[SnowflakeSession])
-    Mockito.when(session.getColumnFields(meta, 1)).thenReturn(arrayField())
+    Mockito.when(session.getColumnFields(meta, 1)).thenReturn(column.getFields)
     Mockito.when(session.getStructuredObject(rs, 1)).thenReturn(decoded, Nil: _*)
-    new SnowflakeResultSetExt(rs, session).getObject(1)
+    new SnowflakeResultSetExt(rs, session, legacyArrays).getObject(1)
   }
 
-  test("decoder returns Object[] for values read as java.util.ArrayList (JDBC < 3.20 style)") {
-    val raw = new java.util.ArrayList[AnyRef]()
-    raw.add(numberValue(1))
-    raw.add(null)
-    val decoded = decodeArray(raw)
-    assert(decoded.getClass == classOf[Array[AnyRef]])
-    assert(decoded.asInstanceOf[Array[AnyRef]].toSeq == Seq(numberValue(1), null))
+  test("decoder returns a java.util.List for every driver representation of an array") {
+    val arrayList = new java.util.ArrayList[AnyRef]()
+    arrayList.add(numberValue(1))
+    arrayList.add(null)
+    val jsonList = new JsonStringArrayList[AnyRef]()
+    jsonList.add(numberValue(1))
+    jsonList.add(null)
+    val wrapped = new JsonStringArrayList[AnyRef]()
+    wrapped.add(numberValue(1))
+    wrapped.add(null)
+    Seq(arrayList, jsonList, new StructObjectWrapper(null, wrapped)).foreach { raw =>
+      val decoded = decodeArray(raw)
+      assert(decoded.getClass == classOf[java.util.ArrayList[_]])
+      assert(decoded == java.util.Arrays.asList(numberValue(1), null))
+    }
   }
 
-  test("decoder returns Object[] for nested raw JsonStringArrayList values too") {
-    val raw = new JsonStringArrayList[AnyRef]()
-    raw.add(numberValue(1))
-    assert(decodeArray(raw).getClass == classOf[Array[AnyRef]])
-  }
-
-  test("decoder returns a plain list for the StructObjectWrapper path") {
-    val inner = new JsonStringArrayList[AnyRef]()
-    inner.add(numberValue(1))
-    val decoded = decodeArray(new StructObjectWrapper(null, inner))
-    assert(decoded.getClass == classOf[java.util.ArrayList[_]])
-    assert(decoded == java.util.Arrays.asList(numberValue(1)))
-  }
-
-  test("SnowflakeResultSetExt converts Object[] to a Scala Array") {
-    val converted = convertArray(Array[AnyRef](numberValue(1), null))
-    assert(converted.isInstanceOf[Array[_]])
-    assert(converted.asInstanceOf[Array[Any]].toSeq == Seq(numberValue(1), null))
-  }
-
-  test("SnowflakeResultSetExt converts any other list to a Buffer") {
-    val converted =
-      convertArray(new java.util.ArrayList[AnyRef](java.util.Arrays.asList(numberValue(1))))
+  test("top-level array is a Buffer, or an Array with JDBC older than 3.21") {
+    val converted = convert(list(numberValue(1), null), arrayField(), legacyArrays = false)
     assert(converted.isInstanceOf[scala.collection.mutable.Buffer[_]])
     assert(
-      converted.asInstanceOf[scala.collection.mutable.Buffer[Any]].toSeq == Seq(numberValue(1)))
-    val linked =
-      convertArray(new java.util.LinkedList[AnyRef](java.util.Arrays.asList(numberValue(2))))
-    assert(linked.isInstanceOf[scala.collection.mutable.Buffer[_]])
+      converted.asInstanceOf[scala.collection.mutable.Buffer[Any]].toSeq == Seq(
+        numberValue(1),
+        null))
+    val legacy = convert(list(numberValue(1), null), arrayField(), legacyArrays = true)
+    assert(legacy.isInstanceOf[Array[_]])
+    assert(legacy.asInstanceOf[Array[Any]].toSeq == Seq(numberValue(1), null))
   }
 
-  test("end to end: decoded ArrayList value becomes Array, wrapper value becomes Buffer") {
-    val raw = new java.util.ArrayList[AnyRef]()
-    raw.add(numberValue(7))
-    assert(convertArray(decodeArray(raw)).isInstanceOf[Array[_]])
-    val inner = new JsonStringArrayList[AnyRef]()
-    inner.add(numberValue(7))
-    val viaWrapper = convertArray(decodeArray(new StructObjectWrapper(null, inner)))
-    assert(viaWrapper.isInstanceOf[scala.collection.mutable.Buffer[_]])
+  test("nested arrays are always Arrays") {
+    Seq(true, false).foreach { legacyArrays =>
+      val inArray =
+        convert(list(list(numberValue(1)), list()), arrayField(arrayField()), legacyArrays)
+      val outer = inArray match {
+        case top: Array[_] => top.toSeq
+        case top: scala.collection.mutable.Buffer[_] => top.toSeq
+      }
+      assert(outer.forall(_.isInstanceOf[Array[_]]))
+      assert(outer.map(_.asInstanceOf[Array[Any]].toSeq) == Seq(Seq(numberValue(1)), Seq()))
+
+      val mapField = field(
+        "OBJECT",
+        java.sql.Types.STRUCT,
+        fields = Seq(field("VARCHAR", java.sql.Types.VARCHAR), arrayField()))
+      val map = new java.util.LinkedHashMap[AnyRef, AnyRef]()
+      map.put("k", list(numberValue(2)))
+      val inMap = convert(map, mapField, legacyArrays).asInstanceOf[Map[Any, Any]]
+      assert(inMap("k").asInstanceOf[Array[Any]].toSeq == Seq(numberValue(2)))
+
+      val objectField = field(
+        "OBJECT",
+        java.sql.Types.STRUCT,
+        fields = Seq(field("ARRAY", java.sql.Types.ARRAY, "a", Seq(numberField()))))
+      val obj = new java.util.LinkedHashMap[String, AnyRef]()
+      obj.put("a", list(numberValue(3)))
+      val inObject = convert(obj, objectField, legacyArrays).asInstanceOf[Row]
+      assert(inObject.get(0).asInstanceOf[Array[Any]].toSeq == Seq(numberValue(3)))
+    }
+  }
+
+  // reads the single top-level ARRAY column of a one-row result through `server`
+  private def readArrayColumn(server: ServerConnection, session: SnowflakeSession): Any = {
+    val rs = Mockito.mock(classOf[ResultSet])
+    val meta = Mockito.mock(classOf[ResultSetMetaData])
+    Mockito.when(rs.getMetaData).thenReturn(meta)
+    Mockito.when(meta.getColumnCount).thenReturn(1)
+    Mockito.when(meta.getColumnLabel(1)).thenReturn("C0")
+    Mockito.when(meta.getColumnName(1)).thenReturn("C0")
+    Mockito.when(meta.getColumnTypeName(1)).thenReturn("ARRAY")
+    Mockito.when(meta.getColumnType(1)).thenReturn(java.sql.Types.ARRAY)
+    Mockito.when(session.getColumnFields(any(), anyInt())).thenReturn(arrayField().getFields)
+    Mockito.when(session.getStructuredObject(rs, 1)).thenReturn(list(numberValue(1)), Nil: _*)
+    Mockito.when(rs.next()).thenReturn(true, false)
+    val statement = Mockito.mock(classOf[Statement])
+    Mockito.when(statement.getResultSet).thenReturn(rs)
+    server.resultSetToIterator(statement)._1.next().get(0)
+  }
+
+  private def serverOnDriver(major: Int, minor: Int) = {
+    val session = Mockito.mock(classOf[SnowflakeSession])
+    val conn = Mockito.mock(classOf[Connection])
+    val dbMeta = Mockito.mock(classOf[java.sql.DatabaseMetaData])
+    Mockito.when(conn.isClosed).thenReturn(false)
+    Mockito.when(conn.getMetaData).thenReturn(dbMeta)
+    Mockito.when(dbMeta.getDriverMajorVersion).thenReturn(major)
+    Mockito.when(dbMeta.getDriverMinorVersion).thenReturn(minor)
+    Mockito.when(session.getConnection).thenReturn(conn)
+    (new ServerConnection(Map.empty, true, Some(session)), session, conn)
+  }
+
+  test("ServerConnection picks Array or Buffer from the JDBC driver version") {
+    Seq((2, 99) -> true, (3, 20) -> true, (3, 21) -> false, (4, 0) -> false).foreach {
+      case ((major, minor), legacy) =>
+        val (server, session, _) = serverOnDriver(major, minor)
+        val value = readArrayColumn(server, session)
+        assert(value.isInstanceOf[Array[_]] == legacy, s"driver $major.$minor")
+        assert(value.isInstanceOf[scala.collection.mutable.Buffer[_]] == !legacy)
+    }
+  }
+
+  test("ServerConnection reads the driver version once") {
+    val (server, session, conn) = serverOnDriver(3, 21)
+    readArrayColumn(server, session)
+    readArrayColumn(server, session)
+    Mockito.verify(conn, Mockito.times(1)).getMetaData
   }
 
   // ---- null cells are detected before the typed getter is read ----

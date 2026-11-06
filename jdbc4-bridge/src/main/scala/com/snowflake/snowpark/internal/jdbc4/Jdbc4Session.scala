@@ -113,7 +113,7 @@ class Jdbc4Session(connection: Connection, storedProcedure: Boolean) extends Sno
 
   override def getQueryStatus(queryId: String): QueryStatus = {
     val status = sfConn.getQueryStatus(queryId)
-    new QueryStatus(String.valueOf(status.getName), status.isStillRunning)
+    QueryStatus.builder(String.valueOf(status.getName)).stillRunning(status.isStillRunning).build()
   }
 
   override def getChildQueryIds(queryId: String): JList[String] =
@@ -161,14 +161,11 @@ class Jdbc4Session(connection: Connection, storedProcedure: Boolean) extends Sno
 
   override def getStructuredObject(resultSet: ResultSet, column: Int): AnyRef = {
     val meta = resultSet.getMetaData
-    val field = new FieldMetadata(
-      meta.getColumnName(column),
-      meta.getColumnTypeName(column),
-      meta.getColumnType(column),
-      0,
-      0,
-      true,
-      getColumnFields(meta, column))
+    val field = FieldMetadata
+      .builder(meta.getColumnTypeName(column), meta.getColumnType(column))
+      .name(meta.getColumnName(column))
+      .fields(getColumnFields(meta, column))
+      .build()
     new Jdbc4StructuredDecoder(resultSet).decode(column, field)
   }
 
@@ -213,14 +210,14 @@ private object Jdbc4Session {
     } else {
       fields.asScala
         .map(f =>
-          new FieldMetadata(
-            f.getName,
-            f.getTypeName,
-            f.getType,
-            f.getPrecision,
-            f.getScale,
-            f.isNullable,
-            toFieldMetadata(f.getFields)))
+          FieldMetadata
+            .builder(f.getTypeName, f.getType)
+            .name(f.getName)
+            .precision(f.getPrecision)
+            .scale(f.getScale)
+            .nullable(f.isNullable)
+            .fields(toFieldMetadata(f.getFields))
+            .build())
         .asJava
     }
 }
@@ -269,11 +266,7 @@ private class Jdbc4StructuredDecoder(data: ResultSet) {
               throw new IllegalArgumentException(
                 s"Unsupported Structured Array Type: ${value.getClass.getSimpleName}")
           }
-          val decoded = elements.map(decode(_, fields.head))
-          value match {
-            case _: java.util.ArrayList[_] => decoded.toArray[AnyRef]
-            case _ => new java.util.ArrayList[AnyRef](decoded.asJava)
-          }
+          new java.util.ArrayList[AnyRef](elements.map(decode(_, fields.head)).asJava)
         // structured map, Map type has two fields, and both field names are empty
         case "OBJECT" if fields.size == 2 && fields.head.getName.isEmpty =>
           val entries: Seq[(Any, Any)] = value match {
