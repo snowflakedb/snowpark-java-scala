@@ -192,6 +192,19 @@ class Jdbc3SessionSuite extends AnyFunSuite {
     }
   }
 
+  test("nested structured maps keep the driver's entry order") {
+    val mapField = field(
+      "OBJECT",
+      java.sql.Types.STRUCT,
+      fields = Seq(field("VARCHAR", java.sql.Types.VARCHAR), numberField()))
+    val map = new java.util.LinkedHashMap[AnyRef, AnyRef]()
+    map.put("a", numberValue(1))
+    map.put("b", numberValue(2))
+    val inArray = convert(list(map), arrayField(mapField), legacyArrays = false)
+      .asInstanceOf[scala.collection.mutable.Buffer[Any]]
+    assert(inArray.head.asInstanceOf[Map[Any, Any]].keys.toSeq == Seq("a", "b"))
+  }
+
   // reads the single top-level ARRAY column of a one-row result through `server`
   private def readArrayColumn(server: ServerConnection, session: SnowflakeSession): Any = {
     val rs = Mockito.mock(classOf[ResultSet])

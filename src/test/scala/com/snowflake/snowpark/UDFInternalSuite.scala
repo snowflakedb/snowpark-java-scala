@@ -46,7 +46,8 @@ class UDFInternalSuite extends TestData {
     } else {
       verify(mockSession, times(1)).addDependency(path)
       if (sessionApiPath != path) {
-        verify(mockSession, times(1)).addDependency(sessionApiPath)
+        // once from addDepsToClassPath above, once from the upload
+        verify(mockSession, times(2)).addDependency(sessionApiPath)
       }
     }
     verify(mockSession, times(1)).removeDependency(path)

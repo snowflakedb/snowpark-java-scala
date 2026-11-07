@@ -1063,14 +1063,14 @@ private[snowflake] class SnowflakeResultSetExt(
           if (nested || legacyArrays) elements.toArray else elements
         // structured map, Map type has two fields, and both field names are empty
         case "OBJECT" if fields.size == 2 && fields.head.getName.isEmpty =>
-          value
-            .asInstanceOf[java.util.Map[_, _]]
-            .asScala
-            .map { case (key, value) =>
-              convertToSnowparkValue(key, fields.head, nested = true) ->
-                convertToSnowparkValue(value, fields(1), nested = true)
-            }
-            .toMap
+          val entries = value.asInstanceOf[java.util.Map[Any, Any]].asScala
+          def convertEntry(entry: (Any, Any)): (Any, Any) =
+            convertToSnowparkValue(entry._1, fields.head, nested = true) ->
+              convertToSnowparkValue(entry._2, fields(1), nested = true)
+          // Nested maps keep the driver's entry order; on Scala 2.12 mapping the top-level map
+          // through the mutable map reorders it, and released output depends on both.
+          if (nested) entries.toSeq.map(convertEntry).toMap
+          else entries.map(convertEntry).toMap
         // object, object's field name can't be empty
         case "OBJECT" =>
           Row.fromMap(
