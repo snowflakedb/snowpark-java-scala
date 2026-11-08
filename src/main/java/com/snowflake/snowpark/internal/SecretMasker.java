@@ -8,9 +8,9 @@ import java.util.regex.Pattern;
  * SecretDetector.maskSecrets(String)}, so the output of masking does not depend on which driver
  * version is on the classpath.
  *
- * <p>The patterns are the union of JDBC 3.x and JDBC 4.x. Where the two drivers differ, the more
- * restrictive behavior is used: the connection token value may contain ':' (JDBC 4.x only), and the
- * SSE-C customer key header, X-Amz-* query parameters and "qrmk" are masked (JDBC 4.x only).
+ * <p>The JDBC 3.x filters run first, unchanged, so everything JDBC 3.x masks is masked the same
+ * way. The filters only JDBC 4.x has (session tokens containing ':', the SSE-C customer key header,
+ * X-Amz-* query parameters and "qrmk") run afterwards and can only mask more.
  */
 public final class SecretMasker {
   private SecretMasker() {}
@@ -62,28 +62,40 @@ public final class SecretMasker {
           "\"privateKeyData\": \"([a-z0-9/+=\\\\n]{10,})\"",
           Pattern.MULTILINE | Pattern.CASE_INSENSITIVE);
 
-  // ':' must stay in the value class: session tokens start with "ver:<n>-", and without ':' the
-  // match stops after "ver", which is below the 8-character minimum.
   private static final Pattern CONNECTION_TOKEN_PATTERN =
       Pattern.compile(
-          "(token|assertion content)" + "(['\"\\s:=]+)" + "([a-z0-9=/_\\-+:]{8,})",
+          "(token|assertion content)" + "(['\"\\s:=]+)" + "([a-z0-9=/_\\-+]{8,})",
+          Pattern.CASE_INSENSITIVE);
+
+  // The filters below run after the JDBC 3.x ones, so a value may already start with the "****"
+  // a JDBC 3.x filter left in it (e.g. "token=" inside "x-amz-security-token=").
+  private static String valueOrMaskedRest(String valueClass, int minLength) {
+    return "(\\*{4}" + valueClass + "*|" + valueClass + "{" + minLength + ",})";
+  }
+
+  // Session tokens look like "ver:<n>-hint:<n>-...", which CONNECTION_TOKEN_PATTERN stops at.
+  private static final Pattern SESSION_TOKEN_PATTERN =
+      Pattern.compile(
+          "(token|assertion content)" + "(['\"\\s:=]+)" + "(ver:[0-9]+-[a-z0-9=/_\\-+:]+)",
           Pattern.CASE_INSENSITIVE);
 
   // X-Amz-Signature is covered by the "signature=" alternative in SAS_TOKEN_PATTERN.
   private static final Pattern SIGV4_PARAM_PATTERN =
       Pattern.compile(
-          "(x-amz-credential|x-amz-security-token)=([a-z0-9%/+=._-]{8,})",
+          "(x-amz-credential|x-amz-security-token)(=)" + valueOrMaskedRest("[a-z0-9%/+=._-]", 8),
           Pattern.CASE_INSENSITIVE);
 
   private static final Pattern QRMK_PATTERN =
-      Pattern.compile("(qrmk)" + "([\'\"\\s:=]+)" + "([a-z0-9/+=]{16,})", Pattern.CASE_INSENSITIVE);
+      Pattern.compile(
+          "(qrmk)" + "([\'\"\\s:=]+)" + valueOrMaskedRest("[a-z0-9/+=]", 16),
+          Pattern.CASE_INSENSITIVE);
 
   // The qrmk key also travels as the SSE-C customer key header, labelled by the header name.
   private static final Pattern SSE_C_CUSTOMER_KEY_PATTERN =
       Pattern.compile(
           "(x-amz-server-side-encryption-customer-key)"
               + "((?:\\s*,\\s*value)?[\'\"\\s:=]+)"
-              + "([a-z0-9+/]{16,}={0,2})",
+              + valueOrMaskedRest("[a-z0-9+/=]", 16),
           Pattern.CASE_INSENSITIVE);
 
   private static final Pattern ENCRYPTION_MATERIAL_PATTERN =
@@ -99,16 +111,35 @@ public final class SecretMasker {
     if (text == null) {
       return null;
     }
-    // Filters with a specific literal label run before the ones keyed off a generic label
-    // ("token", "password", "sig"), so a generic filter cannot consume part of a specific one.
+    return maskJdbc4OnlySecrets(maskJdbc3Secrets(text));
+  }
+
+  // Same filters, patterns and order as the JDBC 3.x SecretDetector.maskSecrets.
+  private static String maskJdbc3Secrets(String text) {
     return filterAccessTokens(
         filterConnectionTokens(
             filterPassword(
                 filterSASTokens(
-                    filterAWSKeys(
-                        filterOAuthTokens(
-                            filterEncryptionMaterial(
-                                filterQrmk(filterSigV4Params(filterSseCustomerKey(text))))))))));
+                    filterAWSKeys(filterOAuthTokens(filterEncryptionMaterial(text)))))));
+  }
+
+  private static String maskJdbc4OnlySecrets(String text) {
+    String masked = text;
+    for (Pattern pattern :
+        new Pattern[] {
+          SSE_C_CUSTOMER_KEY_PATTERN, SIGV4_PARAM_PATTERN, QRMK_PATTERN, SESSION_TOKEN_PATTERN
+        }) {
+      masked = replaceInPrefix(masked, pattern);
+    }
+    return masked;
+  }
+
+  // Unlike replaceIfFound, keeps the text past MAX_LENGTH, so masking more never shortens a
+  // message.
+  private static String replaceInPrefix(String text, Pattern pattern) {
+    String head = prefix(text);
+    String replaced = pattern.matcher(head).replaceAll("$1$2****");
+    return head.length() == text.length() ? replaced : replaced + text.substring(MAX_LENGTH);
   }
 
   private static String prefix(String text) {
@@ -140,18 +171,6 @@ public final class SecretMasker {
 
   private static String filterConnectionTokens(String text) {
     return replaceIfFound(text, CONNECTION_TOKEN_PATTERN, "$1$2****");
-  }
-
-  private static String filterSigV4Params(String text) {
-    return replaceIfFound(text, SIGV4_PARAM_PATTERN, "$1=****");
-  }
-
-  private static String filterQrmk(String text) {
-    return replaceIfFound(text, QRMK_PATTERN, "$1$2****");
-  }
-
-  private static String filterSseCustomerKey(String text) {
-    return replaceIfFound(text, SSE_C_CUSTOMER_KEY_PATTERN, "$1$2****");
   }
 
   private static String filterOAuthTokens(String text) {
