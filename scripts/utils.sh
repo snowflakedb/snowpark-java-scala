@@ -96,8 +96,28 @@ download_sbt_launcher() {
   return 1
 }
 
+# After bootstrap, the launcher and the build resolve sbt itself, plugins and
+# library dependencies from repo1.maven.org, which also returns HTTP 429.
+# Route Maven resolution through Artifactory; sbt plugins published only in
+# Ivy layout come from repo.scala-sbt.org; Maven Central stays as a fallback.
+use_artifactory_for_sbt_resolution() {
+  local repo_config
+  repo_config="$(mktemp -t sbt-repositories.XXXXXX)"
+  cat > "$repo_config" <<EOF
+[repositories]
+  local
+  artifactory-maven: $SBT_ARTIFACTORY_REPO
+  sbt-plugin-releases: https://repo.scala-sbt.org/scalasbt/sbt-plugin-releases/, [organization]/[module]/(scala_[scalaVersion]/)(sbt_[sbtVersion]/)[revision]/[type]s/[artifact](-[classifier]).[ext]
+  maven-central: $SBT_CENTRAL_REPO
+EOF
+  export SBT_OPTS="${SBT_OPTS:+$SBT_OPTS }-Dsbt.override.build.repos=true -Dsbt.repository.config=$repo_config"
+  echo "[INFO] sbt resolution repositories ($repo_config):"
+  cat "$repo_config"
+}
+
 run_test_suites() {
   prefetch_sbt_launcher
+  use_artifactory_for_sbt_resolution
 
   if [ -z "$1" ]; then
     echo "[INFO] Setting system JVM timezone: $1"
