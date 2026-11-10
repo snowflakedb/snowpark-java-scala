@@ -339,7 +339,9 @@ private object SqlGenerator extends Logging {
   def windowFrameBoundary(offset: String): String = {
     try {
       val num: Int = offset.toInt
-      windowFrameBoundaryExpression(num.abs.toString, num >= 0)
+      // Int.MinValue.abs is still negative; use Long so the PRECEDING/FOLLOWING
+      // magnitude is always non-negative (e.g. rowsBetween(Int.MinValue, ...)).
+      windowFrameBoundaryExpression(Math.abs(num.toLong).toString, num >= 0)
     } catch {
       case _: Throwable => offset
     }
