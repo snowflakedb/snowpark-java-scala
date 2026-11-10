@@ -395,13 +395,16 @@ object Utils extends Logging {
   // The first 10 sleep time in second will be like
   // 1.5, 3, 6, 12, 24, 48, 60, 60, 60, 60
   private[snowpark] def retrySleepTimeInMS(retry: Int): Int = {
-    var expectedTime =
-      RETRY_SLEEP_TIME_UNIT_IN_MS * Math.pow(2, retry).toInt
-    // One sleep should be less than 3 minutes
-    expectedTime = Math.min(expectedTime, MAX_SLEEP_TIME_IN_MS)
-    // jitter factor is 0.5
-    expectedTime = expectedTime / 2 + Random.nextInt(expectedTime / 2).abs
-    expectedTime
+    // Compute the exponential backoff in Long so large retry counts cannot overflow Int
+    // before Math.min clamps to MAX_SLEEP_TIME_IN_MS. Previously, retry ~= 21 made
+    // 1500 * 2^retry wrap to a negative Int and Random.nextInt threw.
+    val safeRetry = Math.max(retry, 0)
+    val exponential =
+      if (safeRetry >= 31) Long.MaxValue
+      else RETRY_SLEEP_TIME_UNIT_IN_MS.toLong * (1L << safeRetry)
+    val expectedTime = Math.min(exponential, MAX_SLEEP_TIME_IN_MS.toLong).toInt
+    // jitter factor is 0.5; nextInt already returns a non-negative value
+    expectedTime / 2 + Random.nextInt(expectedTime / 2)
   }
 
   private[snowpark] def isRetryable(t: Throwable): Boolean = t match {
@@ -413,10 +416,13 @@ object Utils extends Logging {
   }
 
   private[snowpark] def withRetry[T](maxRetry: Int, logPrefix: String)(thunk: => T): Unit = {
+    // Treat the argument as a total attempt count. Values <= 0 still run once so
+    // snowpark_max_file_*_retry_count=0 means "no retries" rather than "do nothing".
+    val maxAttempts = Math.max(maxRetry, 1)
     var retry = 0
     var done = false
     var lastError: Option[Throwable] = None
-    while (retry < maxRetry && !done) {
+    while (retry < maxAttempts && !done) {
       try {
         thunk
         done = true
