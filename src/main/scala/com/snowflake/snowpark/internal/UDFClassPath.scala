@@ -62,6 +62,9 @@ object UDFClassPath extends Logging {
       true
     } catch {
       case e: ClassNotFoundException => false
+    } finally {
+      // Release jar file handles held by the temporary loader.
+      checkClassLoader.close()
     }
   }
 
