@@ -460,13 +460,17 @@ class Session private (private[snowpark] val conn: ServerConnection) extends Log
             maxFileUploadRetryCount,
             s"Uploading jar file $targetPrefix $targetFileName $stageLocation $uri") {
             val file = new File(uri)
-            conn
-              .uploadStream(
+            val inputStream = new FileInputStream(file)
+            try {
+              conn.uploadStream(
                 stageLocation,
                 targetPrefix,
-                new FileInputStream(file),
+                inputStream,
                 targetFileName,
                 compressData = false)
+            } finally {
+              inputStream.close()
+            }
           }
       },
       s"Uploading file ${uri.toString} to stage $stageLocation")
@@ -1489,7 +1493,12 @@ object Session extends Logging {
   private[snowpark] def loadConfFromFile(configFile: String): Map[String, String] = {
     val prop = new Properties()
     var options: Map[String, String] = Map()
-    prop.load(new FileInputStream(configFile))
+    val inputStream = new FileInputStream(configFile)
+    try {
+      prop.load(inputStream)
+    } finally {
+      inputStream.close()
+    }
     prop
       .entrySet()
       .forEach(entry => {
