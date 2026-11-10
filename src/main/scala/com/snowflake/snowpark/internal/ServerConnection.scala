@@ -349,7 +349,7 @@ private[snowpark] class ServerConnection(
         private var _currentRow: Row = _
         private var _hasNext: Boolean = _
         // init
-        readNext()
+        readNextAndCloseOnError()
 
         private def readNext(): Unit = {
           _hasNext = data.next()
@@ -412,10 +412,30 @@ private[snowpark] class ServerConnection(
           }
         }
 
+        private def readNextAndCloseOnError(): Unit = {
+          try {
+            readNext()
+          } catch {
+            case t: Throwable =>
+              // Row mapping / ResultSet failures must still release the Statement.
+              try {
+                close()
+              } catch {
+                case closeError: Throwable =>
+                  // Match try-with-resources semantics: preserve the read failure as primary
+                  // while keeping the close failure available for diagnostics.
+                  if (closeError ne t) {
+                    t.addSuppressed(closeError)
+                  }
+              }
+              throw t
+          }
+        }
+
         override def hasNext: Boolean = _hasNext
         override def next(): Row = {
           val result = _currentRow
-          readNext()
+          readNextAndCloseOnError()
           result
         }
 
