@@ -1413,12 +1413,19 @@ class Session private (private[snowpark] val conn: ServerConnection) extends Log
         logWarning("This session has been closed.")
       } else {
         logInfo("Closing session: " + sessionInfo)
+        // cancelAll() shuts down the current pool and allocates a replacement so later
+        // actions on a live session can still run. Session.close must shut that
+        // replacement down below; otherwise its worker threads outlive the session.
         cancelAll()
       }
     } catch {
       case t: Throwable =>
         throw ErrorMessage.MISC_FAILED_CLOSE_SESSION(t.getMessage)
     } finally {
+      // Always terminate the session's pool: either the replacement from cancelAll(),
+      // or the original pool when cancelAll() was skipped because the connection was
+      // already closed.
+      threadPool.shutdownNow()
       conn.close()
     }
   }
