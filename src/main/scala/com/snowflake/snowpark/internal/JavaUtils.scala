@@ -407,7 +407,11 @@ object JavaUtils {
     if (inputStream == null) {
       throw new Exception("JavaUtils.readFileAsByteArray() cannot find file: " + fileName)
     }
-    Stream.continually(inputStream.read()).takeWhile(_ != -1).map(_.toByte).toArray
+    try {
+      Stream.continually(inputStream.read()).takeWhile(_ != -1).map(_.toByte).toArray
+    } finally {
+      inputStream.close()
+    }
   }
 
   def deserialize(bytes: Array[Byte]): Object = {
@@ -418,10 +422,16 @@ object JavaUtils {
   def deserialize(fileName: String): Object = {
     // Need to add "/" to file name for resource search.
     val fis = getClass.getResourceAsStream("/" + fileName)
+    if (fis == null) {
+      throw new Exception("JavaUtils.deserialize() cannot find file: " + fileName)
+    }
     doDeserializeAndCloseInputStream(fis)
   }
 
   private def doDeserializeAndCloseInputStream(inputStream: InputStream): Object = {
+    if (inputStream == null) {
+      throw new IllegalArgumentException("inputStream is null")
+    }
     var in: ObjectInputStream = null
     try {
       in = new ObjectInputStream(inputStream)
@@ -431,10 +441,14 @@ object JavaUtils {
         throw new RuntimeException(e)
     } finally {
       try {
-        inputStream.close()
-        in.close();
+        if (in != null) {
+          // Closes the underlying inputStream as well.
+          in.close()
+        } else {
+          inputStream.close()
+        }
       } catch {
-        case e: IOException => // Ignore error in closing stream
+        case _: IOException => // Ignore error in closing stream
       }
     }
   }

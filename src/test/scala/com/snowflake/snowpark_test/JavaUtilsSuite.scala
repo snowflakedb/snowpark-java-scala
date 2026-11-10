@@ -169,4 +169,17 @@ class JavaUtilsSuite extends AnyFunSuite {
     assert(javaMap2.get("b").asInstanceOf[String].equals("bv"))
     assert(javaMap2.get("c") == null)
   }
+
+  test("deserialize missing resource reports clear error") {
+    val ex = intercept[Exception] {
+      deserialize("not_exist_file")
+    }
+    assert(ex.getMessage == "JavaUtils.deserialize() cannot find file: not_exist_file")
+  }
+
+  test("serialize and deserialize round-trip") {
+    val original = Array("a", "b", "c")
+    val restored = deserialize(serialize(original)).asInstanceOf[Array[String]]
+    assert(restored.sameElements(original))
+  }
 }
