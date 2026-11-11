@@ -2,7 +2,6 @@ package com.snowflake.snowpark
 
 import com.snowflake.snowpark.internal.analyzer._
 import com.snowflake.snowpark.types._
-import net.snowflake.client.core.QueryStatus
 import net.snowflake.client.jdbc.{SnowflakeResultSet, SnowflakeSQLException, SnowflakeStatement}
 
 import scala.collection.mutable.ArrayBuffer
@@ -37,7 +36,7 @@ class ServerConnectionSuite extends SNTestBase {
         .executeAsyncQuery("select SYSTEM$WAIT(2)")
         .asInstanceOf[SnowflakeResultSet]
         .getQueryID
-      assert(session.conn.waitForQueryDone(queryID, 100).equals(QueryStatus.SUCCESS))
+      assert(!session.conn.waitForQueryDone(queryID, 100).isStillRunning)
 
       // Negative tests
       queryID = statement

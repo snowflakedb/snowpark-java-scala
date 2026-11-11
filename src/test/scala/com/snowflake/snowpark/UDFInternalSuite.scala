@@ -40,10 +40,15 @@ class UDFInternalSuite extends TestData {
         .createDataFrame(Seq(1, 2))
         .select(doubleUDF(col("value"))),
       Seq(Row(2), Row(4)))
+    val sessionApiPath = UDFClassPath.sessionApiJar.location.get
     if (mockSession.isVersionSupportedByServerPackages) {
       verify(mockSession, times(0)).addDependency(path)
     } else {
       verify(mockSession, times(1)).addDependency(path)
+      if (sessionApiPath != path) {
+        // once from addDepsToClassPath above, once from the upload
+        verify(mockSession, times(2)).addDependency(sessionApiPath)
+      }
     }
     verify(mockSession, times(1)).removeDependency(path)
     verify(mockSession, times(1)).addPackage(s"${Utils.SnowparkPackageName}:latest")

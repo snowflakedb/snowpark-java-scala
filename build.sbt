@@ -23,7 +23,26 @@ def isFatJarOrBundle(c: String): Boolean =
 
 lazy val snowparkName = s"snowpark${if (isFipsRelease) "-fips" else ""}"
 lazy val jdbcName = s"snowflake-jdbc${if (isFipsRelease) "-fips" else ""}"
-lazy val snowparkVersion = "1.22.0-SNAPSHOT"
+
+// 3.27.0+ required for native INTERVAL → java.time.Duration / Period ResultSet reads
+val jdbcVersion = "3.27.1"
+
+// JDBC 4.x compile-only dependency of the jdbc4-bridge module. Users keep the JDBC 3.x dependency
+// above; the JDBC 4.x code path only runs when a JDBC 4.x driver supplies the connection (the
+// exact-runtime stored-procedure bundle). -Dsproc.jdbc4.version selects a locally installed
+// build, resolved from the local Maven repository.
+val jdbc4VersionOverride: Option[String] = sys.props.get("sproc.jdbc4.version")
+// TODO(SNOW-4191069): Before production qualification, run the full compatibility suite against
+// every supported JDBC version/line (3.x and 4.x); only a single 4.x version is built and tested
+// here.
+val jdbc4Version: String = jdbc4VersionOverride.getOrElse("4.4.0")
+
+// Driver-neutral session interface (com.snowflake.session.api). Until it is published, it is
+// resolved from the local Maven repository.
+val sessionApi = "com.snowflake" % "snowflake-session-api" % "0.1.0-SNAPSHOT"
+
+// Allow the synthetic Snowpark version to be overridden by -Dsproc.snowpark.version.
+lazy val snowparkVersion: String = sys.props.getOrElse("sproc.snowpark.version", "1.22.0-SNAPSHOT")
 
 lazy val Javadoc = config("genjavadoc") extend Compile
 
@@ -78,13 +97,11 @@ lazy val javadocSettings = inConfig(Javadoc)(Defaults.configSettings) ++ Seq(
   Javadoc / packageDoc / artifactName := ((sv, mod, art) =>
     "" + mod.name + "_" + sv.binary + "-" + mod.revision + "-javadoc.jar"))
 
-// 3.27.0+ required for native INTERVAL → java.time.Duration / Period ResultSet reads
-val jdbcVersion = "3.27.1"
 val jacksonVersion = "2.18.0"
 val openTelemetryVersion = "1.39.0"
 val slf4jVersion = "2.0.16"
 
-lazy val root = (project in file("."))
+lazy val root: Project = (project in file("."))
   .enablePlugins(BuildInfoPlugin, UniversalPlugin)
   .configs(Javadoc)
   .settings(javadocSettings: _*)
@@ -132,6 +149,7 @@ lazy val root = (project in file("."))
       "io.opentelemetry" % "opentelemetry-api" % openTelemetryVersion,
       "javax.xml.bind" % "jaxb-api" % "2.3.1",
       "net.snowflake" % jdbcName % jdbcVersion,
+      sessionApi,
       "org.scala-lang" % "scala-library" % scalaVersion.value,
       "org.scala-lang" % "scala-compiler" % scalaVersion.value,
       "org.slf4j" % "slf4j-api" % slf4jVersion,
@@ -186,6 +204,8 @@ lazy val root = (project in file("."))
       base.withClassifier(Some("javadoc"))
     },
     addArtifact(Javadoc / packageDoc / artifact, Javadoc / packageDoc),
+
+    resolvers += Resolver.mavenLocal,
 
     // Release settings
 
@@ -320,6 +340,29 @@ lazy val root = (project in file("."))
           <organizationUrl>https://www.snowflake.com</organizationUrl>
         </developer>
       </developers>)
+
+// Reference JDBC 4.x implementation of the session interface, standing in for the implementation
+// the JDBC 4.x driver will ship. It depends only on the session interface and JDBC 4.x, not on
+// Snowpark; Snowpark discovers it through ServiceLoader.
+lazy val jdbc4Bridge: Project = (project in file("jdbc4-bridge"))
+  .dependsOn(root % "test->test")
+  .settings(
+    name := "snowpark-jdbc4-bridge",
+    version := snowparkVersion,
+    scalaVersion := (root / scalaVersion).value,
+    crossScalaVersions := (root / crossScalaVersions).value,
+    javacOptions ++= Seq("-source", "1.8", "-target", "1.8"),
+    resolvers += Resolver.mavenLocal,
+    excludeDependencies += ExclusionRule("net.snowflake", "snowflake-jdbc-fips"),
+    dependencyOverrides += "net.snowflake" % "snowflake-jdbc" % jdbc4Version,
+    libraryDependencies ++= Seq(
+      "net.snowflake" % "snowflake-jdbc" % jdbc4Version % Provided,
+      sessionApi % Provided,
+      "org.mockito" % "mockito-core" % "2.23.0" % Test,
+      "org.scalatest" %% "scalatest" % "3.2.19" % Test),
+    scalafmtOnCompile := true,
+    publish / skip := true,
+    Test / fork := true)
 
 // Test Groups
 // Code Verification

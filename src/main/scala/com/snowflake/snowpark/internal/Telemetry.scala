@@ -1,14 +1,10 @@
 package com.snowflake.snowpark.internal
 
 import com.snowflake.snowpark.SnowparkClientException
-import net.snowflake.client.jdbc.internal.fasterxml.jackson.databind.{JsonNode, ObjectMapper}
-import net.snowflake.client.jdbc.telemetry.TelemetryUtil
+import com.fasterxml.jackson.databind.{JsonNode, ObjectMapper}
 import Telemetry._
 
 final class Telemetry(conn: ServerConnection) extends Logging {
-
-  // Get telemetry client from JDBC. Will return NoOpTelemetryClient for Java SP.
-  private val telemetry = conn.connection.getSFBaseSession.getTelemetryClient
 
   private def send(telemetryType: String, data: JsonNode): Unit = {
     val msg = MAPPER.createObjectNode()
@@ -25,9 +21,8 @@ final class Telemetry(conn: ServerConnection) extends Logging {
       msg.put(CLIENT_LANGUAGE, JAVA)
     }
     try {
-      telemetry.addLogToBatch(TelemetryUtil.buildJobData(msg))
+      conn.sfSession.submitTelemetry(msg.toString)
       logDebug(s"sending telemetry data: ${data.toString}")
-      telemetry.sendBatchAsync()
     } catch {
       case e: Exception =>
         logError(s"Failed to send telemetry data: ${data.toString}, Error: ${e.getMessage}")

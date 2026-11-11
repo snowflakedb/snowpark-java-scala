@@ -191,7 +191,8 @@ final class FileOperation(session: Session) extends Logging {
     Utils.withRetry(
       session.maxFileDownloadRetryCount,
       s"Download stream from stage: $stageName, file: " +
-        s"$pathNameWithPrefix/$fileName, decompress: $decompress") {
+        s"$pathNameWithPrefix/$fileName, decompress: $decompress",
+      session.conn.sfSession.isSnowflakeError) {
       resultStream =
         session.conn.downloadStream(stageName, s"$pathNameWithPrefix/$fileName", decompress)
     }

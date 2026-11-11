@@ -3318,7 +3318,7 @@ class DataFrame private[snowpark] (
   }
 
   lazy private[snowpark] val output: Seq[Attribute] = {
-    SnowflakePlan.wrapException(plan.children.toSeq: _*) {
+    SnowflakePlan.wrapException(session.conn, plan.children.toSeq: _*) {
       snowflakePlan.output
     }
   }
