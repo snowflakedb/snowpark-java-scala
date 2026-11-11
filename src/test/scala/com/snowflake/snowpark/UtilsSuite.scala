@@ -636,6 +636,45 @@ class UtilsSuite extends SNTestBase {
     }
     assert(ex.getMessage.contains("User error"))
     assert(result.size == 1)
+
+    // maxRetry <= 0 still executes the thunk once ("no retries", not "skip work")
+    result.clear()
+    Utils.withRetry(0, "test_A") {
+      result.append(1)
+    }
+    assert(result.size == 1)
+
+    result.clear()
+    Utils.withRetry(-1, "test_A") {
+      result.append(1)
+    }
+    assert(result.size == 1)
+
+    result.clear()
+    ex = intercept[SnowflakeSQLException] {
+      Utils.withRetry(0, "test_A") {
+        result.append(1)
+        throw new SnowflakeSQLException("JDBC driver internal error", "state_1")
+      }
+    }
+    assert(ex.getMessage.contains("JDBC driver internal error"))
+    assert(result.size == 1)
+  }
+
+  test("Utils.retrySleepTimeInMS clamps without overflowing") {
+    // Large retry counts used to overflow Int before the clamp and throw from Random.nextInt.
+    val maxSleepMs = 60 * 1000
+    for (retry <- Seq(0, 1, 5, 10, 21, 31, 100, Int.MaxValue)) {
+      val sleepMs = Utils.retrySleepTimeInMS(retry)
+      assert(sleepMs > 0)
+      assert(sleepMs <= maxSleepMs)
+    }
+    // Once the exponential exceeds the max, every call must stay in [max/2, max].
+    for (_ <- 1 to 20) {
+      val sleepMs = Utils.retrySleepTimeInMS(20)
+      assert(sleepMs >= maxSleepMs / 2)
+      assert(sleepMs <= maxSleepMs)
+    }
   }
 
   test("Utils.isPutOrGetCommand") {
