@@ -1,8 +1,8 @@
 package com.snowflake.snowpark.internal.analyzer
 import com.snowflake.snowpark.internal.Utils
 
-import java.sql.{Date, Timestamp}
-import java.time.{Duration, Period}
+import java.sql.Timestamp
+import java.time.{Duration, LocalDate, Period}
 import java.util.TimeZone
 import java.math.{BigDecimal => JBigDecimal}
 
@@ -12,10 +12,21 @@ import javax.xml.bind.DatatypeConverter
 import net.snowflake.client.jdbc.internal.snowflake.common.core.SnowflakeDateTimeFormat
 
 object DataTypeMapper {
-  // milliseconds per day
-  private val MILLIS_PER_DAY = 24 * 3600 * 1000L
   // microseconds per millisecond
   private val MICROS_PER_MILLIS = 1000L
+
+  /**
+   * Formats days since epoch as yyyy-MM-dd. The days come from LocalDate.toEpochDay, so they are
+   * formatted in the proleptic Gregorian calendar with astronomical years (0000 is 1 BCE, -0001 is
+   * 2 BCE), which is how Snowflake reads DATE literals.
+   */
+  private[analyzer] def formatDate(daysSinceEpoch: Int): String = {
+    val date = LocalDate.ofEpochDay(daysSinceEpoch)
+    val year = date.getYear
+    val sign = if (year < 0) "-" else ""
+    f"$sign${Math.abs(year)}%04d-${date.getMonthValue}%02d-${date.getDayOfMonth}%02d"
+  }
+
   private[analyzer] def stringToSql(str: String): String =
     // Escapes all backslashes, single quotes and new line.
     "'" + str
@@ -121,9 +132,7 @@ object DataTypeMapper {
           case (v: BigDecimal, t: DecimalType) => v + s" :: ${number(t.precision, t.scale)}"
           case (v: JBigDecimal, t: DecimalType) => v + s" :: ${number(t.precision, t.scale)}"
           case (v: Int, DateType) =>
-            s"DATE '${SnowflakeDateTimeFormat
-                .fromSqlFormat(Utils.DateInputFormat)
-                .format(new Date(v * MILLIS_PER_DAY), TimeZone.getTimeZone("GMT"))}'"
+            s"DATE '${formatDate(v)}'"
           case (v: Long, TimestampType) =>
             s"TIMESTAMP '${SnowflakeDateTimeFormat
                 .fromSqlFormat(Utils.TimestampInputFormat)
