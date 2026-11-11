@@ -346,7 +346,9 @@ class UDXRegistrationHandler(session: Session) extends Logging {
     } catch {
       case t: Throwable if stageLocation.nonEmpty =>
         try {
-          needCleanupFiles.foreach { file =>
+          needCleanupFiles.toList.foreach { file =>
+            // Must drop the entry before REMOVE; see removeIfAbandoned.
+            needCleanupFiles.remove(file)
             logInfo("Removing Snowpark uploaded file: " + file)
             session.runQuery("REMOVE " + file)
             logInfo("Finished removing Snowpark uploaded file: " + file)
@@ -434,6 +436,7 @@ class UDXRegistrationHandler(session: Session) extends Logging {
             new ByteArrayInputStream(bytes),
             jarFileName,
             compressData = false)
+          removeIfAbandoned(replJarStageLocation, needCleanupFiles)
           replJarStageLocation
         }
       }.toSeq
@@ -464,6 +467,7 @@ class UDXRegistrationHandler(session: Session) extends Logging {
             closureJarFileName,
             funcBytesMap),
           s"Uploading UDF jar to stage ${uploadStage}")
+        removeIfAbandoned(closureJarStageLocation, needCleanupFiles)
         closureJarStageLocation
       }
       allFutures.append(Seq(udfJarUploadTask): _*)
@@ -482,6 +486,20 @@ class UDXRegistrationHandler(session: Session) extends Logging {
     }
     (allImports, targetJarStageLocation)
   }
+
+  // Upload Futures keep running after uploadDependencies throws, so an upload can land after
+  // withUploadFailureCleanup has issued REMOVE. That cleanup drops each file from
+  // needCleanupFiles before removing it, so an upload that finds its file gone removes it.
+  private def removeIfAbandoned(file: String, needCleanupFiles: mutable.Set[String]): Unit =
+    if (!needCleanupFiles.contains(file)) {
+      try {
+        logInfo("Removing Snowpark file uploaded after registration failed: " + file)
+        session.runQuery("REMOVE " + file)
+      } catch {
+        case t: Throwable =>
+          logError("Failed to remove file uploaded after registration failed: " + file, t)
+      }
+    }
 
   // Generate Java UDTF OutputRow class for example:
   //
