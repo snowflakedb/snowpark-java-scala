@@ -21,6 +21,14 @@ object UDFClassPath extends Logging {
   val snowparkClass = classOf[com.snowflake.snowpark.Session]
   val snowparkJar = RequiredLibrary(getPathForClass(snowparkClass), "snowpark", snowparkClass)
 
+  /*
+   * Snowpark's classes reference the session interface, which ships in its own jar unless
+   * Snowpark is used as an assembly, so it has to travel with the Snowpark jar.
+   */
+  val sessionApiClass = classOf[com.snowflake.session.api.SnowflakeSession]
+  val sessionApiJar =
+    RequiredLibrary(getPathForClass(sessionApiClass), "snowflake-session-api", sessionApiClass)
+
   val jacksonDatabindClass: Class[JsonNode] = classOf[com.fasterxml.jackson.databind.JsonNode]
   val jacksonCoreClass: Class[TreeNode] = classOf[com.fasterxml.jackson.core.TreeNode]
   val jacksonAnnotationClass: Class[JsonView] = classOf[com.fasterxml.jackson.annotation.JsonView]
@@ -40,7 +48,7 @@ object UDFClassPath extends Logging {
    */
   val classpath = Seq((classOf[scala.Product], "Scala ")).map { case (c, description) =>
     RequiredLibrary(getPathForClass(c), description, c)
-  } ++ Seq(snowparkJar)
+  } ++ Seq(snowparkJar, sessionApiJar)
 
   def classDirs(session: Session): collection.Set[File] = {
     val allURIs = session.getLocalFileDependencies

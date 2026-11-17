@@ -1,7 +1,7 @@
 package com.snowflake.snowpark_test
 
 import com.snowflake.snowpark.internal.analyzer.quoteName
-import com.snowflake.snowpark.internal.{SnowparkSFConnectionHandler, Utils}
+import com.snowflake.snowpark.internal.Utils
 import com.snowflake.snowpark.types._
 import com.snowflake.snowpark._
 import net.snowflake.client.jdbc.{SnowflakeConnectionV1, SnowflakeDriver, SnowflakeSQLException}
@@ -128,8 +128,7 @@ class SessionSuite extends SNTestBase {
   test("select current_client()") {
     val currentClient = getShowString(session.sql("select current_client()"), 10)
     assert(currentClient contains "Snowpark")
-    assert(
-      currentClient contains SnowparkSFConnectionHandler.extractValidVersionNumber(Utils.Version))
+    assert(currentClient contains Utils.extractValidVersionNumber(Utils.Version))
   }
 
   test("negative test to input invalid table name for Session.table()") {

@@ -19,7 +19,6 @@ import com.snowflake.snowpark_java.types.{StructType => JavaStructType}
 import com.snowflake.snowpark_java.udtf._
 import com.snowflake.snowpark_java.udaf._
 import com.snowflake.snowpark_java.sproc._
-import net.snowflake.client.jdbc.SnowflakeSQLException
 
 import scala.collection.mutable
 import scala.collection.mutable.ArrayBuffer
@@ -68,7 +67,7 @@ class UDXRegistrationHandler(session: Session) extends Logging {
         logInfo(s"Automatically added $path to session dependencies.")
       case _ =>
     }
-    for (jar <- UDFClassPath.jacksonJarSeq) {
+    for (jar <- UDFClassPath.sessionApiJar +: UDFClassPath.jacksonJarSeq) {
       jar.location match {
         case Some(path) =>
           session.addDependency(path)
@@ -90,10 +89,15 @@ class UDXRegistrationHandler(session: Session) extends Logging {
     try {
       func
     } catch {
-      case e: SnowflakeSQLException =>
+      case session.conn.SnowflakeError(e) =>
         val msg = e.getMessage
+        // With the session API jar on the classpath but Snowpark missing, javac reports
+        // "cannot find symbol" for the Snowpark import instead of "package ... does not exist".
         if (msg.contains("NoClassDefFoundError: com/snowflake/snowpark/") ||
-          msg.contains("error: package com.snowflake.snowpark.internal does not exist")) {
+          msg.contains("NoClassDefFoundError: com/snowflake/session/api/") ||
+          msg.contains("error: package com.snowflake.snowpark.internal does not exist") ||
+          (msg.contains("error: cannot find symbol") &&
+            msg.contains("import com.snowflake.snowpark.internal."))) {
           logInfo("Snowpark jar is missing in imports, Retrying after uploading the jar")
           addSnowparkJarToDeps()
           func
@@ -1437,7 +1441,8 @@ class UDXRegistrationHandler(session: Session) extends Logging {
       funcBytesMap: Map[String, Array[Byte]]): Unit =
     Utils.withRetry(
       session.maxFileUploadRetryCount,
-      s"Uploading UDF jar: $destPrefix $jarFileName $stageName $classDirs") {
+      s"Uploading UDF jar: $destPrefix $jarFileName $stageName $classDirs",
+      session.conn.sfSession.isSnowflakeError) {
       createAndUploadJarToStageInternal(classDirs, stageName, destPrefix, jarFileName, funcBytesMap)
     }
 

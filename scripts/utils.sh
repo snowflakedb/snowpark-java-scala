@@ -140,6 +140,9 @@ run_test_suites() {
     FIPS=''
   fi
 
+  # TEMPORARY: build the unpublished session API into ~/.m2 (see ci/snowflake-session-api).
+  scripts/install_session_api.sh
+
   # test
   sbt $FIPS clean +compile \
     +JavaAPITests:test \
