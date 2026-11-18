@@ -67,7 +67,7 @@ class UDXRegistrationHandler(session: Session) extends Logging {
         logInfo(s"Automatically added $path to session dependencies.")
       case _ =>
     }
-    for (jar <- UDFClassPath.sessionApiJar +: UDFClassPath.jacksonJarSeq) {
+    for (jar <- UDFClassPath.jacksonJarSeq) {
       jar.location match {
         case Some(path) =>
           session.addDependency(path)

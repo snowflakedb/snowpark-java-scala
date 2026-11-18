@@ -27,8 +27,6 @@ jobs:
         with:
           distribution: temurin
           java-version: 8
-      - name: Install session API (temporary, until published)
-        run: scripts/install_session_api.sh
       - name: Build and Check Format
         run: scripts/format_checker.sh ${{ matrix.scala }}
 
@@ -48,8 +46,6 @@ jobs:
         with:
           distribution: temurin
           java-version: 21
-      - name: Install session API (temporary, until published)
-        run: scripts/install_session_api.sh
       - name: Compile
         run: sbt "++ ${{ matrix.scala }} compile" "++ ${{ matrix.scala }} Test/compile"
 
@@ -70,8 +66,6 @@ jobs:
         with:
           distribution: temurin
           java-version: 8
-      - name: Install session API (temporary, until published)
-        run: scripts/install_session_api.sh
       - name: Decrypt profile.properties
         run: .github/scripts/decrypt_profile.sh
         env:
@@ -99,8 +93,6 @@ jobs:
         with:
           distribution: temurin
           java-version: 8
-      - name: Install session API (temporary, until published)
-        run: scripts/install_session_api.sh
       - name: Decrypt profile.properties
         run: .github/scripts/decrypt_profile.sh
         env:
@@ -128,8 +120,6 @@ jobs:
         with:
           distribution: temurin
           java-version: 8
-      - name: Install session API (temporary, until published)
-        run: scripts/install_session_api.sh
       - name: Decrypt profile.properties
         run: .github/scripts/decrypt_profile.sh
         env:
@@ -157,8 +147,6 @@ jobs:
         with:
           distribution: temurin
           java-version: 8
-      - name: Install session API (temporary, until published)
-        run: scripts/install_session_api.sh
       - name: Decrypt profile.properties
         run: .github/scripts/decrypt_profile.sh
         env:
@@ -191,8 +179,6 @@ jobs:
         with:
           distribution: temurin
           java-version: 8
-      - name: Install session API (temporary, until published)
-        run: scripts/install_session_api.sh
       - name: Decrypt profile.properties
         run: .github/scripts/decrypt_profile.sh
         env:
@@ -225,8 +211,6 @@ jobs:
         with:
           distribution: temurin
           java-version: 8
-      - name: Install session API (temporary, until published)
-        run: scripts/install_session_api.sh
       - name: Decrypt profile.properties
         run: .github/scripts/decrypt_profile.sh
         env:
@@ -255,8 +239,6 @@ jobs:
         with:
           distribution: temurin
           java-version: ${{ matrix.java }}
-      - name: Install session API (temporary, until published)
-        run: scripts/install_session_api.sh
       - name: Decrypt profile.properties
         run: .github/scripts/decrypt_profile.sh
         env:
@@ -286,8 +268,6 @@ jobs:
         with:
           distribution: temurin
           java-version: ${{ matrix.java }}
-      - name: Install session API (temporary, until published)
-        run: scripts/install_session_api.sh
       - name: Decrypt profile.properties
         run: .github/scripts/decrypt_profile.sh
         env:
@@ -316,8 +296,6 @@ jobs:
         with:
           distribution: temurin
           java-version: 8
-      - name: Install session API (temporary, until published)
-        run: scripts/install_session_api.sh
       - name: Decrypt profile.properties
         run: .github/scripts/decrypt_profile.sh
         env:
@@ -345,8 +323,6 @@ jobs:
         with:
           distribution: temurin
           java-version: 8
-      - name: Install session API (temporary, until published)
-        run: scripts/install_session_api.sh
       - name: Decrypt profile.properties
         run: .github/scripts/decrypt_profile.sh
         env:
@@ -375,8 +351,6 @@ jobs:
         with:
           distribution: temurin
           java-version: 11
-      - name: Install session API (temporary, until published)
-        run: scripts/install_session_api.sh
       - name: Decrypt profile.properties
         run: .github/scripts/decrypt_profile.sh
         env:
@@ -401,8 +375,6 @@ jobs:
         with:
           distribution: temurin
           java-version: 11
-      - name: Install session API (temporary, until published)
-        run: scripts/install_session_api.sh
       - name: Decrypt profile.properties
         run: .github/scripts/decrypt_profile.sh
         env:

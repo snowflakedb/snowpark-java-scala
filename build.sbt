@@ -25,9 +25,10 @@ lazy val snowparkName = s"snowpark${if (isFipsRelease) "-fips" else ""}"
 lazy val jdbcName = s"snowflake-jdbc${if (isFipsRelease) "-fips" else ""}"
 lazy val snowparkVersion = "1.22.0-SNAPSHOT"
 
-// Driver-neutral session interface (com.snowflake.session.api). Until it is published, it is
-// resolved from the local Maven repository.
-val sessionApi = "com.snowflake" % "snowflake-session-api" % "0.1.0-SNAPSHOT"
+// Driver-neutral session interface (com.snowflake.session.api). Until it is published as its own
+// artifact, its sources are compiled into the Snowpark jar (see ci/snowflake-session-api/README.md),
+// so the published Snowpark POM has no dependency on it.
+lazy val sessionApiSources = "ci/snowflake-session-api/src/main/java"
 
 lazy val Javadoc = config("genjavadoc") extend Compile
 
@@ -39,6 +40,7 @@ lazy val javadocSettings = inConfig(Javadoc)(Defaults.configSettings) ++ Seq(
     url("https://docs.snowflake.com/developer-guide/snowpark/reference/java/index.html")),
   Javadoc / sources := (Compile / sources).value.filter(s =>
     s.getName.endsWith(".java") &&
+      !s.getAbsolutePath.contains(sessionApiSources) &&
       !(s.getParent.contains("internal") || s.getParent.contains("Internal"))),
   Javadoc / javacOptions := Seq(
     "--allow-script-in-comments",
@@ -136,7 +138,6 @@ lazy val root = (project in file("."))
       "io.opentelemetry" % "opentelemetry-api" % openTelemetryVersion,
       "javax.xml.bind" % "jaxb-api" % "2.3.1",
       "net.snowflake" % jdbcName % jdbcVersion,
-      sessionApi,
       "org.scala-lang" % "scala-library" % scalaVersion.value,
       "org.scala-lang" % "scala-compiler" % scalaVersion.value,
       "org.slf4j" % "slf4j-api" % slf4jVersion,
@@ -181,7 +182,7 @@ lazy val root = (project in file("."))
       "-doc-footer",
       s"© ${Year.now.getValue} Snowflake Inc. All Rights Reserved",
       "-skip-packages",
-      "com.snowflake.snowpark_java::com.snowflake.snowpark.internal"),
+      "com.snowflake.snowpark_java::com.snowflake.snowpark.internal::com.snowflake.session.api"),
     Compile / packageDoc / artifact := {
       val base = (Compile / packageDoc / artifact).value
       base.withClassifier(Some("scaladoc"))
@@ -191,7 +192,9 @@ lazy val root = (project in file("."))
       base.withClassifier(Some("javadoc"))
     },
     addArtifact(Javadoc / packageDoc / artifact, Javadoc / packageDoc),
-    resolvers += Resolver.mavenLocal,
+
+    // Compile the vendored session API sources into the Snowpark jar.
+    Compile / unmanagedSourceDirectories += baseDirectory.value / sessionApiSources,
 
     // Release settings
 
