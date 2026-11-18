@@ -335,6 +335,14 @@ case class Limit(limitExpr: Expression, child: LogicalPlan) extends UnaryNode {
     Limit(limitExpr, _)
 }
 
+case class Offset(offsetExpr: Expression, child: LogicalPlan) extends UnaryNode {
+  override protected def createFromAnalyzedChild: LogicalPlan => LogicalPlan =
+    Offset(offsetExpr.analyze(analyzer.analyze), _)
+
+  override protected def updateChild: LogicalPlan => LogicalPlan =
+    Offset(offsetExpr, _)
+}
+
 case class LimitOnSort(child: LogicalPlan, limitExpr: Expression, order: Seq[SortOrder])
     extends UnaryNode {
   override protected def createFromAnalyzedChild: LogicalPlan => LogicalPlan =
