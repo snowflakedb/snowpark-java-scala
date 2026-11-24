@@ -49,6 +49,29 @@ jobs:
       - name: Compile
         run: sbt "++ ${{ matrix.scala }} compile" "++ ${{ matrix.scala }} Test/compile"
 
+  # Runs Snowpark on a classpath with only the JDBC 4.x driver. Needs no Snowflake credentials.
+  test-jdbc4-compat:
+    name: JDBC 4.x Compatibility Tests - Scala ${{ matrix.scala }}
+    runs-on: ubuntu-22.04
+    strategy:
+      matrix:
+        scala: [ 2.12.20, 2.13.16 ]
+      fail-fast: false
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Setup JDK
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 8
+      - name: Run tests
+        run: sbt "++ ${{ matrix.scala }} jdbc4Compat/test"
+      - name: Run tests (FIPS)
+        run: sbt "++ ${{ matrix.scala }} jdbc4Compat/test"
+        env:
+          SNOWPARK_FIPS: true
+
   # Ensures Snowpark Scala and Java clients share the same APIs.
   test-code-verification:
     name: Code Verification Tests - Scala ${{ matrix.scala }}
