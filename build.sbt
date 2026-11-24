@@ -84,8 +84,14 @@ lazy val javadocSettings = inConfig(Javadoc)(Defaults.configSettings) ++ Seq(
   Javadoc / packageDoc / artifactName := ((sv, mod, art) =>
     "" + mod.name + "_" + sv.binary + "-" + mod.revision + "-javadoc.jar"))
 
-// 3.27.0+ required for native INTERVAL → java.time.Duration / Period ResultSet reads
+// Temporary. Delete after the exact-runtime JDBC rollout completes.
 val jdbcVersion = "3.27.1"
+
+// Single JDBC version for Snowpark's compile/runtime dependency and fat-jar exclusions.
+// Do not add a second version or per-runtime override here. Stay on 3.x while the JDBC 3
+// fallback still compiles against driver internals (3.27.0+ also needed for native INTERVAL
+// ResultSet reads). FIPS builds select snowflake-jdbc-fips through jdbcName at this version.
+val jdbcVersionExact = "3.27.1"
 val jacksonVersion = "2.18.0"
 val openTelemetryVersion = "1.39.0"
 val slf4jVersion = "2.0.16"
@@ -137,7 +143,7 @@ lazy val root = (project in file("."))
       "commons-io" % "commons-io" % "2.14.0",
       "io.opentelemetry" % "opentelemetry-api" % openTelemetryVersion,
       "javax.xml.bind" % "jaxb-api" % "2.3.1",
-      "net.snowflake" % jdbcName % jdbcVersion,
+      "net.snowflake" % jdbcName % jdbcVersionExact,
       "org.scala-lang" % "scala-library" % scalaVersion.value,
       "org.scala-lang" % "scala-compiler" % scalaVersion.value,
       "org.slf4j" % "slf4j-api" % slf4jVersion,
@@ -215,7 +221,7 @@ lazy val root = (project in file("."))
     assemblyPackageScala / assembleArtifact := false, // exclude scala libraries
     assembly / assemblyExcludedJars := { // exclude snowflake jdbc from the fat jar
       val cp = (assembly / fullClasspath).value
-      cp filter { _.data.getName == s"$jdbcName-$jdbcVersion.jar" }
+      cp filter { _.data.getName == s"$jdbcName-$jdbcVersionExact.jar" }
     },
     // Release fat JAR including all dependencies except those excluded above
     assembly / artifact := {
@@ -243,7 +249,7 @@ lazy val root = (project in file("."))
     Test / assemblyPackageScala / assembleArtifact := scalaBinaryVersion.value == "2.12",
     Test / assembly / assemblyExcludedJars := {
       val cp = (Test / assembly / fullClasspath).value
-      val baseExcluded = cp filter { _.data.getName == s"$jdbcName-$jdbcVersion.jar" }
+      val baseExcluded = cp filter { _.data.getName == s"$jdbcName-$jdbcVersionExact.jar" }
       val scalaCoreExcluded =
         if (scalaBinaryVersion.value == "2.12") {
           val scalaV = scalaVersion.value
