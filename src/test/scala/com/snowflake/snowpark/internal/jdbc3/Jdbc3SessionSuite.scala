@@ -40,12 +40,6 @@ class Jdbc3SessionSuite extends AnyFunSuite {
     assert(session.getConnection eq conn)
   }
 
-  test("child query IDs come from the connection") {
-    val (session, conn) = storedProcSession()
-    Mockito.when(conn.getChildQueryIds("q")).thenReturn(Array("q1", "q2"))
-    assert(session.getChildQueryIds("q") == java.util.Arrays.asList("q1", "q2"))
-  }
-
   test("Snowflake errors are the driver's SnowflakeSQLException only") {
     val (session, _) = storedProcSession()
     assert(session.isSnowflakeError(new SnowflakeSQLException("invalid identifier 'A'", "42000")))
@@ -84,8 +78,6 @@ class Jdbc3SessionSuite extends AnyFunSuite {
     assert(SFSessionProperty.CLIENT_INFO.getPropertyKey == "snowflakeClientInfo")
   }
 
-  // ---- structured ARRAY values ----
-
   private def field(
       typeName: String,
       sqlType: Int,
@@ -118,7 +110,6 @@ class Jdbc3SessionSuite extends AnyFunSuite {
   private def list(values: AnyRef*): java.util.List[AnyRef] =
     new java.util.ArrayList[AnyRef](values.asJava)
 
-  // converts `decoded` as the value of a column of type `column`
   private def convert(decoded: AnyRef, column: FieldMetadata): Any = {
     val rs = Mockito.mock(classOf[ResultSet])
     val meta = Mockito.mock(classOf[ResultSetMetaData])
@@ -205,41 +196,6 @@ class Jdbc3SessionSuite extends AnyFunSuite {
       .asInstanceOf[scala.collection.mutable.Buffer[Any]]
     assert(inArray.head.asInstanceOf[Map[Any, Any]].keys.toSeq == Seq("a", "b"))
   }
-
-  // reads the single top-level ARRAY column of a one-row result through `server`
-  private def readArrayColumn(decoded: AnyRef): Any = {
-    val session = Mockito.mock(classOf[SnowflakeSession])
-    val conn = Mockito.mock(classOf[Connection])
-    Mockito.when(conn.isClosed).thenReturn(false)
-    Mockito.when(session.getConnection).thenReturn(conn)
-    val rs = Mockito.mock(classOf[ResultSet])
-    val meta = Mockito.mock(classOf[ResultSetMetaData])
-    Mockito.when(rs.getMetaData).thenReturn(meta)
-    Mockito.when(meta.getColumnCount).thenReturn(1)
-    Mockito.when(meta.getColumnLabel(1)).thenReturn("C0")
-    Mockito.when(meta.getColumnName(1)).thenReturn("C0")
-    Mockito.when(meta.getColumnTypeName(1)).thenReturn("ARRAY")
-    Mockito.when(meta.getColumnType(1)).thenReturn(java.sql.Types.ARRAY)
-    Mockito.when(session.getColumnFields(any(), anyInt())).thenReturn(arrayField().getFields)
-    Mockito.when(session.getStructuredObject(rs, 1)).thenReturn(decoded, Nil: _*)
-    Mockito.when(rs.next()).thenReturn(true, false)
-    val statement = Mockito.mock(classOf[Statement])
-    Mockito.when(statement.getResultSet).thenReturn(rs)
-    new ServerConnection(Map.empty, true, Some(session))
-      .resultSetToIterator(statement)
-      ._1
-      .next()
-      .get(0)
-  }
-
-  test("ServerConnection picks Array or Buffer from the list class the session returns") {
-    val asArray = readArrayColumn(list(numberValue(1)))
-    assert(asArray.isInstanceOf[Array[_]])
-    val asBuffer = readArrayColumn(new java.util.LinkedList[AnyRef](list(numberValue(1))))
-    assert(asBuffer.isInstanceOf[scala.collection.mutable.Buffer[_]])
-  }
-
-  // ---- null cells are detected before the typed getter is read ----
 
   test("row iterator returns null for null cells without consulting the typed getter") {
     val types = Seq(

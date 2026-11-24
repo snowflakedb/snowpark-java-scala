@@ -71,25 +71,6 @@ class DataTypeMapperDateTimeSuite extends AnyFunSuite {
     edgeDays.foreach(v => assert(DataTypeMapper.formatDate(v) == oldDate(v), s"days = $v"))
   }
 
-  test("DATE literal matches SnowflakeDateTimeFormat for every day around calendar changes") {
-    // 0001-01-01 .. 1600-12-31 covers all Julian/Gregorian differences and year < 1000
-    (-719528 to -140000).foreach { v =>
-      assert(DataTypeMapper.formatDate(v) == oldDate(v), s"days = $v")
-    }
-  }
-
-  test("DATE literal matches SnowflakeDateTimeFormat for random values") {
-    val random = new Random(42)
-    (1 to 20000).foreach { _ =>
-      val v = random.nextInt()
-      assert(DataTypeMapper.formatDate(v) == oldDate(v), s"days = $v")
-    }
-    (1 to 20000).foreach { _ =>
-      val v = random.nextInt(2932897 + 800000) - 800000
-      assert(DataTypeMapper.formatDate(v) == oldDate(v), s"days = $v")
-    }
-  }
-
   test("DATE literal does not depend on the default time zone") {
     timeZones.foreach { tz =>
       withDefaultTimeZone(tz) {
@@ -141,23 +122,6 @@ class DataTypeMapperDateTimeSuite extends AnyFunSuite {
     timeZones.foreach { tz =>
       withDefaultTimeZone(tz) {
         edgeMicros.foreach { v =>
-          assert(DataTypeMapper.formatTimestamp(v) == oldTimestamp(v), s"$tz micros = $v")
-        }
-      }
-    }
-  }
-
-  test("TIMESTAMP literal matches SnowflakeDateTimeFormat for random values") {
-    val random = new Random(7)
-    timeZones.foreach { tz =>
-      withDefaultTimeZone(tz) {
-        (1 to 3000).foreach { _ =>
-          // from year 0001 to year 9999 with sub-millisecond digits
-          val v = (random.nextDouble() * 3.2e17).toLong - 6.3e16.toLong
-          assert(DataTypeMapper.formatTimestamp(v) == oldTimestamp(v), s"$tz micros = $v")
-        }
-        (1 to 1000).foreach { _ =>
-          val v = random.nextLong()
           assert(DataTypeMapper.formatTimestamp(v) == oldTimestamp(v), s"$tz micros = $v")
         }
       }

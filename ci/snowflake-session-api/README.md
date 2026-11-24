@@ -17,7 +17,6 @@ repository. Until it is, `build.sbt` compiles the sources in this directory
   implements the interface bundled here, so the interface classes must come from the Snowpark jar
   and be loaded by the same class loader as the driver. Do not put a second copy on the classpath.
 
-The sources under `src/main/java/com/snowflake/session/api/` are verbatim copies of
-`ExecPlatform/src/coprocessor/java/libraries/snowflake-session-api/src/main/java/com/snowflake/session/api/`
-from snowflake-eng/snowflake#575054, the source of truth. Do not edit them here; change them there
-and re-copy.
+The sources under `src/main/java/com/snowflake/session/api/` are temporary, verbatim copies of the
+unpublished session API. Do not edit them independently; replace them with the published artifact
+when it is available.

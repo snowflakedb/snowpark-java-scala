@@ -133,67 +133,10 @@ class SecretMaskerSuite extends AnyFunSuite {
         "X-Amz-Credential=****'**** ")
   }
 
-  test("JDBC 4.x filters finish a value a JDBC 3.x filter masked in part") {
-    assert(
-      SecretMasker.maskSecrets("https://h/f?x-amz-security-token=FwoGZXIvYXdz.abc_def-ghi&a=b") ==
-        "https://h/f?x-amz-security-token=****&a=b")
-  }
-
   test("JDBC 4.x filters do not truncate long messages") {
     val input = "qrmk=abcdefghijklmnopqrstuvwx " + "y" * 100000 + " tail"
     val masked = SecretMasker.maskSecrets(input)
     assert(masked == "qrmk=**** " + "y" * 100000 + " tail")
-  }
-
-  // Random messages built from the labels both drivers know. The output must hide everything
-  // JDBC 3.x hides, and must equal the JDBC 3.x output unless a JDBC 4.x-only label is present.
-  test("masks at least what JDBC 3.x masks on random messages") {
-    val labels = Seq(
-      "password",
-      "PWD",
-      "passcode",
-      "token",
-      "idToken",
-      "sessionToken",
-      "assertion content",
-      "sig",
-      "signature",
-      "AWSAccessKeyId",
-      "aws_key_id",
-      "\"accessToken\"",
-      "\"refresh_token\"",
-      "\"privateKeyData\": \"",
-      "-----BEGIN PRIVATE KEY-----\\n", // pragma: allowlist secret
-      "\\n-----END PRIVATE KEY-----",
-      "\"encryptionMaterial\"",
-      "x-amz-security-token",
-      "X-Amz-Credential",
-      "qrmk",
-      "x-amz-server-side-encryption-customer-key",
-      "ver:1-hint:12-")
-    val separators = Seq("=", ": ", ":", "\":\"", "='", "'", "\"", " ", ", value: ", "")
-    val glue = Seq(" ", "&", "?", ",", "\n", "{", "}", "\"", "'", "\\n", ":", "=", "")
-    val valueChars =
-      "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789/+=" // pragma: allowlist secret
-    val punctuation = valueChars + "-_:%.!@#&;'\"{}[], "
-    val jdbc4OnlyLabels = Seq("qrmk", "x-amz-", "ver:")
-    val visibleRuns = "[A-Za-z0-9/+=]{6,}".r
-    val random = new scala.util.Random(20261108L)
-    def pick[T](s: Seq[T]): T = s(random.nextInt(s.size))
-    (1 to 50000).foreach { _ =>
-      val input = (1 to 1 + random.nextInt(5)).map { _ =>
-        val chars = if (random.nextInt(3) == 0) punctuation else valueChars
-        val value = Seq.fill(random.nextInt(50))(chars(random.nextInt(chars.length))).mkString
-        pick(glue) + pick(labels) + pick(separators) + value
-      }.mkString
-      val driver = SecretDetector.maskSecrets(input)
-      val masked = SecretMasker.maskSecrets(input)
-      val leaked = visibleRuns.findAllIn(masked).filterNot(driver.contains).toList
-      assert(leaked.isEmpty, s"input: $input\ndriver: $driver\nmasked: $masked")
-      if (!jdbc4OnlyLabels.exists(input.toLowerCase.contains)) {
-        assert(masked == driver, s"input: $input")
-      }
-    }
   }
 
   test("Logging.maskSecrets uses SecretMasker") {

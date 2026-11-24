@@ -11,9 +11,9 @@ import org.scalatest.funsuite.AnyFunSuite
 // Runs on a classpath where only the JDBC 4.x driver is present (see jdbc4Compat in build.sbt).
 //
 // The published snowflake-jdbc 4.4.0 does not register a SnowflakeClientSessionFactory; the regular
-// client exact path needs a later JDBC release that does (snowflake-jdbc#69). Until then the
-// provider is a test-only one registered in this project's test resources. The Java stored-procedure
-// exact path does not use the client factory.
+// client exact path needs a later JDBC release that does. Until then the provider is a test-only
+// one registered in this project's test resources. The Java stored-procedure exact path does not
+// use the client factory.
 class Jdbc4CompatSuite extends AnyFunSuite {
   private val loader = Class.forName("com.snowflake.snowpark.Session").getClassLoader
 

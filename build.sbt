@@ -87,6 +87,8 @@ lazy val javadocSettings = inConfig(Javadoc)(Defaults.configSettings) ++ Seq(
 // JDBC 3.x is Snowpark's compile/runtime dependency and is excluded from the fat jars. It provides
 // the Jdbc3Session fallback used when no JDBC 4.x SnowflakeClientSessionFactory is on the classpath.
 // 3.27.0+ is required for native INTERVAL -> java.time.Duration / Period ResultSet reads.
+// TODO: Retire this dependency and the Jdbc3Session fallback after the exact-runtime rollout is
+// complete and all supported runtimes provide a SnowflakeSession implementation.
 val jdbcVersion = "3.27.1"
 
 // JDBC 4.x line, used only by the unpublished jdbc4Compat project below, which checks that Snowpark
@@ -199,8 +201,6 @@ lazy val root = (project in file("."))
       base.withClassifier(Some("javadoc"))
     },
     addArtifact(Javadoc / packageDoc / artifact, Javadoc / packageDoc),
-
-    // Compile the vendored session API sources into the Snowpark jar.
     Compile / unmanagedSourceDirectories += baseDirectory.value / sessionApiSources,
 
     // Release settings
