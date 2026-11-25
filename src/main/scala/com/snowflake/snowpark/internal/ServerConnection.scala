@@ -44,6 +44,15 @@ private[snowpark] trait CloseableIterator[+A] extends Iterator[A] with Closeable
 
 private[snowpark] object ServerConnection {
 
+  // A structured MAP is described by exactly two unnamed fields, its key and value. The name is
+  // null from a neutral SnowflakeSession and empty from legacy JDBC metadata. An OBJECT's fields
+  // are always named.
+  private[snowpark] def isStructuredMap(fields: scala.collection.Seq[FieldMetadata]): Boolean =
+    fields.size == 2 && {
+      val name = fields.head.getName
+      name == null || name.isEmpty
+    }
+
   def apply(options: Map[String, String], isScalaAPI: Boolean): ServerConnection = {
     new ServerConnection(options, isScalaAPI, None)
   }
@@ -94,7 +103,7 @@ private[snowpark] object ServerConnection {
       case "OBJECT" =>
         if (field.isEmpty) {
           MapType(StringType, StringType)
-        } else if (field.size == 2 && field.head.getName.isEmpty) {
+        } else if (isStructuredMap(field)) {
           // Map
           StructuredMapType(
             getDataType(
@@ -1050,8 +1059,8 @@ private[snowflake] class SnowflakeResultSetExt(data: ResultSet, session: Snowfla
             list.asScala.map(convertToSnowparkValue(_, fields.head, nested = true))
           if (nested || list.isInstanceOf[java.util.ArrayList[_]]) elements.toArray
           else elements
-        // structured map, Map type has two fields, and both field names are empty
-        case "OBJECT" if fields.size == 2 && fields.head.getName.isEmpty =>
+        // structured map: two unnamed fields, the key and value (see isStructuredMap)
+        case "OBJECT" if ServerConnection.isStructuredMap(fields) =>
           val entries = value.asInstanceOf[java.util.Map[Any, Any]].asScala
           def convertEntry(entry: (Any, Any)): (Any, Any) =
             convertToSnowparkValue(entry._1, fields.head, nested = true) ->

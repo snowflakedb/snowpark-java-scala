@@ -6,6 +6,13 @@ import com.snowflake.session.api.{FieldMetadata, SnowflakeSession, SnowflakeSess
 import com.snowflake.snowpark.Row
 import com.snowflake.snowpark.internal.{ServerConnection, SnowflakeResultSetExt}
 import com.snowflake.snowpark.internal.sproc.StoredProcSessionFactory
+import com.snowflake.snowpark.types.{
+  BooleanType,
+  StringType,
+  StructField,
+  StructType,
+  StructuredMapType
+}
 import net.snowflake.client.core.{SFBaseResultSet, SFException, SFSessionProperty}
 import net.snowflake.client.jdbc.{
   ErrorCode,
@@ -195,6 +202,48 @@ class Jdbc3SessionSuite extends AnyFunSuite {
     val inArray = convert(new java.util.LinkedList[AnyRef](list(map)), arrayField(mapField))
       .asInstanceOf[scala.collection.mutable.Buffer[Any]]
     assert(inArray.head.asInstanceOf[Map[Any, Any]].keys.toSeq == Seq("a", "b"))
+  }
+
+  test("MAP key and value names may be null or empty; OBJECT fields stay named") {
+    // null from a neutral session, empty from legacy JDBC metadata
+    Seq(null, "").foreach { name =>
+      val mapFields = Seq(
+        field("VARCHAR", java.sql.Types.VARCHAR, name),
+        field("BOOLEAN", java.sql.Types.BOOLEAN, name))
+      assert(
+        ServerConnection.getDataType(
+          java.sql.Types.STRUCT,
+          "OBJECT",
+          0,
+          0,
+          signed = false,
+          mapFields.toList) == StructuredMapType(StringType, BooleanType, true))
+
+      val mapColumn = field("OBJECT", java.sql.Types.STRUCT, fields = mapFields)
+      val map = new java.util.LinkedHashMap[AnyRef, AnyRef]()
+      map.put("a", java.lang.Boolean.TRUE)
+      assert(convert(map, mapColumn) == Map("a" -> true))
+      assert(new Jdbc3StructuredDecoder(resultSetReturning(map)).decode(1, mapColumn) == map)
+    }
+
+    val objectFields = Seq(
+      field("VARCHAR", java.sql.Types.VARCHAR, "k"),
+      field("BOOLEAN", java.sql.Types.BOOLEAN, "v"))
+    assert(
+      ServerConnection.getDataType(
+        java.sql.Types.STRUCT,
+        "OBJECT",
+        0,
+        0,
+        signed = false,
+        objectFields.toList) == StructType(
+        Seq(StructField("k", StringType, true), StructField("v", BooleanType, true))))
+    val obj = new java.util.LinkedHashMap[String, AnyRef]()
+    obj.put("k", "a")
+    obj.put("v", java.lang.Boolean.TRUE)
+    assert(
+      convert(obj, field("OBJECT", java.sql.Types.STRUCT, fields = objectFields))
+        .isInstanceOf[Row])
   }
 
   test("row iterator returns null for null cells without consulting the typed getter") {

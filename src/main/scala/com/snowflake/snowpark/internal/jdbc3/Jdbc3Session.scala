@@ -12,7 +12,7 @@ import java.sql.{
 import java.util.{Properties, List => JList}
 
 import com.snowflake.session.api.{FieldMetadata, QueryStatus, SnowflakeSession}
-import com.snowflake.snowpark.internal.ErrorMessage
+import com.snowflake.snowpark.internal.{ErrorMessage, ServerConnection}
 import net.snowflake.client.core.arrow.StructObjectWrapper
 import net.snowflake.client.core.{
   ArrowSqlInput,
@@ -220,8 +220,8 @@ private class Jdbc3StructuredDecoder(data: ResultSet) {
               throw new IllegalArgumentException(
                 s"Unsupported Structured Array Type: ${value.getClass.getSimpleName}")
           }
-        // structured map, Map type has two fields, and both field names are empty
-        case "OBJECT" if fields.size == 2 && fields.head.getName.isEmpty =>
+        // structured map: two unnamed fields, the key and value (see isStructuredMap)
+        case "OBJECT" if ServerConnection.isStructuredMap(fields) =>
           val entries: Iterable[(Any, Any)] = value match {
             // nested structured maps are JsonStringArrayValues
             case subMap: JsonStringArrayList[_] =>
