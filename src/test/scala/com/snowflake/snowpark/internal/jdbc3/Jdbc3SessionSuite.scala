@@ -29,7 +29,8 @@ import org.scalatest.funsuite.AnyFunSuite
 
 import scala.collection.JavaConverters._
 
-// Runs with the default JDBC 3.x dependency, i.e. the client and legacy stored-procedure path.
+// Runs on the legacy JDBC 3.x (jdbc3-legacy) test classpath: the Jdbc3Session fallback used by old
+// runtimes without a JDBC 4.x client session factory, and the legacy stored-procedure path.
 class Jdbc3SessionSuite extends AnyFunSuite {
 
   private def storedProcSession() = {

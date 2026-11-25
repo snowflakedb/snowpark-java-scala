@@ -49,7 +49,8 @@ jobs:
       - name: Compile
         run: sbt "++ ${{ matrix.scala }} compile" "++ ${{ matrix.scala }} Test/compile"
 
-  # Runs Snowpark on a classpath with only the JDBC 4.x driver. Needs no Snowflake credentials.
+  # Runs Snowpark on the production classpath (only the exact JDBC 4.x driver, `jdbcVersionExact`),
+  # and checks the published POM and exact-runtime metadata. Needs no Snowflake credentials.
   test-jdbc4-compat:
     name: JDBC 4.x Compatibility Tests - Scala ${{ matrix.scala }}
     runs-on: ubuntu-22.04
