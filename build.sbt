@@ -96,7 +96,8 @@ lazy val javadocSettings = inConfig(Javadoc)(Defaults.configSettings) ++ Seq(
 //
 // For local pre-release validation ONLY (e.g. a locally built 4.4.2-SNAPSHOT), pass explicit system
 // properties to sbt, with an isolated repository (scripts/install-local-jdbc.sh), after
-// `sbt clean`:  sbt -Dsnowpark.jdbcVersionExact=4.4.2-SNAPSHOT -Dmaven.repo.local=DIR ...
+// `sbt clean jdbc4Compat/clean`:
+// sbt -Dsnowpark.jdbcVersionExact=4.4.2-SNAPSHOT -Dmaven.repo.local=DIR ...
 // No environment variable is read, a non-default value is announced loudly, and publishing with
 // an override fails. Do not change the literal default for validation.
 //
@@ -117,7 +118,8 @@ val jdbcVersion = "3.27.1"
 // names explicitly with -Dmaven.repo.local=DIR. DIR must contain the JDBC jar together with JDBC's
 // public_pom.xml (see scripts/install-local-jdbc.sh). The default ~/.m2 is rejected: it holds the
 // build POM, which pulls internal transitive jars and changes Snowpark's dependency versions. Run
-// `sbt clean` whenever the override or DIR changes, so sbt cannot reuse a stale update cache.
+// `sbt clean jdbc4Compat/clean` whenever the override or DIR changes, so neither project can reuse
+// a stale update cache.
 lazy val localJdbcResolvers: Seq[Resolver] =
   if (jdbcVersionExactIsOverridden) {
     val repo = sys.props
@@ -455,9 +457,14 @@ lazy val root = (project in file("."))
       "ignored" // this field is ignored; passwords are supplied by pinentry
     ),
     Global / pgpPassphrase := Properties.envOrNone("GPG_KEY_PASSPHRASE").map(_.toCharArray),
-    // Remote publishing must use the literal jdbcVersionExact default, never a local override.
+    // Release artifacts must use the literal jdbcVersionExact default, never a local override.
+    // publishLocalSigned is included because deploy-common.sh stages the S3 release with it
+    // (PUBLISH=false), so the PUBLISH check at load time does not cover it.
     publish := publish.dependsOn(requireNoJdbcOverride).value,
     PgpKeys.publishSigned := PgpKeys.publishSigned.dependsOn(requireNoJdbcOverride).value,
+    PgpKeys.publishLocalSigned := PgpKeys.publishLocalSigned
+      .dependsOn(requireNoJdbcOverride)
+      .value,
     publishMavenStyle := true,
     releaseCrossBuild := true,
     releasePublishArtifactsAction := PgpKeys.publishSigned.value,

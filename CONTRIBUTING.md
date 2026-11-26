@@ -97,12 +97,15 @@ classpath. Fat jars never contain a JDBC driver.
   ```bash
   scripts/install-local-jdbc.sh --repo "$REPO" --version 4.4.2-SNAPSHOT \
     --jar /path/to/snowflake-jdbc.jar --pom /path/to/snowflake-jdbc/public_pom.xml
-  sbt clean
+  sbt clean jdbc4Compat/clean
   sbt -Dsnowpark.jdbcVersionExact=4.4.2-SNAPSHOT -Dmaven.repo.local="$REPO" \
     "++ 2.12.20 jdbc4Compat/test" "++ 2.13.16 jdbc4Compat/test"
   ```
 
-  Run `sbt clean` whenever `snowpark.jdbcVersionExact` or the repository changes; otherwise sbt can
-  reuse a stale dependency resolution. The override requires an explicit `-Dmaven.repo.local` (the
-  build rejects `~/.m2/repository`), does not change the default in `build.sbt`, and publishing with
-  it set fails.
+  Run `sbt clean jdbc4Compat/clean` whenever `snowpark.jdbcVersionExact` or the repository changes;
+  otherwise either project can reuse a stale dependency resolution. The override requires an
+  explicit `-Dmaven.repo.local` (the build rejects `~/.m2/repository`), does not change the default
+  in `build.sbt`, and every release publishing task (`publish`, `publishSigned`,
+  `publishLocalSigned`) fails with it set.
+  `scripts/test-install-local-jdbc.sh` and `scripts/test-publish-override-guard.sh` test the script
+  and these guards.

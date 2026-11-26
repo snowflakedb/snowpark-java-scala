@@ -66,12 +66,26 @@ jobs:
         with:
           distribution: temurin
           java-version: 8
+      - name: Test JDBC override scripts and publishing guards
+        run: |
+          scripts/test-install-local-jdbc.sh
+          scripts/test-publish-override-guard.sh ${{ matrix.scala }}
       - name: Run tests
         run: sbt "++ ${{ matrix.scala }} jdbc4Compat/test"
       - name: Run tests (FIPS)
         run: sbt "++ ${{ matrix.scala }} jdbc4Compat/test"
         env:
           SNOWPARK_FIPS: true
+
+  # Covers the BSD awk/sed and shasum tools shipped with macOS.
+  test-local-jdbc-installer-macos:
+    name: Local JDBC Installer - macOS
+    runs-on: macos-14
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Test local JDBC installer
+        run: scripts/test-install-local-jdbc.sh
 
   # Ensures Snowpark Scala and Java clients share the same APIs.
   test-code-verification:

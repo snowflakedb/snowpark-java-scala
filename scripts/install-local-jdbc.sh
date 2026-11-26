@@ -16,7 +16,7 @@
 #   --pom PUBLIC_POM public_pom.xml (FIPS/public_pom.xml with --fips) from the JDBC repository
 #   --fips           install as snowflake-jdbc-fips
 #
-# Then, after `sbt clean` (so that sbt cannot reuse a stale update cache):
+# Then, after `sbt clean jdbc4Compat/clean` (so neither project reuses a stale update cache):
 #   sbt -Dsnowpark.jdbcVersionExact=V -Dmaven.repo.local=DIR "++ 2.12.20 jdbc4Compat/test"
 
 repo=; version=; jar=; pom=; artifact=snowflake-jdbc
@@ -36,18 +36,16 @@ if [ -z "$repo" ] || [ -z "$version" ] || [ -z "$jar" ] || [ -z "$pom" ]; then
 fi
 [ -f "$jar" ] || { echo "[ERROR] jar not found: $jar" >&2; exit 1; }
 [ -f "$pom" ] || { echo "[ERROR] POM not found: $pom" >&2; exit 1; }
+case "$version" in
+  *[!A-Za-z0-9._+-]*)
+    echo "[ERROR] version contains characters unsafe for Maven coordinates or XML: $version" >&2
+    exit 1
+    ;;
+esac
 
 mkdir -p "$repo"
 if [ "$(cd "$repo" && pwd -P)" = "$(cd "$HOME/.m2/repository" 2>/dev/null && pwd -P)" ]; then
   echo "[ERROR] --repo must be an isolated directory, not ~/.m2/repository" >&2
-  exit 1
-fi
-if ! grep -q "<artifactId>$artifact</artifactId>" "$pom"; then
-  echo "[ERROR] $pom is not the public POM of $artifact" >&2
-  exit 1
-fi
-if grep -q "<parent>" "$pom"; then
-  echo "[ERROR] $pom has a parent; this is the build POM, not public_pom.xml" >&2
   exit 1
 fi
 
@@ -55,7 +53,71 @@ dir="$repo/net/snowflake/$artifact/$version"
 rm -rf "$dir"
 mkdir -p "$dir"
 cp "$jar" "$dir/$artifact-$version.jar"
-# the public POM has a placeholder project version; the first <version> is the project's own
-sed "0,/<version>[^<]*<\/version>/s//<version>$version<\/version>/" "$pom" > "$dir/$artifact-$version.pom"
+# Replace only /project/version in a parent-free public POM. The root group/artifact checks prevent
+# a comment or dependency element from being mistaken for project coordinates. POSIX awk is used
+# because the GNU-only `0,/re/` sed address silently does nothing on macOS /usr/bin/sed.
+out="$dir/$artifact-$version.pom"
+if ! POM_VERSION="$version" POM_ARTIFACT="$artifact" awk '
+  function without_comments(text, start, rest, finish) {
+    while (1) {
+      if (in_comment) {
+        finish = index(text, "-->")
+        if (!finish) return ""
+        text = substr(text, finish + 3)
+        in_comment = 0
+      }
+      start = index(text, "<!--")
+      if (!start) return text
+      rest = substr(text, start + 4)
+      finish = index(rest, "-->")
+      if (!finish) {
+        in_comment = 1
+        return substr(text, 1, start - 1)
+      }
+      text = substr(text, 1, start - 1) substr(rest, finish + 3)
+    }
+  }
+  {
+    visible = without_comments($0)
+    if (!in_project && visible ~ /^[[:space:]]*<project([[:space:]>])/) in_project = 1
+    if (in_project && !header_done) {
+      if (visible ~ /^[[:space:]]*<parent([[:space:]>])/) invalid_parent = 1
+      if (visible ~ /^[[:space:]]*<groupId>[^<]*<\/groupId>[[:space:]]*$/) {
+        value = visible
+        sub(/^[[:space:]]*<groupId>/, "", value)
+        sub(/<\/groupId>[[:space:]]*$/, "", value)
+        group_ok = (value == "net.snowflake")
+      }
+      if (visible ~ /^[[:space:]]*<artifactId>[^<]*<\/artifactId>[[:space:]]*$/) {
+        value = visible
+        sub(/^[[:space:]]*<artifactId>/, "", value)
+        sub(/<\/artifactId>[[:space:]]*$/, "", value)
+        artifact_ok = (value == ENVIRON["POM_ARTIFACT"])
+      }
+      if (!version_done && group_ok && artifact_ok &&
+          visible ~ /^[[:space:]]*<version>[^<]*<\/version>[[:space:]]*$/) {
+        match($0, /<version>[^<]*<\/version>/)
+        before = substr($0, 1, RSTART - 1)
+        after = substr($0, RSTART + RLENGTH)
+        $0 = before "<version>" ENVIRON["POM_VERSION"] "</version>" after
+        version_done = 1
+      }
+      if (visible ~ /^[[:space:]]*<(dependencies|dependencyManagement|build|profiles)([[:space:]>])/)
+        header_done = 1
+    }
+    print
+  }
+  END { if (invalid_parent || !group_ok || !artifact_ok || !version_done) exit 3 }
+' "$pom" > "$out"; then
+  echo "[ERROR] $pom must be a parent-free public POM for net.snowflake:$artifact" >&2
+  rm -rf "$dir"
+  exit 1
+fi
+
+if command -v sha256sum >/dev/null 2>&1; then
+  sha=$(sha256sum < "$dir/$artifact-$version.jar" | cut -d' ' -f1)
+else
+  sha=$(shasum -a 256 < "$dir/$artifact-$version.jar" | cut -d' ' -f1)
+fi
 echo "Installed $artifact:$version into $repo"
-echo "sha256: $(sha256sum "$dir/$artifact-$version.jar" | cut -d' ' -f1)"
+echo "sha256: $sha"
