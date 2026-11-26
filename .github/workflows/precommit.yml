@@ -80,7 +80,7 @@ jobs:
   # Covers the BSD awk/sed and shasum tools shipped with macOS.
   test-local-jdbc-installer-macos:
     name: Local JDBC Installer - macOS
-    runs-on: macos-14
+    runs-on: macos-latest
     steps:
       - name: Checkout
         uses: actions/checkout@v4
