@@ -54,8 +54,10 @@ rm -rf "$dir"
 mkdir -p "$dir"
 cp "$jar" "$dir/$artifact-$version.jar"
 # Replace only /project/version in a parent-free public POM. The root group/artifact checks prevent
-# a comment or dependency element from being mistaken for project coordinates. POSIX awk is used
-# because the GNU-only `0,/re/` sed address silently does nothing on macOS /usr/bin/sed.
+# a comment or dependency element from being mistaken for project coordinates. Comments (including
+# same-line and multiline ones) are ignored both when deciding that a line is the root version and
+# when locating the text to replace. POSIX awk is used because the GNU-only `0,/re/` sed address
+# silently does nothing on macOS /usr/bin/sed.
 out="$dir/$artifact-$version.pom"
 if ! POM_VERSION="$version" POM_ARTIFACT="$artifact" awk '
   function without_comments(text, start, rest, finish) {
@@ -77,7 +79,31 @@ if ! POM_VERSION="$version" POM_ARTIFACT="$artifact" awk '
       text = substr(text, 1, start - 1) substr(rest, finish + 3)
     }
   }
+  # 1-based offset of the first <version> that is outside any XML comment, given whether the line
+  # starts inside a comment; 0 if there is none.
+  function version_offset(text, commented, offset, start, vstart, finish) {
+    offset = 0
+    while (text != "") {
+      if (commented) {
+        finish = index(text, "-->")
+        if (!finish) return 0
+        offset += finish + 2
+        text = substr(text, finish + 3)
+        commented = 0
+        continue
+      }
+      start = index(text, "<!--")
+      vstart = index(text, "<version>")
+      if (vstart && (!start || vstart < start)) return offset + vstart
+      if (!start) return 0
+      offset += start + 3
+      text = substr(text, start + 4)
+      commented = 1
+    }
+    return 0
+  }
   {
+    line_in_comment = in_comment
     visible = without_comments($0)
     if (!in_project && visible ~ /^[[:space:]]*<project([[:space:]>])/) in_project = 1
     if (in_project && !header_done) {
@@ -96,11 +122,14 @@ if ! POM_VERSION="$version" POM_ARTIFACT="$artifact" awk '
       }
       if (!version_done && group_ok && artifact_ok &&
           visible ~ /^[[:space:]]*<version>[^<]*<\/version>[[:space:]]*$/) {
-        match($0, /<version>[^<]*<\/version>/)
-        before = substr($0, 1, RSTART - 1)
-        after = substr($0, RSTART + RLENGTH)
-        $0 = before "<version>" ENVIRON["POM_VERSION"] "</version>" after
-        version_done = 1
+        pos = version_offset($0, line_in_comment)
+        tail = substr($0, pos)
+        if (pos && match(tail, /^<version>[^<]*<\/version>/)) {
+          before = substr($0, 1, pos - 1)
+          after = substr(tail, RLENGTH + 1)
+          $0 = before "<version>" ENVIRON["POM_VERSION"] "</version>" after
+          version_done = 1
+        }
       }
       if (visible ~ /^[[:space:]]*<(dependencies|dependencyManagement|build|profiles)([[:space:]>])/)
         header_done = 1

@@ -13,19 +13,37 @@ fail() { echo "[FAIL] $*" >&2; exit 1; }
 
 echo fake-jar > "$tmp/driver.jar"
 
-write_pom() { # artifact, placeholder, [comment-before-version]
-  local comment=
-  if [ "${3:-}" = comment-before-version ]; then
-    comment='  <!-- <version>COMMENT</version> must not be treated as /project/version. -->'
-  fi
+write_pom() { # artifact, placeholder, layout
+  local before= version="  <version>$2</version>" after=
+  case "${3:-plain}" in
+    plain) ;;
+    comment-before-version)
+      before='  <!-- <version>COMMENT</version> must not be treated as /project/version. -->' ;;
+    same-line-comment-before)
+      version="  <!-- <version>COMMENT</version> --> <version>$2</version>" ;;
+    same-line-comment-after)
+      version="  <version>$2</version> <!-- <version>COMMENT</version> -->" ;;
+    same-line-comments-both)
+      version="  <!-- <version>COMMENT</version> --><version>$2</version><!-- <version>COMMENT</version> -->" ;;
+    multiline-comment)
+      before=$'  <!--\n    <version>COMMENT</version>\n  -->' ;;
+    comment-opens-after-version)
+      version="  <version>$2</version> <!-- trailing"
+      after=$'    <version>COMMENT</version>\n  -->' ;;
+    comment-closes-before-version)
+      before=$'  <!-- leading\n    <version>COMMENT</version>'
+      version="  --> <version>$2</version>" ;;
+    *) fail "unknown POM layout: $3" ;;
+  esac
   cat <<EOF
 <?xml version="1.0" encoding="UTF-8"?>
 <project>
   <modelVersion>4.0.0</modelVersion>
   <groupId>net.snowflake</groupId>
   <artifactId>$1</artifactId>
-$comment
-  <version>$2</version>
+$before
+$version
+$after
   <dependencies>
     <dependency>
       <artifactId>other</artifactId>
@@ -44,8 +62,11 @@ check_install() { # name, artifact, placeholder, version, layout, extra args...
     --pom "$tmp/$name.pom" "$@" > "$tmp/$name.out" || { cat "$tmp/$name.out" >&2; fail "$name: install failed"; }
   local installed="$tmp/$name-repo/net/snowflake/$artifact/$version/$artifact-$version"
   [ -f "$installed.jar" ] || fail "$name: jar not installed"
-  grep -q "^[[:space:]]*<version>$version</version>[[:space:]]*$" "$installed.pom" ||
-    fail "$name: project version not replaced"
+  grep -q "<version>$version</version>" "$installed.pom" || fail "$name: project version not replaced"
+  ! grep -q "<version>$placeholder</version>" "$installed.pom" || fail "$name: placeholder version remains"
+  if [ "$layout" != plain ]; then
+    grep -q '<version>COMMENT</version>' "$installed.pom" || fail "$name: XML comment was modified"
+  fi
   # only the first <version> may change: the dependency version must be untouched
   grep -q '<version>9.9.9</version>' "$installed.pom" || fail "$name: dependency version changed"
   [ "$(grep -F -o "<version>$version</version>" "$installed.pom" | wc -l | tr -d ' ')" = 1 ] ||
@@ -54,6 +75,10 @@ check_install() { # name, artifact, placeholder, version, layout, extra args...
 }
 
 check_install multiline snowflake-jdbc "PLACEHOLDER" 4.4.2-SNAPSHOT plain
+for layout in same-line-comment-before same-line-comment-after same-line-comments-both \
+  multiline-comment comment-opens-after-version comment-closes-before-version; do
+  check_install "$layout" snowflake-jdbc "PLACEHOLDER" 4.4.2-SNAPSHOT "$layout"
+done
 check_install comment snowflake-jdbc "PLACEHOLDER" 4.4.2-SNAPSHOT comment-before-version
 grep -q '<!-- <version>COMMENT</version> must not be treated' \
   "$tmp/comment-repo/net/snowflake/snowflake-jdbc/4.4.2-SNAPSHOT/snowflake-jdbc-4.4.2-SNAPSHOT.pom" ||
