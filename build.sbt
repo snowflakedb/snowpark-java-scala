@@ -25,6 +25,11 @@ lazy val snowparkName = s"snowpark${if (isFipsRelease) "-fips" else ""}"
 lazy val jdbcName = s"snowflake-jdbc${if (isFipsRelease) "-fips" else ""}"
 lazy val snowparkVersion = "1.22.0-SNAPSHOT"
 
+// Driver-neutral session interface (com.snowflake.session.api). Until it is published as its own
+// artifact, its sources are compiled into the Snowpark jar (see ci/snowflake-session-api/README.md),
+// so the published Snowpark POM has no dependency on it.
+lazy val sessionApiSources = "ci/snowflake-session-api/src/main/java"
+
 lazy val Javadoc = config("genjavadoc") extend Compile
 
 lazy val javadocSettings = inConfig(Javadoc)(Defaults.configSettings) ++ Seq(
@@ -35,6 +40,7 @@ lazy val javadocSettings = inConfig(Javadoc)(Defaults.configSettings) ++ Seq(
     url("https://docs.snowflake.com/developer-guide/snowpark/reference/java/index.html")),
   Javadoc / sources := (Compile / sources).value.filter(s =>
     s.getName.endsWith(".java") &&
+      !s.getAbsolutePath.contains(sessionApiSources) &&
       !(s.getParent.contains("internal") || s.getParent.contains("Internal"))),
   Javadoc / javacOptions := Seq(
     "--allow-script-in-comments",
@@ -78,11 +84,115 @@ lazy val javadocSettings = inConfig(Javadoc)(Defaults.configSettings) ++ Seq(
   Javadoc / packageDoc / artifactName := ((sv, mod, art) =>
     "" + mod.name + "_" + sv.binary + "-" + mod.revision + "-javadoc.jar"))
 
-// 3.27.0+ required for native INTERVAL → java.time.Duration / Period ResultSet reads
+// ---------------------------------------------------------------------------------------------
+// JDBC driver versions
+//
+// `jdbcVersionExact` is the ONLY hand-edited production JDBC version. It selects the driver for
+//   * the published Snowpark POM (the one and only net.snowflake:snowflake-jdbc dependency),
+//   * the regular Java/Scala client distribution (the bundle's lib/ directory), and
+//   * the Java stored-procedure exact runtime (via the exact-runtime metadata resource below).
+// It is a JDBC 4.x release that registers a SnowflakeClientSessionFactory, which Snowpark finds
+// through ServiceLoader. Fat jars never contain the driver.
+//
+// For local pre-release validation ONLY (e.g. a locally built 4.4.2-SNAPSHOT), pass explicit system
+// properties to sbt, with an isolated repository (scripts/install-local-jdbc.sh), after
+// `sbt clean jdbc4Compat/clean`:
+// sbt -Dsnowpark.jdbcVersionExact=4.4.2-SNAPSHOT -Dmaven.repo.local=DIR ...
+// No environment variable is read, a non-default value is announced loudly, and publishing with
+// an override fails. Do not change the literal default for validation.
+//
+// `jdbcVersion` (JDBC 3.27.1) is a build/legacy-compatibility dependency only: it is compiled and
+// tested against for the Jdbc3Session fallback, which Snowpark uses when the runtime has no JDBC 4.x
+// SnowflakeClientSessionFactory (Gate OFF / old stored-procedure runtimes). It is held in the hidden
+// `jdbc3-legacy` configuration, so it is NOT in the published POM, the distribution, or any
+// production runtime classpath; JDBC 3.x and 4.x must never share a runtime classpath.
+// 3.27.0+ is required for native INTERVAL -> java.time.Duration / Period ResultSet reads.
+// TODO: Retire this dependency and the Jdbc3Session fallback after the exact-runtime rollout is
+// complete and all supported runtimes provide a SnowflakeSession implementation.
+// ---------------------------------------------------------------------------------------------
+val jdbcVersionExactOverrideProperty = "snowpark.jdbcVersionExact"
+val jdbcVersionExact = sys.props.getOrElse(jdbcVersionExactOverrideProperty, "4.4.2")
+val jdbcVersionExactIsOverridden = sys.props.contains(jdbcVersionExactOverrideProperty)
 val jdbcVersion = "3.27.1"
+// A pre-release override is resolved ONLY from an isolated local Maven repository that the caller
+// names explicitly with -Dmaven.repo.local=DIR. DIR must contain the JDBC jar together with JDBC's
+// public_pom.xml (see scripts/install-local-jdbc.sh). The default ~/.m2 is rejected: it holds the
+// build POM, which pulls internal transitive jars and changes Snowpark's dependency versions. Run
+// `sbt clean jdbc4Compat/clean` whenever the override or DIR changes, so neither project can reuse
+// a stale update cache.
+lazy val localJdbcResolvers: Seq[Resolver] =
+  if (jdbcVersionExactIsOverridden) {
+    val repo = sys.props
+      .get("maven.repo.local")
+      .map(file)
+      .getOrElse(
+        sys.error(
+          s"-D$jdbcVersionExactOverrideProperty requires -Dmaven.repo.local=DIR, an isolated " +
+            "repository made with scripts/install-local-jdbc.sh"))
+    require(
+      repo.getCanonicalFile != (Path.userHome / ".m2" / "repository").getCanonicalFile,
+      "-Dmaven.repo.local must be an isolated repository, not ~/.m2/repository")
+    Seq(MavenCache("local-jdbc-pre-release", repo))
+  } else Nil
+val jdbcVersionExactOverrideChecked: Unit = if (jdbcVersionExactIsOverridden) {
+  // scalastyle:off println
+  println(
+    s"WARNING: -D$jdbcVersionExactOverrideProperty=$jdbcVersionExact overrides the production " +
+      "JDBC version. This is for local pre-release validation only.")
+  // scalastyle:on println
+  require(
+    !sys.env.getOrElse("PUBLISH", "false").toBoolean,
+    s"-D$jdbcVersionExactOverrideProperty must not be set when publishing")
+}
 val jacksonVersion = "2.18.0"
 val openTelemetryVersion = "1.39.0"
 val slf4jVersion = "2.0.16"
+
+// Hidden configuration holding the legacy JDBC 3.x driver. It is deliberately not a standard Maven
+// scope, so it never reaches the published POM, the distribution, or a production runtime classpath.
+lazy val Jdbc3Legacy = config("jdbc3-legacy").hide
+
+lazy val exactJdbcJarName = s"$jdbcName-$jdbcVersionExact.jar"
+lazy val legacyJdbcJarName = s"$jdbcName-$jdbcVersion.jar"
+def isJdbcDriverJar(f: java.io.File): Boolean =
+  f.getName == exactJdbcJarName || f.getName == legacyJdbcJarName
+
+// Exact-runtime metadata, consumed by the stored-procedure adapter / RPM automation. The same
+// content is packaged inside the Snowpark jar.
+lazy val exactRuntimeMetadataPath = "META-INF/snowflake/snowpark-exact-runtime.properties"
+lazy val exactRuntimeMetadata = taskKey[Seq[(String, String)]](
+  "Exact JDBC runtime metadata (JDBC_GAV, JDBC_SHA256, ...) derived from jdbcVersionExact")
+lazy val requireNoJdbcOverride =
+  taskKey[Unit]("Fails when -Dsnowpark.jdbcVersionExact overrides the production JDBC version")
+lazy val printExactRuntimeMetadata =
+  taskKey[Unit]("Print the exact-runtime metadata as KEY=VALUE lines")
+lazy val exportExactRuntimeMetadata = taskKey[File](
+  "Write the exact-runtime metadata to target/exact-runtime/snowpark-exact-runtime.properties")
+
+def sha256Hex(file: File): String = {
+  val digest = java.security.MessageDigest.getInstance("SHA-256")
+  val in = new java.io.FileInputStream(file)
+  try {
+    val buf = new Array[Byte](8192)
+    var n = in.read(buf)
+    while (n >= 0) {
+      digest.update(buf, 0, n)
+      n = in.read(buf)
+    }
+  } finally in.close()
+  digest.digest().map("%02x".format(_)).mkString
+}
+
+def metadataText(entries: Seq[(String, String)]): String =
+  entries.map { case (k, v) => s"$k=$v\n" }.mkString
+
+// Compile and test against the legacy JDBC 3.x driver instead of the exact one: Jdbc3Session and its
+// tests use JDBC 3.x classes. The exact driver stays on the runtime classpath (and in the POM), so
+// the two drivers are never on the same classpath.
+lazy val legacyJdbcClasspath: Seq[Setting[_]] = Seq(externalDependencyClasspath := {
+  val legacy = Classpaths.managedJars(Jdbc3Legacy, classpathTypes.value, update.value)
+  externalDependencyClasspath.value.filterNot(a => isJdbcDriverJar(a.data)) ++ legacy
+})
 
 lazy val root = (project in file("."))
   .enablePlugins(BuildInfoPlugin, UniversalPlugin)
@@ -121,6 +231,9 @@ lazy val root = (project in file("."))
     crossScalaVersions := Seq("2.12.20", "2.13.16"),
     // Compile to Java 8 bytecode so published artifacts run on JDK 8 through 21+.
     javacOptions ++= Seq("-source", "1.8", "-target", "1.8"),
+    ivyConfigurations += Jdbc3Legacy,
+    // Only for local pre-release validation of an explicit -Dsnowpark.jdbcVersionExact override.
+    resolvers ++= localJdbcResolvers,
     libraryDependencies ++= Seq(
       "com.fasterxml.jackson.core" % "jackson-databind" % jacksonVersion,
       "com.fasterxml.jackson.core" % "jackson-core" % jacksonVersion,
@@ -131,7 +244,10 @@ lazy val root = (project in file("."))
       "commons-io" % "commons-io" % "2.14.0",
       "io.opentelemetry" % "opentelemetry-api" % openTelemetryVersion,
       "javax.xml.bind" % "jaxb-api" % "2.3.1",
-      "net.snowflake" % jdbcName % jdbcVersion,
+      // Production driver: published POM, distribution, runtime.
+      "net.snowflake" % jdbcName % jdbcVersionExact,
+      // Legacy driver: compile/test of the Jdbc3Session fallback only.
+      ("net.snowflake" % jdbcName % jdbcVersion) % Jdbc3Legacy,
       "org.scala-lang" % "scala-library" % scalaVersion.value,
       "org.scala-lang" % "scala-compiler" % scalaVersion.value,
       "org.slf4j" % "slf4j-api" % slf4jVersion,
@@ -142,6 +258,9 @@ lazy val root = (project in file("."))
       "com.github.sbt" % "junit-interface" % "0.13.3" % Test,
       "org.mockito" % "mockito-core" % "2.23.0" % Test,
       "org.scalatest" %% "scalatest" % "3.2.19" % Test),
+    inConfig(Compile)(legacyJdbcClasspath),
+    inConfig(Test)(legacyJdbcClasspath),
+    inConfig(Javadoc)(legacyJdbcClasspath),
     scalafmtOnCompile := true,
     javafmtOnCompile := true,
     Test / testOptions := Seq(Tests.Argument(TestFrameworks.JUnit, "-a", "-v", "-q")),
@@ -176,7 +295,7 @@ lazy val root = (project in file("."))
       "-doc-footer",
       s"© ${Year.now.getValue} Snowflake Inc. All Rights Reserved",
       "-skip-packages",
-      "com.snowflake.snowpark_java::com.snowflake.snowpark.internal"),
+      "com.snowflake.snowpark_java::com.snowflake.snowpark.internal::com.snowflake.session.api"),
     Compile / packageDoc / artifact := {
       val base = (Compile / packageDoc / artifact).value
       base.withClassifier(Some("scaladoc"))
@@ -186,6 +305,7 @@ lazy val root = (project in file("."))
       base.withClassifier(Some("javadoc"))
     },
     addArtifact(Javadoc / packageDoc / artifact, Javadoc / packageDoc),
+    Compile / unmanagedSourceDirectories += baseDirectory.value / sessionApiSources,
 
     // Release settings
 
@@ -195,18 +315,55 @@ lazy val root = (project in file("."))
     // Disable publishing test source files in all scenarios.
     Test / packageSrc / publishArtifact := false,
 
+    // Exact-runtime metadata: the only JDBC version input is jdbcVersionExact. The driver jar is the
+    // one sbt resolved for the runtime classpath, so JDBC_SHA256 is that exact artifact's digest.
+    exactRuntimeMetadata := {
+      val jars = (Runtime / externalDependencyClasspath).value
+        .map(_.data)
+        .filter(_.getName == exactJdbcJarName)
+        .distinct
+      require(
+        jars.size == 1,
+        s"Expected exactly one $exactJdbcJarName on the runtime classpath, found: $jars")
+      Seq(
+        "JDBC_GAV" -> s"net.snowflake:$jdbcName:$jdbcVersionExact",
+        "JDBC_SHA256" -> sha256Hex(jars.head))
+    },
+    Compile / resourceGenerators += Def.task {
+      val f = (Compile / resourceManaged).value / exactRuntimeMetadataPath
+      IO.write(f, metadataText(exactRuntimeMetadata.value))
+      Seq(f)
+    }.taskValue,
+    requireNoJdbcOverride := require(
+      !jdbcVersionExactIsOverridden,
+      s"-D$jdbcVersionExactOverrideProperty must not be set when publishing"),
+    printExactRuntimeMetadata := {
+      // scalastyle:off println
+      exactRuntimeMetadata.value.foreach { case (k, v) => println(s"$k=$v") }
+      // scalastyle:on println
+    },
+    exportExactRuntimeMetadata := {
+      val f = target.value / "exact-runtime" / "snowpark-exact-runtime.properties"
+      IO.write(f, metadataText(exactRuntimeMetadata.value))
+      streams.value.log.info(s"Wrote $f")
+      f
+    },
+
     // Fat JAR settings
     assembly / assemblyJarName :=
       s"${snowparkName}_${scalaVersion.value.split("\\.").take(2).mkString(".")}-$snowparkVersion-with-dependencies.jar",
     assembly / assemblyMergeStrategy := {
+      // keep the exact-runtime metadata in the fat jar; it describes the driver to pair it with
+      case PathList("META-INF", "snowflake", "snowpark-exact-runtime.properties") =>
+        MergeStrategy.preferProject
       case PathList("META-INF", xs @ _*) => MergeStrategy.discard
       case _ => MergeStrategy.preferProject
     },
     assembly / assemblyOption ~= { _.withCacheOutput(false) },
     assemblyPackageScala / assembleArtifact := false, // exclude scala libraries
-    assembly / assemblyExcludedJars := { // exclude snowflake jdbc from the fat jar
+    assembly / assemblyExcludedJars := { // exclude snowflake jdbc (any version) from the fat jar
       val cp = (assembly / fullClasspath).value
-      cp filter { _.data.getName == s"$jdbcName-$jdbcVersion.jar" }
+      cp filter { a => isJdbcDriverJar(a.data) }
     },
     // Release fat JAR including all dependencies except those excluded above
     assembly / artifact := {
@@ -234,7 +391,7 @@ lazy val root = (project in file("."))
     Test / assemblyPackageScala / assembleArtifact := scalaBinaryVersion.value == "2.12",
     Test / assembly / assemblyExcludedJars := {
       val cp = (Test / assembly / fullClasspath).value
-      val baseExcluded = cp filter { _.data.getName == s"$jdbcName-$jdbcVersion.jar" }
+      val baseExcluded = cp filter { a => isJdbcDriverJar(a.data) }
       val scalaCoreExcluded =
         if (scalaBinaryVersion.value == "2.12") {
           val scalaV = scalaVersion.value
@@ -261,7 +418,8 @@ lazy val root = (project in file("."))
       assembly.value -> s"${snowparkName}_${scalaVersion.value.split("\\.").take(2).mkString(".")}-$snowparkVersion-with-dependencies.jar",
       file("preview-tarball/preload.scala") -> "preload.scala",
       file("preview-tarball/run.sh") -> "run.sh"),
-    Universal / mappings ++= (Compile / dependencyClasspath).value.map { f =>
+    // The runtime classpath carries the exact JDBC driver, never the legacy 3.x one.
+    Universal / mappings ++= (Runtime / dependencyClasspath).value.map { f =>
       file(f.data.getPath) -> s"lib/${f.data.getName}"
     },
     Universal / mappings ++= contentOf((Compile / doc).value).map { case (f, s) =>
@@ -299,6 +457,14 @@ lazy val root = (project in file("."))
       "ignored" // this field is ignored; passwords are supplied by pinentry
     ),
     Global / pgpPassphrase := Properties.envOrNone("GPG_KEY_PASSPHRASE").map(_.toCharArray),
+    // Release artifacts must use the literal jdbcVersionExact default, never a local override.
+    // publishLocalSigned is included because deploy-common.sh stages the S3 release with it
+    // (PUBLISH=false), so the PUBLISH check at load time does not cover it.
+    publish := publish.dependsOn(requireNoJdbcOverride).value,
+    PgpKeys.publishSigned := PgpKeys.publishSigned.dependsOn(requireNoJdbcOverride).value,
+    PgpKeys.publishLocalSigned := PgpKeys.publishLocalSigned
+      .dependsOn(requireNoJdbcOverride)
+      .value,
     publishMavenStyle := true,
     releaseCrossBuild := true,
     releasePublishArtifactsAction := PgpKeys.publishSigned.value,
@@ -320,6 +486,30 @@ lazy val root = (project in file("."))
           <organizationUrl>https://www.snowflake.com</organizationUrl>
         </developer>
       </developers>)
+
+// Unpublished compatibility project. Snowpark classes are compiled against JDBC 3.x (root), but this
+// project's classpath resolves only the production JDBC driver (jdbcVersionExact) that root
+// publishes, exactly as in the regular-client distribution and the exact stored-procedure runtime.
+// Its tests use the driver's real SnowflakeClientSessionFactory and verify the published POM and
+// the packaged exact-runtime metadata. The two drivers must never share a classpath.
+lazy val jdbc4Compat: Project = (project in file("jdbc4-compat"))
+  .dependsOn(root)
+  .settings(
+    name := s"$snowparkName-jdbc4-compat",
+    version := snowparkVersion,
+    scalaVersion := (root / scalaVersion).value,
+    crossScalaVersions := (root / crossScalaVersions).value,
+    // Only for local pre-release validation of an explicit -Dsnowpark.jdbcVersionExact override.
+    resolvers ++= localJdbcResolvers,
+    libraryDependencies += "org.scalatest" %% "scalatest" % "3.2.19" % Test,
+    publish / skip := true,
+    Test / fork := true,
+    Test / javaOptions ++= Seq(
+      s"-Dsnowpark.expectedJdbcJar=$exactJdbcJarName",
+      s"-Dsnowpark.expectedJdbcGav=net.snowflake:$jdbcName:$jdbcVersionExact",
+      s"-Dsnowpark.legacyJdbcVersion=$jdbcVersion",
+      s"-Dsnowpark.exactRuntimeMetadataPath=$exactRuntimeMetadataPath",
+      s"-Dsnowpark.pomFile=${(root / makePom).value.getAbsolutePath}"))
 
 // Test Groups
 // Code Verification

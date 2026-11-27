@@ -1,21 +1,39 @@
 package com.snowflake.snowpark.internal.analyzer
-import com.snowflake.snowpark.internal.Utils
 
-import java.sql.{Date, Timestamp}
+import java.text.SimpleDateFormat
 import java.time.{Duration, Period}
-import java.util.TimeZone
+import java.util.{Date, Locale, TimeZone}
 import java.math.{BigDecimal => JBigDecimal}
 
 import com.snowflake.snowpark.types._
 import com.snowflake.snowpark.types.convertToSFType
 import javax.xml.bind.DatatypeConverter
-import net.snowflake.client.jdbc.internal.snowflake.common.core.SnowflakeDateTimeFormat
 
 object DataTypeMapper {
   // milliseconds per day
   private val MILLIS_PER_DAY = 24 * 3600 * 1000L
   // microseconds per millisecond
   private val MICROS_PER_MILLIS = 1000L
+
+  // SimpleDateFormat is not thread safe, so create one per call. It uses the hybrid
+  // Julian/Gregorian calendar, which is what java.sql.Date and java.sql.Timestamp use.
+
+  /** Formats days since epoch as yyyy-MM-dd in GMT. */
+  private[analyzer] def formatDate(daysSinceEpoch: Int): String = {
+    val format = new SimpleDateFormat("yyyy-MM-dd", Locale.ROOT)
+    format.setTimeZone(TimeZone.getTimeZone("GMT"))
+    format.format(new Date(daysSinceEpoch * MILLIS_PER_DAY))
+  }
+
+  /**
+   * Formats microseconds since epoch as yyyy-MM-dd HH:mm:ss.SSS in the default time zone. The
+   * microseconds are truncated toward zero to milliseconds.
+   */
+  private[analyzer] def formatTimestamp(microsSinceEpoch: Long): String = {
+    val format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS", Locale.ROOT)
+    format.format(new Date(microsSinceEpoch / MICROS_PER_MILLIS))
+  }
+
   private[analyzer] def stringToSql(str: String): String =
     // Escapes all backslashes, single quotes and new line.
     "'" + str
@@ -121,13 +139,9 @@ object DataTypeMapper {
           case (v: BigDecimal, t: DecimalType) => v + s" :: ${number(t.precision, t.scale)}"
           case (v: JBigDecimal, t: DecimalType) => v + s" :: ${number(t.precision, t.scale)}"
           case (v: Int, DateType) =>
-            s"DATE '${SnowflakeDateTimeFormat
-                .fromSqlFormat(Utils.DateInputFormat)
-                .format(new Date(v * MILLIS_PER_DAY), TimeZone.getTimeZone("GMT"))}'"
+            s"DATE '${formatDate(v)}'"
           case (v: Long, TimestampType) =>
-            s"TIMESTAMP '${SnowflakeDateTimeFormat
-                .fromSqlFormat(Utils.TimestampInputFormat)
-                .format(new Timestamp(v / MICROS_PER_MILLIS), TimeZone.getDefault, 3)}'"
+            s"TIMESTAMP '${formatTimestamp(v)}'"
           case (v: Array[Byte], BinaryType) =>
             s"'${DatatypeConverter.printHexBinary(v)}' :: binary"
           case (v: Duration, DayTimeIntervalType) => durationToSql(v)

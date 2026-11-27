@@ -2,6 +2,7 @@ package com.snowflake.snowpark
 
 import com.snowflake.snowpark.internal.{ParameterUtils, ServerConnection}
 import net.snowflake.client.core.SFSessionProperty
+import net.snowflake.client.jdbc.SnowflakeConnectionV1
 
 import java.security.KeyPairGenerator
 import java.security.spec.PKCS8EncodedKeySpec
@@ -31,7 +32,10 @@ class ParameterSuite extends SNTestBase {
         .create
 
     assert(
-      sessionWithApplicationName.conn.connection.getSFBaseSession.getConnectionPropertiesMap
+      sessionWithApplicationName.conn.connection
+        .unwrap(classOf[SnowflakeConnectionV1])
+        .getSFBaseSession
+        .getConnectionPropertiesMap
         .get(SFSessionProperty.APPLICATION) == applicationName)
   }
 

@@ -49,6 +49,44 @@ jobs:
       - name: Compile
         run: sbt "++ ${{ matrix.scala }} compile" "++ ${{ matrix.scala }} Test/compile"
 
+  # Runs Snowpark on the production classpath (only the exact JDBC 4.x driver, `jdbcVersionExact`),
+  # and checks the published POM and exact-runtime metadata. Needs no Snowflake credentials.
+  test-jdbc4-compat:
+    name: JDBC 4.x Compatibility Tests - Scala ${{ matrix.scala }}
+    runs-on: ubuntu-22.04
+    strategy:
+      matrix:
+        scala: [ 2.12.20, 2.13.16 ]
+      fail-fast: false
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Setup JDK
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 8
+      - name: Test JDBC override scripts and publishing guards
+        run: |
+          scripts/test-install-local-jdbc.sh
+          scripts/test-publish-override-guard.sh ${{ matrix.scala }}
+      - name: Run tests
+        run: sbt "++ ${{ matrix.scala }} jdbc4Compat/test"
+      - name: Run tests (FIPS)
+        run: sbt "++ ${{ matrix.scala }} jdbc4Compat/test"
+        env:
+          SNOWPARK_FIPS: true
+
+  # Covers the BSD awk/sed and shasum tools shipped with macOS.
+  test-local-jdbc-installer-macos:
+    name: Local JDBC Installer - macOS
+    runs-on: macos-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Test local JDBC installer
+        run: scripts/test-install-local-jdbc.sh
+
   # Ensures Snowpark Scala and Java clients share the same APIs.
   test-code-verification:
     name: Code Verification Tests - Scala ${{ matrix.scala }}
